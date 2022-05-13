@@ -1,0 +1,29 @@
+{
+  "type": "module",
+  "dependencies": {
+    "openpgp": "^5.2.1"
+  },
+  "devDependencies": {
+      "@babel/cli": "^7.17.10",
+      "@babel/core": "^7.17.10",
+      "@babel/eslint-parser": "^7.17.0",
+      "@babel/preset-env": "^7.17.10",
+      "@babel/preset-typescript": "^7.16.7",
+      "@babel/register": "^7.17.7",
+      "babel-plugin-istanbul": "^6.1.1",
+      "c8": "^7.11.2",
+      "chai": "^4.3.6",
+      "commander": "^9.2.0",
+      "eslint-plugin-import": "^2.26.0",
+      "eslint": "^8.14.0",
+      "filesizes": "^0.1.2",
+      "jest": "^28.0.3",
+      "jsdoc": "^3.6.10",
+      "jshint": "^2.13.4",
+      "mkdirp": "^1.0.4",
+      "mocha": "^10.0.0",
+      "prettier": "2.6.2",
+      "remark": "14.0.2",
+      "rimraf": "^3.0.2"
+  }
+}
