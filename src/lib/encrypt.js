@@ -25,7 +25,7 @@ import { readFile } from "fs/promises";
   const message = await openpgp.readMessage({
     armoredMessage: encrypted // parse armored message
   });
-  const { data: decrypted, signatures } = await openpgp.decrypt({
+  const { data: decrypted } = await openpgp.decrypt({
     message,
     verificationKeys: publicKey, // optional
     decryptionKeys: privateKey
