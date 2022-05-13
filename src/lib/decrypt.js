@@ -3,9 +3,9 @@ import { readFile } from "fs/promises";
 
 (async() => {
 
-  let publicKeyArmored = await readFile("./src/key/rsa_public.key", function(e) { if (e) {throw e;} });
-  let privateKeyArmored = await readFile("./src/key/rsa_private.key", function(e) { if (e) {throw e;} });
-  let passphrase = "12345678";
+  let publicKeyArmored = await readFile("./src/key/rsa_public.pem", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./src/key/rsa_private.pem", function(e) { if (e) {throw e;} });
+  let passphrase = "1234567890abcdef";
   let messageString = "Crypto Service";
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
