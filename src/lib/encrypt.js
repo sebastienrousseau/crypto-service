@@ -1,5 +1,5 @@
 import * as openpgp from "openpgp";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 
 // Initializing Variables
 const args = process.argv.slice(2);
@@ -24,17 +24,18 @@ console.log(args);
     encryptionKeys: publicKey,
     signingKeys: privateKey
   });
+  const encryptedMessage = await writeFile("./src/data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
   console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
 
-  const message = await openpgp.readMessage({
-    armoredMessage: encrypted // parse armored message
-  });
-  const { data: decrypted } = await openpgp.decrypt({
-    message,
-    verificationKeys: publicKey, // optional
-    decryptionKeys: privateKey
-  });
-  console.log("❯ Decrypted message: \n\n" + decrypted); // 'Crypto Service'
+  // const message = await openpgp.readMessage({
+  //   armoredMessage: encrypted // parse armored message
+  // });
+  // const { data: decrypted } = await openpgp.decrypt({
+  //   message,
+  //   verificationKeys: publicKey, // optional
+  //   decryptionKeys: privateKey
+  // });
+  // console.log("❯ Decrypted message: \n\n" + decrypted); // 'Crypto Service'
   // console.log(signatures[0].valid); // signature validity (signed messages only)
 })();
 
