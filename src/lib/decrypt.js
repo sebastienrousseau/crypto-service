@@ -34,6 +34,7 @@ console.log(args);
     verificationKeys: publicKey, // optional
     decryptionKeys: privateKey
   });
+  const decryptedMessage = await writeFile("./src/data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
   console.log("❯ Decrypted message: \n\n" + decrypted); // 'Crypto Service'
   // console.log(signatures[0].valid); // signature validity (signed messages only)
 
