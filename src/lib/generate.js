@@ -21,7 +21,7 @@ const generateKey = async(data) => {
   const pbkey = await writeFile("./src/key/" + data.type + ".pub.pgp", publicKey, function(e) { if (e) {throw e;} }); pbkey;
   const prkey = await writeFile("./src/key/" + data.type + ".priv.pgp", privateKey, function(e) { if (e) {throw e;} }); prkey;
 };
-export default generateKey;
+
 
 if (args) {
   let data = args;
