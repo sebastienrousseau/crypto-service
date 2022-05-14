@@ -3,10 +3,10 @@ const args = process.argv.slice(2);
 
 const CryptoService = async(data) => {
   if (data.type) {
-    let genPassword = "../lib/"+ data.type + "-password.js";
+    let cryptoFunction = "../lib/"+ data.type + ".js";
     const run = async() => {
-      genPassword = await import (genPassword);
-      genPassword;
+      cryptoFunction = await import (cryptoFunction);
+      cryptoFunction;
     };
     run();
   }

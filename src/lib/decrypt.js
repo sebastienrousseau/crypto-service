@@ -18,14 +18,14 @@ import { readFile } from "fs/promises";
   const encrypted = await openpgp.encrypt({
     message: await openpgp.createMessage({ text: messageString }), // input as Message object
     encryptionKeys: publicKey,
-    signingKeys: privateKey // optional
+    signingKeys: privateKey
   });
   console.log("❯ Encrypted message: \n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
 
   const message = await openpgp.readMessage({
     armoredMessage: encrypted // parse armored message
   });
-  const { data: decrypted, signatures } = await openpgp.decrypt({
+  const { data: decrypted } = await openpgp.decrypt({
     message,
     verificationKeys: publicKey, // optional
     decryptionKeys: privateKey
