@@ -1,12 +1,16 @@
 import * as openpgp from "openpgp";
 import { readFile } from "fs/promises";
 
+// Initializing Variables
+const args = process.argv.slice(2);
+console.log(args);
+
 (async() => {
 
-  let publicKeyArmored = await readFile("./src/key/rsa_public.pem", function(e) { if (e) {throw e;} });
-  let privateKeyArmored = await readFile("./src/key/rsa_private.pem", function(e) { if (e) {throw e;} });
-  let passphrase = "1234567890abcdef";
-  let messageString = "Crypto Service";
+  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
+  let passphrase = args[1];
+  let messageString = args[3];
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
 
@@ -20,17 +24,17 @@ import { readFile } from "fs/promises";
     encryptionKeys: publicKey,
     signingKeys: privateKey
   });
-  console.log("❯ Encrypted message: \n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
+  console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
 
   const message = await openpgp.readMessage({
     armoredMessage: encrypted // parse armored message
   });
-  const { data: decrypted } = await openpgp.decrypt({
+  const { data: decrypted/*, signatures*/ } = await openpgp.decrypt({
     message,
     verificationKeys: publicKey, // optional
     decryptionKeys: privateKey
   });
-  console.log("❯ Decrypted message: \n" + decrypted); // 'Crypto Service'
+  console.log("❯ Decrypted message: \n\n" + decrypted); // 'Crypto Service'
   // console.log(signatures[0].valid); // signature validity (signed messages only)
 
 })();

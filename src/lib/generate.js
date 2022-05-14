@@ -14,7 +14,7 @@ const generateKey = async(data) => {
     keyExpirationTime: parseInt(data.expiration), // Number of seconds from the key creation time after which the key expires
     passphrase: data.passphrase, // The passphrase used to encrypt the generated private key. If omitted, the key won't be encrypted. e.g. 1234567890abcdef
     rsaBits: parseInt(data.size), // Number of bits for RSA keys (defaults to 4096 bits)
-    subkeys: [{sign: data.sign, passphrase: data.passphrase}], // Options for each subkey e.g. [{sign: true, passphrase: '123'}] default to main key options, except for sign parameter that defaults to false, and indicates whether the subkey should sign rather than encrypt
+    // subkeys: [{sign: data.sign, passphrase: data.passphrase}], // Options for each subkey e.g. [{sign: true, passphrase: '123'}] default to main key options, except for sign parameter that defaults to false, and indicates whether the subkey should sign rather than encrypt
     type: String(data.type), // The primary key algorithm type: ECC (default) or RSA
     userIDs: [{ name: data.name, email: data.email }] // User IDs as objects: [{ name: "John Doe", email: "john@doe.com" }]
   });
