@@ -1,6 +1,11 @@
-// Initializing Variables
+/* Taking the arguments from the command line and putting them into an array. */
 const args = process.argv.slice(2);
 
+/**
+ * It's a function that takes in a data object, and if the data object has a type
+ * property, it imports a module and runs it
+ * @param data - This is the data that is passed to the function.
+ */
 const CryptoService = async(data) => {
   if (data.type) {
     let cryptoFunction = "../lib/generate.js";
@@ -11,6 +16,7 @@ const CryptoService = async(data) => {
     run();
   }
 };
+/* Calling the function with the arguments. */
 CryptoService({
   curve: args[1],
   email: args[3],

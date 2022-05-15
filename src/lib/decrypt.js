@@ -1,41 +1,35 @@
 import * as openpgp from "openpgp";
 import { readFile, writeFile } from "fs/promises";
 
-// Initializing Variables
+/* Taking the arguments from the command line and logging them to the console. */
 const args = process.argv.slice(2);
 console.log(args);
 
 (async() => {
 
-  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
-  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
+  /* Reading the files from the file system. */
+  let publicKeyArmored = await readFile("./src/key/" + args[3] + ".pub.pgp", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./src/key/" + args[3] + ".priv.pgp", function(e) { if (e) {throw e;} });
   let encryptedMessage = await readFile("./src/data/encrypted.txt", function(e) { if (e) {throw e;} });
   let passphrase = args[1];
 
-  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
+  /* Reading the public key from the file system and converting it to a string. */
+  const publicKey = await openpgp.readKey({ armoredKey: String(publicKeyArmored) });
 
+  /* Decrypting the private key with the passphrase. */
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readKey({ armoredKey: privateKeyArmored.toString() }),
+    privateKey: await openpgp.readKey({ armoredKey: String(privateKeyArmored) }),
     passphrase
   });
 
-  // const encrypted = await openpgp.encrypt({
-  //   message: await openpgp.createMessage({ text: messageString }), // input as Message object
-  //   encryptionKeys: publicKey,
-  //   signingKeys: privateKey
-  // });
-  // console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
-
-  const message = await openpgp.readMessage({
-    armoredMessage: encryptedMessage.toString() // parse armored message
-  });
+  /* Destructuring the data from the decrypted message. */
   const { data: decrypted/*, signatures*/ } = await openpgp.decrypt({
-    message,
+    message: await openpgp.readMessage({ armoredMessage: String(encryptedMessage) }),
     verificationKeys: publicKey, // optional
     decryptionKeys: privateKey
   });
-  const decryptedMessage = await writeFile("./src/data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
-  console.log("❯ Decrypted message: \n\n" + decrypted); // 'Crypto Service'
-  // console.log(signatures[0].valid); // signature validity (signed messages only)
 
+  /* Writing the decrypted message to a file. */
+  const decryptedMessage = await writeFile("./src/data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
+  console.log("❯ Decrypted message: \n\n" + decrypted);
 })();
