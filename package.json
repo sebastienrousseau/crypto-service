@@ -1,6 +1,10 @@
 {
   "type": "module",
   "dependencies": {
+    "body-parser": "^1.20.0",
+    "crypto": "^1.0.1",
+    "crypto-json": "^2.0.2",
+    "fastify": "^3.29.0",
     "openpgp": "^5.2.1"
   },
   "devDependencies": {
