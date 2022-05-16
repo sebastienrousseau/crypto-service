@@ -4,7 +4,7 @@
 
 A fast, simple and powerful open-source utility tool for generating strong, unique and random passwords. Cryptographic Service is free to use as a secure password generator on any computer, phone, or tablet.
 
-[![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#installation)
+<!-- [![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#installation)
 [![Download the Cryptographic Service Tool v1.0.9](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/1.0.9.zip)
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/0acb169c95e443729551979e0fd86eaf)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=sebastienrousseau/crypto-service&utm_campaign=Badge_Grade)
@@ -219,7 +219,7 @@ Development Tools
 
 ## 📖 Rules
 
-We are committed to preserving and fostering a diverse, welcoming community. Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md).
+We are committed to preserving and fostering a diverse, welcoming community. Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md). -->
 
 ## ⭐️ Our Values
 
