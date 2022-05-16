@@ -4,16 +4,23 @@ import { readFile, writeFile } from "fs/promises";
 /* Taking the arguments from the command line and storing them in an array. */
 let args = process.argv.slice(2);
 
-
-/* A self-invoking function. */
+/**
+ * It takes a message and a passphrase, encrypts the message with the public key,
+ * and returns the encrypted message
+ * @param args - The arguments passed to the function.
+ * @returns The encrypted message.
+ */
 const encrypt = async(args) => {
+  /* Converting the array into a JSON object. */
   args = JSON.stringify(args);
   const data = JSON.parse(args);
-  console.log(data.passphrase);
+  // console.log(data);
+
+  /* Reading the public and private keys from the file. */
   let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
   let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
   let passphrase = data.passphrase;
-  let messageString = data.message;
+  let message = data.message;
 
   /* Reading the public key from the file. */
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
@@ -26,23 +33,32 @@ const encrypt = async(args) => {
 
   /* Encrypting the message. */
   const encrypted = await openpgp.encrypt({
-    message: await openpgp.createMessage({ text: messageString }), // input as Message object
+    message: await openpgp.createMessage({ text: message }), // input as Message object
     encryptionKeys: publicKey,
     signingKeys: privateKey
   });
 
   /* Writing the encrypted message to a file. */
   const encryptedMessage = await writeFile("./src/data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
-  console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
-  return encrypted;
+
+  /* Logging the encrypted message to the console. */
+  console.log("\n❯ Encrypted message:\n" + Buffer.from(encrypted).toString("base64")); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
+
+  return Buffer.from(encrypted).toString("base64");
 };
-/* Checking if the args variable is empty or not. */
+
+/* Checking if the arguments passed to the function are an array and if the array
+has a length. If it does, it is taking the arguments from the command line and
+storing them in an array. */
 if (args instanceof Array && args.length) {
+  /* Taking the arguments from the command line and storing them in an array. */
   let data = args;
-  console.log(args);
+  // console.log(args);
   data.passphrase = data[1];
   data.message = data[3];
   data = ({passphrase: data.passphrase, message: data.message});
   encrypt(data);
 }
+
+/* Exporting the function `encrypt` so that it can be used in other files. */
 export default encrypt;
