@@ -2,13 +2,13 @@ import * as openpgp from "openpgp";
 import { readFile, writeFile } from "fs/promises";
 
 /* Taking the arguments from the command line and storing them in an array. */
-const args = process.argv.slice(2);
+let args = process.argv.slice(2);
 
 
 /* A self-invoking function. */
-const encrypt = async(obj) => {
-  obj = JSON.stringify(obj);
-  const data = JSON.parse(obj);
+const encrypt = async(args) => {
+  args = JSON.stringify(args);
+  const data = JSON.parse(args);
   console.log(data.passphrase);
   let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
   let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
@@ -32,18 +32,17 @@ const encrypt = async(obj) => {
   });
 
   /* Writing the encrypted message to a file. */
-  // const encryptedMessage = await writeFile("./src/data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
-  // console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
-  // console.log(encrypted);
+  const encryptedMessage = await writeFile("./src/data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
+  console.log("❯ Encrypted message: \n\n" + encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
   return encrypted;
 };
 /* Checking if the args variable is empty or not. */
-if (args >= 2) {
+if (args instanceof Array && args.length) {
   let data = args;
-  // console.log(args);
-  // console.log("args:" + args);
+  console.log(args);
   data.passphrase = data[1];
   data.message = data[3];
+  data = ({passphrase: data.passphrase, message: data.message});
   encrypt(data);
 }
 export default encrypt;
