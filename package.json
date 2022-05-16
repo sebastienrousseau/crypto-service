@@ -97,6 +97,7 @@
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
     "main": "index.js",
+    "name": "@sebastienrousseau/crypto-service",
     "publishConfig": {
         "access": "public",
         "registry": "https://npm.pkg.github.com"

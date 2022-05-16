@@ -11,7 +11,7 @@ app.get("/encrypt", async(request, reply) => {
   let encryptedData = {...request.query};
   console.log(encryptedData);
   encryptedData = await encrypt(encryptedData);
-//   console.log(encryptedData);
+  //   console.log(encryptedData);
   reply.send({"data": encryptedData});
 //   console.log(request.body);
 //   console.log(request.query);
