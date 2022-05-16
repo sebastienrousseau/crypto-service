@@ -5,13 +5,18 @@ import { readFile, writeFile } from "fs/promises";
 let args = process.argv.slice(2);
 
 /**
- * Encryption transforms understandable text (cleartext) into an unintelligible
- * piece of data (ciphertext).
- * It takes a message and a passphrase, encrypts the message with the public key,
- * and returns the encrypted message result.
- * @param {Object} options
- * @param args - The arguments passed to the function.
- * @returns The encrypted message.
+ * @function encrypt
+ * @summary Encrypts a message using a generated public keys and a given passphrase.
+ * @author: Sebastien Rousseau <hello@crypto-service.dev>
+ * @description
+ * <ul>
+ *  <li>It transforms understandable text into an unintelligible piece of data,</li>
+ *  <li>It takes a message and a passphrase, encrypts the message with the public
+ * key and returns the encrypted message result in base64 format.</li>
+ * </ul>
+ *
+ * @param {Object} args - The arguments passed to the function.
+ * @returns {string} data - The encrypted message result in base64 format.
  */
 const encrypt = async(args) => {
   /* Converting the array into a JSON object. */

@@ -22,7 +22,7 @@
         "fastify": "^3.29.0",
         "openpgp": "^5.2.1"
     },
-    "description": "A portable and secure Cryptographic Service API with abstract core functionality such as encryption, decryption, digital signature capabilities, certificate management, as specified by the user.",
+    "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
         "@babel/cli": "^7.17.10",
         "@babel/core": "^7.17.10",
