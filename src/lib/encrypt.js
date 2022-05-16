@@ -5,8 +5,11 @@ import { readFile, writeFile } from "fs/promises";
 let args = process.argv.slice(2);
 
 /**
+ * Encryption transforms understandable text (cleartext) into an unintelligible
+ * piece of data (ciphertext).
  * It takes a message and a passphrase, encrypts the message with the public key,
- * and returns the encrypted message
+ * and returns the encrypted message result.
+ * @param {Object} options
  * @param args - The arguments passed to the function.
  * @returns The encrypted message.
  */
@@ -25,13 +28,25 @@ const encrypt = async(args) => {
   /* Reading the public key from the file. */
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
 
-  /* Decrypting the private key. */
+  /**
+   * Unlock a private key with the given passphrase.
+   * This method does not change the original key.
+   * @param {Object} options
+   * @param {PrivateKey} options.privateKey - The private key to decrypt.
+   * @param {String|Array<String>} options.passphrase - The user's passphrase(s).
+  */
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readKey({ armoredKey: privateKeyArmored.toString() }),
     passphrase
   });
 
-  /* Encrypting the message. */
+  /**
+  * Encrypts a message using a public key.
+  * If signing keys are specified, those will be used to sign the message.
+  * @param {message} message to be encrypted as created by createMessage.
+  * @param {encryptionKeys} (optional) array of keys or single key, used to encrypt the message.
+  * @param {signingKeys} (optional) private keys for signing. If omitted message will not be signed.
+  */
   const encrypted = await openpgp.encrypt({
     message: await openpgp.createMessage({ text: message }), // input as Message object
     encryptionKeys: publicKey,
