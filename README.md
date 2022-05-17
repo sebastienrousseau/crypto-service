@@ -1,35 +1,68 @@
-# Cryptographic Service
+![Banner representing the Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
 
-![Banner representing the Cryptographic Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
-
-A fast, simple and powerful open-source utility tool for generating strong, unique and random passwords. Cryptographic Service is free to use as a secure password generator on any computer, phone, or tablet.
-
-<!-- [![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#installation)
-[![Download the Cryptographic Service Tool v1.0.9](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/1.0.9.zip)
-
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0acb169c95e443729551979e0fd86eaf)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=sebastienrousseau/crypto-service&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0acb169c95e443729551979e0fd86eaf)](https://www.codacy.com)
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=flat&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
 [![Release Notes](https://img.shields.io/badge/release-notes-success.svg)](https://github.com/sebastienrousseau/crypto-service/releases/)
 [![npm](https://img.shields.io/npm/dm/crypto-service.svg?style=flat)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg?style=flat)](https://opensource.org/licenses/MIT)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
-## Installation
+# Welcome to the Crypto Service
 
-### From NPM or YARN
+The Crypto Service is a powerful and intuitive suite of services that provides a
+set of cryptographic functions and standardized APIs to manage encryption keys
+and perform cryptographic operations such as key generation, data encryption,
+digital signing, and signature verification. The Crypto Service code is safe by
+design, and runs lightning-fast.
 
-To install the Cryptographic Service Tool, use either npm or yarn as follows:
+The Crypto Service is based on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript
+implementation of the OpenPGP protocol. It implements
+[RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
+[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
+
+The Crypto Service can help you ensure the following:
+
+-   Authentication of communicating parties,
+-   Integrity of data,
+-   Message Level Encryption for encryption and non-repudiation.,
+-   Privacy of data.
+
+[![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#installation)
+[![Download the Crypto Service Tool v0.0.1](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/0.0.1.zip)
+
+
+
+## Getting Started
+
+Here, you’ll find information about the how to use the Crypto Service.
+
+## Installing the Crypto Service
+
+The first step to using the Crypto Service is to download and install the
+application and other required components.
+
+### Releases
+
+#### Crypto Service v0.0.1
+
+-   Date: May 17, 2022
+-   Tag:sebastienrousseau-crypto-service-0.0.1
+
+### Install using NPM or YARN
+
+To install the Crypto Service Tool, use either npm or yarn as follows:
 
 -   `npm i @sebastienrousseau/crypto-service`
 -   `yarn add @sebastienrousseau/crypto-service`
 
-### From GitHub
+### Install from GitHub
 
 Clone the main repository to get all source files including build scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
 
-## ❓ What's included
+## What's included
 
-Within the download you'll find all the password generator source files grouped into the _dist_ folder.
+Within the download you'll find all the crypto service source files grouped into
+the _dist_ folder.
 
 You'll see something like this:
 
@@ -43,162 +76,114 @@ You'll see something like this:
 ├── index.js
 ├── package.json
 └── src
-    ├── dictionaries
-    │   ├── adjectives.json
-    │   ├── adverbs.json
-    │   ├── animals.json
-    │   ├── cars.json
-    │   ├── cities.json
-    │   ├── common.json
-    │   ├── countries.json
-    │   ├── dinosaurs.json
-    │   ├── emoji.json
-    │   ├── encouraging.json
-    │   ├── ergative.json
-    │   ├── fruits.json
-    │   ├── gemstones.json
-    │   ├── hazards.json
-    │   ├── instruments.json
-    │   ├── lovecraft.json
-    │   ├── metals.json
-    │   ├── music.json
-    │   ├── nouns.json
-    │   ├── prepositions.json
-    │   ├── shakespeare.json
-    │   ├── sports.json
-    │   ├── strange.json
-    │   ├── vegetables.json
-    │   └── winds.json
+    ├── bin
+    │   └── crypto-service.js
+    ├── data
+    │   ├── decrypted.txt
+    │   └── encrypted.txt
+    ├── key
+    │   ├── rsa.priv.pgp
+    │   └── rsa.pub.pgp
     ├── lib
-    │   ├── base64-password.js
-    │   ├── memorable-password.js
-    │   └── strong-password.js
-    └── utils
-        ├── README.md
-        ├── randomConsonant.js
-        ├── randomNumber.js
-        ├── randomSyllable.js
-        ├── randomVowel.js
-        ├── toCamelCase
-        │   ├── README.md
-        │   └── toCamelCase.js
-        ├── toCharArray
-        │   ├── README.md
-        │   └── toCharArray.js
-        ├── toKebabCase
-        │   ├── README.md
-        │   └── toKebabCase.js
-        ├── toSnakeCase
-        │   ├── README.md
-        │   └── toSnakeCase.js
-        └── toTitleCase
-            ├── README.md
-            └── toTitleCase.js
+    │   ├── README.md
+    │   ├── decrypt.js
+    │   ├── encrypt.js
+    │   ├── generate.js
+    │   └── revoke-key.js
+    └── server.js
 
-9 directories, 50 files
+5 directories, 18 files
+
 ```
 
-## 💿 Usage
+## 🔐 Crypto Service options
 
-### From the CLI
+### Generating a new RSA key pair
+
+[RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) is a public-key
+algorithm for encrypting and signing messages.
+
+To generate a Rivest-Shamir-Adelman (RSA) public key pair:
+
+-   Open Terminal for Mac or Command Prompt for Windows,
+-   Enter the following example command that will start the generation process.
 
 ```shell
-node .
+yarn start --curve "" --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits 4096 --type rsa
 ```
 
-Displays the following help menu
+This starts generating a 2048-bit RSA key pair, encrypts them with the password
+provided and writes them to a file in the [key](src/key/) directory with a pgp
+extension.
+
+### Generate a new Elliptic-curve cryptography (ECC) key pair
+
+[Elliptic-curve cryptography (ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
+is an alternative technique to RSA. It generates security between key pairs for
+public key encryption by using the mathematics of elliptic curves. Elliptic curve
+cryptography provides stronger security per bits of key, which allows for much
+faster operations.
+
+Currently the following curves are supported:
+
+| Curve           | Encryption | Signature | NodeCrypto | WebCrypto | Constant-Time     |
+|:---------------:|:----------:|:---------:|:----------:|:---------:|:-----------------:|
+| curve25519      | ECDH       | N/A       | No         | No        | Algorithmically** |
+| ed25519         | N/A        | EdDSA     | No         | No        | Algorithmically** |
+| p256            | ECDH       | ECDSA     | Yes        | Yes       | If native***      |
+| p384            | ECDH       | ECDSA     | Yes        | Yes       | If native***      |
+| p521            | ECDH       | ECDSA     | Yes        | Yes       | If native***      |
+| brainpoolP256r1 | ECDH       | ECDSA     | Yes        | No        | If native***      |
+| brainpoolP384r1 | ECDH       | ECDSA     | Yes        | No        | If native***      |
+| brainpoolP512r1 | ECDH       | ECDSA     | Yes        | No        | If native***      |
+| secp256k1       | ECDH       | ECDSA     | Yes        | No        | If native***      |
+
+To generate an Elliptic Curve Cryptography (ECC) key pair:
+
+-   Open Terminal for Mac or Command Prompt for Windows,
+-   Enter the following example command that will start the generation process.
 
 ```shell
-Usage: crypto-service [options]
-
-A fast, simple and powerful open-source utility tool for generating strong, unique and random passwords
-
-Options:
-  -v, --version              output the current version
-  -t, --type <type>          specify a password type (default: "base64, memorable or strong")
-  -l, --length <numbers>     specify a length for each iteration
-  -i, --iteration <numbers>  specify a number of iteration
-  -s, --separator <char>     specify a character for the separator
-  -h, --help                 display help for command
+yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null --type ecc
 ```
 
-### From Node.js
+This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
+them with the password provided and writes them to a file in the
+[key](src/key/) directory with a pgp extension.
+
+### Encrypt Data
+
+Encryption is the transformation of data into a form in which it cannot be made
+sense of without the use of some key. Such transformed data is referred to as
+`ciphertext`.
+
+To encrypt a message:
+
+-   Open Terminal for Mac or Command Prompt for Windows,
+-   Enter the following example command that will start the encryption process.
 
 ```shell
-var generatePassword = require('crypto-service');
+node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto Service APIs!'
 ```
 
-### From the Browser
+### Decrypt Data
+
+Decryption restores encrypted data to to its original (cleartext or plaintext) form.
+
+To decrypt a message:
+
+-   Open Terminal for Mac or Command Prompt for Windows,
+-   Enter the following example command that will start the decryption process.
 
 ```shell
-<script src="<https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/src/bin/crypto-service.js>" type="text/javascript"></script>
-```
-
-## 🔐 Password options
-
-### Base64 password
-
-#### Generating a random base64 password using yarn
-
-```shell
-yarn start -t base64 -l 8 -i 4 -s -
-```
-
-#### Generating a random base64 password using node
-
-```shell
-node . -t base64 -l 8 -i 4 -s -
-```
-
-#### Generating a random base64 password calling the base64Password function
-
-```shell
-node dist/src/lib/base64-password.js -t base64 -l 8 -i 4 -s -
-```
-
-### Strong password
-
-#### Generating a random strong password using yarn
-
-```shell
-yarn start -t strong -l 8 -i 4 -s -
-```
-
-#### Generating a random strong password using node
-
-```shell
-node . -t strong -l 8 -i 4 -s -
-```
-
-#### Generating a random strong password calling the strongPassword function
-
-```shell
-node dist/src/lib/strong-password.js -t base64 -l 8 -i 4 -s -  
-```
-
-### Memorable password
-
-#### Generating a random memorable password using yarn
-
-```shell
-yarn start -t memorable -i 4 -s -
-```
-
-#### Generating a random memorable password using node
-
-```shell
-node . -t memorable -i 4 -s -
-```
-
-#### Generating a random memorable password calling the memorablePassword function
-
-```shell
-node dist/src/lib/memorable-password.js -t base64  -i 4 -s -
+node src/lib/decrypt.js --passphrase '123456789abcdef' --message 'LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0JNQTExMHlyM0drdWx5QVFmOENmbnVZZFk2RmliY1Q1Z094SjVFY2dUME50ZGt6K2dQT0tKTkVoRngKV3dzSHJoM08rTWlrcnBUOElyTjFkbDEwcUpCeDZkVXNkK3dtZ0twdFJrdElVSm5weVZ1Z3RJQkE5MEdBClgxNWdHNFZRQkl0cHUyYmdNRnlKRnJtSS85UUtlNHpDZkV0dSs5SjU0VkRLNWNRRk5KakxPSC9LaklIaAppU2NqQmFvbFlHN1p6Vyt5OXVxTEVkZytYSW9qYXVER3dyRHdIdVFvT0k2NGRmNnJWQVhiZi9mL01iajUKSXdqdmE2UGI2QXZ3YXhjRlczQjFWcHhYajY0a3kzZ2Rxd0FpOXFOUkVmMjE3SU43RHpCMTJzcDRLZlozCkZ4NTdwUk5lekY0VTZPdis5WWU0SkJRMnR4UG5sNmlnUXBDNmpRR2lXWUpHMGJJQ3lIN2NUSDRwZGN2VwphTkxBMEFIU3dpZEQzRnZJRWpxSnRmMlJlZzVLMmtSbHpFNWFCRXlaayt5a3VvZ2pYV0dkWkYxb20yV2gKM3kwTE9Kb2RYOUJNYW9zYlpSN24za2JOb0dXRkRCTElpYnRLUmdvNmlwdGs1b3Iyd0lwWC9wM1ovaWtJCkZieDhpVnpqWHViQ2xZSzhrZlB3Zm5uVFRRSmsxV1VsWTBDZm9YRURMY1ZIbG9rMy9ReHB2TmphWEg2NwpsU1hmSmtxdDNXdVJ6K0xIM3p0ald3THlpeHpmNXRPNUhsTnhudjlKUkVPR0pqendsL3liUi8xLzR2TkMKeDJ1WmdmQTBHSXZqNHBDRnBNRTI3ODhLaTdRckxtemVrUUtRQzBsMFl3aU9abXZueUNmdDliNG9yMDFmCjd2WU8xQzV5dExGZTBVUnpPQktnZGxjajRSU2sxWnJKc3RNTS9qSVNQR2lnZjBOWFp5c2NyQTVnZ0pzcwpOZ0JLd1Q2M3dzQ3MyV0lxcS9QZ2ZCUTRjOUl4eXNydDM1Skgra0E3c2hIQ0s0Rk1RcVRTa2d1VWcyQVcKL0c4a3lDcnRXR1RIMFpsNjBNNmJLUmhpdEMxS0Y3R29hcW5sUDFoNmFydXZXUUM4eTRtY2dtellNR2FjCkxEZzNlMGVLRWVVTEVockdXY3ViZWlDeVJlU0tybWhwTmN5ODFucURDZkVsVUg0UVd6eEFlMmVNZTljPQo9UEs4dAotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tCg=='
 ```
 
 ## 🚥 Semantic Versioning Policy
 
-For transparency into our release cycle and in striving to maintain backward compatibility, `crypto-service` follows [semantic versioning](http://semver.org/) and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+For transparency into our release cycle and in striving to maintain backward
+compatibility, `crypto-service` follows [semantic versioning](http://semver.org/)
+and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
 
 ## ✅ Changelog
 
@@ -233,7 +218,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## 🏢 Acknowledgements
 
-[The Cryptographic Service](https://crypto-service.dev) is beautifully crafted by these people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors)
+[The Crypto Service](https://crypto-service.dev) is beautifully crafted by these people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors)
 
 | Contributors |
 |---------|
