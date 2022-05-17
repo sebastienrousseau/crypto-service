@@ -1,0 +1,102 @@
+{
+    "author": "Sebastien Rousseau <hello@crypto-service.dev> (https://github.com/sebastienrousseau/crypto-service)",
+    "autoupdate": {
+        "fileMap": [
+            {
+                "basePath": "dist",
+                "files": [
+                    "**/*"
+                ]
+            }
+        ],
+        "source": "git",
+        "target": "git://github.com/sebastienrousseau/crypto-service.git"
+    },
+    "bin": {
+        "crypto-service": "bin/crypto-service.js"
+    },
+    "bugs": {
+        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+    },
+    "dependencies": {
+        "@babel/runtime": "^7.17.9",
+        "@fastify/compress": "^5.0.0",
+        "fastify": "^3.29.0",
+        "openpgp": "^5.2.1"
+    },
+    "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
+    "devDependencies": {
+        "@babel/cli": "^7.17.10",
+        "@babel/eslint-parser": "^7.17.0",
+        "@babel/eslint-plugin": "^7.17.7",
+        "rimraf": "^3.0.2"
+    },
+    "directories": {
+        "bin": "./bin",
+        "lib": "./lib",
+        "test": "./test"
+    },
+    "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    },
+    "files": [
+        "/COPYRIGHT",
+        "/index.js",
+        "/Makefile",
+        "/bin",
+        "/lib",
+        "/README.md"
+    ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/sebastienrousseau"
+        },
+        {
+            "type": "paypal",
+            "url": "https://paypal.me/wwdseb"
+        }
+    ],
+    "homepage": "https://crypto-service.dev",
+    "keywords": [
+        "crypto-api",
+        "crypto-library",
+        "crypto-service",
+        "cryptography",
+        "cryptoservice",
+        "decryption-tool",
+        "decryption",
+        "ecc-cryptography",
+        "ecc-key-encryption",
+        "ecc",
+        "encryption-tool",
+        "encryption",
+        "encryption",
+        "openpgpjs",
+        "rfc4880",
+        "rsa-cryptography",
+        "rsa-decryption",
+        "rsa"
+    ],
+    "license": "MIT",
+    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+    "lockfileVersion": 1,
+    "main": "index.js",
+    "name": "@sebastienrousseau/crypto-service",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://npm.pkg.github.com"
+    },
+    "repository": {
+        "directory": "packages/crypto-service",
+        "type": "git",
+        "url": "git+https://sebastienrousseau/crypto-service.git"
+    },
+    "scripts": {
+        "build": "babel . --out-dir \"./dist/\" --root-mode upward",
+        "clean": "rimraf './dist/'",
+        "lint": "eslint --config=.eslintrc.json \"./**/*.js\""
+    },
+    "type": "module",
+    "version": "0.0.2"
+}

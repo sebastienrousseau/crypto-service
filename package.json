@@ -35,11 +35,13 @@
         "chai": "^4.3.6",
         "commander": "^9.2.0",
         "eslint": "^8.15.0",
+        "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-import": "^2.26.0",
         "filesizes": "^0.1.2",
         "jest": "^28.1.0",
         "jsdoc": "^3.6.10",
         "jshint": "^2.13.4",
+        "lerna": "^4.0.0",
         "mkdirp": "^1.0.4",
         "mocha": "^10.0.0",
         "prettier": "2.6.2",
@@ -70,28 +72,26 @@
             "url": "https://paypal.me/wwdseb"
         }
     ],
-    "homepage": "https://crypto-service.pro",
+    "homepage": "https://crypto-service.dev",
     "keywords": [
-        "base64",
-        "complex",
-        "crypto",
-        "cryptography",
-        "dictionary",
-        "entropy",
-        "encryption",
-        "memorable",
-        "mit-license",
-        "open-source",
-        "openssl",
-        "pass",
-        "passgen",
-        "passphrase",
-        "password generator",
+        "crypto-api",
+        "crypto-library",
         "crypto-service",
-        "preprocessor",
-        "random",
-        "secure",
-        "security"
+        "cryptography",
+        "cryptoservice",
+        "decryption-tool",
+        "decryption",
+        "ecc-cryptography",
+        "ecc-key-encryption",
+        "ecc",
+        "encryption-tool",
+        "encryption",
+        "encryption",
+        "openpgpjs",
+        "rfc4880",
+        "rsa-cryptography",
+        "rsa-decryption",
+        "rsa"
     ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
@@ -102,6 +102,7 @@
         "access": "public",
         "registry": "https://npm.pkg.github.com"
     },
+    "private": true,
     "repository": {
         "type": "git",
         "url": "git+https://github.com/sebastienrousseau/crypto-service.git"
@@ -125,8 +126,10 @@
         ]
     },
     "scripts": {
-        "build": "npm run lint && npm run lint:markdown && npm run build:crypto:service && cat ./package.json | grep -v '\"private\":' > dist/package.json && npm pack ./dist",
+        "build": "lerna run build --parallel",
+        "build:final": "npm run lint && npm run lint:markdown && npm run build:crypto:service && cat ./package.json | grep -v '\"private\":' > dist/package.json && npm pack ./dist",
         "build:crypto:service": "npm run clean:dist && npm run create:directory && npm run create:docs && npm run copy:index && npm run copy:src && npm run copy:readme && npm run copy:license && npm run copy:makefile && npm run copy:copyright && npm run filesize:distribution",
+        "build:watch": "lerna run build --parallel -- -- -w",
         "clean": "rimraf .nyc_output coverage",
         "clean:dist": "rimraf \"dist/\"",
         "copy:copyright": "cp COPYRIGHT dist/",
@@ -139,14 +142,19 @@
         "create:directory": "mkdirp ./dist",
         "create:docs": "jsdoc -c ./jsdoc.json",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
-        "lint": "eslint --config=.eslintrc.json \"./*.js\" \"./src/**/*.js\"",
+        "lint": "eslint --config=.eslintrc.json \"./packages/**/*.js\"",
         "lint-fix": "npm run lint -- --fix",
         "lint:markdown": "remark \"./*.md\" \"./src/**/*.md\" \"./.github/**/*.md\"",
+        "postinstall": "lerna bootstrap",
+        "prettier": "prettier --write \"packages/**/{src,bin}/**/*.?(js|json)\"",
         "release:prepare": "npm publish $(node -p \"p=require('./package.json');p.name+'-'+p.version+'.tgz'\")",
         "release:publish": "npm publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org'",
         "start": "node index.js",
         "test": "npm run clean && c8 mocha"
     },
     "type": "module",
-    "version": "0.0.1"
+    "version": "0.0.2",
+    "workspaces": [
+        "packages/*"
+    ]
 }

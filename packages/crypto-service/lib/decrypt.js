@@ -22,8 +22,8 @@ const decrypt = async(args) => {
   // let message = await readFile("./src/data/encrypted.txt", function(e) { if (e) {throw e;} });
   let message = data.message;
   let passphrase = data.passphrase;
-  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
-  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
+  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
 
   /* Converting the message from base64 to utf-8. */
   message = Buffer.from(message, "base64").toString("utf-8");
@@ -47,7 +47,7 @@ const decrypt = async(args) => {
   });
 
   /* Writing the decrypted message to a file. */
-  const decryptedMessage = await writeFile("./src/data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
+  const decryptedMessage = await writeFile("./data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
 
   /* Logging the decrypted message to the console. */
   console.log("\n❯ Decrypted message:\n" + decrypted);

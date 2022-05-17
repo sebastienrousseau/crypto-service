@@ -25,8 +25,8 @@ const encrypt = async(args) => {
   // console.log(data);
 
   /* Reading the public and private keys from the file. */
-  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
-  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
+  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
   let passphrase = data.passphrase;
   let message = data.message;
 
@@ -59,7 +59,7 @@ const encrypt = async(args) => {
   });
 
   /* Writing the encrypted message to a file. */
-  const encryptedMessage = await writeFile("./src/data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
+  const encryptedMessage = await writeFile("./data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
 
   /* Logging the encrypted message to the console. */
   console.log("\n❯ Encrypted message:\n" + Buffer.from(encrypted).toString("base64")); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
