@@ -18,20 +18,30 @@ let args = process.argv.slice(2);
  * @param {Object} args - The arguments passed to the function.
  * @returns {string} data - The encrypted message result in base64 format.
  */
-const encrypt = async(args) => {
+const encrypt = async (args) => {
   /* Converting the array into a JSON object. */
   args = JSON.stringify(args);
   const data = JSON.parse(args);
   // console.log(data);
 
   /* Reading the public and private keys from the file. */
-  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
-  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
+  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function (e) {
+    if (e) {
+      throw e;
+    }
+  });
+  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function (e) {
+    if (e) {
+      throw e;
+    }
+  });
   let passphrase = data.passphrase;
   let message = data.message;
 
   /* Reading the public key from the file. */
-  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored.toString() });
+  const publicKey = await openpgp.readKey({
+    armoredKey: publicKeyArmored.toString(),
+  });
 
   /**
    * Unlock a private key with the given passphrase.
@@ -39,30 +49,43 @@ const encrypt = async(args) => {
    * @param {Object} options
    * @param {PrivateKey} options.privateKey - The private key to decrypt.
    * @param {String|Array<String>} options.passphrase - The user's passphrase(s).
-  */
+   */
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readKey({ armoredKey: privateKeyArmored.toString() }),
-    passphrase
+    privateKey: await openpgp.readKey({
+      armoredKey: privateKeyArmored.toString(),
+    }),
+    passphrase,
   });
 
   /**
-  * Encrypts a message using a public key.
-  * If signing keys are specified, those will be used to sign the message.
-  * @param {message} message to be encrypted as created by createMessage.
-  * @param {encryptionKeys} (optional) array of keys or single key, used to encrypt the message.
-  * @param {signingKeys} (optional) private keys for signing. If omitted message will not be signed.
-  */
+   * Encrypts a message using a public key.
+   * If signing keys are specified, those will be used to sign the message.
+   * @param {message} message to be encrypted as created by createMessage.
+   * @param {encryptionKeys} (optional) array of keys or single key, used to encrypt the message.
+   * @param {signingKeys} (optional) private keys for signing. If omitted message will not be signed.
+   */
   const encrypted = await openpgp.encrypt({
     message: await openpgp.createMessage({ text: message }), // input as Message object
     encryptionKeys: publicKey,
-    signingKeys: privateKey
+    signingKeys: privateKey,
   });
 
   /* Writing the encrypted message to a file. */
-  const encryptedMessage = await writeFile("./data/encrypted.txt", encrypted, function(e) { if (e) {throw e;} }); encryptedMessage;
+  const encryptedMessage = await writeFile(
+    "./data/encrypted.txt",
+    encrypted,
+    function (e) {
+      if (e) {
+        throw e;
+      }
+    },
+  );
+  encryptedMessage;
 
   /* Logging the encrypted message to the console. */
-  console.log("\n❯ Encrypted message:\n" + Buffer.from(encrypted).toString("base64")); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
+  console.log(
+    "\n❯ Encrypted message:\n" + Buffer.from(encrypted).toString("base64"),
+  ); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
 
   return Buffer.from(encrypted).toString("base64");
 };
@@ -76,7 +99,7 @@ if (args instanceof Array && args.length) {
   // console.log(args);
   data.passphrase = data[1];
   data.message = data[3];
-  data = ({passphrase: data.passphrase, message: data.message});
+  data = { passphrase: data.passphrase, message: data.message };
   encrypt(data);
 }
 

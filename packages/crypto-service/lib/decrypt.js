@@ -4,15 +4,13 @@ import { readFile, writeFile } from "fs/promises";
 /* Taking the arguments from the command line and logging them to the console. */
 let args = process.argv.slice(2);
 
-
 /**
  * It reads the public and private keys from the file system, decrypts the private
  * key with the passphrase, and then decrypts the encrypted message with the public
  * and private keys
  * @returns The decrypted message.
  */
-const decrypt = async(args) => {
-
+const decrypt = async (args) => {
   /* Taking the arguments from the command line and storing them in an array. */
   let data = args;
   // console.log(data);
@@ -22,32 +20,53 @@ const decrypt = async(args) => {
   // let message = await readFile("./src/data/encrypted.txt", function(e) { if (e) {throw e;} });
   let message = data.message;
   let passphrase = data.passphrase;
-  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function(e) { if (e) {throw e;} });
-  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function(e) { if (e) {throw e;} });
+  let privateKeyArmored = await readFile("./key/rsa.priv.pgp", function (e) {
+    if (e) {
+      throw e;
+    }
+  });
+  let publicKeyArmored = await readFile("./key/rsa.pub.pgp", function (e) {
+    if (e) {
+      throw e;
+    }
+  });
 
   /* Converting the message from base64 to utf-8. */
   message = Buffer.from(message, "base64").toString("utf-8");
   // let message = "-----BEGIN PGP MESSAGE-----\n\nwcBMA110yr3GkulyAQf/cxtdGCo/LHcPeWRFaXN0kGiaNvtgjercSZWB9NUZ\n3SITK54WF+q2q24BfD/skgiCYcmu+Fg9SWIFPT117fgjQwy6kwD3EropcMH9\nsUY01X/TIiu55wi+szwTgrYni6y7EX1XUsoLJJTUr37ZXLfwtmK+LQEYDx4d\nUIpn+iRYRiLq3a0uWi81WRrfpy6XnleycoUnVH1SXfCVjftz7HGupA5OIfyu\nnVOfpOJseeAVQF7O9ldkcc4m9ZYwgzebuhPlHQBnZXJA2okF1mQMguHu1x4/\nmNwRuru1GslmXNm15WmecYKrr7n+Xx0JvmWTRs2hFiSpNoD6RDswK8nmgrCx\n1dLA1wHUP6I+Uj53Q2NX4Tn1m6PdFPzcraXw7hkbm6NlRhKeZ0Ym0Pdka0cX\n2VYlv14sCmYc4gaxFS6FlVGi3RoUjfH/DbZHuRDSMkWjrAQM4/bd9BAjfj/X\naIsmyPFYa6gZ/6AYOTT2sBe08kW9m9Ef93rSRpmXIARYbGVHIWd0Qn+C4bYp\nP/K2WYTgNKdSf+Pwp1nruUqf2CbsRdTcg1kVOqnAK10bKaTagl9jhkBRiiAv\n+QFOr6X/gr/9AcXs5g+1CU3gyfwUZFt76PK1ITCzSpa1BrFZYZSwMqkRU6mx\nChvM1K+aRp6jXMDtv/mQXw1R6X7M8Urc1IKiUZKHnQcj9aMgo3pXZ0IflZDc\nwrdyPx4fTKIRBZrd4P06Q7ctjUhFQM+oynP7tKHoJqKPZY2Mle0vTGB4W/f+\nxfxl2klQghWb3v9j9PDzovLPSoo2TRlDzvyZgztW0GNbax8epFjsio0KzlOk\ni2YxHOOA1NGvFIksLQRPB5KqQeItXSZ4p4Ib51xmZpfJkyGrwncpDbvr9nWr\nQGMYL3R8\n=3KnU\n-----END PGP MESSAGE-----\n";
 
   /* Reading the public key from the file system and converting it to a string. */
-  const publicKey = await openpgp.readKey({ armoredKey: String(publicKeyArmored) });
+  const publicKey = await openpgp.readKey({
+    armoredKey: String(publicKeyArmored),
+  });
 
   /* Decrypting the private key with the passphrase. */
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readKey({ armoredKey: String(privateKeyArmored) }),
-    passphrase
+    privateKey: await openpgp.readKey({
+      armoredKey: String(privateKeyArmored),
+    }),
+    passphrase,
   });
 
   /* Destructuring the data from the object returned by the `openpgp.decrypt()`
   function. */
-  const { data: decrypted/*, signatures*/ } = await openpgp.decrypt({
+  const { data: decrypted /*, signatures*/ } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
     verificationKeys: publicKey,
-    decryptionKeys: privateKey
+    decryptionKeys: privateKey,
   });
 
   /* Writing the decrypted message to a file. */
-  const decryptedMessage = await writeFile("./data/decrypted.txt", decrypted, function(e) { if (e) {throw e;} }); decryptedMessage;
+  const decryptedMessage = await writeFile(
+    "./data/decrypted.txt",
+    decrypted,
+    function (e) {
+      if (e) {
+        throw e;
+      }
+    },
+  );
+  decryptedMessage;
 
   /* Logging the decrypted message to the console. */
   console.log("\n❯ Decrypted message:\n" + decrypted);
@@ -62,7 +81,7 @@ if (args instanceof Array && args.length) {
   let data = args;
   let passphrase = data[1];
   let message = data[3];
-  data = ({"passphrase": passphrase, "message": message});
+  data = { passphrase: passphrase, message: message };
   // console.log(data);
   decrypt(data);
 }
