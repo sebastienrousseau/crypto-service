@@ -28,7 +28,7 @@ The Crypto Service can help you ensure the following:
 -   Privacy of data.
 
 [![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#getting-started)
-[![Download the Crypto Service Tool v0.0.1](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/0.0.1.zip)
+[![Download the Crypto Service Tool v0.0.1](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.1.zip)
 
 
 
