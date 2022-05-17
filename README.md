@@ -82,6 +82,8 @@ You'll see something like this:
     │   ├── decrypted.txt
     │   └── encrypted.txt
     ├── key
+    │   ├── ecc.priv.pgp
+    │   ├── ecc.pub.pgp
     │   ├── rsa.priv.pgp
     │   └── rsa.pub.pgp
     ├── lib
@@ -92,7 +94,7 @@ You'll see something like this:
     │   └── revoke-key.js
     └── server.js
 
-5 directories, 18 files
+5 directories, 20 files
 
 ```
 
