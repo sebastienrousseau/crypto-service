@@ -2,9 +2,9 @@
 
 var _fastify = _interopRequireDefault(require("fastify"));
 
-var _encrypt = _interopRequireDefault(require("./lib/encrypt.js"));
+var _encrypt = _interopRequireDefault(require("../../../crypto-core/src/lib/encrypt.js"));
 
-var _decrypt = _interopRequireDefault(require("./lib/decrypt.js"));
+var _decrypt = _interopRequireDefault(require("../../../crypto-core/src/lib/decrypt.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 

@@ -5,7 +5,12 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
   mode: "production",
   entry: {
-    "crypto-core": ["../crypto-core/lib/index"],
+    "crypto-server": ["../crypto-server/lib/server.js"],
+    "crypto-core": ["../crypto-core/lib/index.js"],
+  },
+  output: {
+    path: path.resolve(__dirname, 'lib'),
+    filename: 'bundle.js'
   },
   optimization: {
     minimize: true,
