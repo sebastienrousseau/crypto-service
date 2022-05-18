@@ -1,18 +1,18 @@
 import * as openpgp from "openpgp";
 import { readFile } from "fs/promises";
 
-let publicKey = await readFile("./src/key/rsa_public.key", function (e) {
+let publicKey = await readFile("./src/key/rsa_public.key", function(e) {
   if (e) {
     throw e;
   }
 });
-let privateKey = await readFile("./src/key/rsa_private.key", function (e) {
+let privateKey = await readFile("./src/key/rsa_private.key", function(e) {
   if (e) {
     throw e;
   }
 });
 
-async () => {
+async() => {
   await openpgp.revokeKey({
     key: (await openpgp.key.readArmored(privateKey)).keys[0],
   });

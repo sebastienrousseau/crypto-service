@@ -5,7 +5,7 @@ import decrypt from "../../../crypto-core/src/lib/decrypt.js";
 /* Taking the arguments from the command line and putting them into an array. */
 const args = process.argv.slice(2);
 
-const CryptoServer = async (data) => {
+const CryptoServer = async() => {
   /* Creating a new instance of the fastify server. */
   const app = fastify();
   await app.register(import("@fastify/compress"), {
@@ -15,14 +15,14 @@ const CryptoServer = async (data) => {
 
   /* This is a route handler. It is a function that is called when a request is made
   to the server. */
-  app.get("/v1/encrypt", async (request, reply) => {
+  app.get("/v1/encrypt", async(request, reply) => {
     console.log(request.headers);
     let encryptedData = await encrypt({ ...request.headers });
     reply
       .send({ "data": encryptedData });
   });
 
-  app.get("/v1/decrypt", async (request, reply) => {
+  app.get("/v1/decrypt", async(request, reply) => {
     let decryptedData = await decrypt({ ...request.headers });
     reply
       .send({ "data": decryptedData });
