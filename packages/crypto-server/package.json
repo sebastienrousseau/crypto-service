@@ -94,8 +94,8 @@
         "url": "git+https://sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "babel . --out-dir \"./dist/\" --root-mode upward",
-        "clean": "rimraf './dist/'",
+        "build": "babel src --out-dir lib --root-mode upward",
+        "clean": "rimraf lib",
         "lint": "eslint --config=.eslintrc.json \"./**/*.js\""
     },
     "type": "module",

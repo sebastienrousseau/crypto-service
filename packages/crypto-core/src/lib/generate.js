@@ -9,7 +9,7 @@ console.log(args);
  * It generates a public and private key pair, and saves them to the file system
  * @param data - This is the data that is passed from the frontend.
  */
-const generate = async (data) => {
+const generate = async(data) => {
   const { privateKey, publicKey } = await openpgp.generateKey({
     curve: String(data.curve), // Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1
     format: data.format, // format of the output keys e.g. 'armored' | 'object' | 'binary';
@@ -22,9 +22,9 @@ const generate = async (data) => {
   });
   /* Writing the public and private keys to the file system. */
   const pbkey = await writeFile(
-    "./src/key/" + data.type + ".pub.pgp",
+    `../key/${data.type}.pub.pgp`,
     publicKey,
-    function (e) {
+    function(e) {
       if (e) {
         throw e;
       }
@@ -34,7 +34,7 @@ const generate = async (data) => {
   const prkey = await writeFile(
     "./src/key/" + data.type + ".priv.pgp",
     privateKey,
-    function (e) {
+    function(e) {
       if (e) {
         throw e;
       }
