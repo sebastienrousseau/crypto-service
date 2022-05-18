@@ -1,45 +1,46 @@
 {
-  "author": "Sebastien Rousseau <hello@crypto-service.dev> (https://github.com/sebastienrousseau/crypto-service)",
-  "bin": {
-      "crypto-server": "bin/crypto-server.js"
-  },
-  "bugs": {
-      "url": "https://github.com/sebastienrousseau/crypto-service/issues"
-  },
-  "dependencies": {
-      "@fastify/compress": "^5.0.0",
-      "fastify": "^3.29.0"
-  },
-  "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
-  "devDependencies": {
-      "c8": "^7.11.3",
-      "chai": "^4.3.6",
-      "eslint": "^8.15.0",
-      "eslint-plugin-import": "^2.26.0",
-      "mocha": "^10.0.0",
-      "rimraf": "^3.0.2"
-  },
-
-  "files": [
-      "bin",
-      "lib"
-  ],
-  "license": "MIT",
-  "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-  "main": "lib/index.js",
-  "name": "@sebastienrousseau/crypto-server",
-  "private": true,
-  "repository": {
-      "directory": "packages/crypto-server",
-      "type": "git",
-      "url": "git+https://sebastienrousseau/crypto-service.git"
-  },
-  "scripts": {
-      "clean": "rimraf lib",
-      "lint": "eslint --config=.eslintrc.json src/**/*.js",
-      "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
-      "test": "c8 mocha"
-  },
-  "type": "module",
-  "version": "0.0.2"
+    "author": "Sebastien Rousseau <hello@crypto-service.dev> (https://github.com/sebastienrousseau/crypto-service)",
+    "bin": {
+        "crypto-server": "bin/crypto-server.js"
+    },
+    "bugs": {
+        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+    },
+    "dependencies": {
+        "@fastify/compress": "^5.0.0",
+        "@sebastienrousseau/crypto-core": "^0.0.2",
+        "fastify": "^3.29.0"
+    },
+    "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
+    "devDependencies": {
+        "c8": "^7.11.3",
+        "chai": "^4.3.6",
+        "eslint": "^8.15.0",
+        "eslint-plugin-import": "^2.26.0",
+        "mocha": "^10.0.0",
+        "rimraf": "^3.0.2"
+    },
+    "files": [
+        "bin",
+        "lib"
+    ],
+    "license": "MIT",
+    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+    "main": "lib/index.js",
+    "name": "@sebastienrousseau/crypto-server",
+    "private": true,
+    "repository": {
+        "directory": "packages/crypto-server",
+        "type": "git",
+        "url": "git+https://sebastienrousseau/crypto-service.git"
+    },
+    "scripts": {
+        "clean": "rimraf lib",
+        "lint": "eslint --config=.eslintrc.json src/**/*.js",
+        "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
+        "start": "node index.js",
+        "test": "c8 mocha"
+    },
+    "type": "module",
+    "version": "0.0.2"
 }

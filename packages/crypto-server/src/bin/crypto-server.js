@@ -1,6 +1,6 @@
 import fastify from "fastify";
-import encrypt from "../../../crypto-core/src/lib/encrypt.js";
-import decrypt from "../../../crypto-core/src/lib/decrypt.js";
+import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
+import decrypt from "@sebastienrousseau/crypto-core/src/lib/decrypt.js";
 
 /* Taking the arguments from the command line and putting them into an array. */
 const args = process.argv.slice(2);
