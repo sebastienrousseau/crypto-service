@@ -1,13 +1,6 @@
 {
-  "packages": [
-    "packages/*"
-  ],
-  "command": {
-    "publish": {
-      "exact": true
-    }
-  },
-  "npmClient": "yarn",
+  "packages": ["packages/*"],
+  "npmClient": "yarn","command": {"publish": {"exact": true}},
   "useWorkspaces": true,
   "version": "0.0.2"
 }
