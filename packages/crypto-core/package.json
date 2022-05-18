@@ -11,8 +11,6 @@
     },
     "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
-        "@babel/core": "^7.17.10",
-        "@babel/eslint-parser": "^7.17.0",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "eslint": "^8.15.0",
