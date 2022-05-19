@@ -22,7 +22,7 @@ const encrypt = async(args) => {
   /* Converting the array into a JSON object. */
   args = JSON.stringify(args);
   const data = JSON.parse(args);
-  // console.log(data);
+  console.log(data);
 
   /* Reading the public and private keys from the file. */
   let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
@@ -35,6 +35,10 @@ const encrypt = async(args) => {
       throw e;
     }
   });
+  // let publicKeyArmored = data.publicKey;
+  // let privateKeyArmored = data.privateKey;
+  // publicKeyArmored = Buffer.from(publicKeyArmored, "base64").toString("ascii");
+  // privateKeyArmored = Buffer.from(privateKeyArmored, "base64").toString("ascii");
   let passphrase = data.passphrase;
   let message = data.message;
 
@@ -71,16 +75,16 @@ const encrypt = async(args) => {
   });
 
   /* Writing the encrypted message to a file. */
-  const encryptedMessage = await writeFile(
-    "./src/data/encrypted.txt",
-    encrypted,
-    function(e) {
-      if (e) {
-        throw e;
-      }
-    },
-  );
-  encryptedMessage;
+  // const encryptedMessage = await writeFile(
+  //   "./src/data/encrypted.txt",
+  //   encrypted,
+  //   function(e) {
+  //     if (e) {
+  //       throw e;
+  //     }
+  //   },
+  // );
+  // encryptedMessage;
 
   /* Logging the encrypted message to the console. */
   console.log(
@@ -99,7 +103,9 @@ if (args instanceof Array && args.length) {
   console.log(args);
   data.passphrase = data[1];
   data.message = data[3];
-  data = { passphrase: data.passphrase, message: data.message };
+  data.publicKey = data[5];
+  data.privateKey = data[7];
+  data = { passphrase: data.passphrase, message: data.message, publicKey: data.publicKey, privateKey: data.privateKey};
   encrypt(data);
 }
 

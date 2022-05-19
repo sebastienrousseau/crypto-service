@@ -1,4 +1,4 @@
-import fastify from "fastify";
+import Fastify from 'fastify';
 import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
 import decrypt from "@sebastienrousseau/crypto-core/src/lib/decrypt.js";
@@ -8,7 +8,9 @@ const args = process.argv.slice(2);
 
 const CryptoServer = async() => {
   /* Creating a new instance of the fastify server. */
-  const app = fastify();
+  const app = Fastify({
+    logger: true
+  });
   await app.register(import("@fastify/compress"), {
     global: true
   });
