@@ -84,15 +84,16 @@ if (args instanceof Array && args.length) {
   args = JSON.stringify(args);
   let data = JSON.parse(args);
 
-  data.name = data[1];
-  data.email = data[3];
-  data.passphrase = data[5];
-  data.type = data[7];
-  data.curve = data[9];
   data.bits = data[11];
+  data.curve = data[9];
+  data.email = data[3];
   data.expiration = data[13];
   data.format = data[15];
+  data.name = data[1];
+  data.passphrase = data[5];
   data.sign = data[17];
+  data.type = data[7];
+
   // data = {
   //   type: data.type, // The primary key algorithm type: ECC (default) or RSA
   //   rsaBits: Number(data.bits), // Number of bits for RSA keys (defaults to 4096 bits)
