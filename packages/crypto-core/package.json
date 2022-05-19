@@ -87,6 +87,7 @@
         "clean": "rimraf lib",
         "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
         "lint": "eslint --config=.eslintrc.json src/**/*.js",
+        "start": "node index.js",
         "test": "c8 mocha"
     },
     "type": "module",

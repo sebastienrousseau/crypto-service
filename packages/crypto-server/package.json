@@ -37,7 +37,10 @@
     },
     "files": [
         "bin",
-        "lib"
+        "config",
+        "data",
+        "key",
+        "routes"
     ],
     "funding": [
         {
