@@ -25,12 +25,12 @@ const encrypt = async(args) => {
   // console.log(data);
 
   /* Reading the public and private keys from the file. */
-  let publicKeyArmored = await readFile("src/key/rsa.pub.pgp", function(e) {
+  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
     if (e) {
       throw e;
     }
   });
-  let privateKeyArmored = await readFile("src/key/rsa.priv.pgp", function(e) {
+  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) {
     if (e) {
       throw e;
     }
@@ -72,7 +72,7 @@ const encrypt = async(args) => {
 
   /* Writing the encrypted message to a file. */
   const encryptedMessage = await writeFile(
-    "src/data/encrypted.txt",
+    "./src/data/encrypted.txt",
     encrypted,
     function(e) {
       if (e) {
@@ -96,7 +96,7 @@ storing them in an array. */
 if (args instanceof Array && args.length) {
   /* Taking the arguments from the command line and storing them in an array. */
   let data = args;
-  // console.log(args);
+  console.log(args);
   data.passphrase = data[1];
   data.message = data[3];
   data = { passphrase: data.passphrase, message: data.message };

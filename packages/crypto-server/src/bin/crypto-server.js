@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
 import decrypt from "@sebastienrousseau/crypto-core/src/lib/decrypt.js";
 
@@ -15,6 +16,13 @@ const CryptoServer = async() => {
 
   /* This is a route handler. It is a function that is called when a request is made
   to the server. */
+  app.get("/v1/generate", async(request, reply) => {
+    console.log(request.headers);
+    let generateKeyPair = await generate({ ...request.headers });
+    reply
+      .send({ "data": generateKeyPair });
+  });
+
   app.get("/v1/encrypt", async(request, reply) => {
     console.log(request.headers);
     let encryptedData = await encrypt({ ...request.headers });

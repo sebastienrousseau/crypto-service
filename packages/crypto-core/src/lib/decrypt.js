@@ -20,12 +20,12 @@ const decrypt = async(args) => {
   // let message = await readFile("./src/data/encrypted.txt", function(e) { if (e) {throw e;} });
   let message = data.message;
   let passphrase = data.passphrase;
-  let privateKeyArmored = await readFile("src//key/rsa.priv.pgp", function(e) {
+  let privateKeyArmored = await readFile("./src/key/rsa.priv.pgp", function(e) {
     if (e) {
       throw e;
     }
   });
-  let publicKeyArmored = await readFile("src//key/rsa.pub.pgp", function(e) {
+  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
     if (e) {
       throw e;
     }
@@ -58,7 +58,7 @@ const decrypt = async(args) => {
 
   /* Writing the decrypted message to a file. */
   const decryptedMessage = await writeFile(
-    "src/data/decrypted.txt",
+    "./src/data/decrypted.txt",
     decrypted,
     function(e) {
       if (e) {

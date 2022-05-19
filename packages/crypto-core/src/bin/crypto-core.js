@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
  */
 const CryptoCore = async(data) => {
   if (data.type) {
-    let cryptoFunction = "../lib/generate.js";
+    let cryptoFunction = "./src/lib/generate.js";
     const run = async() => {
       cryptoFunction = await import(cryptoFunction);
       cryptoFunction;
