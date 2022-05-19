@@ -1,4 +1,5 @@
-import Fastify from 'fastify';
+import Fastify from "fastify";
+import customHealthCheck from "fastify-custom-healthCheck";
 import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
 import decrypt from "@sebastienrousseau/crypto-core/src/lib/decrypt.js";
@@ -36,6 +37,10 @@ const CryptoServer = async() => {
     let decryptedData = await decrypt({ ...request.headers });
     reply
       .send({ "data": decryptedData });
+  });
+
+  app.register(customHealthCheck, {
+    path: "/health", // default health
   });
 
   /* Telling the server to listen on port 3000. */
