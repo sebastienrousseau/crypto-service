@@ -22,7 +22,7 @@ const generate = async(data) => {
   });
   /* Writing the public and private keys to the file system. */
   const pbkey = await writeFile(
-    `../key/${data.type}.pub.pgp`,
+    `./src/key/${data.type}.pub.pgp`,
     publicKey,
     function(e) {
       if (e) {

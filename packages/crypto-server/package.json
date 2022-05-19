@@ -1,5 +1,17 @@
 {
     "author": "Sebastien Rousseau <hello@crypto-service.dev> (https://github.com/sebastienrousseau/crypto-service)",
+    "autoupdate": {
+        "fileMap": [
+            {
+                "basePath": "dist",
+                "files": [
+                    "**/*"
+                ]
+            }
+        ],
+        "source": "git",
+        "target": "git://github.com/sebastienrousseau/crypto-service.git"
+    },
     "bin": {
         "crypto-server": "bin/crypto-server.js"
     },
@@ -15,18 +27,53 @@
     "devDependencies": {
         "c8": "^7.11.3",
         "chai": "^4.3.6",
-        "eslint": "^8.15.0",
         "eslint-plugin-import": "^2.26.0",
+        "eslint": "^8.15.0",
         "mocha": "^10.0.0",
         "rimraf": "^3.0.2"
+    },
+    "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
         "bin",
         "lib"
     ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/sebastienrousseau"
+        },
+        {
+            "type": "paypal",
+            "url": "https://paypal.me/wwdseb"
+        }
+    ],
+    "homepage": "https://crypto-service.dev",
+    "keywords": [
+        "crypto-api",
+        "crypto-library",
+        "crypto-service",
+        "cryptography",
+        "cryptoservice",
+        "decryption-tool",
+        "decryption",
+        "ecc-cryptography",
+        "ecc-key-encryption",
+        "ecc",
+        "encryption-tool",
+        "encryption",
+        "encryption",
+        "openpgpjs",
+        "rfc4880",
+        "rsa-cryptography",
+        "rsa-decryption",
+        "rsa"
+    ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "main": "lib/index.js",
+    "lockfileVersion": 1,
+    "main": "index.js",
     "name": "@sebastienrousseau/crypto-server",
     "private": true,
     "repository": {
@@ -36,8 +83,8 @@
     },
     "scripts": {
         "clean": "rimraf lib",
-        "lint": "eslint --config=.eslintrc.json src/**/*.js",
         "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
+        "lint": "eslint --config=.eslintrc.json src/**/*.js",
         "start": "node index.js",
         "test": "c8 mocha"
     },
