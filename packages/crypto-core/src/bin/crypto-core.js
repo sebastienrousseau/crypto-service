@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
  */
 const CryptoCore = async(data) => {
   if (data.type) {
-    let cryptoFunction = "./src/lib/generate.js";
+    let cryptoFunction = "../lib/generate.js";
     const run = async() => {
       cryptoFunction = await import(cryptoFunction);
       cryptoFunction;
@@ -18,14 +18,14 @@ const CryptoCore = async(data) => {
 };
 /* Calling the function with the arguments. */
 CryptoCore({
-  curve: args[1],
+  bits: args[11],
+  curve: args[9],
   email: args[3],
-  expiration: args[5],
-  format: args[7],
-  name: args[9],
-  passphrase: args[11],
-  sign: args[13],
-  size: args[15],
-  type: args[17],
+  expiration: args[13],
+  format: args[15],
+  name: args[1],
+  passphrase: args[5],
+  sign: args[15],
+  type: args[7],
 });
 export default CryptoCore;

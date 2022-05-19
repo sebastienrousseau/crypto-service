@@ -77,4 +77,3 @@ if (args instanceof Array && args.length) {
 }
 /* Exporting the function `generate` so that it can be used in other files. */
 export default generate;
-// export default generatePair;
