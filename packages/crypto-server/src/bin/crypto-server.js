@@ -1,13 +1,15 @@
-import Fastify from "fastify";
-import customHealthCheck from "fastify-custom-healthCheck";
-import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
-import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
 import decrypt from "@sebastienrousseau/crypto-core/src/lib/decrypt.js";
+import encrypt from "@sebastienrousseau/crypto-core/src/lib/encrypt.js";
+import Fastify from "fastify";
+import fastifyAccepts from "fastify-accepts";
+import fastifyEtag from "fastify-etag";
+import fastifyHealthcheck from "fastify-healthcheck";
+import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 
 /* Taking the arguments from the command line and putting them into an array. */
 const args = process.argv.slice(2);
 
-const CryptoServer = async() => {
+const CryptoServer = async () => {
   /* Creating a new instance of the fastify server. */
   const app = Fastify({
     logger: true
@@ -19,28 +21,35 @@ const CryptoServer = async() => {
 
   /* This is a route handler. It is a function that is called when a request is made
   to the server. */
-  app.get("/v1/generate", async(request, reply) => {
+  app.get("/v1/generate", async (request, reply) => {
     console.log(request.headers);
     let generateKeyPair = await generate({ ...request.headers });
     reply
       .send({ "data": generateKeyPair });
   });
 
-  app.get("/v1/encrypt", async(request, reply) => {
+  app.get("/v1/encrypt", async (request, reply) => {
     console.log(request.headers);
     let encryptedData = await encrypt({ ...request.headers });
     reply
       .send({ "data": encryptedData });
   });
 
-  app.get("/v1/decrypt", async(request, reply) => {
+  app.get("/v1/decrypt", async (request, reply) => {
     let decryptedData = await decrypt({ ...request.headers });
     reply
       .send({ "data": decryptedData });
   });
 
-  app.register(customHealthCheck, {
-    path: "/health", // default health
+  // ---------------------------------------------------------------------------
+  // PLUGINS
+  // ---------------------------------------------------------------------------
+
+  app.register(fastifyEtag);
+  app.register(fastifyAccepts);
+
+  app.register(fastifyHealthcheck, {
+    healthcheckURL: "/health", // default health
   });
 
   /* Telling the server to listen on port 3000. */

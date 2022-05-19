@@ -22,7 +22,9 @@
         "@fastify/compress": "^5.0.0",
         "@sebastienrousseau/crypto-core": "^0.0.2",
         "fastify": "^3.29.0",
-        "fastify-custom-healthcheck":"^2.0.0"
+        "fastify-accepts": "^2.3.0",
+        "fastify-etag": "^2.2.0",
+        "fastify-healthcheck":"^3.1.0"
     },
     "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
