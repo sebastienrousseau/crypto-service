@@ -24,8 +24,8 @@
         "@fastify/etag": "^3.0.0",
         "@fastify/helmet": "^8.0.0",
         "@sebastienrousseau/crypto-core": "^0.0.2",
-        "fastify-healthcheck": "^3.1.0",
         "fastify": "^3.29.0",
+        "fastify-healthcheck": "^3.1.0",
         "uuid": "^8.3.2",
         "winston": "^3.7.2"
     },

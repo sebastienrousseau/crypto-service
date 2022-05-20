@@ -10,7 +10,6 @@ const network = require("./network");
  * @returns {String}              // Sanitized path
  */
 const sanitizePath = (requestedUrl) => {
-
   // Parse URL
   const parsedUrl = url.parse(requestedUrl);
 
@@ -18,9 +17,7 @@ const sanitizePath = (requestedUrl) => {
   // Avoid https://en.wikipedia.org/wiki/Directory_traversal_attack
   // e.g curl --path-as-is http://localhost:8000/../fileInDanger.txt
   // by limiting the path to current directory only
-  return path
-    .normalize(parsedUrl.pathname)
-    .replace(/^(\.\.[/\\])+/, "");
+  return path.normalize(parsedUrl.pathname).replace(/^(\.\.[/\\])+/, "");
 };
 
 /**
@@ -29,7 +26,6 @@ const sanitizePath = (requestedUrl) => {
  * @returns {String} MIME type
  */
 const getMimeType = (ext) => {
-
   const mimeType = {
     ".html": "text/html",
     ".htm": "text/html",
@@ -50,7 +46,6 @@ const getMimeType = (ext) => {
  * @returns {String}            Path name
  */
 const getContentPath = (request) => {
-
   // Detect the IP of the screen
   const ip = network.getIp(request);
 
@@ -58,7 +53,11 @@ const getContentPath = (request) => {
   const requestedUrl = request.raw.url.replace("/content", "");
 
   // Get the full content path from the `public` folder
-  const pathname = path.join(__dirname, "../../public", sanitizePath(requestedUrl));
+  const pathname = path.join(
+    __dirname,
+    "../../public",
+    sanitizePath(requestedUrl),
+  );
 
   logger.info(`[${ip}] Content: ${request.raw.url}`);
 

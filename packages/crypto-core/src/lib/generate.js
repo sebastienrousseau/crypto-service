@@ -15,20 +15,20 @@ console.log(args);
 // args = JSON.stringify(args);
 let data = args;
 
-const generate = async(data) =>
-{
-  const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
-    type: data.type, // The primary key algorithm type: ECC (default) or RSA
-    rsaBits: Number(data.bits), // Number of bits for RSA keys (defaults to 4096 bits)
-    userIDs: [{ name: data.name, email: data.email }], // User IDs as objects: [{ name: "John Doe", email: "john@doe.com" }]
-    passphrase: data.passphrase, // The passphrase used to encrypt the generated private key. If omitted, the key won't be encrypted. e.g. 1234567890abcdef
-    curve: data.curve, // Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1
-    keyExpirationTime: Number(data.expiration), // Number of seconds from the key creation time after which the key expires
-    // subkeys: [{sign: data.sign, passphrase: data.passphrase}], // Options for each subkey e.g. [{sign: true, passphrase: '123'}] default to main key options, except for sign parameter that defaults to false, and indicates whether the subkey should sign rather than encrypt
-    format: data.format, // format of the output keys e.g. 'armored' | 'object' | 'binary';
-  });
-  console.log(privateKey);     // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-  console.log(publicKey);      // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+const generate = async (data) => {
+  const { privateKey, publicKey, revocationCertificate } =
+    await openpgp.generateKey({
+      type: data.type, // The primary key algorithm type: ECC (default) or RSA
+      rsaBits: Number(data.bits), // Number of bits for RSA keys (defaults to 4096 bits)
+      userIDs: [{ name: data.name, email: data.email }], // User IDs as objects: [{ name: "John Doe", email: "john@doe.com" }]
+      passphrase: data.passphrase, // The passphrase used to encrypt the generated private key. If omitted, the key won't be encrypted. e.g. 1234567890abcdef
+      curve: data.curve, // Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1
+      keyExpirationTime: Number(data.expiration), // Number of seconds from the key creation time after which the key expires
+      // subkeys: [{sign: data.sign, passphrase: data.passphrase}], // Options for each subkey e.g. [{sign: true, passphrase: '123'}] default to main key options, except for sign parameter that defaults to false, and indicates whether the subkey should sign rather than encrypt
+      format: data.format, // format of the output keys e.g. 'armored' | 'object' | 'binary';
+    });
+  console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+  console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
   console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 
   /* Writing the public and private keys to the file system. */
@@ -57,7 +57,6 @@ const generate = async(data) =>
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
-
   /* Taking the arguments from the command line and storing them in an array. */
   args = JSON.stringify(args);
   data = JSON.parse(args);
@@ -73,7 +72,6 @@ if (args instanceof Array && args.length) {
   data.type = data[7];
   console.log(data);
   generate(data);
-
 }
 /* Exporting the function `generate` so that it can be used in other files. */
 export default generate;

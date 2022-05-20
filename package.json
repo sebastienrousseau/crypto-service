@@ -1,11 +1,26 @@
 {
-  "name": "root",
-  "private": true,
-  "devDependencies": {
-    "lerna": "^4.0.0"
-  },
-  "workspaces": [
-    "packages/*"
-  ],
-  "version": "independent"
+    "devDependencies": {
+        "lerna": "^4.0.0",
+        "eslint": "^8.14.0",
+        "eslint-plugin-import": "^2.26.0"
+    },
+    "name": "root",
+    "private": true,
+    "scripts": {
+        "boot": "yarn global add lerna && lerna bootstrap",
+        "clean": "lerna clean --yes",
+        "lint": "eslint --config=.eslintrc.json packages/**/*.js",
+        "lint-fix": "yarn lint --fix",
+        "prettier-format": "prettier --config .prettierrc 'packages/**/*.js' --write",
+        "release": "yarn install && lerna publish && yarn clean",
+        "start": "lerna exec yarn start --parallel",
+        "start:core": "lerna exec yarn start --scope=@sebastienrousseau/crypto-core",
+        "start:server": "lerna exec yarn start --scope=@sebastienrousseau/crypto-server",
+        "test": "lerna run test --parallel --since"
+    },
+    "useWorkspaces": true,
+    "version": "independent",
+    "workspaces": [
+        "packages/*"
+    ]
 }

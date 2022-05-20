@@ -13,7 +13,6 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const config = require("../config/config.json");
 
-
 // -----------------------------------------------------------------------------
 // CLI ARGS
 // -----------------------------------------------------------------------------
@@ -30,7 +29,7 @@ let consoleOutput = [
   "\n → hostname: " + HOST,
   "\n → port: " + PORT,
   "\n → ip: " + IP,
-  "\n"
+  "\n",
 ];
 
 logger.info("\n\nEnvironment details: " + consoleOutput);
@@ -38,7 +37,7 @@ logger.info("\n\nEnvironment details: " + consoleOutput);
 /**
  * Create a new instance of the fastify server.
  */
-const CryptoServer = async() => {
+const CryptoServer = async () => {
   /* Creating a new instance of the fastify server. */
   const app = Fastify({
     bodyLimit: 256 * 1024 * 1, // 256KB
@@ -52,11 +51,16 @@ const CryptoServer = async() => {
     onConstructorPoisoning: "error",
     onProtoPoisoning: "error",
     return503OnClosing: true,
-    trustProxy: ["127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
+    trustProxy: [
+      "127.0.0.0/8",
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16",
+    ],
   });
 
   // Body content-type parsing
-  app.addContentTypeParser("*", function(request, payload, done) {
+  app.addContentTypeParser("*", function (request, payload, done) {
     // pipe-it directly, we don't care for it
     done();
   });
@@ -70,7 +74,7 @@ const CryptoServer = async() => {
   // Register the Health plugin
   app.register(Accepts);
   app.register(Etag);
-  app.register(fastifyHealthcheck, { healthcheckUrl: "/health", });
+  app.register(fastifyHealthcheck, { healthcheckUrl: "/health" });
 
   // Helmet config
   app.register(helmet, {
@@ -81,12 +85,11 @@ const CryptoServer = async() => {
       action: "sameorigin",
     },
     hidePoweredBy: false,
-    hsts:
-      {
-        maxAge: 365 * 24 * 60 * 60,
-        includeSubDomains: false,
-        preload: false, // ! includeSubDomains must be true for preloading to be approved
-      },
+    hsts: {
+      maxAge: 365 * 24 * 60 * 60,
+      includeSubDomains: false,
+      preload: false, // ! includeSubDomains must be true for preloading to be approved
+    },
     ieNoOpen: false,
     // noSniff
     noCache: true,
@@ -100,7 +103,7 @@ const CryptoServer = async() => {
 
   /* A plugin that compresses the response. */
   app.register(import("@fastify/compress"), {
-    global: true
+    global: true,
   });
 
   // ---------------------------------------------------------------------------
@@ -109,25 +112,22 @@ const CryptoServer = async() => {
 
   /* This is a route handler. It is a function that is called when a request is
   made to the server. */
-  app.get("/v1/generate", async(request, reply) => {
+  app.get("/v1/generate", async (request, reply) => {
     logger.info(request.headers);
     let generateKeyPair = await generate({ ...request.headers });
-    reply
-      .send({ "data": generateKeyPair });
+    reply.send({ data: generateKeyPair });
   });
 
-  app.get("/v1/encrypt", async(request, reply) => {
+  app.get("/v1/encrypt", async (request, reply) => {
     logger.info(request.headers);
     let encryptedData = await encrypt({ ...request.headers });
-    reply
-      .send({ "data": encryptedData });
+    reply.send({ data: encryptedData });
   });
 
-  app.get("/v1/decrypt", async(request, reply) => {
+  app.get("/v1/decrypt", async (request, reply) => {
     logger.info(request.headers);
     let decryptedData = await decrypt({ ...request.headers });
-    reply
-      .send({ "data": decryptedData });
+    reply.send({ data: decryptedData });
   });
 
   // ---------------------------------------------------------------------------
@@ -144,10 +144,10 @@ const CryptoServer = async() => {
     const accept = request.accepts();
     const errorResponse = {};
 
-    Object.getOwnPropertyNames(error).forEach(key => { errorResponse[key] = error[key]; });
+    Object.getOwnPropertyNames(error).forEach((key) => {
+      errorResponse[key] = error[key];
+    });
     reply.send({ error: errorResponse });
-
-
   });
 
   // ---------------------------------------------------------------------------
@@ -155,10 +155,10 @@ const CryptoServer = async() => {
   // ---------------------------------------------------------------------------
 
   /**
-     * The function starts the server and listens on the port and host specified in
-     * the environment variables
-     */
-  const start = async() => {
+   * The function starts the server and listens on the port and host specified in
+   * the environment variables
+   */
+  const start = async () => {
     try {
       await app.listen(PORT, HOST).then(() => {
         logger.info(`Server listening on http://${HOST}:${PORT}/`);
