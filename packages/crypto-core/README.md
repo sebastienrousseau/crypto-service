@@ -20,7 +20,7 @@ The Crypto Service can help you ensure the following:
 -   Message Level Encryption for encryption and non-repudiation.,
 -   Privacy of data.
 
-# Installation
+## Installation
 
 To install the Crypto Service, use either `npm` or `yarn` to use the application
 with NodeJS or the Command Line Interface.
@@ -28,11 +28,11 @@ with NodeJS or the Command Line Interface.
 -   `npm i @sebastienrousseau/crypto-service`
 -   `yarn add @sebastienrousseau/crypto-service`
 
-# Usage
+## Usage
 
-## Command line interface
+### Command line interface
 
-### Generate a new RSA key pair
+#### Generate a new RSA key pair
 
 [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) is a public-key
 algorithm for encrypting and signing messages.
@@ -52,7 +52,7 @@ extension.
 
 ---
 
-### Generate a new Elliptic-curve cryptography (ECC) key pair
+#### Generate a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography (ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
 is an alternative technique to RSA. It generates security between key pairs for
@@ -89,7 +89,7 @@ them with the password provided and writes them to a file in the
 
 ---
 
-### Encrypt Data
+#### Encrypt Data
 
 Encryption is the transformation of data into a form in which it cannot be made
 sense of without the use of some key. Such transformed data is referred to as
@@ -107,7 +107,7 @@ node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto S
 
 ---
 
-### Decrypt Data
+#### Decrypt Data
 
 Decryption restores encrypted data to to its original (cleartext or plaintext) form.
 
