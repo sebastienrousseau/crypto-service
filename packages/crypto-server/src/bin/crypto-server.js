@@ -64,6 +64,46 @@ const CryptoServer = async() => {
   // logger.info(process.argv);
 
   // ---------------------------------------------------------------------------
+  // PLUGINS
+  // ---------------------------------------------------------------------------
+
+  // Register the Health plugin
+  app.register(Accepts);
+  app.register(Etag);
+  app.register(fastifyHealthcheck, { healthcheckUrl: "/health", });
+
+  // Helmet config
+  app.register(helmet, {
+    contentSecurityPolicy: false,
+    dnsPrefetchControl: false,
+    expectCt: false,
+    frameguard: {
+      action: "sameorigin",
+    },
+    hidePoweredBy: false,
+    hsts:
+      {
+        maxAge: 365 * 24 * 60 * 60,
+        includeSubDomains: false,
+        preload: false, // ! includeSubDomains must be true for preloading to be approved
+      },
+    ieNoOpen: false,
+    // noSniff
+    noCache: true,
+    permittedCrossDomainPolicies: false,
+    policy: "same-origin",
+    referrerPolicy: {
+      policy: "no-referrer-when-downgrade",
+    },
+    // xssFilter:
+  });
+
+  /* A plugin that compresses the response. */
+  app.register(import("@fastify/compress"), {
+    global: true
+  });
+
+  // ---------------------------------------------------------------------------
   // ROUTES
   // ---------------------------------------------------------------------------
 
@@ -108,45 +148,6 @@ const CryptoServer = async() => {
     reply.send({ error: errorResponse });
 
 
-    // ---------------------------------------------------------------------------
-    // PLUGINS
-    // ---------------------------------------------------------------------------
-
-    // Register the Health plugin
-    app.register(Accepts);
-    app.register(Etag);
-    app.register(fastifyHealthcheck, { healthcheckUrl: `/${config.healthCheck.path}` });
-
-    // Helmet config
-    app.register(helmet, {
-      contentSecurityPolicy: false,
-      dnsPrefetchControl: false,
-      expectCt: false,
-      frameguard: {
-        action: "sameorigin",
-      },
-      hidePoweredBy: false,
-      hsts:
-      {
-        maxAge: 365 * 24 * 60 * 60,
-        includeSubDomains: false,
-        preload: false, // ! includeSubDomains must be true for preloading to be approved
-      },
-      ieNoOpen: false,
-      // noSniff
-      noCache: true,
-      permittedCrossDomainPolicies: false,
-      policy: "same-origin",
-      referrerPolicy: {
-        policy: "no-referrer-when-downgrade",
-      },
-      // xssFilter:
-    });
-
-    /* A plugin that compresses the response. */
-    app.register(import("@fastify/compress"), {
-      global: true
-    });
   });
 
   // ---------------------------------------------------------------------------
