@@ -35,7 +35,7 @@ logger.info("\n\nEnvironment details: " + consoleOutput);
 /**
  * Create a new instance of the fastify server.
  */
-const CryptoServer = async () => {
+const CryptoServer = async() => {
   /* Creating a new instance of the fastify server. */
   const app = Fastify({
     bodyLimit: 256 * 1024 * 1, // 256KB
@@ -53,7 +53,7 @@ const CryptoServer = async () => {
   });
 
   // Body content-type parsing
-  app.addContentTypeParser("*", function (request, payload, done) {
+  app.addContentTypeParser("*", function(request, payload, done) {
     // pipe-it directly, we don't care for it
     done();
   });
@@ -66,21 +66,21 @@ const CryptoServer = async () => {
 
   /* This is a route handler. It is a function that is called when a request is
   made to the server. */
-  app.get("/v1/generate", async (request, reply) => {
+  app.get("/v1/generate", async(request, reply) => {
     logger.info(request.headers);
     let generateKeyPair = await generate({ ...request.headers });
     reply
       .send({ "data": generateKeyPair });
   });
 
-  app.get("/v1/encrypt", async (request, reply) => {
+  app.get("/v1/encrypt", async(request, reply) => {
     logger.info(request.headers);
     let encryptedData = await encrypt({ ...request.headers });
     reply
       .send({ "data": encryptedData });
   });
 
-  app.get("/v1/decrypt", async (request, reply) => {
+  app.get("/v1/decrypt", async(request, reply) => {
     logger.info(request.headers);
     let decryptedData = await decrypt({ ...request.headers });
     reply
@@ -154,10 +154,10 @@ const CryptoServer = async () => {
      * The function starts the server and listens on the port and host specified in
      * the environment variables
      */
-  const start = async () => {
+  const start = async() => {
     try {
-      await app.listen(PORT, HOST).then(address => {
-        logger.info(`Server listening on ${address}`);
+      await app.listen(PORT, HOST).then(() => {
+        logger.info(`Server listening on http://${HOST}:${PORT}/`);
       });
     } catch (err) {
       app.log.error(err);
