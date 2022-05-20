@@ -7,6 +7,7 @@ import fastifyHealthcheck from "fastify-healthcheck";
 import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 import helmet from "@fastify/helmet";
 import logger from "../lib/logger.js";
+import getIp from "../lib/network.js";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -22,11 +23,13 @@ const args = process.argv.slice(2);
 const PROTOCOL = process.env.PROTOCOL || "http";
 const HOST = process.env.HOST || "localhost";
 const PORT = process.env.NODE_PORT || config.app.port;
+const IP = getIp();
 
 let consoleOutput = [
   "\n → protocol: " + PROTOCOL,
   "\n → hostname: " + HOST,
   "\n → port: " + PORT,
+  "\n → ip: " + IP,
   "\n"
 ];
 
