@@ -66,7 +66,7 @@ if (args instanceof Array && args.length) {
   data.passphrase = data[5];
   data.sign = data[17];
   data.type = data[7];
-  console.log(data);
+
   generate(data);
 }
 /* Exporting the function `generate` so that it can be used in other files. */
