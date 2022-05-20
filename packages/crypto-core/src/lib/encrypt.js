@@ -22,7 +22,6 @@ const encrypt = async(args) => {
   /* Converting the array into a JSON object. */
   args = JSON.stringify(args);
   const data = JSON.parse(args);
-  console.log(data);
 
   /* Reading the public and private keys from the file. */
   let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
