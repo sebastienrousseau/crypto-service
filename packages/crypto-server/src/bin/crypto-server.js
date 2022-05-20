@@ -141,7 +141,7 @@ const CryptoServer = async () => {
     reply.header("Cache-Control", "public, max-age=5, s-maxage=0");
     reply.code(500);
 
-    const accept = request.accepts();
+    // const accept = request.accepts();
     const errorResponse = {};
 
     Object.getOwnPropertyNames(error).forEach((key) => {
