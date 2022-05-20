@@ -11,10 +11,6 @@ console.log(args);
  */
 // const generatePair = async(args) => {
 
-/* Converting the array into a JSON object. */
-// args = JSON.stringify(args);
-let data = args;
-
 const generate = async (data) => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
