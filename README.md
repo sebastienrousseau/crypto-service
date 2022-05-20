@@ -1,6 +1,6 @@
 ![Banner representing the Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0acb169c95e443729551979e0fd86eaf)](https://www.codacy.com)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/40d370244f3843f389094afe7719c4e4)](https://www.codacy.com/gh/sebastienrousseau/crypto-service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sebastienrousseau/crypto-service&amp;utm_campaign=Badge_Grade)
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=flat&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
 [![Release Notes](https://img.shields.io/badge/release-notes-success.svg)](https://github.com/sebastienrousseau/crypto-service/releases/)
 [![npm](https://img.shields.io/npm/dm/crypto-service.svg?style=flat)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
