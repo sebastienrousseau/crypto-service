@@ -6,6 +6,7 @@ import Fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
 import generate from "@sebastienrousseau/crypto-core/src/lib/generate.js";
 import helmet from "@fastify/helmet";
+import logger from "../lib/logger.js";
 
 // -----------------------------------------------------------------------------
 // CLI ARGS
@@ -13,8 +14,18 @@ import helmet from "@fastify/helmet";
 
 /* CLI arguments. */
 const args = process.argv.slice(2);
+const PROTOCOL = process.env.PROTOCOL || "http";
 const HOST = process.env.HOST || "localhost";
 const PORT = parseInt(process.env.PORT, 10) || 3000;
+
+let consoleOutput = [
+  "\n → protocol: " + PROTOCOL,
+  "\n → hostname: " + HOST,
+  "\n → port: " + PORT,
+  "\n"
+];
+
+logger.info("\n\nEnvironment details: " + consoleOutput);
 
 /**
  * Create a new instance of the fastify server.
@@ -42,8 +53,7 @@ const CryptoServer = async() => {
     done();
   });
 
-
-  console.log(process.argv);
+  // logger.info(process.argv);
 
   // ---------------------------------------------------------------------------
   // ROUTES
@@ -52,20 +62,21 @@ const CryptoServer = async() => {
   /* This is a route handler. It is a function that is called when a request is
   made to the server. */
   app.get("/v1/generate", async(request, reply) => {
-    console.log(request.headers);
+    logger.info(request.headers);
     let generateKeyPair = await generate({ ...request.headers });
     reply
       .send({ "data": generateKeyPair });
   });
 
   app.get("/v1/encrypt", async(request, reply) => {
-    console.log(request.headers);
+    logger.info(request.headers);
     let encryptedData = await encrypt({ ...request.headers });
     reply
       .send({ "data": encryptedData });
   });
 
   app.get("/v1/decrypt", async(request, reply) => {
+    logger.info(request.headers);
     let decryptedData = await decrypt({ ...request.headers });
     reply
       .send({ "data": decryptedData });
@@ -77,79 +88,57 @@ const CryptoServer = async() => {
 
   app.setErrorHandler((error, request, reply) => {
     // Log error
-    app.log.error(error);
+    logger.error(error);
 
     reply.header("Cache-Control", "public, max-age=5, s-maxage=0");
     reply.code(500);
 
     const accept = request.accepts();
-    switch (accept.type(["html", "json"])) {
-      case "html":
-        // HTML
-        reply.view("500.pug", { error });
-        break;
-      case "json": {
-        // JSON
-        if (error instanceof Error) {
-          if (DEVELOPMENT) {
-            const errorResponse = {};
+    const errorResponse = {};
 
-            Object.getOwnPropertyNames(error).forEach(key => {
-              errorResponse[key] = error[key];
-            });
+    Object.getOwnPropertyNames(error).forEach(key => { errorResponse[key] = error[key]; });
+    reply.send({ error: errorResponse });
 
-            reply.send({ error: errorResponse });
-          } else {
-            // Only keep message in production because Error() may contain sensitive information
-            reply.send({ error: { message: error.message } });
-          }
-        } else {
-          reply.send({ error });
-        }
-        break;
-      }
-      default:
-        // default to plain-text.
-        // keep only message
-        reply.type("text/plain").send(error.message);
-    }
-  });
 
-  // ---------------------------------------------------------------------------
-  // PLUGINS
-  // ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // PLUGINS
+    // ---------------------------------------------------------------------------
 
-  /* Registering the plugins. */
-  app.register(Etag);
-  app.register(Accepts);
-  app.register(fastifyHealthcheck, { healthcheckURL: "/health", });
-  // Helmet config
-  app.register(helmet, {
-    contentSecurityPolicy: false,
-    dnsPrefetchControl: false,
-    expectCt: false,
-    frameguard: {
-      action: "sameorigin",
-    },
-    hidePoweredBy: false,
-    hsts:
+    /* Registering the plugins. */
+    app.register(Accepts);
+    app.register(Etag);
+    app.register(fastifyHealthcheck, { healthcheckURL: "/health", });
+
+    // Helmet config
+    app.register(helmet, {
+      contentSecurityPolicy: false,
+      dnsPrefetchControl: false,
+      expectCt: false,
+      frameguard: {
+        action: "sameorigin",
+      },
+      hidePoweredBy: false,
+      hsts:
       {
         maxAge: 365 * 24 * 60 * 60,
         includeSubDomains: false,
         preload: false, // ! includeSubDomains must be true for preloading to be approved
       },
-    ieNoOpen: false,
-    // noSniff
-    permittedCrossDomainPolicies: false,
-    referrerPolicy: {
-      policy: "no-referrer-when-downgrade",
-    },
-    // xssFilter:
-  });
+      ieNoOpen: false,
+      // noSniff
+      noCache: true,
+      permittedCrossDomainPolicies: false,
+      policy: "same-origin",
+      referrerPolicy: {
+        policy: "no-referrer-when-downgrade",
+      },
+      // xssFilter:
+    });
 
-  /* A plugin that compresses the response. */
-  await app.register(import("@fastify/compress"), {
-    global: true
+    /* A plugin that compresses the response. */
+    app.register(import("@fastify/compress"), {
+      global: true
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -157,13 +146,13 @@ const CryptoServer = async() => {
   // ---------------------------------------------------------------------------
 
   /**
-   * The function starts the server and listens on the port and host specified in
-   * the environment variables
-   */
+     * The function starts the server and listens on the port and host specified in
+     * the environment variables
+     */
   const start = async() => {
     try {
       await app.listen(PORT, HOST);
-      console.log("Server running at http://localhost:3000/");
+      logger.info("Server listening on http://localhost:3000/");
     } catch (err) {
       app.log.error(err);
       process.exit(1);
