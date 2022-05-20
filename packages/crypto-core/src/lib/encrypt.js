@@ -102,7 +102,7 @@ storing them in an array. */
 if (args instanceof Array && args.length) {
   /* Taking the arguments from the command line and storing them in an array. */
   let data = args;
-  console.log(args);
+
   data.passphrase = data[1];
   data.message = data[3];
   data.publicKey = data[5];
