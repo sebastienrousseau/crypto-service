@@ -2,6 +2,6 @@
 
 ![Banner representing Crypto Server](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-logo.svg)
 
----
+***
 
 Made with ❤ in London.

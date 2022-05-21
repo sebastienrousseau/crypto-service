@@ -15,18 +15,18 @@ implementation of the OpenPGP protocol. It implements
 
 The Crypto Service can help you ensure the following:
 
--   Authentication of communicating parties,
--   Integrity of data,
--   Message Level Encryption for encryption and non-repudiation.,
--   Privacy of data.
+*   Authentication of communicating parties,
+*   Integrity of data,
+*   Message Level Encryption for encryption and non-repudiation.,
+*   Privacy of data.
 
 ## Installation
 
 To install the Crypto Service, use either `npm` or `yarn` to use the application
 with NodeJS or the Command Line Interface.
 
--   `npm i @sebastienrousseau/crypto-service`
--   `yarn add @sebastienrousseau/crypto-service`
+*   `npm i @sebastienrousseau/crypto-service`
+*   `yarn add @sebastienrousseau/crypto-service`
 
 ## Usage
 
@@ -34,13 +34,13 @@ with NodeJS or the Command Line Interface.
 
 #### Generate a new RSA key pair
 
-[RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) is a public-key
+[RSA](https://en.wikipedia.org/wiki/RSA_\(cryptosystem\)) is a public-key
 algorithm for encrypting and signing messages.
 
 To generate a Rivest-Shamir-Adelman (RSA) public key pair:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Enter the following example command that will start the generation process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Enter the following example command that will start the generation process.
 
 ```shell
 yarn start --curve "" --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits 4096 --type rsa
@@ -50,7 +50,7 @@ This starts generating a 2048-bit RSA key pair, encrypts them with the password
 provided and writes them to a file in the [key](src/key/) directory with a pgp
 extension.
 
----
+***
 
 #### Generate a new Elliptic-curve cryptography (ECC) key pair
 
@@ -76,8 +76,8 @@ Currently the following curves are supported:
 
 To generate an Elliptic Curve Cryptography (ECC) key pair:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Enter the following example command that will start the generation process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Enter the following example command that will start the generation process.
 
 ```shell
 yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null --type ecc
@@ -87,7 +87,7 @@ This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
 them with the password provided and writes them to a file in the
 [key](src/key/) directory with a pgp extension.
 
----
+***
 
 #### Encrypt Data
 
@@ -97,15 +97,15 @@ sense of without the use of some key. Such transformed data is referred to as
 
 To encrypt a message:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Run the yarn start
--   Enter the following example command that will start the encryption process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Run the yarn start
+*   Enter the following example command that will start the encryption process.
 
 ```shell
 node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto Service APIs!'
 ```
 
----
+***
 
 #### Decrypt Data
 
@@ -113,14 +113,14 @@ Decryption restores encrypted data to to its original (cleartext or plaintext) f
 
 To decrypt a message:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Enter the following example command that will start the decryption process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Enter the following example command that will start the decryption process.
 
 ```shell
 node src/lib/decrypt.js --passphrase '123456789abcdef' --message 'LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0JNQTExMHlyM0drdWx5QVFmOENmbnVZZFk2RmliY1Q1Z094SjVFY2dUME50ZGt6K2dQT0tKTkVoRngKV3dzSHJoM08rTWlrcnBUOElyTjFkbDEwcUpCeDZkVXNkK3dtZ0twdFJrdElVSm5weVZ1Z3RJQkE5MEdBClgxNWdHNFZRQkl0cHUyYmdNRnlKRnJtSS85UUtlNHpDZkV0dSs5SjU0VkRLNWNRRk5KakxPSC9LaklIaAppU2NqQmFvbFlHN1p6Vyt5OXVxTEVkZytYSW9qYXVER3dyRHdIdVFvT0k2NGRmNnJWQVhiZi9mL01iajUKSXdqdmE2UGI2QXZ3YXhjRlczQjFWcHhYajY0a3kzZ2Rxd0FpOXFOUkVmMjE3SU43RHpCMTJzcDRLZlozCkZ4NTdwUk5lekY0VTZPdis5WWU0SkJRMnR4UG5sNmlnUXBDNmpRR2lXWUpHMGJJQ3lIN2NUSDRwZGN2VwphTkxBMEFIU3dpZEQzRnZJRWpxSnRmMlJlZzVLMmtSbHpFNWFCRXlaayt5a3VvZ2pYV0dkWkYxb20yV2gKM3kwTE9Kb2RYOUJNYW9zYlpSN24za2JOb0dXRkRCTElpYnRLUmdvNmlwdGs1b3Iyd0lwWC9wM1ovaWtJCkZieDhpVnpqWHViQ2xZSzhrZlB3Zm5uVFRRSmsxV1VsWTBDZm9YRURMY1ZIbG9rMy9ReHB2TmphWEg2NwpsU1hmSmtxdDNXdVJ6K0xIM3p0ald3THlpeHpmNXRPNUhsTnhudjlKUkVPR0pqendsL3liUi8xLzR2TkMKeDJ1WmdmQTBHSXZqNHBDRnBNRTI3ODhLaTdRckxtemVrUUtRQzBsMFl3aU9abXZueUNmdDliNG9yMDFmCjd2WU8xQzV5dExGZTBVUnpPQktnZGxjajRSU2sxWnJKc3RNTS9qSVNQR2lnZjBOWFp5c2NyQTVnZ0pzcwpOZ0JLd1Q2M3dzQ3MyV0lxcS9QZ2ZCUTRjOUl4eXNydDM1Skgra0E3c2hIQ0s0Rk1RcVRTa2d1VWcyQVcKL0c4a3lDcnRXR1RIMFpsNjBNNmJLUmhpdEMxS0Y3R29hcW5sUDFoNmFydXZXUUM4eTRtY2dtellNR2FjCkxEZzNlMGVLRWVVTEVockdXY3ViZWlDeVJlU0tybWhwTmN5ODFucURDZkVsVUg0UVd6eEFlMmVNZTljPQo9UEs4dAotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tCg=='
 ```
 
----
+***
 
 ## API
 
@@ -128,8 +128,8 @@ node src/lib/decrypt.js --passphrase '123456789abcdef' --message 'LS0tLS1CRUdJTi
 
 To encrypt a message:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Enter the following example command that will start the encryption process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Enter the following example command that will start the encryption process.
 
 ```shell
 
@@ -143,8 +143,8 @@ curl --location --request GET 'http://localhost:3000/encrypt' \
 
 To decrypt a message:
 
--   Open Terminal for Mac or Command Prompt for Windows,
--   Enter the following example command that will start the encryption process.
+*   Open Terminal for Mac or Command Prompt for Windows,
+*   Enter the following example command that will start the encryption process.
 
 ```shell
 
