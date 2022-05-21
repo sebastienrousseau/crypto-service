@@ -24,7 +24,7 @@
         "@fastify/etag": "^3.0.0",
         "@fastify/helmet": "^8.0.0",
         "@sebastienrousseau/crypto-core": "^0.0.2",
-        "@sebastienrousseau/eslint-config": "^0.0.1",
+        "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.1",
         "fastify": "^3.29.0",
@@ -101,8 +101,8 @@
     },
     "scripts": {
         "clean": "rimraf lib",
-        "lint": "eslint --config=.eslintrc.json src/**/*.js",
-        "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
+        "lint": "eslint --config=.eslintrc src/**/*.js",
+        "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
         "start": "node index.js",
         "test": "c8 mocha"
     },

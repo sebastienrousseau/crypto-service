@@ -7,7 +7,7 @@
     "scripts": {
         "bootstrap": "lerna bootstrap",
         "clean:lerna": "lerna clean --yes",
-        "lint:js": "yarn eslint --config=.eslintrc.json packages/**/*.js",
+        "lint:js": "yarn eslint --config=.eslintrc packages/**/*.js",
         "lint:js:fix": "yarn lint:js --fix",
         "lint:markdown": "yarn remark \"./*.md\" \"packages/**/*.md\"",
         "prettier:format": "yarn prettier --config .prettierrc 'packages/**/*.js' --write",

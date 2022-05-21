@@ -1020,10 +1020,13 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@sebastienrousseau/eslint-config@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@sebastienrousseau/eslint-config/-/eslint-config-0.0.1.tgz#f8be095fc9557f9c432dc4220828d0350999dbe7"
-  integrity sha512-7y5PNshGKLmVgpdIChpFNOV8GVZbCjN6U/0YRp8yPBCzkXNdMKmjm+NHgBNWeR7yS3nRhfgjupEnWPv4eO6HyA==
+"@sebastienrousseau/eslint-config@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/eslint-config/-/eslint-config-0.0.2.tgz#0af71a30f841c4a5e74d084272ec8c722452f573"
+  integrity sha512-IsT6c3TBv3u0TekGPeHwS0GLpI1pNJTJHKRzRpkvR6Mp+xLnZZaCU8GW6CMVh38jmUEda/3/no91Gw1Q8047mw==
+  dependencies:
+    eslint "^8.16.0"
+    eslint-plugin-import "^2.26.0"
 
 "@sebastienrousseau/markdownlint-config@^0.0.1":
   version "0.0.1"
