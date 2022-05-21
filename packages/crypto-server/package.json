@@ -26,7 +26,7 @@
         "@sebastienrousseau/crypto-core": "^0.0.2",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
-        "@sebastienrousseau/prettier-config": "^0.0.1",
+        "@sebastienrousseau/prettier-config": "^0.0.4",
         "fastify": "^3.29.0",
         "fastify-healthcheck": "^3.1.0",
         "uuid": "^8.3.2",
@@ -103,6 +103,7 @@
         "clean": "rimraf lib",
         "lint": "eslint --config=.eslintrc src/**/*.js",
         "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
+        "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
         "start": "node index.js",
         "test": "c8 mocha"
     },

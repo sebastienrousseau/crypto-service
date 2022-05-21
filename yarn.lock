@@ -1033,10 +1033,10 @@
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/markdownlint-config/-/markdownlint-config-0.0.1.tgz#9c297f70a37d409d532ec0ec1969f1b3b1d69657"
   integrity sha512-mEQLTxoCWFPjM22misoFbJsQYBhnkD9umQZLBUBna3iVgItTK4t7rM7zFNxJTPTnmz21zbcr4CGqy9a4tiyRag==
 
-"@sebastienrousseau/prettier-config@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@sebastienrousseau/prettier-config/-/prettier-config-0.0.1.tgz#6a56c112544986069f18ecbad3c2a41339f2e120"
-  integrity sha512-n6gzxMv7dyKPETEMHgTRgrrwB0BbuTuRFezf/jKINF1QUzOc//JUJQNTUXTWjfGT6/3MrG5cTpvZ78F2OhaUrw==
+"@sebastienrousseau/prettier-config@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/prettier-config/-/prettier-config-0.0.4.tgz#214ab12f712a60dda549382290a798971ffc3404"
+  integrity sha512-5LnSFALBhQboFuHIZdjVRhm2boiIn7gm1bqAXkc4Yeft2ylScQhAmYiTl1w4a9cCZSFl/B5Dhti6ERmmupheXA==
 
 "@tootallnate/once@1":
   version "1.1.2"
