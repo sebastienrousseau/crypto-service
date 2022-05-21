@@ -9,7 +9,7 @@
     "sourceType": "module",
     "requireConfigFile": false
   },
-  "plugins": ["import"],
+  "plugins": ["import", "prettier"],
   "rules": {
     "camelcase": [1, {"properties": "always"}],
     "comma-dangle": 0,

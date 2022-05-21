@@ -10,15 +10,19 @@
   "MD007": {
     "indent": 4
   },
+  "MD010": {
+    "code_blocks": true,
+    "spaces_per_tab": 4
+  },
   "MD012": false,
   "MD013": false,
   "MD029": {
-    "style": "one"
+    "style": "ordered"
   },
   "MD030": {
     "ul_single": 1,
-    "ol_single": 2,
-    "ul_multi": 2,
+    "ol_single": 1,
+    "ul_multi": 1,
     "ol_multi": 1
   },
   "MD033": false,
