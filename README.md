@@ -1,10 +1,10 @@
 ![Banner representing the Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/40d370244f3843f389094afe7719c4e4)](https://www.codacy.com/gh/sebastienrousseau/crypto-service/dashboard?utm_source=github.com\&utm_medium=referral\&utm_content=sebastienrousseau/crypto-service\&utm_campaign=Badge_Grade)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=flat\&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
-[![Release Notes](https://img.shields.io/badge/release-notes-success.svg)](https://github.com/sebastienrousseau/crypto-service/releases/)
-[![npm](https://img.shields.io/npm/dm/crypto-service.svg?style=flat)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
-[![License: MIT](https://img.shields.io/badge/License-MIT-success.svg?style=flat)](https://opensource.org/licenses/MIT)
+![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
+[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
+[![Release Notes](https://img.shields.io/badge/release-notes-success.svg?style=for-the-badge)](https://github.com/sebastienrousseau/crypto-service/releases/)
+[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
 # Welcome to the Crypto Service
