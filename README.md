@@ -1,4 +1,4 @@
-![Banner representing the Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
+![Banner representing Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
 
 ![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
@@ -7,20 +7,19 @@
 ![Made with Love](/assets/made-with-love.svg)
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
-# Welcome to the Crypto Service
+# Welcome to Crypto Service
 
-The Crypto Service is a powerful and intuitive suite of services that provides a
-set of cryptographic functions and standardized APIs to manage encryption keys
-and perform cryptographic operations such as key generation, data encryption,
-digital signing, and signature verification. The Crypto Service code is safe by
-design, and runs lightning-fast.
+Crypto Service is a powerful and intuitive suite of security tools that provides
+cryptographic functions and standardized APIs to manage encryption keys and
+perform cryptographic operations such as key generation, data encryption,
+digital signing, and signature verification.
 
-The Crypto Service is based on [OpenPGP.js](https://openpgpjs.org/) - a
-JavaScript implementation of the OpenPGP protocol. It implements
-[RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
-[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
+Crypto Service code is safe by design, and runs lightning-fast. It is based
+on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript implementation of the
+OpenPGP protocol. It implements [RFC4880](https://tools.ietf.org/html/rfc4880)
+and parts of[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
 
-The Crypto Service can help you ensure the following:
+Crypto Service can help you ensure the following:
 
 - Authentication of communicating parties,
 - Integrity of data,
@@ -28,15 +27,15 @@ The Crypto Service can help you ensure the following:
 - Privacy of data.
 
 [![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#getting-started)
-[![Download the Crypto Service Tool v0.0.2](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
+[![Download Crypto Service v0.0.2](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
 
 ## Getting Started
 
-Here, you’ll find information about the how to use the Crypto Service.
+Here, you’ll find information about the how to use Crypto Service.
 
-## Installing the Crypto Service
+## Installing Crypto Service
 
-The first step to using the Crypto Service is to download and install the
+The first step to using Crypto Service is to download and install the
 application and other required components.
 
 ### Releases
@@ -48,7 +47,7 @@ application and other required components.
 
 ### Install using NPM or YARN
 
-To install the Crypto Service Tool, use either npm or yarn as follows:
+To install Crypto Service, use either npm or yarn as follows:
 
 - `npm i @sebastienrousseau/crypto-service`
 - `yarn add @sebastienrousseau/crypto-service`

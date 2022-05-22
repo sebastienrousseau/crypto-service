@@ -28,7 +28,7 @@ The Crypto Service can help you ensure the following:
 
 ## Installation
 
-To install the Crypto Service, use either `npm` or `yarn` to use the application
+To install Crypto Service, use either `npm` or `yarn` to use the application
 with NodeJS or the Command Line Interface.
 
 - `npm i @sebastienrousseau/crypto-service`
