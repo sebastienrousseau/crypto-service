@@ -23,6 +23,7 @@
     },
     "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
+        "@sebastienrousseau/c8-config": "^0.0.1",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.4",
@@ -99,7 +100,7 @@
         "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
         "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
         "start": "node index.js",
-        "test": "c8 mocha"
+        "test": "c8 --config=.c8rc mocha"
     },
     "type": "module",
     "version": "0.0.2"

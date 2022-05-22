@@ -1020,6 +1020,11 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
+"@sebastienrousseau/c8-config@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/c8-config/-/c8-config-0.0.1.tgz#f88be9e56a0a345a7395d74f694bddd62701d67b"
+  integrity sha512-hWbMyqTXqss8UC+apr6wE+QGyVmN8aTjfhq0h5ocSaaID8NznxjBiySFLccucMvnOUqwprmGuL9K14kFjnKiMA==
+
 "@sebastienrousseau/eslint-config@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/eslint-config/-/eslint-config-0.0.2.tgz#0af71a30f841c4a5e74d084272ec8c722452f573"
