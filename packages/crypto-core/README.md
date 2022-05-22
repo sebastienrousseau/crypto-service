@@ -8,18 +8,18 @@
 
 # Introduction
 
-The Crypto Service is a powerful and intuitive suite of services that provides a
+Crypto Service is a powerful and intuitive suite of services that provides a
 set of cryptographic functions and standardized APIs to manage encryption keys
 and perform cryptographic operations such as key generation, data encryption,
-digital signing, and signature verification. The Crypto Service code is safe by
+digital signing, and signature verification. Crypto Service code is safe by
 design, and runs lightning-fast.
 
-The Crypto Service is based on [OpenPGP.js](https://openpgpjs.org/) - a
+Crypto Service is based on [OpenPGP.js](https://openpgpjs.org/) - a
 JavaScript implementation of the OpenPGP protocol. It implements
 [RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
 [RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
 
-The Crypto Service can help you ensure the following:
+Crypto Service can help you ensure the following:
 
 - Authentication of communicating parties,
 - Integrity of data,
