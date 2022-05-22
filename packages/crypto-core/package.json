@@ -23,11 +23,26 @@
     },
     "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
+        "@sebastienrousseau/c8-config": "^0.0.1",
+        "@sebastienrousseau/eslint-config": "^0.0.2",
+        "@sebastienrousseau/jsdoc-config": "^0.0.5",
+        "@sebastienrousseau/markdownlint-config": "^0.0.1",
+        "@sebastienrousseau/mocha-config": "^0.0.1",
+        "@sebastienrousseau/prettier-config": "^0.0.4",
+        "@sebastienrousseau/remark-config": "^0.0.2",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
-        "eslint": "^8.15.0",
+        "eslint": "^8.16.0",
         "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "jsdoc": "^3.6.10",
         "mocha": "^10.0.0",
+        "minami": "^1.2.3",
+        "prettier": "^2.6.2",
+        "remark-cli": "^10.0.1",
+        "remark-preset-lint-consistent": "^5.1.1",
+        "remark-preset-lint-markdown-style-guide": "^5.1.2",
+        "remark-preset-lint-recommended": "^6.1.2",
         "rimraf": "^3.0.2"
     },
     "engines": {
@@ -85,10 +100,12 @@
     },
     "scripts": {
         "clean": "rimraf lib",
-        "lint": "eslint --config=.eslintrc.json src/**/*.js",
-        "lint-fix": "eslint --config=.eslintrc.json src/**/*.js --fix",
+        "doc": "jsdoc --debug --verbose -c ./.jsdocrc.json",
+        "lint": "eslint --config=.eslintrc src/**/*.js",
+        "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
+        "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
         "start": "node index.js",
-        "test": "c8 mocha"
+        "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
     "type": "module",
     "version": "0.0.2"

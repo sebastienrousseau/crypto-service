@@ -3,7 +3,7 @@ import * as openpgp from "openpgp";
 
 /* Taking the arguments from the command line and storing them in an array. */
 let args = process.argv.slice(2);
-console.log(args);
+let data = args;
 
 /**
  * It generates a public and private key pair, and saves them to the file system
@@ -11,7 +11,7 @@ console.log(args);
  */
 // const generatePair = async(args) => {
 
-const generate = async (data) => {
+const generate = async(data) => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
       type: data.type, // The primary key algorithm type: ECC (default) or RSA

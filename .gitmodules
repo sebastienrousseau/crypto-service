@@ -1,0 +1,14 @@
+# ESLint Submodule
+[submodule "packages/eslint-config"]
+	path = packages/eslint-config
+	url = https://github.com/sebastienrousseau/eslint-config.git
+
+# Prettier Submodule
+[submodule "packages/prettier-config"]
+	path = packages/prettier-config
+	url = https://github.com/sebastienrousseau/prettier-config.git
+
+# Markdownlint Submodule
+[submodule "packages/markdownlint-config"]
+	path = packages/markdownlint-config
+	url = https://github.com/sebastienrousseau/markdownlint-config.git
