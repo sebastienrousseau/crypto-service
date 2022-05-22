@@ -7,6 +7,7 @@
     "scripts": {
         "bootstrap": "lerna bootstrap",
         "clean:lerna": "lerna clean --yes",
+        "doc": "lerna exec yarn doc --parallel",
         "lint:js": "yarn eslint --config=.eslintrc packages/**/*.js",
         "lint:js:fix": "yarn lint:js --fix",
         "lint:markdown": "yarn remark \"./*.md\" \"packages/**/*.md\"",

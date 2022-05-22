@@ -25,6 +25,7 @@
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.1",
         "@sebastienrousseau/eslint-config": "^0.0.2",
+        "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
         "@sebastienrousseau/mocha-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.4",
@@ -34,7 +35,9 @@
         "eslint": "^8.16.0",
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-prettier": "^4.0.0",
+        "jsdoc": "^3.6.10",
         "mocha": "^10.0.0",
+        "minami": "^1.2.3",
         "prettier": "^2.6.2",
         "remark-cli": "^10.0.1",
         "remark-preset-lint-consistent": "^5.1.1",
@@ -97,6 +100,7 @@
     },
     "scripts": {
         "clean": "rimraf lib",
+        "doc": "jsdoc --debug --verbose -c ./.jsdocrc.json",
         "lint": "eslint --config=.eslintrc src/**/*.js",
         "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
         "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
