@@ -4,9 +4,7 @@
 
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
-[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-e72163?style=for-the-badge)](https://prettier.io)
-
-[![npm version](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-service.svg)](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-service)
+![Made with Love](/assets/made-with-love.svg)
 
 ### Packages
 
@@ -20,10 +18,6 @@
 Auto-generated using [JSDoc](https://github.com/jsdoc/jsdoc) and deployed via [GitHub](https://github.com)
 
 [Doc Link]()
-
-[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
-![Made with Love](/assets/made-with-love.svg)
 
 ***
 
