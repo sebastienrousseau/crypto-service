@@ -1038,6 +1038,11 @@
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/markdownlint-config/-/markdownlint-config-0.0.1.tgz#9c297f70a37d409d532ec0ec1969f1b3b1d69657"
   integrity sha512-mEQLTxoCWFPjM22misoFbJsQYBhnkD9umQZLBUBna3iVgItTK4t7rM7zFNxJTPTnmz21zbcr4CGqy9a4tiyRag==
 
+"@sebastienrousseau/mocha-config@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/mocha-config/-/mocha-config-0.0.1.tgz#c685fa668faea1c00b4d35620bcab593574d0c30"
+  integrity sha512-mhH5sZl//+zCTn9M/2nOocMGSKa79aDwKYB1FmpyXwFgF3H2/g649QndcGFVVcSjyuylR6BFWoBGi6XQu5arjg==
+
 "@sebastienrousseau/prettier-config@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/prettier-config/-/prettier-config-0.0.4.tgz#214ab12f712a60dda549382290a798971ffc3404"
