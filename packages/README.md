@@ -1,6 +1,5 @@
 
 ![Banner representing Crypto Core][Crypto Core]
-
 ![Banner representing Crypto Server][Crypto Server]
 
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
