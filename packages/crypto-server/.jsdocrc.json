@@ -11,7 +11,7 @@
   "source": {
     "exclude": ["node_modules", "dist", "coverage", "test"],
     "excludePattern": "(node_modules/|docs|templates|jsdoc-template|template)",
-    "include": ["packages", "package.json", "README.md"],
+    "include": ["src", "README.md"],
     "includePattern": ".js$"
   },
   "sourceType": "module",
