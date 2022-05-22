@@ -1,5 +1,11 @@
 # Key Generation API
 
+[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
+![Made with Love](/assets/made-with-love.svg)
+
+***
+
 Most cryptographic operations involve a mathematical formula (algorithm) and
 secret data (key). The Key Generation APIs allow you to generate random key
 values for both symmetric and asymmetric (PKA) algorithms.
@@ -29,3 +35,4 @@ key pair.
 
 -   Generate Symmetric Key (QC3GENSK, Qc3GenSymmetricKey) generates a random key
 value that can be used with a symmetric cipher algorithm.
+
