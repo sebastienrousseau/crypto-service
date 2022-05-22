@@ -100,7 +100,7 @@
     },
     "scripts": {
         "clean": "rimraf lib",
-        "doc": "jsdoc --debug --verbose -c ./.jsdocrc.json",
+        "doc": "jsdoc -c ./.jsdocrc.json",
         "lint": "eslint --config=.eslintrc src/**/*.js",
         "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
         "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
