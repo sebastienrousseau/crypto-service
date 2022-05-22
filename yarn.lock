@@ -1038,6 +1038,11 @@
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/prettier-config/-/prettier-config-0.0.4.tgz#214ab12f712a60dda549382290a798971ffc3404"
   integrity sha512-5LnSFALBhQboFuHIZdjVRhm2boiIn7gm1bqAXkc4Yeft2ylScQhAmYiTl1w4a9cCZSFl/B5Dhti6ERmmupheXA==
 
+"@sebastienrousseau/remark-config@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/remark-config/-/remark-config-0.0.2.tgz#3061202a6cf9feccb212faecfa64f554bb1b03f7"
+  integrity sha512-AKgxHSHvjGKS49L7HOcGDnFYJwo0wT4zBzumabtaMU/sZ2ju0cbQjmadLKdlk/B0R+VnD2Uq9yL4J6StBjfvBA==
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"

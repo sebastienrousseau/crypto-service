@@ -27,6 +27,7 @@
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.4",
+        "@sebastienrousseau/remark-config": "^0.0.2",
         "fastify": "^3.29.0",
         "fastify-healthcheck": "^3.1.0",
         "uuid": "^8.3.2",

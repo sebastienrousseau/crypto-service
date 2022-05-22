@@ -26,6 +26,7 @@
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.4",
+        "@sebastienrousseau/remark-config": "^0.0.2",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "eslint": "^8.16.0",
