@@ -1,4 +1,4 @@
-import CryptoCore from "../src/bin/crypto-core.js";
+import CryptoCore from "../src/bin/crypto-lib.js.js";
 import * as chai from "chai";
 
 let expect = chai.expect;

@@ -1,4 +1,6 @@
-![Banner representing Crypto Core](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-core-logo.svg)
+# Crypto Lib
+
+![Banner representing Crypto Lib](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-logo.svg)
 
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
@@ -6,20 +8,20 @@
 
 ***
 
-# Introduction
+## Introduction
 
-Crypto Service is a powerful and intuitive suite of services that provides a
-set of cryptographic functions and standardized APIs to manage encryption keys
-and perform cryptographic operations such as key generation, data encryption,
-digital signing, and signature verification. Crypto Service code is safe by
-design, and runs lightning-fast.
+Crypto Lib is a powerful intuitive cryptographic JavaScript library that
+encapsulates common algorithms, functions and standardized APIs to manage
+encryption keys and perform cryptographic operations such as key generation,
+data encryption, digital signing, and signature verification. Crypto Lib
+code is safe by design, and runs lightning-fast.
 
-Crypto Service is based on [OpenPGP.js](https://openpgpjs.org/) - a
+Crypto Lib is based on [OpenPGP.js](https://openpgpjs.org/) - a
 JavaScript implementation of the OpenPGP protocol. It implements
 [RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
 [RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
 
-Crypto Service can help you ensure the following:
+Crypto Lib can help you ensure the following:
 
 - Authentication of communicating parties,
 - Integrity of data,
@@ -28,7 +30,7 @@ Crypto Service can help you ensure the following:
 
 ## Installation
 
-To install Crypto Service, use either `npm` or `yarn` to use the application
+To install Crypto Lib, use either `npm` or `yarn` to use the application
 with NodeJS or the Command Line Interface.
 
 - `npm i @sebastienrousseau/crypto-service`
@@ -108,7 +110,7 @@ To encrypt a message:
 - Enter the following example command that will start the encryption process.
 
 ```shell
-node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto Service APIs!'
+node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto Lib APIs!'
 ```
 
 ***
@@ -142,7 +144,7 @@ To encrypt a message:
 
 curl --location --request GET 'http://localhost:3000/encrypt' \
 --header 'passphrase: 123456789abcdef' \
---header 'message: Hello Crypto Service!'
+--header 'message: Hello Crypto Lib!'
 
 ```
 

@@ -24,7 +24,7 @@
         "@fastify/etag": "^3.0.0",
         "@fastify/helmet": "^8.0.0",
         "@sebastienrousseau/c8-config": "^0.0.1",
-        "@sebastienrousseau/crypto-core": "^0.0.2",
+        "@sebastienrousseau/crypto-lib": "^0.0.2",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
