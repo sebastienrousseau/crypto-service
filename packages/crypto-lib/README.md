@@ -21,7 +21,7 @@ The cryptographic operations include:
 - Key Generation,
 - Key Management,
 - Pseudorandom Number Generation,
-- Signature Verification,
+- Signature Verification.
 
 This library is based on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript
 implementation of the OpenPGP protocol. It implements [RFC4880](https://tools.ietf.org/html/rfc4880)
