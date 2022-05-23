@@ -45,9 +45,38 @@ Server with Node.js or the Command Line Interface:
 
 ## Quick Start
 
+### Starting the Crypto Server
+
+- Open Terminal for Mac or Command Prompt for Windows,
+- Enter one of the following commands to start the Crypto Server:   
+
+#### NPM
+
+- `npm run start:server`
+
+#### Yarn
+
+- `yarn start:server`
+
+This will start the Crypto Server on your local machine with the following
+environment details:
+
+- Protocol: http,
+- Hostname: localhost,
+- Port: 3000,
+- IP: 127.0.0.1.
+
+The Crypto Server should be listening on [http://localhost:3000/](http://localhost:3000/)
+
+### What are the Crypto Service APIs?
+
+The Crypto Service APIs give you access to a range of security and encryption
+solutions to perform low-level cryptographic operations, key storage operations,
+protect static data, and securely share secrets.
+
 On arrival of a new API request, the Crypto Server performs the operation in the
-Cloud environment, subsequently the response is transferred back to the
-requesting application. All operations coming through the server are monitored
-so statistics can be made and acted upon. 
+environment, subsequently the response is transferred back to the requesting 
+application. All operations coming through the server are monitored so
+statistics can be made and acted upon. 
 
 ***
