@@ -10,8 +10,8 @@
 
 | Package Name | Version | Doc link |
 |--------------|---------|----------|
-|  ![Banner representing Crypto Lib][crypto lib]  | [![npm version](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-lib.svg)](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-lib) |  |
-|  ![Banner representing Crypto Server][crypto server] | [![npm version](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-server.svg)](https://badge.fury.io/js/@sebastienrousseau%2Fcrypto-server) |  |
+|  ![Banner representing Crypto Lib][crypto lib]  | ![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-lib?style=for-the-badge) |  |
+|  ![Banner representing Crypto Server][crypto server] | ![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-server?style=for-the-badge) |  |
 
 ## Documentation
 
