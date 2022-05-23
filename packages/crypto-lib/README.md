@@ -125,11 +125,13 @@ them with the password provided and writes them to a file in the
 
 ***
 
-### Encrypting Data
+### Encrypting and Signing Data
 
 Encryption is the transformation of data into a form in which it cannot be made
 sense of without the use of some key. Such transformed data is referred to as
 `ciphertext`.
+
+Crypto Lib makes it easy and painless to encrypt and sign data.
 
 To encrypt a message:
 
@@ -145,10 +147,11 @@ node src/lib/encrypt.js \
 
 ***
 
-### Decrypting Data
+### Decrypting and Verifying Signatures
 
 Decryption restores encrypted data to to its original (cleartext or plaintext)
-form.
+form. Decrypting data and verifying signatures is being done similarly in Crypto
+Lib.
 
 To decrypt a message:
 
