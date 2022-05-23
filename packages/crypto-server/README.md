@@ -74,9 +74,10 @@ The Crypto Service APIs give you access to a range of security and encryption
 solutions to perform low-level cryptographic operations, key storage operations,
 protect static data, and securely share secrets.
 
-On arrival of a new API request, the Crypto Server performs the operation in the
-environment, subsequently the response is transferred back to the requesting 
-application. All operations coming through the server are monitored so
-statistics can be made and acted upon. 
+On arrival of a new API request, the Crypto Server performs the request
+operation in the host environment, subsequently the response is transferred back
+to the requesting application. All operations that are performed andd coming
+through the Crypto Server are monitored so statistics can be made and acted upon
+. 
 
 ***
