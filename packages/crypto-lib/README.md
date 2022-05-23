@@ -24,9 +24,8 @@ The cryptographic operations include:
 - Signature Verification,
 
 This library is based on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript
-implementation of the OpenPGP protocol. It implements
-[RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
-[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
+implementation of the OpenPGP protocol. It implements [RFC4880](https://tools.ietf.org/html/rfc4880)
+and parts of [RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
 
 Development of this library is hosted by [GitHub](https://github.com) at the
 following page:
@@ -44,7 +43,7 @@ Crypto Lib is a [Node.js](https://nodejs.org/en/) module available through the
 or higher is required.
 
 Installation is done using either `npm` or `yarn` package managers to use Crypto
-Lib with Node.js or the Command Line Interface.
+Lib with Node.js or the Command Line Interface:
 
 - `npm i @sebastienrousseau/crypto-lib`
 - `yarn add @sebastienrousseau/crypto-lib`
