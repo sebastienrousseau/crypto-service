@@ -19,9 +19,9 @@ low-level cryptographic operations.
 
 ![Banner representing Crypto Server][crypto server]
 
-Crypto Server is a web server that exposes easy consumable REST APIs to
-perform low-level cryptographic operations. It is implemented using Node.js and
-relies on [**Crypto Lib**](https://cryptolib.io).
+Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
+easy consumable REST APIs to perform low-level cryptographic operations. It is
+implemented using Node.js and relies on [**Crypto Lib**](https://cryptolib.io).
 
 ## Documentation
 
