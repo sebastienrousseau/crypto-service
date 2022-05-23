@@ -50,7 +50,7 @@ Lib with Node.js or the Command Line Interface:
 
 ## Quick Start
 
-### Generate a new RSA key pair
+### Generating a new RSA key pair
 
 [RSA](https://en.wikipedia.org/wiki/RSA_\(cryptosystem\)) is a public-key
 algorithm for encrypting and signing messages.
@@ -79,7 +79,7 @@ extension.
 
 ***
 
-### Generate a new Elliptic-curve cryptography (ECC) key pair
+### Generating a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography (ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
 is an alternative technique to RSA. It generates security between key pairs for
@@ -125,7 +125,7 @@ them with the password provided and writes them to a file in the
 
 ***
 
-### Encrypt Data
+### Encrypting Data
 
 Encryption is the transformation of data into a form in which it cannot be made
 sense of without the use of some key. Such transformed data is referred to as
@@ -145,7 +145,7 @@ node src/lib/encrypt.js \
 
 ***
 
-### Decrypt Data
+### Decrypting Data
 
 Decryption restores encrypted data to to its original (cleartext or plaintext)
 form.
