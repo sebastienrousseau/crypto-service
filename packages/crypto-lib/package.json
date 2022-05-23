@@ -13,7 +13,7 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "crypto-core": "bin/crypto-core.js"
+        "crypto-lib": "bin/crypto-lib.js"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -62,7 +62,7 @@
             "url": "https://paypal.me/wwdseb"
         }
     ],
-    "homepage": "https://crypto-service.dev",
+    "homepage": "https://cryptolib.io",
     "keywords": [
         "crypto-api",
         "crypto-library",
@@ -87,20 +87,20 @@
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
     "main": "index.js",
-    "name": "@sebastienrousseau/crypto-core",
+    "name": "@sebastienrousseau/crypto-lib",
     "private": true,
     "publishConfig": {
         "access": "public",
         "registry": "https://npm.pkg.github.com"
     },
     "repository": {
-        "directory": "packages/crypto-core",
+        "directory": "packages/crypto-lib",
         "type": "git",
         "url": "git+https://sebastienrousseau/crypto-service.git"
     },
     "scripts": {
         "clean": "rimraf lib",
-        "doc": "jsdoc --debug --verbose -c ./.jsdocrc.json",
+        "doc": "jsdoc -c .jsdocrc.json",
         "lint": "eslint --config=.eslintrc src/**/*.js",
         "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
         "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",

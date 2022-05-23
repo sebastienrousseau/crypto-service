@@ -18,20 +18,20 @@ let args = process.argv.slice(2);
  * @param {Object} args - The arguments passed to the function.
  * @returns {string} data - The encrypted message result in base64 format.
  */
-const encrypt = async (args) => {
+const encrypt = async(args) => {
   /* Converting the array into a JSON object. */
   args = JSON.stringify(args);
   const data = JSON.parse(args);
 
   /* Reading the public and private keys from the file. */
-  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function (e) {
+  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
     if (e) {
       throw e;
     }
   });
   let privateKeyArmored = await readFile(
     "./src/key/rsa.priv.pgp",
-    function (e) {
+    function(e) {
       if (e) {
         throw e;
       }

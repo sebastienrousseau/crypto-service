@@ -6,10 +6,10 @@ const args = process.argv.slice(2);
  * property, it imports a module and runs it
  * @param data - This is the data that is passed to the function.
  */
-const CryptoCore = async (data) => {
+const CryptoLib = async(data) => {
   if (data.type) {
     let cryptoFunction = "../lib/generate.js";
-    const run = async () => {
+    const run = async() => {
       cryptoFunction = await import(cryptoFunction);
       cryptoFunction;
     };
@@ -17,7 +17,7 @@ const CryptoCore = async (data) => {
   }
 };
 /* Calling the function with the arguments. */
-CryptoCore({
+CryptoLib({
   bits: args[11],
   curve: args[9],
   email: args[3],
@@ -28,4 +28,4 @@ CryptoCore({
   sign: args[15],
   type: args[7],
 });
-export default CryptoCore;
+export default CryptoLib;

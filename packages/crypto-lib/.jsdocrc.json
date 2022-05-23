@@ -1,22 +1,28 @@
 {
   "opts": {
-    "destination": "./documentation/",
+    "destination": "./docs/",
     "encoding": "utf8",
     "recurse": true,
     "verbose": true
   },
   "plugins": [
-    "plugins/markdown"
   ],
   "recurseDepth": 10,
   "source": {
     "exclude": ["node_modules", "dist", "coverage", "test"],
-    "excludePattern": "(node_modules/|documentation)",
+    "excludePattern": "(node_modules/|docs|templates|jsdoc-template|template)",
     "include": ["src", "README.md"],
     "includePattern": ".js$"
   },
+  "sourceType": "module",
   "tags": {
     "allowUnknownTags": true,
     "dictionaries": ["jsdoc"]
+  },
+  "templates": {
+    "referenceTitle": "js",
+    "disableSort": false,
+    "collapse": true,
+    "resources": { }
   }
 }

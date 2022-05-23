@@ -14,7 +14,7 @@
         "prettier:format": "yarn prettier --config .prettierrc 'packages/**/*.js' --write",
         "release": "yarn install && lerna publish && yarn clean",
         "start": "lerna exec yarn start --parallel",
-        "start:core": "lerna exec yarn start --scope=@sebastienrousseau/crypto-core",
+        "start:core": "lerna exec yarn start --scope=@sebastienrousseau/crypto-lib",
         "start:server": "lerna exec yarn start --scope=@sebastienrousseau/crypto-server",
         "test": "lerna run test --parallel --since"
     },
