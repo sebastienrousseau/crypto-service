@@ -12,28 +12,28 @@ values for both symmetric and asymmetric (PKA) algorithms.
 
 The Key Generation APIs include:
 
-- Calculate Diffie-Hellman Secret Key (QC3CALDS, Qc3CalculateDHSecretKey)
+-   Calculate Diffie-Hellman Secret Key (QC3CALDS, Qc3CalculateDHSecretKey)
 calculates a Diffie-Hellman shared secret key.
 
-- Generate Diffie-Hellman Key Pair (QC3GENDK, Qc3GenDHKeyPair) generates a
+-   Generate Diffie-Hellman Key Pair (QC3GENDK, Qc3GenDHKeyPair) generates a
 Diffie-Hellman (D-H) private public key pair needed for calculating a
 Diffie-Hellman shared secret key.
 
-- Generate Diffie-Hellman Parameters (QC3GENDP, Qc3GenDHParms) generates the
+-   Generate Diffie-Hellman Parameters (QC3GENDP, Qc3GenDHParms) generates the
 parameters needed for generating a Diffie-Hellman key pair.
 
-- Generate ECC Key Pair (QC3GENECC, Qc3GenECCKeyPair) generates a random ECC
+-   Generate ECC Key Pair (QC3GENECC, Qc3GenECCKeyPair) generates a random ECC
 key pair given a set of domain parameters to be used with elliptic curve
 cryptographic algorithms.
 
-- Generate Elliptic Curve Diffie-Hellman Key Pair
+-   Generate Elliptic Curve Diffie-Hellman Key Pair
 (QC3GENECDK, Qc3GenECDKeyPair) generates a Diffie-Hellman (D-H) private/public
 key pair needed for calculating a Diffie-Hellman shared secret key.
 
-- Generate PKA Key Pair (QC3GENPK, Qc3GenPKAKeyPair) generates a random PKA
+-   Generate PKA Key Pair (QC3GENPK, Qc3GenPKAKeyPair) generates a random PKA
 key pair.
 
-- Generate Symmetric Key (QC3GENSK, Qc3GenSymmetricKey) generates a random key
+-   Generate Symmetric Key (QC3GENSK, Qc3GenSymmetricKey) generates a random key
 value that can be used with a symmetric cipher algorithm.
 
 ***
