@@ -8,39 +8,50 @@
 
 ***
 
-## Introduction
+## Introduction to the Crypto Library
 
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
-encapsulates common algorithms, functions and standardized APIs to manage
-encryption keys and perform cryptographic operations such as key generation,
-data encryption, digital signing, and signature verification. Crypto Lib
-code is safe by design, and runs lightning-fast.
+encapsulates common algorithms, functions and provides an interface for
+low-level cryptographic operations.
 
-Crypto Lib is based on [OpenPGP.js](https://openpgpjs.org/) - a
-JavaScript implementation of the OpenPGP protocol. It implements
+The cryptographic operations include:
+
+- Digital Signing,
+- Encryption and Decryption,
+- Key Generation,
+- Key Management,
+- Pseudorandom Number Generation,
+- Signature Verification,
+
+This library is based on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript
+implementation of the OpenPGP protocol. It implements
 [RFC4880](https://tools.ietf.org/html/rfc4880) and parts of
 [RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
 
-Crypto Lib can help you ensure the following:
+Development of this library is hosted by [GitHub](https://github.com) at the
+following page:
 
-- Authentication of communicating parties,
-- Integrity of data,
-- Message Level Encryption for encryption and non-repudiation.,
-- Privacy of data.
+- [https://github.com/sebastienrousseau/crypto-service](https://github.com/sebastienrousseau/crypto-service)
+
+This source code is available to everyone under the standard
+[MIT license](https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE).
 
 ## Installation
 
-To install Crypto Lib, use either `npm` or `yarn` to use the application
-with NodeJS or the Command Line Interface.
+Crypto Lib is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Before installing,
+[download and install Node.js](https://nodejs.org/en/download/). Node.js 12.20.0
+or higher is required.
 
-- `npm i @sebastienrousseau/crypto-service`
-- `yarn add @sebastienrousseau/crypto-service`
+Installation is done using either `npm` or `yarn` package managers to use Crypto
+Lib with Node.js or the Command Line Interface.
 
-## Usage
+- `npm i @sebastienrousseau/crypto-lib`
+- `yarn add @sebastienrousseau/crypto-lib`
 
-### Command line interface
+## Quick Start
 
-#### Generate a new RSA key pair
+### Generate a new RSA key pair
 
 [RSA](https://en.wikipedia.org/wiki/RSA_\(cryptosystem\)) is a public-key
 algorithm for encrypting and signing messages.
@@ -60,7 +71,7 @@ extension.
 
 ***
 
-#### Generate a new Elliptic-curve cryptography (ECC) key pair
+### Generate a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography (ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
 is an alternative technique to RSA. It generates security between key pairs for
@@ -97,7 +108,7 @@ them with the password provided and writes them to a file in the
 
 ***
 
-#### Encrypt Data
+### Encrypt Data
 
 Encryption is the transformation of data into a form in which it cannot be made
 sense of without the use of some key. Such transformed data is referred to as
@@ -115,7 +126,7 @@ node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto L
 
 ***
 
-#### Decrypt Data
+### Decrypt Data
 
 Decryption restores encrypted data to to its original (cleartext or plaintext)
 form.
