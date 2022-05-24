@@ -14,8 +14,8 @@ numerous Cryptographic JavaScript functions and standardized REST APIs to
 manage encryption keys, perform common cryptographic operations such as key
 generation, data encryption, digital signing, and signature verification.
 
-![Getting Started][getting started]
-![Download Crypto Service v0.0.2][download]
+[![Getting Started][getting started]](#getting-started)
+[![Download Crypto Service v0.0.2][download]](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
 
 Crypto Service code is safe by design, and runs lightning-fast. It is based on
 [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
@@ -257,9 +257,9 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 
 
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg (#getting-started)
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg (https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
 
