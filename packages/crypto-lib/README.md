@@ -165,5 +165,5 @@ node src/lib/decrypt.js \
 [8]: https://www.npmjs.com/
 [9]: https://yarnpkg.com/getting-started
 [10]: https://pnpm.io/motivation
-[11]: https://en.wikipedia.org/wiki/RSA_\(cryptosystem\
+[11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
