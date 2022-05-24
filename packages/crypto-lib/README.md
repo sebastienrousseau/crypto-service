@@ -8,7 +8,7 @@
 
 ***
 
-## Welcome to Crypto Library
+## Welcome to Crypto Lib
 
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
