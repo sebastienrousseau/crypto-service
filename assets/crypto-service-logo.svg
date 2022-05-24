@@ -3,28 +3,28 @@
     <title>crypto-service-logo</title>
     <defs>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
-            <stop stop-color="#01F6F4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
-            <stop stop-color="#01F6F4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
-            <stop stop-color="#01F6F4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-4">
-            <stop stop-color="#01F6F4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-5">
-            <stop stop-color="#01F6F4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-6">
-            <stop stop-color="#01FFF4" offset="0%"></stop>
-            <stop stop-color="#3EE85D" offset="100%"></stop>
+            <stop stop-color="#EF4041" offset="0%"></stop>
+            <stop stop-color="#C1282D" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Crypto-Logos" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
