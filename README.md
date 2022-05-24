@@ -28,8 +28,8 @@ Crypto Service can help you ensure the following:
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
 
-The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7]
- (Crypto Service Applications).
+The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7] part
+of the Crypto Service Applications.
 
 ## Crypto Lib
 
@@ -37,7 +37,7 @@ The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7]
 
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
-low-level cryptographic operations.
+low-level cryptographic operations. [Learn more ][6][>][6]
 
 ## Crypto Server
 
@@ -45,7 +45,7 @@ low-level cryptographic operations.
 
 Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
 easy consumable REST APIs to perform low-level cryptographic operations. It is
-implemented using Node.js and relies on [**Crypto Lib**](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib).
+implemented using Node.js and relies on Crypto Lib. [Learn more ][7][>][7]
 
 ## Getting Started
 
@@ -56,12 +56,15 @@ Here, you’ll find information about the how to use Crypto Service.
 The first step to using Crypto Service is to download and install the
 application and other required components.
 
-### Releases
+### Crypto Service Releases
 
-#### Crypto Service v0.0.2
+Update your apps to use new features, and test your apps against API changes.
 
-- Date: May 17, 2022
-- Tag:sebastienrousseau-crypto-service-0.0.2
+|Date|Tag|
+| --- | --- |
+|May 17, 2022|[sebastienrousseau-crypto-service-0.0.1][8]|
+|May 24, 2022|[sebastienrousseau-crypto-service-0.0.2][9]|
+
 
 ### Install using NPM or YARN
 
@@ -255,6 +258,8 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
 [6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
+[8]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
+[9]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2
 
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
