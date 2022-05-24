@@ -152,8 +152,6 @@ pull requests to us.
 [^note]: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1,
 brainpoolP384r1, or brainpoolP512r1.
 
-***
-
 [1]: https://github.com/sebastienrousseau/crypto-server/blob/master/.github/CONTRIBUTING.md
 [2]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [3]: https://www.fastify.io
