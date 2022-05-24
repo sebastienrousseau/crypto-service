@@ -114,8 +114,8 @@ Contributions to Crypto Server are welcomed and encouraged! Please see our
 [Contributing Guidelines][1] for further details on the process for submitting
 pull requests to us.
 
-[^1]: Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521,
-secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.
+[^1]: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1,
+or brainpoolP512r1.
 
 ***
 
