@@ -135,10 +135,10 @@ extension.
 ### Generate a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography
-(ECC)][5] is an alternative technique to RSA. It generates security between key pairs for public
-key encryption by using the mathematics of elliptic curves. Elliptic curve
-cryptography provides stronger security per bits of key, which allows for much
-faster operations.
+(ECC)][5] is an alternative technique to RSA. It generates security between key
+pairs for public key encryption by using the mathematics of elliptic curves.
+Elliptic curve cryptography provides stronger security per bits of key, which
+allows for much faster operations.
 
 Currently the following curves are supported:
 
@@ -256,14 +256,8 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 
-
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
-
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
-
+[getting started]: assets/button-primary.svg 
+[download]: assets/button-secondary.svg 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
-
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
-
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
-
