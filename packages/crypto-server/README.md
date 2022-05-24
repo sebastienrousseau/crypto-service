@@ -91,7 +91,7 @@ This endpoint allows you to create a new Key Pair.
 |name|Jane Doe|First name and Last name |
 |email|jane@doe.com|Email address |
 |passphrase|123456789abcdef|The passphrase used to encrypt the private key. |
-|curve|null|Elliptic curve for ECC keys[^1] |
+|curve|null|Elliptic curve for ECC keys[^note] |
 |expiration|0|Number of seconds from the key creation time. |
 |format|armored|Format of the output keys e.g. 'armored' | 'object' | 'binary'.|
 
@@ -132,7 +132,8 @@ Contributions to Crypto Server are welcomed and encouraged! Please see our
 [Contributing Guidelines][1] for further details on the process for submitting
 pull requests to us.
 
-[^1]: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.
+[^note]: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1,
+brainpoolP384r1, or brainpoolP512r1.
 
 ***
 
