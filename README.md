@@ -15,11 +15,11 @@ manage encryption keys, perform common cryptographic operations such as key
 generation, data encryption, digital signing, and signature verification.
 
 [![Getting Started][getting started]](#getting-started)
-[![Download Crypto Service v0.0.2][download]](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
+[![Download Crypto Service v0.0.2][download]][9]
 
 Crypto Service code is safe by design, and runs lightning-fast. It is based on
 [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
-implements [RFC4880][2] and parts of[RFC4880bis][3].
+implements [RFC4880][2] and parts of [RFC4880bis][3].
 
 Crypto Service can help you ensure the following:
 
@@ -37,7 +37,7 @@ of the Crypto Service Applications.
 
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
-low-level cryptographic operations. [Learn more ][6][>][6]
+low-level cryptographic operations. [Learn more][6][>][6]
 
 ## Crypto Server
 
@@ -45,37 +45,45 @@ low-level cryptographic operations. [Learn more ][6][>][6]
 
 Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
 easy consumable REST APIs to perform low-level cryptographic operations. It is
-implemented using Node.js and relies on Crypto Lib. [Learn more ][7][>][7]
+implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ## Getting Started
 
-Here, you’ll find information about the how to use Crypto Service.
+Crypto Service helps put you in control of your sensitive information. You’ll
+find below details on how to get started and how to configure Crypto Service and
+its products.
 
-## Installing Crypto Service
+## Installation
 
 The first step to using Crypto Service is to download and install the
 application and other required components.
 
-### Crypto Service Releases
-
-Update your apps to use new features, and test your apps against API changes.
-
-|Date|Tag|
-| --- | --- |
-|May 17, 2022|[sebastienrousseau-crypto-service-0.0.1][8]|
-|May 24, 2022|[sebastienrousseau-crypto-service-0.0.2][9]|
-
-
 ### Install using NPM or YARN
 
-To install Crypto Service, use either npm or yarn as follows:
+Crypto Service is a [Node.js][12] module available through the
+[npm registry][13]. Before installing, [download and install Node.js][12].
+Node.js 12.20.0 or higher is required.
+
+Installation is done using either [`npm`][13], [`yarn`][14] or [`pnpm`][15]
+package managers to use Crypto Service with Node.js or the Command Line
+Interface:
 
 - `npm i @sebastienrousseau/crypto-service`
 - `yarn add @sebastienrousseau/crypto-service`
+- `pnpm add @sebastienrousseau/crypto-service`
 
 ### Install from GitHub
 
 Clone the main repository to get all source files including build scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
+
+## Crypto Service Releases
+
+Update your apps to use new features, and test your apps against API changes.
+
+|Date|Download|Release Note|
+| :-: | :-: | :-: |
+|May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
+|May 24, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
 
 ## What's included
 
@@ -258,8 +266,15 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
 [6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
-[8]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
-[9]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2
+[8]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.1.zip
+[9]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip
+[10]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
+[11]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2
+[12]: https://nodejs.org/en/
+[13]: https://www.npmjs.com/
+[14]: https://yarnpkg.com/getting-started
+[15]: https://pnpm.io/motivation
+
 
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
