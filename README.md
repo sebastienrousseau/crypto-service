@@ -256,8 +256,8 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 
-[getting started]: assets/button-primary.svg 
-[download]: assets/button-secondary.svg 
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
