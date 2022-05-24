@@ -14,6 +14,9 @@ numerous Cryptographic JavaScript functions and standardized REST APIs to
 manage encryption keys, perform common cryptographic operations such as key
 generation, data encryption, digital signing, and signature verification.
 
+![Getting Started][getting started]
+![Download Crypto Service v0.0.2][download]
+
 Crypto Service code is safe by design, and runs lightning-fast. It is based on
 [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
 implements [RFC4880][2] and parts of[RFC4880bis][3].
@@ -35,6 +38,7 @@ The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7]
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
 low-level cryptographic operations.
+
 ## Crypto Server
 
 ![Banner representing Crypto Server][crypto server]
@@ -42,9 +46,6 @@ low-level cryptographic operations.
 Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
 easy consumable REST APIs to perform low-level cryptographic operations. It is
 implemented using Node.js and relies on [**Crypto Lib**](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib).
-
-[![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#getting-started)
-[![Download Crypto Service v0.0.2](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
 
 ## Getting Started
 
@@ -252,8 +253,13 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [3]: https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
 [4]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
-[6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)
-[7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server)
+[6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
+[7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
+
+
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg (#getting-started)
+
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg (https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
 
