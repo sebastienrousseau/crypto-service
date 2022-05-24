@@ -1,4 +1,4 @@
-![Banner representing Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
+![Banner representing Crypto Service][crypto service]
 
 ![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
@@ -10,14 +10,16 @@
 # Welcome to Crypto Service
 
 Crypto Service is a powerful and intuitive suite of security tools that provides
-cryptographic functions and standardized APIs to manage encryption keys and
-perform cryptographic operations such as key generation, data encryption,
-digital signing, and signature verification.
+numerous Cryptographic JavaScript functions and standardized REST APIs to
+manage encryption keys, perform common cryptographic operations such as key
+generation, data encryption, digital signing, and signature verification.
 
-Crypto Service code is safe by design, and runs lightning-fast. It is based
-on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript implementation of the
-OpenPGP protocol. It implements [RFC4880](https://tools.ietf.org/html/rfc4880)
-and parts of[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
+[![Getting Started][getting started]](#getting-started)
+[![Download Crypto Service v0.0.2][download]][9]
+
+Crypto Service code is safe by design, and runs lightning-fast. It is based on
+[OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
+implements [RFC4880][2] and parts of [RFC4880bis][3].
 
 Crypto Service can help you ensure the following:
 
@@ -26,35 +28,62 @@ Crypto Service can help you ensure the following:
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
 
-[![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#getting-started)
-[![Download Crypto Service v0.0.2](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
+The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7] part
+of the Crypto Service Applications.
+
+## Crypto Lib
+
+![Banner representing Crypto Lib][crypto lib]
+
+Crypto Lib is a powerful intuitive cryptographic JavaScript library that
+encapsulates common algorithms, functions and provides an interface for
+low-level cryptographic operations. [Learn more][6][>][6]
+
+## Crypto Server
+
+![Banner representing Crypto Server][crypto server]
+
+Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
+easy consumable REST APIs to perform low-level cryptographic operations. It is
+implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ## Getting Started
 
-Here, you’ll find information about the how to use Crypto Service.
+Crypto Service helps put you in control of your sensitive information. You’ll
+find below details on how to get started and how to configure Crypto Service and
+its products.
 
-## Installing Crypto Service
+## Installation
 
 The first step to using Crypto Service is to download and install the
 application and other required components.
 
-### Releases
-
-#### Crypto Service v0.0.2
-
-- Date: May 17, 2022
-- Tag:sebastienrousseau-crypto-service-0.0.2
-
 ### Install using NPM or YARN
 
-To install Crypto Service, use either npm or yarn as follows:
+Crypto Service is a [Node.js][12] module available through the
+[npm registry][13]. Before installing, [download and install Node.js][12].
+Node.js 12.20.0 or higher is required.
+
+Installation is done using either [`npm`][13], [`yarn`][14] or [`pnpm`][15]
+package managers to use Crypto Service with Node.js or the Command Line
+Interface:
 
 - `npm i @sebastienrousseau/crypto-service`
 - `yarn add @sebastienrousseau/crypto-service`
+- `pnpm add @sebastienrousseau/crypto-service`
 
 ### Install from GitHub
 
 Clone the main repository to get all source files including build scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
+
+## Crypto Service Releases
+
+Update your apps to use new features, and test your apps against API changes.
+
+|Date|Download|Release Note|
+| :-: | :-: | :-: |
+|May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
+|May 24, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
 
 ## What's included
 
@@ -99,8 +128,7 @@ You'll see something like this:
 
 ### Generating a new RSA key pair
 
-[RSA](https://en.wikipedia.org/wiki/RSA_\(cryptosystem\)) is a public-key
-algorithm for encrypting and signing messages.
+[RSA][4] is a public-key algorithm for encrypting and signing messages.
 
 To generate a Rivest-Shamir-Adelman (RSA) public key pair:
 
@@ -118,11 +146,10 @@ extension.
 ### Generate a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography
-(ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography) is an
-alternative technique to RSA. It generates security between key pairs for public
-key encryption by using the mathematics of elliptic curves. Elliptic curve
-cryptography provides stronger security per bits of key, which allows for much
-faster operations.
+(ECC)][5] is an alternative technique to RSA. It generates security between key
+pairs for public key encryption by using the mathematics of elliptic curves.
+Elliptic curve cryptography provides stronger security per bits of key, which
+allows for much faster operations.
 
 Currently the following curves are supported:
 
@@ -224,7 +251,7 @@ file for details.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service](https://crypto-service.dev) is beautifully crafted by these
+[Crypto Service](https://crypto-service.co) is beautifully crafted by these
 people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |
@@ -232,4 +259,25 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 |[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
 |[Sebastien Rousseau](https://github.com/sebastienrousseau)|
 
-Made with ❤ in London.
+[1]: https://openpgpjs.org/
+[2]: https://tools.ietf.org/html/rfc4880
+[3]: https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
+[4]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
+[5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
+[6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
+[7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
+[8]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.1.zip
+[9]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip
+[10]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
+[11]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2
+[12]: https://nodejs.org/en/
+[13]: https://www.npmjs.com/
+[14]: https://yarnpkg.com/getting-started
+[15]: https://pnpm.io/motivation
+
+
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
+[crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
+[crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
+[crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
