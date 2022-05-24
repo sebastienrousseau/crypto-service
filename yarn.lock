@@ -1063,6 +1063,11 @@
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/remark-config/-/remark-config-0.0.2.tgz#3061202a6cf9feccb212faecfa64f554bb1b03f7"
   integrity sha512-AKgxHSHvjGKS49L7HOcGDnFYJwo0wT4zBzumabtaMU/sZ2ju0cbQjmadLKdlk/B0R+VnD2Uq9yL4J6StBjfvBA==
 
+"@sebastienrousseau/remark-config@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/remark-config/-/remark-config-0.0.3.tgz#5ee7465311978f6bc471c6ee71d66ff6d76eefa5"
+  integrity sha512-Umv9X97QjuXTv4Gf26zHQMaq3gXbLsm7otmDeZXI7uMMyg9H7sKq6dxYtIxgNsp9N3ZvVyppSe3jVoBiCzutEw==
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"
@@ -4037,6 +4042,15 @@ mdast-comment-marker@^2.0.0:
   dependencies:
     mdast-util-mdx-expression "^1.1.0"
 
+mdast-util-footnote@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/mdast-util-footnote/-/mdast-util-footnote-1.1.0.tgz#c81e583e2de6a3dd4e05a59e83639fb67b0c5686"
+  integrity sha512-M8tHiqL+7eS/ASWWs+nnmMKRLO1A1JnllNRzF2gLT4gpzLGvRiE0IugPI+/zfpi93IrtrxmlFolTdRPtWZocaA==
+  dependencies:
+    "@types/mdast" "^3.0.0"
+    mdast-util-to-markdown "^1.0.0"
+    micromark-util-normalize-identifier "^1.0.0"
+
 mdast-util-from-markdown@^1.0.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/mdast-util-from-markdown/-/mdast-util-from-markdown-1.2.0.tgz"
@@ -4123,7 +4137,7 @@ merge2@^1.3.0, merge2@^1.4.1:
   resolved "https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
-micromark-core-commonmark@^1.0.1:
+micromark-core-commonmark@^1.0.0, micromark-core-commonmark@^1.0.1:
   version "1.0.6"
   resolved "https://registry.npmjs.org/micromark-core-commonmark/-/micromark-core-commonmark-1.0.6.tgz"
   integrity sha512-K+PkJTxqjFfSNkfAhp4GB+cZPfQd6dxtTXnf+RjZOV7T4EEXnvgzOcnp+eSTmpGk9d1S9sL6/lqrgSNn/s0HZA==
@@ -4143,6 +4157,20 @@ micromark-core-commonmark@^1.0.1:
     micromark-util-subtokenize "^1.0.0"
     micromark-util-symbol "^1.0.0"
     micromark-util-types "^1.0.1"
+    uvu "^0.5.0"
+
+micromark-extension-footnote@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/micromark-extension-footnote/-/micromark-extension-footnote-1.0.2.tgz#534c42211315406b43625fa29573c7094d5122c2"
+  integrity sha512-sD7t/hooONLnbPYgcQpBcTjh7mPEcD2R/jRS5DLYDNm0XbngbaJZ01F1aI3v6VXVMdAu3XtFKUecNRlXbgGk/Q==
+  dependencies:
+    micromark-core-commonmark "^1.0.0"
+    micromark-factory-space "^1.0.0"
+    micromark-util-character "^1.0.0"
+    micromark-util-chunked "^1.0.0"
+    micromark-util-normalize-identifier "^1.0.0"
+    micromark-util-resolve-all "^1.0.0"
+    micromark-util-symbol "^1.0.0"
     uvu "^0.5.0"
 
 micromark-factory-destination@^1.0.0:
@@ -5482,6 +5510,16 @@ remark-cli@^10.0.1:
   dependencies:
     remark "^14.0.0"
     unified-args "^9.0.0"
+
+remark-footnotes@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/remark-footnotes/-/remark-footnotes-4.0.1.tgz#17d3c87ddc240924e8b4590b34a3d79aa8ede50c"
+  integrity sha512-He6YzQFk/Wu2KgfjI80EyPXjt/G+WFaYfUH+xapqPQBdm3aTdEyzosXXv9a2FbTxGqgOfJ4q/TCB46v+wofRpQ==
+  dependencies:
+    "@types/mdast" "^3.0.0"
+    mdast-util-footnote "^1.0.0"
+    micromark-extension-footnote "^1.0.0"
+    unified "^10.0.0"
 
 remark-lint-blockquote-indentation@^3.0.0:
   version "3.1.1"
