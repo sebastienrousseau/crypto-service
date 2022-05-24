@@ -6,11 +6,11 @@
 
 ## Welcome to Crypto Server
 
-Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
-easy consumable REST APIs to perform low-level cryptographic operations. It is
-implemented using Node.js and relies on [**Crypto Lib**](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib).
+Crypto Server is a [Fastify][3] web server that exposes easy consumable REST
+APIs to perform low-level cryptographic operations. It is implemented using
+Node.js and relies on [Crypto Lib][2].
 
-The cryptographic operations include:
+It supports the following cryptographic operations:
 
 - Digital Signing,
 - Encryption and Decryption,
@@ -19,31 +19,24 @@ The cryptographic operations include:
 - Pseudorandom Number Generation,
 - Signature Verification.
 
-This web server is built on [Fastify](https://www.fastify.io) - a fast and low
-overhead web framework, for Node.js.
-
-Development of this server is hosted by [GitHub](https://github.com) at the
-following page:
-
-- [https://github.com/sebastienrousseau/crypto-server](https://github.com/sebastienrousseau/crypto-server)
-
-This source code is available to everyone under the standard
-[MIT license](https://github.com/sebastienrousseau/crypto-server/blob/main/LICENSE).
+Development of this server is hosted by [GitHub][6] at the [following page][7].
+Source code is available to everyone under the standard [MIT license][8].
 
 ## Getting Started
 
-Crypto Server is a [Node.js](https://nodejs.org/en/) module available through
-the [npm registry](https://www.npmjs.com/). Before installing,
-[download and install Node.js](https://nodejs.org/en/download/). Node.js 12.20.0
-or higher is required.
+Crypto Server is a [Node.js][4] module available through the [npm registry][5].
+Before installing, [download and install Node.js][4]. Node.js 12.20.0 or higher 
+is required.
 
-Installation is done using either `npm` or `yarn` package managers to use Crypto
-Server with Node.js or the Command Line Interface:
+Installation is done using either [`npm`][5],
+[`yarn`][9] or [`pnpm`][10] package managers to use Crypto Server with Node.js
+or the Command Line Interface:
 
 - `npm i @sebastienrousseau/crypto-server`
 - `yarn add @sebastienrousseau/crypto-server`
+- `pnpm add @sebastienrousseau/crypto-server`
 
-## ⚡️ Quick start
+## Quick start
 
 ### Starting the Crypto Server
 
@@ -57,6 +50,10 @@ Server with Node.js or the Command Line Interface:
 #### Yarn
 
 - `yarn start:server`
+
+#### PNPM
+
+- `pnpm start:server`
 
 This will start the Crypto Server on your local machine with the following
 environment details:
@@ -91,13 +88,13 @@ This endpoint allows you to create a new Key Pair.
 
 |Content-Type|Value|Description|
 |---|---|---|
-|type|rsa|The primary key algorithm type: ECC (default) or RSA.|
-|bits|2048|Number of bits for RSA keys (defaults to 4096 bits).|
-|name|Jane Doe|First name and Last name|
-|email|jane@doe.com|Email address|
-|passphrase|123456789abcdef|The passphrase used to encrypt the generated private key.|
-|curve|null|Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.|
-|expiration|0|Number of seconds from the key creation time after which the key expires.|
+|type|rsa|The primary key algorithm type: ECC (default) or RSA. |
+|bits|2048|Number of bits for RSA keys (defaults to 4096 bits). |
+|name|Jane Doe|First name and Last name |
+|email|jane@doe.com|Email address |
+|passphrase|123456789abcdef|The passphrase used to encrypt the private key. |
+|curve|null|Elliptic curve for ECC keys. |
+|expiration|0|Number of seconds from the key creation time. |
 |format|armored|Format of the output keys e.g. 'armored' | 'object' | 'binary'.|
 
 ```shell
@@ -114,7 +111,18 @@ curl --location --request GET 'http://localhost:3000/v1/generate' \
 ## Contributing to Crypto Server
 
 Contributions to Crypto Server are welcomed and encouraged! Please see our 
-[Contributing Guidelines](https://github.com/sebastienrousseau/crypto-server/blob/master/.github/CONTRIBUTING.md).
-for further details on the process for submitting pull requests to us.
+[Contributing Guidelines][1] for further details on the process for submitting
+pull requests to us.
 
 ***
+
+[1]: https://github.com/sebastienrousseau/crypto-server/blob/master/.github/CONTRIBUTING.md
+[2]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
+[3]: https://www.fastify.io
+[4]: https://nodejs.org/en/
+[5]: https://www.npmjs.com/
+[6]: https://github.com
+[7]: https://github.com/sebastienrousseau/crypto-server
+[8]: https://github.com/sebastienrousseau/crypto-server/blob/main/LICENSE
+[9]: https://yarnpkg.com/getting-started
+[10]: https://pnpm.io/motivation
