@@ -240,7 +240,7 @@ file for details.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service](https://crypto-service.dev) is beautifully crafted by these
+[Crypto Service](https://crypto-service.co) is beautifully crafted by these
 people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |

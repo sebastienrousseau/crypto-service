@@ -7,7 +7,7 @@ let args = process.argv.slice(2);
 /**
  * @function encrypt
  * @summary Encrypts a message using a generated public keys and a given passphrase.
- * @author: Sebastien Rousseau <hello@crypto-service.dev>
+ * @author: Sebastien Rousseau <hello@crypto-service.co>
  * @description
  * <ul>
  *  <li>It transforms understandable text into an unintelligible piece of data,</li>
