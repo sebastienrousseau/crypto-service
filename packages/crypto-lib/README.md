@@ -8,7 +8,7 @@
 
 ***
 
-## Introduction to the Crypto Library
+## Welcome to Crypto Library
 
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
@@ -29,7 +29,7 @@ OpenPGP protocol. It implements [RFC4880][2] and parts of [RFC4880bis][3].
 Development of this library is hosted by [GitHub][4] at the [following page][5].
 Source code is available to everyone under the standard [MIT license][6].
 
-## Installation
+## Getting Started
 
 Crypto Lib is a [Node.js][7] module available through the
 [npm registry][8]. Before installing, [download and install Node.js][7].
@@ -111,8 +111,8 @@ yarn start \
 ```
 
 This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
-them with the password provided and writes them to a file in the
-[key](src/key/) directory with a pgp extension.
+them with the password provided and writes them to a file in the [key](src/key/)
+directory with a pgp extension.
 
 ***
 
