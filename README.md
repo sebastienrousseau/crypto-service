@@ -1,4 +1,4 @@
-![Banner representing Crypto Service](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)
+![Banner representing Crypto Service][crypto service]
 
 ![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=success)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
@@ -10,14 +10,13 @@
 # Welcome to Crypto Service
 
 Crypto Service is a powerful and intuitive suite of security tools that provides
-cryptographic functions and standardized APIs to manage encryption keys and
-perform cryptographic operations such as key generation, data encryption,
-digital signing, and signature verification.
+numerous Cryptographic JavaScript functions and standardized REST APIs to
+manage encryption keys, perform common cryptographic operations such as key
+generation, data encryption, digital signing, and signature verification.
 
-Crypto Service code is safe by design, and runs lightning-fast. It is based
-on [OpenPGP.js](https://openpgpjs.org/) - a JavaScript implementation of the
-OpenPGP protocol. It implements [RFC4880](https://tools.ietf.org/html/rfc4880)
-and parts of[RFC4880bis](https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10).
+Crypto Service code is safe by design, and runs lightning-fast. It is based on
+[OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
+implements [RFC4880][2] and parts of[RFC4880bis][3].
 
 Crypto Service can help you ensure the following:
 
@@ -25,6 +24,24 @@ Crypto Service can help you ensure the following:
 - Integrity of data,
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
+
+The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7]
+ (Crypto Service Applications).
+
+## Crypto Lib
+
+![Banner representing Crypto Lib][crypto lib]
+
+Crypto Lib is a powerful intuitive cryptographic JavaScript library that
+encapsulates common algorithms, functions and provides an interface for
+low-level cryptographic operations.
+## Crypto Server
+
+![Banner representing Crypto Server][crypto server]
+
+Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
+easy consumable REST APIs to perform low-level cryptographic operations. It is
+implemented using Node.js and relies on [**Crypto Lib**](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib).
 
 [![Getting Started](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg)](#getting-started)
 [![Download Crypto Service v0.0.2](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg)](https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip)
@@ -99,8 +116,7 @@ You'll see something like this:
 
 ### Generating a new RSA key pair
 
-[RSA](https://en.wikipedia.org/wiki/RSA_\(cryptosystem\)) is a public-key
-algorithm for encrypting and signing messages.
+[RSA][4] is a public-key algorithm for encrypting and signing messages.
 
 To generate a Rivest-Shamir-Adelman (RSA) public key pair:
 
@@ -118,8 +134,7 @@ extension.
 ### Generate a new Elliptic-curve cryptography (ECC) key pair
 
 [Elliptic-curve cryptography
-(ECC)](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography) is an
-alternative technique to RSA. It generates security between key pairs for public
+(ECC)][5] is an alternative technique to RSA. It generates security between key pairs for public
 key encryption by using the mathematics of elliptic curves. Elliptic curve
 cryptography provides stronger security per bits of key, which allows for much
 faster operations.
@@ -232,4 +247,17 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 |[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
 |[Sebastien Rousseau](https://github.com/sebastienrousseau)|
 
-Made with ❤ in London.
+[1]: https://openpgpjs.org/
+[2]: https://tools.ietf.org/html/rfc4880
+[3]: https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
+[4]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
+[5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
+[6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)
+[7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server)
+
+[crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
+
+[crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
+
+[crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
+

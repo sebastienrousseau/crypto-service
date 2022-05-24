@@ -76,7 +76,13 @@ On arrival of a new API request, the Crypto Server performs the request
 operation in the host environment, subsequently the response is transferred back
 to the requesting application. All operations that are performed andd coming
 through the Crypto Server are monitored so statistics can be made and acted upon
-. 
+
+The APIs created with Crypto Server should be used with HTTPS endpoints only in
+a production web server.
+
+For greater security, you should choose a minimum Transport Layer Security (TLS)
+protocol version to be enforced for your API Gateway custom domain. Crypto
+Server recommends either a TLS version 1.3 or TLS version 1.3 security policy.
 
 ### Commands & Options
 
