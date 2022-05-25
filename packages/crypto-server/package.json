@@ -57,13 +57,6 @@
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
-    "files": [
-        "bin",
-        "config",
-        "data",
-        "key",
-        "routes"
-    ],
     "funding": [
         {
             "type": "github",
@@ -98,7 +91,11 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "index.js",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+      "dist"
+    ],
     "name": "@sebastienrousseau/crypto-server",
     "private": true,
     "repository": {
@@ -107,15 +104,15 @@
         "url": "git+https://sebastienrousseau/crypto-service.git"
     },
     "scripts": {
+        "build": "tsc -b",
         "clean": "rimraf lib",
         "doc": "jsdoc -c .jsdocrc.json",
-        "lint": "eslint --config=.eslintrc src/**/*.js",
-        "fix": "eslint --config=.eslintrc src/**/*.js --fix",
+        "lint": "tslint 'src/**/*.ts'",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
-        "prettier": "prettier --write src/**/*.js",
+        "prettier": "prettier --write src/**/*.ts",
+        "prettier:ci": "prettier --list-different src/**/*.ts",
         "start": "node index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
-    "type": "module",
     "version": "0.0.2"
 }

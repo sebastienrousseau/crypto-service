@@ -1,5 +1,17 @@
+// {
+//   "extends": [
+//     "@sebastienrousseau/eslint-config"
+//   ]
+// }
 {
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
-    "@sebastienrousseau/eslint-config"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
   ]
 }

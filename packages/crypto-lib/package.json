@@ -30,14 +30,14 @@
         "@sebastienrousseau/mocha-config": "^0.0.1",
         "@sebastienrousseau/prettier-config": "^0.0.4",
         "@sebastienrousseau/remark-config": "^0.0.2",
+        "@typescript-eslint/eslint-plugin": "^5.26.0",
+        "@typescript-eslint/parser": "^5.26.0",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "eslint": "^8.16.0",
-        "eslint-plugin-import": "^2.26.0",
-        "eslint-plugin-prettier": "^4.0.0",
         "jsdoc": "^3.6.10",
-        "mocha": "^10.0.0",
         "minami": "^1.2.3",
+        "mocha": "^10.0.0",
         "prettier": "^2.6.2",
         "remark-cli": "^10.0.1",
         "remark-preset-lint-consistent": "^5.1.1",
@@ -49,8 +49,7 @@
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
-        "bin",
-        "lib"
+        "dist"
     ],
     "funding": [
         {
@@ -86,7 +85,7 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "index.js",
+    "main": "dist/index.js",
     "name": "@sebastienrousseau/crypto-lib",
     "private": true,
     "publishConfig": {
@@ -99,15 +98,16 @@
         "url": "git+https://sebastienrousseau/crypto-service.git"
     },
     "scripts": {
+        "build": "tsc -b",
         "clean": "rimraf lib",
         "doc": "jsdoc -c .jsdocrc.json",
-        "lint": "eslint --config=.eslintrc src/**/*.js",
-        "fix": "eslint --config=.eslintrc src/**/*.js --fix",
+        "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
-        "prettier": "prettier --write src/**/*.js",
-        "start": "node index.js",
+        "prettier": "prettier --write src/**/*.ts",
+        "prettier:ci": "prettier --list-different src/**/*.ts",
+        "start": "node dist/index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
-    "type": "module",
+    "types": "dist/index.d.ts",
     "version": "0.0.2"
 }
