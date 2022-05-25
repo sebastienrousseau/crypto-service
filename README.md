@@ -74,7 +74,8 @@ Interface:
 
 ### Install from GitHub
 
-Clone the main repository to get all source files including build scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
+Clone the main repository to get all source files including build scripts:
+`git clone https://github.com/sebastienrousseau/crypto-service.git`
 
 ## Crypto Service Releases
 
@@ -83,7 +84,7 @@ Update your apps to use new features, and test your apps against API changes.
 |Date|Download|Release Note|
 | :-: | :-: | :-: |
 |May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
-|May 24, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
+|May 27, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
 
 ## What's included
 
@@ -274,7 +275,6 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [13]: https://www.npmjs.com/
 [14]: https://yarnpkg.com/getting-started
 [15]: https://pnpm.io/motivation
-
 
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
