@@ -44,7 +44,7 @@ package managers to use Crypto Lib with Node.js or the Command Line Interface:
 
 ## What's included
 
-Within the download you'll find all the crypto service source files grouped into
+Within the download you'll find all the crypto lib source files grouped into
 the *dist* folder.
 
 You'll see something like this:
