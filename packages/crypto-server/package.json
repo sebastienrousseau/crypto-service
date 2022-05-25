@@ -110,8 +110,9 @@
         "clean": "rimraf lib",
         "doc": "jsdoc -c .jsdocrc.json",
         "lint": "eslint --config=.eslintrc src/**/*.js",
-        "lint-fix": "eslint --config=.eslintrc src/**/*.js --fix",
-        "prettier:format": "yarn prettier --config .prettierrc 'src/**/*.js'",
+        "fix": "eslint --config=.eslintrc src/**/*.js --fix",
+        "markdown": "yarn remark ./*.md packages/**/*.md --silent",
+        "prettier": "prettier --write src/**/*.js",
         "start": "node index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },

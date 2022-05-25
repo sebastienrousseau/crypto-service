@@ -11,7 +11,7 @@ let data = args;
  */
 // const generatePair = async(args) => {
 
-const generate = async(data) => {
+const generate = async (data) => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
       type: data.type, // The primary key algorithm type: ECC (default) or RSA

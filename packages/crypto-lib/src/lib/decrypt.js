@@ -10,7 +10,7 @@ let args = process.argv.slice(2);
  * and private keys
  * @returns The decrypted message.
  */
-const decrypt = async(args) => {
+const decrypt = async (args) => {
   /* Taking the arguments from the command line and storing them in an array. */
   let data = args;
   // console.log(data);
@@ -22,13 +22,13 @@ const decrypt = async(args) => {
   let passphrase = data.passphrase;
   let privateKeyArmored = await readFile(
     "./src/key/rsa.priv.pgp",
-    function(e) {
+    function (e) {
       if (e) {
         throw e;
       }
     },
   );
-  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function(e) {
+  let publicKeyArmored = await readFile("./src/key/rsa.pub.pgp", function (e) {
     if (e) {
       throw e;
     }
@@ -63,7 +63,7 @@ const decrypt = async(args) => {
   const decryptedMessage = await writeFile(
     "./src/data/decrypted.txt",
     decrypted,
-    function(e) {
+    function (e) {
       if (e) {
         throw e;
       }

@@ -2,21 +2,33 @@
     "dependencies": {
         "lerna": "^5.0.0"
     },
+    "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    },
+    "homepage": "https://crypto-service.co",
+    "license": "MIT",
+    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+    "lockfileVersion": 1,
     "name": "root",
     "private": true,
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://npm.pkg.github.com"
+    },
     "scripts": {
         "bootstrap": "lerna bootstrap",
-        "clean:lerna": "lerna clean --yes",
+        "clean": "lerna clean --yes",
+        "diff": "lerna diff",
         "doc": "lerna exec yarn doc --parallel",
-        "lint:js": "yarn eslint --config=.eslintrc packages/**/*.js",
-        "lint:js:fix": "yarn lint:js --fix",
-        "lint:markdown": "yarn remark \"./*.md\" \"packages/**/*.md\"",
-        "prettier:format": "yarn prettier --config .prettierrc 'packages/**/*.js' --write",
+        "fix": "lerna exec yarn fix  --parallel",
+        "lint": "lerna exec yarn lint --parallel",
+        "markdown": "yarn remark ./*.md --silent && lerna exec yarn markdown --parallel",
+        "prettier": "lerna exec yarn prettier --parallel",
         "release": "yarn install && lerna publish && yarn clean",
         "start": "lerna exec yarn start --parallel",
-        "start:core": "lerna exec yarn start --scope=@sebastienrousseau/crypto-lib",
+        "start:lib": "lerna exec yarn start --scope=@sebastienrousseau/crypto-lib",
         "start:server": "lerna exec yarn start --scope=@sebastienrousseau/crypto-server",
-        "test": "lerna run test --parallel --since"
+        "test": "lerna run test --parallel"
     },
     "useWorkspaces": true,
     "version": "independent",
