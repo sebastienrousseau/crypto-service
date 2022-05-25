@@ -42,6 +42,46 @@ package managers to use Crypto Lib with Node.js or the Command Line Interface:
 - `yarn add @sebastienrousseau/crypto-lib`
 - `pnpm add @sebastienrousseau/crypto-lib`
 
+## What's included
+
+Within the download you'll find all the crypto service source files grouped into
+the *dist* folder.
+
+You'll see something like this:
+
+```shell
+.
+├── bin
+│   ├── crypto-lib.d.ts
+│   ├── crypto-lib.d.ts.map
+│   ├── crypto-lib.js
+│   └── crypto-lib.js.map
+├── index.d.ts
+├── index.d.ts.map
+├── index.js
+├── index.js.map
+└── lib
+    ├── decrypt.d.ts
+    ├── decrypt.d.ts.map
+    ├── decrypt.js
+    ├── decrypt.js.map
+    ├── encrypt.d.ts
+    ├── encrypt.d.ts.map
+    ├── encrypt.js
+    ├── encrypt.js.map
+    ├── generate.d.ts
+    ├── generate.d.ts.map
+    ├── generate.js
+    ├── generate.js.map
+    ├── revoke-key.d.ts
+    ├── revoke-key.d.ts.map
+    ├── revoke-key.js
+    └── revoke-key.js.map
+
+2 directories, 24 files
+
+```
+
 ## Quick Start
 
 ### Generating a new RSA key pair
