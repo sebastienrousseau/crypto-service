@@ -1,0 +1,228 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Crypto Server</title><meta name="description" content="Documentation for Crypto Server"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">Crypto Server</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> Crypto Server </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography"><p><img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-logo.svg" alt="Banner representing Crypto Service"></p>
+<p><a href="https://lerna.js.org/"><img src="https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge" alt="Maintained with Lerna"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=" alt="License"></a>
+<img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg" alt="Made with Love"></p>
+
+<a href="#welcome-to-crypto-server" id="welcome-to-crypto-server" style="color: inherit; text-decoration: none;">
+  <h2>Welcome to Crypto Server</h2>
+</a>
+<p>Crypto Server is a <a href="https://www.fastify.io">Fastify</a> web server that exposes easy consumable REST
+APIs to perform low-level cryptographic operations. It is implemented using
+Node.js and relies on <a href="https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib">Crypto Lib</a>.</p>
+<p>It supports the following cryptographic operations:</p>
+<ul>
+<li>Digital Signing,</li>
+<li>Encryption and Decryption,</li>
+<li>Key Generation,</li>
+<li>Key Management,</li>
+<li>Pseudorandom Number Generation,</li>
+<li>Signature Verification.</li>
+</ul>
+<p>Development of this server is hosted by <a href="https://github.com">GitHub</a> at the <a href="https://github.com/sebastienrousseau/crypto-server">following page</a>.
+Source code is available to everyone under the standard <a href="https://github.com/sebastienrousseau/crypto-server/blob/main/LICENSE">MIT license</a>.</p>
+
+<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+  <h2>Getting Started</h2>
+</a>
+<p>Crypto Server is a <a href="https://nodejs.org/en/">Node.js</a> module available through the <a href="https://www.npmjs.com/">npm registry</a>.
+Before installing, <a href="https://nodejs.org/en/">download and install Node.js</a>. Node.js 12.20.0 or higher 
+is required.</p>
+<p>Installation is done using either <a href="https://www.npmjs.com/"><code>npm</code></a>,
+<a href="https://yarnpkg.com/getting-started"><code>yarn</code></a> or <a href="https://pnpm.io/motivation"><code>pnpm</code></a> package managers to use Crypto Server with Node.js
+or the Command Line Interface:</p>
+<ul>
+<li><code>npm i @sebastienrousseau/crypto-server</code></li>
+<li><code>yarn add @sebastienrousseau/crypto-server</code></li>
+<li><code>pnpm add @sebastienrousseau/crypto-server</code></li>
+</ul>
+
+<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+  <h2>Quick start</h2>
+</a>
+
+<a href="#starting-the-crypto-server" id="starting-the-crypto-server" style="color: inherit; text-decoration: none;">
+  <h3>Starting the Crypto Server</h3>
+</a>
+<ul>
+<li>Open Terminal for Mac or Command Prompt for Windows,</li>
+<li>Enter one of the following commands to start the Crypto Server:</li>
+</ul>
+
+<a href="#npm" id="npm" style="color: inherit; text-decoration: none;">
+  <h4>NPM</h4>
+</a>
+<ul>
+<li><code>npm run start:server</code></li>
+</ul>
+
+<a href="#yarn" id="yarn" style="color: inherit; text-decoration: none;">
+  <h4>Yarn</h4>
+</a>
+<ul>
+<li><code>yarn start:server</code></li>
+</ul>
+
+<a href="#pnpm" id="pnpm" style="color: inherit; text-decoration: none;">
+  <h4>PNPM</h4>
+</a>
+<ul>
+<li><code>pnpm start:server</code></li>
+</ul>
+<p>This will start the Crypto Server on your local machine with the following
+environment details:</p>
+<ul>
+<li>Protocol: http,</li>
+<li>Hostname: localhost,</li>
+<li>Port: 3000,</li>
+<li>IP: 127.0.0.1.</li>
+</ul>
+<p>The Crypto Server should be listening on
+<a href="http://localhost:3000/">http://localhost:3000/</a></p>
+
+<a href="#what-are-the-crypto-service-apis" id="what-are-the-crypto-service-apis" style="color: inherit; text-decoration: none;">
+  <h2>What are the Crypto Service APIs?</h2>
+</a>
+<p>The Crypto Service APIs give you access to a range of security and encryption
+solutions to perform low-level cryptographic operations, key storage operations,
+protect static data, and securely share secrets.</p>
+<p>On arrival of a new API request, the Crypto Server performs the request
+operation in the host environment, subsequently the response is transferred back
+to the requesting application. All operations that are performed andd coming
+through the Crypto Server are monitored so statistics can be made and acted upon</p>
+<p>The APIs created with Crypto Server should be used with HTTPS endpoints only in
+a production web server.</p>
+<p>For greater security, you should choose a minimum Transport Layer Security (TLS)
+protocol version to be enforced for your API Gateway custom domain. Crypto
+Server recommends either a TLS version 1.3 or TLS version 1.3 security policy.</p>
+
+<a href="#commands-amp-options" id="commands-amp-options" style="color: inherit; text-decoration: none;">
+  <h3>Commands &amp; Options</h3>
+</a>
+
+<a href="#generate" id="generate" style="color: inherit; text-decoration: none;">
+  <h4><code>/generate</code></h4>
+</a>
+<p>This endpoint allows you to create a new Key Pair.</p>
+<table>
+<thead>
+<tr>
+<th>Content-Type</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>type</td>
+<td>rsa</td>
+<td>The primary key algorithm type: ECC (default) or RSA.</td>
+</tr>
+<tr>
+<td>bits</td>
+<td>2048</td>
+<td>Number of bits for RSA keys (defaults to 4096 bits).</td>
+</tr>
+<tr>
+<td>name</td>
+<td>Jane Doe</td>
+<td>First name and Last name</td>
+</tr>
+<tr>
+<td>email</td>
+<td><a href="mailto:jane@doe.com">jane@doe.com</a></td>
+<td>Email address</td>
+</tr>
+<tr>
+<td>passphrase</td>
+<td>123456789abcdef</td>
+<td>The passphrase used to encrypt the private key.</td>
+</tr>
+<tr>
+<td>curve</td>
+<td>null</td>
+<td>Elliptic curve for ECC keys[^note]</td>
+</tr>
+<tr>
+<td>expiration</td>
+<td>0</td>
+<td>Number of seconds from the key creation time.</td>
+</tr>
+<tr>
+<td>format</td>
+<td>armored</td>
+<td>Format of the output keys e.g. &#39;armored&#39;</td>
+</tr>
+</tbody></table>
+<pre><code class="language-shell"><span class="hl-0">curl --location --request GET </span><span class="hl-1">&#39;http://localhost:3000/v1/generate&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;type: rsa&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;bits: 2048&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;name: Jane Doe&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;email: jane@doe.com&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;passphrase: 123456789abcdef&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;curve: null&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;expiration: 0&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;format: armored&#39;</span>
+</code></pre>
+
+<a href="#encrypt" id="encrypt" style="color: inherit; text-decoration: none;">
+  <h4><code>/encrypt</code></h4>
+</a>
+<p>This endpoint allows you to encrypt data in a single operation.</p>
+<table>
+<thead>
+<tr>
+<th>Content-Type</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>passphrase</td>
+<td>123456789abcdef</td>
+<td>Passphrase to encrypt the message.</td>
+</tr>
+<tr>
+<td>message</td>
+<td>Hello Crypto Service!</td>
+<td>Message to be encrypted.</td>
+</tr>
+<tr>
+<td>publicKey</td>
+<td>{{publicKey}}</td>
+<td>A public key.</td>
+</tr>
+<tr>
+<td>privateKey</td>
+<td>{{privateKey}}</td>
+<td>A private key.</td>
+</tr>
+</tbody></table>
+<pre><code class="language-shell"><span class="hl-0">curl --location --request GET </span><span class="hl-1">&#39;http://localhost:3000/v1/encrypt&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;passphrase: 123456789abcdef&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;message: Hello Crypto Service!&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;publicKey: LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4c0JOQkdLSHhCUUJDQURmS0VyYUVnT1VYZHFKVGVTdnUzb2NPWGg2VytxWllDbndOUFVvRjZpcnREbGUKNzVVYTByYkFUZEsxbXF4S1g0L0hraGhzQllQRXdNRHE0RnVzbkxOK0ZnNVdmdGpSR0M5NmJENnRmbVIzClJZY0p5WTEwTFlDRS9GS21iLzFJRGIrT2RtRk8weEpPSWxaTERSeVJSN0xwUlRDNE1mMkRiaFNheExqcwpZdFVhaFZPcCtNeHBkNmFWektYYUpkVVVmVWRYbVliRnpaM0YzK1RMa01zMFdaY05vRDJ3bWNpSGJVUXIKT1JnRkhoQ0I2dUNLNEs3d2R4OStjTllkTkQyb2t6WjJTdmRVenQ3QUZrajFra05XeVM3VWprWmVEdm9UCmp5dFNpZXFMQWJ3L2NUaXRrTjJ1MlZJU1UxMHEwbFhMSERaWWFXTll1OHRMaHFYM0F4c3FNQ1V0QUJFQgpBQUhORjBwaGJtVWdSRzlsSUR4cVlXNWxRR1J2WlM1amIyMCt3c0NLQkJBQkNBQWRCUUppaDhRVUJBc0oKQndnREZRZ0tCQllBQWdFQ0dRRUNHd01DSGdFQUlRa1E5L09ucUlLaTh2RVdJUVExYXRBVHl5WTZZcDFoCjN6ZjM4NmVvZ3FMeThZeUFDQUNudlF1aFMxeHV2YnhUQVdZcWkrcjNFUkpOSzVINUFkOWpFNERUWUZPTQowcDRuMmJwSlQwa2t1bkMzckp0Z2tQbnRNVFJ6eEJvS0QrcmRIdS9FZno1MjNPMENJbjlCOG8vWWpvencKQVFBMldHLzhIdlRYOU0yZVUzOVM3SkptS1I4aks5TDVtYlduV1I2eEZadExSc0pIT2FzSm50S1BsUkFSCnpXNmwweTNjRzRueFJieHM2QS9tczFjM05seDdodjErN24yaTN6d3l2aE52Rys5Y0F0TlM3L3NkLzExbgpYQUJ0QWt2WjU3SnUwWXBKQ3JuMHhvblJuN0kyQ1lTd1BNVTZKMTFIL2l5eXdTNFB5aHlrV2lHMmhNNC8KM3ZMVDdpQVoxZlhkczk0SDFQTW9zNEZMbU50YkphSC83OXRyRFNpem1zY0ExbG9IUlFSOHVvNElKNkx6CnpzQk5CR0tIeEJRQkNBRHNNblVIWkVydTl5V2ljYjRxajJxWGhuanFSOVZHZVdvaEd1UFNRc2dpLzNRRQp4K3FJSjJFeU1LelQ1aXRYT01tQU1pbk5GRGd3ek1FQ081Nk53TWdWUXJnSm5LdnNGR0gxdVFUb0MzaHcKR1pjUDArUTB0aThPWmFLOUZFbngra1FYNXJjYWRGWTBSOW9KTEFNS1JzOU45YmJ2eU40VzRCMW5weklmClF6NWloMUNIQnRqektpVTdaVzBKM1ZLa285NHp4bGZiZVRKS2ZxWnl4eGtuMVVPZWliWWp4dGYrZXZKaQpPOUZMUGpOcGkwem8zZ3kvQ1Y5UGtDUjA3c295aTVJeVVNNE9CRzBoRFNjV2Z4a0xEc0M0b0tzTjJhaGYKeHovSWc0em9FNUk2L0t5c2U1QW1GaWZSaHhaUnRhY3JyOTBqazc4a2Q1S0p6WXhETXhTK0ZzUUJBQkVCCkFBSEN3SFlFR0FFSUFBa0ZBbUtIeEJRQ0d3d0FJUWtROS9PbnFJS2k4dkVXSVFRMWF0QVR5eVk2WXAxaAozemYzODZlb2dxTHk4WDBTQ0FDY0FFTWQ2c2JvVHVOZlVPb2RaQjdvM25NV2RDMEVja1kzSnhLbFE3b0kKV0hpUTNTdU9ibXduWGhSTHJ4TTZ4ZmtUQ3pYK2FUQ2NCemhlZmFMWVU4R1BsSU00SFRhank0MHVNb2Y2CkV3SnpFenpucjhZRVVmdU1Pd094anFrZHpjK2llbk9lT2V6b2dQeTFieGtZTmpHeHpaTFFUekptMkhXWAowOFlNWWtqMXJNTmg0VGZQMnZaYUFHem5LMHBrb0lHdVBHQTdPTTVpRHFIa3pyeWppWG1pV1VVM1lTcHYKMTV5VkEyQXBxN2o1ZFJWd2d4eFpLS2xhOW5iaXhYUEdhTVFSV0w3RUcxM0pMbTFidVlxUXVsVExyMTNkClByKzR2NStlQ3NEZkRpcU9veFYyU000R0ZxanBaRUFBNEZlZFlTMmx1ZXV3WUdvVnRtT1BOdjViME9iUAo9YTZHRQotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCg==&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;privateKey: LS0tLS1CRUdJTiBQR1AgUFJJVkFURSBLRVkgQkxPQ0stLS0tLQoKeGNNR0JHS0h4QlFCQ0FEZktFcmFFZ09VWGRxSlRlU3Z1M29jT1hoNlcrcVpZQ253TlBVb0Y2aXJ0RGxlCjc1VWEwcmJBVGRLMW1xeEtYNC9Ia2hoc0JZUEV3TURxNEZ1c25MTitGZzVXZnRqUkdDOTZiRDZ0Zm1SMwpSWWNKeVkxMExZQ0UvRkttYi8xSURiK09kbUZPMHhKT0lsWkxEUnlSUjdMcFJUQzRNZjJEYmhTYXhManMKWXRVYWhWT3ArTXhwZDZhVnpLWGFKZFVVZlVkWG1ZYkZ6WjNGMytUTGtNczBXWmNOb0Qyd21jaUhiVVFyCk9SZ0ZIaENCNnVDSzRLN3dkeDkrY05ZZE5EMm9reloyU3ZkVXp0N0FGa2oxa2tOV3lTN1Vqa1plRHZvVApqeXRTaWVxTEFidy9jVGl0a04ydTJWSVNVMTBxMGxYTEhEWllhV05ZdTh0TGhxWDNBeHNxTUNVdEFCRUIKQUFIK0NRTUlhRCtXMXJEYitZN2cweXB1M2h0UElQSXZUYm15dkNMOUZKVitLZzdrRFZHVG5QR1Q0NGhMCm9GRXZrNEZIeHdjSHp4SytjLzUvQnltM2JqWlMzMStDNTBqbTQvUDYrVGVPWGRXakVBT1JSQUJxb05pRgpVcUcrSWpiZnlvbkFzSEx5aVcrQ1BDczJyVnlJQTRCdGhHWHBtRmtYQnpIYk5QSTE3cThvS2ZBQnViY3oKeVYrbkxzd1g4TC9md1lRcHRmTjZ2ZGVhNjVUMzdOTGYzWGdkU29SVUx5ZnpsK1VSVEE5dW1kNDRHWUQrCk9pZk1hb2tKZ3E4RENMWHk3R2VYeDh1V1Fod1l3N2hYV3JhWXUyU21VdjdDaWxDeG9QRkNORnh6aFdiQgoraHlpbWVZam9KbS9VeEJtbEZZSHY0c3Mrb21NazhQQ2M3L1Z3WEZ5U0xpL2M5Q3ROakVCamJIaGZ6VlEKSVFtSVd2aUhibkwzSVNmdkFvR2tPMHBQMHhmczh3dGx6RVhqRm9aRXlUeW1vOGhROXV4V1BxNVFjSkxrCkZrcmhZcUZqYndIMjc3Szd2K2dESHp2SDlHSnljYlhMZHpyVzNmMERPM1NUNHlrcHFQaWdTeHRiMkE1Tgo1STlIbTZmOFl1KzVUNWlVajFiUVdJOEErR0VkZXI5VTl0RjdpN2QycHB2S2VvL0ZxUU10eUh2Wm0zaG4KNmNQNFpyd09Kdmk5b0lsaVhXdHZySWM0QU5SV0FSSks5WkswTlZsdlZxOGEzR1l6SUY3ODNzeTM5dTZ2ClJCeHI4dll3WC9KSjNPR2tnVWlhVW12czBTNmhxU0d5RkRubi9kbUZ6elBlTzZ5eGl2WkhkeWs5T0pGSAo4N0hMdmF6WFdhWExkbWlPOU1WWFpRYWM3NlI1RTZodTk0U0ZRWjZ3YWRsTGxWeW43V0MzT1BYeHFzOXYKS2hyRzk2TkJqYTl3bnBqSFVLb1NDbG9PQW16UEVKWW54a2xGQXhucWJNQ1lCUGV4bFpqKzNzbVY4RWVmCnpmSHJrOTdFZmNEWHZtQTAwK0RtaXYzbi9hampQUjIyTTh5QVkyRFFlbHM4YThZbU1ZMm5JTldyVUIySgoxa1VJcW5rVVc0SmtwY29OZUlQbUJKVTZRSC9pYm9zVTdicW56OG1EZm9QenAyWjYwZ0ZNUEpjM0hISTUKb2JtSW9TUFJUWG85THBkWjdZRmUzUnZ0cDFKVHgzM3F6UmRLWVc1bElFUnZaU0E4YW1GdVpVQmtiMlV1ClkyOXRQc0xBaWdRUUFRZ0FIUVVDWW9mRUZBUUxDUWNJQXhVSUNnUVdBQUlCQWhrQkFoc0RBaDRCQUNFSgpFUGZ6cDZpQ292THhGaUVFTldyUUU4c21PbUtkWWQ4MzkvT25xSUtpOHZHTWdBZ0FwNzBMb1V0Y2JyMjgKVXdGbUtvdnE5eEVTVFN1UitRSGZZeE9BMDJCVGpOS2VKOW02U1U5SkpMcHd0NnliWUpENTdURTBjOFFhCkNnL3EzUjd2eEg4K2R0enRBaUovUWZLUDJJNk04QUVBTmxodi9CNzAxL1RObmxOL1V1eVNaaWtmSXl2UworWm0xcDFrZXNSV2JTMGJDUnptckNaN1NqNVVRRWMxdXBkTXQzQnVKOFVXOGJPZ1A1ck5YTnpaY2U0YjkKZnU1OW90ODhNcjRUYnh2dlhBTFRVdS83SGY5ZFoxd0FiUUpMMmVleWJ0R0tTUXE1OU1hSjBaK3lOZ21FCnNEekZPaWRkUi80c3NzRXVEOG9jcEZvaHRvVE9QOTd5MCs0Z0dkWDEzYlBlQjlUektMT0JTNWpiV3lXaAovKy9iYXcwb3M1ckhBTlphQjBVRWZMcU9DQ2VpODhmREJnUmloOFFVQVFnQTdESjFCMlJLN3ZjbG9uRysKS285cWw0WjQ2a2ZWUm5scUlScmowa0xJSXY5MEJNZnFpQ2RoTWpDczArWXJWempKZ0RJcHpSUTRNTXpCCkFqdWVqY0RJRlVLNENaeXI3QlJoOWJrRTZBdDRjQm1YRDlQa05MWXZEbVdpdlJSSjhmcEVGK2EzR25SVwpORWZhQ1N3RENrYlBUZlcyNzhqZUZ1QWRaNmN5SDBNK1lvZFFod2JZOHlvbE8yVnRDZDFTcEtQZU04WlgKMjNreVNuNm1jc2NaSjlWRG5vbTJJOGJYL25yeVlqdlJTejR6YVl0TTZONE12d2xmVDVBa2RPN0tNb3VTCk1sRE9EZ1J0SVEwbkZuOFpDdzdBdUtDckRkbW9YOGMveUlPTTZCT1NPdnlzckh1UUpoWW4wWWNXVWJXbgpLNi9kSTVPL0pIZVNpYzJNUXpNVXZoYkVBUUFSQVFBQi9na0RDSHVaSUcyc3YvenM0SEhaWEpoMFdKa2kKWitkbjFqYUw3RXowdjVuRzBTWDh6cjFaYWwxU2ZmZFNHcDRFampSbEdNRVdhK25pdkhIQW1QcWdXN0JTCldJdmhYNWN6VTQ0NU1ZOG1TOXFjOGRZT1VMa0FOVUhoTzFtZlZ1U2d6RHdPZUl3eTg4NlkydnVLWnJ1UgpsVm1wZjJ2L1lVdDBDNzNkdTVpZ1hoQmlMMVhJbS93MHFwL2FZN1NmRmNUeEJ2UTVjL1BrSUtmZ2pJeDYKOStRejJ4ZllYSnk5M0Z4MjF0MVMwUFFvRHdTcFZvVjdkc1lRS3ZhMWcyRGNpTmM4UW1TYTV1QlN5ckZ4CjJNaG5MdTY4eTg5SnFNNEgzWjBvUTg2RGhxREE0eWFWaFlnRk1qQ0RSRVJRVXFhb1dBWWJqcHQyVHpHWQphb0tZUVI1VGprbDd1VnFQSlZia3BQbFZXdnJNNDVQblpxSkpjSWdlNmIvVHhoNkE5WWVRaTRtVi9LS3MKS1ZqUWd5OXFUT2V3cmZGNERiODVXdjRiekhEckZyR3hGbVNZTWVPY1h2ZVl0TGZPVlM5RmpiQ1pJZ0U1ClBRaUtXWDNzeXViVHg2eEw1aGUxUVl0SUdoaUJmZS9TV3Z0WUoxZlJUT3Y1MFBkM3JRSjB4ZVJmQ2hONgpQbkQ3ZzBGQ2xIeFJvc1k4dld5ZXNUenVpdUMxTWhPTzlqaGNwVGZpR05wU0dpNjdUNlIzcjVmdTNtSmEKb1UrcGlRSGVDaGhjSjRIeFZkQ24rQ05QS1VqQ3N0RnY0MndvRlMvOHZJeksvZkswZjQzVlRERWtVeUtPClUxUWZiNWRianNrYWpTY3NKd09FYklaeFdySkVDcUtPd2RRaHVMakpnLzNlQldtZUh3NCtWeGJsTFo5MQpvVFZWN1B0MjlqUm50WDN4VXl4d2pSVHVVK0toZ3pVSTFySFAzNCt0NTFoYVR1WmlWbTZFaU1MNUxJTkcKenFvbGgwc0pUcW9JZ1BKNTZtQmFieFcxUmtUMCthWEVXWlY4b0RoK0xoY2d0VGoyd201bXgwUnBmZCswCkJGWmQvTE9EaDBrTGF6ZW14TkRReU5MWVRTbXQwK3hqcUIvUnFlVEZkZ0U3dSthMTFTZm1MejJRaDRBVApvRU5qVS9YREFoWERkQlQ0TkhqOGxtbGxWV0RueGJ4b2xPOE9hWGhVREVsOTBCKzN0S2EyY3d4WnI2ckQKZWNMQWRnUVlBUWdBQ1FVQ1lvZkVGQUliREFBaENSRDM4NmVvZ3FMeThSWWhCRFZxMEJQTEpqcGluV0hmCk4vZnpwNmlDb3ZMeGZSSUlBSndBUXgzcXh1aE80MTlRNmgxa0h1amVjeFowTFFSeVJqY25FcVZEdWdoWQplSkRkSzQ1dWJDZGVGRXV2RXpyRitSTUxOZjVwTUp3SE9GNTlvdGhUd1krVWd6Z2ROcVBMalM0eWgvb1QKQW5NVFBPZXZ4Z1JSKzR3N0E3R09xUjNOejZKNmM1NDU3T2lBL0xWdkdSZzJNYkhOa3RCUE1tYllkWmZUCnhneGlTUFdzdzJIaE44L2E5bG9BYk9jclNtU2dnYTQ4WURzNHptSU9vZVRPdktPSmVhSlpSVGRoS20vWApuSlVEWUNtcnVQbDFGWENESEZrb3FWcjJkdUxGYzhab3hCRll2c1FiWGNrdWJWdTVpcEM2Vk11dlhkMCsKdjdpL241NEt3TjhPS282akZYWkl6Z1lXcU9sa1FBRGdWNTFoTGFXNTY3QmdhaFcyWTQ4Mi9sdlE1czg9Cj1rTjFICi0tLS0tRU5EIFBHUCBQUklWQVRFIEtFWSBCTE9DSy0tLS0tCg==&#39;</span>
+</code></pre>
+
+<a href="#decrypt" id="decrypt" style="color: inherit; text-decoration: none;">
+  <h4><code>/decrypt</code></h4>
+</a>
+<p>This endpoint allows you to decrypt data in a single operation.</p>
+<table>
+<thead>
+<tr>
+<th>Content-Type</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>passphrase</td>
+<td>123456789abcdef</td>
+<td>Passphrase to decrypt the message.</td>
+</tr>
+<tr>
+<td>message</td>
+<td>{{data}}</td>
+<td>Message to be decrypted.</td>
+</tr>
+</tbody></table>
+<pre><code class="language-shell"><br/><span class="hl-0">curl --location --request GET </span><span class="hl-1">&#39;http://localhost:3000/v1/decrypt&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;passphrase: 123456789abcdef&#39;</span><span class="hl-0"> \</span><br/><span class="hl-0">--header </span><span class="hl-1">&#39;message: LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0ZNQXpMNWFTdVU0RWM4QVJBQWtnUUVEMVNwaTN5MmRrME1kbHQwYmtsMEdIWEoxbytxZHdzeWxZdlIKcjVycGVydXVmeWd3V0JTR1p6UHNSMG51MFg4SWxIQ0hYR2pha0N2WFVhMEZHTFNHR2pqRHdZQmViZjAvCitIVE51K1BMYzRvVmlvMXAwZEZraFFuOVVHSG82b1NVQmNqcmdsWTlsTW4ySzg3RVp2M1BUZ2k3aGtiMwpOWVhFazl5dWdLalVGU1RtMERDdGdpNkt2YUpycURpZStLbnJxSVNrckpxS0I0T1FuOUlNQk1UY3kxVEgKQld2QStyQ2llSFBNRHIrNFRwbTU5cFgxQUhCb0xPRm9WK1c1YlJoNEY5VHVxNzRaMW9pV2cyUFFEM252CjFtdnlZN1VIdEVuczBFbzYvWFRTQnZzNndQdFBJT2FoWGlTSC9UYmNod1RNTjlBZ1NSa3YzeEpWcGhjSgpPaGRGaFNMQ1dSUlR5UGxlUWpNeEoyemwwRm1JM2IrZnNYUkZlKzRCRjhiQjl6MUV4Nk9KOE1raG9yOFYKN3B5ZHR2UUVBVFlXMHVEc3pNb09UNHhqYnUvL29ESk45dnRINnBTY1hnQ3o2MGI4TTdHaXl6VGFoV3FLCmsvSklVWHJORjB2cjk3RWVnRGs3VXNFV3Y4MFhYdkg3dEtVTFNQcnRSTmxnbytqSjk5SzBmcm9iK1QxQwpIcVp4UzdpZCsxaTJOOHhQcUZnd2lDeHhXS1dMTGllQW1GRVVuQ3NXYUR0b05OZUhYbkJyLzk5b25PZGoKd0pWT0krQS9uZlU5bXh2ZGFnWlNqWnlMQ0ZDa1REQ05GeWxKL0dmUnZIWndBNGsya0ZqZXUvQWhQa0Y5Ck1EQktZdmNSWFJudklLOW5STHhIYjZKMUpoS3ppbnFpbHgrZmpQak9kdVRTd2NzQnlicThXenRPbmpscwp3WkZZVU9uQjdsQ0N4d3lxc3hqNlBQdkpLODFTOTBhaElQMkNUVVVsWWlMWTRSa05qRjlwNnArSXZoVW4KeFB3UXFwSU03V2ZpckZOM0tJT3QrOWpyazE3YStFVWtOelBuNm5jMHdobTUzWDFtaWhHOEJPYXc5UFgwCmlSWHZuTTlEL0dkWHI4ZTNhWDFRTnBXOVVlKzZ5c1NqZi85bEs5MVo5aTl4eUpmSW51eS9EdXpjSGtYawpTa1Z5VjRablE3MCsrY0JvN1JaYUkzZ3Zuak9HYkF2Z3dVakJIYUoyL0Vqd0oyd1FESm9lbkVYdUFEeTcKOHhLRWk2V2p3V1lBUXVlUmh1cGdhYmJIcVFGazltTWhHSGcvMlpkNkViMTYyTmVYeTU2RkYrK1lWSm5jCnJrSVN5bkFmdWJSc1hmZXUxYS9TWWJvR2h0cTNheWQ3VTM3YVpCUmtuclFieldxYituV2YvRk54YkRvRAprTkpsV1BDSHZBeHhNRTd3U2gxRkZQNmtCL24yVWxTV1JNUWZwY25hbzFFUW9QUGdQcWtDcm9vSXh4WVMKWEsySlEzOWtucmpmY053bEJZYlVkZnlNaVlSRi84cHJxT25YU242czJDTUN6WjAzamlNeEpYYmFDS0N6CnNqVXpmMDVMTnJ5V01nR0dmQWFRcWZhN3NYM3NtL3VjL09IV25paFpVaWsrVlZQbzNPVGE1NG0vRnd2YgpjQmxseFV6UHVYSzg3NG1lQVNPanRZc2luOUQzVnNIWVdHa0g5azJ6eFgyZEU1cTZUeGxUaU9FOWx0UHUKRWxmWXloU1dtMXJYVUxDZmprYkE2TjlSSEFMR0VNU0Uwa3p1QXpGZmh0OFlpVkhxcHZULytrWjF1azA3ClZLejhnS09UQllMNG84ZWt6V2ZJZ2N3MThkcmZ4SThIUHQ1cUtEZzJpUUM3M1BBS1gxaEJxVHp4LzJSbAptS2FBeFZ5NW1yanVwWmV3RnpMc2tiYlRhYWszd0Y2eHZVWktFNmFHdFRFcnZIVWJlL0xoL00zajVBQTQKUGRZQSs3djZMd3BTcGRVYTRQK2xKb0d0SVQremRQTXF2TE1Od3lyYk9nSWVveEZXZHNxQk9qM1kwNk0xCmhJUk9IamRnVG9yUUhvOD0KPTh4MUMKLS0tLS1FTkQgUEdQIE1FU1NBR0UtLS0tLQo=&#39;</span><br/>
+</code></pre>
+
+<a href="#contributing-to-crypto-server" id="contributing-to-crypto-server" style="color: inherit; text-decoration: none;">
+  <h2>Contributing to Crypto Server</h2>
+</a>
+<p>Contributions to Crypto Server are welcomed and encouraged! Please see our 
+<a href="https://github.com/sebastienrousseau/crypto-server/blob/master/.github/CONTRIBUTING.md">Contributing Guidelines</a> for further details on the process for submitting
+pull requests to us.</p>
+<p>[^note]: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1,
+brainpoolP384r1, or brainpoolP512r1.</p>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Modules</a></li><li class=" tsd-kind-module"><a href="modules/lib_logger.html">lib/logger</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>

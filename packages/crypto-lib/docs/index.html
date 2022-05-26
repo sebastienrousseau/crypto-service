@@ -1,0 +1,202 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Crypto Lib</title><meta name="description" content="Documentation for Crypto Lib"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">Crypto Lib</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> Crypto Lib </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#crypto-lib" id="crypto-lib" style="color: inherit; text-decoration: none;">
+  <h1>Crypto Lib</h1>
+</a>
+<p><img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-logo.svg" alt="Banner representing Crypto Lib"></p>
+<p><a href="https://lerna.js.org/"><img src="https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge" alt="Maintained with Lerna"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=" alt="License"></a>
+<img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg" alt="Made with Love"></p>
+<hr>
+
+<a href="#welcome-to-crypto-lib" id="welcome-to-crypto-lib" style="color: inherit; text-decoration: none;">
+  <h2>Welcome to Crypto Lib</h2>
+</a>
+<p>Crypto Lib is a powerful intuitive cryptographic JavaScript library that
+encapsulates common algorithms, functions and provides an interface for
+low-level cryptographic operations.</p>
+<p>The cryptographic operations include:</p>
+<ul>
+<li>Digital Signing,</li>
+<li>Encryption and Decryption,</li>
+<li>Key Generation,</li>
+<li>Key Management,</li>
+<li>Pseudorandom Number Generation,</li>
+<li>Signature Verification.</li>
+</ul>
+<p>This library is based on <a href="https://openpgpjs.org/">OpenPGP.js</a> - a JavaScript implementation of the
+OpenPGP protocol. It implements <a href="https://tools.ietf.org/html/rfc4880">RFC4880</a> and parts of <a href="https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10">RFC4880bis</a>.</p>
+<p>Development of this library is hosted by <a href="https://github.com">GitHub</a> at the <a href="https://github.com/sebastienrousseau/crypto-service">following page</a>.
+Source code is available to everyone under the standard <a href="https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE">MIT license</a>.</p>
+
+<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+  <h2>Getting Started</h2>
+</a>
+<p>Crypto Lib is a <a href="https://nodejs.org/en/">Node.js</a> module available through the
+<a href="https://www.npmjs.com/">npm registry</a>. Before installing, <a href="https://nodejs.org/en/">download and install Node.js</a>.
+Node.js 12.20.0 or higher is required.</p>
+<p>Installation is done using either <a href="https://www.npmjs.com/"><code>npm</code></a>, <a href="https://yarnpkg.com/getting-started"><code>yarn</code></a> or <a href="https://pnpm.io/motivation"><code>pnpm</code></a>
+package managers to use Crypto Lib with Node.js or the Command Line Interface:</p>
+<ul>
+<li><code>npm i @sebastienrousseau/crypto-lib</code></li>
+<li><code>yarn add @sebastienrousseau/crypto-lib</code></li>
+<li><code>pnpm add @sebastienrousseau/crypto-lib</code></li>
+</ul>
+
+<a href="#what39s-included" id="what39s-included" style="color: inherit; text-decoration: none;">
+  <h2>What&#39;s included</h2>
+</a>
+<p>Within the download you&#39;ll find all the crypto lib source files grouped into
+the <em>dist</em> folder.</p>
+<p>You&#39;ll see something like this:</p>
+<pre><code class="language-shell"><span class="hl-0">.</span><br/><span class="hl-1">├── bin</span><br/><span class="hl-1">│   ├── crypto-lib.d.ts</span><br/><span class="hl-1">│   ├── crypto-lib.d.ts.map</span><br/><span class="hl-1">│   ├── crypto-lib.js</span><br/><span class="hl-1">│   └── crypto-lib.js.map</span><br/><span class="hl-1">├── index.d.ts</span><br/><span class="hl-1">├── index.d.ts.map</span><br/><span class="hl-1">├── index.js</span><br/><span class="hl-1">├── index.js.map</span><br/><span class="hl-1">└── lib</span><br/><span class="hl-1">    ├── decrypt.d.ts</span><br/><span class="hl-1">    ├── decrypt.d.ts.map</span><br/><span class="hl-1">    ├── decrypt.js</span><br/><span class="hl-1">    ├── decrypt.js.map</span><br/><span class="hl-1">    ├── encrypt.d.ts</span><br/><span class="hl-1">    ├── encrypt.d.ts.map</span><br/><span class="hl-1">    ├── encrypt.js</span><br/><span class="hl-1">    ├── encrypt.js.map</span><br/><span class="hl-1">    ├── generate.d.ts</span><br/><span class="hl-1">    ├── generate.d.ts.map</span><br/><span class="hl-1">    ├── generate.js</span><br/><span class="hl-1">    ├── generate.js.map</span><br/><span class="hl-1">    ├── revoke-key.d.ts</span><br/><span class="hl-1">    ├── revoke-key.d.ts.map</span><br/><span class="hl-1">    ├── revoke-key.js</span><br/><span class="hl-1">    └── revoke-key.js.map</span><br/><br/><span class="hl-1">2 directories, 24 files</span><br/>
+</code></pre>
+
+<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+  <h2>Quick Start</h2>
+</a>
+
+<a href="#generating-a-new-rsa-key-pair" id="generating-a-new-rsa-key-pair" style="color: inherit; text-decoration: none;">
+  <h3>Generating a new RSA key pair</h3>
+</a>
+<p><a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA</a> is a public-key algorithm for encrypting and signing messages. To
+generate a Rivest-Shamir-Adelman (RSA) public key pair:</p>
+<ul>
+<li>Open Terminal for Mac or Command Prompt for Windows,</li>
+<li>Enter the following example command that will start the generation process in
+the <code>dist/</code> directory.</li>
+</ul>
+<pre><code class="language-shell"><span class="hl-1">yarn start \</span><br/><span class="hl-1">  --name </span><span class="hl-2">&quot;Jane Doe&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --email </span><span class="hl-2">&quot;jane@doe.com&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --passphrase </span><span class="hl-2">&quot;123456789abcdef&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --type </span><span class="hl-2">&quot;rsa&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --curve </span><span class="hl-2">&quot;&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --bits 2048 \</span><br/><span class="hl-1">  --expiration 0 \</span><br/><span class="hl-1">  --format armored \</span><br/><span class="hl-1">  --sign </span><span class="hl-0">true</span>
+</code></pre>
+<p>This starts generating a 2048-bit RSA key pair, encrypts them with the password
+provided and writes them to a file in the <a href="src/key/">key</a> directory with a pgp
+extension.</p>
+<hr>
+
+<a href="#generating-a-new-elliptic-curve-cryptography-ecc-key-pair" id="generating-a-new-elliptic-curve-cryptography-ecc-key-pair" style="color: inherit; text-decoration: none;">
+  <h3>Generating a new Elliptic-curve cryptography (ECC) key pair</h3>
+</a>
+<p><a href="https://en.wikipedia.org/wiki/Elliptic-curve_cryptography">Elliptic-curve cryptography (ECC)</a> is an alternative technique to RSA. It
+generates security between key pairs for public key encryption by using the
+mathematics of elliptic curves. Elliptic curve cryptography provides stronger
+security per bits of key, which allows for much faster operations.</p>
+<p>Currently the following curves are supported:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Curve</th>
+<th align="center">Encryption</th>
+<th align="center">Signature</th>
+<th align="center">NodeCrypto</th>
+<th align="center">WebCrypto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">curve25519</td>
+<td align="center">ECDH</td>
+<td align="center">N/A</td>
+<td align="center">No</td>
+<td align="center">No</td>
+</tr>
+<tr>
+<td align="center">ed25519</td>
+<td align="center">N/A</td>
+<td align="center">EdDSA</td>
+<td align="center">No</td>
+<td align="center">No</td>
+</tr>
+<tr>
+<td align="center">p256</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+</tr>
+<tr>
+<td align="center">p384</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+</tr>
+<tr>
+<td align="center">p521</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+</tr>
+<tr>
+<td align="center">brainpoolP256r1</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">No</td>
+</tr>
+<tr>
+<td align="center">brainpoolP384r1</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">No</td>
+</tr>
+<tr>
+<td align="center">brainpoolP512r1</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">No</td>
+</tr>
+<tr>
+<td align="center">secp256k1</td>
+<td align="center">ECDH</td>
+<td align="center">ECDSA</td>
+<td align="center">Yes</td>
+<td align="center">No</td>
+</tr>
+</tbody></table>
+<p>To generate an Elliptic Curve Cryptography (ECC) key pair:</p>
+<ul>
+<li>Open Terminal for Mac or Command Prompt for Windows,</li>
+<li>Enter the following example command that will start the generation process in
+the <code>dist/</code> directory.</li>
+</ul>
+<pre><code class="language-shell"><span class="hl-1">yarn start \</span><br/><span class="hl-1">  --name </span><span class="hl-2">&quot;Jane Doe&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --email </span><span class="hl-2">&quot;jane@doe.com&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --passphrase </span><span class="hl-2">&quot;123456789abcdef&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --type </span><span class="hl-2">&quot;ecc&quot;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --curve curve25519 \</span><br/><span class="hl-1">  --bits null \</span><br/><span class="hl-1">  --expiration 0 \</span><br/><span class="hl-1">  --format armored \</span><br/><span class="hl-1">  --sign </span><span class="hl-0">true</span>
+</code></pre>
+<p>This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
+them with the password provided and writes them to a file in the <a href="src/key/">key</a>
+directory with a pgp extension.</p>
+<hr>
+
+<a href="#encrypting-and-signing-data" id="encrypting-and-signing-data" style="color: inherit; text-decoration: none;">
+  <h3>Encrypting and Signing Data</h3>
+</a>
+<p>Encryption is the transformation of data into a form in which it cannot be made
+sense of without the use of some key. Such transformed data is referred to as
+<code>ciphertext</code>.</p>
+<p>Crypto Lib makes it easy and painless to encrypt and sign data.</p>
+<p>To encrypt a message:</p>
+<ul>
+<li>Open Terminal for Mac or Command Prompt for Windows,</li>
+<li>Run the yarn start</li>
+<li>Enter the following example command that will start the encryption process in
+the <code>dist/</code> directory.</li>
+</ul>
+<pre><code class="language-shell"><span class="hl-1">node dist/lib/encrypt.js \</span><br/><span class="hl-1">  --passphrase </span><span class="hl-2">&#39;123456789abcdef&#39;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --message </span><span class="hl-2">&#39;Hello Crypto Service APIs!&#39;</span>
+</code></pre>
+<hr>
+
+<a href="#decrypting-and-verifying-signatures" id="decrypting-and-verifying-signatures" style="color: inherit; text-decoration: none;">
+  <h3>Decrypting and Verifying Signatures</h3>
+</a>
+<p>Decryption restores encrypted data to to its original (cleartext or plaintext)
+form. Decrypting data and verifying signatures is being done similarly in Crypto
+Lib.</p>
+<p>To decrypt a message:</p>
+<ul>
+<li>Open Terminal for Mac or Command Prompt for Windows,</li>
+<li>Enter the following example command that will start the decryption process in
+the <code>dist/</code> directory.</li>
+</ul>
+<pre><code class="language-shell"><span class="hl-1">node dist/lib/decrypt.js \</span><br/><span class="hl-1">  --passphrase </span><span class="hl-2">&#39;123456789abcdef&#39;</span><span class="hl-1"> \</span><br/><span class="hl-1">  --message </span><span class="hl-2">&#39;LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0ZNQXpMNWFTdVU0RWM4QVEvL1RlZzN6bzFiMSszNW9lN3l6NDFpRS9LVlNZYUJYSEFESTNpbVJodlQKeXlRczdFc29iYTdoUUx4dFZESjEyc3ZNU25YUWk2Y1FVNXd4cGo1L3VENUFOT2ZuN0hVSkYrSExINlRNCjNBWktZNUFLRk40VUZBK0hQRy9GSHlaNVhxVzRLd0hpL3ZjVWxSejRreWJDc2VxYmZoY01hU0NJdHRKbwpmWkNOcTFZNEhiR1hBV1BQWXExV0tRZnl0RnRyWWlQODU3VE5hc21XNTJKUjVMQUZ5OFdzdnZNTmM3Z3AKQ0RFcUIyVWQwRmJSNEZOU2tvTXFhN3FScXFqS1V2ei9odU9ieVVsOW94RVpGVGNac1hwSVQ1QkE5WUtECmpvY1pVSE1hTjZkbnFJTk8rcWVBZWM4R1FjbEUxVVk0RWhNcEhjUktkZEJaY2pjaE0xbW9oaEMxb0Q4aQpUTVBlRU5XcDg0SGh3cVp1UjRNNmxUQjBqSUhZbytuMXpMbm0vRUFtcDdoc3VvSEFYY3pqSFhVYVE3M2IKOEZ5UWlENW1IMU1wWHRoWjVheXNRTklmRkY5TUdOQ1paWXExNitHSFQvbmJCTDNyUmU2dENCUUFRTnVaCksydnNQeThGZlJyYmVBR0llZHllOFZIUGJFYXNsNWF4TVBwc08yaUtjV3dNN1QvZjVaeG5FRUxWem5UeApHQnA5MHFKMUFUNGtVWVNOejYvZC9aT2JUVVV3WWdkKzdUNDdxQ3VTMjYxVlJpL0Jiblh1Z2pLRk90VlEKMEhpU1VKbTlCbGhFR2s3OWg3RGJuZmx0ZFc4dFRCNE9CdXJxUHRVaHRLS2hHL3JhYUY3YlFrVVowUktNCmQ0SllOM0sySmhBL2ovaHIySEE4ZUpWZ0NNVm9McXJyZW8xazNHbGxIWkxTd2RBQmJtaXpZL1JZd2JDUQpUeG91TW5KNjhvZmVtSHNrSW1MdGx2OUtBOElQVEY4UXp3enZRcmpNRGRtclg2V09QTGtKQ3JiV1JKbHcKV25NWlBkVGpzSzdicnVNOTByZXhLeFowSGZVL050V3BvZ251L3dOYVBHZ1NRbEZhdHZhclJFQlNEaExaCndNYVE2ZWkycUJLbXdDTGVERURlaU1BSWlSQVBad1d2R1Y2RlFWNW14V2xGdm9SaGRDeTc2TW5kWXNNTQoza1Nwb1doMVBYUWpWYWZLV2lhZHJJS2FOSllDZkY2bzE5Ty9NdlZITGFFV0tnM0lzRGtvMGdtQWZ5VE8KTngzb2dYdTV0VFpvelRyUzRUMUpsMUR3bnRZbGlrMWhINkNYK0ZGLzIzVzlHaHdTdlcreVgzZFlTeHZjCjFuMlBjVDY5QzdDTmZtcWpOT293d20wcjl6M0lWYlZ2dGk4ZFduVzNEZDVGS256d2VaUDhaZ2hudUl4SQptUzdrY0ZWTVd4d3p6SmptQjg3UGZPbmZtZ2k2b0NxbFRzMXJDRldTQVZqM3hzenFFRGRnT1B1QXcvdzQKWmZOSS9sSVhHdU1DakpKQlYzNTZCN2ExNkZacXVqK2ZtOUQwS1BYbGpjSEcydHFRTjVDbHVTUnhUZlBiCm42U3ZOZ2tkVTNGM3pYS3NxRW9iRzdzakg5WjZWZlJIZjlRcmN2ZXZHdWFIb2ZZQkROVzZmT3ZNODBURQpHNjkzS3BRdytEaDVnMzBzamhXbDRuMS9aZUROR0RYZ0dERGRUMU9WQXRrVTBTcm1vY0ZSM1hCUHprYnQKRmw3YlVkVG1oVFlHVys2VmRIUG9mOFZ0b1FrWVJma2YxK1hFaC9kNUFvTzdSSVZRQ29qb3pqTmhoVy9qCjg4VW56d0VqZ3VoK0VMbVFRS1ViUi9ydjg2djcyM0VtVkVSd3hvQTIvalZCbGVaaHpFOHdrY01HODM3VApLVlo3N0VHblRPcTBjbUkrang2Ri9SenRjbDRBUHN6eEJkUkVSM25HR3dqbGVIdjdpMndhQTYzbWNJLzcKM0I0dWZyVGczbHNMWDVlWVFDUnJrdXdwOVZKNzNlWmJiOTlLOU51ZDhNVGczNnE0cFhtNWRBd3ZLZzEwCm96c0t2MHVxa0tDclF1TFBWU1JtZkE9PQo9Yll1VQotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tCg==&#39;</span>
+</code></pre>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Modules</a></li><li class=" tsd-kind-module"><a href="modules/bin_crypto_lib.html">bin/crypto-<wbr/>lib</a></li><li class=" tsd-kind-module"><a href="modules/index.html">index</a></li><li class=" tsd-kind-module"><a href="modules/lib_decrypt.html">lib/decrypt</a></li><li class=" tsd-kind-module"><a href="modules/lib_encrypt.html">lib/encrypt</a></li><li class=" tsd-kind-module"><a href="modules/lib_generate.html">lib/generate</a></li><li class=" tsd-kind-module"><a href="modules/lib_revoke_key.html">lib/revoke-<wbr/>key</a></li><li class=" tsd-kind-module"><a href="modules/types_types.html">types/types</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li><li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
