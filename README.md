@@ -171,7 +171,9 @@ To generate an Elliptic Curve Cryptography (ECC) key pair:
 - Open Terminal for Mac or Command Prompt for Windows,
 - Enter the following example command that will start the generation process.
 
-```shell
+|```shell |
+undefined|---------|
+
 yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null --type ecc
 ```
 

@@ -5,10 +5,12 @@ const args = process.argv.slice(2);
 // console.log(args);
 
 /**
- * @title Generates a new OpenPGP key pair.
- * @description Creates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.
+ * Generates a new OpenPGP key pair.
+ *
+ * Creates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.
+ *
  * Supports RSA and ECC keys. Primary and subkey will be of same type.
- * @author: Sebastien Rousseau <hello@crypto-service.co>
+ *
  * @param  {Number} [data.bits] (optional) - Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.
  * @param  {String} [data.curve] (optional) - Elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.
  * @param  {String} data.email - (required) An email address. e.g. 'jane@doe.com'
@@ -22,22 +24,21 @@ const args = process.argv.slice(2);
  * @returns {Promise<Object>} - The generated key object.
  * @async
  * @static
+ *
+ * @beta
  */
-const generate = async (
-  data:
-    {
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
-      bits: number;
-      curve: any;
-      email: string;
-      expiration: number;
-      format: any;
-      name: string;
-      passphrase: string;
-      sign: boolean;
-      type: any;
-    }
-): Promise<object> => {
+const generate = async (data: {
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  bits: number;
+  curve: any;
+  email: string;
+  expiration: number;
+  format: any;
+  name: string;
+  passphrase: string;
+  sign: boolean;
+  type: any;
+}): Promise<object> => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
       type: data.type,
@@ -46,12 +47,12 @@ const generate = async (
       passphrase: data.passphrase,
       curve: data.curve,
       keyExpirationTime: Number(data.expiration),
-      subkeys: [{sign: Boolean(data.sign)}],
+      subkeys: [{ sign: Boolean(data.sign) }],
       format: data.format,
     });
 
-  console.log(privateKey);  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-  console.log(publicKey);   // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+  console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
   console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 
   return { publicKey, privateKey, revocationCertificate };

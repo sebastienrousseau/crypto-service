@@ -9,7 +9,7 @@ const args = process.argv.slice(2);
  * @param {KeyGenerationDataType} data - This is the data that is passed to the
  * function.
  */
-const cryptoLib = async (data:KeyGenerationDataType) => {
+const cryptoLib = async (data: KeyGenerationDataType) => {
   if (data.type) {
     let cryptoFunction = "../lib/generate";
     const run = async () => {
@@ -18,7 +18,7 @@ const cryptoLib = async (data:KeyGenerationDataType) => {
     };
     run();
   }
-}
+};
 
 /* Checking if the arguments passed to the function are an array and if the
 array has a length. */

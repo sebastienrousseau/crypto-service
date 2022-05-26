@@ -5,8 +5,7 @@ import { readFile } from "fs/promises";
 const args = process.argv.slice(2);
 // console.log(args);
 
-const revoke = async (data: { passphrase: string; }) => {
-
+const revoke = async (data: { passphrase: string }) => {
   const passphrase = data.passphrase;
   const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
   const privateKeyRead = await openpgp.decryptKey({
@@ -18,7 +17,7 @@ const revoke = async (data: { passphrase: string; }) => {
 
   const { publicKey: revokedKeyArmored } = await openpgp.revokeKey({
     key: privateKeyRead,
-    format: 'armored'
+    format: "armored",
   });
 
   console.log({ publicKey: revokedKeyArmored }); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '

@@ -11,7 +11,7 @@ console.log(args);
  * with the public and private keys.
  * @returns The decrypted message.
  */
-const decrypt = async (data: { passphrase: string; message: string; }) => {
+const decrypt = async (data: { passphrase: string; message: string }) => {
   const passphrase = data.passphrase;
   const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
   const publicKeyArmored = await readFile("./src/key/rsa.pub.pgp");

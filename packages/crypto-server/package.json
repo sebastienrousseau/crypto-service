@@ -1,5 +1,5 @@
 {
-    "author": "Sebastien Rousseau <hello@crypto-service.co> (https://github.com/sebastienrousseau/crypto-service)",
+    "author": "Sebastien Rousseau <hello@crypto-server.co> (https://github.com/sebastienrousseau/crypto-server)",
     "autoupdate": {
         "fileMap": [
             {
@@ -10,13 +10,13 @@
             }
         ],
         "source": "git",
-        "target": "git://github.com/sebastienrousseau/crypto-service.git"
+        "target": "git://github.com/sebastienrousseau/crypto-server.git"
     },
     "bin": {
         "crypto-server": "bin/crypto-server.js"
     },
     "bugs": {
-        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+        "url": "https://github.com/sebastienrousseau/crypto-server/issues"
     },
     "dependencies": {
         "@fastify/accepts": "^3.0.0",
@@ -46,7 +46,6 @@
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "eslint": "^8.16.0",
-        "jsdoc": "^3.6.10",
         "minami": "^1.2.3",
         "mocha": "^10.0.0",
         "prettier": "^2.6.2",
@@ -55,11 +54,13 @@
         "remark-preset-lint-consistent": "^5.1.1",
         "remark-preset-lint-markdown-style-guide": "^5.1.2",
         "remark-preset-lint-recommended": "^6.1.2",
-        "rimraf": "^3.0.2"
+        "rimraf": "^3.0.2",
+        "typedoc": "^0.22.15"
     },
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
+    "exports": "./dist/index.js",
     "files": [
         "dist/"
     ],
@@ -97,18 +98,18 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "dist/index.js",
+    "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-server",
     "private": true,
     "repository": {
         "directory": "packages/crypto-server",
         "type": "git",
-        "url": "git+https://sebastienrousseau/crypto-service.git"
+        "url": "git+https://sebastienrousseau/crypto-server.git"
     },
     "scripts": {
         "build": "tsc -b",
-        "clean": "rimraf lib",
-        "doc": "jsdoc -c .jsdoc.json",
+        "clean": "rimraf ./dist ./docs ./node_modules",
+        "doc": "typedoc",
         "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
         "prettier": "prettier --write src/**/*.ts",
@@ -116,6 +117,6 @@
         "start": "node dist/index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
-    "types": "dist/index.d.ts",
+    "types": "./dist/index.d.ts",
     "version": "0.0.2"
 }

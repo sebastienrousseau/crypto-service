@@ -1,5 +1,5 @@
 {
-    "author": "Sebastien Rousseau <hello@crypto-service.co> (https://github.com/sebastienrousseau/crypto-service)",
+    "author": "Sebastien Rousseau <hello@crypto-lib.co> (https://github.com/sebastienrousseau/crypto-lib)",
     "autoupdate": {
         "fileMap": [
             {
@@ -10,13 +10,13 @@
             }
         ],
         "source": "git",
-        "target": "git://github.com/sebastienrousseau/crypto-service.git"
+        "target": "git://github.com/sebastienrousseau/crypto-lib.git"
     },
     "bin": {
         "crypto-lib": "bin/crypto-lib.js"
     },
     "bugs": {
-        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+        "url": "https://github.com/sebastienrousseau/crypto-lib/issues"
     },
     "dependencies": {
         "openpgp": "^5.2.1"
@@ -35,7 +35,7 @@
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "eslint": "^8.16.0",
-        "jsdoc": "^3.6.10",
+        "typedoc": "^0.22.15",
         "minami": "^1.2.3",
         "mocha": "^10.0.0",
         "prettier": "^2.6.2",
@@ -49,6 +49,7 @@
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
+    "exports": "./dist/index.js",
     "files": [
         "dist/"
     ],
@@ -86,7 +87,7 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "dist/index.js",
+    "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-lib",
     "private": true,
     "publishConfig": {
@@ -96,12 +97,12 @@
     "repository": {
         "directory": "packages/crypto-lib",
         "type": "git",
-        "url": "git+https://sebastienrousseau/crypto-service.git"
+        "url": "git+https://sebastienrousseau/crypto-lib.git"
     },
     "scripts": {
         "build": "tsc -b",
-        "clean": "rimraf lib",
-        "doc": "jsdoc -c .jsdoc.json",
+        "clean": "rimraf ./dist ./docs ./node_modules",
+        "doc": "typedoc",
         "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
         "prettier": "prettier --write src/**/*.ts",
@@ -109,6 +110,6 @@
         "start": "node dist/index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
-    "types": "dist/index.d.ts",
+    "types": "./dist/index.d.ts",
     "version": "0.0.2"
 }

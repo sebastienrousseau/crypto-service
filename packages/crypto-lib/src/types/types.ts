@@ -8,5 +8,4 @@ export type KeyGenerationDataType = {
   passphrase?: string;
   sign?: string;
   type?: string;
-}
-
+};

@@ -25,7 +25,7 @@ console.log(args);
  * @async
  * @static
  */
-const encrypt = async (data: { passphrase: string; message: string; }) => {
+const encrypt = async (data: { passphrase: string; message: string }) => {
   const message = data.message;
   const passphrase = data.passphrase;
   const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
