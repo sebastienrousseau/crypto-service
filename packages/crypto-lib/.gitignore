@@ -128,3 +128,4 @@ coverage
 ehthumbs.db
 lib-cov
 Gemfile.lock
+tsconfig.tsbuildinfo
