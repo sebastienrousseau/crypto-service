@@ -1,15 +1,8 @@
 import * as openpgp from "openpgp";
-// import { writeFile } from "fs/promises";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
-console.log(args);
-
-/**
- * It generates a public and private key pair, and saves them to the file system
- * @param {Object} args - The arguments passed to the function.
- */
-// const generatePair = async(args) => {
+// console.log(args);
 
 /**
  * Generates a new OpenPGP key pair.
@@ -43,7 +36,7 @@ const generate = async (
       sign: boolean;
       type: any;
     }
-) => {
+): Promise<object> => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
       type: data.type,
@@ -78,5 +71,6 @@ if (args instanceof Array && args.length) {
   };
   generate(data);
 }
+
 /* Exporting the function `generate` so that it can be used in other files. */
 export default generate;
