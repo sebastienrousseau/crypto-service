@@ -6,18 +6,24 @@ const args = process.argv.slice(2);
 console.log(args);
 
 /**
+ * Encryption API
  * @function encrypt
- * @summary Encrypts a message using a public key and a given passphrase.
- * @author: Sebastien Rousseau <hello@crypto-service.co>
- * @description
- * <ul>
- *  <li>It transforms understandable text into an unintelligible piece of data,</li>
- *  <li>It takes a message and a passphrase, encrypts the message with the public
- * key and returns the encrypted message result in base64 format.</li>
- * </ul>
+ * @description Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.
+ * @author Sebastien Rousseau <hello@crypto-service.co>
+ * @param {Message} data.message - (required) message to be encrypted.
+ * @param {String} [data.passphrase] (optional) - A passphrase to encrypt the message key. e.g. '1234567890abcdef' (min. 12 characters).
+ * @param {Key|Array<Key>} [publicKeys] - (optional) array of keys or single key, used to encrypt the message
+ * @param {Key|Array<Key>} [privateKeys] - (optional) private keys for signing. If omitted message will not be signed.
  *
- * @param {Object} args - The arguments passed to the function.
- * @returns {string} data - The encrypted message result in base64 format.
+ *     {
+ *       data: String|ReadableStream<String>|NodeStream, (if `armor` was true, the default)
+ *       data.message: Message,
+ *       data.passphrase: String,
+ *       data.publicKey: Key|Array<Key>,
+ *       data.privateKey: Key|Array<Key>,
+ *     }
+ * @async
+ * @static
  */
 const encrypt = async (data: { passphrase: string; message: string; }) => {
   const message = data.message;

@@ -108,7 +108,7 @@
     "scripts": {
         "build": "tsc -b",
         "clean": "rimraf lib",
-        "doc": "jsdoc -c .jsdocrc.json",
+        "doc": "jsdoc -c .jsdoc.json",
         "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
         "prettier": "prettier --write src/**/*.ts",

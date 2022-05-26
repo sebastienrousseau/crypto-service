@@ -5,9 +5,10 @@ const args = process.argv.slice(2);
 // console.log(args);
 
 /**
- * Generates a new OpenPGP key pair.
- * Creates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.
+ * @title Generates a new OpenPGP key pair.
+ * @description Creates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.
  * Supports RSA and ECC keys. Primary and subkey will be of same type.
+ * @author: Sebastien Rousseau <hello@crypto-service.co>
  * @param  {Number} [data.bits] (optional) - Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.
  * @param  {String} [data.curve] (optional) - Elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.
  * @param  {String} data.email - (required) An email address. e.g. 'jane@doe.com'
