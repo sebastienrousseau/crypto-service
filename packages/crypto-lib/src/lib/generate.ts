@@ -11,43 +11,48 @@ console.log(args);
  */
 // const generatePair = async(args) => {
 
-
+/**
+ * Generates a new OpenPGP key pair.
+ * Creates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.
+ * Supports RSA and ECC keys. Primary and subkey will be of same type.
+ * @param  {Number} [data.bits] (optional) - Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.
+ * @param  {String} [data.curve] (optional) - Elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.
+ * @param  {String} data.email - (required) An email address. e.g. 'jane@doe.com'
+ * @param  {Number} [data.expiration] (optional) - The number of seconds after the key creation time that the key expires. 0 means the key has no expiry date. Can be null to use the default value.
+ * @param  {String} [data.format] (optional) - The Format of the output keys e.g. 'armored' | 'object' | 'binary'. Defaults to 'armored'.
+ * @param  {String} data.name - (required) String consisting of a First name and Last name. e.g. ‘Jane Doe’
+ * @param  {String} [data.passphrase] (optional) - A passphrase to encrypt the resulting private key. e.g. '1234567890abcdef' (min. 12 characters).
+ * @param  {Boolean} [data.sign] (optional) - Whether to sign the key. e.g. true. Default: false.
+ * @param  {Any} data.type - (required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.
+ * @param  {Array<Object>} [data.subkeys] (optional) - Options for each subkey. Each subkey is an object with the same options as the primary key.
+ * @returns {Promise<Object>} - The generated key object.
+ * @async
+ * @static
+ */
 const generate = async (
   data:
     {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      type: any;
       bits: number;
-      name: string;
-      email: string;
-      passphrase: string;
       curve: any;
+      email: string;
       expiration: number;
       format: any;
+      name: string;
+      passphrase: string;
       sign: boolean;
+      type: any;
     }
 ) => {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
-      // The primary key algorithm type: ECC (default) or RSA
       type: data.type,
-      // Number of bits for RSA keys (defaults to 4096 bits)
       rsaBits: Number(data.bits),
-      // User IDs as objects: [{ name: "John Doe", email: "john@doe.com" }]
       userIDs: [{ name: data.name, email: data.email }],
-      // The passphrase used to encrypt the private key. e.g. 1234567890abcdef
       passphrase: data.passphrase,
-      // Elliptic curve for ECC keys:
-      // curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1,
-      //brainpoolP384r1, or brainpoolP512r1
       curve: data.curve,
-      // Number of seconds from key creation time after which the key expires
       keyExpirationTime: Number(data.expiration),
-      // Options for each subkey e.g. [{sign: true, passphrase: '123'}]
-      // default to main key options, except for sign parameter that defaults to
-      // false, and indicates whether the subkey should sign rather than encrypt
       subkeys: [{sign: Boolean(data.sign)}],
-      // Format of the output keys e.g. 'armored' | 'object' | 'binary';
       format: data.format,
     });
 

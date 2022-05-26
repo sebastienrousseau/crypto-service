@@ -3,9 +3,10 @@ import { readFile } from "fs/promises";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 const revoke = async (data: { passphrase: string; }) => {
+
   const passphrase = data.passphrase;
   const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
   const privateKeyRead = await openpgp.decryptKey({
@@ -14,7 +15,13 @@ const revoke = async (data: { passphrase: string; }) => {
     }),
     passphrase,
   });
-  console.log(privateKeyRead);
+
+  const { publicKey: revokedKeyArmored } = await openpgp.revokeKey({
+    key: privateKeyRead,
+    format: 'armored'
+  });
+
+  console.log({ publicKey: revokedKeyArmored }); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 };
 
 /* Checking if the arguments passed to the function are an array and if the array
