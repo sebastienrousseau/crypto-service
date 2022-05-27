@@ -2,12 +2,11 @@ import Accepts from "@fastify/accepts";
 import Etag from "@fastify/etag";
 import fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
+import routes from './routes';
+
 // import logger from "./logger/logger";
 
-import generate from "@sebastienrousseau/crypto-lib/dist/lib/generate";
-import encrypt  from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
-import decrypt  from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
-import revoke   from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
+
 
 const app = fastify({
   bodyLimit: 256 * 1024 * 1, // 256KB
@@ -24,28 +23,8 @@ const app = fastify({
   trustProxy: ["127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
 });
 
-interface IQuerystring {
-  username: string;
-  password: string;
-}
 
-interface IHeaders {
-  type: string;
-  bits: string;
-  name: string;
-  email: string;
-  passphrase: string;
-  curve: string;
-  expiration: string;
-  format: string;
-  message: string;
-  sign: string;
-}
 
-interface IHeadersEncryption {
-  passphrase: string;
-  message: string;
-}
 
 // -----------------------------------------------------------------------------
 // CLI ARGS
@@ -90,52 +69,8 @@ app.get("/", async () => {
   return { hello: "Hello Crypto Service!" };
 });
 
-app.get<{
-  Querystring: IQuerystring;
-  Headers: IHeaders;
-}>("/v1/generate", async (request, reply) => {
-  const generateKeyPair = await generate({
-    type: request.headers["type"],
-    bits: Number(request.headers["bits"]),
-    name: request.headers["name"],
-    email: request.headers["email"],
-    passphrase: request.headers["passphrase"],
-    curve: request.headers["curve"],
-    expiration: Number(request.headers["expiration"]),
-    format: request.headers["format"],
-    sign: Boolean(request.headers["sign"]),
-  });
-  reply.send({ data: generateKeyPair });
-});
+routes(app);
 
-app.get<{
-  Headers: IHeadersEncryption;
-}>("/v1/encrypt", async (request, reply) => {
-  const encryptedData = await encrypt({
-    message: request.headers["message"],
-    passphrase: request.headers["passphrase"],
-  });
-  reply.send({ data: encryptedData });
-});
-
-app.get<{
-  Headers: IHeadersEncryption;
-}>("/v1/decrypt", async (request, reply) => {
-  const encryptedData = await decrypt({
-    message: request.headers["message"],
-    passphrase: request.headers["passphrase"],
-  });
-  reply.send({ data: encryptedData });
-});
-
-app.get<{
-  Headers: IHeadersEncryption;
-}>("/v1/revoke", async (request, reply) => {
-  const encryptedData = await revoke({
-    passphrase: request.headers["passphrase"],
-  });
-  reply.send({ data: encryptedData });
-});
 
 // ---------------------------------------------------------------------------
 // LAUNCH

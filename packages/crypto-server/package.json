@@ -106,11 +106,13 @@
         "url": "git+https://sebastienrousseau/crypto-server.git"
     },
     "scripts": {
-        "build": "tsc -b",
+        "build": "yarn clean && tsc -b",
         "clean": "rimraf ./dist ./docs ./node_modules && rimraf tsconfig.tsbuildinfo",
+        "compile": "tsc --build && cp \"./package.json\" ./dist/",
         "doc": "typedoc",
         "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",
+        "prepack": "yarn build",
         "prettier": "prettier --write src/**/*.ts",
         "prettier:ci": "prettier --list-different src/**/*.ts",
         "start": "node dist/index.js",
