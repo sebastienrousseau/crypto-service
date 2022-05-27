@@ -1,3 +1,5 @@
+import endpointsConfig from "./config/endpoints.config";
+
 import Accepts from "@fastify/accepts";
 import Etag from "@fastify/etag";
 import fastify from "fastify";
@@ -21,9 +23,9 @@ const app = fastify({
 });
 
 /* Environment variables. */
-const PROTOCOL = process.env.PROTOCOL || "http";
-const HOST = process.env.HOST || "localhost";
-const PORT = process.env.NODE_PORT || 3000;
+const HOST = endpointsConfig.HOST || "localhost";
+const PORT = endpointsConfig.PORT || 3000;
+const PROTOCOL = endpointsConfig.PROTOCOL || "http";
 
 /* Console output. */
 const consoleOutput = [
