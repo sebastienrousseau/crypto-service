@@ -1,6 +1,6 @@
 import * as fastify from 'fastify';
 import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
-import { encryptionHeaders } from '../../types/types';
+import { encryptionHeaders } from '../../@types/types';
 
 export default (app: fastify.FastifyInstance) => {
   app.get<{
