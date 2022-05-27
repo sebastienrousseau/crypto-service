@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
+      "paths": {
+        "@sebastienrousseau/crypto-lib/*": ["../crypto-lib/src/*"],
+      },
       "outDir": "dist",
       "rootDir": "src"
   },
+  "include": ["src/**/*"],
   "exclude": [
       "node_modules",
       "dist"

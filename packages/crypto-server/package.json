@@ -60,7 +60,6 @@
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
-    "exports": "./dist/index.js",
     "files": [
         "dist/"
     ],
@@ -108,7 +107,7 @@
     },
     "scripts": {
         "build": "tsc -b",
-        "clean": "rimraf ./dist ./docs ./node_modules",
+        "clean": "rimraf ./dist ./docs ./node_modules && rimraf tsconfig.tsbuildinfo",
         "doc": "typedoc",
         "lint": "eslint --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --silent",

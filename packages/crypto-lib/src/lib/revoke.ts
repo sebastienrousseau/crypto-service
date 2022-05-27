@@ -21,6 +21,7 @@ const revoke = async (data: { passphrase: string }) => {
   });
 
   console.log({ publicKey: revokedKeyArmored }); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  return revokedKeyArmored;
 };
 
 /* Checking if the arguments passed to the function are an array and if the array

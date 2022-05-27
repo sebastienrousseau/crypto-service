@@ -1,4 +1,3 @@
-import { KeyGenerationDataType } from "../types/types";
 
 /* Taking the arguments from the command line and putting them into an array. */
 const args = process.argv.slice(2);
@@ -9,7 +8,18 @@ const args = process.argv.slice(2);
  * @param {KeyGenerationDataType} data - This is the data that is passed to the
  * function.
  */
-const cryptoLib = async (data: KeyGenerationDataType) => {
+ const cryptoLib = async (data:
+  {
+    bits?: string;
+    curve?: string;
+    email?: string;
+    expiration?: string;
+    format?: string;
+    name?: string;
+    passphrase?: string;
+    sign?: string;
+    type?: string;
+  }) => {
   if (data.type) {
     let cryptoFunction = "../lib/generate";
     const run = async () => {

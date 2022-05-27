@@ -14,6 +14,10 @@
     "module": "CommonJS",
     "noImplicitAny": true,
     "outDir": "dist",
+    "paths": {
+      "@sebastienrousseau/crypto-lib/*": ["packages/crypto-lib/src/*"],
+      "@sebastienrousseau/crypto-server/*": ["packages/crypto-server/src/*"]
+    },
     "pretty": true,
     "removeComments": true,
     "resolveJsonModule": true,
