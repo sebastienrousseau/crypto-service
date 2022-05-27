@@ -1,10 +1,10 @@
 import * as fastify from 'fastify';
 import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
-import { encryptionHeaders } from '../../@types/types';
+import { IHeadersBody } from '../../@types/types';
 
 export default (app: fastify.FastifyInstance) => {
   app.get<{
-    Headers: encryptionHeaders;
+    Headers: IHeadersBody;
   }>("/v1/decrypt", async (request, reply) => {
     const encryptedData = await decrypt({
       message: request.headers["message"],

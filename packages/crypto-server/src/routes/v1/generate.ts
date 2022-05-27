@@ -1,10 +1,10 @@
 import * as fastify from 'fastify';
 import generate from '@sebastienrousseau/crypto-lib/dist/lib/generate';
-import { generateHeaders } from '../../@types/types';
+import { IHeadersKeyBody } from '../../@types/types';
 
 export default (app: fastify.FastifyInstance) => {
   app.get<{
-    Headers: generateHeaders;
+    Headers: IHeadersKeyBody;
   }>("/v1/generate", async (request, reply) => {
     const generateKeyPair = await generate({
       type: request.headers["type"],

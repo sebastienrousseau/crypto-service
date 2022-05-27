@@ -3,7 +3,7 @@ export type IQuerystring = {
   password: string;
 }
 
-export type generateHeaders = {
+export type IHeadersKeyBody = {
   type: string;
   bits: string;
   name: string;
@@ -16,7 +16,7 @@ export type generateHeaders = {
   sign: string;
 }
 
-export type encryptionHeaders = {
+export type IHeadersBody = {
   passphrase: string;
   message: string;
 }
