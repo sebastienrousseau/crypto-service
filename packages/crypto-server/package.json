@@ -61,11 +61,14 @@
         "typedoc": "^0.22.15",
         "typescript": "^4.7.2"
     },
+    "directories": {
+      "src": "./src"
+    },
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
-        "dist/"
+      "dist/"
     ],
     "funding": [
         {
@@ -114,9 +117,9 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "yarn clean && tsc -b && yarn run copy:readme && yarn run copy:license && yarn run copy:makefile && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./dist ./docs ./node_modules && rimraf tsconfig.tsbuildinfo",
-        "compile": "tsc --build && cp \"./package.json\" ./dist/",
+        "copy:package": "cp ./package.json ./dist/",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
@@ -128,8 +131,8 @@
         "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
         "prepack": "yarn build",
         "prettier": "prettier --write src/**/*.ts",
-        "release:prepare": "npm publish $(node -p \"p=require('./package.json');p.name+'-'+p.version+'.tgz'\")",
-        "release:publish": "npm publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org'",
+        "release:prepare": "yarn pack",
+        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
         "start": "node dist/index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },

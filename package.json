@@ -16,7 +16,7 @@
         "registry": "https://npm.pkg.github.com"
     },
     "scripts": {
-        "bootstrap": "lerna bootstrap",
+        "bootstrap": "yarn clean && lerna bootstrap",
         "build": "lerna run build --stream",
         "clean": "lerna clean --yes",
         "docs": "lerna exec yarn docs --parallel",
