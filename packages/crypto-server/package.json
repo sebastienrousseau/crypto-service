@@ -102,11 +102,15 @@
     "lockfileVersion": 1,
     "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-server",
-    "private": true,
+    "private": false,
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://npm.pkg.github.com"
+    },
     "repository": {
         "directory": "packages/crypto-server",
         "type": "git",
-        "url": "git+https://sebastienrousseau/crypto-server.git"
+        "url": "git@github.com:sebastienrousseau/crypto-server.git"
     },
     "scripts": {
         "build": "yarn clean && tsc -b",
