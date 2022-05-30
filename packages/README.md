@@ -15,6 +15,7 @@
 Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
 low-level cryptographic operations.
+
 ### Crypto Server
 
 ![Banner representing Crypto Server][crypto server]

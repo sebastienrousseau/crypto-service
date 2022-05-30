@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "ES2020"
+    ],
+    "module": "CommonJS",
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "paths": {
+      "@sebastienrousseau/crypto-lib/*": ["packages/crypto-lib/src/*"],
+      "@sebastienrousseau/crypto-server/*": ["packages/crypto-server/src/*"]
+    },
+    "pretty": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2020"
+  }
+}

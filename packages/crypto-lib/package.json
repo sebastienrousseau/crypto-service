@@ -23,34 +23,37 @@
     },
     "description": "A portable and secure Cryptographic Service with abstract core functionality such as encryption, decryption, digital signing, and verification of signed messages.",
     "devDependencies": {
-        "@sebastienrousseau/c8-config": "^0.0.1",
-        "@sebastienrousseau/eslint-config": "^0.0.2",
-        "@sebastienrousseau/jsdoc-config": "^0.0.5",
-        "@sebastienrousseau/markdownlint-config": "^0.0.1",
-        "@sebastienrousseau/mocha-config": "^0.0.1",
-        "@sebastienrousseau/prettier-config": "^0.0.4",
-        "@sebastienrousseau/remark-config": "^0.0.2",
-        "c8": "^7.11.3",
-        "chai": "^4.3.6",
-        "eslint": "^8.16.0",
-        "eslint-plugin-import": "^2.26.0",
-        "eslint-plugin-prettier": "^4.0.0",
-        "jsdoc": "^3.6.10",
-        "mocha": "^10.0.0",
-        "minami": "^1.2.3",
-        "prettier": "^2.6.2",
-        "remark-cli": "^10.0.1",
-        "remark-preset-lint-consistent": "^5.1.1",
-        "remark-preset-lint-markdown-style-guide": "^5.1.2",
-        "remark-preset-lint-recommended": "^6.1.2",
-        "rimraf": "^3.0.2"
+      "@sebastienrousseau/c8-config": "^0.0.1",
+      "@sebastienrousseau/eslint-config": "^0.0.2",
+      "@sebastienrousseau/jsdoc-config": "^0.0.5",
+      "@sebastienrousseau/markdownlint-config": "^0.0.1",
+      "@sebastienrousseau/mocha-config": "^0.0.1",
+      "@sebastienrousseau/prettier-config": "^0.0.4",
+      "@sebastienrousseau/remark-config": "^0.0.3",
+      "@typescript-eslint/eslint-plugin": "^5.26.0",
+      "@typescript-eslint/parser": "^5.26.0",
+      "c8": "^7.11.3",
+      "chai": "^4.3.6",
+      "eslint": "^8.16.0",
+      "dotenv": "^16.0.1",
+      "minami": "^1.2.3",
+      "mocha": "^10.0.0",
+      "prettier": "^2.6.2",
+      "remark-cli": "^10.0.1",
+      "remark-footnotes": "^4.0.1",
+      "remark-preset-lint-consistent": "^5.1.1",
+      "remark-preset-lint-markdown-style-guide": "^5.1.2",
+      "remark-preset-lint-recommended": "^6.1.2",
+      "rimraf": "^3.0.2",
+      "typedoc": "^0.22.15",
+      "typedoc-plugin-missing-exports": "^0.22.6",
+      "typescript": "^4.7.2"
     },
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
-        "bin",
-        "lib"
+        "dist/"
     ],
     "funding": [
         {
@@ -86,9 +89,9 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "index.js",
+    "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-lib",
-    "private": true,
+    "private": false,
     "publishConfig": {
         "access": "public",
         "registry": "https://npm.pkg.github.com"
@@ -96,18 +99,21 @@
     "repository": {
         "directory": "packages/crypto-lib",
         "type": "git",
-        "url": "git+https://sebastienrousseau/crypto-service.git"
+        "url": "git@github.com:sebastienrousseau/crypto-lib.git"
     },
     "scripts": {
-        "clean": "rimraf lib",
-        "doc": "jsdoc -c .jsdocrc.json",
-        "lint": "eslint --config=.eslintrc src/**/*.js",
-        "fix": "eslint --config=.eslintrc src/**/*.js --fix",
-        "markdown": "yarn remark ./*.md packages/**/*.md --silent",
-        "prettier": "prettier --write src/**/*.js",
-        "start": "node index.js",
+        "build": "yarn clean && tsc -b",
+        "clean": "rimraf ./dist ./docs ./node_modules && rimraf tsconfig.tsbuildinfo",
+        "compile": "tsc --build && cp \"./package.json\" ./dist/",
+        "docs": "typedoc",
+        "fix": "eslint --fix src/**/*.ts",
+        "lint": "eslint src/**/*.ts",
+        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
+        "prepack": "yarn build",
+        "prettier": "prettier --write src/**/*.ts",
+        "start": "node dist/index.js",
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
-    "type": "module",
+    "types": "./dist/index.d.ts",
     "version": "0.0.2"
 }
