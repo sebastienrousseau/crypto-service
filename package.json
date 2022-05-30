@@ -23,6 +23,7 @@
         "fix": "lerna exec yarn fix  --parallel",
         "lint": "lerna exec yarn lint --parallel",
         "markdown": "yarn remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
+        "prepare": "husky install",
         "prettier": "lerna exec yarn prettier",
         "prettier:ci": "lerna exec yarn prettier:ci",
         "release": "yarn install && lerna publish && yarn clean",
