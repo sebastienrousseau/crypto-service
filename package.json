@@ -19,7 +19,6 @@
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build --stream",
         "clean": "lerna clean --yes",
-        "diff": "lerna diff",
         "doc": "lerna exec yarn doc --parallel",
         "fix": "lerna exec yarn fix  --parallel",
         "lint": "lerna exec yarn lint --parallel",
