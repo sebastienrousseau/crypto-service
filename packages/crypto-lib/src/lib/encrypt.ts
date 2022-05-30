@@ -11,7 +11,7 @@ console.log(args);
  * @description Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.
  * @author Sebastien Rousseau <hello@crypto-service.co>
  * @param {Message} data.message - (required) message to be encrypted.
- * @param {String} [data.passphrase] (optional) - A passphrase to encrypt the message key. e.g. '1234567890abcdef' (min. 12 characters).
+ * @param {String} [data.passphrase] (optional) - A passphrase to encrypt the message key.
  * @param {Key|Array<Key>} [publicKeys] - (optional) array of keys or single key, used to encrypt the message
  * @param {Key|Array<Key>} [privateKeys] - (optional) private keys for signing. If omitted message will not be signed.
  *

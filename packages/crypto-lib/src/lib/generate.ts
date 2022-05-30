@@ -17,7 +17,7 @@ const args = process.argv.slice(2);
  * @param  {Number} [data.expiration] (optional) - The number of seconds after the key creation time that the key expires. 0 means the key has no expiry date. Can be null to use the default value.
  * @param  {String} [data.format] (optional) - The Format of the output keys e.g. 'armored' | 'object' | 'binary'. Defaults to 'armored'.
  * @param  {String} data.name - (required) String consisting of a First name and Last name. e.g. ‘Jane Doe’
- * @param  {String} [data.passphrase] (optional) - A passphrase to encrypt the resulting private key. e.g. '1234567890abcdef' (min. 12 characters).
+ * @param  {String} [data.passphrase] (optional) - A passphrase to encrypt the resulting private key.
  * @param  {Boolean} [data.sign] (optional) - Whether to sign the key. e.g. true. Default: false.
  * @param  {Any} data.type - (required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.
  * @param  {Array<Object>} [data.subkeys] (optional) - Options for each subkey. Each subkey is an object with the same options as the primary key.
@@ -51,9 +51,9 @@ const generate = async (data: {
       format: data.format,
     });
 
-  console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-  console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
-  console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  // console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+  // console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  // console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 
   return { publicKey, privateKey, revocationCertificate };
 };
