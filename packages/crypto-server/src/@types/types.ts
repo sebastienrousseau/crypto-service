@@ -1,7 +1,7 @@
 export type IQuerystring = {
   username: string;
   password: string;
-}
+};
 
 export type IHeadersKeyBody = {
   type: string;
@@ -14,9 +14,9 @@ export type IHeadersKeyBody = {
   format: string;
   message: string;
   sign: string;
-}
+};
 
 export type IHeadersBody = {
   passphrase: string;
   message: string;
-}
+};
