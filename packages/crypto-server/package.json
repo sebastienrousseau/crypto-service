@@ -126,5 +126,5 @@
         "test": "c8 --config=.c8rc mocha --config=.mocharc"
     },
     "types": "./dist/index.d.ts",
-    "version": "0.0.2"
+    "version": "0.0.1"
 }
