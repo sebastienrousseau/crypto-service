@@ -106,7 +106,7 @@
         "compile": "tsc --build && cp \"./package.json\" ./dist/",
         "doc": "typedoc",
         "lint": "eslint --fix src/**/*.ts",
-        "markdown": "yarn remark ./*.md packages/**/*.md --silent",
+        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
         "prepack": "yarn build",
         "prettier": "prettier --write src/**/*.ts",
         "prettier:ci": "prettier --list-different src/**/*.ts",
