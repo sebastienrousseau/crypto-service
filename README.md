@@ -84,7 +84,7 @@ Update your apps to use new features, and test your apps against API changes.
 |Date|Download|Release Note|
 | :-: | :-: | :-: |
 |May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
-|May 27, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
+|May 30, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
 
 ## What's included
 
