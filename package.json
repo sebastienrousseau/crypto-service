@@ -22,7 +22,7 @@
         "doc": "lerna exec yarn doc --parallel",
         "fix": "lerna exec yarn fix  --parallel",
         "lint": "lerna exec yarn lint --parallel",
-        "markdown": "yarn remark ./*.md --silent && lerna exec yarn markdown --parallel",
+        "markdown": "yarn remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
         "prettier": "lerna exec yarn prettier",
         "prettier:ci": "lerna exec yarn prettier:ci",
         "release": "yarn install && lerna publish && yarn clean",
