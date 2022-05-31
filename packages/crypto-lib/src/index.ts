@@ -2,3 +2,14 @@
 import cryptoLib from "./bin/crypto-lib";
 
 export default cryptoLib;
+
+/**
+ * Export high level API functions.
+ * Usage:
+ *
+ *   import { encrypt } from 'cryptolib';
+ *   encrypt({ message, publicKeys });
+ */
+export {
+  encrypt, decrypt
+} from './cryptolib';

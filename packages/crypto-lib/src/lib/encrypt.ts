@@ -1,5 +1,5 @@
 import * as openpgp from "openpgp";
-import { readFile } from "fs/promises";
+import { readFileSync } from "fs";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
@@ -25,11 +25,11 @@ console.log(args);
  * @async
  * @static
  */
-const encrypt = async (data: { passphrase: string; message: string }) => {
+const encrypt = async (data: { passphrase: string; message: string; }) => {
   const message = data.message;
   const passphrase = data.passphrase;
-  const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
-  const publicKeyArmored = await readFile("./src/key/rsa.pub.pgp");
+  const privateKeyArmored = await readFileSync(__dirname + "/../key/rsa.priv.pgp");
+  const publicKeyArmored = await readFileSync(__dirname + "/../key/rsa.pub.pgp");
 
   /**
    * Reading the public key from the file.

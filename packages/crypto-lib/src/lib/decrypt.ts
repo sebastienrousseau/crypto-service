@@ -1,5 +1,5 @@
 import * as openpgp from "openpgp";
-import { readFile } from "fs/promises";
+import { readFileSync } from "fs";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
@@ -11,11 +11,11 @@ console.log(args);
  * with the public and private keys.
  * @returns The decrypted message.
  */
-const decrypt = async (data: { passphrase: string; message: string }) => {
+const decryption = async (data: { passphrase: string; armored: string }) => {
   const passphrase = data.passphrase;
-  const privateKeyArmored = await readFile("./src/key/rsa.priv.pgp");
-  const publicKeyArmored = await readFile("./src/key/rsa.pub.pgp");
-  let message = data.message;
+  const privateKeyArmored = await readFileSync(__dirname + "/../key/rsa.priv.pgp");
+  const publicKeyArmored = await readFileSync(__dirname + "/../key/rsa.pub.pgp");
+  let message = data.armored;
 
   /* Converting the message from base64 to utf-8. */
   message = Buffer.from(message, "base64").toString("utf-8");
@@ -59,14 +59,14 @@ array has a length. If it does, it is taking the arguments from the command line
 and storing them in an array. */
 if (args instanceof Array && args.length) {
   const data = {
-    message: args[3],
+    armored: args[3],
     passphrase: args[1],
     privateKey: args[7],
     publicKey: args[5],
   };
-  decrypt(data);
+  decryption(data);
 }
 
 /* Exporting the `decrypt()` function so that it can be imported into other
 files. */
-export default decrypt;
+export default decryption;
