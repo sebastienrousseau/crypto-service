@@ -2,6 +2,7 @@
     "dependencies": {
         "lerna": "^5.0.0"
     },
+    "description": "Crypto Service is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
@@ -9,8 +10,8 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "name": "root",
-    "private": true,
+    "name": "@sebastienrousseau/crypto-service",
+    "private": false,
     "publishConfig": {
         "access": "public",
         "registry": "https://npm.pkg.github.com"
@@ -25,6 +26,7 @@
         "markdown": "yarn remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
         "prepare": "husky install",
         "prettier": "lerna exec yarn prettier",
+        "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
         "release:prepare": "lerna exec yarn release:prepare --parallel",
         "release:publish": "lerna exec yarn release:publish --parallel",
         "release": "yarn install && yarn release:prepare && yarn release:publish && yarn clean",
@@ -34,13 +36,14 @@
         "test": "lerna run test --parallel"
     },
     "useWorkspaces": true,
-    "version": "independent",
+    "version": "0.0.2",
     "workspaces": [
         "packages/*"
     ],
     "devDependencies": {
       "@commitlint/cli": "^17.0.1",
       "@commitlint/config-conventional": "^17.0.0",
-      "husky": "8.0.1"
+      "husky": "8.0.1",
+      "mkdirp": "^1.0.4"
     }
 }
