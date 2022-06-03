@@ -1,7 +1,7 @@
 /* Importing the cryptoLib class from the crypto-lib file. */
-import cryptoLib from "./bin/crypto-lib";
+// import cryptoLib from "./bin/crypto-lib";
 
-export default cryptoLib;
+// export default cryptoLib;
 
 /**
  * Export high level API functions.
@@ -11,5 +11,10 @@ export default cryptoLib;
  *   encrypt({ message, publicKeys });
  */
 export {
-  encrypt, decrypt
+  generate, encrypt, decrypt
 } from './cryptolib';
+
+export { PublicKey, PrivateKey } from './key';
+
+
+

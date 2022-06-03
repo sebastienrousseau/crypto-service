@@ -20,6 +20,7 @@ export async function generate(
   return generate;
 }
 
+
 export async function encrypt(
   dataEncrypt:
     {
@@ -42,4 +43,4 @@ export async function decrypt(
   return encrypt;
 }
 
-export default { encrypt, decrypt };
+export default { generate, encrypt, decrypt };
