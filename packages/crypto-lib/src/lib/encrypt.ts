@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * Encryption API

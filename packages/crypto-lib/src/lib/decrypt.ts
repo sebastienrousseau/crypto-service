@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 
 /* Taking the arguments from the command line and storing them in an array. */
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * It reads the public and private keys from the file system, decrypts the
@@ -11,11 +11,11 @@ console.log(args);
  * with the public and private keys.
  * @returns The decrypted message.
  */
-const decryption = async (data: { passphrase: string; armored: string }) => {
+const decryption = async (data: { passphrase: string; encryptedMessage: string }) => {
   const passphrase = data.passphrase;
   const privateKeyArmored = await readFileSync(__dirname + "/../key/rsa.priv.pgp");
   const publicKeyArmored = await readFileSync(__dirname + "/../key/rsa.pub.pgp");
-  let message = data.armored;
+  let message = data.encryptedMessage;
 
   /* Converting the message from base64 to utf-8. */
   message = Buffer.from(message, "base64").toString("utf-8");
@@ -59,7 +59,7 @@ array has a length. If it does, it is taking the arguments from the command line
 and storing them in an array. */
 if (args instanceof Array && args.length) {
   const data = {
-    armored: args[3],
+    encryptedMessage: args[3],
     passphrase: args[1],
     privateKey: args[7],
     publicKey: args[5],

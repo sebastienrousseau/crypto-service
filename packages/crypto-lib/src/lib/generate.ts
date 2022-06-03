@@ -51,9 +51,9 @@ const generate = async (data: {
       format: data.format,
     });
 
-  // console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-  // console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
-  // console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+  console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 
   return { publicKey, privateKey, revocationCertificate };
 };

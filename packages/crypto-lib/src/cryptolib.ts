@@ -1,9 +1,24 @@
+import * as generation from "./lib/generate";
 import * as encryption from "./lib/encrypt";
 import * as decryption from "./lib/decrypt";
 
-/* Taking the arguments from the command line and putting them into an array. */
-const args = process.argv.slice(2);
-console.log(args);
+export async function generate(
+  dataGenerate:
+    {
+      bits: number;
+      curve: string;
+      email: string;
+      expiration: number;
+      format: string;
+      name: string;
+      passphrase: string;
+      sign: boolean;
+      type: string;
+    }
+) {
+  const generate = await generation.default(dataGenerate);
+  return generate;
+}
 
 export async function encrypt(
   dataEncrypt:
@@ -20,7 +35,7 @@ export async function decrypt(
   dataDecrypt:
     {
       passphrase: string;
-      armored: string;
+      encryptedMessage: string;
     }
 ) {
   const encrypt = await decryption.default(dataDecrypt);
