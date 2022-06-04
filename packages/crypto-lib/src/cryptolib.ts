@@ -1,9 +1,4 @@
-import * as generation from "./lib/generate";
-import * as revocation from "./lib/revoke";
-import * as encryption from "./lib/encrypt";
-import * as decryption from "./lib/decrypt";
-import * as signation from "./lib/sign";
-import * as verification from "./lib/verify";
+import * as key from "./lib/";
 
 export async function generate(
   dataGenerate:
@@ -19,12 +14,12 @@ export async function generate(
       type: string;
     }
 ) {
-  const generate = await generation.default(dataGenerate);
+  const generate = await key.generate.default(dataGenerate);
   return generate;
 }
 
 export async function revoke(dataRevoke: { passphrase: string }) {
-  const revoke = await revocation.default(dataRevoke);
+  const revoke = await key.revoke.default(dataRevoke);
   return revoke;
 }
 
@@ -36,7 +31,7 @@ export async function encrypt(
       publicKey: string;
     }
 ) {
-  const encrypt = await encryption.default(dataEncrypt);
+  const encrypt = await key.encrypt.default(dataEncrypt);
   return encrypt;
 }
 
@@ -48,7 +43,7 @@ export async function decrypt(
       publicKey: string;
     }
 ) {
-  const encrypt = await decryption.default(dataDecrypt);
+  const encrypt = await key.decrypt.default(dataDecrypt);
   return encrypt;
 }
 
@@ -59,7 +54,7 @@ export async function sign(
       message: string;
     }
 ) {
-  const sign = await signation.default(dataSign);
+  const sign = await key.sign.default(dataSign);
   return sign;
 }
 
@@ -71,8 +66,21 @@ export async function verify(
       publicKey: string;
     }
 ) {
-  const verify = await verification.default(dataVerify);
+  const verify = await key.verify.default(dataVerify);
   return verify;
 }
 
-export default { generate, encrypt, decrypt, sign, verify };
+export async function generateSessionKey(
+  dataSessionKey:
+    {
+      date: string;
+      email: string;
+      name: string;
+      publicKey: string;
+    }
+) {
+  const verify = await key.generateSessionKey.default(dataSessionKey);
+  return verify;
+}
+
+export default { generate, generateSessionKey, encrypt, decrypt, sign, verify };

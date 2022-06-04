@@ -5,6 +5,7 @@
  * Usage:
  *
  *  import { generate } from 'cryptolib';
+ *  import { generateSessionKey } from 'cryptolib';
  *  import { revoke } from 'cryptolib';
  *  import { encrypt } from 'cryptolib';
  *  import { decrypt } from 'cryptolib';
@@ -20,7 +21,7 @@
  *
  */
 export {
-  generate, revoke, encrypt, decrypt, sign, verify
+  generate, generateSessionKey, revoke, encrypt, decrypt, sign, verify
 } from './cryptolib';
 
 export {
