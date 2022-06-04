@@ -10,5 +10,5 @@ export {
 } from './cryptolib';
 
 export {
-  PublicKey, PrivateKey, publicKey, privateKey
+  PublicKey, PrivateKey
 } from './key/key';

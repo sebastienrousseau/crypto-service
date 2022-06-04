@@ -14,6 +14,6 @@ const passphrase = '123456789abcdef';
 const sign = true;
 const type = 'rsa';
 
-// generate({ bits, curve, email, expiration, format, name, passphrase, sign, type });
+generate({ bits, curve, email, expiration, format, name, passphrase, sign, type });
 encrypt({ message, passphrase });
-// decrypt({ passphrase, encryptedMessage });
+decrypt({ passphrase, encryptedMessage });
