@@ -1,4 +1,5 @@
 import { generate } from './cryptolib';
+import { revoke } from './cryptolib';
 import { encrypt } from './cryptolib';
 import { decrypt } from './cryptolib';
 import { sign } from './cryptolib';
@@ -16,8 +17,9 @@ const passphrase = '123456789abcdef';
 const signature = true;
 const type = 'rsa';
 
-// generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
-// encrypt({ message, passphrase });
-// decrypt({ passphrase, encryptedMessage });
-// sign({ passphrase, message });
+generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
+revoke({ passphrase });
+encrypt({ message, passphrase });
+decrypt({ passphrase, encryptedMessage });
+sign({ passphrase, message });
 verify({ passphrase, message });

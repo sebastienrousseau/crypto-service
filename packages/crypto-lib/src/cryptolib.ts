@@ -1,4 +1,5 @@
 import * as generation from "./lib/generate";
+import * as revocation from "./lib/revoke";
 import * as encryption from "./lib/encrypt";
 import * as decryption from "./lib/decrypt";
 import * as signation from "./lib/sign";
@@ -22,6 +23,10 @@ export async function generate(
   return generate;
 }
 
+export async function revoke(dataRevoke: { passphrase: string }) {
+  const revoke = await revocation.default(dataRevoke);
+  return revoke;
+}
 
 export async function encrypt(
   dataEncrypt:
