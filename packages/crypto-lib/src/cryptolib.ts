@@ -33,6 +33,7 @@ export async function encrypt(
     {
       passphrase: string;
       message: string;
+      publicKey: string;
     }
 ) {
   const encrypt = await encryption.default(dataEncrypt);
