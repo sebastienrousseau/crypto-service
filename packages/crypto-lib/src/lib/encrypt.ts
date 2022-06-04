@@ -1,5 +1,5 @@
 import * as openpgp from "openpgp";
-import { PublicKey, PrivateKey } from "../key/key";
+import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
@@ -8,13 +8,13 @@ const encrypt = async (data: { passphrase: string; message: string; }) => {
   const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await PrivateKey,
+    privateKey: await key.PrivateKey,
     passphrase,
   });
 
   const encrypted = await openpgp.encrypt({
     message: await openpgp.createMessage({ text: message }),
-    encryptionKeys: await PublicKey,
+    encryptionKeys: await key.PublicKey,
     signingKeys: privateKeyRead,
   });
 
