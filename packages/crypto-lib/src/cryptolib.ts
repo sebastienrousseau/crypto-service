@@ -45,6 +45,7 @@ export async function decrypt(
     {
       passphrase: string;
       encryptedMessage: string;
+      publicKey: string;
     }
 ) {
   const encrypt = await decryption.default(dataDecrypt);

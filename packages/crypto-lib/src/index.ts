@@ -14,7 +14,7 @@
  *  generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
  *  revoke({ passphrase });
  *  encrypt({ message, passphrase, publicKey });
- *  decrypt({ passphrase, encryptedMessage });
+ *  decrypt({ passphrase, encryptedMessage, publicKey});
  *  sign({ passphrase, message });
  *  verify({ passphrase, message });
  *

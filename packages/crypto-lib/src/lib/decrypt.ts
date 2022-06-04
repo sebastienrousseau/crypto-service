@@ -3,10 +3,14 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
-const decryption = async (data: { passphrase: string; encryptedMessage: string }) => {
+const decryption = async (data: { passphrase: string; encryptedMessage: string; publicKey: string; }) => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
   const passphrase = data.passphrase;
+
+  const publicKeyBase64 = data.publicKey;
+  const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
+  const publicKey = publicKeyBuffer.toString('utf-8');
 
   const privateKeyRead = await openpgp.decryptKey({
     privateKey: await key.PrivateKey,
@@ -15,7 +19,11 @@ const decryption = async (data: { passphrase: string; encryptedMessage: string }
 
   const { data: decrypted /*, signatures*/ } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
-    verificationKeys: await key.PublicKey,
+    verificationKeys: await openpgp.readKey(
+      {
+        armoredKey: publicKey,
+      }
+    ),
     decryptionKeys: privateKeyRead,
   });
   console.log(decrypted);
