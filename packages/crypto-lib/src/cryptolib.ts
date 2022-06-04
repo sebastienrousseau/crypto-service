@@ -2,6 +2,7 @@ import * as generation from "./lib/generate";
 import * as encryption from "./lib/encrypt";
 import * as decryption from "./lib/decrypt";
 import * as signation from "./lib/sign";
+import * as verification from "./lib/verify";
 
 export async function generate(
   dataGenerate:
@@ -55,4 +56,15 @@ export async function sign(
   return sign;
 }
 
-export default { generate, encrypt, decrypt, sign };
+export async function verify(
+  dataVerify:
+    {
+      passphrase: string;
+      message: string;
+    }
+) {
+  const verify = await verification.default(dataVerify);
+  return verify;
+}
+
+export default { generate, encrypt, decrypt, sign, verify };

@@ -2,6 +2,7 @@ import { generate } from './cryptolib';
 import { encrypt } from './cryptolib';
 import { decrypt } from './cryptolib';
 import { sign } from './cryptolib';
+import { verify } from './cryptolib';
 
 const bits = 2048;
 const curve = '';
@@ -18,4 +19,5 @@ const type = 'rsa';
 // generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
 // encrypt({ message, passphrase });
 // decrypt({ passphrase, encryptedMessage });
-sign({ passphrase, message });
+// sign({ passphrase, message });
+verify({ passphrase, message });
