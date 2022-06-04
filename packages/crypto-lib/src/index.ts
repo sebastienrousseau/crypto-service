@@ -16,7 +16,7 @@
  *  encrypt({ message, passphrase, publicKey });
  *  decrypt({ passphrase, encryptedMessage, publicKey});
  *  sign({ passphrase, message });
- *  verify({ passphrase, message });
+ *  verify({ passphrase, message, publicKey});
  *
  */
 export {

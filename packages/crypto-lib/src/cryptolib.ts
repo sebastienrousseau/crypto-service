@@ -68,6 +68,7 @@ export async function verify(
     {
       passphrase: string;
       message: string;
+      publicKey: string;
     }
 ) {
   const verify = await verification.default(dataVerify);

@@ -3,8 +3,11 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
-const verify = async (data: { passphrase: string; message: string; }) => {
+const verify = async (data: { passphrase: string; message: string; publicKey: string;}) => {
   const message = data.message;
+  const publicKeyBase64 = data.publicKey;
+  const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
+  const publicKey = publicKeyBuffer.toString('utf-8');
   const unsignedMessage = await openpgp.createMessage({ text: message });
   const passphrase = data.passphrase;
 
@@ -29,7 +32,11 @@ const verify = async (data: { passphrase: string; message: string; }) => {
   const verified = await openpgp.verify({
     message: await openpgp.createMessage({ text: message }),
     signature,
-    verificationKeys: await key.PublicKey,
+    verificationKeys: await openpgp.readKey(
+      {
+        armoredKey: publicKey,
+      }
+    ),
   });
 
   console.log(verified);
