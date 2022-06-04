@@ -1,6 +1,7 @@
 import { generate } from './cryptolib';
 import { encrypt } from './cryptolib';
 import { decrypt } from './cryptolib';
+import { sign } from './cryptolib';
 
 const bits = 2048;
 const curve = '';
@@ -11,9 +12,10 @@ const format = 'armored';
 const message = 'Hello Crypto Service APIs!';
 const name = 'Jane Doe';
 const passphrase = '123456789abcdef';
-const sign = true;
+const signature = true;
 const type = 'rsa';
 
-generate({ bits, curve, email, expiration, format, name, passphrase, sign, type });
-encrypt({ message, passphrase });
-decrypt({ passphrase, encryptedMessage });
+// generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
+// encrypt({ message, passphrase });
+// decrypt({ passphrase, encryptedMessage });
+sign({ passphrase, message });

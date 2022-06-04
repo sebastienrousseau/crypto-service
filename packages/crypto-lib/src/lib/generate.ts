@@ -18,7 +18,7 @@ const args = process.argv.slice(2);
  * @param  {String} [data.format] (optional) - The Format of the output keys e.g. 'armored' | 'object' | 'binary'. Defaults to 'armored'.
  * @param  {String} data.name - (required) String consisting of a First name and Last name. e.g. ‘Jane Doe’
  * @param  {String} [data.passphrase] (optional) - A passphrase to encrypt the resulting private key.
- * @param  {Boolean} [data.sign] (optional) - Whether to sign the key. e.g. true. Default: false.
+ * @param  {Boolean} [data.signature] (optional) - Whether to signature the key. e.g. true. Default: false.
  * @param  {Any} data.type - (required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.
  * @param  {Array<Object>} [data.subkeys] (optional) - Options for each subkey. Each subkey is an object with the same options as the primary key.
  * @returns {Promise<Object>} - The generated key object.
@@ -36,7 +36,7 @@ const generate = async (data: {
   format: any;
   name: string;
   passphrase: string;
-  sign: boolean;
+  signature: boolean;
   type: any;
 }): Promise<object> => {
   const { privateKey, publicKey, revocationCertificate } =
@@ -47,7 +47,7 @@ const generate = async (data: {
       passphrase: data.passphrase,
       curve: data.curve,
       keyExpirationTime: Number(data.expiration),
-      subkeys: [{ sign: Boolean(data.sign) }],
+      subkeys: [{ sign: Boolean(data.signature) }],
       format: data.format,
     });
 
@@ -68,7 +68,7 @@ if (args instanceof Array && args.length) {
     format: args[15],
     name: args[1],
     passphrase: args[5],
-    sign: Boolean(args[15]),
+    signature: Boolean(args[15]),
     type: args[7],
   };
   generate(data);

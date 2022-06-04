@@ -1,6 +1,7 @@
 import * as generation from "./lib/generate";
 import * as encryption from "./lib/encrypt";
 import * as decryption from "./lib/decrypt";
+import * as signation from "./lib/sign";
 
 export async function generate(
   dataGenerate:
@@ -12,7 +13,7 @@ export async function generate(
       format: string;
       name: string;
       passphrase: string;
-      sign: boolean;
+      signature: boolean;
       type: string;
     }
 ) {
@@ -43,4 +44,15 @@ export async function decrypt(
   return encrypt;
 }
 
-export default { generate, encrypt, decrypt };
+export async function sign(
+  dataSign:
+    {
+      passphrase: string;
+      message: string;
+    }
+) {
+  const sign = await signation.default(dataSign);
+  return sign;
+}
+
+export default { generate, encrypt, decrypt, sign };
