@@ -1,3 +1,4 @@
+import config from '../../src/config/config';
 import { generate } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
@@ -5,15 +6,15 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 const { expect } = chai;
-const bits = 2048;
+const bits = config.preferredRSABits;
 const curve = '';
 const email = 'jane@doe.com';
 const expiration = 0;
-const format = 'armored';
+const format = config.preferredFormat;
 const name = 'Jane Doe';
 const passphrase = '123456789abcdef';
 const signature = true;
-const type = 'rsa';
+const type = config.preferredType;
 
 describe('generateKey', function () {
   it('should generate a key', async function () {

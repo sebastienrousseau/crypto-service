@@ -24,6 +24,8 @@ export {
   generate, generateSessionKey, revoke, encrypt, decrypt, sign, verify
 } from './bin/cryptolib';
 
-export {
-  PublicKey, PrivateKey
-} from './key/key';
+export { PublicKey, PrivateKey } from './key/key';
+
+export { default as enums } from './enums';
+
+export { default as config } from './config/config';
