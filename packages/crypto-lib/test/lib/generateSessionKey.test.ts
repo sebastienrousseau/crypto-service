@@ -4,9 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-const { expect, assert } = chai;
-const should = chai.should();
-
+const { expect } = chai;
 const date = new Date().toString();
 const email = 'jane@doe.com';
 const name = 'Jane Doe';

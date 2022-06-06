@@ -4,10 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-const { expect, assert } = chai;
-const should = chai.should();
-
-
+const { expect } = chai;
 const bits = 2048;
 const curve = '';
 const email = 'jane@doe.com';
