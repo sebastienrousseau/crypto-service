@@ -1,10 +1,10 @@
-import { generate } from './cryptolib';
-import { revoke } from './cryptolib';
-import { encrypt } from './cryptolib';
-import { decrypt } from './cryptolib';
-import { sign } from './cryptolib';
-import { verify } from './cryptolib';
-import { generateSessionKey } from './cryptolib';
+import { generate } from './bin/cryptolib';
+import { revoke } from './bin/cryptolib';
+import { encrypt } from './bin/cryptolib';
+import { decrypt } from './bin/cryptolib';
+import { sign } from './bin/cryptolib';
+import { verify } from './bin/cryptolib';
+import { generateSessionKey } from './bin/cryptolib';
 
 const bits = 2048;
 const curve = '';

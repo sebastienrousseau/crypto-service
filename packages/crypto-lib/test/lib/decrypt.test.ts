@@ -1,4 +1,4 @@
-import { decrypt } from "../../src/cryptolib"
+import { decrypt } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 

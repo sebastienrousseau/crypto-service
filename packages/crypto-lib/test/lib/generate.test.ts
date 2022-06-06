@@ -1,4 +1,4 @@
-import { generate } from "../../src/cryptolib"
+import { generate } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 
@@ -14,7 +14,6 @@ const name = 'Jane Doe';
 const passphrase = '123456789abcdef';
 const signature = true;
 const type = 'rsa';
-
 
 describe('generateKey', function () {
   it('should generate a key', async function () {
@@ -87,8 +86,8 @@ describe('generateKey type', function () {
   });
 });
 
-describe('generateKey - unit tests', function () {
-  it('should have default params set', function () {
+describe('generateKey - unit tests', () => {
+  it('should have default params set', async () => {
     const opt = {
       bits: 2048,
       curve: '',
@@ -100,7 +99,7 @@ describe('generateKey - unit tests', function () {
       signature: true,
       type: 'rsa',
     };
-    return generate(opt).then(async function () {
+    return await generate(opt).then(async function () {
       for (const key of [opt]) {
         expect(key).to.exist;
         expect(key.bits).to.equal(2048);
