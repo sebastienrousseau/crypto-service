@@ -1,1 +1,3 @@
-"@sebastienrousseau/mocha-config"
+{
+  "extends": "@sebastienrousseau/mocha-config"
+}

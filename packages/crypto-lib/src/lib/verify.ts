@@ -3,31 +3,44 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
-const encrypt = async (data: { passphrase: string; message: string; publicKey: string;}) => {
+const verify = async (data: { passphrase: string; message: string; publicKey: string;}) => {
   const message = data.message;
-  const passphrase = data.passphrase;
-
   const publicKeyBase64 = data.publicKey;
   const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
   const publicKey = publicKeyBuffer.toString('utf-8');
+  const unsignedMessage = await openpgp.createMessage({ text: message });
+  const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({
     privateKey: await key.PrivateKey,
     passphrase,
   });
 
-  const encrypted = await openpgp.encrypt({
+  const detachedSignature = await openpgp.sign({
+    message: unsignedMessage,
+    signingKeys: privateKeyRead,
+    detached: true
+  });
+
+  console.log(detachedSignature);
+
+
+  const signature = await openpgp.readSignature({
+    armoredSignature: String(detachedSignature), // parse detached signature
+  });
+
+  const verified = await openpgp.verify({
     message: await openpgp.createMessage({ text: message }),
-    encryptionKeys: await openpgp.readKey(
+    signature,
+    verificationKeys: await openpgp.readKey(
       {
         armoredKey: publicKey,
       }
     ),
-    signingKeys: privateKeyRead,
   });
 
-  console.log(encrypted);
-  return encrypted;
+  console.log(verified);
+  return verified;
 };
 
 if (args instanceof Array && args.length) {
@@ -37,7 +50,8 @@ if (args instanceof Array && args.length) {
     publicKey: args[5],
     privateKey: args[7],
   };
-  encrypt(data);
+  verify(data);
 }
 
-export default encrypt;
+export default verify;
+

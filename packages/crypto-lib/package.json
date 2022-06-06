@@ -23,17 +23,21 @@
     },
     "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
     "devDependencies": {
-        "@sebastienrousseau/c8-config": "^0.0.1",
-        "@sebastienrousseau/eslint-config": "^0.0.2",
-        "@sebastienrousseau/jsdoc-config": "^0.0.5",
-        "@sebastienrousseau/markdownlint-config": "^0.0.1",
-        "@sebastienrousseau/mocha-config": "^0.0.1",
-        "@sebastienrousseau/prettier-config": "^0.0.4",
-        "@sebastienrousseau/remark-config": "^0.0.3",
+        "@sebastienrousseau/c8-config": "latest",
+        "@sebastienrousseau/eslint-config": "latest",
+        "@sebastienrousseau/jsdoc-config": "latest",
+        "@sebastienrousseau/markdownlint-config": "latest",
+        "@sebastienrousseau/mocha-config": "^0.0.4",
+        "@sebastienrousseau/prettier-config": "latest",
+        "@sebastienrousseau/remark-config": "latest",
         "@typescript-eslint/eslint-plugin": "^5.26.0",
         "@typescript-eslint/parser": "^5.26.0",
+        "@types/mocha": "^9.1.1",
+        "@types/chai": "^4.3.1",
+        "@types/chai-as-promised": "^7.1.5",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
+        "chai-as-promised": "^7.1.1",
         "dotenv": "^16.0.1",
         "eslint": "^8.16.0",
         "filesizes": "^0.1.2",
@@ -48,7 +52,8 @@
         "rimraf": "^3.0.2",
         "typedoc": "^0.22.15",
         "typedoc-plugin-missing-exports": "^0.22.6",
-        "typescript": "^4.7.2"
+        "typescript": "^4.7.2",
+        "ts-node": "^10.8.1"
     },
     "directories": {
       "src": "./src"
