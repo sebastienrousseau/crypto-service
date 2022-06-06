@@ -1,4 +1,4 @@
-import { sign } from "../../src/cryptolib"
+import { sign } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);

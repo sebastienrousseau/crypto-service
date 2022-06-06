@@ -1,4 +1,4 @@
-import { generateSessionKey } from "../../src/cryptolib"
+import { generateSessionKey } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 

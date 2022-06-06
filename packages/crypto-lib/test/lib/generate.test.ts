@@ -1,4 +1,4 @@
-import { generate } from "../../src/cryptolib"
+import { generate } from "../../src/bin/cryptolib"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 
@@ -14,7 +14,6 @@ const name = 'Jane Doe';
 const passphrase = '123456789abcdef';
 const signature = true;
 const type = 'rsa';
-
 
 describe('generateKey', function () {
   it('should generate a key', async function () {

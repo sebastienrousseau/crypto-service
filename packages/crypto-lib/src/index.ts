@@ -22,7 +22,7 @@
  */
 export {
   generate, generateSessionKey, revoke, encrypt, decrypt, sign, verify
-} from './cryptolib';
+} from './bin/cryptolib';
 
 export {
   PublicKey, PrivateKey
