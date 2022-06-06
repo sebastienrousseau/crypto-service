@@ -21,49 +21,65 @@ describe('generateKey', function () {
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.fulfilled;
   });
+});
 
+describe('generateKey rsaBits', function () {
   it('should fail for invalid bits (KeyOptions: rsaBits)', async function () {
     const bits = 2046;
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
   });
+});
 
+describe('generateKey EllipticCurveName', function () {
   it('should fail for invalid curve (KeyOptions: EllipticCurveName)', async function () {
     const curve = 'jane@doe.com';
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
+});
 
+describe('generateKey userIDs', function () {
   it('should fail for invalid user email address (KeyOptions: userIDs)', async function () {
     const email = 'wrongemailformat.com';
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith(/Invalid user ID format/);
   });
+});
 
+describe('generateKey keyExpirationTime', function () {
   it('should fail for invalid expiration (KeyOptions: keyExpirationTime)', async function () {
     const expiration = 0 - 3;
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
+});
 
+describe('generateKey format', function () {
   it('should fail for invalid format (KeyOptions: format)', async function () {
     const format = 'abcdef123456789';
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
+});
 
+describe('generateKey user name', function () {
   it('should fail for invalid user name (KeyOptions: userIDs)', async function () {
     const name = '';
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
+});
 
+describe('generateKey passphrase', function () {
   it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
     const passphrase = 'abcdef123456789';
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
+});
 
+describe('generateKey type', function () {
   it('should fail for invalid type (KeyOptions: type)', async function () {
     const type = "123456789";
     const test = generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
