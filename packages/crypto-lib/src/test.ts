@@ -22,9 +22,9 @@ const type = config.preferredType;
 const date = new Date().toString();
 
 generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
-// generateSessionKey({ date, email, name, publicKey})
-// revoke({ passphrase });
-// encrypt({ message, passphrase, publicKey });
-// decrypt({ passphrase, encryptedMessage, publicKey });
-// sign({ passphrase, message });
-// verify({ passphrase, message, publicKey });
+generateSessionKey({ date, email, name, publicKey})
+revoke({ passphrase });
+encrypt({ message, passphrase, publicKey });
+decrypt({ passphrase, encryptedMessage, publicKey });
+sign({ passphrase, message });
+verify({ passphrase, message, publicKey });
