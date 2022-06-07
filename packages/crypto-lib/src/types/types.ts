@@ -1,13 +1,14 @@
 export type dataGenerate = {
-  bits: number;
-  curve: string;
+  curve: any;
+  date: Date;
   email: string;
-  expiration: number;
-  format: string;
+  format: any;
+  keyExpirationTime: number;
   name: string;
   passphrase: string;
-  signature: boolean;
-  type: string;
+  rsaBits: number;
+  type: any;
+  userIDs: any;
 };
 
 export type dataRevoke = {
