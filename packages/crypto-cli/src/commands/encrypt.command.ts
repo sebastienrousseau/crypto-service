@@ -1,7 +1,6 @@
 import encrypt from '@sebastienrousseau/crypto-lib/dist/lib/encrypt';
 
 const args = process.argv.slice(2);
-console.log(args);
 
 if (args instanceof Array && args.length) {
   const data = {
@@ -19,3 +18,5 @@ if (args instanceof Array && args.length) {
   run();
 }
 
+//# sourceMappingURL=encrypt.command.js.map
+// Language: typescript

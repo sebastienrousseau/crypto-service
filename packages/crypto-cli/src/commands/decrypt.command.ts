@@ -14,8 +14,10 @@ if (args instanceof Array && args.length) {
 
   async function run(): Promise<void> {
     const decryptMessage = await decrypt(data);
-    console.log(decryptMessage);
+    // console.log(decryptMessage);
   }
   run();
 }
 
+//# sourceMappingURL=decrypt.command.js.map
+// Language: typescript
