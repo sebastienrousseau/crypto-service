@@ -1,6 +1,6 @@
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-import { writeFileSync } from "fs";
+import { writeFile } from "fs/promises";
 
 const args = process.argv.slice(2);
 // console.log(args);
@@ -22,19 +22,20 @@ const generate = async (data: types.dataGenerate): Promise<object> => {
   console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
   console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
 
-  const pbkey = await writeFileSync(
-    __dirname + '/../key/' + data.type + '.pub',
-    publicKey
-  );
+  const pbkey =
+    await writeFile(
+      "./src/key/" + data.type + ".pub",
+      Buffer.from(publicKey).toString('base64'),
+    );
   pbkey;
-  const prkey = await writeFileSync(
-    __dirname + '/../key/' + data.type + '.key',
-    privateKey,
+  const prkey = await writeFile(
+    "./src/key/" + data.type + ".key",
+    Buffer.from(privateKey).toString('base64'),
   );
   prkey;
-  const certificate = await writeFileSync(
-    __dirname + '/../key/' + data.type + '.cert',
-    revocationCertificate,
+  const certificate = await writeFile(
+    "./src/key/" + data.type + ".cert",
+    Buffer.from(revocationCertificate).toString('base64'),
   );
   certificate;
 
