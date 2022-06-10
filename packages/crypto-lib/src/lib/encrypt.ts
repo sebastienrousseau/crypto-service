@@ -1,7 +1,7 @@
-import { writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 
 // TODO: review this
@@ -13,7 +13,8 @@ const args = process.argv.slice(2);
 const encrypt = async (data: types.dataEncrypt): Promise<object> => {
   const message = data.message;
   const passphrase = data.passphrase;
-  const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key").toString("utf-8");
+  // const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key").toString("utf-8");
+  const privateKeyBase64 = await readFile("./src/key/rsa.key");
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });

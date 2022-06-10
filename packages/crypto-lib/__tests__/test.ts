@@ -1,11 +1,11 @@
-import { decrypt } from './bin/cryptolib';
-import { encrypt } from './bin/cryptolib';
-import { generate } from './bin/cryptolib';
-import { generateSessionKey } from './bin/cryptolib';
-import { revoke } from './bin/cryptolib';
-import { sign } from './bin/cryptolib';
-import { verify } from './bin/cryptolib';
-import config from './config/config';
+import { decrypt } from '../src/bin/cryptolib';
+import { encrypt } from '../src/bin/cryptolib';
+import { generate } from '../src/bin/cryptolib';
+import { generateSessionKey } from '../src/bin/cryptolib';
+import { revoke } from '../src/bin/cryptolib';
+import { sign } from '../src/bin/cryptolib';
+import { verify } from '../src/bin/cryptolib';
+import config from '../src/config/config';
 
 const bits = config.preferredRSABits;
 const curve = '';

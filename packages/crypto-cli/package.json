@@ -60,7 +60,7 @@
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
-        "dist/"
+        "dist/**/*"
     ],
     "funding": [
         {
@@ -97,7 +97,7 @@
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
-        "copy:package": "cp ./package.json ./dist/",
+        "copy:package": "cp package.json ./dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
