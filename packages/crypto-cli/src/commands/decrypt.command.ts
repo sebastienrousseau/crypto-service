@@ -1,7 +1,6 @@
 import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
 
 const args = process.argv.slice(2);
-console.log(args);
 
 if (args instanceof Array && args.length) {
   const data = {
