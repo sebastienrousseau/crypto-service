@@ -19,7 +19,7 @@
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
     "dependencies": {
-        "openpgp": "^5.2.1"
+        "openpgp": "^5.3.0"
     },
     "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
     "devDependencies": {

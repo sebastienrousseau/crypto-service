@@ -59,3 +59,4 @@ if (args instanceof Array && args.length) {
   };
   generate(data);
 }
+

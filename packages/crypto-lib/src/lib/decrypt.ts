@@ -2,9 +2,13 @@ import { readFile, writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
+const args = process.argv.slice(2);
+console.log(args);
+
 const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
+  console.log(message);
   const passphrase = data.passphrase;
   const privateKeyBase64 = readFile("./src/key/rsa.key");
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
@@ -33,4 +37,17 @@ const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   decryptedMsg;
   return decrypted;
 };
+
+if (args instanceof Array && args.length) {
+  const data = {
+    encryptedMessage: args[3],
+    passphrase: args[1],
+    publicKey: args[5],
+  };
+  decrypt(data);
+}
+
 export default decrypt;
+
+//# sourceMappingURL=decrypt.js.map
+// Language: typescript

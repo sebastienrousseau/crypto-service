@@ -5305,6 +5305,13 @@ openpgp@^5.2.1:
   dependencies:
     asn1.js "^5.0.0"
 
+openpgp@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/openpgp/-/openpgp-5.3.0.tgz#e8fc97e538865b8c095dbd91c7be4203bd1dd1df"
+  integrity sha512-qjCj0vYpV3dmmkE+vURiJ5kVAJwrMk8BPukvpWJiHcTNWKwPVsRS810plIe4klIcHVf1ScgUQwqtBbv99ff+kQ==
+  dependencies:
+    asn1.js "^5.0.0"
+
 optionator@^0.9.1:
   version "0.9.1"
   resolved "https://registry.npmjs.org/optionator/-/optionator-0.9.1.tgz"
