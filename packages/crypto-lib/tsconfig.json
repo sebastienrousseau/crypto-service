@@ -1,15 +1,16 @@
 {
-  "compilerOptions": {
-      "outDir": "dist",
-      "rootDir": "src"
-  },
-  "exclude": [
-      "node_modules",
-      "dist",
-      "__tests__"
-  ],
-  "extends": "../../tsconfig.json",
-  "include": [
-    "src/**/*", "__tests__/test.ts",
-  ]
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src"
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "__tests__"
+    ],
+    "extends": "../../tsconfig.json",
+    "include": [
+        "src/**/*",
+        "__tests__/test.ts"
+    ]
 }
