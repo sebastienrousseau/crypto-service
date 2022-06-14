@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "lerna": "^5.0.0"
+        "lerna": "^5.1.2"
     },
     "description": "Crypto Service is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
