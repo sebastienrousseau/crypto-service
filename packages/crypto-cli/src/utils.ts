@@ -1,6 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
-
 export class CliUtils {
   static writeLn(s: string, finalLine = false, error = false) {
     const stream = error ? process.stderr : process.stdout;
