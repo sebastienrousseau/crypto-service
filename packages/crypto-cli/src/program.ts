@@ -4,14 +4,14 @@ import encryptCommand from "./commands/encrypt.command";
 // import { DecryptCommand } from "./commands/decrypt.command";
 // import { GenerateCommand } from "./commands/generate.command";
 
-import { CliUtils } from "./utils";
+// import { CliUtils } from "./utils";
 
 const args = process.argv.slice(2);
 
 const actions = {
   encrypt: () => encryptCommand,
 };
-const writeLn = CliUtils.writeLn;
+// const writeLn = CliUtils.writeLn;
 
   program
     .version("0.0.1")
