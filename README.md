@@ -28,8 +28,17 @@ Crypto Service can help you ensure the following:
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
 
-The suite consists of two products, [Crypto Lib][6] and [Crypto Server][7] part
-of the Crypto Service Applications.
+The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and 
+[Crypto Server][7] part of the Crypto Service Applications.
+
+## Crypto CLI
+
+![Banner representing Crypto CLI][crypto cli]
+
+The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common
+cryptographic operations such as key generation, data encryption, digital
+signing, and signature verification which are invoked from the command prompt 
+or terminal. [Learn more][16][>][16]
 
 ## Crypto Lib
 
@@ -277,9 +286,12 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [13]: https://www.npmjs.com/
 [14]: https://yarnpkg.com/getting-started
 [15]: https://pnpm.io/motivation
+[16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
 
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
+[crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
+

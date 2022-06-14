@@ -10,7 +10,6 @@
     ],
     "extends": "../../tsconfig.json",
     "include": [
-        "src/**/*",
-        "__tests__/test.ts"
+        "src/**/*"
     ]
 }

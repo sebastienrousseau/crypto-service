@@ -1,32 +1,40 @@
+import { readFile, writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
-import * as key from "../key/key";
+import * as types from "../types/types";
 
 const args = process.argv.slice(2);
+console.log(args);
 
-const decryption = async (data: { passphrase: string; encryptedMessage: string; publicKey: string; }) => {
+const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
+  console.log(message);
   const passphrase = data.passphrase;
-
-  const publicKeyBase64 = data.publicKey;
-  const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
-  const publicKey = publicKeyBuffer.toString('utf-8');
-
-  const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await key.PrivateKey,
+  const privateKeyBase64 = readFile("./src/key/rsa.key");
+  const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
+  const privateKeyArmored = Buffer.from((await privateKeyBase64).toString(), "base64").toString("utf-8");
+  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
+  const privateKey = await openpgp.decryptKey({
+    privateKey: await openpgp.readPrivateKey(
+      {
+        armoredKey: privateKeyArmored
+      }
+    ),
     passphrase,
   });
 
-  const { data: decrypted /*, signatures*/ } = await openpgp.decrypt({
+  const { data: decrypted } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
-    verificationKeys: await openpgp.readKey(
-      {
-        armoredKey: publicKey,
-      }
-    ),
-    decryptionKeys: privateKeyRead,
+    verificationKeys: publicKey,
+    decryptionKeys: privateKey,
   });
   console.log(decrypted);
+
+  const decryptedMsg = await writeFile(
+    "./src/data/decrypted.txt",
+    decrypted.toString(),
+  );
+  decryptedMsg;
   return decrypted;
 };
 
@@ -34,9 +42,12 @@ if (args instanceof Array && args.length) {
   const data = {
     encryptedMessage: args[3],
     passphrase: args[1],
-    privateKey: args[7],
     publicKey: args[5],
   };
-  decryption(data);
+  decrypt(data);
 }
-export default decryption;
+
+export default decrypt;
+
+//# sourceMappingURL=decrypt.js.map
+// Language: typescript
