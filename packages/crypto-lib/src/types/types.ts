@@ -17,6 +17,7 @@
  * @param {Any} userIDs - User IDs enumeration.
  *
  */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export type dataGenerate = {
   curve: any;
   date: Date;
