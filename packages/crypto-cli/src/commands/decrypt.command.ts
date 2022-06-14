@@ -9,7 +9,7 @@ if (args instanceof Array && args.length) {
     publicKey: args[5],
   };
 
-  const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
+  // const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
 
   async function run(): Promise<void> {
     const decryptMessage = await decrypt(data);
