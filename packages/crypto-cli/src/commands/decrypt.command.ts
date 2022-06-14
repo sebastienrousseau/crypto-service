@@ -11,11 +11,11 @@ if (args instanceof Array && args.length) {
 
   // const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
 
-  async function run(): Promise<void> {
-    const decryptMessage = await decrypt(data);
-    // console.log(decryptMessage);
-  }
-  run();
+  // async function run(): Promise<void> {
+  //   const decryptMessage = await decrypt(data);
+  //   // console.log(decryptMessage);
+  // }
+  // run();
 }
 
 //# sourceMappingURL=decrypt.command.js.map
