@@ -17,9 +17,10 @@ if (args instanceof Array && args.length) {
     userIDs: [{ name: args[1], email: args[3] }],
   };
 
-  async function run() {
+  const run = async () => {
     const generateKey = await generate(data);
     console.log(generateKey);
+    return generateKey;
   }
   run();
 }
