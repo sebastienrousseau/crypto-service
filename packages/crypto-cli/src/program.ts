@@ -27,6 +27,6 @@ const writeLn = CliUtils.writeLn;
       const encryptMessage = await actions.encrypt();
       encryptMessage.toString();
     })
-    .parse(process.argv);
+    .parse(args);
 
 
