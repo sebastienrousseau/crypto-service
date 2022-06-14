@@ -3,6 +3,23 @@
  */
 
 export default {
+  /**
+   * ### enums.hash
+   *
+   * Enumeration of hash algorithms.
+   *
+   * @enum {String}
+   * @readonly
+   * @memberof module:enums
+   * @description Enumeration of supported key hashing algorithms and their respective values.
+   * @property {String} md5 - md5 hash algorithm.
+   * @property {String} sha1 - sha1 hash algorithm.
+   * @property {String} ripemd - ripemd hash algorithm.
+   * @property {String} sha256 - SHA256 hash algorithm.
+   * @property {String} sha512 - SHA512 hash algorithm.
+   * @property {String} sha224 - SHA224 hash algorithm.
+   *
+   */
   hash: {
     md5: 1,
     sha1: 2,
@@ -12,6 +29,26 @@ export default {
     sha512: 10,
     sha224: 11
   },
+  /**
+   * ### enums.size
+   *
+   * Enumeration of key sizes.
+   *
+   * @enum {Number}
+   * @readonly
+   * @memberof module:enums
+   * @description Enumeration of supported key sizes and their respective values.
+   * @property {Number} keySize512 - The key size of 512 bits.
+   * @property {Number} keySize1024 - The key size of 1024 bits.
+   * @property {Number} keySize2048 - The key size of 2048 bits.
+   * @property {Number} keySize3072 - The key size of 3072 bits.
+   * @property {Number} keySize4096 - The key size of 4096 bits.
+   * @property {Number} keySize6144 - The key size of 6144 bits.
+   * @property {Number} keySize7680 - The key size of 7680 bits.
+   * @property {Number} keySize8192 - The key size of 8192 bits.
+   * @property {Number} keySize15360 - The key size of 15360 bits.
+   *
+   */
   size: {
     keySize512: 512,
     keySize1024: 1024,
@@ -23,10 +60,28 @@ export default {
     keySize8192: 8192,
     keySize1536: 15360,
   },
-  /** Maps curve names under various standards to one
-   * @see {@link https://wiki.gnupg.org/ECC|ECC - GnuPG wiki}
+
+  /**
+   *
+   * ### enums.curve
+   *
+   * Enumeration of elliptic curve algorithms.
+   *
    * @enum {String}
    * @readonly
+   * @see {@link https://wiki.gnupg.org/ECC|ECC - GnuPG wiki}
+   * @memberof module:enums
+   * @description Enumeration of supported elliptic curve algorithms and their respective values.
+   * @property {String} p256 or P-256 - elliptic curve algorithm.
+   * @property {String} p384 or P-384 - elliptic curve algorithm.
+   * @property {String} p521 or P-521 - elliptic curve algorithm.
+   * @property {String} secp256k1 - elliptic curve algorithm.
+   * @property {String} ED25519 - elliptic curve algorithm.
+   * @property {String} X25519 - elliptic curve algorithm.
+   * @property {String} brainpoolP256r1 - elliptic curve algorithm.
+   * @property {String} brainpoolP384r1 - elliptic curve algorithm.
+   * @property {String} brainpoolP512r1 - elliptic curve algorithm.
+   *
    */
   curve: {
     /** NIST P-256 Curve */
@@ -95,13 +150,46 @@ export default {
     '2b240303020801010d': 'brainpoolP512r1',
     '2B240303020801010D': 'brainpoolP512r1'
   },
+
+  /**
+   *
+   * ### enums.type
+   *
+   * Enumeration of supported types.
+   *
+   * @enum {String}
+   * @readonly
+   * @memberof module:enums
+   * @description Enumeration of supported types and their respective values.
+   * @property {String} ecc - elliptic curve cryptography.
+   * @property {String} rsa - RSA cryptography.
+   *
+   */
   type: {
     ecc: 'ecc',
     rsa: 'rsa',
   },
+
+  /**
+   * ### enums.format
+   *
+   * Enumeration of supported formats.
+   *
+   * @enum {String}
+   * @readonly
+   * @memberof module:enums
+   * @description Enumeration of supported formats and their respective values.
+   * @property {String} armored - ASCII armored format.
+   * @property {String} binary - binary format.
+   * @property {String} object - object format.
+   *
+   */
   format: {
     armored: 'armored',
     binary: 'binary',
     object: 'object',
   }
 }
+
+// # sourceMappingURL=enums.js.map
+// Language: typescript
