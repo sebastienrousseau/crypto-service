@@ -21,9 +21,9 @@ const writeLn = CliUtils.writeLn;
     .option("-m, --message", "message")
     .option("-k, --publicKey", "publicKey")
     .action(async () => {
-      const passphrase = program.passphrase;
-      const message = program.message;
-      const publicKey = program.publicKey;
+      // const passphrase = program.passphrase;
+      // const message = program.message;
+      // const publicKey = program.publicKey;
       const encryptMessage = await actions.encrypt();
       encryptMessage.toString();
     })
