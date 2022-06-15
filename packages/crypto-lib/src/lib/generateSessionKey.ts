@@ -2,6 +2,38 @@ import * as openpgp from "openpgp";
 
 const args = process.argv.slice(2);
 
+/**
+ * ### generateSessionKey
+ *
+ * Provides a function for asymmetric decryption.
+ *
+ * @public
+ * @param {Object} data - Data used to generate session key.
+ * @param {String} data.date - Date enumeration.
+ * @param {String} data.email - Email enumeration.
+ * @param {String} data.name - Name enumeration.
+ * @param {String} data.publicKey - Public key enumeration.
+ *
+ * @returns {Promise<String>} - Decrypted message.
+ * @example
+ * ```javascript
+ * import { generateSessionKey } from "crypto-lib";
+ *
+ * const data = {
+ * date: "date",
+ * email: "email",
+ * name: "name",
+ * publicKey: "base64 encoded public key"
+ * };
+ *
+ * generateSessionKey(data).then(sessionKey => {
+ * console.log(sessionKey);
+ * }
+ * .catch(err => {
+ * console.log(err);
+ * }
+ * ```
+*/
 const generateSessionKey = async (data: {
   date: string;
   email: string;

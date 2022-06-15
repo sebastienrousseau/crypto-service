@@ -5,6 +5,28 @@ import * as types from "../types/types";
 const args = process.argv.slice(2);
 console.log(args);
 
+/**
+ * ### encrypt
+ *
+ * Provides a function for asymmetric encryption.
+ *
+ * @public
+ * @param {Object} data - Data to be encrypted.
+ * @param {String} data.passphrase - Passphrase enumeration.
+ * @param {String} data.message - Message enumeration.
+ * @param {String} data.publicKey - Public key enumeration.
+ * @returns {Promise<String>} - Encrypted message.
+ * @example
+ * ```javascript
+ * import { encrypt } from "crypto-lib";
+ *
+ * const data = {
+ *  passphrase: "passphrase",
+ *  message: "message",
+ *  publicKey: "base64 encoded public key"
+ * };
+ *
+*/
 const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 
   const message = data.message;

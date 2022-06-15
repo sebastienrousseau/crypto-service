@@ -5,6 +5,36 @@ import * as types from "../types/types";
 const args = process.argv.slice(2);
 console.log(args);
 
+/**
+ * ### decrypt
+ *
+ * Provides a function for asymmetric decryption.
+ *
+ * @public
+ * @param {Object} data - Data to be decrypted.
+ * @param {String} data.passphrase - Passphrase enumeration.
+ * @param {String} data.encryptedMessage - Encrypted message enumeration.
+ * @param {String} data.publicKey - Public key enumeration.
+ * @returns {Promise<String>} - Decrypted message.
+ * @example
+ * ```javascript
+ * import { decrypt } from "crypto-lib";
+ *
+ * const data = {
+ *  passphrase: "passphrase",
+ *  encryptedMessage: "base64 encoded encrypted message",
+ *  publicKey: "base64 encoded public key"
+ * };
+ *
+ * decrypt(data).then(message => {
+ *  console.log(message);
+ * }
+ * .catch(err => {
+ *  console.log(err);
+ * }
+ * ```
+ *
+*/
 const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
