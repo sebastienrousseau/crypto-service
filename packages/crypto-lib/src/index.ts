@@ -36,7 +36,7 @@
  *
  * A function that takes in an options object and verifies a message.
  *
- * @usage
+ * @example
  * ```
  *  import { generate } from 'cryptolib';
  *
