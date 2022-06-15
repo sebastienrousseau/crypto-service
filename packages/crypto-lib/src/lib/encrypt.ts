@@ -1,21 +1,23 @@
-import { readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
+import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * ### encrypt
  *
- * Provides a function for asymmetric encryption.
+ * Encrypts data using specified algorithm and public key parameters.
  *
  * @public
  * @param {Object} data - Data to be encrypted.
  * @param {String} data.passphrase - Passphrase enumeration.
  * @param {String} data.message - Message enumeration.
- * @param {String} data.publicKey - Public key enumeration.
+ * @param {String} data.publicKey - Public key enumeration base64 encoded.
  * @returns {Promise<String>} - Encrypted message.
+ * @async
  * @example
  * ```javascript
  * import { encrypt } from "crypto-lib";
@@ -27,12 +29,13 @@ console.log(args);
  * };
  *
 */
+
 const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 
   const message = data.message;
   const passphrase = data.passphrase;
 
-  const privateKeyBase64 = readFile("./src/key/rsa.key");
+  const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key");
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });

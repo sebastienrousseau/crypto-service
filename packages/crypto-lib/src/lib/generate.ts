@@ -11,7 +11,7 @@ const args = process.argv.slice(2);
  * Provides a function for asymmetric key generation.
  *
  * @public
- * @param {Object} data - Data used to generate 
+ * @param {Object} data - Data used to generate
  * @param {String} data.name - Name of the user.
  * @param {String} data.email - Email of the user.
  * @param {String} data.passphrase - Passphrase enumeration.
