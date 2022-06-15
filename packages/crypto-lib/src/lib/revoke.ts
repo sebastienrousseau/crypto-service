@@ -7,7 +7,11 @@ const revoke = async (data: { passphrase: string }) => {
   const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await key.PrivateKey,
+    privateKey: await openpgp.readPrivateKey(
+      {
+        armoredKey: key.PrivateKey
+      }
+    ),
     passphrase,
   });
 

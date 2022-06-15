@@ -12,7 +12,11 @@ const verify = async (data: { passphrase: string; message: string; publicKey: st
   const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await key.PrivateKey,
+    privateKey: await openpgp.readPrivateKey(
+      {
+        armoredKey: key.PrivateKey
+      }
+    ),
     passphrase,
   });
 

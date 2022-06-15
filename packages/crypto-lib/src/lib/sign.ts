@@ -9,7 +9,11 @@ const sign = async (data: { passphrase: string; message: string; }) => {
   const unsignedMessage = await openpgp.createCleartextMessage({ text: message });
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await key.PrivateKey,
+    privateKey: await openpgp.readPrivateKey(
+      {
+        armoredKey: key.PrivateKey
+      }
+    ),
     passphrase,
   });
 
