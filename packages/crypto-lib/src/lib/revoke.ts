@@ -3,6 +3,35 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
+/**
+ * ### revoke
+ *
+ * Provides a function for asymmetric revocation.
+ *
+ * @public
+ * @param {Object} data - Data to be revoked.
+ * @param {String} data.passphrase - Passphrase enumeration.
+ * @param {String} data.publicKey - Public key enumeration.
+ *
+ * @returns {Promise<String>} - Revoked public key.
+ *
+ * @example
+ * ```javascript
+ * import { revoke } from "crypto-lib";
+ *
+ * const data = {
+ *  passphrase: "passphrase",
+ *  publicKey: "base64 encoded public key"
+ * };
+ * revoke(data).then(publicKey => {
+ *  console.log(publicKey);
+ * }
+ * .catch(err => {
+ *  console.log(err);
+ * }
+ * ```
+ *
+*/
 const revoke = async (data: { passphrase: string }) => {
   const passphrase = data.passphrase;
 
