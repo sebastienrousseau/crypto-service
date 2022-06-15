@@ -5,6 +5,38 @@ import { writeFile } from "fs/promises";
 const args = process.argv.slice(2);
 // console.log(args);
 
+/**
+ * ### generate
+ *
+ * Provides a function for asymmetric key generation.
+ *
+ * @public
+ * @param {Object} data - Data used to generate 
+ * @param {String} data.name - Name of the user.
+ * @param {String} data.email - Email of the user.
+ * @param {String} data.passphrase - Passphrase enumeration.
+ * @param {String} data.type - Type of key to be generated.
+ * @param {String} data.curve - Curve of key to be generated.
+ * @param {String} data.bits - Bits of key to be generated.
+ * @param {String} data.expiration - Expiration of key to be generated.
+ * @param {String} data.format - Format of key to be generated.
+ * @returns {Promise<String>} - Generated key.
+ * @example
+ * ```javascript
+ * import { generate } from "crypto-lib";
+ *
+ * const data = {
+ *  name: "name",
+ *  email: "email",
+ *  passphrase: "passphrase",
+ *  type: "type",
+ *  curve: "curve",
+ *  bits: "bits",
+ *  expiration: "expiration",
+ *  format: "format"
+ * };
+ *
+ */
 const generate = async (data: types.dataGenerate): Promise<object> => {
 
   const { privateKey, publicKey, revocationCertificate } =

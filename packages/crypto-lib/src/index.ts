@@ -1,28 +1,96 @@
 /**
+ * ### Index
  *
- * Export high level API functions.
+ * @description This is the main entry point for the crypto-lib package.
+ * It exports high level API functions:
  *
- * Usage:
+ * @category Component
+ * @module crypto-lib
+ * @public
  *
+ * @export **generate**
+ *
+ * A function that takes in an options object and generates a new keypair.
+ *
+ * @export **generateSessionKey**
+ *
+ * A function that takes in an options object and generates a new session key.
+ *
+ * @export **revoke**
+ *
+ * A function that takes in an options object and revokes a keypair.
+ *
+ * @export **encrypt**
+ *
+ * A function that takes in an options object and encrypts a message.
+ *
+ * @export **decrypt**
+ *
+ * A function that takes in an options object and decrypts a message.
+ *
+ * @export **sign**
+ *
+ * A function that takes in an options object and signs a message.
+ *
+ * @export **verify**
+ *
+ * A function that takes in an options object and verifies a message.
+ *
+ * @example
+ * ```
  *  import { generate } from 'cryptolib';
- *  import { generateSessionKey } from 'cryptolib';
- *  import { revoke } from 'cryptolib';
- *  import { encrypt } from 'cryptolib';
- *  import { decrypt } from 'cryptolib';
- *  import { sign } from 'cryptolib';
- *  import { verify } from 'cryptolib';
  *
- *  generate({ bits, curve, email, expiration, format, name, passphrase, signature, type });
- *  revoke({ passphrase });
- *  encrypt({ message, passphrase });
- *  decrypt({ passphrase, encryptedMessage, publicKey});
- *  sign({ passphrase, message });
- *  verify({ passphrase, message, publicKey});
- *
+ *  generate({
+ *   name: 'Jane Doe',
+ *   email: 'jane@doe.com',
+ *   passphrase: '123456789abcdef',
+ *   type: 'rsa',
+ *   curve: '',
+ *   rsaBits: 2048,
+ *   keyExpirationTime: 0,
+ *   format: 'armored',
+ *  });
+ * ```
  */
+
 export {
   generate, generateSessionKey, revoke, encrypt, decrypt, sign, verify
 } from './bin/cryptolib';
+
+/**
+ * ### Key
+ *
+ * @description The key that are used in the crypto-lib package.
+ *
+ * @category Component
+ * @module crypto-lib
+ * @public
+ *
+ * @export **PrivateKeyBase64**
+ *
+ * A class that represents a private key in base64 format.
+ *
+ * @export **PublicKeyBase64**
+ *
+ * A class that represents a public key in base64 format.
+ *
+ * @export **RevocationCertificateBase64**
+ *
+ * A class that represents a revocation certificate in base64 format.
+ *
+ * @export **PrivateKey**
+ *
+ * A class that represents a private key in binary format.
+ *
+ * @export **PublicKey**
+ *
+ * A class that represents a public key in binary format.
+ *
+ * @export **RevocationCertificate**
+ *
+ * A class that represents a revocation certificate in binary format.
+ *
+ */
 
 export {
   PrivateKeyBase64,
@@ -33,6 +101,53 @@ export {
   RevocationCertificate
 } from './key/key';
 
+/**
+ *
+ * @description The enums that are used in the crypto-lib package.
+ *
+ * @category Component
+ * @module crypto-lib
+ * @public
+ *
+ * @export **default as enums**
+ *
+ * A list of enums that are used in the crypto-lib package.
+ *
+ * @usage
+ *
+ * ```
+ * import { enums } from 'cryptolib';
+ *
+ * console.log(enums);
+ *
+ * ```
+ *
+ */
+
 export { default as enums } from './enums';
 
+/**
+ *
+ * The configuration for the crypto-lib package.
+ *
+ * @category Component
+ * @module crypto-lib
+ * @public
+ * @export **default as config**
+ *
+ * @description A configuration object that is used to configure the crypto-lib package.
+ *
+ * @usage
+ *
+ * ```
+ * import { config } from 'cryptolib';
+ *
+ * console.log(config);
+ *
+ * ```
+ */
+/** End file docs */
 export { default as config } from './config/config';
+
+//# sourceMappingURL=index.js.map
+// Language: typescript
