@@ -8,7 +8,7 @@ console.log(args);
 /**
  * ### decrypt
  *
- * Provides a function for asymmetric decryption.
+ * Decrypts data using specified algorithm and private key parameters.
  *
  * @public
  * @param {Object} data - Data to be decrypted.

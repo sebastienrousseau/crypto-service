@@ -8,19 +8,33 @@ const args = process.argv.slice(2);
 /**
  * ### generate
  *
- * Provides a function for asymmetric key generation.
+ * Generates a new OpenPGP public and private key pair. Supports RSA and ECC
+ * keys. By default, primary and subkeys will be of same type. The generated
+ * primary key will have signing capabilities. By default, one subkey with
+ * encryption capabilities is also generated.
  *
  * @public
- * @param {Object} data - Data used to generate
- * @param {String} data.name - Name of the user.
- * @param {String} data.email - Email of the user.
- * @param {String} data.passphrase - Passphrase enumeration.
- * @param {String} data.type - Type of key to be generated.
- * @param {String} data.curve - Curve of key to be generated.
- * @param {String} data.bits - Bits of key to be generated.
- * @param {String} data.expiration - Expiration of key to be generated.
- * @param {String} data.format - Format of key to be generated.
- * @returns {Promise<String>} - Generated key.
+ * @param {Object} data             - Data used to generate
+ * @param {String} data.name        - Name of the user.
+ * @param {String} data.email       - Email of the user.
+ * @param {String} data.passphrase  - Passphrase enumeration. The passphrase
+ *                                    used to encrypt the generated private key.
+ *                                    If omitted or empty, the key won't be
+ *                                    encrypted.
+ * @param {String} data.type        - Type of key to be generated.
+ * @param {String} data.curve       - Curve of key to be generated.
+ * @param {String} data.bits        - Bits of key to be generated.
+ * @param {String} data.expiration  - Expiration of key to be generated. Number
+ *                                    of seconds from the key creation time
+ *                                    after which the key expires.
+ *                                    0 never expires.
+ * @param {String} data.format      - Format of key to be generated. The primary
+ *                                    key algorithm type: ECC (default) or RSA.
+ * @returns {Promise<String>}       - Generated key.
+ *
+ * @async
+ * @static
+ *
  * @example
  * ```javascript
  * import { generate } from "crypto-lib";
@@ -37,6 +51,7 @@ const args = process.argv.slice(2);
  * };
  *
  */
+
 const generate = async (data: types.dataGenerate): Promise<object> => {
 
   const { privateKey, publicKey, revocationCertificate } =
@@ -50,9 +65,9 @@ const generate = async (data: types.dataGenerate): Promise<object> => {
       format: data.format,
     });
 
-  console.log(privateKey); // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-  console.log(publicKey); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
-  console.log(revocationCertificate); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+  console.log(privateKey);
+  console.log(publicKey);
+  console.log(revocationCertificate);
 
   const pbkey =
     await writeFile(

@@ -5,7 +5,7 @@ const args = process.argv.slice(2);
 /**
  * ### generateSessionKey
  *
- * Provides a function for asymmetric decryption.
+ * Generating a session key for the specified symmetric algorithm.
  *
  * @public
  * @param {Object} data - Data used to generate session key.
