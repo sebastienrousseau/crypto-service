@@ -13,7 +13,6 @@ const args = process.argv.slice(2);
  * At least one of `encryptionKeys` or `passwords` must be specified.
  * If signing keys are specified, those will be used to sign the message.
  *
- * @memberof module:crypto-lib
  * @public
  * @param {Object} data           - Data to be encrypted.
  * @param {String} passphrase     - Array of passwords or a single password to
@@ -43,7 +42,7 @@ const args = process.argv.slice(2);
  *
 */
 
-const encrypt = async (data: types.dataEncrypt): Promise<object> => {
+export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 
   const message = data.message;
   const passphrase = data.passphrase;
