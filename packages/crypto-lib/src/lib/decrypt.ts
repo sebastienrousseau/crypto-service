@@ -8,14 +8,21 @@ console.log(args);
 /**
  * ### decrypt
  *
- * Provides a function for asymmetric decryption.
+ * Decrypts a message with the user's private key, a session key or a password.
+ * One of `decryptionKeys`, `sessionkeys` or `passwords` must be specified
+ * (passing a combination of these options is not supported).
  *
  * @public
- * @param {Object} data - Data to be decrypted.
- * @param {String} data.passphrase - Passphrase enumeration.
- * @param {String} data.encryptedMessage - Encrypted message enumeration.
- * @param {String} data.publicKey - Public key enumeration.
- * @returns {Promise<String>} - Decrypted message.
+ * @param {Object} data                     - Data to be decrypted.
+ * @param {String} data.passphrase          - Passwords to decrypt the message.
+ * @param {String} data.encryptedMessage    - The message object with the
+ *                                            encrypted data.
+ * @param {String} data.publicKey           - Public key enumeration base64
+ *                                            encoded. This can be an array of
+ *                                            keys or single key, used to
+ *                                            decrypt the message.
+ * @returns {Promise<String>}               - Decrypted message.
+ *
  * @example
  * ```javascript
  * import { decrypt } from "crypto-lib";
@@ -35,7 +42,8 @@ console.log(args);
  * ```
  *
 */
-const decrypt = async (data: types.dataDecrypt): Promise<object> => {
+
+export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
   console.log(message);

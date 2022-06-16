@@ -6,7 +6,8 @@ const args = process.argv.slice(2);
 /**
  * ### revoke
  *
- * Provides a function for asymmetric revocation.
+ * Revokes a public key. Requires either a private key or a revocation
+ * certificate.
  *
  * @public
  * @param {Object} data - Data to be revoked.
@@ -32,7 +33,7 @@ const args = process.argv.slice(2);
  * ```
  *
 */
-const revoke = async (data: { passphrase: string }) => {
+export const revoke = async (data: { passphrase: string }) => {
   const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({

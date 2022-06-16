@@ -3,7 +3,42 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
-const sign = async (data: { passphrase: string; message: string; }) => {
+/**
+ * ### sign
+ *
+ * Signs a message with a private key.
+ *
+ * @public
+ * @param {Object} data - Data to be signed.
+ * @param {String} data.message - Message to be signed.
+ * @param {String} data.passphrase - Passphrase enumeration.
+ * @param {String} data.unsignedMessage - Unsigned message.
+ *
+ * @returns {Promise<String>} - Signed message.
+ *
+ * @async
+ * @static
+ *
+ * @example
+ * ```javascript
+ * import { sign } from "crypto-lib";
+ *
+ * const data = {
+ *    passphrase: "passphrase",
+ *    message: "message",
+ *    unsignedMessage: "unsigned message"
+ * };
+ * sign(data).then(signedMessage => {
+ * console.log(signedMessage);
+ * }
+ * .catch(err => {
+ * console.log(err);
+ * }
+ * ```
+ *
+ */
+
+export const sign = async (data: { passphrase: string; message: string; }) => {
   const message = data.message;
   const passphrase = data.passphrase;
   const unsignedMessage = await openpgp.createCleartextMessage({ text: message });
