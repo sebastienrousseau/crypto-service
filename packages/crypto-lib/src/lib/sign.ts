@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 /**
  * ### sign
  *
- * Signs a message with a private key.
+ * Signs and verifies cleartext messages with a private key.
  *
  * @public
  * @param {Object} data            - Data to be signed.
@@ -44,10 +44,13 @@ const args = process.argv.slice(2);
  */
 
 export const sign = async (data: types.dataSign) => {
+
   const passphrase = data.passphrase;
   const message = data.message;
   const detached = data.detached;
-  const unsignedMessage = await openpgp.createCleartextMessage({ text: message });
+  const unsignedMessage = await openpgp.createCleartextMessage({
+    text: message
+  });
 
   const privateKeyRead = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey(
@@ -72,7 +75,7 @@ export const sign = async (data: types.dataSign) => {
 
   console.log(signed);
   const signedMsg = await writeFile(
-    "./src/data/signed.txt",
+    "./src/data/signed.sig",
     Buffer.from(signed.toString()).toString('base64'),
   );
   signedMsg;

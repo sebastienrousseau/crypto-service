@@ -113,7 +113,6 @@ export type dataSign = {
  *
  */
 export type dataVerify = {
-  passphrase: string;
   message: string;
   publicKey: string;
 };
