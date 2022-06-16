@@ -1,9 +1,10 @@
-import { readFile, writeFile } from "fs/promises";
+import { readFileSync } from "fs";
+import { writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * ### decrypt
@@ -46,11 +47,11 @@ console.log(args);
 export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
-  console.log(message);
   const passphrase = data.passphrase;
-  const privateKeyBase64 = readFile("./src/key/rsa.key");
+
+  const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key");
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
-  const privateKeyArmored = Buffer.from((await privateKeyBase64).toString(), "base64").toString("utf-8");
+  const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey(
