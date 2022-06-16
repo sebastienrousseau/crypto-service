@@ -88,13 +88,16 @@ export type dataDecrypt = {
  *
  * @module types/types
  * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} message - Message enumeration.
+ * @param {String} passphrase          - Passphrase enumeration.
+ * @param {String} message             - Message enumeration.
+ * @param {Boolean} detached           - If true, the return value should
+ *                                       contain a detached signature
  *
  */
 export type dataSign = {
-  passphrase: string;
   message: string;
+  detached: boolean;
+  passphrase: string;
 };
 
 /**

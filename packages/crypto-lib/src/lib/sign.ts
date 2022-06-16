@@ -1,6 +1,7 @@
 import { writeFile } from "fs/promises";
 import * as key from "../key/key";
 import * as openpgp from "openpgp";
+import * as types from "../types/types";
 
 const args = process.argv.slice(2);
 
@@ -14,7 +15,8 @@ const args = process.argv.slice(2);
  * @param {String} data.message    - Message to be signed.
  * @param {String} data.passphrase - Array of passwords or a single password to
  *                                   encrypt the message.
- *
+ * @param {String} data.detached   - If true the return value should contain a
+ *                                   detached signature.
  * @returns {Promise<String>}      - Signed message (string if `armor` was true,
  *                                   the default; Uint8Array if `armor` was
  *                                   false).
@@ -41,9 +43,10 @@ const args = process.argv.slice(2);
  *
  */
 
-export const sign = async (data: { passphrase: string; message: string; }) => {
-  const message = data.message;
+export const sign = async (data: types.dataSign) => {
   const passphrase = data.passphrase;
+  const message = data.message;
+  const detached = data.detached;
   const unsignedMessage = await openpgp.createCleartextMessage({ text: message });
 
   const privateKeyRead = await openpgp.decryptKey({
@@ -55,7 +58,14 @@ export const sign = async (data: { passphrase: string; message: string; }) => {
     passphrase,
   });
 
-  const signed = await openpgp.sign({
+  const signOptions: openpgp.SignOptions = {
+    detached: detached,
+    message: unsignedMessage,
+    signingKeys: privateKeyRead,
+  };
+
+  const signed = await openpgp.sign(signOptions &&
+  {
     message: unsignedMessage,
     signingKeys: privateKeyRead,
   });
@@ -73,11 +83,11 @@ if (args instanceof Array && args.length) {
   const data = {
     passphrase: args[1],
     message: args[3],
-    publicKey: args[5],
-    privateKey: args[7],
+    detached: Boolean(args[5]),
+    publicKey: args[7],
+    privateKey: args[9],
   };
   sign(data);
 }
 
 export default sign;
-

@@ -3,6 +3,19 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
+/**
+ * ### sign
+ *
+ * @param data                - Data to be signed.
+ * @param data.message        - Message to be signed.
+ * @param data.publicKey      - Public key enumeration base64 encoded.
+ * @param data.detached       - If the return value should contain a detached
+ *                              signature.
+ *
+ * @returns {Promise<String>} - Signed message (string if `armor` was true, the
+ *                              default; Uint8Array if `armor` was false).
+ */
+
 export const verify = async (data: { passphrase: string; message: string; publicKey: string;}) => {
   const message = data.message;
   const publicKeyBase64 = data.publicKey;
