@@ -5,16 +5,20 @@ const args = process.argv.slice(2);
 /**
  * ### generateSessionKey
  *
- * Generating a session key for the specified symmetric algorithm.
+ * Generate a new session key object, taking the algorithm preferences of the
+ * passed public keys into account.
  *
  * @public
- * @param {Object} data - Data used to generate session key.
- * @param {String} data.date - Date enumeration.
- * @param {String} data.email - Email enumeration.
- * @param {String} data.name - Name enumeration.
- * @param {String} data.publicKey - Public key enumeration.
+ * @param {Object} data           - Data used to generate session key.
+ * @param {String} data.date      - Date enumeration.
+ * @param {String} data.email     - Email enumeration.
+ * @param {String} data.name      - Name enumeration.
+ * @param {String} publicKey      - Public key enumeration base64 encoded.
+ *                                  key, used to encrypt the message.
+ *                                  This can be an array of keys or single
  *
- * @returns {Promise<String>} - Decrypted message.
+ * @returns {Promise<String>} - Object with session key data and algorithm.
+ *
  * @example
  * ```javascript
  * import { generateSessionKey } from "crypto-lib";
@@ -34,7 +38,8 @@ const args = process.argv.slice(2);
  * }
  * ```
 */
-const generateSessionKey = async (data: {
+
+export const generateSessionKey = async (data: {
   date: string;
   email: string;
   name: string;

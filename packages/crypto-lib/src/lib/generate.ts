@@ -52,7 +52,7 @@ const args = process.argv.slice(2);
  *
  */
 
-const generate = async (data: types.dataGenerate): Promise<object> => {
+export const generate = async (data: types.dataGenerate): Promise<object> => {
 
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({

@@ -33,7 +33,7 @@ const args = process.argv.slice(2);
  * ```
  *
 */
-const revoke = async (data: { passphrase: string }) => {
+export const revoke = async (data: { passphrase: string }) => {
   const passphrase = data.passphrase;
 
   const privateKeyRead = await openpgp.decryptKey({

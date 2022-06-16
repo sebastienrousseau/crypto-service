@@ -3,7 +3,7 @@ import * as key from "../key/key";
 
 const args = process.argv.slice(2);
 
-const verify = async (data: { passphrase: string; message: string; publicKey: string;}) => {
+export const verify = async (data: { passphrase: string; message: string; publicKey: string;}) => {
   const message = data.message;
   const publicKeyBase64 = data.publicKey;
   const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
