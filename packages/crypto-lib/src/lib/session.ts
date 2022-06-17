@@ -1,27 +1,28 @@
 import * as openpgp from "openpgp";
+import * as types from "../types/types";
 
 const args = process.argv.slice(2);
 
 /**
- * ### generateSessionKey
+ * ### session
  *
  * Generate a new session key object, taking the algorithm preferences of the
  * passed public keys into account.
  *
  * @public
- * @param {Object} data           - Data used to generate session key.
- * @param {String} data.date      - Date enumeration.
- * @param {String} data.email     - Email enumeration.
- * @param {String} data.name      - Name enumeration.
- * @param {String} publicKey      - Public key enumeration base64 encoded.
- *                                  key, used to encrypt the message.
- *                                  This can be an array of keys or single
+ * @param {Object} data               - Data used to generate session key.
+ * @param {String} data.date          - Date enumeration.
+ * @param {String} data.email         - Email enumeration.
+ * @param {String} data.name          - Name enumeration.
+ * @param {String} data.publicKey     - Public key enumeration base64 encoded.
+ *                                      key, used to encrypt the message.
+ *                                      This can be an array of keys or single.
  *
  * @returns {Promise<String>} - Object with session key data and algorithm.
  *
  * @example
  * ```javascript
- * import { generateSessionKey } from "crypto-lib";
+ * import { session } from "crypto-lib";
  *
  * const data = {
  * date: "date",
@@ -30,7 +31,7 @@ const args = process.argv.slice(2);
  * publicKey: "base64 encoded public key"
  * };
  *
- * generateSessionKey(data).then(sessionKey => {
+ * session(data).then(sessionKey => {
  * console.log(sessionKey);
  * }
  * .catch(err => {
@@ -39,15 +40,11 @@ const args = process.argv.slice(2);
  * ```
 */
 
-export const generateSessionKey = async (data: {
-  date: string;
-  email: string;
-  name: string;
-  publicKey: string;
-}) => {
+export const session = async (data: types.dataSessionKey): Promise<openpgp.SessionKey> => {
   const publicKeyBase64 = data.publicKey;
   const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
   const publicKey = publicKeyBuffer.toString('utf-8');
+
 
   const sessionKey =
     await openpgp.generateSessionKey({
@@ -56,7 +53,7 @@ export const generateSessionKey = async (data: {
           armoredKey: publicKey,
         }
       ),
-      date: new Date(),
+      date: data.date,
       encryptionUserIDs: [{ name: data.name, email: data.email }],
       config: { aeadProtect: true },
     });
@@ -67,13 +64,13 @@ export const generateSessionKey = async (data: {
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
   const data = {
-    date: args[1],
+    date: new Date(args[1]),
     email: args[3],
-    publicKey: args[5],
-    name: args[7],
+    name: args[5],
+    publicKey: args[7],
   };
-  generateSessionKey(data);
+  session(data);
 }
 
-/* Exporting the function `generateSessionKey` so that it can be used in other files. */
-export default generateSessionKey;
+/* Exporting the function `session` so that it can be used in other files. */
+export default session;

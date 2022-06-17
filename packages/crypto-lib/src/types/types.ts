@@ -131,7 +131,7 @@ export type dataVerify = {
  *
  */
 export type dataSessionKey = {
-  date: string;
+  date: Date;
   email: string;
   name: string;
   publicKey: string;
