@@ -88,11 +88,10 @@ export type dataDecrypt = {
  *
  * @module types/types
  * @public
- * @param {String} passphrase          - Passphrase enumeration.
  * @param {String} message             - Message enumeration.
  * @param {Boolean} detached           - If true, the return value should
  *                                       contain a detached signature
- *
+ * @param {String} passphrase          - Passphrase enumeration.
  */
 export type dataSign = {
   message: string;
@@ -107,7 +106,6 @@ export type dataSign = {
  *
  * @module types/types
  * @public
- * @param {String} passphrase - Passphrase enumeration.
  * @param {String} message - Message enumeration.
  * @param {String} publicKey - Public key enumeration.
  *
@@ -131,9 +129,32 @@ export type dataVerify = {
  *
  */
 export type dataSessionKey = {
-  date: Date;
   email: string;
   name: string;
+  publicKey: string;
+};
+
+/**
+ * ### types/types.dataReformat
+ *
+ * Types used in the Reformat function.
+ *
+ * @module types/types
+ * @public
+ * @param {String} date - Date enumeration.
+ * @param {String} email - Email enumeration.
+ * @param {String} expiration - Expiration enumeration.
+ * @param {String} name - Name enumeration.
+ * @param {String} passphrase - Passphrase enumeration.
+ * @param {String} publicKey - Public key enumeration.
+ *
+ */
+export type dataReformat = {
+  date: Date;
+  email: string;
+  expiration: number;
+  name: string;
+  passphrase: string;
   publicKey: string;
 };
 

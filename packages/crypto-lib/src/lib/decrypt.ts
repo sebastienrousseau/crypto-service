@@ -54,20 +54,23 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey(
-      {
-        armoredKey: privateKeyArmored
-      }
-    ),
+    privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
     passphrase,
   });
 
-  const { data: decrypted } = await openpgp.decrypt({
+  const { data: decrypted, signatures } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
     verificationKeys: publicKey,
     decryptionKeys: privateKey,
   });
   console.log(decrypted);
+  try {
+    await signatures[0].verified; // throws on invalid signature
+    console.log('Signature is valid');
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 
   const decryptedMsg = await writeFile(
     "./src/data/decrypted.txt",

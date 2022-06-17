@@ -11,7 +11,6 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data               - Data used to generate session key.
- * @param {String} data.date          - Date enumeration.
  * @param {String} data.email         - Email enumeration.
  * @param {String} data.name          - Name enumeration.
  * @param {String} data.publicKey     - Public key enumeration base64 encoded.
@@ -25,7 +24,6 @@ const args = process.argv.slice(2);
  * import { session } from "crypto-lib";
  *
  * const data = {
- * date: "date",
  * email: "email",
  * name: "name",
  * publicKey: "base64 encoded public key"
@@ -45,17 +43,35 @@ export const session = async (data: types.dataSessionKey): Promise<openpgp.Sessi
   const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
   const publicKey = publicKeyBuffer.toString('utf-8');
 
+  const EncryptSessionKeyOptions = {
+    encryptionKeys: await openpgp.readKey(
+      {
+        armoredKey: publicKey,
+      }
+    ),
+  format: 'armored',
+  wildcard: true,
+  date: new Date(),
+  encryptionUserIDs: [{ name: data.name, email: data.email }],
+  };
 
   const sessionKey =
-    await openpgp.generateSessionKey({
+    await openpgp.generateSessionKey(EncryptSessionKeyOptions && {
       encryptionKeys: await openpgp.readKey(
         {
           armoredKey: publicKey,
         }
       ),
-      date: data.date,
+      date: new Date(),
       encryptionUserIDs: [{ name: data.name, email: data.email }],
-      config: { aeadProtect: true },
+      config: {
+        preferredHashAlgorithm: 8, // use SHA-256
+        preferredSymmetricAlgorithm: 9, // use AES-256
+        preferredCompressionAlgorithm: 1, // use ZIP
+        checksumRequired: true, // require integrity checks
+        minRSABits: 2048, // require at least 2048 bit RSA keys
+        passwordCollisionCheck: true, // check if a password is a collision of a previous password
+      },
     });
   console.log(sessionKey);
   return sessionKey;
@@ -64,10 +80,9 @@ export const session = async (data: types.dataSessionKey): Promise<openpgp.Sessi
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
   const data = {
-    date: new Date(args[1]),
-    email: args[3],
-    name: args[5],
-    publicKey: args[7],
+    email: args[1],
+    name: args[3],
+    publicKey: args[5],
   };
   session(data);
 }

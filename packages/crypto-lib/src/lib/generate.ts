@@ -50,6 +50,14 @@ const args = process.argv.slice(2);
  *  format: "format"
  * };
  *
+ * const result = await generate(data);
+ * result.then(function (data) {
+ * return data.toString(); // returns the armored key
+ * });
+ * result.catch(function (err) {
+ * throw err;
+ * }); // error handling
+ *
  */
 
 export const generate = async (data: types.dataGenerate): Promise<object> => {
