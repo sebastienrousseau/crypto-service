@@ -1,6 +1,5 @@
 import { writeFile } from "fs/promises";
 import { readFileSync } from "fs";
-import * as key from "../key/key";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
