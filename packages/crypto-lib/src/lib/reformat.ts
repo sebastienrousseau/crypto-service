@@ -5,14 +5,13 @@ import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 /**
  * ### reformat
  *
  * Reformats signature packets for a key and rewraps key object.
  * @public
  * @param {Object} data              - Data to be reformatted.
- * @param {String} data.date         - Date enumeration.
  * @param {String} data.email        - Email enumeration.
  * @param {String} data.name         - Name enumeration.
  * @param {String} data.passphrase   - Passphrase enumeration.
@@ -27,7 +26,6 @@ console.log(args);
  * import { reformat } from "crypto-lib";
  *
  * const data = await reformat({
- *    date: "date",
  *    email: "email",
  *    name: "name",
  *    publicKey: "publicKey base64 encoded",
@@ -39,7 +37,6 @@ console.log(args);
  */
 
 export const reformat = async (data: types.dataReformat): Promise<object> => {
-  const date = data.date;
   const expiration = data.expiration;
   const passphrase = data.passphrase;
 
@@ -56,30 +53,45 @@ export const reformat = async (data: types.dataReformat): Promise<object> => {
     passphrase,
   });
 
-  const reformattedPublicKey = await openpgp.reformatKey({
+  const reformatKeys = await openpgp.reformatKey({
     privateKey: privateKey,
     userIDs: [{ name: data.name, email: data.email }],
     passphrase: passphrase,
     keyExpirationTime: expiration,
-    date: new Date(date),
+    date: new Date(),
     format: "armored",
   });
-  console.log(reformattedPublicKey);
-  const reformattedPub = await writeFile(
-    "./src/key/reformatted.pub",
-    Buffer.from(reformattedPublicKey.toString()).toString('base64'),
+  console.log(reformatKeys);
+
+  const reformatPubKey = await writeFile(
+    "./src/key/rsa-reformat.pub",
+    Buffer.from(reformatKeys.publicKey).toString("base64"),
   );
-  reformattedPub;
-  return reformattedPublicKey;
+  reformatPubKey;
+
+  const reformatPrivKey = await writeFile(
+    "./src/key/rsa-reformat.key",
+    Buffer.from(reformatKeys.privateKey).toString("base64"),
+  );
+  reformatPrivKey;
+
+  const reformatCert = await writeFile(
+    "./src/key/rsa-reformat.cert",
+    Buffer.from(reformatKeys.revocationCertificate).toString("base64"),
+  );
+  reformatCert;
+
+
+  return reformatKeys;
 }
 if (args instanceof Array && args.length) {
   const data = {
-    date: new Date(args[1]),
-    email: args[3],
-    expiration: Number(args[5]),
-    name: args[9],
-    passphrase: args[11],
-    publicKey: args[13],
+    date: new Date(),
+    email: args[1],
+    expiration: Number(args[3]),
+    name: args[5],
+    passphrase: args[7],
+    publicKey: args[9],
   };
   reformat(data);
 }
