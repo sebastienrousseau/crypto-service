@@ -1292,19 +1292,12 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@sebastienrousseau/c8-config@latest":
+"@sebastienrousseau/c8-config@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/c8-config/-/c8-config-0.0.2.tgz#1a00b51721fbbe2e68eb0dfd2ae20d5e6b02760b"
   integrity sha512-F8n7B8jjKN7JBD2VGhzZ1A/tOoB5xixnhynjVkfeSmr+21gzorXbCwNB9DFlAT9uGJpJjqzenZp+KuZcbx3wJA==
 
-"@sebastienrousseau/crypto-lib@latest":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@sebastienrousseau/crypto-lib/-/crypto-lib-0.0.2.tgz#8f1d2c1faa0f45da78b2081630ce8d55bd29124c"
-  integrity sha512-Zux09ScnPkRB1cH+ZJXdADROwvaoJdnmfwCbY9qlEjEq/JTKWxw8WHCAx9E2BdQY6Y+LKfqhM+WOp+Ax2/OXqQ==
-  dependencies:
-    openpgp "^5.2.1"
-
-"@sebastienrousseau/eslint-config@latest":
+"@sebastienrousseau/eslint-config@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/eslint-config/-/eslint-config-0.0.2.tgz#0af71a30f841c4a5e74d084272ec8c722452f573"
   integrity sha512-IsT6c3TBv3u0TekGPeHwS0GLpI1pNJTJHKRzRpkvR6Mp+xLnZZaCU8GW6CMVh38jmUEda/3/no91Gw1Q8047mw==
@@ -1312,27 +1305,27 @@
     eslint "^8.16.0"
     eslint-plugin-import "^2.26.0"
 
-"@sebastienrousseau/jsdoc-config@latest":
+"@sebastienrousseau/jsdoc-config@^0.0.5":
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/jsdoc-config/-/jsdoc-config-0.0.5.tgz#c9b500873769446949c550bbebeaa71708de178c"
   integrity sha512-Z0ylYKlyjvFlgsL64PSwg1GkDQZiCJ6dEfagyqA9wvkxUGt8QA19EtvQRpukvmlutF401VAywnqPi4Qt6QlgOA==
 
-"@sebastienrousseau/markdownlint-config@latest":
+"@sebastienrousseau/markdownlint-config@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/markdownlint-config/-/markdownlint-config-0.0.1.tgz#9c297f70a37d409d532ec0ec1969f1b3b1d69657"
   integrity sha512-mEQLTxoCWFPjM22misoFbJsQYBhnkD9umQZLBUBna3iVgItTK4t7rM7zFNxJTPTnmz21zbcr4CGqy9a4tiyRag==
 
-"@sebastienrousseau/mocha-config@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@sebastienrousseau/mocha-config/-/mocha-config-0.0.4.tgz#d703b14885be9aed2507c9017143aafa36a95adf"
-  integrity sha512-5CtoycjHc/Nw7x6boz2WKXgtjegDJVd/bRriWhvp8KSwEgD4JB++IxtOuconFyfmHWOqiqIJEC6uwv9V6ACAdw==
+"@sebastienrousseau/mocha-config@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@sebastienrousseau/mocha-config/-/mocha-config-0.0.5.tgz#1f56db65fe8db0c798816aa4b8ae9300af2c4b13"
+  integrity sha512-r9UX5OOZJ95yCpTkqeT8808YQrnd/L1MFLN4uRfkeNrApPSYZRM8gJQCBiVAOYv+XsXZPUGTP0T2SEwezy76zw==
 
-"@sebastienrousseau/prettier-config@latest":
+"@sebastienrousseau/prettier-config@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/prettier-config/-/prettier-config-0.0.4.tgz#214ab12f712a60dda549382290a798971ffc3404"
   integrity sha512-5LnSFALBhQboFuHIZdjVRhm2boiIn7gm1bqAXkc4Yeft2ylScQhAmYiTl1w4a9cCZSFl/B5Dhti6ERmmupheXA==
 
-"@sebastienrousseau/remark-config@latest":
+"@sebastienrousseau/remark-config@^0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/remark-config/-/remark-config-0.0.3.tgz#5ee7465311978f6bc471c6ee71d66ff6d76eefa5"
   integrity sha512-Umv9X97QjuXTv4Gf26zHQMaq3gXbLsm7otmDeZXI7uMMyg9H7sKq6dxYtIxgNsp9N3ZvVyppSe3jVoBiCzutEw==
@@ -5306,13 +5299,6 @@ onetime@^5.1.0, onetime@^5.1.2:
   integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
   dependencies:
     mimic-fn "^2.1.0"
-
-openpgp@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.npmjs.org/openpgp/-/openpgp-5.2.1.tgz"
-  integrity sha512-zvu63kxe70q3D6WlKC/TB2pzI59I8V/l4G+z/VYgNVOyARsoH9q4i/WqwoHPjWG5HnRjhII3WSvp3gXH2DMPVg==
-  dependencies:
-    asn1.js "^5.0.0"
 
 openpgp@^5.3.0:
   version "5.3.0"
