@@ -8,9 +8,7 @@ const args = process.argv.slice(2);
 /**
  * ### revoke
  *
- * Revokes a public key. Requires either a private key or a revocation
- * certificate. If a revocation certificate is passed, the reasonForRevocation
- * parameter will be ignored.
+ * Revokes the Public and Private key pair.
  *
  * @public
  * @param {Object} data - Data to be revoked.
@@ -18,7 +16,7 @@ const args = process.argv.slice(2);
  * @param {String} data.flag - Flag enumeration.
  * @param {String} data.reason - Reason for revocation.
  *
- * @returns {Promise<String>} - Revoked public key.
+ * @returns {Promise<String>} - Revoked key pair.
  *
  * @example
  * ```javascript
