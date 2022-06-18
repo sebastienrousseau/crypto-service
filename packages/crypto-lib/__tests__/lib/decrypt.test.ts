@@ -1,6 +1,4 @@
-import { readFileSync } from "fs";
 import { decrypt } from "../../src/lib/decrypt";
-import * as openpgp from "openpgp";
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 

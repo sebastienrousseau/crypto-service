@@ -1,4 +1,3 @@
-import { session } from "../../src/lib/session"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import * as openpgp from "openpgp";
