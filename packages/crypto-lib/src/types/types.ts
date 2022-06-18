@@ -131,7 +131,6 @@ export type dataVerify = {
  *
  * @module types/types
  * @public
- * @param {String} date - Date enumeration.
  * @param {String} email - Email enumeration.
  * @param {String} name - Name enumeration.
  * @param {String} publicKey - Public key enumeration.
