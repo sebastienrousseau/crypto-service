@@ -39,10 +39,19 @@ export type dataGenerate = {
  * @module types/types
  * @public
  * @param {String} passphrase - Passphrase enumeration.
+ * @param {Number} flag - Flag enumeration. Default value is '0' - No reason specified. (optional)
  *
+ * Other possible values are:
+ *    '1'  when the Key is superseded,
+ *    '2'  when the Key material has been compromised,
+ *    '3'  when the Key is retired and no longer used
+ *    '32' when the User ID information is no longer valid.
+ * @param {string} reason - Reason enumeration. (optional)
  */
 export type dataRevoke = {
   passphrase: string;
+  flag: number;
+  reason: string;
 };
 
 /**
