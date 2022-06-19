@@ -2,7 +2,6 @@ import generate from '@sebastienrousseau/crypto-lib/dist/lib/generate';
 
 const args = process.argv.slice(2);
 
-if (args instanceof Array && args.length) {
   const data = {
     curve: args[9],
     date: new Date(),
@@ -17,13 +16,8 @@ if (args instanceof Array && args.length) {
     userIDs: [{ name: args[1], email: args[3] }],
   };
 
-  const run = async () => {
-    const generateKey = await generate(data);
-    console.log(generateKey);
-    return generateKey;
-  }
-  run();
-}
+  const result = generate(data);
+  console.log(result);
 
 //# sourceMappingURL=generate.command.js.map
 // Language: typescript
