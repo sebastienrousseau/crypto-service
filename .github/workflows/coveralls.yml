@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 14.x
         uses: actions/setup-node@v2
@@ -21,14 +23,15 @@ jobs:
           node-version: 14.x
 
       - name: Install Dependencies
-        run: yarn --frozen-lockfile --ignore-scripts
+        # run: yarn --frozen-lockfile --ignore-scripts
+        run: yarn run bootstrap
 
       - name: Building
         run: yarn run build
 
-      # - name: Testing & Coverage
-      #   run: |
-      #     yarn run test
+      - name: Testing & Coverage
+        run: |
+          yarn run test
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
