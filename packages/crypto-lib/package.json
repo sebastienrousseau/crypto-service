@@ -24,7 +24,7 @@
     },
     "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
     "devDependencies": {
-        "@sebastienrousseau/c8-config": "^0.0.2",
+        "@sebastienrousseau/c8-config": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
