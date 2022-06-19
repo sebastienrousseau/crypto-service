@@ -18,6 +18,10 @@
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
+    "dependencies": {
+      "openpgp": "^5.3.0",
+      "@types/openpgp": "^4.4.18"
+    },
     "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.2",
