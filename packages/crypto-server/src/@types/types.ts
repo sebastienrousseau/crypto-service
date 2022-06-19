@@ -3,7 +3,7 @@ export type IQuerystring = {
   password: string;
 };
 
-export type IHeadersKeyBody = {
+export type IHeadersGenerate = {
   type: string;
   bits: string;
   name: string;
@@ -16,7 +16,20 @@ export type IHeadersKeyBody = {
   sign: string;
 };
 
-export type IHeadersBody = {
+export type IHeadersEncrypt = {
   passphrase: string;
   message: string;
+  publicKey: string;
+};
+
+export type IHeadersDecrypt = {
+  passphrase: string;
+  encryptedMessage: string;
+  publicKey: string;
+};
+
+export type IHeadersRevoke = {
+  passphrase: string;
+  flag: number;
+  reason: string;
 };
