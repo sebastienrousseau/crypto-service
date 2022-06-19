@@ -30,7 +30,5 @@ jobs:
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
-          base-path: packages/crypto-lib
-          path-to-lcov: "./packages/crypto-lib/coverage/lcov.info"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
