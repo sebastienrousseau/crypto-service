@@ -136,7 +136,7 @@
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
         "release": "yarn release:prepare && yarn release:publish",
         "start": "node dist/index.js",
-        "test": "c8 --config=.c8rc mocha --config=.mocharc"
+        "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },
     "types": "./dist/index.d.ts",
     "version": "0.0.2"
