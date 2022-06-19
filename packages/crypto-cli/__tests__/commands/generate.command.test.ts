@@ -28,7 +28,7 @@ describe('generateKey', function () {
 describe('generateKey rsaBits', function () {
   it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
     const rsaBits = 2046;
-    const test = generate(data);
+    const test = generate({ ...data, rsaBits });
     await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
   });
 });
@@ -36,7 +36,7 @@ describe('generateKey rsaBits', function () {
 describe('generateKey EllipticCurveName', function () {
   it('should fail for invalid curve (KeyOptions: EllipticCurveName)', async function () {
     const curve = 'jane@doe.com';
-    const test = generate(data);
+    const test = generate({ ...data, curve });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
@@ -44,7 +44,7 @@ describe('generateKey EllipticCurveName', function () {
 describe('generateKey userIDs', function () {
   it('should fail for invalid user email address (KeyOptions: userIDs)', async function () {
     const email = 'wrongemailformat.com';
-    const test = generate(data);
+    const test = generate({ ...data, userIDs: [{ name: 'Jane Doe', email }] });
     await expect(test).to.eventually.be.rejectedWith(/Invalid user ID format/);
   });
 });
@@ -52,7 +52,7 @@ describe('generateKey userIDs', function () {
 describe('generateKey keyExpirationTime', function () {
   it('should fail for invalid keyExpirationTime (KeyOptions: keyExpirationTime)', async function () {
     const keyExpirationTime = 0 - 3;
-    const test = generate(data);
+    const test = generate({ ...data, keyExpirationTime });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
@@ -60,7 +60,7 @@ describe('generateKey keyExpirationTime', function () {
 describe('generateKey format', function () {
   it('should fail for invalid format (KeyOptions: format)', async function () {
     const format = 'abcdef123456789';
-    const test = generate(data);
+    const test = generate({ ...data, format });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
@@ -68,7 +68,7 @@ describe('generateKey format', function () {
 describe('generateKey user name', function () {
   it('should fail for invalid user name (KeyOptions: userIDs)', async function () {
     const name = '';
-    const test = generate(data);
+    const test = generate({ ...data, userIDs: [{ name, email: 'jane@doe.com' }] });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
@@ -76,7 +76,7 @@ describe('generateKey user name', function () {
 describe('generateKey passphrase', function () {
   it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
     const passphrase = 'abcdef123456789';
-    const test = generate(data);
+    const test = generate({ ...data, passphrase });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
@@ -84,7 +84,7 @@ describe('generateKey passphrase', function () {
 describe('generateKey type', function () {
   it('should fail for invalid type (KeyOptions: type)', async function () {
     const type = "123456789";
-    const test = generate(data);
+    const test = generate({ ...data, type });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
