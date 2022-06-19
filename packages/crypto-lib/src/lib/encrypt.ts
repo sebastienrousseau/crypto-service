@@ -47,7 +47,7 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
   const message = data.message;
   const passphrase = data.passphrase;
 
-  const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key");
+  const privateKeyBase64 = readFileSync(process.cwd() + "/src/key/rsa.key");
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
