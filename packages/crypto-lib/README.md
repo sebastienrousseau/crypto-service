@@ -2,9 +2,13 @@
 
 ![Banner representing Crypto Lib](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-logo.svg)
 
+[![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-lib)
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+
+**[Website](https://cryptolib.io) • [Documentation](https://cryptolib.io/docs/)**
+
 
 ***
 
@@ -14,10 +18,13 @@ Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
 low-level cryptographic operations.
 
+## Key Features
+
 The cryptographic operations include:
 
-- Digital Signing,
-- Encryption and Decryption,
+- Authentication via Digital Signature,
+- Confidentiality via Encryption and Decryption,
+- Compression,
 - Key Generation,
 - Key Management,
 - Pseudorandom Number Generation,
@@ -42,6 +49,29 @@ package managers to use Crypto Lib with Node.js or the Command Line Interface:
 - `yarn add @sebastienrousseau/crypto-lib`
 - `pnpm add @sebastienrousseau/crypto-lib`
 
+<details>
+ 
+<summary>Quick Start</summary>
+
+You can get started with a simple app by running the following in your terminal:
+
+```shell
+> mkdir my-app
+> cd my-app
+> yarn add @sebastienrousseau/crypto-lib -D # or yarn or pnpm
+> yarn start \
+--name "Jane Doe" \
+--email "jane@doe.com" \
+--passphrase "123456789abcdef" \
+--type "rsa" \
+--curve "" \
+--bits 2048 \
+--expiration 0 \
+--format armored \
+
+```
+</details>
+
 ## What's included
 
 Within the download you'll find all the crypto lib source files grouped into
@@ -51,34 +81,85 @@ You'll see something like this:
 
 ```shell
 .
+├── COPYRIGHT
+├── Makefile
+├── Report.txt
 ├── bin
 │   ├── crypto-lib.d.ts
 │   ├── crypto-lib.d.ts.map
 │   ├── crypto-lib.js
-│   └── crypto-lib.js.map
+│   ├── crypto-lib.js.map
+│   ├── cryptolib.d.ts
+│   ├── cryptolib.d.ts.map
+│   ├── cryptolib.js
+│   └── cryptolib.js.map
+├── config
+│   ├── config.d.ts
+│   ├── config.d.ts.map
+│   ├── config.js
+│   └── config.js.map
+├── enums.d.ts
+├── enums.d.ts.map
+├── enums.js
+├── enums.js.map
 ├── index.d.ts
 ├── index.d.ts.map
 ├── index.js
 ├── index.js.map
-└── lib
-    ├── decrypt.d.ts
-    ├── decrypt.d.ts.map
-    ├── decrypt.js
-    ├── decrypt.js.map
-    ├── encrypt.d.ts
-    ├── encrypt.d.ts.map
-    ├── encrypt.js
-    ├── encrypt.js.map
-    ├── generate.d.ts
-    ├── generate.d.ts.map
-    ├── generate.js
-    ├── generate.js.map
-    ├── revoke-key.d.ts
-    ├── revoke-key.d.ts.map
-    ├── revoke-key.js
-    └── revoke-key.js.map
+├── key
+│   ├── key.d.ts
+│   ├── key.d.ts.map
+│   ├── key.js
+│   └── key.js.map
+├── lib
+│   ├── decrypt.d.ts
+│   ├── decrypt.d.ts.map
+│   ├── decrypt.js
+│   ├── decrypt.js.map
+│   ├── encrypt.d.ts
+│   ├── encrypt.d.ts.map
+│   ├── encrypt.js
+│   ├── encrypt.js.map
+│   ├── generate.d.ts
+│   ├── generate.d.ts.map
+│   ├── generate.js
+│   ├── generate.js.map
+│   ├── generateSessionKey.d.ts
+│   ├── generateSessionKey.d.ts.map
+│   ├── generateSessionKey.js
+│   ├── generateSessionKey.js.map
+│   ├── index.d.ts
+│   ├── index.d.ts.map
+│   ├── index.js
+│   ├── index.js.map
+│   ├── reformat.d.ts
+│   ├── reformat.d.ts.map
+│   ├── reformat.js
+│   ├── reformat.js.map
+│   ├── revoke.d.ts
+│   ├── revoke.d.ts.map
+│   ├── revoke.js
+│   ├── revoke.js.map
+│   ├── session.d.ts
+│   ├── session.d.ts.map
+│   ├── session.js
+│   ├── session.js.map
+│   ├── sign.d.ts
+│   ├── sign.d.ts.map
+│   ├── sign.js
+│   ├── sign.js.map
+│   ├── verify.d.ts
+│   ├── verify.d.ts.map
+│   ├── verify.js
+│   └── verify.js.map
+├── package.json
+└── types
+    ├── types.d.ts
+    ├── types.d.ts.map
+    ├── types.js
+    └── types.js.map
 
-2 directories, 24 files
+5 directories, 72 files
 
 ```
 

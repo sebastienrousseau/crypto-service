@@ -19,7 +19,7 @@ const args = process.argv.slice(2);
 
 export const verify = async (data: types.dataVerify) => {
   const message = data.message;
-  const detachedSignatureBase64 = readFileSync(__dirname + "/../data/detached.sig");
+  const detachedSignatureBase64 = readFileSync(process.cwd() + "/src/data/detached.sig");
   const detachedSignature = Buffer.from(detachedSignatureBase64.toString(), "base64").toString("utf-8");
   const publicKey = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
 
