@@ -12,20 +12,50 @@ jobs:
   job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout Repo
+        uses: actions/checkout@v2
         with:
-          node-version: 14
+          persist-credentials: false
 
-      - name: Installing deps
-        run: npm install
+      - name: Setup Node.js 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+
+      - name: Install Dependencies
+        # run: yarn --frozen-lockfile --ignore-scripts
+        run: yarn run bootstrap
 
       - name: Building
-        run: npm run build
+        run: yarn run build
 
       - name: Testing & Coverage
         run: |
-          npm run test
+          yarn run test
+
+      # - name: Coveralls Crypto-Cli
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
+      #     parallel: true
+      #     flag-name: crypto-cli
+
+      - name: Coveralls Crypto-Lib
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./packages/crypto-lib/coverage/lcov.info
+          parallel: true
+          flag-name: crypto-lib
+
+      # - name: Coveralls Crypto-Server
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     path-to-lcov: ./packages/crypto-server/coverage/lcov.info
+      #     parallel: true
+      #     flag-name: crypto-server
 
       - name: Coveralls
         uses: coverallsapp/github-action@master

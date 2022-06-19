@@ -1,21 +1,22 @@
 import * as fastify from 'fastify';
 import generate from '@sebastienrousseau/crypto-lib/dist/lib/generate';
-import { IHeadersKeyBody } from '../../@types/types';
+import { IHeadersGenerate } from '../../@types/types';
 
 export default (app: fastify.FastifyInstance) => {
   app.get<{
-    Headers: IHeadersKeyBody;
+    Headers: IHeadersGenerate;
   }>("/v1/generate", async (request, reply) => {
     const generateKeyPair = await generate({
+      curve: request.headers["curve"],
+      format: request.headers["format"],
+      keyExpirationTime: Number(request.headers["expiration"]),
+      passphrase: request.headers["passphrase"],
+      rsaBits: Number(request.headers["bits"]),
       type: request.headers["type"],
-      bits: Number(request.headers["bits"]),
+      userIDs: [{ name: request.headers["name"], email: request.headers["email"] }],
+      date: new Date(),
       name: request.headers["name"],
       email: request.headers["email"],
-      passphrase: request.headers["passphrase"],
-      curve: request.headers["curve"],
-      expiration: Number(request.headers["expiration"]),
-      format: request.headers["format"],
-      sign: Boolean(request.headers["sign"]),
     });
     reply.send({ data: generateKeyPair });
   });
