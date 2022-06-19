@@ -26,9 +26,9 @@ jobs:
       - name: Building
         run: yarn run build
 
-      - name: Testing & Coverage
-        run: |
-          yarn run test
+      # - name: Testing & Coverage
+      #   run: |
+      #     yarn run test
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
