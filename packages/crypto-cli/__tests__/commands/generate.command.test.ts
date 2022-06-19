@@ -102,7 +102,7 @@ describe('generateKey - unit tests', () => {
       signature: true,
       type: 'rsa',
       date: new Date(),
-      userIDs: [{ name, email }]
+      userIDs: [{ name: 'Jane Doe', email: 'jane@doe.com'}]
     };
     return await generate(opt).then(async function () {
       for (const key of [opt]) {
