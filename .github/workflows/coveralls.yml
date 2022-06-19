@@ -34,13 +34,3 @@ jobs:
           path-to-lcov: "./packages/crypto-lib/coverage/lcov.info"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
-
-finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
