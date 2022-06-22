@@ -8,7 +8,7 @@ import Colors from '../utils/colors';
 const command = 'decrypt [options]'
 const describe = 'Decrypts a message.'
 
-const builder = (yargs: any) => {
+const builder = yargs => {
   yargs
   .positional('options', {
     describe: 'Options for the decryption.',
@@ -17,7 +17,7 @@ const builder = (yargs: any) => {
   })
 }
 
-const handler = (argv: any) => {
+const handler = argv => {
   const details = argv.options
 
   if (!(details)) {
