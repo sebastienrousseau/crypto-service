@@ -1,7 +1,16 @@
 {
     "compilerOptions": {
+        "composite": true,
+        "moduleResolution": "node",
         "outDir": "dist",
-        "rootDir": "src"
+        "paths": {
+            "@sebastienrousseau/crypto-lib/*": [
+                "../crypto-lib/src/*"
+            ]
+        },
+        "rootDir": "src",
+        "strict": true,
+        "tsBuildInfoFile": "dist/.tsbuildinfo"
     },
     "exclude": [
         "node_modules",

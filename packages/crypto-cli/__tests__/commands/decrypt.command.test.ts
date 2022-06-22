@@ -1,4 +1,4 @@
-import decrypt from '../../src/commands/decrypt.command';
+import decrypt from '../../src/commands/decrypt';
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 

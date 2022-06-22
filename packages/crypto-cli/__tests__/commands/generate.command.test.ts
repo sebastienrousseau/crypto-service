@@ -1,4 +1,4 @@
-import generate from '../../src/commands/generate.command';
+import generate from '../../src/commands/generate.command OLD';
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 

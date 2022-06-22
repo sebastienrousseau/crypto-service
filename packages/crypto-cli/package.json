@@ -20,7 +20,10 @@
     },
     "dependencies": {
         "@types/openpgp": "^4.4.18",
-        "openpgp": "^5.3.0"
+        "@types/yargs": "^17.0.10",
+        "colors": "^1.4.0",
+        "openpgp": "^5.3.0",
+        "yargs": "17.5.1"
     },
     "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
     "devDependencies": {
@@ -37,7 +40,9 @@
         "@types/mocha": "^9.1.1",
         "@typescript-eslint/eslint-plugin": "^5.26.0",
         "@typescript-eslint/parser": "^5.28.0",
+        "@types/yargs": "^17.0.10",
         "c8": "^7.11.3",
+        "chalk":"^5.0.1",
         "chai": "^4.3.6",
         "chai-as-promised": "^7.1.1",
         "coveralls": "^3.1.1",
@@ -101,7 +106,7 @@
     },
     "scripts": {
         "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
-        "clean": "rimraf ./dist ./docs ./node_modules && rimraf tsconfig.tsbuildinfo",
+        "clean": "rimraf ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
