@@ -1,29 +1,33 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": [
-      "ES2020"
-    ],
-    "module": "CommonJS",
-    "noImplicitAny": true,
-    "outDir": "dist",
+    "allowJs": true,                          /* Allow javascript files to be compiled. */
+    "allowSyntheticDefaultImports": true,     /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
+    "alwaysStrict": true,                     /* Parse in strict mode and emit "use strict" for each source file. */
+    "baseUrl": ".",                           /* Base directory to resolve non-absolute module names. */
+    "composite": true,                        /* Enable project compilation */
+    "declaration": true,                      /* Generates corresponding '.d.ts' file. */
+    "declarationMap": true,                   /* Generates a sourcemap for each corresponding '.d.ts' file. */
+    "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
+    "lib": ["ES2020"],                        /* Specify library files to be included in the compilation. */
+    "module": "CommonJS",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
+    "moduleResolution": "node",               /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+    "noUnusedLocals": true,                   /* Report errors on unused locals. */
+    "noUnusedParameters": true,               /* Report errors on unused parameters. */
+    "noImplicitReturns": true,                /* Report error when not all code paths in function return a value. */
+    "noFallthroughCasesInSwitch": true,       /* Report errors for fallthrough cases in switch statement. */
+    "noImplicitAny": false,                   /* Report error when not all code paths in function return a value. */
+    "outDir": "dist",                         /* Redirect output structure to the directory. */
     "paths": {
       "@sebastienrousseau/crypto-lib/*": ["packages/crypto-lib/src/*"],
       "@sebastienrousseau/crypto-server/*": ["packages/crypto-server/src/*"]
     },
-    "pretty": true,
-    "removeComments": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "ES2020"
+    "pretty": true,                           /* Enable verbose and human readable output. */
+    "removeComments": true,                   /* Do not emit comments to output. */
+    "resolveJsonModule": true,                /* Do not emit comments to output. */
+    "skipLibCheck": true,                     /* Skip type checking of declaration files. */
+    "sourceMap": true,                        /* Generates corresponding '.map' file. */
+    "strict": true                            /* Enable all strict type-checking options. */,
+    "target": "ES2020"                        /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
   }
 }
