@@ -1,4 +1,5 @@
-import { readFileSync } from "fs";
+import fs from "fs";
+import path from 'path';
 import { writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
@@ -15,6 +16,7 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data                     - Data to be decrypted.
+ * @param {String} data.cmd                 - Command to be executed.
  * @param {String} data.passphrase          - Passwords to decrypt the message.
  * @param {String} data.encryptedMessage    - The message object with the
  *                                            encrypted data.
@@ -52,7 +54,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-  const privateKeyBase64 = readFileSync(process.cwd() + "/src/key/rsa.key");
+  const privateKeyBase64 = fs.readFileSync(path.resolve(__dirname, "../key/rsa.key"));
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
@@ -83,9 +85,9 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
 if (args instanceof Array && args.length) {
   const data = {
-    encryptedMessage: args[3],
-    passphrase: args[1],
-    publicKey: args[5],
+    passphrase: args[2],
+    encryptedMessage: args[4],
+    publicKey: args[6],
   };
   decrypt(data);
 }
