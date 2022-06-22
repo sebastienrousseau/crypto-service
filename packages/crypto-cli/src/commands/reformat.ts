@@ -7,7 +7,7 @@ import Colors from '../utils/colors';
 
 const command = 'reformat [options]'
 const describe = 'Reformats signature packets.'
-const builder = (yargs: any) => {
+const builder = yargs => {
   yargs
   .positional('options', {
     describe: 'Options for reformatting signature packets.',
@@ -16,7 +16,7 @@ const builder = (yargs: any) => {
   })
 }
 
-const handler = (argv: any) => {
+const handler = argv => {
   const details = argv.options
 
   if (!(details)) {

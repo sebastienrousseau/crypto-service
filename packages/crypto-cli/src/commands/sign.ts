@@ -7,7 +7,7 @@ import Colors from '../utils/colors';
 
 const command = 'sign [options]'
 const describe = 'Signs a message.'
-const builder = (yargs: any) => {
+const builder = yargs => {
   yargs
   .positional('options', {
     describe: 'Options for signing a message.',
@@ -16,7 +16,7 @@ const builder = (yargs: any) => {
   })
 }
 
-const handler = (argv: any) => {
+const handler = argv => {
   const details = argv.options
 
   if (!(details)) {

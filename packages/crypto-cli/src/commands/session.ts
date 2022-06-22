@@ -7,7 +7,7 @@ import Colors from '../utils/colors';
 
 const command = 'session [options]'
 const describe = 'Generate a new session key.'
-const builder = (yargs: any) => {
+const builder = yargs => {
   yargs
   .positional('options', {
     describe: 'Options for revoking a key.',
@@ -16,7 +16,7 @@ const builder = (yargs: any) => {
   })
 }
 
-const handler = (argv: any) => {
+const handler = argv => {
   const details = argv.options
 
   if (!(details)) {

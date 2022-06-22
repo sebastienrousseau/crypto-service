@@ -7,7 +7,7 @@ import Colors from '../utils/colors';
 
 const command = 'verify [options]'
 const describe = 'Verifies signatures of cleartext signed message.'
-const builder = (yargs: any) => {
+const builder = yargs => {
   yargs
   .positional('options', {
     describe: 'Options for verifying signatures of cleartext signed message',
@@ -16,7 +16,7 @@ const builder = (yargs: any) => {
   })
 }
 
-const handler = (argv: any) => {
+const handler = argv => {
   const details = argv.options
 
   if (!(details)) {
