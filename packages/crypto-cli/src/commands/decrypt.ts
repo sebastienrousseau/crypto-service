@@ -1,7 +1,7 @@
 // import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
 
 import { CommandModule } from 'yargs';
-import Colors from '../utils/colors';
+
 
 // const args = process.argv.slice(2);
 
@@ -21,7 +21,7 @@ const handler = argv => {
   const details = argv.options
 
   if (!(details)) {
-    return Colors.printError(`\n🔔 You must provide details for decryption.\n`)
+    return console.error(`\n🔔 You must provide details for decryption.\n`)
   }
 }
 

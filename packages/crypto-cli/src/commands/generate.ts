@@ -1,6 +1,6 @@
 // import generate from '@sebastienrousseau/crypto-lib/dist/lib/generate';
 import { CommandModule } from 'yargs';
-import Colors from '../utils/colors';
+
 
 // const args = process.argv.slice(2);
 
@@ -19,7 +19,7 @@ const handler = argv => {
   const details = argv.options
 
   if (!(details)) {
-    return Colors.printError(`\n🔔 You must provide details for the OpenPGP key pair generation.\n`)
+    return console.error(`\n🔔 You must provide details for the OpenPGP key pair generation.\n`)
   }
 }
 
