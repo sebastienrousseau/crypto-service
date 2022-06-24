@@ -14,9 +14,15 @@ const data = {
 };
 
 const handler = () => {
-  async () => {
-    const decrypted = await decrypt(data);
-    return decrypted;
+  if ((data.passphrase === undefined || data.encryptedMessage === undefined || data.publicKey === undefined)) {
+    console.error(`\n🔔 You must provide details for decryption.\n`)
+    process.exit(1);
+  }
+  else {
+    async () => {
+      const decrypted = await decrypt(data);
+      return decrypted;
+    }
   }
 }
 // console.log("Args 2: " + args[2]);

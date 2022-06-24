@@ -1,49 +1,36 @@
-// import encrypt from '@sebastienrousseau/crypto-lib/dist/lib/encrypt';
+import encrypt from '@sebastienrousseau/crypto-lib/dist/lib/encrypt';
 
 import { CommandModule } from 'yargs';
 
-
-// const args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 const command = 'encrypt [options]'
 const describe = 'Encrypts a message.'
-const builder = yargs => {
-  yargs
-  .positional('options', {
-    describe: 'Options for the encryption.',
-    type: 'string',
-    demandOption: true,
-  })
-}
 
-const handler = argv => {
-  const details = argv.options
+const data = {
+  passphrase: args[2],
+  message: args[4],
+  publicKey: args[6],
+};
 
-  if (!(details)) {
-    return console.error(`\n🔔 You must provide details for encryption.\n`)
+const handler = () => {
+  if ((data.passphrase === undefined || data.message === undefined || data.publicKey === undefined)) {
+    console.error(`\n🔔 You must provide details for encryption.\n`)
+    process.exit(1);
+  }
+  else {
+    async () => {
+      const encrypted = await encrypt(data);
+      return encrypted;
+    }
   }
 }
 
-  export default {
-    command,
-    describe,
-    builder,
-    handler,
-  } as CommandModule
+export default {
+  command,
+  describe,
+  handler,
+} as CommandModule
 
-// const args = process.argv.slice(2);
-
-// const data = {
-//   passphrase: args[1],
-//   message: args[3],
-//   publicKey: args[5],
-// };
-
-// async() => {
-//   const encrypted = await encrypt(data);
-//   console.log(encrypted);
-// }
-// export default encrypt;
-
-// // # sourceMappingURL=encrypt.command.js.map
-// // typescript
+// # sourceMappingURL=decrypt.command.js.map
+// Language: typescript
