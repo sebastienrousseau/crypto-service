@@ -1,9 +1,11 @@
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-import { writeFile } from "fs/promises";
+import * as fs from 'fs';
+import path from 'path';
+
 
 const args = process.argv.slice(2);
-// console.log(args);
+console.log(args);
 
 /**
  * ### generate
@@ -77,22 +79,29 @@ export const generate = async (data: types.dataGenerate): Promise<object> => {
   console.log(publicKey);
   console.log(revocationCertificate);
 
-  const pbkey =
-    await writeFile(
-      "./src/key/" + data.type + ".pub",
-      Buffer.from(publicKey).toString('base64'),
+  const pbkey = await fs.createWriteStream(
+        path.resolve(__dirname, "../key/" + data.type + ".pub")
     );
-  pbkey;
-  const prkey = await writeFile(
-    "./src/key/" + data.type + ".key",
-    Buffer.from(privateKey).toString('base64'),
-  );
-  prkey;
-  const certificate = await writeFile(
-    "./src/key/" + data.type + ".cert",
-    Buffer.from(revocationCertificate).toString('base64'),
-  );
-  certificate;
+        pbkey.write(Buffer.from(publicKey).toString('base64'));
+        pbkey.on('finish', () => {console.log('✅ Wrote public key data to file `' + data.type + '.pub`');});
+        pbkey.end();
+        pbkey;
+
+  const prkey = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/" + data.type + ".key")
+    );
+        prkey.write(Buffer.from(privateKey).toString('base64'));
+        prkey.on('finish', () => {console.log('✅ Wrote private key data to file `' + data.type + '.key`');});
+        prkey.end();
+        prkey;
+
+  const certificate = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/" + data.type + ".cert")
+    );
+        certificate.write(Buffer.from(revocationCertificate).toString('base64'));
+        certificate.on('finish', () => {console.log('✅ Wrote revocation certificate data to file `' + data.type + '.cert`');});
+        certificate.end();
+        certificate;
 
   return { publicKey, privateKey, revocationCertificate };
 };
@@ -100,18 +109,32 @@ export default generate;
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
-  const data = {
-    curve: args[9],
-    date: new Date(),
-    email: args[3],
-    format: args[15],
-    keyExpirationTime: Number(args[13]),
-    name: args[1],
-    passphrase: args[5],
-    rsaBits: Number(args[11]),
-    type: args[7],
-    userIDs: [{ name: args[1], email: args[3] }],
-  };
-  generate(data);
+  if (args[0] === "generate") {
+    const data = {
+      date: new Date(),
+      type: args[8],
+      rsaBits: Number(args[12]),
+      userIDs: [{ name: args[2], email: args[4] }],
+      name: args[2],
+      email: args[4],
+      passphrase: args[6],
+      curve: args[10],
+      keyExpirationTime: Number(args[14]),
+      format: args[16],
+    };
+    generate(data);
+  }
+    const data = {
+      date: new Date(),
+      type: args[7],
+      rsaBits: Number(args[11]),
+      userIDs: [{ name: args[1], email: args[3] }],
+      name: args[1],
+      email: args[3],
+      passphrase: args[5],
+      curve: args[9],
+      keyExpirationTime: Number(args[13]),
+      format: args[15],
+    };
+    generate(data);
 }
-

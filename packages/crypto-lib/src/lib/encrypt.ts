@@ -1,5 +1,6 @@
+import * as fs from 'fs';
+import path from 'path';
 import { readFileSync } from "fs";
-import { writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
@@ -67,12 +68,16 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
   });
   console.log(encrypted);
 
-  const encryptedMsg = await writeFile(
-    "./src/data/encrypted.txt",
-    Buffer.from(encrypted.toString()).toString('base64'),
+  const encryptedMsg = await fs.createWriteStream(
+    path.resolve(__dirname, "../data/encrypted.txt"),
+    { encoding: 'ascii' }
   );
-  encryptedMsg;
-  return encrypted;
+    const encryptedString = encrypted.toString();
+    encryptedMsg.write(Buffer.from(encryptedString).toString('base64'));
+    encryptedMsg.on('finish', () => {console.log('✅ Wrote encrypted message data to file');});
+    encryptedMsg.end();
+
+    return encrypted;
 };
 
 if (args instanceof Array && args.length) {

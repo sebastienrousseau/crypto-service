@@ -75,7 +75,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   const decryptedMsg = await fs.createWriteStream(path.resolve(__dirname, "../data/decrypted.txt"));
 
   decryptedMsg.write(decrypted);
-  decryptedMsg.on('finish', () => {console.log('Wrote all data to file');});
+  decryptedMsg.on('finish', () => {console.log('✅ Wrote decrypted message data to file');});
   decryptedMsg.end();
   return decrypted;
 };

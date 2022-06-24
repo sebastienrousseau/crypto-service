@@ -34,3 +34,4 @@ export default {
 
 // # sourceMappingURL=decrypt.command.js.map
 // Language: typescript
+// Path: packages/crypto-cli/src/commands/decrypt.command.js
