@@ -2,13 +2,10 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-// import Colors from './utils/colors';
-// import * as options from './options';
 import { Commands } from './commands/index'
-// import decrypt from './commands/decrypt.command';
 
-const args = process.argv.slice(2);
-console.log(args);
+// const args = process.argv.slice(2);
+// console.log(args);
 
 const argv_all = yargs(hideBin(process.argv));
 

@@ -16,7 +16,6 @@ const data = {
 const handler = () => {
   async () => {
     const decrypted = await decrypt(data);
-    console.log(decrypted);
     return decrypted;
   }
 }

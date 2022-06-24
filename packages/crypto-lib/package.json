@@ -122,7 +122,7 @@
         "clean": "rimraf ./dist ./docs ./node_modules",
         "copy:package": "cp ./package.json ./dist/",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "cp ./src/key/*.pub dist/key/ && cp ./src/key/*.key dist/key/ && cp ./src/key/*.cert dist/key/",
+        "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
         "copy:readme": "cp README.md dist/",
