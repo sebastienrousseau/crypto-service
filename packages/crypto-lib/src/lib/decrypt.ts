@@ -1,10 +1,12 @@
+import * as fs from 'fs';
+import path from 'path';
+// import { writeFile } from 'fs/promises';
 import { readFileSync } from "fs";
-import { writeFile } from "fs/promises";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
 const args = process.argv.slice(2);
-// console.log(args);
+console.log(args);
 
 /**
  * ### decrypt
@@ -15,6 +17,7 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data                     - Data to be decrypted.
+ * @param {String} data.cmd                 - Command to be executed.
  * @param {String} data.passphrase          - Passwords to decrypt the message.
  * @param {String} data.encryptedMessage    - The message object with the
  *                                            encrypted data.
@@ -52,7 +55,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-  const privateKeyBase64 = readFileSync(process.cwd() + "/src/key/rsa.key");
+  const privateKeyBase64 = readFileSync(path.resolve(__dirname, "../key/rsa.key"));
   const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
@@ -61,30 +64,35 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const { data: decrypted, signatures } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
-    verificationKeys: publicKey,
+    verificationKeys: publicKey, // optional
     decryptionKeys: privateKey,
   });
-  console.log(decrypted);
-  try {
-    await signatures[0].verified; // throws on invalid signature
-    console.log('Signature is valid');
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
+  console.log(decrypted); // "Hello Crypto Service APIs!"
 
-  const decryptedMsg = await writeFile(
-    "./src/data/decrypted.txt",
-    decrypted.toString(),
-  );
-  decryptedMsg;
+  await signatures[0].verified; // throws on invalid signature
+  console.log('Signature is valid');
+
+  const decryptedMsg = await fs.createWriteStream(path.resolve(__dirname, "../data/decrypted.txt"));
+
+  decryptedMsg.write(decrypted);
+  decryptedMsg.on('finish', () => {console.log('✅ Wrote decrypted message data to file');});
+  decryptedMsg.end();
   return decrypted;
 };
 
 if (args instanceof Array && args.length) {
+
+  if (args[0] === "decrypt") {
+    const data = {
+      passphrase: args[2],
+      encryptedMessage: args[4],
+      publicKey: args[6],
+    };
+    decrypt(data);
+  }
   const data = {
-    encryptedMessage: args[3],
     passphrase: args[1],
+    encryptedMessage: args[3],
     publicKey: args[5],
   };
   decrypt(data);
