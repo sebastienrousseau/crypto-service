@@ -14,20 +14,22 @@ const data = {
 };
 
 const handler = () => {
-  if ((data.passphrase === undefined || data.encryptedMessage === undefined || data.publicKey === undefined)) {
-    console.error(`\n🔔 You must provide details for decryption.\n`)
-    process.exit(1);
-  }
-  else {
-    async () => {
-      const decrypted = await decrypt(data);
-      return decrypted;
+  if (
+    (
+      data.passphrase ||
+      data.encryptedMessage ||
+      data.publicKey)  === undefined
+    ) {
+      console.error(`\n🔔 You must provide details for decryption.\n`)
+      process.exit(1);
     }
-  }
+    else {
+      (async () => {
+        const decrypted = await decrypt(data);
+        return decrypted;
+      })();
+    }
 }
-// console.log("Args 2: " + args[2]);
-// console.log("Args 4: " + args[4]);
-// console.log("Args 6: " + args[6]);
 
 export default {
   command,
@@ -35,6 +37,6 @@ export default {
   handler,
 } as CommandModule
 
-// # sourceMappingURL=decrypt.command.js.map
+// # sourceMappingURL=decrypt.js.map
 // Language: typescript
-// Path: packages/crypto-cli/src/commands/decrypt.command.js
+// Path: packages/crypto-cli/src/commands/decrypt.ts

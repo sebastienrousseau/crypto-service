@@ -1,49 +1,46 @@
-// import reformat from '@sebastienrousseau/crypto-lib/dist/lib/reformat';
+import reformat from '@sebastienrousseau/crypto-lib/dist/lib/reformat';
 
 import { CommandModule } from 'yargs';
 
-
-// const args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 const command = 'reformat [options]'
 const describe = 'Reformats signature packets.'
-const builder = yargs => {
-  yargs
-  .positional('options', {
-    describe: 'Options for reformatting signature packets.',
-    type: 'string',
-    demandOption: true,
-  })
-}
 
-const handler = argv => {
-  const details = argv.options
+const data = {
+  date: new Date(),
+  email: args[2],
+  expiration: Number(args[4]),
+  name: args[6],
+  passphrase: args[8],
+  publicKey: args[10],
+};
 
-  if (!(details)) {
-    return console.error(`\n🔔 You must provide details for reformatting signature packets.\n`)
+const handler = () => {
+  if ((
+    data.email ||
+    data.expiration ||
+    data.name ||
+    data.passphrase ||
+    data.publicKey) === undefined) {
+    console.error(`\n🔔 You must provide details for reformatting.\n`)
+    process.exit(1);
+  }
+  else {
+    async () => {
+      const reformatted = await reformat(data);
+      return reformatted;
+    }
   }
 }
 
-  export default {
-    command,
-    describe,
-    builder,
-    handler,
-  } as CommandModule
+export default {
+  command,
+  describe,
+  handler,
+} as CommandModule
 
-// const args = process.argv.slice(2);
 
-// const data = {
-//   passphrase: args[1],
-//   message: args[3],
-//   publicKey: args[5],
-// };
-
-// async() => {
-//   const encrypted = await encrypt(data);
-//   console.log(encrypted);
-// }
-// export default encrypt;
-
-// // # sourceMappingURL=encrypt.command.js.map
-// // typescript
+// # sourceMappingURL=reformat.js.map
+// typescript
+// path: packages/crypto-cli/src/commands/reformat.ts

@@ -66,12 +66,13 @@ export const generate = async (data: types.dataGenerate): Promise<object> => {
 
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
-      type: data.type,
-      rsaBits: Number(data.rsaBits),
       userIDs: [{ name: data.name, email: data.email }],
       passphrase: data.passphrase,
+      type: data.type,
       curve: data.curve,
+      rsaBits: Number(data.rsaBits),
       keyExpirationTime: Number(data.keyExpirationTime),
+      date: new Date(),
       format: data.format,
     });
 
