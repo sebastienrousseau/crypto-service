@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 
-import prompts from 'prompts';
 import { Command } from './commands/index'
+import { welcome } from "./helpers/banner";
 import format from 'kleur';
+import prompts from 'prompts';
 
-console.log('🔐 Crypto Command Line Interface (CLI)\n');
-console.log('The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.\n');
-console.log('Usage: <command> [options]\n');
+const title = '🔐 Crypto Command Line Interface (CLI)';
+const description = 'The Crypto Lib Command Line Interface (CLI) is a unified tool to perform \ncommon cryptographic operations such as key generation, data encryption, \ndigital signing, and signature verification which are invoked from the \ncommand prompt or terminal.';
+
+welcome();
+console.log(title);
+console.log("\n");
+console.log(description);
+console.log("\n");
 
 (async () => {
   const response = await prompts({

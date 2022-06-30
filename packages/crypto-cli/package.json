@@ -1,129 +1,131 @@
 {
-    "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-    "autoupdate": {
-        "fileMap": [
-            {
-                "basePath": "dist",
-                "files": [
-                    "**/*"
-                ]
-            }
-        ],
-        "source": "git",
-        "target": "git://github.com/sebastienrousseau/crypto-service.git"
-    },
-    "bin": {
-        "crypto-cli": "dist/cli.js"
-    },
-    "bugs": {
-        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
-    },
-    "dependencies": {
-        "@types/openpgp": "^4.4.18",
-        "@types/yargs": "^17.0.10",
-        "kleur": "^4.1.5",
-        "openpgp": "^5.3.1",
-        "prompts": "^2.4.2",
-        "yargs": "17.5.1"
-    },
-    "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
-    "devDependencies": {
-        "@sebastienrousseau/c8-config": "^0.0.3",
-        "@sebastienrousseau/crypto-lib": "0.0.2",
-        "@sebastienrousseau/eslint-config": "^0.0.2",
-        "@sebastienrousseau/jsdoc-config": "^0.0.5",
-        "@sebastienrousseau/markdownlint-config": "^0.0.1",
-        "@sebastienrousseau/mocha-config": "^0.0.5",
-        "@sebastienrousseau/prettier-config": "^0.0.4",
-        "@sebastienrousseau/remark-config": "^0.0.3",
-        "@types/chai": "^4.3.1",
-        "@types/chai-as-promised": "^7.1.5",
-        "@types/mocha": "^9.1.1",
-        "@types/prompts": "^2.0.14",
-        "@typescript-eslint/eslint-plugin": "^5.30.0",
-        "@typescript-eslint/parser": "^5.30.0",
-        "c8": "^7.11.3",
-        "chai": "^4.3.6",
-        "chai-as-promised": "^7.1.1",
-        "coveralls": "^3.1.1",
-        "eslint": "^8.18.0",
-        "eslint-import-resolver-typescript": "^3.1.2",
-        "eslint-plugin-import": "^2.26.0",
-        "filesizes": "^0.1.2",
-        "mocha": "^10.0.0",
-        "prettier": "^2.7.1",
-        "remark-cli": "^11.0.0",
-        "remark-footnotes": "^4.0.1",
-        "remark-preset-lint-consistent": "^5.1.1",
-        "remark-preset-lint-markdown-style-guide": "^5.1.2",
-        "remark-preset-lint-recommended": "^6.1.2",
-        "rimraf": "^3.0.2",
-        "ts-node": "^10.8.1",
-        "typedoc": "^0.23.2",
-        "typedoc-plugin-missing-exports": "^0.23.0",
-        "typescript": "^4.7.4"
-    },
-    "directories": {
-        "src": "./src",
-        "test": "__tests__"
-    },
-    "engines": {
-        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
-    },
-    "files": [
-        "dist/**/*"
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "autoupdate": {
+    "fileMap": [
+      {
+        "basePath": "dist",
+        "files": [
+          "**/*"
+        ]
+      }
     ],
-    "funding": [
-        {
-            "type": "github",
-            "url": "https://github.com/sponsors/sebastienrousseau"
-        },
-        {
-            "type": "paypal",
-            "url": "https://paypal.me/wwdseb"
-        }
-    ],
-    "homepage": "https://cryptocli.io",
-    "keywords": [
-        "cli"
-    ],
-    "license": "MIT",
-    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
-    "main": "./dist/cli.js",
-    "name": "@sebastienrousseau/crypto-cli",
-    "private": false,
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://npm.pkg.github.com"
+    "source": "git",
+    "target": "git://github.com/sebastienrousseau/crypto-service.git"
+  },
+  "bin": {
+    "crypto-cli": "dist/cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+  },
+  "dependencies": {
+    "@types/openpgp": "^4.4.18",
+    "@types/yargs": "^17.0.10",
+    "figlet": "^1.5.2",
+    "kleur": "^4.1.5",
+    "openpgp": "^5.3.1",
+    "prompts": "^2.4.2",
+    "yargs": "17.5.1"
+  },
+  "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
+  "devDependencies": {
+    "@sebastienrousseau/c8-config": "^0.0.3",
+    "@sebastienrousseau/crypto-lib": "0.0.2",
+    "@sebastienrousseau/eslint-config": "^0.0.2",
+    "@sebastienrousseau/jsdoc-config": "^0.0.5",
+    "@sebastienrousseau/markdownlint-config": "^0.0.1",
+    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/prettier-config": "^0.0.4",
+    "@sebastienrousseau/remark-config": "^0.0.3",
+    "@types/chai": "^4.3.1",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/figlet": "^1.5.4",
+    "@types/mocha": "^9.1.1",
+    "@types/prompts": "^2.0.14",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "c8": "^7.11.3",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.1.1",
+    "eslint": "^8.18.0",
+    "eslint-import-resolver-typescript": "^3.1.2",
+    "eslint-plugin-import": "^2.26.0",
+    "filesizes": "^0.1.2",
+    "mocha": "^10.0.0",
+    "prettier": "^2.7.1",
+    "remark-cli": "^11.0.0",
+    "remark-footnotes": "^4.0.1",
+    "remark-preset-lint-consistent": "^5.1.1",
+    "remark-preset-lint-markdown-style-guide": "^5.1.2",
+    "remark-preset-lint-recommended": "^6.1.2",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.8.1",
+    "typedoc": "^0.23.2",
+    "typedoc-plugin-missing-exports": "^0.23.0",
+    "typescript": "^4.7.4"
+  },
+  "directories": {
+    "src": "./src",
+    "test": "__tests__"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/sebastienrousseau"
     },
-    "repository": {
-        "directory": "packages/crypto-cli",
-        "type": "git",
-        "url": "git@github.com:sebastienrousseau/crypto-service.git"
-    },
-    "scripts": {
-        "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn copy:key && yarn run filesize:distribution",
-        "clean": "rimraf ./dist && rimraf ./docs && rimraf ./node_modules",
-        "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
-        "copy:license": "cp LICENSE dist/",
-        "copy:makefile": "cp Makefile dist/",
-        "copy:package": "cp package.json ./dist/",
-        "copy:readme": "cp README.md dist/",
-        "docs": "typedoc",
-        "filesize:distribution": "filesizes dist/ > dist/Report.txt",
-        "fix": "eslint --fix src/**/*.ts",
-        "lint": "eslint src/**/*.ts",
-        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
-        "prepack": "yarn build",
-        "prettier": "prettier --write src/**/*.ts",
-        "release": "yarn release:prepare && yarn release:publish",
-        "release:prepare": "yarn pack",
-        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
-        "start": "node dist/cli.js",
-        "test": ""
-    },
-    "types": "./dist/index.d.ts",
-    "version": "0.0.1"
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/wwdseb"
+    }
+  ],
+  "homepage": "https://cryptocli.io",
+  "keywords": [
+    "cli"
+  ],
+  "license": "MIT",
+  "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+  "lockfileVersion": 1,
+  "main": "./dist/cli.js",
+  "name": "@sebastienrousseau/crypto-cli",
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "directory": "packages/crypto-cli",
+    "type": "git",
+    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+  },
+  "scripts": {
+    "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn copy:key && yarn run filesize:distribution",
+    "clean": "rimraf ./dist && rimraf ./docs && rimraf ./node_modules",
+    "copy:copyright": "cp COPYRIGHT dist/",
+    "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
+    "copy:license": "cp LICENSE dist/",
+    "copy:makefile": "cp Makefile dist/",
+    "copy:package": "cp package.json ./dist/",
+    "copy:readme": "cp README.md dist/",
+    "docs": "typedoc",
+    "filesize:distribution": "filesizes dist/ > dist/Report.txt",
+    "fix": "eslint --fix src/**/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
+    "prepack": "yarn build",
+    "prettier": "prettier --write src/**/*.ts",
+    "release": "yarn release:prepare && yarn release:publish",
+    "release:prepare": "yarn pack",
+    "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
+    "start": "node dist/cli.js",
+    "test": ""
+  },
+  "types": "./dist/index.d.ts",
+  "version": "0.0.1"
 }
