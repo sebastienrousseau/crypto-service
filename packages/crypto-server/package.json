@@ -128,7 +128,7 @@
     },
     "scripts": {
         "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
-        "clean": "rimraf ./dist ./docs ./node_modules",
+        "clean": "rimraf ./dist && rimraf ./docs && rimraf ./node_modules",
         "copy:package": "cp ./package.json ./dist/",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:license": "cp LICENSE dist/",

@@ -1,8 +1,7 @@
+import * as fs from 'fs';
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-import * as fs from 'fs';
 import path from 'path';
-
 
 const args = process.argv.slice(2);
 console.log(args);
@@ -62,80 +61,85 @@ console.log(args);
  *
  */
 
-export const generate = async (data: types.dataGenerate): Promise<object> => {
+export async function generate(data: types.dataGenerate): Promise<object> {
 
-  const { privateKey, publicKey, revocationCertificate } =
-    await openpgp.generateKey({
-      userIDs: [{ name: data.name, email: data.email }],
-      passphrase: data.passphrase,
-      type: data.type,
-      curve: data.curve,
-      rsaBits: Number(data.rsaBits),
-      keyExpirationTime: Number(data.keyExpirationTime),
-      date: new Date(),
-      format: data.format,
-    });
+  const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
+    userIDs: [{ name: data.name, email: data.email }],
+    passphrase: data.passphrase,
+    type: data.type,
+    curve: data.curve,
+    rsaBits: Number(data.rsaBits),
+    keyExpirationTime: Number(data.keyExpirationTime),
+    date: new Date(),
+    format: data.format,
+  });
 
   console.log(privateKey);
   console.log(publicKey);
   console.log(revocationCertificate);
 
-  const pbkey = await fs.createWriteStream(
-        path.resolve(__dirname, "../key/" + data.type + ".pub")
-    );
-        pbkey.write(Buffer.from(publicKey).toString('base64'));
-        pbkey.on('finish', () => {console.log('✅ Wrote public key data to file `' + data.type + '.pub`');});
-        pbkey.end();
-        pbkey;
+  const pbkey = fs.createWriteStream(
+    path.resolve(__dirname, "../key/" + data.type + ".pub"), { encoding: 'utf8' }
+  );
+  pbkey.write(Buffer.from(publicKey).toString('base64'));
+  pbkey.on('finish', () => {
+    console.log('🔑 The public key data was written to `' + data.type + '.pub`');
+  });
+  pbkey.end();
+  pbkey;
 
-  const prkey = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".key")
-    );
-        prkey.write(Buffer.from(privateKey).toString('base64'));
-        prkey.on('finish', () => {console.log('✅ Wrote private key data to file `' + data.type + '.key`');});
-        prkey.end();
-        prkey;
+  const prkey = fs.createWriteStream(
+    path.resolve(__dirname, "../key/" + data.type + ".key"), { encoding: 'utf8' }
+  );
+  prkey.write(Buffer.from(privateKey).toString('base64'));
+  prkey.on('finish', () => {
+    console.log('🔒 The private key data was written to `' + data.type + '.key`');
+  });
+  prkey.end();
+  prkey;
 
-  const certificate = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".cert")
-    );
-        certificate.write(Buffer.from(revocationCertificate).toString('base64'));
-        certificate.on('finish', () => {console.log('✅ Wrote revocation certificate data to file `' + data.type + '.cert`');});
-        certificate.end();
-        certificate;
+  const certificate = fs.createWriteStream(
+    path.resolve(__dirname, "../key/" + data.type + ".cert"), { encoding: 'utf8' }
+  );
+  certificate.write(Buffer.from(revocationCertificate).toString('base64'));
+  certificate.on('finish', () => {
+    console.log('🔏 The revocation certificate data was written to `' + data.type + '.cert`');
+  });
+  certificate.end();
+  certificate;
 
   return { publicKey, privateKey, revocationCertificate };
-};
+}
 export default generate;
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
-  if (args[0] === "generate") {
-    const data = {
-      date: new Date(),
-      type: args[8],
-      rsaBits: Number(args[12]),
-      userIDs: [{ name: args[2], email: args[4] }],
-      name: args[2],
-      email: args[4],
-      passphrase: args[6],
-      curve: args[10],
-      keyExpirationTime: Number(args[14]),
-      format: args[16],
-    };
-    generate(data);
-  }
-    const data = {
-      date: new Date(),
-      type: args[7],
-      rsaBits: Number(args[11]),
-      userIDs: [{ name: args[1], email: args[3] }],
-      name: args[1],
-      email: args[3],
-      passphrase: args[5],
-      curve: args[9],
-      keyExpirationTime: Number(args[13]),
-      format: args[15],
-    };
-    generate(data);
+  // if (args[0] === "generate") {
+  //   const data = {
+  //     date: new Date(),
+  //     type: args[8],
+  //     rsaBits: Number(args[12]),
+  //     userIDs: [{ name: args[2], email: args[4] }],
+  //     name: args[2],
+  //     email: args[4],
+  //     passphrase: args[6],
+  //     curve: args[10],
+  //     keyExpirationTime: Number(args[14]),
+  //     format: args[16],
+  //   };
+  //   generate(data);
+  // }
+  const data = {
+    date: new Date(),
+    type: args[7],
+    rsaBits: Number(args[11]),
+    userIDs: [{ name: args[1], email: args[3] }],
+    name: args[1],
+    email: args[3],
+    passphrase: args[5],
+    curve: args[9],
+    keyExpirationTime: Number(args[13]),
+    format: args[15],
+  };
+  generate(data);
 }
