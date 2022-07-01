@@ -19,7 +19,7 @@
     "scripts": {
         "bootstrap": "yarn clean && lerna bootstrap",
         "build": "lerna run build --stream",
-        "clean": "lerna exec yarn clean --parallel",
+        "clean": "lerna run clean --stream",
         "docs": "lerna exec yarn docs --parallel",
         "fix": "lerna exec yarn fix  --parallel",
         "lint": "lerna exec yarn lint --parallel",
@@ -44,6 +44,7 @@
         "@commitlint/cli": "^17.0.2",
         "@commitlint/config-conventional": "^17.0.2",
         "husky": "^8.0.1",
-        "mkdirp": "^1.0.4"
+        "mkdirp": "^1.0.4",
+        "rimraf": "^3.0.2"
     }
 }

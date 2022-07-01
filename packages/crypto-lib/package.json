@@ -35,7 +35,6 @@
         "@types/chai-as-promised": "^7.1.5",
         "@types/compression": "^1.7.2",
         "@types/mocha": "^9.1.1",
-        "@types/rimraf": "3.0.2",
         "@typescript-eslint/eslint-plugin": "^5.26.0",
         "@typescript-eslint/parser": "^5.28.0",
         "c8": "^7.11.3",
@@ -118,7 +117,7 @@
     },
     "scripts": {
         "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:key && yarn run copy:copyright && yarn run filesize:distribution",
-        "clean": "rimraf ./dist && rimraf ./docs && rimraf ./node_modules",
+        "clean": "rimraf dist && rimraf docs && rimraf node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
