@@ -5,7 +5,7 @@ const handleHelp = async () => {
     {
       type: 'select',
       name: 'Selection',
-      message: 'ℹ️  Let us help you on the Crypto Command Line Interface (CLI). Please select a command to learn more about.\n',
+      message: 'Let us help you on the Crypto Command Line Interface (CLI). Please select a command to learn more about.\n',
       choices: [
         {
           title: 'Decrypt',

@@ -69,6 +69,11 @@ console.log("\n");
   });
 
   switch (response.Selection) {
+    case "Help": {
+      console.log(format.green("\nHelp"));
+      Command.handleHelp();
+      break;
+    }
     case "Generate": {
       console.log(format.green("\nTo generate a key pair, we need to know a few more details:\n"));
       Command.handleGenerate();

@@ -20,8 +20,7 @@
     },
     "dependencies": {
         "@types/openpgp": "^4.4.18",
-        "openpgp": "^5.3.0",
-        "rimraf": "^3.0.2"
+        "openpgp": "^5.3.0"
     },
     "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
     "devDependencies": {
@@ -44,12 +43,10 @@
         "chai-as-promised": "^7.1.1",
         "compression": "^1.7.4",
         "coveralls": "^3.1.1",
-        "dotenv": "^16.0.1",
         "eslint": "^8.16.0",
         "eslint-import-resolver-typescript": "^2.7.1",
         "eslint-plugin-import": "^2.26.0",
         "filesizes": "^0.1.2",
-        "minami": "^1.2.3",
         "mocha": "^10.0.0",
         "prettier": "^2.6.2",
         "remark-cli": "^10.0.1",
@@ -122,22 +119,22 @@
     "scripts": {
         "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:key && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./dist && rimraf ./docs && rimraf ./node_modules",
-        "copy:package": "cp ./package.json ./dist/",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
+        "copy:package": "cp ./package.json ./dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
-        "fix": "eslint --fix src/**/*.ts",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
+        "fix": "eslint --fix src/**/*.ts",
         "lint": "eslint src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
         "prepack": "yarn build",
         "prettier": "prettier --write src/**/*.ts",
+        "release": "yarn release:prepare && yarn release:publish",
         "release:prepare": "yarn pack",
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
-        "release": "yarn release:prepare && yarn release:publish",
         "start": "node dist/index.js",
         "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },
