@@ -8,4 +8,3 @@ export function welcome(): () => typeof welcome {
   console.log("\n");
   return welcome;
 }
-

@@ -25,6 +25,7 @@
     "kleur": "^4.1.5",
     "openpgp": "^5.3.1",
     "prompts": "^2.4.2",
+    "rimraf": "^3.0.2",
     "yargs": "17.5.1"
   },
   "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
