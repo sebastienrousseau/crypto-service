@@ -149,7 +149,7 @@
 // /** End file docs */
 // export { default as config } from './config/config';
 
-import CryptoLib from "./bin/crypto-lib";
+import CryptoLib from "./bin/cryptolib";
 
 export default CryptoLib;
 

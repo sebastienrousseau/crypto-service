@@ -1,4 +1,4 @@
-import revoke from '@sebastienrousseau/crypto-lib/dist/lib/revoke';
+import revoke from '@sebastienrousseau/crypto-lib';
 import prompts from 'prompts';
 
 const handleRevoke = async () => {
@@ -33,7 +33,7 @@ const handleRevoke = async () => {
   }
   else {
     console.log(data);
-    await revoke(data);
+    await revoke.revoke(data);
   }
 };
 export default handleRevoke;

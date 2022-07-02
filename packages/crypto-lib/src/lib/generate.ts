@@ -4,7 +4,7 @@ import * as types from "../types/types";
 import path from 'path';
 
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * ### generate

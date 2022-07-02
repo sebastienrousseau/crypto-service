@@ -6,7 +6,7 @@ import * as openpgp from "openpgp";
 import * as types from "../types/types";
 
 const args = process.argv.slice(2);
-console.log(args);
+// console.log(args);
 
 /**
  * ### decrypt

@@ -1,4 +1,4 @@
-import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
+import decrypt from '@sebastienrousseau/crypto-lib';
 import prompts from 'prompts';
 
 const handleDecrypt = async () => {
@@ -32,7 +32,7 @@ const handleDecrypt = async () => {
   }
   else {
     console.log(data);
-    await decrypt(data);
+    await decrypt.decrypt(data);
   }
 };
 
