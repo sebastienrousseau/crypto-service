@@ -125,8 +125,8 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc -b && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
-        "clean": "rimraf dist && rimraf docs && rimraf node_modules",
+        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
