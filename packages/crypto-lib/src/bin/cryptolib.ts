@@ -3,6 +3,7 @@ import {
   dataDecrypt,
   dataEncrypt,
   dataGenerate,
+  dataReformat,
   dataRevoke,
   dataSessionKey,
   dataSign,
@@ -28,8 +29,8 @@ import {
  * ```
  */
 
-export async function decrypt(options: dataDecrypt) {
-  const decrypt = await key.decrypt.default(options);
+export async function decrypt(data: dataDecrypt) {
+  const decrypt = await key.decrypt.default(data);
   return decrypt;
 }
 
@@ -52,8 +53,8 @@ export async function decrypt(options: dataDecrypt) {
  * ```
  */
 
-export async function encrypt(options: dataEncrypt) {
-  const encrypt = await key.encrypt.default(options);
+export async function encrypt(data: dataEncrypt) {
+  const encrypt = await key.encrypt.default(data);
   return encrypt;
 }
 
@@ -82,23 +83,28 @@ export async function encrypt(options: dataEncrypt) {
  *
  */
 
-export async function generate(options: dataGenerate) {
-  const generate = await key.generate.default(options);
+export async function generate(data: dataGenerate) {
+  const generate = await key.generate.default(data);
   return generate;
+}
+
+export async function reformat(data: dataReformat) {
+  const reformat = await key.reformat.default(data);
+  return reformat;
 }
 
 /**
  *
- * @description The generateSessionKey function that is used in the crypto-lib package.
- * @param dataGenerateSessionKey - This is the data type that is used to generate a session key.
+ * @description The session function that is used in the crypto-lib package.
+ * @param dataSessionKey - This is the data type that is used to generate a session key.
  * @public
- * @export **generateSessionKey**
+ * @export **session**
  *
  * Generates a session key for the given data object.
  *
  * @example
  * ```
- *  generateSessionKey({
+ *  session({
  *   date: '2020-01-01',
  *   email: 'jane@doe.com',
  *   name: 'Jane Doe',
@@ -108,8 +114,8 @@ export async function generate(options: dataGenerate) {
  *
  */
 
-export async function generateSessionKey(options: dataSessionKey) {
-  const verify = await key.generateSessionKey.default(options);
+export async function session(data: dataSessionKey) {
+  const verify = await key.session.default(data);
   return verify;
 }
 
@@ -130,8 +136,8 @@ export async function generateSessionKey(options: dataSessionKey) {
  * ```
  */
 
-export async function revoke(options: dataRevoke) {
-  const revoke = await key.revoke.default(options);
+export async function revoke(data: dataRevoke) {
+  const revoke = await key.revoke.default(data);
   return revoke;
 }
 
@@ -153,8 +159,8 @@ export async function revoke(options: dataRevoke) {
  * ```
  */
 
-export async function sign(options: dataSign) {
-  const sign = await key.sign.default(options);
+export async function sign(data: dataSign) {
+  const sign = await key.sign.default(data);
   return sign;
 }
 
@@ -176,8 +182,8 @@ export async function sign(options: dataSign) {
  * });
  * ```
  */
-export async function verify(options: dataVerify) {
-  const verify = await key.verify.default(options);
+export async function verify(data: dataVerify) {
+  const verify = await key.verify.default(data);
   return verify;
 }
 
@@ -189,4 +195,13 @@ export async function verify(options: dataVerify) {
  * Default exported functions.
  *
 */
-export default { decrypt, encrypt, generate, generateSessionKey, sign, verify };
+export default {
+  decrypt,
+  encrypt,
+  generate,
+  reformat,
+  revoke,
+  session,
+  sign,
+  verify
+};

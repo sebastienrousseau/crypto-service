@@ -1,4 +1,4 @@
-import encrypt from '../../src/commands/encrypt';
+import encrypt from '../../src/commands/encrypt.command';
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 
