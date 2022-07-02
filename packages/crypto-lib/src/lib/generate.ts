@@ -86,7 +86,6 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     console.log('🔑 The public key data was written to `' + data.type + '.pub`');
   });
   pbkey.end();
-  pbkey;
 
   const prkey = fs.createWriteStream(
     path.resolve(__dirname, "../key/" + data.type + ".key"), { encoding: 'utf8' }
@@ -96,7 +95,6 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     console.log('🔒 The private key data was written to `' + data.type + '.key`');
   });
   prkey.end();
-  prkey;
 
   const certificate = fs.createWriteStream(
     path.resolve(__dirname, "../key/" + data.type + ".cert"), { encoding: 'utf8' }
@@ -106,7 +104,6 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     console.log('🔏 The revocation certificate data was written to `' + data.type + '.cert`');
   });
   certificate.end();
-  certificate;
 
   return { publicKey, privateKey, revocationCertificate };
 }
