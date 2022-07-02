@@ -41,7 +41,6 @@ const handleReformat = async () => {
   };
 
   if ((
-    responseReformat.date === '' ||
     responseReformat.email === '' ||
     responseReformat.expiration === '' ||
     responseReformat.name === '' ||
