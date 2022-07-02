@@ -14,7 +14,7 @@ const handleSign = async () => {
       message: 'Provide a message to encrypt',
     },
     {
-      type: 'boolean',
+      type: 'confirm',
       name: 'detached',
       message: 'Provide true or false',
     },

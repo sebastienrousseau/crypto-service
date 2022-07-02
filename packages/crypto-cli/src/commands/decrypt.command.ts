@@ -27,7 +27,11 @@ const handleDecrypt = async () => {
     publicKey: responseDecrypt.publicKey
   };
 
-  if ((responseDecrypt.passphrase === '' || responseDecrypt.message === '' || responseDecrypt.publicKey === '')) {
+  if ((
+    responseDecrypt.passphrase === '' ||
+    responseDecrypt.message === '' ||
+    responseDecrypt.publicKey === ''
+  )) {
     console.error(`\n🔔 You must provide a value for each of the properties.\n`)
   }
   else {

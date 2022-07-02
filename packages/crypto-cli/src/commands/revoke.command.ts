@@ -9,7 +9,7 @@ const handleRevoke = async () => {
       message: 'Provide a passphrase',
     },
     {
-      type: 'boolean',
+      type: 'number',
       name: 'flag',
       message: 'Provide a flag (optional)',
     },
