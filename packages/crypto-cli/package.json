@@ -13,7 +13,7 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "crypto-cli": "dist/cli.js"
+        "crypto-cli": "dist/cli"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"

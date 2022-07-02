@@ -1,2 +1,5 @@
 #!/usr/bin/env node
-require('../lib').init()
+
+'use strict';
+
+import '../dist/cli.js';
