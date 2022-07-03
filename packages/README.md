@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 
+![divider][divider]
+
 ## Packages
 
 ### Crypto CLI
@@ -14,6 +16,9 @@
 
 Crypto CLI is a simple, yet powerful, command line interface that can be used to
 perform common cryptographic operations from the command prompt or terminal.
+
+![divider][divider]
+
 ### Crypto Lib
 
 ![Banner representing Crypto Lib][crypto lib]
@@ -22,6 +27,8 @@ Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
 low-level cryptographic operations.
 
+![divider][divider]
+
 ### Crypto Server
 
 ![Banner representing Crypto Server][crypto server]
@@ -29,6 +36,8 @@ low-level cryptographic operations.
 Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
 easy consumable REST APIs to perform low-level cryptographic operations. It is
 implemented using Node.js and relies on [**Crypto Lib**](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib).
+
+![divider][divider]
 
 ## Documentation
 
@@ -40,6 +49,8 @@ and deployed via [GitHub](https://github.com)
 - [Crypto Server Documentation]()
 
 ***
+
+[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
 
