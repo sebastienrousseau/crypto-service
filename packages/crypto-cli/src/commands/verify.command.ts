@@ -1,22 +1,22 @@
-import verify from '@sebastienrousseau/crypto-lib';
-import prompts from 'prompts';
+import verify from "@sebastienrousseau/crypto-lib";
+import prompts from "prompts";
 
-const handleVerify = async () => {
+const handleVerify = async() => {
   const responseVerify = await prompts([
     {
-      type: 'text',
-      name: 'message',
-      message: 'Provide a message to encrypt',
+      type: "text",
+      name: "message",
+      message: "Provide a message to encrypt",
     },
     {
-      type: 'confirm',
-      name: 'detached',
-      message: 'Provide true or false',
+      type: "confirm",
+      name: "detached",
+      message: "Provide true or false",
     },
     {
-      type: 'text',
-      name: 'publicKey',
-      message: 'Provide a public key in base64 format',
+      type: "text",
+      name: "publicKey",
+      message: "Provide a public key in base64 format",
     }
   ]);
 
@@ -30,11 +30,11 @@ const handleVerify = async () => {
   };
 
   if ((
-    responseVerify.message === '' ||
-    responseVerify.detached === '' ||
-    responseVerify.publicKey === ''
+    responseVerify.message === "" ||
+    responseVerify.detached === "" ||
+    responseVerify.publicKey === ""
   )) {
-    console.error(`\n🔔 You must provide a value for each of the properties.\n`)
+    console.error("\n🔔 You must provide a value for each of the properties.\n");
   }
   else {
     console.log(data);

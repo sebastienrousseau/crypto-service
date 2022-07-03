@@ -1,22 +1,22 @@
-import revoke from '@sebastienrousseau/crypto-lib';
-import prompts from 'prompts';
+import revoke from "@sebastienrousseau/crypto-lib";
+import prompts from "prompts";
 
-const handleRevoke = async () => {
+const handleRevoke = async() => {
   const responseRevoke = await prompts([
     {
-      type: 'password',
-      name: 'passphrase',
-      message: 'Provide a passphrase',
+      type: "password",
+      name: "passphrase",
+      message: "Provide a passphrase",
     },
     {
-      type: 'number',
-      name: 'flag',
-      message: 'Provide a flag (optional)',
+      type: "number",
+      name: "flag",
+      message: "Provide a flag (optional)",
     },
     {
-      type: 'text',
-      name: 'reason',
-      message: 'Provide a reason for revocation (optional)',
+      type: "text",
+      name: "reason",
+      message: "Provide a reason for revocation (optional)",
     }
   ]);
   console.log(responseRevoke);
@@ -28,8 +28,8 @@ const handleRevoke = async () => {
     reason: responseRevoke.reason,
   };
 
-  if ((responseRevoke.passphrase === '')) {
-    console.error(`\n🔔 You must provide a value for each of the properties.\n`)
+  if ((responseRevoke.passphrase === "")) {
+    console.error("\n🔔 You must provide a value for each of the properties.\n");
   }
   else {
     console.log(data);
