@@ -8,6 +8,12 @@
 
 ## Packages
 
+### Crypto CLI
+
+![Banner representing Crypto CLI][crypto cli]
+
+Crypto CLI is a simple, yet powerful, command line interface that can be used to
+perform common cryptographic operations from the command prompt or terminal.
 ### Crypto Lib
 
 ![Banner representing Crypto Lib][crypto lib]
@@ -29,12 +35,15 @@ implemented using Node.js and relies on [**Crypto Lib**](https://github.com/seba
 Auto-generated documentation created by [JSDoc](https://github.com/jsdoc/jsdoc)
 and deployed via [GitHub](https://github.com)
 
+- [Crypto CLI Documentation]()
 - [Crypto Lib Documentation]()
 - [Crypto Server Documentation]()
 
 ***
 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
+
+[crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 
