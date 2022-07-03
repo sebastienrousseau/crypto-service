@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="666px" height="6px" viewBox="0 0 666 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="1024px" height="6px" viewBox="0 0 1024 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>divider</title>
-    <defs>
-        <linearGradient x1="7.60762675%" y1="50%" x2="100%" y2="50%" id="linearGradient-1">
-            <stop stop-color="#FFE500" offset="0%"></stop>
-            <stop stop-color="#F8941F" offset="44.998361%"></stop>
-            <stop stop-color="#CC17C6" offset="100%"></stop>
-        </linearGradient>
-    </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect id="divider" fill="url(#linearGradient-1)" x="0" y="0" width="666" height="6" rx="3"></rect>
+        <g id="divider" fill="#D1D1D1" fill-rule="nonzero">
+            <rect x="0" y="0" width="1024" height="6" rx="3"></rect>
+        </g>
     </g>
 </svg>
