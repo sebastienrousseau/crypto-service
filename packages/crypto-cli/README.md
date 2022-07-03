@@ -18,6 +18,8 @@
 Crypto CLI is a simple, yet powerful, command line interface that can be used to
 perform common cryptographic operations from the command prompt or terminal.
 
+![Crypto CLI][crypto-cli]
+
 ## Key Features
 
 The cryptographic operations include:
@@ -291,3 +293,5 @@ node dist/lib/decrypt.js \
 [10]: https://pnpm.io/motivation
 [11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
+
+[crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg 
