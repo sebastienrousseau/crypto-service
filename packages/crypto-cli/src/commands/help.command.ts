@@ -1,45 +1,60 @@
 import prompts from "prompts";
 
-const handleHelp = async() => {
+const handleHelp = async () => {
   const responseHelp = await prompts([
     {
       type: "select",
       name: "Selection",
-      message: "Let us help you on the Crypto Command Line Interface (CLI). Please select a command to learn more about.\n",
+      message:
+        "Let us help you on the Crypto Command Line Interface (CLI). Please select a command to learn more about.\n",
       choices: [
         {
           title: "Decrypt",
-          description: "🔍 Select this option to get help on the decrypt command.",
-          value: "1"
+          description:
+            "🔍 Select this option to get help on the decrypt command.",
+          value: "1",
         },
-        { title: "Encrypt",
-          description: "🔍 Select this option to get help on the encrypt command.",
-          value: "2"
+        {
+          title: "Encrypt",
+          description:
+            "🔍 Select this option to get help on the encrypt command.",
+          value: "2",
         },
-        { title: "Generate",
-          description: "🔍 Select this option to get help on the generate command.",
-          value: "3"
+        {
+          title: "Generate",
+          description:
+            "🔍 Select this option to get help on the generate command.",
+          value: "3",
         },
-        { title: "Reformat",
-          description: "🔍 Select this option to get help on the reformat command.",
-          value: "4"
+        {
+          title: "Reformat",
+          description:
+            "🔍 Select this option to get help on the reformat command.",
+          value: "4",
         },
-        { title: "Revoke",
-          description: "🔍 Select this option to get help on the revoke command.",
-          value: "5"
+        {
+          title: "Revoke",
+          description:
+            "🔍 Select this option to get help on the revoke command.",
+          value: "5",
         },
-        { title: "Session",
-          description: "🔍 Select this option to get help on the session command.",
-          value: "6"
+        {
+          title: "Session",
+          description:
+            "🔍 Select this option to get help on the session command.",
+          value: "6",
         },
-        { title: "Sign",
+        {
+          title: "Sign",
           description: "🔍 Select this option to get help on the sign command.",
-          value: "7"
+          value: "7",
         },
-        { title: "Verify",
-          description: "🔍 Select this option to get help on the verify command.",
-          value: "8"
-        }
+        {
+          title: "Verify",
+          description:
+            "🔍 Select this option to get help on the verify command.",
+          value: "8",
+        },
       ],
     },
   ]);

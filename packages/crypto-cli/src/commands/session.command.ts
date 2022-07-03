@@ -1,7 +1,7 @@
 import session from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleSession = async() => {
+const handleSession = async () => {
   const responseSession = await prompts([
     {
       type: "text",
@@ -17,7 +17,7 @@ const handleSession = async() => {
       type: "text",
       name: "publicKey",
       message: "Provide a public key in base64 format",
-    }
+    },
   ]);
   console.log(responseSession);
 
@@ -27,14 +27,15 @@ const handleSession = async() => {
     publicKey: responseSession.publicKey,
   };
 
-  if ((
+  if (
     responseSession.email === "" ||
     responseSession.name === "" ||
     responseSession.publicKey === ""
-  )) {
-    console.error("\n🔔 You must provide a value for each of the properties.\n");
-  }
-  else {
+  ) {
+    console.error(
+      "\n🔔 You must provide a value for each of the properties.\n",
+    );
+  } else {
     console.log(data);
     await session.session(data);
   }
@@ -44,4 +45,3 @@ export default handleSession;
 // # sourceMappingURL=session.command.js.map
 // Language: typescript
 // path: packages/crypto-cli/src/commands/session.command.ts
-

@@ -162,8 +162,10 @@ You'll see something like this:
 
 ```
 
-![divider][divider]
-## ❯ Usage
+## ❯ Command Line Interface (CLI)
+
+crypto-cli [command] [options]
+
 
 
 [1]: https://openpgpjs.org/
@@ -179,6 +181,5 @@ You'll see something like this:
 [11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
 
-[crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg 
-
-[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
+[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
+[crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg "Crypto CLI"

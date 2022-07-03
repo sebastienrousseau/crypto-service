@@ -1,7 +1,7 @@
 import decrypt from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleDecrypt = async() => {
+const handleDecrypt = async () => {
   const responseDecrypt = await prompts([
     {
       type: "text",
@@ -17,24 +17,25 @@ const handleDecrypt = async() => {
       type: "text",
       name: "publicKey",
       message: "Provide a public key in base64 format",
-    }
+    },
   ]);
   console.log(responseDecrypt);
 
   const data = {
     passphrase: responseDecrypt.passphrase,
     encryptedMessage: responseDecrypt.message,
-    publicKey: responseDecrypt.publicKey
+    publicKey: responseDecrypt.publicKey,
   };
 
-  if ((
+  if (
     responseDecrypt.passphrase === "" ||
     responseDecrypt.message === "" ||
     responseDecrypt.publicKey === ""
-  )) {
-    console.error("\n🔔 You must provide a value for each of the properties.\n");
-  }
-  else {
+  ) {
+    console.error(
+      "\n🔔 You must provide a value for each of the properties.\n",
+    );
+  } else {
     console.log(data);
     await decrypt.decrypt(data);
   }

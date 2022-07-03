@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from "fs";
+import path from "path";
 import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
@@ -41,23 +41,26 @@ const args = process.argv.slice(2);
  *  publicKey: "base64 encoded public key"
  * };
  *
-*/
+ */
 
 export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
-
   const message = data.message;
   const passphrase = data.passphrase;
 
   const privateKeyBase64 = readFileSync(process.cwd() + "/src/key/rsa.key");
-  const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
-  const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
+  const publicKeyArmored = Buffer.from(
+    data.publicKey.toString(),
+    "base64",
+  ).toString("utf-8");
+  const privateKeyArmored = Buffer.from(
+    privateKeyBase64.toString(),
+    "base64",
+  ).toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey(
-      {
-        armoredKey: privateKeyArmored
-      }
-    ),
+    privateKey: await openpgp.readPrivateKey({
+      armoredKey: privateKeyArmored,
+    }),
     passphrase,
   });
 
@@ -70,18 +73,19 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 
   const encryptedMsg = await fs.createWriteStream(
     path.resolve(__dirname, "../data/encrypted.txt"),
-    { encoding: 'ascii' }
+    { encoding: "ascii" },
   );
-    const encryptedString = encrypted.toString();
-    encryptedMsg.write(Buffer.from(encryptedString).toString('base64'));
-    encryptedMsg.on('finish', () => {console.log('✅ Wrote encrypted message data to file');});
-    encryptedMsg.end();
+  const encryptedString = encrypted.toString();
+  encryptedMsg.write(Buffer.from(encryptedString).toString("base64"));
+  encryptedMsg.on("finish", () => {
+    console.log("✅ Wrote encrypted message data to file");
+  });
+  encryptedMsg.end();
 
-    return encrypted;
+  return encrypted;
 };
 
 if (args instanceof Array && args.length) {
-
   if (args[0] === "encrypt") {
     const data = {
       passphrase: args[2],
@@ -93,7 +97,7 @@ if (args instanceof Array && args.length) {
   const data = {
     passphrase: args[1],
     message: args[3],
-    publicKey: args[5]
+    publicKey: args[5],
   };
   encrypt(data);
 }

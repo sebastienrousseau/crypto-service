@@ -1,4 +1,4 @@
-import enums from '../enums';
+import enums from "../enums";
 
 export default {
   /**
@@ -14,7 +14,7 @@ export default {
    * @memberof module:config
    * @default enums.size.keySize4096
    * @description User configurable property, sets the preferred number of bits for RSA keys.
-    * @property {Number} preferredRSABits Default number of bits for RSA keys. {@link module:enums.size}
+   * @property {Number} preferredRSABits Default number of bits for RSA keys. {@link module:enums.size}
    * @see {@link module:enums.size}
    * @see {@link module:config}
    * @see {@link module:config.preferredRSABits}
@@ -84,8 +84,7 @@ export default {
    */
 
   preferredFormat: enums.format.armored,
-
-}
+};
 
 // # sourceMappingURL=config.js.map
 // Language: typescript

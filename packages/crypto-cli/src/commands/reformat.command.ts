@@ -1,7 +1,7 @@
 import reformat from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleReformat = async() => {
+const handleReformat = async () => {
   const responseReformat = await prompts([
     {
       type: "text",
@@ -27,7 +27,7 @@ const handleReformat = async() => {
       type: "text",
       name: "publicKey",
       message: "Provide a public key in base64 format",
-    }
+    },
   ]);
   console.log(responseReformat);
 
@@ -40,16 +40,17 @@ const handleReformat = async() => {
     publicKey: responseReformat.publicKey,
   };
 
-  if ((
+  if (
     responseReformat.email === "" ||
     responseReformat.expiration === "" ||
     responseReformat.name === "" ||
     responseReformat.passphrase === "" ||
     responseReformat.publicKey === ""
-  )) {
-    console.error("\n🔔 You must provide a value for each of the properties.\n");
-  }
-  else {
+  ) {
+    console.error(
+      "\n🔔 You must provide a value for each of the properties.\n",
+    );
+  } else {
     console.log(data);
     await reformat.reformat(data);
   }

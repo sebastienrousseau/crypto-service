@@ -1,7 +1,7 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-import path from 'path';
+import path from "path";
 
 const args = process.argv.slice(2);
 // console.log(args);
@@ -62,46 +62,57 @@ const args = process.argv.slice(2);
  */
 
 export async function generate(data: types.dataGenerate): Promise<object> {
-
-  const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
-    userIDs: [{ name: data.name, email: data.email }],
-    passphrase: data.passphrase,
-    type: data.type,
-    curve: data.curve,
-    rsaBits: Number(data.rsaBits),
-    keyExpirationTime: Number(data.keyExpirationTime),
-    date: new Date(),
-    format: data.format,
-  });
+  const { privateKey, publicKey, revocationCertificate } =
+    await openpgp.generateKey({
+      userIDs: [{ name: data.name, email: data.email }],
+      passphrase: data.passphrase,
+      type: data.type,
+      curve: data.curve,
+      rsaBits: Number(data.rsaBits),
+      keyExpirationTime: Number(data.keyExpirationTime),
+      date: new Date(),
+      format: data.format,
+    });
 
   console.log(privateKey);
   console.log(publicKey);
   console.log(revocationCertificate);
 
   const pbkey = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".pub"), { encoding: 'utf8' }
+    path.resolve(__dirname, "../key/" + data.type + ".pub"),
+    { encoding: "utf8" },
   );
-  pbkey.write(Buffer.from(publicKey).toString('base64'));
-  pbkey.on('finish', () => {
-    console.log('🔑 The public key data was written to `' + data.type + '.pub`');
+  pbkey.write(Buffer.from(publicKey).toString("base64"));
+  pbkey.on("finish", () => {
+    console.log(
+      "🔑 The public key data was written to `" + data.type + ".pub`",
+    );
   });
   pbkey.end();
 
   const prkey = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".key"), { encoding: 'utf8' }
+    path.resolve(__dirname, "../key/" + data.type + ".key"),
+    { encoding: "utf8" },
   );
-  prkey.write(Buffer.from(privateKey).toString('base64'));
-  prkey.on('finish', () => {
-    console.log('🔒 The private key data was written to `' + data.type + '.key`');
+  prkey.write(Buffer.from(privateKey).toString("base64"));
+  prkey.on("finish", () => {
+    console.log(
+      "🔒 The private key data was written to `" + data.type + ".key`",
+    );
   });
   prkey.end();
 
   const certificate = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".cert"), { encoding: 'utf8' }
+    path.resolve(__dirname, "../key/" + data.type + ".cert"),
+    { encoding: "utf8" },
   );
-  certificate.write(Buffer.from(revocationCertificate).toString('base64'));
-  certificate.on('finish', () => {
-    console.log('🔏 The revocation certificate data was written to `' + data.type + '.cert`');
+  certificate.write(Buffer.from(revocationCertificate).toString("base64"));
+  certificate.on("finish", () => {
+    console.log(
+      "🔏 The revocation certificate data was written to `" +
+        data.type +
+        ".cert`",
+    );
   });
   certificate.end();
 
