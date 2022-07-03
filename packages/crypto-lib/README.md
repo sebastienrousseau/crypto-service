@@ -7,8 +7,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 
-**[Website](https://cryptolib.io) • [Documentation](https://cryptolib.io/docs/)**
-
+**[Website](https://cryptolib.io) • [Documentation](https://cryptolib.io/docs/) 
+• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
+• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
 
 ***
 
