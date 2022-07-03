@@ -6,7 +6,7 @@ import format from 'kleur';
 import prompts from 'prompts';
 
 const title = '🔐 Crypto Command Line Interface (CLI)';
-const description = 'The Crypto Lib Command Line Interface (CLI) is a unified tool to perform \ncommon cryptographic operations such as key generation, data encryption, \ndigital signing, and signature verification which are invoked from the \ncommand prompt or terminal.';
+const description = 'Crypto CLI is a simple, yet powerful, command line interface that can be used to perform common cryptographic operations from the command prompt or terminal.';
 
 welcome();
 console.log(title);

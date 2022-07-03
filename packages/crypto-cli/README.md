@@ -141,7 +141,6 @@ You'll see something like this:
 │   ├── rsa.key
 │   └── rsa.pub
 ├── package.json
-├── tsconfig.tsbuildinfo
 └── utils
     ├── version.utils.d.ts
     ├── version.utils.d.ts.map
@@ -152,7 +151,7 @@ You'll see something like this:
     ├── write.utils.js
     └── write.utils.js.map
 
-4 directories, 73 files
+4 directories, 72 files
 
 ```
 
