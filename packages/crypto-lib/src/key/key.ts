@@ -50,7 +50,10 @@ export const RevocationCertificateBase64 = readFileSync("./src/key/rsa.cert");
  *
  */
 
-export const PrivateKey = Buffer.from(PrivateKeyBase64.toString(), "base64").toString("utf-8");
+export const PrivateKey = Buffer.from(
+  PrivateKeyBase64.toString(),
+  "base64",
+).toString("utf-8");
 
 /**
  * ### PublicKey
@@ -63,7 +66,10 @@ export const PrivateKey = Buffer.from(PrivateKeyBase64.toString(), "base64").toS
  *
  */
 
-export const PublicKey = Buffer.from(PublicKeyBase64.toString(), "base64").toString("utf-8");
+export const PublicKey = Buffer.from(
+  PublicKeyBase64.toString(),
+  "base64",
+).toString("utf-8");
 
 /**
  * ### RevocationCertificate
@@ -76,7 +82,10 @@ export const PublicKey = Buffer.from(PublicKeyBase64.toString(), "base64").toStr
  *
  */
 
-export const RevocationCertificate = Buffer.from(RevocationCertificateBase64.toString(), "base64").toString("utf-8");
+export const RevocationCertificate = Buffer.from(
+  RevocationCertificateBase64.toString(),
+  "base64",
+).toString("utf-8");
 
 export default {
   PrivateKeyBase64,
@@ -84,7 +93,7 @@ export default {
   RevocationCertificateBase64,
   PrivateKey,
   PublicKey,
-  RevocationCertificate
+  RevocationCertificate,
 };
 
 // # sourceMappingURL=key.js.map

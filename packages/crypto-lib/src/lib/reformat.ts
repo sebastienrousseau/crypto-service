@@ -39,16 +39,16 @@ export const reformat = async (data: types.dataReformat): Promise<object> => {
   const expiration = data.expiration;
   const passphrase = data.passphrase;
 
-
   const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key");
-  const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
+  const privateKeyArmored = Buffer.from(
+    privateKeyBase64.toString(),
+    "base64",
+  ).toString("utf-8");
 
   const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey(
-      {
-        armoredKey: privateKeyArmored
-      }
-    ),
+    privateKey: await openpgp.readPrivateKey({
+      armoredKey: privateKeyArmored,
+    }),
     passphrase,
   });
 
@@ -80,9 +80,8 @@ export const reformat = async (data: types.dataReformat): Promise<object> => {
   );
   reformatCert;
 
-
   return reformatKeys;
-}
+};
 if (args instanceof Array && args.length) {
   const data = {
     date: new Date(),
@@ -99,4 +98,3 @@ export default reformat;
 
 //# sourceMappingURL=reformat.js.map
 // Language: typescript
-

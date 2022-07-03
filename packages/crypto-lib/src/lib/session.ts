@@ -36,32 +36,30 @@ const args = process.argv.slice(2);
  * console.log(err);
  * }
  * ```
-*/
+ */
 
-export const session = async (data: types.dataSessionKey): Promise<openpgp.SessionKey> => {
+export const session = async (
+  data: types.dataSessionKey,
+): Promise<openpgp.SessionKey> => {
   const publicKeyBase64 = data.publicKey;
   const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
-  const publicKey = publicKeyBuffer.toString('utf-8');
+  const publicKey = publicKeyBuffer.toString("utf-8");
 
   const EncryptSessionKeyOptions = {
-    encryptionKeys: await openpgp.readKey(
-      {
-        armoredKey: publicKey,
-      }
-    ),
-  format: 'armored',
-  wildcard: true,
-  date: new Date(),
-  encryptionUserIDs: [{ name: data.name, email: data.email }],
+    encryptionKeys: await openpgp.readKey({
+      armoredKey: publicKey,
+    }),
+    format: "armored",
+    wildcard: true,
+    date: new Date(),
+    encryptionUserIDs: [{ name: data.name, email: data.email }],
   };
 
-  const sessionKey =
-    await openpgp.generateSessionKey(EncryptSessionKeyOptions && {
-      encryptionKeys: await openpgp.readKey(
-        {
-          armoredKey: publicKey,
-        }
-      ),
+  const sessionKey = await openpgp.generateSessionKey(
+    EncryptSessionKeyOptions && {
+      encryptionKeys: await openpgp.readKey({
+        armoredKey: publicKey,
+      }),
       date: new Date(),
       encryptionUserIDs: [{ name: data.name, email: data.email }],
       config: {
@@ -72,10 +70,11 @@ export const session = async (data: types.dataSessionKey): Promise<openpgp.Sessi
         minRSABits: 2048, // require at least 2048 bit RSA keys
         passwordCollisionCheck: true, // check if a password is a collision of a previous password
       },
-    });
+    },
+  );
   console.log(sessionKey);
   return sessionKey;
-}
+};
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {

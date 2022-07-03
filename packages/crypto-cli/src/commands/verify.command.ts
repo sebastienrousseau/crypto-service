@@ -1,7 +1,7 @@
 import verify from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleVerify = async() => {
+const handleVerify = async () => {
   const responseVerify = await prompts([
     {
       type: "text",
@@ -17,9 +17,8 @@ const handleVerify = async() => {
       type: "text",
       name: "publicKey",
       message: "Provide a public key in base64 format",
-    }
+    },
   ]);
-
 
   console.log(responseVerify);
 
@@ -29,14 +28,15 @@ const handleVerify = async() => {
     publicKey: responseVerify.publicKey,
   };
 
-  if ((
+  if (
     responseVerify.message === "" ||
     responseVerify.detached === "" ||
     responseVerify.publicKey === ""
-  )) {
-    console.error("\n🔔 You must provide a value for each of the properties.\n");
-  }
-  else {
+  ) {
+    console.error(
+      "\n🔔 You must provide a value for each of the properties.\n",
+    );
+  } else {
     console.log(data);
     await verify.verify(data);
   }

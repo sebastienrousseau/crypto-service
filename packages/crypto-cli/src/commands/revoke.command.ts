@@ -1,7 +1,7 @@
 import revoke from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleRevoke = async() => {
+const handleRevoke = async () => {
   const responseRevoke = await prompts([
     {
       type: "password",
@@ -17,7 +17,7 @@ const handleRevoke = async() => {
       type: "text",
       name: "reason",
       message: "Provide a reason for revocation (optional)",
-    }
+    },
   ]);
   console.log(responseRevoke);
 
@@ -28,10 +28,11 @@ const handleRevoke = async() => {
     reason: responseRevoke.reason,
   };
 
-  if ((responseRevoke.passphrase === "")) {
-    console.error("\n🔔 You must provide a value for each of the properties.\n");
-  }
-  else {
+  if (responseRevoke.passphrase === "") {
+    console.error(
+      "\n🔔 You must provide a value for each of the properties.\n",
+    );
+  } else {
     console.log(data);
     await revoke.revoke(data);
   }

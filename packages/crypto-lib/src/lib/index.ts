@@ -7,14 +7,4 @@ import * as revoke from "./revoke";
 import * as sign from "./sign";
 import * as verify from "./verify";
 
-
-export {
-  decrypt,
-  encrypt,
-  generate,
-  reformat,
-  revoke,
-  session,
-  sign,
-  verify
-};
+export { decrypt, encrypt, generate, reformat, revoke, session, sign, verify };

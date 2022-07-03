@@ -19,9 +19,16 @@ const args = process.argv.slice(2);
 
 export const verify = async (data: types.dataVerify) => {
   const message = data.message;
-  const detachedSignatureBase64 = readFileSync(process.cwd() + "/src/data/detached.sig");
-  const detachedSignature = Buffer.from(detachedSignatureBase64.toString(), "base64").toString("utf-8");
-  const publicKey = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
+  const detachedSignatureBase64 = readFileSync(
+    process.cwd() + "/src/data/detached.sig",
+  );
+  const detachedSignature = Buffer.from(
+    detachedSignatureBase64.toString(),
+    "base64",
+  ).toString("utf-8");
+  const publicKey = Buffer.from(data.publicKey.toString(), "base64").toString(
+    "utf-8",
+  );
 
   const signature = await openpgp.readSignature({
     armoredSignature: String(detachedSignature), // Parse detached signature.
@@ -30,11 +37,9 @@ export const verify = async (data: types.dataVerify) => {
   const verified = await openpgp.verify({
     message: await openpgp.createMessage({ text: message }),
     signature,
-    verificationKeys: await openpgp.readKey(
-      {
-        armoredKey: publicKey,
-      }
-    ),
+    verificationKeys: await openpgp.readKey({
+      armoredKey: publicKey,
+    }),
   });
   console.log(verified);
   return verified;

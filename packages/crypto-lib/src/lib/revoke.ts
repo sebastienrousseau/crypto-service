@@ -35,18 +35,16 @@ const args = process.argv.slice(2);
  * }
  * ```
  *
-*/
+ */
 export const revoke = async (data: types.dataRevoke) => {
   const flag = data.flag; // optional
   const passphrase = data.passphrase;
   const reason = data.reason; // optional
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey(
-      {
-        armoredKey: key.PrivateKey
-      }
-    ),
+    privateKey: await openpgp.readPrivateKey({
+      armoredKey: key.PrivateKey,
+    }),
     passphrase,
   });
 

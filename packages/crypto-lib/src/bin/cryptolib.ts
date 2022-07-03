@@ -8,7 +8,7 @@ import {
   dataSessionKey,
   dataSign,
   dataVerify,
-} from "../types/types"
+} from "../types/types";
 
 /**
  *
@@ -194,7 +194,7 @@ export async function verify(data: dataVerify) {
  *
  * Default exported functions.
  *
-*/
+ */
 export default {
   decrypt,
   encrypt,
@@ -203,5 +203,5 @@ export default {
   revoke,
   session,
   sign,
-  verify
+  verify,
 };

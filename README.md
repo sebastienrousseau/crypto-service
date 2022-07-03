@@ -163,7 +163,9 @@ To generate a Rivest-Shamir-Adelman (RSA) public key pair:
 - Enter the following example command that will start the generation process.
 
 ```shell
-yarn start --curve "" --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits 4096 --type rsa
+yarn start --curve "" --email "jane@doe.com" --expiration 0 --format armored
+--name "Jane Doe" --passphrase 123456789abcdef --sign true --bits 4096 --type
+rsa
 ```
 
 This starts generating a 2048-bit RSA key pair, encrypts them with the password
@@ -197,10 +199,10 @@ To generate an Elliptic Curve Cryptography (ECC) key pair:
 - Open Terminal for Mac or Command Prompt for Windows,
 - Enter the following example command that will start the generation process.
 
-|```shell |
-undefined|---------|
-
-yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null --type ecc
+```shell
+yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format
+armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null
+--type ecc
 ```
 
 This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
@@ -219,7 +221,8 @@ To encrypt a message:
 - Enter the following example command that will start the encryption process.
 
 ```shell
-node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto Service APIs!'
+node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto
+Service APIs!'
 ```
 
 ### Decrypt Data
@@ -323,4 +326,3 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
-

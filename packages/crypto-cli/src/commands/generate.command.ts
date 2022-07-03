@@ -1,13 +1,12 @@
 import generate from "@sebastienrousseau/crypto-lib";
 import prompts from "prompts";
 
-const handleGenerate = async() => {
-
+const handleGenerate = async () => {
   const responseGenerate = await prompts([
     {
       type: "text",
       name: "curve",
-      message: "Curve name (e.g. \"curve25519\")",
+      message: 'Curve name (e.g. "curve25519")',
     },
     {
       type: "text",
@@ -17,12 +16,12 @@ const handleGenerate = async() => {
     {
       type: "text",
       name: "format",
-      message: "Provide a format (e.g. \"armored\")",
+      message: 'Provide a format (e.g. "armored")',
     },
     {
       type: "text",
       name: "expiration",
-      message: "Provide a key expiration time (e.g. \"1y\")",
+      message: 'Provide a key expiration time (e.g. "1y")',
     },
     {
       type: "text",
@@ -37,13 +36,13 @@ const handleGenerate = async() => {
     {
       type: "number",
       name: "rsaBits",
-      message: "Provide a number of bits for RSA keys (e.g. \"2048\")",
+      message: 'Provide a number of bits for RSA keys (e.g. "2048")',
     },
     {
       type: "text",
       name: "type",
-      message: "Provide a key type (e.g. \"rsa or ecc\")",
-    }
+      message: 'Provide a key type (e.g. "rsa or ecc")',
+    },
   ]);
 
   console.log(responseGenerate);
@@ -58,7 +57,7 @@ const handleGenerate = async() => {
     passphrase: responseGenerate.passphrase,
     rsaBits: responseGenerate.rsaBits,
     type: responseGenerate.type,
-    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }]
+    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
   };
 
   console.log(data);

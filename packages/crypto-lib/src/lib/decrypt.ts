@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from "fs";
+import path from "path";
 // import { writeFile } from 'fs/promises';
 import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
@@ -45,18 +45,27 @@ const args = process.argv.slice(2);
  * }
  * ```
  *
-*/
+ */
 
 export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
-
-  const message = Buffer.from(data.encryptedMessage, "base64").toString("utf-8");
+  const message = Buffer.from(data.encryptedMessage, "base64").toString(
+    "utf-8",
+  );
   const passphrase = data.passphrase;
 
-  const publicKeyArmored = Buffer.from(data.publicKey.toString(), "base64").toString("utf-8");
+  const publicKeyArmored = Buffer.from(
+    data.publicKey.toString(),
+    "base64",
+  ).toString("utf-8");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-  const privateKeyBase64 = readFileSync(path.resolve(__dirname, "../key/rsa.key"));
-  const privateKeyArmored = Buffer.from(privateKeyBase64.toString(), "base64").toString("utf-8");
+  const privateKeyBase64 = readFileSync(
+    path.resolve(__dirname, "../key/rsa.key"),
+  );
+  const privateKeyArmored = Buffer.from(
+    privateKeyBase64.toString(),
+    "base64",
+  ).toString("utf-8");
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
     passphrase,
@@ -70,18 +79,21 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
   console.log(decrypted); // "Hello Crypto Service APIs!"
 
   await signatures[0].verified; // throws on invalid signature
-  console.log('Signature is valid');
+  console.log("Signature is valid");
 
-  const decryptedMsg = await fs.createWriteStream(path.resolve(__dirname, "../data/decrypted.txt"));
+  const decryptedMsg = await fs.createWriteStream(
+    path.resolve(__dirname, "../data/decrypted.txt"),
+  );
 
   decryptedMsg.write(decrypted);
-  decryptedMsg.on('finish', () => {console.log('✅ Wrote decrypted message data to file');});
+  decryptedMsg.on("finish", () => {
+    console.log("✅ Wrote decrypted message data to file");
+  });
   decryptedMsg.end();
   return decrypted;
 };
 
 if (args instanceof Array && args.length) {
-
   if (args[0] === "decrypt") {
     const data = {
       passphrase: args[2],

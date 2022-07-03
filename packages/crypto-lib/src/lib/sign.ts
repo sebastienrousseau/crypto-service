@@ -44,20 +44,17 @@ const args = process.argv.slice(2);
  */
 
 export const sign = async (data: types.dataSign) => {
-
   const passphrase = data.passphrase;
   const message = data.message;
   const detached = data.detached;
   const unsignedMessage = await openpgp.createCleartextMessage({
-    text: message
+    text: message,
   });
 
   const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey(
-      {
-        armoredKey: key.PrivateKey
-      }
-    ),
+    privateKey: await openpgp.readPrivateKey({
+      armoredKey: key.PrivateKey,
+    }),
     passphrase,
   });
 
@@ -67,16 +64,17 @@ export const sign = async (data: types.dataSign) => {
     signingKeys: privateKeyRead,
   };
 
-  const signed = await openpgp.sign(signOptions &&
-  {
-    message: unsignedMessage,
-    signingKeys: privateKeyRead,
-  });
+  const signed = await openpgp.sign(
+    signOptions && {
+      message: unsignedMessage,
+      signingKeys: privateKeyRead,
+    },
+  );
 
   console.log(signed);
   const signedMsg = await writeFile(
     "./src/data/signed.sig",
-    Buffer.from(signed.toString()).toString('base64'),
+    Buffer.from(signed.toString()).toString("base64"),
   );
   signedMsg;
   return signed;
