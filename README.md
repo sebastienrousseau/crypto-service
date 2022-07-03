@@ -37,10 +37,9 @@ The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and
 
 ![Banner representing Crypto CLI][crypto cli]
 
-The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common
-cryptographic operations such as key generation, data encryption, digital
-signing, and signature verification which are invoked from the command prompt 
-or terminal. [Learn more][16][>][16]
+Crypto CLI is a simple, yet powerful, command line interface that can be used to
+perform common cryptographic operations from the command prompt or terminal.
+[Learn more][16][>][16]
 
 ## Crypto Lib
 
