@@ -1,27 +1,27 @@
-import sign from '@sebastienrousseau/crypto-lib';
-import prompts from 'prompts';
+import sign from "@sebastienrousseau/crypto-lib";
+import prompts from "prompts";
 
-const handleSign = async () => {
+const handleSign = async() => {
   const responseSign = await prompts([
     {
-      type: 'password',
-      name: 'passphrase',
-      message: 'Provide a passphrase',
+      type: "password",
+      name: "passphrase",
+      message: "Provide a passphrase",
     },
     {
-      type: 'text',
-      name: 'message',
-      message: 'Provide a message to encrypt',
+      type: "text",
+      name: "message",
+      message: "Provide a message to encrypt",
     },
     {
-      type: 'confirm',
-      name: 'detached',
-      message: 'Provide true or false',
+      type: "confirm",
+      name: "detached",
+      message: "Provide true or false",
     },
     {
-      type: 'text',
-      name: 'publicKey',
-      message: 'Provide a public key in base64 format',
+      type: "text",
+      name: "publicKey",
+      message: "Provide a public key in base64 format",
     }
   ]);
 
@@ -37,12 +37,12 @@ const handleSign = async () => {
   };
 
   if ((
-    responseSign.passphrase === '' ||
-    responseSign.message === '' ||
-    responseSign.detached === '' ||
-    responseSign.publicKey === ''
+    responseSign.passphrase === "" ||
+    responseSign.message === "" ||
+    responseSign.detached === "" ||
+    responseSign.publicKey === ""
   )) {
-    console.error(`\n🔔 You must provide a value for each of the properties.\n`)
+    console.error("\n🔔 You must provide a value for each of the properties.\n");
   }
   else {
     console.log(data);

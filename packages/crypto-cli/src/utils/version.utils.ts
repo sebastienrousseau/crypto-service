@@ -3,7 +3,7 @@ import { join, normalize } from "path";
 
 let version = "";
 
-export const getVersion: () => Promise<string> = async () => {
+export const getVersion = async() => {
   if (version) {
     return version;
   }

@@ -1,22 +1,22 @@
-import session from '@sebastienrousseau/crypto-lib';
-import prompts from 'prompts';
+import session from "@sebastienrousseau/crypto-lib";
+import prompts from "prompts";
 
-const handleSession = async () => {
+const handleSession = async() => {
   const responseSession = await prompts([
     {
-      type: 'text',
-      name: 'email',
-      message: 'Provide an email address',
+      type: "text",
+      name: "email",
+      message: "Provide an email address",
     },
     {
-      type: 'text',
-      name: 'name',
-      message: 'Provide a first and last name',
+      type: "text",
+      name: "name",
+      message: "Provide a first and last name",
     },
     {
-      type: 'text',
-      name: 'publicKey',
-      message: 'Provide a public key in base64 format',
+      type: "text",
+      name: "publicKey",
+      message: "Provide a public key in base64 format",
     }
   ]);
   console.log(responseSession);
@@ -28,11 +28,11 @@ const handleSession = async () => {
   };
 
   if ((
-    responseSession.email === '' ||
-    responseSession.name === '' ||
-    responseSession.publicKey === ''
+    responseSession.email === "" ||
+    responseSession.name === "" ||
+    responseSession.publicKey === ""
   )) {
-    console.error(`\n🔔 You must provide a value for each of the properties.\n`)
+    console.error("\n🔔 You must provide a value for each of the properties.\n");
   }
   else {
     console.log(data);
