@@ -11,7 +11,6 @@
 • [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
 • [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-cli/blob/master/.github/CONTRIBUTING.md)**
 
-
 ***
 
 ## Welcome to Crypto CLI
@@ -173,10 +172,10 @@ You'll see something like this:
 [RSA][11] is a public-key algorithm for encrypting and signing messages. To
 generate a Rivest-Shamir-Adelman (RSA) public key pair:
 
-- Open Terminal for Mac or Command Prompt for Windows,
+-   Open Terminal for Mac or Command Prompt for Windows,
 
-- Enter the following example command that will start the generation process in
-the `dist/` directory.
+-   Enter the following example command that will start the generation process
+in the `dist/` directory.
 
 ```js
 yarn start \
@@ -220,9 +219,10 @@ Currently the following curves are supported:
 
 To generate an Elliptic Curve Cryptography (ECC) key pair:
 
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the generation process in
-the `dist/` directory.
+-   Open Terminal for Mac or Command Prompt for Windows,
+ 
+-   Enter the following example command that will start the generation process
+in the `dist/` directory.
 
 ```js
 yarn start \
@@ -253,10 +253,12 @@ Crypto CLI makes it easy and painless to encrypt and sign data.
 
 To encrypt a message:
 
-- Open Terminal for Mac or Command Prompt for Windows,
-- Run the yarn start
-- Enter the following example command that will start the encryption process in
-the `dist/` directory.
+-   Open Terminal for Mac or Command Prompt for Windows,
+
+-   Run the yarn start
+
+-   Enter the following example command that will start the encryption process
+in the `dist/` directory.
 
 ```js
 node dist/lib/encrypt.js \
@@ -274,9 +276,10 @@ Lib.
 
 To decrypt a message:
 
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the decryption process in
-the `dist/` directory.
+-   Open Terminal for Mac or Command Prompt for Windows,
+
+-   Enter the following example command that will start the decryption process
+in the `dist/` directory.
 
 ```js
 node dist/lib/decrypt.js \
