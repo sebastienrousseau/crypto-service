@@ -33,6 +33,8 @@ Crypto Service can help you ensure the following:
 The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and 
 [Crypto Server][7] part of the Crypto Service Applications.
 
+![divider][divider]
+
 ## Crypto CLI
 
 ![Banner representing Crypto CLI][crypto cli]
@@ -40,6 +42,8 @@ The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and
 Crypto CLI is a simple, yet powerful, command line interface that can be used to
 perform common cryptographic operations from the command prompt or terminal.
 [Learn more][16][>][16]
+
+![divider][divider]
 
 ## Crypto Lib
 
@@ -49,6 +53,8 @@ Crypto Lib is a powerful intuitive cryptographic JavaScript library that
 encapsulates common algorithms, functions and provides an interface for
 low-level cryptographic operations. [Learn more][6][>][6]
 
+![divider][divider]
+
 ## Crypto Server
 
 ![Banner representing Crypto Server][crypto server]
@@ -57,11 +63,15 @@ Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
 easy consumable REST APIs to perform low-level cryptographic operations. It is
 implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
+![divider][divider]
+
 ## Getting Started
 
 Crypto Service helps put you in control of your sensitive information. You’ll
 find below details on how to get started and how to configure Crypto Service and
 its products.
+
+![divider][divider]
 
 ## Installation
 
@@ -87,6 +97,8 @@ Interface:
 Clone the main repository to get all source files including build scripts:
 `git clone https://github.com/sebastienrousseau/crypto-service.git`
 
+![divider][divider]
+
 ## Crypto Service Releases
 
 Update your apps to use new features, and test your apps against API changes.
@@ -95,6 +107,8 @@ Update your apps to use new features, and test your apps against API changes.
 | :-: | :-: | :-: |
 |May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
 |May 30, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
+
+![divider][divider]
 
 ## What's included
 
@@ -134,6 +148,8 @@ You'll see something like this:
 5 directories, 20 files
 
 ```
+
+![divider][divider]
 
 ## 🔐 Crypto Service options
 
@@ -220,11 +236,15 @@ To decrypt a message:
 node src/lib/decrypt.js --passphrase '123456789abcdef' --message 'LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0JNQTExMHlyM0drdWx5QVFmOENmbnVZZFk2RmliY1Q1Z094SjVFY2dUME50ZGt6K2dQT0tKTkVoRngKV3dzSHJoM08rTWlrcnBUOElyTjFkbDEwcUpCeDZkVXNkK3dtZ0twdFJrdElVSm5weVZ1Z3RJQkE5MEdBClgxNWdHNFZRQkl0cHUyYmdNRnlKRnJtSS85UUtlNHpDZkV0dSs5SjU0VkRLNWNRRk5KakxPSC9LaklIaAppU2NqQmFvbFlHN1p6Vyt5OXVxTEVkZytYSW9qYXVER3dyRHdIdVFvT0k2NGRmNnJWQVhiZi9mL01iajUKSXdqdmE2UGI2QXZ3YXhjRlczQjFWcHhYajY0a3kzZ2Rxd0FpOXFOUkVmMjE3SU43RHpCMTJzcDRLZlozCkZ4NTdwUk5lekY0VTZPdis5WWU0SkJRMnR4UG5sNmlnUXBDNmpRR2lXWUpHMGJJQ3lIN2NUSDRwZGN2VwphTkxBMEFIU3dpZEQzRnZJRWpxSnRmMlJlZzVLMmtSbHpFNWFCRXlaayt5a3VvZ2pYV0dkWkYxb20yV2gKM3kwTE9Kb2RYOUJNYW9zYlpSN24za2JOb0dXRkRCTElpYnRLUmdvNmlwdGs1b3Iyd0lwWC9wM1ovaWtJCkZieDhpVnpqWHViQ2xZSzhrZlB3Zm5uVFRRSmsxV1VsWTBDZm9YRURMY1ZIbG9rMy9ReHB2TmphWEg2NwpsU1hmSmtxdDNXdVJ6K0xIM3p0ald3THlpeHpmNXRPNUhsTnhudjlKUkVPR0pqendsL3liUi8xLzR2TkMKeDJ1WmdmQTBHSXZqNHBDRnBNRTI3ODhLaTdRckxtemVrUUtRQzBsMFl3aU9abXZueUNmdDliNG9yMDFmCjd2WU8xQzV5dExGZTBVUnpPQktnZGxjajRSU2sxWnJKc3RNTS9qSVNQR2lnZjBOWFp5c2NyQTVnZ0pzcwpOZ0JLd1Q2M3dzQ3MyV0lxcS9QZ2ZCUTRjOUl4eXNydDM1Skgra0E3c2hIQ0s0Rk1RcVRTa2d1VWcyQVcKL0c4a3lDcnRXR1RIMFpsNjBNNmJLUmhpdEMxS0Y3R29hcW5sUDFoNmFydXZXUUM4eTRtY2dtellNR2FjCkxEZzNlMGVLRWVVTEVockdXY3ViZWlDeVJlU0tybWhwTmN5ODFucURDZkVsVUg0UVd6eEFlMmVNZTljPQo9UEs4dAotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tCg=='
 ```
 
+![divider][divider]
+
 ## 🚥 Semantic Versioning Policy
 
 For transparency into our release cycle and in striving to maintain backward
 compatibility, `crypto-service` follows [semantic versioning](http://semver.org/)
 and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+
+![divider][divider]
 
 ## ✅ Changelog
 
@@ -245,10 +265,14 @@ Development Tools
 - `yarn lint-fix` instructs ESLint to try to fix as many issues as possible..
 - `yarn test` runs tests and measures coverage.
 
+![divider][divider]
+
 ## 📖 Rules
 
 We are committed to preserving and fostering a diverse, welcoming community.
 Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md).
+
+![divider][divider]
 
 ## ⭐️ Our Values
 
@@ -256,11 +280,14 @@ Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-se
 - We take our passion beyond code into our daily practices.
 - We are just obsessed about creating and delivering exceptional solutions.
 
+![divider][divider]
 ## ⚖️ License
 
 This project is licensed under the MIT License - see the
 [LICENSE](https://github.com/sebastienrousseau/crypto-service/blob/master/LICENSE)
 file for details.
+
+![divider][divider]
 
 ## 🏢 Acknowledgements
 
@@ -289,6 +316,7 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [15]: https://pnpm.io/motivation
 [16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
 
+[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
 [crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"

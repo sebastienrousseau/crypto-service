@@ -20,6 +20,8 @@ perform common cryptographic operations from the command prompt or terminal.
 
 ![Crypto CLI][crypto-cli]
 
+![divider][divider]
+
 ## ❯ Key Features
 
 The cryptographic operations include:
@@ -38,6 +40,7 @@ OpenPGP protocol. It implements [RFC4880][2] and parts of [RFC4880bis][3].
 Development of this library is hosted by [GitHub][4] at the [following page][5].
 Source code is available to everyone under the standard [MIT license][6].
 
+![divider][divider]
 ## ❯ Getting Started
 
 Crypto CLI is a [Node.js][7] module available through the
@@ -66,6 +69,8 @@ You can get started with a simple app by running the following in your terminal:
 
 ```
 </details>
+
+![divider][divider]
 
 ## ❯ What's included
 
@@ -157,6 +162,7 @@ You'll see something like this:
 
 ```
 
+![divider][divider]
 ## ❯ Usage
 
 
@@ -174,3 +180,5 @@ You'll see something like this:
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
 
 [crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg 
+
+[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
