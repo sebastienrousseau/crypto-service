@@ -9,7 +9,7 @@
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
-# Welcome to Crypto Service
+# 🔐 Welcome to Crypto Service
 
 Crypto Service is a powerful and intuitive suite of security tools that provides
 numerous Cryptographic JavaScript functions and standardized REST APIs to
@@ -35,7 +35,7 @@ The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and
 
 ![divider][divider]
 
-## Crypto CLI
+## ❯ Crypto CLI
 
 ![Banner representing Crypto CLI][crypto cli]
 
@@ -45,7 +45,7 @@ perform common cryptographic operations from the command prompt or terminal.
 
 ![divider][divider]
 
-## Crypto Lib
+## ⚙️ Crypto Lib
 
 ![Banner representing Crypto Lib][crypto lib]
 
@@ -55,7 +55,7 @@ low-level cryptographic operations. [Learn more][6][>][6]
 
 ![divider][divider]
 
-## Crypto Server
+## 🖥️ Crypto Server
 
 ![Banner representing Crypto Server][crypto server]
 
@@ -65,7 +65,7 @@ implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ![divider][divider]
 
-## Getting Started
+## ⏩ Getting Started
 
 Crypto Service helps put you in control of your sensitive information. You’ll
 find below details on how to get started and how to configure Crypto Service and
@@ -73,7 +73,7 @@ its products.
 
 ![divider][divider]
 
-## Installation
+## 🤖 Installation
 
 The first step to using Crypto Service is to download and install the
 application and other required components.
@@ -99,7 +99,7 @@ Clone the main repository to get all source files including build scripts:
 
 ![divider][divider]
 
-## Crypto Service Releases
+## 🔗 Crypto Service Releases
 
 Update your apps to use new features, and test your apps against API changes.
 
@@ -110,7 +110,7 @@ Update your apps to use new features, and test your apps against API changes.
 
 ![divider][divider]
 
-## What's included
+## 🔍 What's included
 
 Within the download you'll find all the crypto service source files grouped into
 the *dist* folder.
