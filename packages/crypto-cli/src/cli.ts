@@ -21,11 +21,6 @@ console.log("\n");
     message: 'Select a function to execute.\n',
     choices: [
       {
-        title: 'Help',
-        description: 'Get help on a command.',
-        value: 'Help'
-      },
-      {
         title: 'Generate',
         description: 'Generates a new OpenPGP key pair. Supports RSA and ECC keys.',
         value: "Generate"
@@ -64,16 +59,16 @@ console.log("\n");
         title: 'Verify',
         description: 'Verifies signatures of cleartext signed message.',
         value: "Verify"
-      }
+      },
+      {
+        title: 'Help',
+        description: 'Get help on a command.',
+        value: 'Help'
+      },
     ],
   });
 
   switch (response.Selection) {
-    case "Help": {
-      console.log(format.green("\nHelp"));
-      Command.handleHelp();
-      break;
-    }
     case "Generate": {
       console.log(format.green("\nTo generate a key pair, we need to know a few more details:\n"));
       Command.handleGenerate();
@@ -112,6 +107,11 @@ console.log("\n");
     case "Verify": {
       console.log(format.green("\nTo verify a signature, we need to know a few more details:\n"));
       Command.handleVerify();
+      break;
+    }
+    case "Help": {
+      console.log(format.green("\nHelp"));
+      Command.handleHelp();
       break;
     }
     default: {

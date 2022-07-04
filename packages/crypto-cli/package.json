@@ -13,7 +13,7 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "crypto-cli": "dist/cli"
+        "cryptocli": "dist/cli"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -113,11 +113,11 @@
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
-        "fix": "eslint --fix src/**/*.ts",
+        "lint:fix": "eslint --cache --fix src/**/*.ts",
         "lint": "eslint src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
         "prepack": "yarn build",
-        "prettier": "prettier --write src/**/*.ts",
+        "format": "prettier --write src/**/*.ts",
         "release": "yarn release:prepare && yarn release:publish",
         "release:prepare": "yarn pack",
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
