@@ -33,13 +33,13 @@ jobs:
         run: |
           yarn run test
 
-      # - name: Coveralls Crypto-Cli
-      #   uses: coverallsapp/github-action@master
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
-      #     parallel: true
-      #     flag-name: crypto-cli
+      - name: Coveralls Crypto-Cli
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
+          parallel: true
+          flag-name: crypto-cli
 
       - name: Coveralls Crypto-Lib
         uses: coverallsapp/github-action@master
