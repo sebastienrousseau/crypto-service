@@ -36,7 +36,7 @@ const handleEncrypt = async () => {
       "\n🔔 You must provide a value for each of the properties.\n",
     );
   } else {
-    console.log(data);
+    // console.log(data);
     await encrypt.encrypt(data);
   }
 };

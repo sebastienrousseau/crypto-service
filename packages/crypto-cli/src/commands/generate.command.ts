@@ -59,8 +59,7 @@ const handleGenerate = async () => {
     type: responseGenerate.type,
     userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
   };
-
-  console.log(data);
+  // console.log(data);
   await generate.generate(data);
 };
 
