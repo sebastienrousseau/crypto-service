@@ -57,7 +57,15 @@ jobs:
       #     parallel: true
       #     flag-name: crypto-server
 
-      - name: Coveralls
+      - name: Coveralls Crypto-CLI
+        uses: coverallsapp/github-action@master
+        with:
+          base-path: packages/crypto-cli
+          path-to-lcov: "./packages/crypto-cli/coverage/lcov.info"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+
+      - name: Coveralls Crypto-Lib
         uses: coverallsapp/github-action@master
         with:
           base-path: packages/crypto-lib
