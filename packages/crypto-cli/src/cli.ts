@@ -2,10 +2,12 @@
 
 import { Command } from './commands/index'
 import { welcome } from "./helpers/banner";
-import { constants } from "./constants/index"
+import { language, locale, constants } from "./constants/index"
 import format from 'kleur';
 import prompts from 'prompts';
 
+language(locale);
+console.clear();
 welcome(constants.CLI_TITLE);
 console.log(constants.CLI_TITLE);
 console.log("\n");

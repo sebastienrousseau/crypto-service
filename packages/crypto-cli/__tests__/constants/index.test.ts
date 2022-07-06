@@ -4,6 +4,25 @@ import * as test from "../../src/constants/index";
 chai.use(chaiAsPromised);
 const {expect} = chai;
 
+describe("Checking language function", function () {
+  it("should be a function", function () {
+    expect(test.language).to.be.an("function");
+  });
+});
+
+
+describe("Checking language function returns correct content", function () {
+  it("should be correct", function () {
+    const languages = ["en", "fr"];
+    languages.forEach(function (language) {
+      test.language(language);
+      expect(test.constants).to.be.an("object");
+    });
+  });
+});
+
+
+
 describe("Checking constants format", function () {
   it("should be an object", () => {
     expect(test).to.be.an("object");
