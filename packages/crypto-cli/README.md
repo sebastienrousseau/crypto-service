@@ -43,20 +43,31 @@ Source code is available to everyone under the standard [MIT license][6].
 ![divider][divider]
 ## ❯ Getting Started
 
-Crypto CLI is a [Node.js][7] module available through the
+> 🔴 Note: Crypto CLI is a [Node.js][7] module available through the
 [npm registry][8]. Before installing, [download and install Node.js][7].
-Node.js 12.20.0 or higher is required.
+Node.js 12.20.0 or or later.
 
-Installation is done using either [`npm`][8], [`yarn`][9] or [`pnpm`][10]
-package managers to use Crypto CLI with Node.js or the Command Line Interface:
+This allows you to always be on the latest version when we release new builds
+with automatic upgrades.
+
+### Installation
+
+Install the Crypto CLI via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
+managers:
 
 - `npm i @sebastienrousseau/crypto-cli`
 - `yarn add @sebastienrousseau/crypto-cli`
 - `pnpm add @sebastienrousseau/crypto-cli`
 
-<details>
- 
-<summary>Quick Start</summary>
+### Other install methods
+
+#### Via GitHub
+
+For users who are unable to install the Crypto CLI, released builds can be 
+manually downloaded from this repository's
+[Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
+
+## ❯ Quick Start
 
 You can get started with a simple app by running the following in your terminal:
 
@@ -64,11 +75,31 @@ You can get started with a simple app by running the following in your terminal:
 
 > mkdir my-app
 > cd my-app
-> yarn add @sebastienrousseau/crypto-cli -D # or npm or pnpm
+> yarn add @sebastienrousseau/crypto-cli -D
 > yarn start
 
 ```
-</details>
+
+![divider][divider]
+
+## ❯ Command line syntax
+
+The Crypto CLI accepts multiple types of options. Options are a list of flags
+and other parameters that can control the behavior of the Crypto CLI as a whole. 
+
+Below is the full list of supported options for the Crypto CLI.
+
+| Option | Description |
+|---|---|
+| help      | Displays the help message. |
+| decrypt   | Decrypts a message. |
+| encrypt   | Encrypts a message. |
+| generate  | Generates a new OpenPGP key pair. Supports RSA and ECC keys. |
+| reformat  | Reformats signature packets for a key. |
+| revoke    | Revokes a key. |
+| session   | Generate a new session key object. |
+| sign      | Signs a message. |
+| verify    | Verifies signatures of cleartext signed message. |
 
 ![divider][divider]
 
@@ -162,11 +193,19 @@ You'll see something like this:
 
 ```
 
-## ❯ Command Line Interface (CLI)
+## ❯ Contributing
 
-crypto-cli [command] [options]
+There are many ways in which you can participate in this project, for example:
 
+* [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
+* Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
+* Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
 
+## ❯ License
+
+Copyright (c) Sebastien Rousseau. All rights reserved.
+
+Licensed under the [MIT](LICENSE) license.
 
 [1]: https://openpgpjs.org/
 [2]: https://tools.ietf.org/html/rfc4880

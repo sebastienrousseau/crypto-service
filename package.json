@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "lerna": "^5.1.2"
+        "lerna": "^5.1.7"
     },
     "description": "Crypto Service is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
@@ -21,11 +21,11 @@
         "build": "lerna run build --stream",
         "clean": "lerna run clean --stream",
         "docs": "lerna run docs --stream",
-        "fix": "lerna run fix --stream",
+        "lint:fix": "lerna run lint:fix --no-bail",
         "lint": "lerna run lint --stream",
         "markdown": "yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
         "prepare": "husky install",
-        "prettier": "lerna run prettier --stream",
+        "format": "lerna run format --stream",
         "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
         "release:prepare": "lerna run release:prepare --stream",
         "release:publish": "lerna run release:publish --stream",
@@ -41,8 +41,8 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@commitlint/cli": "^17.0.2",
-        "@commitlint/config-conventional": "^17.0.2",
+        "@commitlint/cli": "^17.0.3",
+        "@commitlint/config-conventional": "^17.0.3",
         "eslint-plugin-prettier": "^4.2.1",
         "husky": "^8.0.1",
         "mkdirp": "^1.0.4",
