@@ -6,7 +6,7 @@ on:
       - "*"
   push:
     branches:
-      - main
+      - "*"
 
 jobs:
   job:
@@ -22,29 +22,53 @@ jobs:
         with:
           node-version: 14.x
 
-      - name: Install Dependencies
+      - name: Install yarn dependencies
         # run: yarn --frozen-lockfile --ignore-scripts
-        run: yarn run bootstrap
+        run: |
+          yarn run bootstrap
+
+      - name: Run lint fix
+        run: |
+          yarn lint:fix
+
+      - name: Run prettier
+        run: |
+          yarn format
+
+      - name: Run remark
+        run: |
+          yarn markdown
 
       - name: Building
-        run: yarn run build
+        run: |
+          yarn run build
 
       - name: Testing & Coverage
         run: |
           yarn run test
 
-      - name: Coveralls Crypto-CLI
+      - name: Coveralls Crypto-Cli
         uses: coverallsapp/github-action@master
         with:
           base-path: packages/crypto-cli
-          path-to-lcov: "./packages/crypto-cli/coverage/lcov.info"
+          flag-name: crypto-cli
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
+          path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
 
       - name: Coveralls Crypto-Lib
         uses: coverallsapp/github-action@master
         with:
           base-path: packages/crypto-lib
-          path-to-lcov: "./packages/crypto-lib/coverage/lcov.info"
+          flag-name: crypto-lib
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
+          path-to-lcov: ./packages/crypto-lib/coverage/lcov.info
+
+      # - name: Coveralls Crypto-Server
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     path-to-lcov: ./packages/crypto-server/coverage/lcov.info
+      #     parallel: true
+      #     flag-name: crypto-server
