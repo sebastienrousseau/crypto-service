@@ -3,13 +3,18 @@ import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const { expect } = chai;
-const passphrase = '123456789abcdef';
-const flag = 0;
-const reason = 'test';
+
+const data = {
+  date: new Date(),
+  passphrase: '123456789abcdef',
+  flag: 0,
+  reason: 'this is a test reason',
+};
+
 
 describe('revoke', function () {
   it('should revoke a key', async function () {
-    const test = revoke({ passphrase, flag, reason })
+    const test = revoke(data)
     await expect(test).to.eventually.be.fulfilled;
   });
 });
