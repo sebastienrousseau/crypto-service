@@ -6,7 +6,6 @@ export const welcome = async (data: string) => {
   if (!data || !data.length) {
     data = constants.CLI_TITLE;
   }
-  console.clear();
   console.log("\n");
   console.log(format.cyan(figlet.textSync(data)));
   console.log("\n");
