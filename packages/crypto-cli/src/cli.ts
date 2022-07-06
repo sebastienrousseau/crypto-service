@@ -2,120 +2,118 @@
 
 import { Command } from './commands/index'
 import { welcome } from "./helpers/banner";
+import { constants } from "./constants/index"
 import format from 'kleur';
 import prompts from 'prompts';
 
-const title = '🔐 Crypto Command Line Interface (CLI)';
-const description = 'Crypto CLI is a simple, yet powerful, command line interface that can be used to perform common cryptographic operations from the command prompt or terminal.';
-
-welcome();
-console.log(title);
+welcome(constants.CLI_TITLE);
+console.log(constants.CLI_TITLE);
 console.log("\n");
-console.log(description);
+console.log(constants.CLI_DESCRIPTION);
 console.log("\n");
 
 (async () => {
   const response = await prompts({
     type: 'select',
-    name: 'Selection',
-    message: 'Select a function to execute.\n',
+    name: constants.PROMPT_SELECT_TTL,
+    message: constants.PROMPT_SELECT_DES,
     choices: [
       {
-        title: 'Generate',
-        description: 'Generates a new OpenPGP key pair. Supports RSA and ECC keys.',
-        value: "Generate"
+        title: constants.CLI_FN_1_TTL,
+        description: constants.CLI_FN_1_DES,
+        value: constants.CLI_FN_1_TTL,
       },
       {
-        title: 'Encrypt',
-        description: 'Encrypts a message.',
-        value: "Encrypt"
+        title: constants.CLI_FN_2_TTL,
+        description: constants.CLI_FN_2_DES,
+        value: constants.CLI_FN_2_TTL,
       },
       {
-        title: 'Decrypt',
-        description: 'Decrypts a message.',
-        value: "Decrypt"
+        title: constants.CLI_FN_3_TTL,
+        description: constants.CLI_FN_3_DES,
+        value: constants.CLI_FN_3_TTL,
       },
       {
-        title: 'Reformat',
-        description: 'Reformats signature packets for a key.',
-        value: "Reformat"
+        title: constants.CLI_FN_4_TTL,
+        description: constants.CLI_FN_4_DES,
+        value: constants.CLI_FN_4_TTL,
       },
       {
-        title: 'Revoke',
-        description: 'Revokes a key.',
-        value: "Revoke"
+        title: constants.CLI_FN_5_TTL,
+        description: constants.CLI_FN_5_DES,
+        value: constants.CLI_FN_5_TTL,
       },
       {
-        title: 'Session',
-        description: 'Generate a new session key object.',
-        value: "Session"
+        title: constants.CLI_FN_6_TTL,
+        description: constants.CLI_FN_6_DES,
+        value: constants.CLI_FN_6_TTL,
       },
       {
-        title: 'Sign',
-        description: 'Signs a message.',
-        value: "Sign"
+        title: constants.CLI_FN_7_TTL,
+        description: constants.CLI_FN_7_DES,
+        value: constants.CLI_FN_7_TTL,
       },
       {
-        title: 'Verify',
-        description: 'Verifies signatures of cleartext signed message.',
-        value: "Verify"
+        title: constants.CLI_FN_8_TTL,
+        description: constants.CLI_FN_8_DES,
+        value: constants.CLI_FN_8_TTL,
       },
       {
-        title: 'Help',
-        description: 'Get help on a command.',
-        value: 'Help'
+        title: constants.CLI_FN_9_TTL,
+        description: constants.CLI_FN_9_DES,
+        value: constants.CLI_FN_9_TTL,
       },
     ],
   });
 
   switch (response.Selection) {
-    case "Generate": {
-      console.log(format.green("\nTo generate a key pair, we need to know a few more details:\n"));
+    case constants.CLI_FN_1_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleGenerate();
       break;
     }
-    case "Encrypt": {
-      console.log(format.green("\nTo encrypt a message, we need to know a few more details:\n"));
+    case constants.CLI_FN_2_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleEncrypt();
       break;
     }
-    case "Decrypt": {
-      console.log(format.green("\nTo decrypt a message, we need to know a few more details:\n"));
+    case constants.CLI_FN_3_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleDecrypt();
       break;
     }
-    case "Reformat": {
-      console.log(format.green("\nTo reformat a key, we need to know a few more details:\n"));
+    case constants.CLI_FN_4_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleReformat();
       break;
     }
-    case "Revoke": {
-      console.log(format.green("\nTo revoke a key, we need to know a few more details:\n"));
+    case constants.CLI_FN_5_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleRevoke();
       break;
     }
-    case "Session": {
-      console.log(format.green("\nTo generate a session key, we need to know a few more details:\n"));
+    case constants.CLI_FN_6_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleSession();
       break;
     }
-    case "Sign": {
-      console.log(format.green("\nTo sign a message, we need to know a few more details:\n"));
+    case constants.CLI_FN_7_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleSign();
       break;
     }
-    case "Verify": {
-      console.log(format.green("\nTo verify a signature, we need to know a few more details:\n"));
+    case constants.CLI_FN_8_TTL: {
+      console.log(format.green(constants.CLI_HDL_1_DES));
       Command.handleVerify();
       break;
     }
-    case "Help": {
-      console.log(format.green("\nHelp"));
+    case constants.CLI_FN_9_TTL: {
+      console.log(format.green(constants.CLI_FN_9_TTL));
       Command.handleHelp();
       break;
     }
     default: {
-      console.log(format.red("\n🔔 You must select a command.\n"));
+      console.log(format.red(constants.CLI_ERR_1));
       break;
     }
   }

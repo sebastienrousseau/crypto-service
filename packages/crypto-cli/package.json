@@ -40,14 +40,14 @@
         "@types/figlet": "^1.5.4",
         "@types/mocha": "^9.1.1",
         "@types/prompts": "^2.0.14",
-        "@typescript-eslint/eslint-plugin": "^5.30.0",
-        "@typescript-eslint/parser": "^5.30.0",
+        "@typescript-eslint/eslint-plugin": "^5.30.5",
+        "@typescript-eslint/parser": "^5.30.5",
         "c8": "^7.11.3",
         "chai": "^4.3.6",
         "chai-as-promised": "^7.1.1",
         "coveralls": "^3.1.1",
-        "eslint": "^8.18.0",
-        "eslint-import-resolver-typescript": "^3.1.2",
+        "eslint": "^8.19.0",
+        "eslint-import-resolver-typescript": "^3.2.4",
         "eslint-plugin-import": "^2.26.0",
         "filesizes": "^0.1.2",
         "mocha": "^10.0.0",
@@ -58,8 +58,8 @@
         "remark-preset-lint-markdown-style-guide": "^5.1.2",
         "remark-preset-lint-recommended": "^6.1.2",
         "rimraf": "^3.0.2",
-        "ts-node": "^10.8.1",
-        "typedoc": "^0.23.2",
+        "ts-node": "^10.8.2",
+        "typedoc": "^0.23.5",
         "typedoc-plugin-missing-exports": "^0.23.0",
         "typescript": "^4.7.4"
     },
@@ -122,7 +122,7 @@
         "release:prepare": "yarn pack",
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
         "start": "node dist/cli.js",
-        "test": ""
+        "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },
     "types": "./dist/index.d.ts",
     "version": "0.0.1"
