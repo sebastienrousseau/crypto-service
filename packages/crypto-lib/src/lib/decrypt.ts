@@ -73,7 +73,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const { data: decrypted, signatures } = await openpgp.decrypt({
     message: await openpgp.readMessage({ armoredMessage: message }),
-    verificationKeys: publicKey, // optional
+    verificationKeys: publicKey,
     decryptionKeys: privateKey,
   });
   console.log(decrypted); // "Hello Crypto Service APIs!"
@@ -83,13 +83,15 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
 
   const decryptedMsg = await fs.createWriteStream(
     path.resolve(__dirname, "../data/decrypted.txt"),
+    { encoding: "ascii" },
   );
-
-  decryptedMsg.write(decrypted);
+  const decryptedString = decrypted.toString();
+  decryptedMsg.write(Buffer.from(decryptedString).toString("base64"));
   decryptedMsg.on("finish", () => {
     console.log("✅ Wrote decrypted message data to file");
   });
   decryptedMsg.end();
+
   return decrypted;
 };
 

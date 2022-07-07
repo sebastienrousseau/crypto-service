@@ -1,4 +1,5 @@
-import { writeFile } from "fs/promises";
+import * as fs from "fs";
+import path from "path";
 import * as openpgp from "openpgp";
 import * as key from "../key/key";
 import * as types from "../types/types";
@@ -56,17 +57,27 @@ export const revoke = async (data: types.dataRevoke) => {
 
   console.log(revokeKey);
 
-  const revokePubKey = await writeFile(
-    "./src/key/rsa-revoke.pub",
-    Buffer.from(revokeKey.publicKey).toString("base64"),
+  const revokePubKey = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/rsa-revoke.pub"),
+    { encoding: "utf8" },
   );
-  revokePubKey;
+  const revokePubKeyString = revokePubKey.toString();
+  revokePubKey.write(Buffer.from(revokePubKeyString).toString("base64"));
+  revokePubKey.on("finish", () => {
+    console.log("✅ Wrote revoke public key data to file");
+  });
+  revokePubKey.end();
 
-  const revokePrivKey = await writeFile(
-    "./src/key/rsa-revoke.key",
-    Buffer.from(revokeKey.privateKey).toString("base64"),
-  );
-  revokePrivKey;
+  const revokePrivKey = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/rsa-revoke.key"),
+    { encoding: "utf8" },
+    );
+    const revokePrivateKeyString = revokePrivKey.toString();
+    revokePrivKey.write(Buffer.from(revokePrivateKeyString).toString("base64"));
+    revokePrivKey.on("finish", () => {
+      console.log("✅ Wrote revoke private key data to file");
+    });
+    revokePrivKey.end();
 
   return revokeKey;
 };

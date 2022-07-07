@@ -72,51 +72,55 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       keyExpirationTime: Number(data.keyExpirationTime),
       date: new Date(),
       format: data.format,
+      subkeys:[{sign: true}]
     });
 
   console.log(privateKey);
   console.log(publicKey);
   console.log(revocationCertificate);
 
-  const pbkey = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".pub"),
-    { encoding: "utf8" },
-  );
-  pbkey.write(Buffer.from(publicKey).toString("base64"));
-  pbkey.on("finish", () => {
-    console.log(
-      "🔑 The public key data was written to `" + data.type + ".pub`",
+  if (data.type) {
+    const pbkey = fs.createWriteStream(
+      path.resolve(__dirname, "../key/" + data.type + ".pub"),
+      { encoding: "utf8" },
     );
-  });
-  pbkey.end();
+    pbkey.write(Buffer.from(publicKey).toString("base64"));
+    pbkey.on("finish", () => {
+      console.log(
+        "🔑 The public key data was written to `" + data.type + ".pub`",
+      );
+    });
+    pbkey.end();
 
-  const prkey = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".key"),
-    { encoding: "utf8" },
-  );
-  prkey.write(Buffer.from(privateKey).toString("base64"));
-  prkey.on("finish", () => {
-    console.log(
-      "🔒 The private key data was written to `" + data.type + ".key`",
+    const prkey = fs.createWriteStream(
+      path.resolve(__dirname, "../key/" + data.type + ".key"),
+      { encoding: "utf8" },
     );
-  });
-  prkey.end();
+    prkey.write(Buffer.from(privateKey).toString("base64"));
+    prkey.on("finish", () => {
+      console.log(
+        "🔒 The private key data was written to `" + data.type + ".key`",
+      );
+    });
+    prkey.end();
 
-  const certificate = fs.createWriteStream(
-    path.resolve(__dirname, "../key/" + data.type + ".cert"),
-    { encoding: "utf8" },
-  );
-  certificate.write(Buffer.from(revocationCertificate).toString("base64"));
-  certificate.on("finish", () => {
-    console.log(
-      "🔏 The revocation certificate data was written to `" +
+    const certificate = fs.createWriteStream(
+      path.resolve(__dirname, "../key/" + data.type + ".cert"),
+      { encoding: "utf8" },
+    );
+    certificate.write(Buffer.from(revocationCertificate).toString("base64"));
+    certificate.on("finish", () => {
+      console.log(
+        "🔏 The revocation certificate data was written to `" +
         data.type +
         ".cert`",
-    );
-  });
-  certificate.end();
+      );
+    });
+    certificate.end();
 
-  return { publicKey, privateKey, revocationCertificate };
+    return { publicKey, privateKey, revocationCertificate };
+  }
+  return Promise.reject(new Error("No key type specified"));
 }
 export default generate;
 

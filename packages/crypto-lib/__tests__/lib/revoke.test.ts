@@ -1,4 +1,4 @@
-import { revoke } from "../../src/bin/cryptolib"
+import { revoke } from "../../src/lib/revoke"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
