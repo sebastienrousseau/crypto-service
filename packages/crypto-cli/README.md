@@ -1,8 +1,9 @@
-# Crypto CLI
+# ❯ Crypto CLI
 
-![Banner representing the Crypto Lib Command Line Interface (CLI)](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-logo.svg)
+![Banner representing the Crypto Command Line Interface (CLI)](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-logo.svg)
 
 [![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-cli)
+[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
@@ -13,16 +14,19 @@
 
 ***
 
-## ❯ Welcome to Crypto CLI
+## 👋 Welcome to Crypto CLI
 
 Crypto CLI is a simple, yet powerful, command line interface that can be used to
 perform common cryptographic operations from the command prompt or terminal.
 
 ![Crypto CLI][crypto-cli]
 
+[![Getting Started][getting started]](#getting-started)
+[![Download Crypto CLI][download]][13]
+
 ![divider][divider]
 
-## ❯ Key Features
+## ✨ Key Features
 
 The cryptographic operations include:
 
@@ -41,7 +45,8 @@ Development of this library is hosted by [GitHub][4] at the [following page][5].
 Source code is available to everyone under the standard [MIT license][6].
 
 ![divider][divider]
-## ❯ Getting Started
+
+## Getting Started
 
 > 🔴 Note: Crypto CLI is a [Node.js][7] module available through the
 [npm registry][8]. Before installing, [download and install Node.js][7].
@@ -50,60 +55,22 @@ Node.js 12.20.0 or or later.
 This allows you to always be on the latest version when we release new builds
 with automatic upgrades.
 
-### Installation
+![divider][divider]
 
-Install the Crypto CLI via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
+## 🔧 Installation
+
+1️⃣ Install the Crypto CLI via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
 managers:
 
 - `npm i @sebastienrousseau/crypto-cli`
 - `yarn add @sebastienrousseau/crypto-cli`
 - `pnpm add @sebastienrousseau/crypto-cli`
 
-### Other install methods
-
-#### Via GitHub
-
 For users who are unable to install the Crypto CLI, released builds can be 
 manually downloaded from this repository's
 [Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
 
-## ❯ Quick Start
-
-You can get started with a simple app by running the following in your terminal:
-
-```shell
-
-> mkdir my-app
-> cd my-app
-> yarn add @sebastienrousseau/crypto-cli -D
-> yarn start
-
-```
-
-![divider][divider]
-
-## ❯ Command line syntax
-
-The Crypto CLI accepts multiple types of options. Options are a list of flags
-and other parameters that can control the behavior of the Crypto CLI as a whole. 
-
-Below is the full list of supported options for the Crypto CLI.
-
-| Option | Description |
-|---|---|
-| help      | Displays the help message. |
-| decrypt   | Decrypts a message. |
-| encrypt   | Encrypts a message. |
-| generate  | Generates a new OpenPGP key pair. Supports RSA and ECC keys. |
-| reformat  | Reformats signature packets for a key. |
-| revoke    | Revokes a key. |
-| session   | Generate a new session key object. |
-| sign      | Signs a message. |
-| verify    | Verifies signatures of cleartext signed message. |
-
-![divider][divider]
-
-## ❯ What's included
+### What's included
 
 Within the download you'll find all the crypto lib source files grouped into
 the *dist* folder.
@@ -193,19 +160,90 @@ You'll see something like this:
 
 ```
 
-## ❯ Contributing
+2️⃣ Set up your app
 
-There are many ways in which you can participate in this project, for example:
+You can get started with a simple app by running the following in your terminal:
+
+```shell
+
+> mkdir my-app
+> cd my-app
+> yarn add @sebastienrousseau/crypto-cli -D
+> yarn start
+
+```
+
+3️⃣ Try it out and let us know what you think!
+
+![divider][divider]
+
+## ❯ Crypto Command Line Interface (CLI) syntax
+
+The Crypto CLI accepts multiple types of options. Options are a list of flags
+and other parameters that can control the behavior of the Crypto CLI as a whole. 
+
+Below is the full list of supported options for the Crypto CLI.
+
+| Option | Description |
+|---|---|
+| help      | Displays the help message. |
+| decrypt   | Decrypts a message. |
+| encrypt   | Encrypts a message. |
+| generate  | Generates a new OpenPGP key pair. Supports RSA and ECC keys. |
+| reformat  | Reformats signature packets for a key. |
+| revoke    | Revokes a key. |
+| session   | Generate a new session key object. |
+| sign      | Signs a message. |
+| verify    | Verifies signatures of clear text signed message. |
+
+![divider][divider]
+
+## 🚥 Semantic Versioning Policy
+
+For transparency into our release cycle and in striving to maintain backward
+compatibility, `crypto-cli` follows [semantic versioning](http://semver.org/)
+and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+
+![divider][divider]
+
+## ✅ Changelog
+
+- [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
+
+![divider][divider]
+
+## ❤️ Contributing
+
+Thank you for using Crypto CLI! If you like the library, it would be great if
+you can give it a star ⭐ on [GitHub][5].
+
+There are also many ways in which you can participate in this project, for
+example:
 
 * [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
 * Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
 * Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
 
-## ❯ License
+![divider][divider]
+
+## 🥂 License
 
 Copyright (c) Sebastien Rousseau. All rights reserved.
 
 Licensed under the [MIT](LICENSE) license.
+
+![divider][divider]
+
+## 🏢 Acknowledgements
+
+[Crypto Service](https://crypto-service.co) is beautifully crafted by these
+people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
+
+| Contributors |
+|---------|
+|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
+|[Sebastien Rousseau](https://github.com/sebastienrousseau)|
+
 
 [1]: https://openpgpjs.org/
 [2]: https://tools.ietf.org/html/rfc4880
@@ -219,6 +257,10 @@ Licensed under the [MIT](LICENSE) license.
 [10]: https://pnpm.io/motivation
 [11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
+[13]: https://github.com/sebastienrousseau/crypto-service/packages/
 
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
 [crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg "Crypto CLI"
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
+

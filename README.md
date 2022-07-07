@@ -1,3 +1,5 @@
+# 🔐 Crypto Service
+
 ![Banner representing Crypto Service][crypto service]
 
 ![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
@@ -9,7 +11,13 @@
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
-# 🔐 Welcome to Crypto Service
+**[Website](https://crypto-service.co) • [Documentation](https://crypto-service/docs/) 
+• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
+• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+
+***
+
+## 👋 Welcome to Crypto Service
 
 Crypto Service is a powerful and intuitive suite of security tools that provides
 numerous Cryptographic JavaScript functions and standardized REST APIs to
@@ -65,7 +73,7 @@ implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ![divider][divider]
 
-## ⏩ Getting Started
+## Getting Started
 
 Crypto Service helps put you in control of your sensitive information. You’ll
 find below details on how to get started and how to configure Crypto Service and
@@ -73,14 +81,14 @@ its products.
 
 ![divider][divider]
 
-## 🤖 Installation
+## 🔧 Installation
 
 The first step to using Crypto Service is to download and install the
 application and other required components.
 
-### Install using NPM or YARN
+### 1️⃣ Install using NPM, YARN or PNPM
 
-Crypto Service is a [Node.js][12] module available through the
+> 🔴 Note: Crypto Service is a [Node.js][12] module available through the
 [npm registry][13]. Before installing, [download and install Node.js][12].
 Node.js 12.20.0 or higher is required.
 
@@ -92,7 +100,7 @@ Interface:
 - `yarn add @sebastienrousseau/crypto-service`
 - `pnpm add @sebastienrousseau/crypto-service`
 
-### Install from GitHub
+### 2️⃣ Install from GitHub
 
 Clone the main repository to get all source files including build scripts:
 `git clone https://github.com/sebastienrousseau/crypto-service.git`
@@ -253,6 +261,8 @@ and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#seman
 
 - [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
 
+![divider][divider]
+
 ## ❤️ Contributing
 
 Please read carefully through our
@@ -284,11 +294,26 @@ Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-se
 - We are just obsessed about creating and delivering exceptional solutions.
 
 ![divider][divider]
-## ⚖️ License
 
-This project is licensed under the MIT License - see the
-[LICENSE](https://github.com/sebastienrousseau/crypto-service/blob/master/LICENSE)
-file for details.
+## ❤️ Contributing
+
+Thank you for using Crypto Service! If you like the library, it would be great
+if you can give it a star ⭐ on [GitHub][17].
+
+There are also many ways in which you can participate in this project, for
+example:
+
+* [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
+* Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
+* Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
+
+![divider][divider]
+
+## 🥂 License
+
+Copyright (c) Sebastien Rousseau. All rights reserved.
+
+Licensed under the [MIT](LICENSE) license.
 
 ![divider][divider]
 
@@ -318,6 +343,7 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [14]: https://yarnpkg.com/getting-started
 [15]: https://pnpm.io/motivation
 [16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
+[17]: https://github.com/sebastienrousseau/crypto-service
 
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
