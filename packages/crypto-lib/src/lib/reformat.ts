@@ -1,4 +1,5 @@
-import { writeFile } from "fs/promises";
+import * as fs from "fs";
+import path from "path";
 import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
@@ -62,23 +63,38 @@ export const reformat = async (data: types.dataReformat): Promise<object> => {
   });
   console.log(reformatKeys);
 
-  const reformatPubKey = await writeFile(
-    "./src/key/rsa-reformat.pub",
-    Buffer.from(reformatKeys.publicKey).toString("base64"),
+  const reformatPubKey = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/rsa-reformat.pub"),
+    { encoding: "utf8" },
   );
-  reformatPubKey;
+  const reformatPubKeyString = reformatPubKey.toString();
+  reformatPubKey.write(Buffer.from(reformatPubKeyString).toString("base64"));
+  reformatPubKey.on("finish", () => {
+    console.log("✅ Wrote reformat public key data to file");
+  });
+  reformatPubKey.end();
 
-  const reformatPrivKey = await writeFile(
-    "./src/key/rsa-reformat.key",
-    Buffer.from(reformatKeys.privateKey).toString("base64"),
+  const reformatPrivKey = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/rsa-reformat.key"),
+    { encoding: "utf8" },
   );
-  reformatPrivKey;
+  const reformatPrivKeyString = reformatPrivKey.toString();
+  reformatPrivKey.write(Buffer.from(reformatPrivKeyString).toString("base64"));
+  reformatPrivKey.on("finish", () => {
+    console.log("✅ Wrote reformat private key data to file");
+  });
+  reformatPrivKey.end();
 
-  const reformatCert = await writeFile(
-    "./src/key/rsa-reformat.cert",
-    Buffer.from(reformatKeys.revocationCertificate).toString("base64"),
+  const reformatCert = await fs.createWriteStream(
+    path.resolve(__dirname, "../key/rsa-reformat.cert"),
+    { encoding: "utf8" },
   );
-  reformatCert;
+  const reformatCertString = reformatCert.toString();
+  reformatCert.write(Buffer.from(reformatCertString).toString("base64"));
+  reformatCert.on("finish", () => {
+    console.log("✅ Wrote reformat certificate key data to file");
+  });
+  reformatCert.end();
 
   return reformatKeys;
 };
