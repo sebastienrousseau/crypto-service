@@ -76,7 +76,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
     verificationKeys: publicKey,
     decryptionKeys: privateKey,
   });
-  console.log(decrypted); // "Hello Crypto Service APIs!"
+  console.log(decrypted); // "Hello Crypto Service Suite APIs!"
 
   await signatures[0].verified; // throws on invalid signature
   console.log("Signature is valid");

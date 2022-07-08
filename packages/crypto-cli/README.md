@@ -59,6 +59,9 @@ with automatic upgrades.
 
 ## 🔧 Installation
 
+The first step to using Crypto CLI is to download and install the
+application and other required components.
+
 1️⃣ Install the Crypto CLI via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
 managers:
 
@@ -236,7 +239,7 @@ Licensed under the [MIT](LICENSE) license.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service](https://crypto-service.co) is beautifully crafted by these
+[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by these
 people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |
