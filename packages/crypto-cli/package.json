@@ -59,7 +59,7 @@
         "remark-preset-lint-recommended": "^6.1.2",
         "rimraf": "^3.0.2",
         "ts-node": "^10.8.2",
-        "typedoc": "^0.23.5",
+        "typedoc": "^0.23.6",
         "typedoc-plugin-missing-exports": "^0.23.0",
         "typescript": "^4.7.4"
     },
@@ -109,7 +109,7 @@
         "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
-        "copy:package": "cp package.json ./dist/",
+        "copy:package": "cp package.json dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
