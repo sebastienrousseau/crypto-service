@@ -7943,6 +7943,16 @@ typedoc@^0.23.5:
     minimatch "^5.1.0"
     shiki "^0.10.1"
 
+typedoc@^0.23.6:
+  version "0.23.6"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.23.6.tgz#9f604aea83e6b7bc40853ab93036a7f4dbc20a5b"
+  integrity sha512-YkL7zq6Tjnze7tlPcXQd527VPpcz30cvvzVTar6jJtiHt1DPWgH8c64x2s2xsGQ+SafQpAc90jYyrB6+rXLW1g==
+  dependencies:
+    lunr "^2.3.9"
+    marked "^4.0.16"
+    minimatch "^5.1.0"
+    shiki "^0.10.1"
+
 typescript@^4.6.4, typescript@^4.7.2, typescript@^4.7.4:
   version "4.7.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
