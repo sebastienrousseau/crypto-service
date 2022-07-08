@@ -4,7 +4,7 @@
 #     | |___| |  | |_| | |_) | || (_) |  ___) |  __/ |   \ V /| | (_|  __/
 #      \____|_|   \__, | .__/ \__\___/  |____/ \___|_|    \_/ |_|\___\___|
 #                 |___/|_|
-# Crypto Service
+# Crypto Service Suite
 # https://crypto-service.co/
 #
 # Copyright (c) Sebastien Rousseau 2022. All rights reserved
@@ -130,7 +130,7 @@ node_modules: package.json
 	@npm install
 
 #
-# Run Crypto Service tasks
+# Run Crypto Service Suite tasks
 #
 
 # @HELP Generate RSA-2048 key.

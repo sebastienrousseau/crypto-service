@@ -1,4 +1,4 @@
-name: "Crypto Service CI"
+name: "Crypto Service Suite CI"
 
 on:
   pull_request:

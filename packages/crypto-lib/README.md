@@ -284,7 +284,7 @@ in the `dist/` directory.
 ```js
 node dist/lib/encrypt.js \
   --passphrase '123456789abcdef' \
-  --message 'Hello Crypto Service APIs!'
+  --message 'Hello Crypto Service Suite APIs!'
 ```
 
 ***
@@ -347,7 +347,7 @@ Licensed under the [MIT](LICENSE) license.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service](https://crypto-service.co) is beautifully crafted by these
+[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by these
 people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |

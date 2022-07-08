@@ -1,45 +1,61 @@
-# 🔐 Crypto Service
+# 🔐 The Crypto Service Suite
 
-![Banner representing Crypto Service][crypto service]
+![Banner representing Crypto Service Suite][crypto service suite]
 
-![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
+<center>
+
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=f14041)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
+![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 
+[![Contributors][contributors-shield]](https://github.com/sebastienrousseau/crypto-service/graphs/contributors)
+[![Forks][forks-shield]](https://github.com/sebastienrousseau/crypto-service/network/members)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge\&color=ff69b4)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
 
 **[Website](https://crypto-service.co) • [Documentation](https://crypto-service/docs/) 
-• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
+• [Report Bug](https://github.com/sebastienrousseau/crypto-service/issues) 
+• [Request Feature](https://github.com/sebastienrousseau/crypto-service/issues) 
 • [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+
+</center>
 
 ***
 
-## 👋 Welcome to Crypto Service
+## 👋 Welcome to the Crypto Service Suite
 
-Crypto Service is a powerful and intuitive suite of security tools that provides
-numerous Cryptographic JavaScript functions and standardized REST APIs to
-manage encryption keys, perform common cryptographic operations such as key
-generation, data encryption, digital signing, and signature verification.
+The Crypto Service Suite is a set of products that delivers common crypto 
+functions.
+
+It is a powerful and centralized cryptographic suite of security tools that 
+solves common application crypto problems, including integration, data 
+encryption, tokenization, transaction authorization, code-signing and key 
+life-cycle management and other security services. 
+
+The Crypto Service Suite Suite encompasses three products, [Crypto CLI][16], 
+[Crypto Lib][6] and [Crypto Server][7] part of the Crypto Service Suite 
+Applications.
+
+<center>
 
 [![Getting Started][getting started]](#getting-started)
-[![Download Crypto Service v0.0.2][download]][9]
+[![Download Crypto Service Suite v0.0.2][download]][9]
 
-Crypto Service code is safe by design, and runs lightning-fast. It is based on
-[OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol. It
-implements [RFC4880][2] and parts of [RFC4880bis][3].
+</center>
 
-Crypto Service can help you ensure the following:
+Crypto Service Suite code is safe by design, and runs lightning-fast. It is 
+based on [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol.
+It implements [RFC4880][2] and parts of [RFC4880bis][3].
+
+Crypto Service Suite can help you ensure the following:
 
 - Authentication of communicating parties,
 - Integrity of data,
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
-
-The suite consists of three products, [Crypto CLI][16], [Crypto Lib][6] and 
-[Crypto Server][7] part of the Crypto Service Applications.
 
 ![divider][divider]
 
@@ -75,52 +91,42 @@ implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ## Getting Started
 
-Crypto Service helps put you in control of your sensitive information. You’ll
-find below details on how to get started and how to configure Crypto Service and
+> 🔴 Note: Crypto Service Suite is a [Node.js][12] module available through the
+[npm registry][13]. Before installing, [download and install Node.js][12].
+Node.js 12.20.0 or higher is required.
+
+This allows you to always be on the latest version when we release new builds
+with automatic upgrades.
+
+Crypto Service Suite helps put you in control of your sensitive information. You’ll
+find below details on how to get started and how to configure Crypto Service Suite and
 its products.
 
 ![divider][divider]
 
 ## 🔧 Installation
 
-The first step to using Crypto Service is to download and install the
+The first step to using Crypto Service Suite is to download and install the
 application and other required components.
 
-### 1️⃣ Install using NPM, YARN or PNPM
-
-> 🔴 Note: Crypto Service is a [Node.js][12] module available through the
-[npm registry][13]. Before installing, [download and install Node.js][12].
-Node.js 12.20.0 or higher is required.
-
-Installation is done using either [`npm`][13], [`yarn`][14] or [`pnpm`][15]
-package managers to use Crypto Service with Node.js or the Command Line
+1️⃣ Install Crypto Service Suite via [`npm`][13], [`yarn`][14] or [`pnpm`][15]
+package managers to use Crypto Service Suite with Node.js or the Command Line
 Interface:
 
 - `npm i @sebastienrousseau/crypto-service`
 - `yarn add @sebastienrousseau/crypto-service`
 - `pnpm add @sebastienrousseau/crypto-service`
 
-### 2️⃣ Install from GitHub
+For users who are unable to install the Crypto Service Suite, released builds can be 
+manually downloaded from this repository's
+[Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
 
-Clone the main repository to get all source files including build scripts:
-`git clone https://github.com/sebastienrousseau/crypto-service.git`
+You can also clone the main repository to get all source files including build
+scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
 
-![divider][divider]
+### What's included
 
-## 🔗 Crypto Service Releases
-
-Update your apps to use new features, and test your apps against API changes.
-
-|Date|Download|Release Note|
-| :-: | :-: | :-: |
-|May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service 0.0.1 Release Note][10]|
-|May 30, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service 0.0.2 Release Note][11]|
-
-![divider][divider]
-
-## 🔍 What's included
-
-Within the download you'll find all the crypto service source files grouped into
+Within the download you'll find all the crypto lib source files grouped into
 the *dist* folder.
 
 You'll see something like this:
@@ -157,95 +163,30 @@ You'll see something like this:
 
 ```
 
+2️⃣ Set up your app
+
+You can get started with a simple app by running the following in your terminal:
+
+```shell
+
+> mkdir my-app
+> cd my-app
+> yarn add @sebastienrousseau/crypto-service -D
+> yarn start
+
+```
+3️⃣ Try it out and let us know what you think!
+
 ![divider][divider]
 
-## 🔐 Crypto Service options
+## 🔗 Crypto Service Suite Releases
 
-### Generating a new RSA key pair
+Update your apps to use new features, and test your apps against API changes.
 
-[RSA][4] is a public-key algorithm for encrypting and signing messages.
-
-To generate a Rivest-Shamir-Adelman (RSA) public key pair:
-
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the generation process.
-
-```shell
-yarn start --curve "" --email "jane@doe.com" --expiration 0 --format armored
---name "Jane Doe" --passphrase 123456789abcdef --sign true --bits 4096 --type
-rsa
-```
-
-This starts generating a 2048-bit RSA key pair, encrypts them with the password
-provided and writes them to a file in the [key](src/key/) directory with a pgp
-extension.
-
-### Generate a new Elliptic-curve cryptography (ECC) key pair
-
-[Elliptic-curve cryptography
-(ECC)][5] is an alternative technique to RSA. It generates security between key
-pairs for public key encryption by using the mathematics of elliptic curves.
-Elliptic curve cryptography provides stronger security per bits of key, which
-allows for much faster operations.
-
-Currently the following curves are supported:
-
-| Curve           | Encryption | Signature | NodeCrypto | WebCrypto |
-|:---------------:|:----------:|:---------:|:----------:|:---------:|
-| curve25519      | ECDH       | N/A       | No         | No        |
-| ed25519         | N/A        | EdDSA     | No         | No        |
-| p256            | ECDH       | ECDSA     | Yes        | Yes       |
-| p384            | ECDH       | ECDSA     | Yes        | Yes       |
-| p521            | ECDH       | ECDSA     | Yes        | Yes       |
-| brainpoolP256r1 | ECDH       | ECDSA     | Yes        | No        |
-| brainpoolP384r1 | ECDH       | ECDSA     | Yes        | No        |
-| brainpoolP512r1 | ECDH       | ECDSA     | Yes        | No        |
-| secp256k1       | ECDH       | ECDSA     | Yes        | No        |
-
-To generate an Elliptic Curve Cryptography (ECC) key pair:
-
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the generation process.
-
-```shell
-yarn start --curve curve25519 --email "jane@doe.com" --expiration 0 --format
-armored --name "Jane Doe" --passphrase 123456789abcdef --sign true --bits null
---type ecc
-```
-
-This starts generating an Elliptic Curve Cryptography (ECC) key pair, encrypts
-them with the password provided and writes them to a file in the
-[key](src/key/) directory with a pgp extension.
-
-### Encrypt Data
-
-Encryption is the transformation of data into a form in which it cannot be made
-sense of without the use of some key. Such transformed data is referred to as
-`ciphertext`.
-
-To encrypt a message:
-
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the encryption process.
-
-```shell
-node src/lib/encrypt.js --passphrase '123456789abcdef' --message 'Hello Crypto
-Service APIs!'
-```
-
-### Decrypt Data
-
-Decryption restores encrypted data to to its original (cleartext or plaintext)
-form.
-
-To decrypt a message:
-
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter the following example command that will start the decryption process.
-
-```shell
-node src/lib/decrypt.js --passphrase '123456789abcdef' --message 'LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0JNQTExMHlyM0drdWx5QVFmOENmbnVZZFk2RmliY1Q1Z094SjVFY2dUME50ZGt6K2dQT0tKTkVoRngKV3dzSHJoM08rTWlrcnBUOElyTjFkbDEwcUpCeDZkVXNkK3dtZ0twdFJrdElVSm5weVZ1Z3RJQkE5MEdBClgxNWdHNFZRQkl0cHUyYmdNRnlKRnJtSS85UUtlNHpDZkV0dSs5SjU0VkRLNWNRRk5KakxPSC9LaklIaAppU2NqQmFvbFlHN1p6Vyt5OXVxTEVkZytYSW9qYXVER3dyRHdIdVFvT0k2NGRmNnJWQVhiZi9mL01iajUKSXdqdmE2UGI2QXZ3YXhjRlczQjFWcHhYajY0a3kzZ2Rxd0FpOXFOUkVmMjE3SU43RHpCMTJzcDRLZlozCkZ4NTdwUk5lekY0VTZPdis5WWU0SkJRMnR4UG5sNmlnUXBDNmpRR2lXWUpHMGJJQ3lIN2NUSDRwZGN2VwphTkxBMEFIU3dpZEQzRnZJRWpxSnRmMlJlZzVLMmtSbHpFNWFCRXlaayt5a3VvZ2pYV0dkWkYxb20yV2gKM3kwTE9Kb2RYOUJNYW9zYlpSN24za2JOb0dXRkRCTElpYnRLUmdvNmlwdGs1b3Iyd0lwWC9wM1ovaWtJCkZieDhpVnpqWHViQ2xZSzhrZlB3Zm5uVFRRSmsxV1VsWTBDZm9YRURMY1ZIbG9rMy9ReHB2TmphWEg2NwpsU1hmSmtxdDNXdVJ6K0xIM3p0ald3THlpeHpmNXRPNUhsTnhudjlKUkVPR0pqendsL3liUi8xLzR2TkMKeDJ1WmdmQTBHSXZqNHBDRnBNRTI3ODhLaTdRckxtemVrUUtRQzBsMFl3aU9abXZueUNmdDliNG9yMDFmCjd2WU8xQzV5dExGZTBVUnpPQktnZGxjajRSU2sxWnJKc3RNTS9qSVNQR2lnZjBOWFp5c2NyQTVnZ0pzcwpOZ0JLd1Q2M3dzQ3MyV0lxcS9QZ2ZCUTRjOUl4eXNydDM1Skgra0E3c2hIQ0s0Rk1RcVRTa2d1VWcyQVcKL0c4a3lDcnRXR1RIMFpsNjBNNmJLUmhpdEMxS0Y3R29hcW5sUDFoNmFydXZXUUM4eTRtY2dtellNR2FjCkxEZzNlMGVLRWVVTEVockdXY3ViZWlDeVJlU0tybWhwTmN5ODFucURDZkVsVUg0UVd6eEFlMmVNZTljPQo9UEs4dAotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tCg=='
-```
+|Date|Download|Release Note|
+| :-: | :-: | :-: |
+|May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service Suite 0.0.1 Release Note][10]|
+|May 30, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service Suite 0.0.2 Release Note][11]|
 
 ![divider][divider]
 
@@ -297,7 +238,7 @@ Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-se
 
 ## ❤️ Contributing
 
-Thank you for using Crypto Service! If you like the library, it would be great
+Thank you for using Crypto Service Suite! If you like the library, it would be great
 if you can give it a star ⭐ on [GitHub][17].
 
 There are also many ways in which you can participate in this project, for
@@ -319,7 +260,7 @@ Licensed under the [MIT](LICENSE) license.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service](https://crypto-service.co) is beautifully crafted by these
+[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by these
 people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |
@@ -348,7 +289,16 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
-[crypto service]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service"
+[crypto service suite]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service suite"
 [crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
+[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
+[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
+[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
+[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
+

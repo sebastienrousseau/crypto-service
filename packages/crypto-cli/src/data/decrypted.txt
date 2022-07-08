@@ -1,1 +1,1 @@
-Hello Crypto Service APIs!
+Hello Crypto Service Suite APIs!
