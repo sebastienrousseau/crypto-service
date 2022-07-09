@@ -2,15 +2,13 @@
 
 ![Banner representing Crypto Service Suite][crypto service suite]
 
-<center>
-
 [![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=f14041)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
 ![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
 
 [![Contributors][contributors-shield]](https://github.com/sebastienrousseau/crypto-service/graphs/contributors)
-[![Forks][forks-shield]](https://github.com/sebastienrousseau/crypto-service/network/members)
+[![Forks][forks-shield]](https://github.com/sebastienrousseau/crypto-service/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge\&color=ff69b4)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 
@@ -21,9 +19,31 @@
 • [Request Feature](https://github.com/sebastienrousseau/crypto-service/issues) 
 • [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
 
-</center>
-
 ***
+
+## 📖 Table of Contents
+
+<details>
+<summary>Click to expand</summary>
+
+- [Welcome to the Crypto Service Suite](#👋-welcome-to-the-crypto-service-suite)
+- [Crypto CLI](#❯-crypto-cli)
+- [Crypto Lib](#⚙️-crypto-lib)
+- [Crypto Server](#🖥️-crypto-server)
+- [Getting Started](#getting-started)
+- [Installation](#🔧-installation)
+- [Releases](#🔗-releases)
+- [Semantic Versioning Policy](#🚥-semantic-versioning-policy)
+- [Changelog](#✅-changelog)
+- [Code of Conduct](#📖-code-of-conduct)
+- [Our Values](#⭐️-our-values)
+- [Contributing](#❤️-contributing)
+- [License](#🥂-license)
+- [Acknowledgements](#💖-acknowledgements)
+
+</details>
+
+![divider][divider]
 
 ## 👋 Welcome to the Crypto Service Suite
 
@@ -39,12 +59,8 @@ The Crypto Service Suite Suite encompasses three products, [Crypto CLI][16],
 [Crypto Lib][6] and [Crypto Server][7] part of the Crypto Service Suite 
 Applications.
 
-<center>
-
 [![Getting Started][getting started]](#getting-started)
 [![Download Crypto Service Suite v0.0.2][download]][9]
-
-</center>
 
 Crypto Service Suite code is safe by design, and runs lightning-fast. It is 
 based on [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol.
@@ -98,9 +114,9 @@ Node.js 12.20.0 or higher is required.
 This allows you to always be on the latest version when we release new builds
 with automatic upgrades.
 
-Crypto Service Suite helps put you in control of your sensitive information. You’ll
-find below details on how to get started and how to configure Crypto Service Suite and
-its products.
+Crypto Service Suite helps put you in control of your sensitive information.
+You’ll find below details on how to get started and how to configure Crypto
+Service Suite and its products.
 
 ![divider][divider]
 
@@ -117,14 +133,14 @@ Interface:
 - `yarn add @sebastienrousseau/crypto-service`
 - `pnpm add @sebastienrousseau/crypto-service`
 
-For users who are unable to install the Crypto Service Suite, released builds can be 
-manually downloaded from this repository's
+For users who are unable to install the Crypto Service Suite, released builds
+can be manually downloaded from this repository's
 [Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
 
 You can also clone the main repository to get all source files including build
 scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
 
-### What's included
+2️⃣ What's included?
 
 Within the download you'll find all the crypto lib source files grouped into
 the *dist* folder.
@@ -163,7 +179,7 @@ You'll see something like this:
 
 ```
 
-2️⃣ Set up your app
+3️⃣ Set up your app
 
 You can get started with a simple app by running the following in your terminal:
 
@@ -175,11 +191,11 @@ You can get started with a simple app by running the following in your terminal:
 > yarn start
 
 ```
-3️⃣ Try it out and let us know what you think!
+4️⃣ Try it out and let us know what you think!
 
 ![divider][divider]
 
-## 🔗 Crypto Service Suite Releases
+## 🔗 Releases
 
 Update your apps to use new features, and test your apps against API changes.
 
@@ -204,24 +220,7 @@ and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#seman
 
 ![divider][divider]
 
-## ❤️ Contributing
-
-Please read carefully through our
-[Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)
-for further details on the process for submitting pull requests to us.
-
-Development Tools
-
-- `yarn build` runs build.
-- `yarn clean` removes the coverage result of npm test command.
-- `yarn coverage` shows the coverage result of npm test command.
-- `yarn lint` run ESLint.
-- `yarn lint-fix` instructs ESLint to try to fix as many issues as possible..
-- `yarn test` runs tests and measures coverage.
-
-![divider][divider]
-
-## 📖 Rules
+## 📖 Code of Conduct
 
 We are committed to preserving and fostering a diverse, welcoming community.
 Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md).
@@ -238,8 +237,8 @@ Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-se
 
 ## ❤️ Contributing
 
-Thank you for using Crypto Service Suite! If you like the library, it would be great
-if you can give it a star ⭐ on [GitHub][17].
+Thank you for using Crypto Service Suite! If you like the library, it would be 
+great if you can give it a star ⭐ on [GitHub][17].
 
 There are also many ways in which you can participate in this project, for
 example:
@@ -247,6 +246,10 @@ example:
 * [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
 * Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
 * Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
+
+Please read carefully through our
+[Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)
+for further details on the process for submitting pull requests to us.
 
 ![divider][divider]
 
@@ -258,10 +261,11 @@ Licensed under the [MIT](LICENSE) license.
 
 ![divider][divider]
 
-## 🏢 Acknowledgements
+## 💖 Acknowledgements
 
-[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by these
-people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
+[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
+these people and a bunch of awesome
+[contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
 
 | Contributors |
 |---------|
@@ -286,19 +290,18 @@ people and a bunch of awesome [contributors](https://github.com/sebastienroussea
 [16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
 [17]: https://github.com/sebastienrousseau/crypto-service
 
-[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
-[crypto service suite]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service suite"
+[contributors-shield]: https://img.shields.io/github/contributors/sebastienrousseau/crypto-service.svg?style=for-the-badge
+[contributors-url]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
 [crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-
+[crypto service suite]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service suite"
+[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
+[forks-shield]: https://img.shields.io/github/forks/sebastienrousseau/crypto-service.svg?style=for-the-badge
+[forks-url]: https://github.com/sebastienrousseau/crypto-service/network/members
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
+[issues-shield]: https://img.shields.io/github/issues/sebastienrousseau/crypto-service.svg?style=for-the-badge
+[issues-url]: https://github.com/sebastienrousseau/crypto-service/issues
+[stars-shield]: https://img.shields.io/github/stars/sebastienrousseau/crypto-service.svg?style=for-the-badge
+[stars-url]: https://github.com/sebastienrousseau/crypto-service/stargazers
