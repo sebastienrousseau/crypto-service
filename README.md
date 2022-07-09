@@ -1,4 +1,4 @@
-# 🔐 The Crypto Service Suite
+# &#128272; The Crypto Service Suite
 
 ![Banner representing Crypto Service Suite][crypto service suite]
 
@@ -21,31 +21,31 @@
 
 ***
 
-## 📖 Table of Contents
+## &#128214; Table of Contents
 
 <details>
 <summary>Click to expand</summary>
 
-- [Welcome to the Crypto Service Suite](#👋-welcome-to-the-crypto-service-suite)
-- [Crypto CLI](#❯-crypto-cli)
-- [Crypto Lib](#⚙️-crypto-lib)
-- [Crypto Server](#🖥️-crypto-server)
+- [Welcome to the Crypto Service Suite](#&#128075;-welcome-to-the-crypto-service-suite)
+- [Crypto CLI](#&#10095;-crypto-cli)
+- [Crypto Lib](#&#9881;&#65039;-crypto-lib)
+- [Crypto Server](#&#128421;&#65039;-crypto-server)
 - [Getting Started](#getting-started)
-- [Installation](#🔧-installation)
-- [Releases](#🔗-releases)
-- [Semantic Versioning Policy](#🚥-semantic-versioning-policy)
-- [Changelog](#✅-changelog)
-- [Code of Conduct](#📖-code-of-conduct)
-- [Our Values](#⭐️-our-values)
-- [Contributing](#❤️-contributing)
-- [License](#🥂-license)
-- [Acknowledgements](#💖-acknowledgements)
+- [Installation](#&#128295;-installation)
+- [Releases](#&#128279;-releases)
+- [Semantic Versioning Policy](#&#128677;-semantic-versioning-policy)
+- [Changelog](#&#9989;-changelog)
+- [Code of Conduct](#&#128214;-code-of-conduct)
+- [Our Values](#&#11088;&#65039;-our-values)
+- [Contributing](#&#10084;&#65039;-contributing)
+- [License](#&#129346;-license)
+- [Acknowledgements](#&#128150;-acknowledgements)
 
 </details>
 
 ![divider][divider]
 
-## 👋 Welcome to the Crypto Service Suite
+## &#128075; Welcome to the Crypto Service Suite
 
 The Crypto Service Suite is a set of products that delivers common crypto 
 functions.
@@ -75,7 +75,7 @@ Crypto Service Suite can help you ensure the following:
 
 ![divider][divider]
 
-## ❯ Crypto CLI
+## &#10095; Crypto CLI
 
 ![Banner representing Crypto CLI][crypto cli]
 
@@ -85,7 +85,7 @@ perform common cryptographic operations from the command prompt or terminal.
 
 ![divider][divider]
 
-## ⚙️ Crypto Lib
+## &#9881;&#65039; Crypto Lib
 
 ![Banner representing Crypto Lib][crypto lib]
 
@@ -95,7 +95,7 @@ low-level cryptographic operations. [Learn more][6][>][6]
 
 ![divider][divider]
 
-## 🖥️ Crypto Server
+## &#128421;&#65039; Crypto Server
 
 ![Banner representing Crypto Server][crypto server]
 
@@ -107,7 +107,7 @@ implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ## Getting Started
 
-> 🔴 Note: Crypto Service Suite is a [Node.js][12] module available through the
+> &#128308; Note: Crypto Service Suite is a [Node.js][12] module available through the
 [npm registry][13]. Before installing, [download and install Node.js][12].
 Node.js 12.20.0 or higher is required.
 
@@ -120,12 +120,12 @@ Service Suite and its products.
 
 ![divider][divider]
 
-## 🔧 Installation
+## &#128295; Installation
 
 The first step to using Crypto Service Suite is to download and install the
 application and other required components.
 
-1️⃣ Install Crypto Service Suite via [`npm`][13], [`yarn`][14] or [`pnpm`][15]
+1&#65039;&#8419; Install Crypto Service Suite via [`npm`][13], [`yarn`][14] or [`pnpm`][15]
 package managers to use Crypto Service Suite with Node.js or the Command Line
 Interface:
 
@@ -140,7 +140,7 @@ can be manually downloaded from this repository's
 You can also clone the main repository to get all source files including build
 scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
 
-2️⃣ What's included?
+2&#65039;&#8419; What's included?
 
 Within the download you'll find all the crypto lib source files grouped into
 the *dist* folder.
@@ -179,7 +179,7 @@ You'll see something like this:
 
 ```
 
-3️⃣ Set up your app
+3&#65039;&#8419; Set up your app
 
 You can get started with a simple app by running the following in your terminal:
 
@@ -191,11 +191,11 @@ You can get started with a simple app by running the following in your terminal:
 > yarn start
 
 ```
-4️⃣ Try it out and let us know what you think!
+4&#65039;&#8419; Try it out and let us know what you think!
 
 ![divider][divider]
 
-## 🔗 Releases
+## &#128279; Releases
 
 Update your apps to use new features, and test your apps against API changes.
 
@@ -206,7 +206,7 @@ Update your apps to use new features, and test your apps against API changes.
 
 ![divider][divider]
 
-## 🚥 Semantic Versioning Policy
+## &#128677; Semantic Versioning Policy
 
 For transparency into our release cycle and in striving to maintain backward
 compatibility, `crypto-service` follows [semantic versioning](http://semver.org/)
@@ -214,20 +214,20 @@ and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#seman
 
 ![divider][divider]
 
-## ✅ Changelog
+## &#9989; Changelog
 
 - [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
 
 ![divider][divider]
 
-## 📖 Code of Conduct
+## &#128214; Code of Conduct
 
 We are committed to preserving and fostering a diverse, welcoming community.
 Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md).
 
 ![divider][divider]
 
-## ⭐️ Our Values
+## &#11088;&#65039; Our Values
 
 - We believe perfection must consider everything.
 - We take our passion beyond code into our daily practices.
@@ -235,7 +235,7 @@ Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-se
 
 ![divider][divider]
 
-## ❤️ Contributing
+## &#10084;&#65039; Contributing
 
 Thank you for using Crypto Service Suite! If you like the library, it would be 
 great if you can give it a star ⭐ on [GitHub][17].
@@ -253,7 +253,7 @@ for further details on the process for submitting pull requests to us.
 
 ![divider][divider]
 
-## 🥂 License
+## &#129346; License
 
 Copyright (c) Sebastien Rousseau. All rights reserved.
 
@@ -261,7 +261,7 @@ Licensed under the [MIT](LICENSE) license.
 
 ![divider][divider]
 
-## 💖 Acknowledgements
+## &#128150; Acknowledgements
 
 [Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
 these people and a bunch of awesome
