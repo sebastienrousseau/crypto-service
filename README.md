@@ -21,30 +21,6 @@
 
 ***
 
-## 📖 Table of Contents
-
-<details>
-<summary>Click to expand</summary>
-
-- [Welcome to the Crypto Service Suite](#👋-welcome-to-the-crypto-service-suite)
-- [Crypto CLI](#❯-crypto-cli)
-- [Crypto Lib](#⚙️-crypto-lib)
-- [Crypto Server](#🖥️-crypto-server)
-- [Getting Started](#getting-started)
-- [Installation](#🔧-installation)
-- [Releases](#🔗-releases)
-- [Semantic Versioning Policy](#🚥-semantic-versioning-policy)
-- [Changelog](#✅-changelog)
-- [Code of Conduct](#📖-code-of-conduct)
-- [Our Values](#⭐️-our-values)
-- [Contributing](#❤️-contributing)
-- [License](#🥂-license)
-- [Acknowledgements](#💖-acknowledgements)
-
-</details>
-
-![divider][divider]
-
 ## 👋 Welcome to the Crypto Service Suite
 
 The Crypto Service Suite is a set of products that delivers common crypto 
