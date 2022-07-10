@@ -83,7 +83,7 @@ implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
 
 ## Getting Started
 
-> 🔴 Note: Crypto Service Suite is a [Node.js][12] module available through the
+👉 Note: » Crypto Service Suite is a [Node.js][12] module available through the
 [npm registry][13]. Before installing, [download and install Node.js][12].
 Node.js 12.20.0 or higher is required.
 
