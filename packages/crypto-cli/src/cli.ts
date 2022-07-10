@@ -3,22 +3,23 @@
 import { Command } from './commands/index'
 import { welcome } from "./helpers/banner";
 import { language, locale, constants } from "./constants/index"
+import { writeUtils } from "./utils/write.utils";
 import format from 'kleur';
 import prompts from 'prompts';
 
 language(locale);
 console.clear();
 welcome(constants.CLI_TITLE);
-console.log(constants.CLI_TITLE);
-console.log("\n");
-console.log(constants.CLI_DESCRIPTION);
-console.log("\n");
+writeUtils.writeLn(constants.CLI_TITLE);
+writeUtils.writeLn("");
+writeUtils.writeLn(constants.CLI_DESCRIPTION);
+writeUtils.writeLn("");
 
 (async () => {
   const response = await prompts({
     type: 'select',
     name: constants.PROMPT_SELECT_TTL,
-    message: constants.PROMPT_SELECT_DES,
+    message: constants.PROMPT_SELECT_DES+"\n\n",
     choices: [
       {
         title: constants.CLI_FN_1_TTL,
@@ -70,52 +71,62 @@ console.log("\n");
 
   switch (response.Selection) {
     case constants.CLI_FN_1_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleGenerate();
       break;
     }
     case constants.CLI_FN_2_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleEncrypt();
       break;
     }
     case constants.CLI_FN_3_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleDecrypt();
       break;
     }
     case constants.CLI_FN_4_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleReformat();
       break;
     }
     case constants.CLI_FN_5_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleRevoke();
       break;
     }
     case constants.CLI_FN_6_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleSession();
       break;
     }
     case constants.CLI_FN_7_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleSign();
       break;
     }
     case constants.CLI_FN_8_TTL: {
-      console.log(format.green(constants.CLI_HDL_1_DES));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
       Command.handleVerify();
       break;
     }
     case constants.CLI_FN_9_TTL: {
-      console.log(format.green(constants.CLI_FN_9_TTL));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.green(constants.CLI_FN_9_TTL));
       Command.handleHelp();
       break;
     }
     default: {
-      console.log(format.red(constants.CLI_ERR_1));
+      writeUtils.writeLn("");
+      writeUtils.writeLn(format.red(constants.CLI_ERR_1));
       break;
     }
   }
