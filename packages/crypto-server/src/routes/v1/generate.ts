@@ -6,18 +6,23 @@ export default (app: fastify.FastifyInstance) => {
   app.get<{
     Headers: IHeadersGenerate;
   }>("/v1/generate", async (request, reply) => {
-    const generateKeyPair = await generate({
-      curve: request.headers["curve"],
-      date: new Date(),
-      email: String(request.headers["email"]),
-      format: request.headers["format"],
-      keyExpirationTime: Number(request.headers["keyExpirationTime"]),
-      name: request.headers["name"],
-      passphrase: request.headers["passphrase"],
-      rsaBits: Number(request.headers["rsaBits"]),
-      type: request.headers["type"],
-      userIDs: [{ name: String(request.headers["name"]), email: String(request.headers["email"]) }],
-    });
+    const generateKeyPair =
+      await generate({
+        curve: String(request.headers["curve"]),
+        date: new Date(),
+        email: String(request.headers["email"] ?? "jane@doe.com"),
+        format: String(request.headers["format"] ?? "armored"),
+        keyExpirationTime: Number(request.headers["keyExpirationTime"] ?? 0),
+        name: String(request.headers["name"] ?? "Jane Doe"),
+        passphrase: String(request.headers["passphrase"] ?? "123456789abcdef"),
+        rsaBits: Number(request.headers["rsaBits"] ?? 2048),
+        type: String(request.headers["type"] ?? "rsa"),
+        userIDs: [{
+          name: String(request.headers["name"] ?? "Jane Doe"),
+          email: String(request.headers["email"] ?? "jane@doe.com")
+        }],
+      });
+    // console.log(generateKeyPair);
     reply.send({ data: generateKeyPair });
   });
 };
