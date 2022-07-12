@@ -1,4 +1,4 @@
-import reformat from "@sebastienrousseau/crypto-lib";
+import reformat from "@sebastienrousseau/crypto-lib/dist/lib/reformat";
 import prompts from "prompts";
 
 const handleReformat = async () => {
@@ -52,7 +52,7 @@ const handleReformat = async () => {
     );
   } else {
     // console.log(data);
-    await reformat.reformat(data);
+    await reformat(data);
   }
 };
 export default handleReformat;

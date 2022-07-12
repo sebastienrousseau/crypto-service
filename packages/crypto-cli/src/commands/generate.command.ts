@@ -1,4 +1,4 @@
-import generate from "@sebastienrousseau/crypto-lib";
+import generate from "@sebastienrousseau/crypto-lib/dist/lib/generate";
 import prompts from "prompts";
 
 const handleGenerate = async () => {
@@ -60,7 +60,7 @@ const handleGenerate = async () => {
     userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
   };
   // console.log(data);
-  await generate.generate(data);
+  await generate(data);
 };
 
 export default handleGenerate;

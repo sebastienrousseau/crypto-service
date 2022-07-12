@@ -1,4 +1,4 @@
-import sign from "@sebastienrousseau/crypto-lib";
+import sign from "@sebastienrousseau/crypto-lib/dist/lib/sign";
 import prompts from "prompts";
 
 const handleSign = async () => {
@@ -46,7 +46,7 @@ const handleSign = async () => {
     );
   } else {
     // console.log(data);
-    await sign.sign(data);
+    await sign(data);
   }
 };
 export default handleSign;
