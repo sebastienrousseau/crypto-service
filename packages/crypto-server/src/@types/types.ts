@@ -2,7 +2,7 @@ export type IQuerystring = {
   username: string;
   password: string;
 };
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export type IHeadersGenerate = {
   curve: any;
   date: Date;
