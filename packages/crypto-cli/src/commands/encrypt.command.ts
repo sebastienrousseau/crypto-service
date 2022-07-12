@@ -1,4 +1,4 @@
-import encrypt from "@sebastienrousseau/crypto-lib";
+import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
 import prompts from "prompts";
 
 const handleEncrypt = async () => {
@@ -37,7 +37,7 @@ const handleEncrypt = async () => {
     );
   } else {
     // console.log(data);
-    await encrypt.encrypt(data);
+    await encrypt(data);
   }
 };
 export default handleEncrypt;

@@ -1,4 +1,4 @@
-import session from "@sebastienrousseau/crypto-lib";
+import session from "@sebastienrousseau/crypto-lib/dist/lib/session";
 import prompts from "prompts";
 
 const handleSession = async () => {
@@ -37,7 +37,7 @@ const handleSession = async () => {
     );
   } else {
     console.log(data);
-    await session.session(data);
+    await session(data);
   }
 };
 export default handleSession;

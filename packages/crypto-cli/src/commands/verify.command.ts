@@ -1,4 +1,4 @@
-import verify from "@sebastienrousseau/crypto-lib";
+import verify from "@sebastienrousseau/crypto-lib/dist/lib/verify";
 import prompts from "prompts";
 
 const handleVerify = async () => {
@@ -24,7 +24,6 @@ const handleVerify = async () => {
 
   const data = {
     message: responseVerify.message,
-    detached: responseVerify.detached,
     publicKey: responseVerify.publicKey,
   };
 
@@ -38,7 +37,7 @@ const handleVerify = async () => {
     );
   } else {
     console.log(data);
-    await verify.verify(data);
+    await verify(data);
   }
 };
 export default handleVerify;
