@@ -48,7 +48,7 @@ Source code is available to everyone under the standard [MIT license][6].
 
 ## Getting Started
 
-> 🔴 Note: Crypto CLI is a [Node.js][7] module available through the
+👉 Note: » Crypto CLI is a [Node.js][7] module available through the
 [npm registry][8]. Before installing, [download and install Node.js][7].
 Node.js 12.20.0 or or later.
 
@@ -183,7 +183,8 @@ You can get started with a simple app by running the following in your terminal:
 ## ❯ Crypto Command Line Interface (CLI) syntax
 
 The Crypto CLI accepts multiple types of options. Options are a list of flags
-and other parameters that can control the behavior of the Crypto CLI as a whole. 
+and other parameters that can control the behavior of the Crypto CLI as a
+whole. 
 
 Below is the full list of supported options for the Crypto CLI.
 
@@ -223,9 +224,11 @@ you can give it a star ⭐ on [GitHub][5].
 There are also many ways in which you can participate in this project, for
 example:
 
-* [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
-* Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
-* Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
+- [Submit bugs and feature requests][14], and help us verify as they are checked
+in,
+- Review [source code changes][15], and help us improve our code quality,
+- Review the [documentation][16] and make pull requests for anything from typos
+to additional and new content.
 
 ![divider][divider]
 
@@ -239,31 +242,33 @@ Licensed under the [MIT](LICENSE) license.
 
 ## 🏢 Acknowledgements
 
-[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by these
-people and a bunch of awesome [contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
+[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
+these people and a bunch of awesome [contributors][17].
 
 | Contributors |
 |---------|
 |[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
 |[Sebastien Rousseau](https://github.com/sebastienrousseau)|
 
-
-[1]: https://openpgpjs.org/
-[2]: https://tools.ietf.org/html/rfc4880
-[3]: https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
-[4]: https://github.com
-[5]: https://github.com/sebastienrousseau/crypto-service
-[6]: https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
-[7]: https://nodejs.org/en/
-[8]: https://www.npmjs.com/
-[9]: https://yarnpkg.com/getting-started
+[1]:  https://openpgpjs.org/
+[2]:  https://tools.ietf.org/html/rfc4880
+[3]:  https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
+[4]:  https://github.com
+[5]:  https://github.com/sebastienrousseau/crypto-service
+[6]:  https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
+[7]:  https://nodejs.org/en/
+[8]:  https://www.npmjs.com/
+[9]:  https://yarnpkg.com/getting-started
 [10]: https://pnpm.io/motivation
 [11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
 [13]: https://github.com/sebastienrousseau/crypto-service/packages/
+[14]: https://github.com/sebastienrousseau/crypto-service/issues/new
+[15]: https://github.com/sebastienrousseau/crypto-service/pulls
+[16]: https://github.com/sebastienrousseau/crypto-service/docs
+[17]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
 
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
 [crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg "Crypto CLI"
 [getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
-

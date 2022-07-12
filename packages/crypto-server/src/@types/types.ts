@@ -2,18 +2,18 @@ export type IQuerystring = {
   username: string;
   password: string;
 };
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export type IHeadersGenerate = {
-  type: string;
-  bits: string;
-  name: string;
+  curve: any;
+  date: Date;
   email: string;
+  format: any;
+  keyExpirationTime: number;
+  name: string;
   passphrase: string;
-  curve: string;
-  expiration: string;
-  format: string;
-  message: string;
-  sign: string;
+  rsaBits: number;
+  type: any;
+  userIDs: [{ name: string, email: string }];
 };
 
 export type IHeadersEncrypt = {

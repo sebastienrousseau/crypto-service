@@ -44,7 +44,7 @@ Source code is available to everyone under the standard [MIT license][6].
 
 ## ⏩ Getting Started
 
-> 🔴 Note: Crypto Lib is a [Node.js][7] module available through the
+👉 Note: » Crypto Lib is a [Node.js][7] module available through the
 [npm registry][8]. Before installing, [download and install Node.js][7].
 Node.js 12.20.0 or higher is required.
 
