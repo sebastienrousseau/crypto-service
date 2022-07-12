@@ -8,15 +8,15 @@ export default (app: fastify.FastifyInstance) => {
   }>("/v1/generate", async (request, reply) => {
     const generateKeyPair = await generate({
       curve: request.headers["curve"],
-      format: request.headers["format"],
-      keyExpirationTime: Number(request.headers["expiration"]),
-      passphrase: request.headers["passphrase"],
-      rsaBits: Number(request.headers["bits"]),
-      type: request.headers["type"],
-      userIDs: [{ name: request.headers["name"], email: request.headers["email"] }],
       date: new Date(),
+      email: String(request.headers["email"]),
+      format: request.headers["format"],
+      keyExpirationTime: Number(request.headers["keyExpirationTime"]),
       name: request.headers["name"],
-      email: request.headers["email"],
+      passphrase: request.headers["passphrase"],
+      rsaBits: Number(request.headers["rsaBits"]),
+      type: request.headers["type"],
+      userIDs: [{ name: String(request.headers["name"]), email: String(request.headers["email"]) }],
     });
     reply.send({ data: generateKeyPair });
   });

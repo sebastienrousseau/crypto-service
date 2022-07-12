@@ -36,7 +36,7 @@
     "description": "Crypto Server is a Fastify web server that exposes easy consumable REST APIs to perform low-level cryptographic operations. It is implemented using Node.js and relies on Crypto Lib.",
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
-        "@sebastienrousseau/crypto-lib": "^0.0.2",
+        "@sebastienrousseau/crypto-lib": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
