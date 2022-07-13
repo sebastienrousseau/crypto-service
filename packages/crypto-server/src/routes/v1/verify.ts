@@ -9,13 +9,13 @@ export default (app: fastify.FastifyInstance) => {
     const verifyData =
     await verify({
     // [{
-      message: String(request.headers["message"]),
-      verificationKeys: String(request.headers["verification-keys"]),
+      message: request.headers["message"],
+      verificationKeys: request.headers["verificationKeys"],
       expectSigned: Boolean(request.headers["expectSigned"]),
-      format: String(request.headers["format"]),
-      signature: String(request.headers["signature"]),
+      format: request.headers["format"],
+      signature: request.headers["signature"],
       date: new Date(request.headers["date"]),
-      config: String(request.headers["config"]),
+      config: request.headers["config"],
     // }];
     });
     reply.send({ data: verifyData });

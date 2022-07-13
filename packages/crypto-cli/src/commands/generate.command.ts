@@ -48,16 +48,18 @@ const handleGenerate = async () => {
   console.log(responseGenerate);
 
   const data = {
-    curve: responseGenerate.curve,
     date: new Date(),
-    email: responseGenerate.email,
-    format: responseGenerate.format,
-    keyExpirationTime: responseGenerate.expiration,
     name: responseGenerate.name,
+    email: responseGenerate.email,
+    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
+    type: responseGenerate.type,
     passphrase: responseGenerate.passphrase,
     rsaBits: responseGenerate.rsaBits,
-    type: responseGenerate.type,
-    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
+    curve: responseGenerate.curve,
+    keyExpirationTime: responseGenerate.expiration,
+    subkeys: responseGenerate.subkeys,
+    format: responseGenerate.format,
+    config: responseGenerate.config,
   };
   // console.log(data);
   await generate(data);
