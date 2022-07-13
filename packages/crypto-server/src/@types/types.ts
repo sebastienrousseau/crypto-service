@@ -33,3 +33,8 @@ export type IHeadersRevoke = {
   flag: number;
   reason: string;
 };
+
+export type IHeadersVerify = {
+  message: string;
+  publicKey: string;
+};
