@@ -36,5 +36,10 @@ export type IHeadersRevoke = {
 
 export type IHeadersVerify = {
   message: string;
-  publicKey: string;
+  verificationKeys: string;
+  expectSigned: boolean;
+  format: any;
+  signature: any;
+  date: Date;
+  config: any;
 };

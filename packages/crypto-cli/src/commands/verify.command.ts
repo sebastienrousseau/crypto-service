@@ -6,17 +6,40 @@ const handleVerify = async () => {
     {
       type: "text",
       name: "message",
-      message: "Provide a message to encrypt",
+      message: "Provide a message to be verified.",
+    },
+    {
+      type: "text",
+      name: "verificationKeys",
+      message: "Provide an array of publicKeys or single key, to verify signatures in base64 format",
+    },
+    {
+      type: "select",
+      name: "expectSigned",
+      message: "Is the message signed?",
+      choices: [
+        { title: "Yes", value: true },
+        { title: "No", value: false },
+      ],
+    },
+    {
+      type: "select",
+      name: "format",
+      message: "Select how to return the data.",
+      choices: [
+        { title: "Utf8", value: "utf8" },
+        { title: "Binary", value: "binary" },
+      ],
+    },
+    {
+      type: "text",
+      name: "config",
+      message: "Provide a custom configuration settings to overwrite those in config",
     },
     {
       type: "confirm",
       name: "detached",
       message: "Provide true or false",
-    },
-    {
-      type: "text",
-      name: "publicKey",
-      message: "Provide a public key in base64 format",
     },
   ]);
 
@@ -24,13 +47,22 @@ const handleVerify = async () => {
 
   const data = {
     message: responseVerify.message,
-    publicKey: responseVerify.publicKey,
+    verificationKeys: responseVerify.verificationKeys,
+    expectSigned: responseVerify.expectSigned,
+    format: responseVerify.format,
+    signature: responseVerify.signature,
+    date: new Date(),
+    config: responseVerify.config,
   };
 
   if (
     responseVerify.message === "" ||
-    responseVerify.detached === "" ||
-    responseVerify.publicKey === ""
+    responseVerify.verificationKeys === "" ||
+    responseVerify.expectSigned === "" ||
+    responseVerify.format === "" ||
+    responseVerify.signature === "" ||
+    responseVerify.date === "" ||
+    responseVerify.config === ""
   ) {
     console.error(
       "\n🔔 You must provide a value for each of the properties.\n",

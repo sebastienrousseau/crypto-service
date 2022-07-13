@@ -10,7 +10,12 @@ export default (app: fastify.FastifyInstance) => {
     await verify({
     // [{
       message: String(request.headers["message"]),
-      publicKey: String(request.headers["public-key"]),
+      verificationKeys: String(request.headers["verification-keys"]),
+      expectSigned: Boolean(request.headers["expectSigned"]),
+      format: String(request.headers["format"]),
+      signature: String(request.headers["signature"]),
+      date: new Date(request.headers["date"]),
+      config: String(request.headers["config"]),
     // }];
     });
     reply.send({ data: verifyData });

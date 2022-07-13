@@ -111,17 +111,36 @@ export type dataSign = {
 /**
  * ### types/types.dataVerify
  *
- * Types used in the Verify function.
+ * Types used in the Signature Verification function.
  *
  * @module types/types
  * @public
- * @param {String} message - Message enumeration.
- * @param {String} publicKey - Public key enumeration.
+ * @param {String} message            - (required) message to be verified.
+ * @param {String} verificationKeys   - (required) array of publicKeys or single
+ *                                    key, to verify signatures.
+ * @param {Boolean} expectSigned      - (optional) If true, verification throws
+ *                                    if the message is not signed with the
+ *                                    provided publicKeys.
+ * @param {Any} format                - (optional) Whether to return data as a
+ *                                    string(Stream) or Uint8Array(Stream). If
+ *                                    'utf8' (the default), also normalize
+ *                                    newlines.
+ * @param {String} signature          - (optional) Detached signature for
+ *                                    verification.
+ * @param {Date} date                 - (optional) Use the given date for
+ *                                    verification instead of the current time.
+ * @param {String} config             - (optional) Custom configuration settings
+ *                                    to overwrite those in config.
  *
  */
 export type dataVerify = {
   message: string;
-  publicKey: string;
+  verificationKeys: string;
+  expectSigned: boolean;
+  format: any;
+  signature: any;
+  date: Date;
+  config: any;
 };
 
 /**
