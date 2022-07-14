@@ -71,8 +71,7 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       rsaBits: Number(data.rsaBits),
       curve: data.curve,
       keyExpirationTime: Number(data.keyExpirationTime),
-      subkeys: data.subkeys,
-      format: data.format,
+      format: data.format
     });
 
   console.log(privateKey);
@@ -136,9 +135,8 @@ if (args instanceof Array && args.length) {
     rsaBits: Number(args[9]),
     curve: args[11],
     keyExpirationTime: Number(args[13]),
-    subkeys: args[15],
-    format: args[17],
-    config: args[19],
+    format: args[15]
   };
+  console.log(data);
   generate(data);
 }

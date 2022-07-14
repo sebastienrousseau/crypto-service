@@ -120,7 +120,7 @@
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:data": "mkdirp dist/data && cp -fr src/data/*.txt dist/data/ && cp -fr src/data/*.sig dist/data/",
-        "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
+        "copy:key": "mkdirp dist/key && cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
         "copy:package": "cp ./package.json ./dist/",

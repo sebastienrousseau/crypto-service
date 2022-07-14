@@ -4,16 +4,19 @@ export type IQuerystring = {
 };
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export type IHeadersGenerate = {
-  curve: any;
   date: Date;
-  email: string;
-  format: any;
-  keyExpirationTime: number;
   name: string;
+  email: string;
+  userIDs: [{
+    name: string,
+    email: string
+  }];
+  type: any;
   passphrase: string;
   rsaBits: number;
-  type: any;
-  userIDs: [{ name: string, email: string }];
+  curve: any;
+  keyExpirationTime: number;
+  format: any;
 };
 
 export type IHeadersEncrypt = {

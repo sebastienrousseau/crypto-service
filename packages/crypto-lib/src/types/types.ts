@@ -28,9 +28,7 @@ export type dataGenerate = {
   rsaBits: number;
   curve: any;
   keyExpirationTime: number;
-  subkeys: any;
   format: any;
-  config: any;
 };
 
 /**
