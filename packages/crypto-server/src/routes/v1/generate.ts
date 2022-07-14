@@ -8,7 +8,6 @@ export default (app: fastify.FastifyInstance) => {
   }>("/v1/generate", async (request, reply) => {
     const generateKeyPair =
     await generate({
-    // {
       date: new Date(),
       name: request.headers["name"],
       email: request.headers["email"],
@@ -22,9 +21,7 @@ export default (app: fastify.FastifyInstance) => {
       curve: request.headers["curve"],
       keyExpirationTime: Number(request.headers["keyExpirationTime"] ?? 0),
       format: request.headers["format"],
-    // };
     });
-    // console.log(generateKeyPair);
     reply.send({ data: generateKeyPair });
   });
 };

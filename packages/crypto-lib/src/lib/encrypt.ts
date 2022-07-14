@@ -86,14 +86,6 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 };
 
 if (args instanceof Array && args.length) {
-  // if (args[0] === "encrypt") {
-  //   const data = {
-  //     passphrase: args[2],
-  //     message: args[4],
-  //     publicKey: args[6],
-  //   };
-  //   encrypt(data);
-  // }
   const data = {
     passphrase: args[1],
     message: args[3],
