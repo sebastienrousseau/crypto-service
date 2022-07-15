@@ -9,7 +9,7 @@ export default (app: fastify.FastifyInstance) => {
     const encryptedData = await decrypt({
       passphrase: request.headers["passphrase"],
       encryptedMessage: String(request.headers["message"]),
-      publicKey: request.headers["publicKey"],
+      publicKey: String(request.headers["public-key"]),
     });
     reply.send({ data: encryptedData });
   });
