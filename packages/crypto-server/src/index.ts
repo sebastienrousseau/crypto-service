@@ -58,7 +58,7 @@ routes(app);
  */
 const start = async () => {
   try {
-    await app.listen(PORT, HOST).then(() => {
+    await app.listen({ port: Number(PORT), host: HOST }).then(() => {
       logger.info(`Server listening on http://${HOST}:${PORT}/`);
     });
   } catch (err) {
