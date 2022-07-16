@@ -39,7 +39,14 @@ logger.info("\n\nEnvironment details: " + consoleOutput);
 /* Register the Health plugin */
 app.register(Accepts);
 app.register(Etag);
-app.register(fastifyHealthcheck, { healthcheckUrl: "/health" });
+app.register(fastifyHealthcheck, {
+  healthcheckUrl: "/health",
+  // healthcheckUrlDisable: true,
+  // healthcheckUrlAlwaysFail: true,
+  // exposeUptime: true,
+  // underPressureOptions: {}
+  exposeUptime: true
+});
 
 /* A plugin that compresses the response. */
 app.register(import("@fastify/compress"), {
