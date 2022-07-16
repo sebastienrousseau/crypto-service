@@ -80,9 +80,7 @@ export async function generate(data: types.dataGenerate): Promise<object> {
 
   if (data.type) {
     const pbkey = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".pub"),
-      { encoding: "utf8" },
-    );
+      path.resolve(__dirname, "../key/" + data.type + ".pub"));
     pbkey.write(Buffer.from(publicKey).toString("base64"));
     pbkey.on("finish", () => {
       console.log(
