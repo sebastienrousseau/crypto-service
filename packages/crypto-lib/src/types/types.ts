@@ -80,13 +80,13 @@ export type dataEncrypt = {
  * @module types/types
  * @public
  * @param {String} passphrase - Passphrase enumeration.
- * @param {String} encryptedMessage - Encrypted message enumeration.
+ * @param {String} message - Encrypted message enumeration.
  * @param {String} publicKey - Public key enumeration.
  *
  */
 export type dataDecrypt = {
   passphrase: string;
-  encryptedMessage: string;
+  message: string;
   publicKey: string;
 };
 
