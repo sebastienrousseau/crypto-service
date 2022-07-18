@@ -107,7 +107,7 @@ if (args instanceof Array && args.length) {
     message: args[3],
     publicKey: args[5],
   };
-  console.log(data);
+  // console.log(data);
   decrypt(data);
 }
 

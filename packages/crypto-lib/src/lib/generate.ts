@@ -135,6 +135,6 @@ if (args instanceof Array && args.length) {
     keyExpirationTime: Number(args[13]),
     format: args[15]
   };
-  console.log(data);
+  // console.log(data);
   generate(data);
 }
