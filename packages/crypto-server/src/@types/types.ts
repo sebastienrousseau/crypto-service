@@ -27,7 +27,7 @@ export type IHeadersEncrypt = {
 
 export type IHeadersDecrypt = {
   passphrase: string;
-  encryptedMessage: string;
+  message: string;
   publicKey: string;
 };
 

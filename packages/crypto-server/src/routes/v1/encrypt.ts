@@ -2,7 +2,9 @@ import * as fastify from 'fastify';
 import encrypt from '@sebastienrousseau/crypto-lib/dist/lib/encrypt';
 import { IHeadersEncrypt } from '../../@types/types';
 
+
 export default (app: fastify.FastifyInstance) => {
+
   app.get<{
     Headers: IHeadersEncrypt;
   }>("/v1/encrypt", async (request, reply) => {
