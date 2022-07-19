@@ -70,7 +70,7 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       passphrase: data.passphrase,
       rsaBits: Number(data.rsaBits),
       curve: data.curve,
-      keyExpirationTime: Number(data.keyExpirationTime),
+      keyExpirationTime:data.keyExpirationTime,
       format: data.format
     });
 
