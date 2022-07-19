@@ -6,9 +6,12 @@ const main = async (): Promise<void> => {
   const server = init();
   logger.info("👋 Welcome to the Crypto Server!")
   try {
-    await (await server).listen({ port: Number(PORT), host: HOST }).then(() => {
-      logger.info(`Server listening on http://${HOST}:${PORT}/`);
-    });
+    await (await server).ready();
+    await (await server)
+      .listen({ port: Number(PORT), host: HOST })
+      .then(() => {
+        logger.info(`🚀 Server listening on http://${HOST}:${PORT}/`);
+      });
   } catch (err) {
     logger.error(err)
     process.exit(1)

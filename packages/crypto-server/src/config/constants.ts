@@ -45,12 +45,12 @@ export const compressOptions: FastifyCompressOptions = {
   // set up rate limiter: maximum of five requests per minute
 export const rateLimitOptions = {
     global: true, // default true
-    max: 1, // default 1000
+    max: 10, // default 1000
     // ban: 2, // default null
     timeWindow: '1 minute', // default 1000 * 60
     // hook: 'preHandler', // default 'onRequest'
     // cache: 10000, // default 5000
-    // allowList: ['127.0.0.1'], // default []
+    allowList: ['127.0.0.1'], // default []
     // redis: new Redis({ host: '127.0.0.1' }), // default null
     nameSpace: 'crypto-server-rate-limit-', // default is 'fastify-rate-limit-'
     // continueExceeding: true, // default false
@@ -59,10 +59,11 @@ export const rateLimitOptions = {
     // errorResponseBuilder: function (request, context) { /* ... */},
 
     errorResponseBuilder(req, context) {
+      req.log.warn(`${req.ip} have been rateLimited`);
       return {
         code: 429,
         error: 'Too Many Requests',
-        message: `${req.raw.ip} Only ${context.max} requests are allowed per ${context.after}. Try again soon.`,
+        message: `Only ${context.max} requests are allowed per ${context.after}. Try again soon.`,
         date: Date.now(),
         expiresIn: context.ttl, // milliseconds
       }
