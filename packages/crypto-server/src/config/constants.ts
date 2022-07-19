@@ -57,6 +57,16 @@ export const rateLimitOptions = {
     // skipOnError: true, // default false
     // keyGenerator: function (request) { /* ... */ }, // default (request) => request.raw.ip
     // errorResponseBuilder: function (request, context) { /* ... */},
+
+    errorResponseBuilder(req, context) {
+      return {
+        code: 429,
+        error: 'Too Many Requests',
+        message: `${req.raw.ip} Only ${context.max} requests are allowed per ${context.after}. Try again soon.`,
+        date: Date.now(),
+        expiresIn: context.ttl, // milliseconds
+      }
+    },
     // enableDraftSpec: true, // default false. Uses IEFT draft header standard
     // addHeadersOnExceeding: { // default show all the response headers when rate limit is not reached
     //   'x-ratelimit-limit': true,

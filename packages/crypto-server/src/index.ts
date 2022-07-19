@@ -1,9 +1,9 @@
-import { build } from "./server";
 import { HOST, PORT } from "./config/constants";
+import { init } from "./server";
 import logger from "./lib/logger";
 
 const main = async (): Promise<void> => {
-  const server = build();
+  const server = init();
   logger.info("👋 Welcome to the Crypto Server!")
   try {
     await (await server).listen({ port: Number(PORT), host: HOST }).then(() => {
