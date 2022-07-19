@@ -14,13 +14,9 @@ export default (app: fastify.FastifyInstance) => {
     const verifyData =
     await verify({
     // [{
-      message: request.headers["message"],
-      verificationKeys: request.headers["verificationKeys"],
-      expectSigned: Boolean(request.headers["expectSigned"]),
-      format: request.headers["format"],
-      signature: request.headers["signature"],
       date: new Date(request.headers["date"]),
-      config: request.headers["config"],
+      message: request.headers["message"],
+      verificationKeys: request.headers["verification-keys"],
     // }];
     });
     reply.send({ data: verifyData });

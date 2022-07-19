@@ -134,13 +134,9 @@ export type dataSign = {
  *
  */
 export type dataVerify = {
-  message: string;
-  verificationKeys: string;
-  expectSigned: boolean;
-  format: any;
-  signature: any;
   date: Date;
-  config: any;
+  message: string;
+  verificationKeys: any;
 };
 
 /**
