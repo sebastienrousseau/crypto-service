@@ -73,10 +73,11 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 
   const encryptedMsg = await fs.createWriteStream(
     path.resolve(__dirname, "../data/encrypted.txt"),
-    { encoding: "ascii" },
+    { encoding: "utf-8" },
   );
   const encryptedString = encrypted.toString();
-  encryptedMsg.write(Buffer.from(encryptedString).toString("base64"));
+  const encryptedBase64 = Buffer.from(encryptedString, 'binary').toString('base64')
+  encryptedMsg.write(encryptedBase64);
   encryptedMsg.on("finish", () => {
     console.log("✅ Wrote encrypted message data to file");
   });
@@ -86,14 +87,6 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
 };
 
 if (args instanceof Array && args.length) {
-  // if (args[0] === "encrypt") {
-  //   const data = {
-  //     passphrase: args[2],
-  //     message: args[4],
-  //     publicKey: args[6],
-  //   };
-  //   encrypt(data);
-  // }
   const data = {
     passphrase: args[1],
     message: args[3],

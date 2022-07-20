@@ -23,7 +23,7 @@ const handleDecrypt = async () => {
 
   const data = {
     passphrase: responseDecrypt.passphrase,
-    encryptedMessage: responseDecrypt.message,
+    message: responseDecrypt.message,
     publicKey: responseDecrypt.publicKey,
   };
 

@@ -5,8 +5,8 @@ const handleGenerate = async () => {
   const responseGenerate = await prompts([
     {
       type: "text",
-      name: "curve",
-      message: 'Curve name (e.g. "curve25519")',
+      name: "name",
+      message: "Provide a first and last name",
     },
     {
       type: "text",
@@ -15,18 +15,8 @@ const handleGenerate = async () => {
     },
     {
       type: "text",
-      name: "format",
-      message: 'Provide a format (e.g. "armored")',
-    },
-    {
-      type: "text",
-      name: "expiration",
-      message: 'Provide a key expiration time (e.g. "1y")',
-    },
-    {
-      type: "text",
-      name: "name",
-      message: "Provide a first and last name",
+      name: "type",
+      message: 'Provide a key type (e.g. "rsa or ecc")',
     },
     {
       type: "password",
@@ -40,24 +30,34 @@ const handleGenerate = async () => {
     },
     {
       type: "text",
-      name: "type",
-      message: 'Provide a key type (e.g. "rsa or ecc")',
+      name: "curve",
+      message: 'Curve name (e.g. "curve25519")',
+    },
+    {
+      type: "text",
+      name: "expiration",
+      message: 'Provide a key expiration time (e.g. "1y")',
+    },
+    {
+      type: "text",
+      name: "format",
+      message: 'Provide a format (e.g. "armored")',
     },
   ]);
 
   console.log(responseGenerate);
 
   const data = {
-    curve: responseGenerate.curve,
     date: new Date(),
-    email: responseGenerate.email,
-    format: responseGenerate.format,
-    keyExpirationTime: responseGenerate.expiration,
     name: responseGenerate.name,
+    email: responseGenerate.email,
+    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
+    type: responseGenerate.type,
     passphrase: responseGenerate.passphrase,
     rsaBits: responseGenerate.rsaBits,
-    type: responseGenerate.type,
-    userIDs: [{ name: responseGenerate.name, email: responseGenerate.email }],
+    curve: responseGenerate.curve,
+    keyExpirationTime: responseGenerate.expiration,
+    format: responseGenerate.format,
   };
   // console.log(data);
   await generate(data);

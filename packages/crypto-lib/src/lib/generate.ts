@@ -64,15 +64,14 @@ const args = process.argv.slice(2);
 export async function generate(data: types.dataGenerate): Promise<object> {
   const { privateKey, publicKey, revocationCertificate } =
     await openpgp.generateKey({
-      userIDs: [{ name: data.name, email: data.email }],
-      passphrase: data.passphrase,
-      type: data.type,
-      curve: data.curve,
-      rsaBits: Number(data.rsaBits),
-      keyExpirationTime: Number(data.keyExpirationTime),
       date: new Date(),
-      format: data.format,
-      subkeys:[{sign: true}]
+      userIDs: [{ name: data.name, email: data.email }],
+      type: data.type,
+      passphrase: data.passphrase,
+      rsaBits: Number( Math.min((data.rsaBits),2048)),
+      curve: data.curve,
+      keyExpirationTime: Number( Math.min((data.keyExpirationTime),0)),
+      format: data.format
     });
 
   console.log(privateKey);
@@ -81,9 +80,7 @@ export async function generate(data: types.dataGenerate): Promise<object> {
 
   if (data.type) {
     const pbkey = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".pub"),
-      { encoding: "utf8" },
-    );
+      path.resolve(__dirname, "../key/" + data.type + ".pub"));
     pbkey.write(Buffer.from(publicKey).toString("base64"));
     pbkey.on("finish", () => {
       console.log(
@@ -126,32 +123,18 @@ export default generate;
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
-  // if (args[0] === "generate") {
-  //   const data = {
-  //     date: new Date(),
-  //     type: args[8],
-  //     rsaBits: Number(args[12]),
-  //     userIDs: [{ name: args[2], email: args[4] }],
-  //     name: args[2],
-  //     email: args[4],
-  //     passphrase: args[6],
-  //     curve: args[10],
-  //     keyExpirationTime: Number(args[14]),
-  //     format: args[16],
-  //   };
-  //   generate(data);
-  // }
   const data = {
     date: new Date(),
-    type: args[7],
-    rsaBits: Number(args[11]),
-    userIDs: [{ name: args[1], email: args[3] }],
     name: args[1],
     email: args[3],
-    passphrase: args[5],
-    curve: args[9],
+    userIDs: [{ name: args[1], email: args[3] }],
+    type: args[5],
+    passphrase: args[7],
+    rsaBits: Number(args[9]),
+    curve: args[11],
     keyExpirationTime: Number(args[13]),
-    format: args[15],
+    format: args[15]
   };
+  // console.log(data);
   generate(data);
 }

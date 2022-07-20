@@ -6,17 +6,17 @@ const handleVerify = async () => {
     {
       type: "text",
       name: "message",
-      message: "Provide a message to encrypt",
-    },
-    {
-      type: "confirm",
-      name: "detached",
-      message: "Provide true or false",
+      message: "Provide a message to be verified.",
     },
     {
       type: "text",
-      name: "publicKey",
-      message: "Provide a public key in base64 format",
+      name: "verificationKeys",
+      message: "Provide an array of publicKeys or single key, to verify signatures in base64 format",
+    },
+    {
+      type: "text",
+      name: "date",
+      message: "Provide an ISO Date string formatted date to verify message. If not provided, current date will be used. (YYYY-MM-DDTHH:mm:ss.sssZ)",
     },
   ]);
 
@@ -24,13 +24,14 @@ const handleVerify = async () => {
 
   const data = {
     message: responseVerify.message,
-    publicKey: responseVerify.publicKey,
+    verificationKeys: responseVerify.verificationKeys,
+    date: new Date(),
   };
 
   if (
     responseVerify.message === "" ||
-    responseVerify.detached === "" ||
-    responseVerify.publicKey === ""
+    responseVerify.verificationKeys === "" ||
+    responseVerify.date === ""
   ) {
     console.error(
       "\n🔔 You must provide a value for each of the properties.\n",

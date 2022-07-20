@@ -14,7 +14,7 @@
 
 ***
 
-## Welcome to Crypto Server
+## 👋 Welcome to Crypto Server
 
 Crypto Server is a [Fastify][3] web server that exposes easy consumable REST
 APIs to perform low-level cryptographic operations. It is implemented using

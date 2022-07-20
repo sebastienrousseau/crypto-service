@@ -1,38 +1,38 @@
-import config from '../../src/config/config';
+// import config from '../../src/config/config';
 import { generate } from "../../src/lib/generate"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
+
 const data = {
-  rsaBits: config.preferredRSABits,
+  rsaBits: 2048,
   curve: '',
   email: 'jane@doe.com',
   comment: 'test comment',
   keyExpirationTime: 0,
-  format: config.preferredFormat,
+  format: 'armored',
   name: 'Jane Doe',
   passphrase: '123456789abcdef',
   date: new Date(),
-  type: config.preferredType,
+  type: 'rsa',
   userIDs: [{ name: 'Jane Doe', email:'jane@doe.com'}],
-}
+};
 
-describe('Generate key - single userid', function () {
+describe('Generate key', function () {
   it('should generate a key', async function () {
     const test = generate(data);
     await expect(test).to.eventually.be.fulfilled;
   });
 });
 
-// describe('generateKey rsaBits', function () {
-//   it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
-//     const rsaBits = 2046;
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
-//   });
-// });
+describe('generateKey rsaBits', function () {
+  it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
+    const test = generate({ ...data, rsaBits: 0 });
+    await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
+  });
+});
 
 // describe('generateKey EllipticCurveName', function () {
 //   it('should fail for invalid curve (KeyOptions: EllipticCurveName)', async function () {
@@ -44,8 +44,9 @@ describe('Generate key - single userid', function () {
 
 // describe('generateKey userIDs', function () {
 //   it('should fail for invalid user email address (KeyOptions: userIDs)', async function () {
+//     const name = 'Jane Doe';
 //     const email = 'wrongemailformat.com';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
+//     const test = generate({ ...data, userIDs: [{ name, email }] });
 //     await expect(test).to.eventually.be.rejectedWith(/Invalid user ID format/);
 //   });
 // });
@@ -74,21 +75,21 @@ describe('Generate key - single userid', function () {
 //   });
 // });
 
-// describe('generateKey passphrase', function () {
-//   it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
-//     const passphrase = 'abcdef123456789';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
+describe('generateKey passphrase', function () {
+  it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
+    const passphrase = 'abcdef123456789';
+    const test = generate({ ...data, passphrase });
+    await expect(test).to.eventually.be.rejectedWith;
+  });
+});
 
-// describe('generateKey type', function () {
-//   it('should fail for invalid type (KeyOptions: type)', async function () {
-//     const type = "123456789";
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
+describe('generateKey type', function () {
+  it('should fail for invalid type (KeyOptions: type)', async function () {
+    const type = "123456789";
+    const test = generate({ ...data, type });
+    await expect(test).to.eventually.be.rejectedWith;
+  });
+});
 
 // describe('generateKey - unit tests', () => {
 //   it('should have default params set', async () => {
