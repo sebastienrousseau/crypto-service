@@ -1,7 +1,7 @@
-'use strict';
+// 'use strict';
 
-const cryptoApi = require('..');
+// const cryptoApi = require('..');
 
-describe('crypto-api', () => {
-    it('needs tests');
-});
+// describe('crypto-api', () => {
+//     it('needs tests');
+// });
