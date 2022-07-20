@@ -3,5 +3,6 @@
 module.exports = cryptoApi;
 
 function cryptoApi() {
-    // TODO
+    console.log('cryptoApi');
 }
+cryptoApi();
