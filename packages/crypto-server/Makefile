@@ -7,7 +7,7 @@
 #             |___/|_|
 #
 # Crypto Server
-# https://cryptosvr.io
+# https://crypto-server.io
 #
 # Copyright (c) Sebastien Rousseau 2022. All rights reserved
 # Licensed under the MIT license

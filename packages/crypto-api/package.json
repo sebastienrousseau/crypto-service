@@ -13,31 +13,14 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "crypto-server": "dist/src/index.js"
+        "cryptocli": "dist/api"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
-    "dependencies": {
-        "@fastify/accepts": "^4.0.0",
-        "@fastify/compress": "^6.1.0",
-        "@fastify/etag": "^4.0.0",
-        "@fastify/helmet": "^9.1.0",
-        "@fastify/rate-limit": "^7.2.0",
-        "@types/node": "latest",
-        "@types/openpgp": "^4.4.18",
-        "@types/uuid": "^8.3.4",
-        "fastify": "^4.2.1",
-        "fastify-healthcheck": "^4.0.0",
-        "fastify-tsconfig": "^1.0.1",
-        "openpgp": "^5.3.1",
-        "tsconfig-paths": "^4.0.0",
-        "winston": "^3.8.1"
-    },
-    "description": "Crypto Server is a Fastify web server that exposes easy consumable REST APIs to perform low-level cryptographic operations. It is implemented using Node.js and relies on Crypto Lib.",
+    "description": "Crypto API is a Cryptographic Application Programming Interface that provides RESTful API services.",
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
-        "@sebastienrousseau/crypto-lib": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
@@ -71,13 +54,14 @@
         "typescript": "^4.7.4"
     },
     "directories": {
-        "src": "./src"
+        "src": "./src",
+        "test": "__tests__"
     },
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },
     "files": [
-        "dist/"
+        "dist/**/*"
     ],
     "funding": [
         {
@@ -89,39 +73,22 @@
             "url": "https://paypal.me/wwdseb"
         }
     ],
-    "homepage": "https://crypto-server.io",
+    "homepage": "https://crypto-api.io",
     "keywords": [
-        "crypto-api",
-        "crypto-library",
-        "crypto-service",
-        "cryptography",
-        "cryptoservice",
-        "decryption-tool",
-        "decryption",
-        "ecc-cryptography",
-        "ecc-key-encryption",
-        "ecc",
-        "encryption-tool",
-        "encryption",
-        "encryption",
-        "openpgpjs",
-        "rfc4880",
-        "rsa-cryptography",
-        "rsa-decryption",
-        "rsa"
+        "crypto-api"
     ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "./dist/index.js",
-    "name": "@sebastienrousseau/crypto-server",
+    "main": "./dist/api.js",
+    "name": "@sebastienrousseau/crypto-api",
     "private": false,
     "publishConfig": {
         "access": "public",
         "registry": "https://npm.pkg.github.com"
     },
     "repository": {
-        "directory": "packages/crypto-server",
+        "directory": "packages/crypto-api",
         "type": "git",
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
@@ -129,23 +96,24 @@
         "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
+        "copy:key": "",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
-        "copy:package": "cp ./package.json ./dist/",
+        "copy:package": "cp package.json dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
-        "lint:fix": "eslint --cache --fix src/**/*.ts",
+        "format": "prettier --write src/**/*.ts",
         "lint": "eslint src/**/*.ts",
+        "lint:fix": "eslint --cache --fix src/**/*.ts",
         "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
         "prepack": "yarn build",
-        "format": "prettier --write src/**/*.ts",
+        "release": "yarn release:prepare && yarn release:publish",
         "release:prepare": "yarn pack",
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
-        "start": "node dist/src/index.js",
-        "test": ""
+        "start": "node dist/api.js",
+        "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },
-    "types": "./dist/src/index.d.ts",
-    "version": "0.0.3"
+    "types": "./dist/index.d.ts",
+    "version": "0.0.1"
 }

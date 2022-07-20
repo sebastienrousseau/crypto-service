@@ -1,0 +1,18 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "cleanOutputDir": true,
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "githubPages": false,
+  "entryPointStrategy": "expand",
+  "entryPoints": [
+      "./src"
+  ],
+  "logLevel": "Verbose",
+  "name": "Crypto API",
+  "out": "docs",
+  "sort": [
+      "source-order"
+  ]
+}
