@@ -1,0 +1,85 @@
+{
+    "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+    "autoupdate": {
+        "fileMap": [
+            {
+                "basePath": "dist",
+                "files": [
+                    "**/*"
+                ]
+            }
+        ],
+        "source": "git",
+        "target": "git://github.com/sebastienrousseau/crypto-service.git"
+    },
+    "bin": {
+        "cryptocli": "dist/api"
+    },
+    "bugs": {
+        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+    },
+    "description": "Crypto API is a Cryptographic Application Programming Interface that provides RESTful API services.",
+    "directories": {
+        "src": "./src",
+        "test": "__tests__"
+    },
+    "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    },
+    "files": [
+        "dist/**/*"
+    ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/sebastienrousseau"
+        },
+        {
+            "type": "paypal",
+            "url": "https://paypal.me/wwdseb"
+        }
+    ],
+    "homepage": "https://crypto-api.io",
+    "keywords": [
+        "crypto-api"
+    ],
+    "license": "MIT",
+    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+    "lockfileVersion": 1,
+    "main": "./dist/api.js",
+    "name": "@sebastienrousseau/crypto-api",
+    "private": false,
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://npm.pkg.github.com"
+    },
+    "repository": {
+        "directory": "packages/crypto-api",
+        "type": "git",
+        "url": "git@github.com:sebastienrousseau/crypto-service.git"
+    },
+    "scripts": {
+        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
+        "copy:copyright": "cp COPYRIGHT dist/",
+        "copy:key": "",
+        "copy:license": "cp LICENSE dist/",
+        "copy:makefile": "cp Makefile dist/",
+        "copy:package": "cp package.json dist/",
+        "copy:readme": "cp README.md dist/",
+        "docs": "typedoc",
+        "filesize:distribution": "filesizes dist/ > dist/Report.txt",
+        "format": "prettier --write src/**/*.ts",
+        "lint": "eslint src/**/*.ts",
+        "lint:fix": "eslint --cache --fix src/**/*.ts",
+        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
+        "prepack": "yarn build",
+        "release": "yarn release:prepare && yarn release:publish",
+        "release:prepare": "yarn pack",
+        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
+        "start": "node dist/api.js",
+        "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
+    },
+    "types": "./dist/index.d.ts",
+    "version": "0.0.1"
+}

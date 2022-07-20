@@ -1,0 +1,25 @@
+{
+  "opts": {
+    "destination": "docs",
+    "encoding": "utf8",
+    "recurse": true,
+    "verbose": true
+  },
+  "plugins": [],
+  "recurseDepth": 10,
+  "source": {
+    "exclude": ["node_modules", "dist", "coverage", "test"],
+    "excludePattern": "(node_modules/|docs|templates|jsdoc-template|template)",
+    "include": ["src", "README.md"],
+    "includePattern": "\\.(jsx|js|ts|tsx)$"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "templates": {
+    "disableSort": false,
+    "collapse": true,
+    "resources": { }
+  }
+}

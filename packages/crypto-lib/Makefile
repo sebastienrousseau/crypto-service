@@ -6,7 +6,7 @@
 #             |___/|_|
 #
 # Crypto Lib
-# https://cryptolib.io
+# https://crypto-lib.io
 #
 # Copyright (c) Sebastien Rousseau 2022. All rights reserved
 # Licensed under the MIT license
