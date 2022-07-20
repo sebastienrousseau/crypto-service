@@ -68,9 +68,9 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       userIDs: [{ name: data.name, email: data.email }],
       type: data.type,
       passphrase: data.passphrase,
-      rsaBits: Number( Math.min((data.rsaBits),10)),
+      rsaBits: Number( Math.min((data.rsaBits),2048)),
       curve: data.curve,
-      keyExpirationTime: Number( Math.min((data.keyExpirationTime),10)),
+      keyExpirationTime: Number( Math.min((data.keyExpirationTime),0)),
       format: data.format
     });
 

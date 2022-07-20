@@ -20,12 +20,12 @@ const data = {
   userIDs: [{ name: 'Jane Doe', email:'jane@doe.com'}],
 };
 
-// describe('Generate key', function () {
-//   it('should generate a key', async function () {
-//     const test = generate(data);
-//     await expect(test).to.eventually.be.fulfilled;
-//   });
-// });
+describe('Generate key', function () {
+  it('should generate a key', async function () {
+    const test = generate(data);
+    await expect(test).to.eventually.be.fulfilled;
+  });
+});
 
 describe('generateKey rsaBits', function () {
   it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
@@ -75,21 +75,21 @@ describe('generateKey rsaBits', function () {
 //   });
 // });
 
-// describe('generateKey passphrase', function () {
-//   it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
-//     const passphrase = 'abcdef123456789';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
+describe('generateKey passphrase', function () {
+  it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
+    const passphrase = 'abcdef123456789';
+    const test = generate({ ...data, passphrase });
+    await expect(test).to.eventually.be.rejectedWith;
+  });
+});
 
-// describe('generateKey type', function () {
-//   it('should fail for invalid type (KeyOptions: type)', async function () {
-//     const type = "123456789";
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
+describe('generateKey type', function () {
+  it('should fail for invalid type (KeyOptions: type)', async function () {
+    const type = "123456789";
+    const test = generate({ ...data, type });
+    await expect(test).to.eventually.be.rejectedWith;
+  });
+});
 
 // describe('generateKey - unit tests', () => {
 //   it('should have default params set', async () => {
