@@ -5,12 +5,12 @@
   "excludeInternal": true,
   "excludePrivate": true,
   "githubPages": false,
-  "entryPointStrategy": "Expand",
+  "entryPointStrategy": "expand",
   "entryPoints": [
       "./src"
   ],
   "logLevel": "Verbose",
-  "name": "Crypto CLI",
+  "name": "Crypto API",
   "out": "docs",
   "sort": [
       "source-order"
