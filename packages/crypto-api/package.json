@@ -18,7 +18,8 @@
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
-    "description": "Crypto API is a Cryptographic Application Programming Interface that provides RESTful API services.",
+    "description": "Crypto API is a portable interface to cryptographic operations such as signature generation and verification, hashing and verification, encryption and decryption.",
+    "dependencies": {},
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
@@ -58,7 +59,7 @@
         "test": "__tests__"
     },
     "engines": {
-        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+        "node": "^12.20.0 || ^14.13.1 || >=18.6.0"
     },
     "files": [
         "dist/**/*"
@@ -93,10 +94,12 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && yarn run copy:coll && yarn run copy:env && yarn run copy:lib && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "",
+        "copy:coll": "mkdirp dist/collections && cp ./src/collections/* dist/collections",
+        "copy:env": "mkdirp dist/environments && cp ./src/environments/* dist/environments",
+        "copy:lib": "mkdirp dist/lib && cp ./src/lib/* dist/lib",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
         "copy:package": "cp package.json dist/",

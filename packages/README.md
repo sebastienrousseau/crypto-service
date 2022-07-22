@@ -8,6 +8,15 @@
 
 ## Packages
 
+### Crypto API
+
+![Banner representing Crypto API][crypto api]
+
+Crypto API is a portable interface to cryptographic operations such as signature generation and verification, hashing and verification, encryption and
+decryption.
+
+![divider][divider]
+
 ### Crypto CLI
 
 ![Banner representing Crypto CLI][crypto cli]
@@ -42,6 +51,7 @@ implemented using Node.js and relies on [**Crypto Lib**](https://github.com/seba
 Auto-generated documentation created by [JSDoc](https://github.com/jsdoc/jsdoc)
 and deployed via [GitHub](https://github.com)
 
+- [Crypto API Documentation]()
 - [Crypto CLI Documentation]()
 - [Crypto Lib Documentation]()
 - [Crypto Server Documentation]()
@@ -51,6 +61,8 @@ and deployed via [GitHub](https://github.com)
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
 
 [crypto service suite]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service suite"
+
+[crypto api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-api-small.svg "crypto api"
 
 [crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 
