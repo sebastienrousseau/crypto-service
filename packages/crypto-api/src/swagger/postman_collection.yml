@@ -1,0 +1,59 @@
+---
+openapi: 3.0.3
+info:
+  title: 🔐 The Crypto Service Suite APIs
+  description: "The Crypto Service API Suite is a set of REST APIs that delivers common crypto functions, including integration, data encryption, tokenisation, transaction authorisation, code-signing and key life-cycle management and other security services."
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: "http://localhost"
+paths:
+  /v1/encrypt:
+    get:
+      summary: /encrypt
+      description: "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message."
+      operationId: encrypt
+      responses:
+        "200":
+          description: ""
+  /v1/decrypt:
+    get:
+      summary: /decrypt
+      description: "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
+      operationId: decrypt
+      responses:
+        "200":
+          description: ""
+  /v1/generate:
+    get:
+      summary: /generate
+      description: "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
+      operationId: generate
+      responses:
+        "200":
+          description: ""
+  /health:
+    get:
+      summary: /health
+      description: "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
+      operationId: health
+      responses:
+        "200":
+          description: ""
+  /v1/revoke:
+    get:
+      summary: /revoke
+      description: "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
+      operationId: revoke
+      responses:
+        "200":
+          description: ""
+  /v1/verify:
+    get:
+      summary: /verify
+      description: "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
+      operationId: verify
+      responses:
+        "200":
+          description: ""
+tags: []
