@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "43d70b8d-339a-45a1-863d-46d7e5048bae",
 		"name": "🔐 The Crypto Service Suite APIs",
-		"description": "![](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg)\n\nThe Crypto Service API Suite is a set of REST APIs that delivers common crypto functions, including integration, data encryption, tokenisation, transaction authorisation, code-signing and key life-cycle management and other security services.",
+		"description": "Crypto API is a set of portable REST APIs interface that delivers common cryptographic operations such as data encryption, tokenisation, transaction authorisation, code-signing and key life-cycle management and other security services.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "332139"
 	},

@@ -3,30 +3,44 @@
 ![Banner representing the Crypto Application Programming Interface (API)](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-api-logo.svg)
 
 [![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-api)
-[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
+[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main\&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
 [![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge\&logo=)](https://opensource.org/licenses/MIT)
 ![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
 
-**[Website](https://crypto-api.io) • [Documentation](https://crypto-api.io/docs/) 
-• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
+**[Website](https://crypto-api.io) • [Documentation](https://crypto-api.io/docs/)
+• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
 • [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
 
 ***
 
 ## 👋 Welcome to Crypto API
 
-Crypto API is a portable interface to cryptographic operations such as signature generation and verification, hashing and verification, encryption and
-decryption.
+Crypto API is a set of portable APIs for common cryptographic operations such as
+data encryption, tokenisation, transaction authorization, code-signing and key
+life-cycle management and other security services.
 
 ![Crypto API][crypto-api]
 
 [![Getting Started][getting started]](#getting-started)
-[![Download Crypto API][download]][13]
+[![Download Crypto API][download]][8]
 
 ![divider][divider]
 
 ## ✨ Key Features
+
+The Crypto API provides a range of key artefacts and tools to assist you with
+cryptographic operations.
+
+The distribution includes the following:
+
+1.  A **Postman collection file** that provides a set of predefined API requests
+    to help you interact with [Crypto Server][13].
+
+1.  A **Postman environment configuration file** that provides key parameters to
+    configure your API requests.
+
+1.  A **Markdown documentation file** that contains the API documentation.
 
 The cryptographic operations include:
 
@@ -38,18 +52,15 @@ The cryptographic operations include:
 - Pseudorandom Number Generation,
 - Signature Verification.
 
-This library is based on [OpenPGP.js][1] - a JavaScript implementation of the
-OpenPGP protocol. It implements [RFC4880][2] and parts of [RFC4880bis][3].
-
-Development of this library is hosted by [GitHub][4] at the [following page][5].
-Source code is available to everyone under the standard [MIT license][6].
+Development of this library is hosted by [GitHub][1] at the [following page][2].
+Source code is available to everyone under the standard [MIT license][3].
 
 ![divider][divider]
 
 ## Getting Started
 
-👉 Note: » Crypto API is a [Node.js][7] module available through the
-[npm registry][8]. Before installing, [download and install Node.js][7].
+👉 Note: » Crypto API is a [Node.js][4] module available through the
+[npm registry][5]. Before installing, [download and install Node.js][4].
 Node.js 12.20.0 or or later.
 
 This allows you to always be on the latest version when we release new builds
@@ -62,14 +73,14 @@ with automatic upgrades.
 The first step to using Crypto API is to download and install the
 application and other required components.
 
-1️⃣ Install the Crypto API via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
+1️⃣ Install the Crypto API via [`npm`][5], [`yarn`][6] or [`pnpm`][7] package
 managers:
 
 - `npm i @sebastienrousseau/crypto-api`
 - `yarn add @sebastienrousseau/crypto-api`
 - `pnpm add @sebastienrousseau/crypto-api`
 
-For users who are unable to install the Crypto API, released builds can be 
+For users who are unable to install the Crypto API, released builds can be
 manually downloaded from this repository's
 [Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
 
@@ -128,7 +139,7 @@ You can get started with a simple app by running the following in your terminal:
 
 The Crypto API accepts multiple types of options. Options are a list of flags
 and other parameters that can control the behavior of the Crypto API as a
-whole. 
+whole.
 
 Below is the full list of supported options for the Crypto API.
 
@@ -163,16 +174,18 @@ and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#seman
 ## ❤️ Contributing
 
 Thank you for using Crypto API! If you like the library, it would be great if
-you can give it a star ⭐ on [GitHub][5].
+you can give it a star ⭐ on [GitHub][2].
 
 There are also many ways in which you can participate in this project, for
 example:
 
-- [Submit bugs and feature requests][14], and help us verify as they are checked
-in,
-- Review [source code changes][15], and help us improve our code quality,
-- Review the [documentation][16] and make pull requests for anything from typos
-to additional and new content.
+-   [Submit bugs and feature requests][9], and help us verify as they are
+    checked in,
+
+-   Review [source code changes][10], and help us improve our code quality,
+
+-   Review the [documentation][11] and make pull requests for anything from
+    typos to additional and new content.
 
 ![divider][divider]
 
@@ -187,32 +200,43 @@ Licensed under the [MIT](LICENSE) license.
 ## 🏢 Acknowledgements
 
 [Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
-these people and a bunch of awesome [contributors][17].
+these people and a bunch of awesome [contributors][12].
 
 | Contributors |
 |---------|
 |[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
 |[Sebastien Rousseau](https://github.com/sebastienrousseau)|
 
-[1]:  https://openpgpjs.org/
-[2]:  https://tools.ietf.org/html/rfc4880
-[3]:  https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
-[4]:  https://github.com
-[5]:  https://github.com/sebastienrousseau/crypto-service
-[6]:  https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
-[7]:  https://nodejs.org/en/
-[8]:  https://www.npmjs.com/
-[9]:  https://yarnpkg.com/getting-started
-[10]: https://pnpm.io/motivation
-[11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
-[12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
-[13]: https://github.com/sebastienrousseau/crypto-service/packages/
-[14]: https://github.com/sebastienrousseau/crypto-service/issues/new
-[15]: https://github.com/sebastienrousseau/crypto-service/pulls
-[16]: https://github.com/sebastienrousseau/crypto-service/docs
-[17]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
+[1]: https://github.com
+
+[2]: https://github.com/sebastienrousseau/crypto-service
+
+[3]: https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
+
+[4]: https://nodejs.org/en/
+
+[5]: https://www.npmjs.com/
+
+[6]: https://yarnpkg.com/getting-started
+
+[7]: https://pnpm.io/motivation
+
+[8]: https://github.com/sebastienrousseau/crypto-service/packages/
+
+[9]: https://github.com/sebastienrousseau/crypto-service/issues/new
+
+[10]: https://github.com/sebastienrousseau/crypto-service/pulls
+
+[11]: https://github.com/sebastienrousseau/crypto-service/docs
+
+[12]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
+
+[13]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
+
 [crypto-api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-api.svg "Crypto API"
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
+
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg
+
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg
