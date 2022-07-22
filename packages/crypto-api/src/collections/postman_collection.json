@@ -457,7 +457,7 @@
 						"key": "passphrase",
 						"value": "{{passphrase}}",
 						"type": "text",
-						"description": "(optional) A passphrase to encrypt the resulting private key. e.g. '1234567890abcdef' (min. 12 characters)."
+						"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters)."
 					},
 					{
 						"key": "rsaBits",
@@ -875,7 +875,7 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "(required) - A passphrase to encrypt the message key. e.g. '1234567890abcdef' (min. 12 characters).",
+						"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
 						"type": "text"
 					},
 					{
