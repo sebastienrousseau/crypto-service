@@ -12,8 +12,7 @@
 
 ![Banner representing Crypto API][crypto api]
 
-Crypto API is a portable interface to cryptographic operations such as signature generation and verification, hashing and verification, encryption and
-decryption.
+Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services.
 
 ![divider][divider]
 

@@ -13,13 +13,15 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "cryptocli": "dist/api"
+        "cryptoapi": "dist/index"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
-    "description": "Crypto API is a portable interface to cryptographic operations such as signature generation and verification, hashing and verification, encryption and decryption.",
-    "dependencies": {},
+    "description": "Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services.",
+    "dependencies": {
+        "minimist": "^1.2.6"
+    },
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
@@ -81,7 +83,7 @@
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
     "lockfileVersion": 1,
-    "main": "./dist/api.js",
+    "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-api",
     "private": false,
     "publishConfig": {
@@ -94,12 +96,11 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:coll && yarn run copy:env && yarn run copy:lib && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && yarn run copy:coll && yarn run copy:env && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:coll": "mkdirp dist/collections && cp ./src/collections/* dist/collections",
         "copy:env": "mkdirp dist/environments && cp ./src/environments/* dist/environments",
-        "copy:lib": "mkdirp dist/lib && cp ./src/lib/* dist/lib",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
         "copy:package": "cp package.json dist/",
@@ -114,7 +115,7 @@
         "release": "yarn release:prepare && yarn release:publish",
         "release:prepare": "yarn pack",
         "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
-        "start": "node dist/api.js",
+        "start": "node dist/index.js",
         "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },
     "types": "./dist/index.d.ts",
