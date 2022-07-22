@@ -31,9 +31,9 @@ solves common application crypto problems, including integration, data
 encryption, tokenization, transaction authorization, code-signing and key 
 life-cycle management and other security services. 
 
-The Crypto Service Suite Suite encompasses three products, [Crypto CLI][16], 
-[Crypto Lib][6] and [Crypto Server][7] part of the Crypto Service Suite 
-Applications.
+The Crypto Service Suite Suite encompasses four products, [Crypto API][18],
+[Crypto CLI][16], [Crypto Lib][6] and [Crypto Server][7] part of the Crypto
+Service Suite Applications.
 
 [![Getting Started][getting started]](#getting-started)
 [![Download Crypto Service Suite v0.0.2][download]][9]
@@ -48,6 +48,14 @@ Crypto Service Suite can help you ensure the following:
 - Integrity of data,
 - Message Level Encryption for encryption and non-repudiation.,
 - Privacy of data.
+
+![divider][divider]
+
+## 🚀 Crypto API
+
+![Banner representing Crypto API][crypto api]
+
+Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services. [Learn more][18][>][18]
 
 ![divider][divider]
 
@@ -265,9 +273,11 @@ these people and a bunch of awesome
 [15]: https://pnpm.io/motivation
 [16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
 [17]: https://github.com/sebastienrousseau/crypto-service
+[18]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api
 
 [contributors-shield]: https://img.shields.io/github/contributors/sebastienrousseau/crypto-service.svg?style=for-the-badge
 [contributors-url]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
+[crypto api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-api-small.svg "crypto api"
 [crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
 [crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
 [crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"

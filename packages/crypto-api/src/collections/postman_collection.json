@@ -1,0 +1,968 @@
+{
+	"info": {
+		"_postman_id": "43d70b8d-339a-45a1-863d-46d7e5048bae",
+		"name": "🔐 The Crypto Service Suite APIs",
+		"description": "Crypto API is a set of portable REST APIs interface that delivers common cryptographic operations such as data encryption, tokenisation, transaction authorisation, code-signing and key life-cycle management and other security services.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "332139"
+	},
+	"item": [
+		{
+			"name": "/encrypt",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersEtag = pm.response.headers.get(\"etag\");",
+							"// let headersVary = pm.response.headers.get(\"vary\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Etag: \" + headersEtag,",
+							"    \"\\n → Content-type: \" + headersContentType,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    // \"\\n → Vary: \" + headersVary",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// Accessing and manipulating variables in the collection.",
+							"let encryptedData = pm.response.json();",
+							"const encodedValue = encryptedData.data;",
+							"console.log(encodedValue);",
+							"const encodedValueBase64 = btoa(encodedValue);",
+							"console.log(encodedValueBase64);",
+							"pm.environment.set(\"encMessage\", encodedValueBase64);",
+							"pm.collectionVariables.set(\"encMessage\", encodedValueBase64);",
+							"",
+							"// console.log(pm.environment.get(\"encMessage\"));",
+							"// console.log(pm.collectionVariables.get(\"encMessage\"));",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test('Response headers should indicate valid etag', function  () {",
+							"    pm.response.to.have.header('etag');",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"Test data type of the response\", () => {",
+							"  pm.expect(encryptedData).to.be.an(\"object\");",
+							"//   pm.expect(encryptedData.data).to.be.a(\"string\");",
+							"//   console.log(\"base64 received encoded data: \" + jsonData.data);",
+							"//   console.log(\"base64 decoded data: \" + atob(jsonData.data));",
+							"});",
+							"",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"});",
+							"",
+							"// pm.test(\"vary is present\", function () {",
+							"//     pm.response.to.have.header(\"vary\");",
+							"// });",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "passphrase",
+						"value": "{{passphrase}}",
+						"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+						"type": "text"
+					},
+					{
+						"key": "message",
+						"value": "{{message}}",
+						"description": "(required) message to be encrypted.",
+						"type": "text"
+					},
+					{
+						"key": "public-key",
+						"value": "{{publicKey}}",
+						"description": "(optional) array of keys or single key, used to encrypt the message.",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/v1/encrypt",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"encrypt"
+					]
+				},
+				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message."
+			},
+			"response": []
+		},
+		{
+			"name": "/decrypt",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let privateKey=pm.environment.get(\"privateKey\");",
+							"let publicKey=pm.environment.get(\"publicKey\");",
+							"let revocationCertificate=pm.environment.get(\"revocationCertificate\");",
+							"",
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersVary = pm.response.headers.get(\"vary\");",
+							"let headersContentLength = pm.response.headers.get(\"content-length\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Content-Length: \" + headersContentLength,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    \"\\n → Vary: \" + headersVary",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// console.log(pm.environment.get(\"encMessage\"));",
+							"",
+							"// Accessing and manipulating variables in the collection.",
+							"let decryptedData = pm.response.json();",
+							"pm.collectionVariables.set(\"decryptedData\", decryptedData.data);",
+							"console.log(decryptedData);",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  console.log(\"Environment: \" + pm.environment.name);",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  console.log(\"Response Time: \" + pm.response.responseTime + \"ms\");",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"response has valid json body\", function () {",
+							"    pm.response.to.have.jsonBody({ data: 'Hello Crypto Service!' }, true);",
+							"});",
+							"",
+							"pm.test(\"Test data type of the response\", () => {",
+							"  pm.expect(decryptedData).to.be.an(\"object\");",
+							"  pm.expect(decryptedData.data).to.be.a(\"string\");",
+							"//   console.log(\"base64 received encoded data: \" + jsonData.data);",
+							"//   console.log(\"base64 decoded data: \" + atob(jsonData.data));",
+							"});",
+							"",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"    console.log(JSON.stringify(\"content-type: \" + headersContentType));",
+							"});",
+							"",
+							"pm.test(\"vary is present\", function () {",
+							"    pm.response.to.have.header(\"vary\");",
+							"    console.log(JSON.stringify(\"vary: \" + headersVary));",
+							"});",
+							"",
+							"pm.test(\"content-length is present\", function () {",
+							"    pm.response.to.have.header(\"content-length\");",
+							"    console.log(JSON.stringify(\"content-length: \" + headersContentLength));",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"    console.log(JSON.stringify(\"Date: \" + headersDate));",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"    console.log(JSON.stringify(\"Connection: \" + headersConnection));",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"    console.log(JSON.stringify(\"Keep-Alive: \" + headersKeepAlive));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "passphrase",
+						"value": "{{passphrase}}",
+						"description": "Passphrase to decrypt the message.",
+						"type": "text"
+					},
+					{
+						"key": "message",
+						"value": "{{encMessage}}",
+						"description": "Message to be decrypted.",
+						"type": "text"
+					},
+					{
+						"key": "public-key",
+						"value": "{{publicKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/v1/decrypt",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"decrypt"
+					]
+				},
+				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
+			},
+			"response": []
+		},
+		{
+			"name": "/generate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersEtag = pm.response.headers.get(\"etag\");",
+							"let headersVary = pm.response.headers.get(\"vary\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Etag: \" + headersEtag,",
+							"    \"\\n → Content-type: \" + headersContentType,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    \"\\n → Vary: \" + headersVary",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test('Response headers should indicate valid etag', function  () {",
+							"    pm.response.to.have.header('etag');",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"});",
+							"",
+							"pm.test(\"vary is present\", function () {",
+							"    pm.response.to.have.header(\"vary\");",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"});",
+							"",
+							"// Accessing and manipulating variables in the collection.",
+							"let generatedKeys = pm.response.json();",
+							"pm.collectionVariables.set(\"generatedKeys\", generatedKeys.data);",
+							"console.log(generatedKeys);",
+							"",
+							"",
+							"// if (!pm.environment.get(\"publicKey\"))",
+							"pm.environment.set(\"publicKey\", btoa(generatedKeys.data.publicKey));",
+							"// pm.collectionVariables.set(\"publicKey\", btoa(generatedKeys.data.publicKey));",
+							"",
+							"// if (!pm.environment.get(\"privateKey\"))",
+							"pm.environment.set(\"privateKey\", btoa(generatedKeys.data.privateKey));",
+							"pm.collectionVariables.set(\"privateKey\", btoa(generatedKeys.data.privateKey));",
+							"",
+							"// if (!pm.environment.get(\"revocationCertificate\"))",
+							"pm.environment.set(\"revocationCertificate\", btoa(generatedKeys.data.revocationCertificate));",
+							"pm.collectionVariables.set(\"revocationCertificate\", btoa(generatedKeys.data.revocationCertificate));",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "name",
+						"value": "{{name}}",
+						"type": "text",
+						"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
+					},
+					{
+						"key": "email",
+						"value": "{{email}}",
+						"type": "text",
+						"description": "(required) An email address. e.g. 'jane@doe.com'"
+					},
+					{
+						"key": "type",
+						"value": "{{type}}",
+						"type": "text",
+						"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
+					},
+					{
+						"key": "passphrase",
+						"value": "{{passphrase}}",
+						"type": "text",
+						"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters)."
+					},
+					{
+						"key": "rsaBits",
+						"value": "{{rsaBits}}",
+						"type": "text",
+						"description": "(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048."
+					},
+					{
+						"key": "curve",
+						"value": "{{curve}}",
+						"type": "text",
+						"description": "(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1."
+					},
+					{
+						"key": "keyExpirationTime",
+						"value": "{{keyExpirationTime}}",
+						"type": "text",
+						"description": "(optional) Number of seconds from the key creation time after which the key expires."
+					},
+					{
+						"key": "format",
+						"value": "{{format}}",
+						"type": "text",
+						"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/v1/generate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"generate"
+					]
+				},
+				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
+			},
+			"response": []
+		},
+		{
+			"name": "/health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersContentLength = pm.response.headers.get(\"content-length\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Content-Length: \" + headersContentLength,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\"",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  console.log(\"Environment: \" + pm.environment.name);",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Uptime is available\", function(){",
+							"     pm.response.hasOwnProperty('uptime');",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  console.log(\"Response Time: \" + pm.response.responseTime + \"ms\");",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"response has valid json body\", function () {",
+							"    pm.response.to.have.jsonBody({ data: 'Hello Crypto Service!' }, true);",
+							"});",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"    console.log(JSON.stringify(\"content-type: \" + headersContentType));",
+							"});",
+							"",
+							"pm.test(\"content-length is present\", function () {",
+							"    pm.response.to.have.header(\"content-length\");",
+							"    console.log(JSON.stringify(\"content-length: \" + headersContentLength));",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"    console.log(JSON.stringify(\"Date: \" + headersDate));",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"    console.log(JSON.stringify(\"Connection: \" + headersConnection));",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"    console.log(JSON.stringify(\"Keep-Alive: \" + headersKeepAlive));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"health"
+					]
+				},
+				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
+			},
+			"response": []
+		},
+		{
+			"name": "/revoke",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let privateKey=pm.environment.get(\"privateKey\");",
+							"let publicKey=pm.environment.get(\"publicKey\");",
+							"let revocationCertificate=pm.environment.get(\"revocationCertificate\");",
+							"",
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersVary = pm.response.headers.get(\"vary\");",
+							"let headersContentLength = pm.response.headers.get(\"content-length\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Content-Length: \" + headersContentLength,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    \"\\n → Vary: \" + headersVary",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// Accessing and manipulating variables in the collection.",
+							"let decryptedData = pm.response.json();",
+							"pm.collectionVariables.set(\"decryptedData\", decryptedData.data);",
+							"console.log(decryptedData);",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  console.log(\"Environment: \" + pm.environment.name);",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.2\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  console.log(\"Response Time: \" + pm.response.responseTime + \"ms\");",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"response has valid json body\", function () {",
+							"    pm.response.to.have.jsonBody({ data: 'Hello Crypto Service!' }, true);",
+							"});",
+							"",
+							"pm.test(\"Test data type of the response\", () => {",
+							"  pm.expect(decryptedData).to.be.an(\"object\");",
+							"  pm.expect(decryptedData.data).to.be.a(\"string\");",
+							"//   console.log(\"base64 received encoded data: \" + jsonData.data);",
+							"//   console.log(\"base64 decoded data: \" + atob(jsonData.data));",
+							"});",
+							"",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"    console.log(JSON.stringify(\"content-type: \" + headersContentType));",
+							"});",
+							"",
+							"pm.test(\"vary is present\", function () {",
+							"    pm.response.to.have.header(\"vary\");",
+							"    console.log(JSON.stringify(\"vary: \" + headersVary));",
+							"});",
+							"",
+							"pm.test(\"content-length is present\", function () {",
+							"    pm.response.to.have.header(\"content-length\");",
+							"    console.log(JSON.stringify(\"content-length: \" + headersContentLength));",
+							"});",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"    console.log(JSON.stringify(\"Date: \" + headersDate));",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"    console.log(JSON.stringify(\"Connection: \" + headersConnection));",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"    console.log(JSON.stringify(\"Keep-Alive: \" + headersKeepAlive));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "passphrase",
+						"value": "{{passphrase}}",
+						"description": "Passphrase to decrypt the message.",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/v1/revoke",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"revoke"
+					]
+				},
+				"description": "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
+			},
+			"response": []
+		},
+		{
+			"name": "/verify",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Declaring Headers",
+							"let headersContentType = pm.response.headers.get(\"content-type\");",
+							"let headersEtag = pm.response.headers.get(\"etag\");",
+							"// let headersVary = pm.response.headers.get(\"vary\");",
+							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersConnection = pm.response.headers.get(\"Connection\");",
+							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
+							"",
+							"let consoleOutput = [",
+							"    \"\\n → Connection: \" + headersConnection,",
+							"    \"\\n → Etag: \" + headersEtag,",
+							"    \"\\n → Content-type: \" + headersContentType,",
+							"    \"\\n → Date: \" + headersDate,",
+							"    \"\\n → Environment: \" + pm.environment.name,",
+							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    // \"\\n → Vary: \" + headersVary",
+							"];",
+							"console.log(\"HTTP Headers:\" + consoleOutput);",
+							"",
+							"// Accessing and manipulating variables in the collection.",
+							"let verificationData = pm.response.json();",
+							"// pm.collectionVariables.set(\"verificationData\", verificationData.data);",
+							"console.log(verificationData);",
+							"",
+							"// Testing scripts",
+							"pm.test(\"Check the active environment\", () => {",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status is OK\", function(){",
+							"    pm.response.to.have.property('status', 'OK'); ",
+							"});",
+							"",
+							"pm.test(\"Response is not empty\", function () {",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.not.be.undefined;",
+							"    pm.response.to.not.be.null;",
+							"});",
+							"",
+							"pm.test('Response headers should indicate valid etag', function  () {",
+							"    pm.response.to.have.header('etag');",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 100ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json; charset=utf-8\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test(\"Test data type of the response\", () => {",
+							"  pm.expect(verificationData).to.be.an(\"object\");",
+							"//   pm.expect(encryptedData.data).to.be.a(\"string\");",
+							"//   console.log(\"base64 received encoded data: \" + jsonData.data);",
+							"//   console.log(\"base64 decoded data: \" + atob(jsonData.data));",
+							"});",
+							"",
+							"",
+							"pm.test(\"content-type is present\", function () {",
+							"    pm.response.to.have.header(\"content-type\");",
+							"});",
+							"",
+							"// pm.test(\"vary is present\", function () {",
+							"//     pm.response.to.have.header(\"vary\");",
+							"// });",
+							"",
+							"pm.test(\"Date is present\", function () {",
+							"    pm.response.to.have.header(\"Date\");",
+							"});",
+							"",
+							"pm.test(\"Connection is present\", function () {",
+							"    pm.response.to.have.header(\"Connection\");",
+							"});",
+							"",
+							"pm.test(\"Keep-Alive is present\", function () {",
+							"    pm.response.to.have.header(\"Keep-Alive\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "message",
+						"value": "{{message}}",
+						"description": "(required) message to be verified.",
+						"type": "text"
+					},
+					{
+						"key": "passphrase",
+						"value": "{{passphrase}}",
+						"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+						"type": "text"
+					},
+					{
+						"key": "verification-keys",
+						"value": "{{verificationKeys}}",
+						"description": "(required) array of publicKeys or single key, to verify signatures.",
+						"type": "text"
+					},
+					{
+						"key": "date",
+						"value": "{{date}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/v1/verify",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"verify"
+					]
+				},
+				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "generatedKeys",
+			"value": ""
+		},
+		{
+			"key": "encryptedData",
+			"value": ""
+		},
+		{
+			"key": "publicKey",
+			"value": ""
+		},
+		{
+			"key": "privateKey",
+			"value": ""
+		},
+		{
+			"key": "revocationCertificate",
+			"value": ""
+		},
+		{
+			"key": "decryptedData",
+			"value": ""
+		},
+		{
+			"key": "encryptedMsg",
+			"value": ""
+		},
+		{
+			"key": "encMessage",
+			"value": ""
+		},
+		{
+			"key": "verificationData",
+			"value": ""
+		}
+	]
+}
