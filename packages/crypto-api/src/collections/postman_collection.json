@@ -362,7 +362,7 @@
 					{
 						"key": "message",
 						"value": "{{encMessage}}",
-						"description": "The message object with the encrypted data.",
+						"description": "(required) message object with the encrypted data.",
 						"type": "text"
 					},
 					{
@@ -1239,57 +1239,57 @@
 	],
 	"variable": [
 		{
-			"id": "2a530766-86ae-485d-9e44-a6df7e15f887",
+			"id": "4b4a1814-2b23-404e-86fd-e77f105f90a6",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "fc9ec957-f549-462e-9106-b1c536476d0b",
+			"id": "4d9c8500-4046-4f3c-a304-e2d593de2984",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "af0d4f2c-bed4-4ce1-8551-39bf1f1d8d07",
+			"id": "3d2765dc-0e58-4fc9-b99f-e01dd3cfc1e4",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "cede3529-6efd-45d6-bdff-daca76a1604e",
+			"id": "769e27d4-9121-40e3-92ef-71a93e82b0f1",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "ecc9a874-c0c1-406e-b8cf-e1dc25e32583",
+			"id": "f25cfa33-810e-4286-97ce-7141ba601944",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "5afedb10-f9c0-4786-806c-c8a46752f03d",
+			"id": "25772053-2741-4c4b-b454-0aa065024cd5",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "fc41c93f-f833-45f4-a4fb-b6feada6697e",
+			"id": "a0ceb440-eb00-4c19-87b8-a04bbdde17ed",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "074c30a2-bc8c-4e1a-bb58-99de4ae6c2be",
+			"id": "ce400f74-0ea0-4df3-99c2-872177fb265d",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "74b4b559-a132-40e8-bbc5-eae8f6bf5951",
+			"id": "540adf16-757e-44f4-844d-37a3754ed738",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "e8a19e90-3541-4461-b1a0-649012bbe7e5",
+			"id": "0483dc36-f2e6-45f7-bf46-8e064a735abd",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "0f923925-a110-4ad2-8888-73cafe6f2660",
+			"id": "3575cea8-64db-401d-8f2a-8940021ad08b",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
