@@ -150,7 +150,7 @@
 						"type": "text"
 					}
 				],
-				"url": "http://localhost:3000/v1/encrypt",
+				"url": "{{url}}/v1/encrypt",
 				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message."
 			},
 			"response": [
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "3cae69fc-d553-4f6d-8098-8d0b726ff645",
+			"id": "fa4b36ba-4499-4168-8b9e-d2cf3cd4d9c8",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "4a95a777-ac21-4d1a-83b7-eedd305facce",
+			"id": "8de6bc3a-7026-414b-a980-2cb949de5c9a",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "94314ec2-7d6c-43b3-bdbd-e02f4096d4af",
+			"id": "bacc2344-83f4-4236-88ff-9eb6118ed1ff",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "567fe037-3e3b-446e-868a-39213331dde4",
+			"id": "6f4c0b5e-21e0-4e9c-939d-3d38d089c577",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "3cbc10dd-b19a-420e-9e17-673fffa71246",
+			"id": "976e3175-6eba-441e-a6c5-083b7283a0d7",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "33b5ec88-5bf5-4ce8-9146-f3d022fbbd6e",
+			"id": "b409d686-ceae-4600-a654-e3cf4b5bfbe5",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "805412ab-6154-4a7b-8d91-4e194b23cfcf",
+			"id": "f8876e93-2c34-4f08-a633-216e241f3046",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "f7c8124d-df24-4db5-873a-58071cb18a59",
+			"id": "64dfc5fb-58ae-4f7f-9923-eef1bf199cec",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f8c84958-25af-4a1b-9b8b-8a9f2c90c594",
+			"id": "b8e98837-fc2a-4675-8cd6-d235cce73d2e",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "6ed3c1ab-7fe0-45fe-a91c-c1fe45bf949d",
+			"id": "88c41196-f2ea-477a-acfb-5ff8d2b58ce5",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "c5ce3a18-60cc-4fc0-aacb-3ceaa7038d1c",
+			"id": "d374b381-9175-4841-9408-b72ed1403ec0",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
