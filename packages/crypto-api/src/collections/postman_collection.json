@@ -373,7 +373,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/decrypt",
-				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
+				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
 			},
 			"response": [
 				{
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "54d7e761-1964-4b6a-b84d-d79172be2360",
+			"id": "a70f8896-7589-48ce-a5c6-6ef8b5bd25af",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "010e1c2b-1dd6-4fc9-8fbf-a038c8f55721",
+			"id": "b8bac369-24d5-489a-b1db-b90efe24534d",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "cf440f64-4a04-41b0-a7d9-da909dbce3f7",
+			"id": "bd91f03b-b20a-4dfe-bd18-960bc796639f",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "d0536157-4bb1-4ac8-a912-2c88872278bc",
+			"id": "02761504-4a9c-458c-9e3f-3625599c6ead",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "88b3d413-b982-4605-b385-b43e7ccf6eb6",
+			"id": "a69a9775-d8d0-411b-8ac7-271dec1d6516",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "0c5416cb-577f-4b64-a2ef-948f2e16f9d6",
+			"id": "243bc259-133f-47e7-8981-77dcb059f90c",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "c01aa0ac-ed02-43a2-80f5-3f5d0d71a68a",
+			"id": "65d4199d-a40a-4d64-aa4f-851abf0fe78e",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "8ad88f80-08a6-4545-b00a-bf71bee380f2",
+			"id": "9a5aaaa3-1452-443e-bff4-5c027404d3cc",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "cc2dba12-d222-4627-9790-aa5bc13515c4",
+			"id": "bd24a44a-9bbc-4259-a6d5-9eaa5cd8c2eb",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "7d39cac1-f959-4457-8efd-582f2d35db69",
+			"id": "7f97ecfd-b3c9-44d7-ad31-b656a689a9ea",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "30ca06e4-9d1e-4c06-a951-8c020ba5dcfe",
+			"id": "c96b1683-b5b5-428c-bfaa-2d7b07148f70",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
