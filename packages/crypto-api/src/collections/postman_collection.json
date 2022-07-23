@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "43d70b8d-339a-45a1-863d-46d7e5048bae",
 		"name": "🔐 The Crypto Service Suite APIs",
-		"description": "Crypto API is a set of portable REST APIs interface that delivers common cryptographic operations such as data encryption, tokenisation, transaction authorisation, code-signing and key life-cycle management and other security services.",
+		"description": "The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations.\n\n## Methods",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "332139"
 	},
@@ -734,7 +734,7 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "Passphrase to decrypt the message.",
+						"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
 						"type": "text"
 					}
 				],
