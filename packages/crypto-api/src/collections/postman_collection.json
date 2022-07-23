@@ -918,7 +918,7 @@
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": "{{url}}/health"
+						"url": "{{url}}/v1/health"
 					},
 					"status": "OK",
 					"code": 200,
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "85e5e08e-d333-4414-9007-1032a1740bfa",
+			"id": "aca2d5f5-39ff-484e-9191-30908a578085",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "0ea8142e-dece-4909-8143-5702ac96c1ea",
+			"id": "877e761a-9f67-4c99-bdda-5a84679387f5",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "c6a08058-fab4-4a49-b898-62f730554002",
+			"id": "8a0157d0-dd9a-4954-8052-8972b8c2fc38",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "d4896c07-2879-4d6a-9204-3fdd3e8862d2",
+			"id": "9cf9e479-cae6-4384-8db1-be92f6508fdf",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "2b0a3d27-6920-4741-a538-333f0a8c4423",
+			"id": "d1bc4c5e-bf5c-4186-9f7b-68f0e136d4b4",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "267e5d28-ace1-4fe3-a1b7-a7ec7094980d",
+			"id": "c4d530d2-0c59-4fd2-b466-04a09840b9b6",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "2090b647-a80a-4f26-923f-dd7b84b7a31d",
+			"id": "f80be99d-a8d0-4dda-9701-4dc44083148b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "1fe5756c-1939-42f7-b8f1-15b3e3a26bc5",
+			"id": "6af93c34-ae26-41d8-899d-a4112aaf2c81",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "ce3fa214-b625-4ec2-8463-2d2e35bcb0d9",
+			"id": "6d496cfc-f765-499d-90aa-a9130c00adee",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "441618bb-818f-441e-8931-6db5d4b8643a",
+			"id": "04408aec-b02a-480f-bc5b-031df990609a",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "1d51a749-8849-4544-940c-c524d006414b",
+			"id": "24fe744c-9d7c-462e-860c-a82faaf2d586",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
