@@ -1207,7 +1207,7 @@
 						"type": "text"
 					}
 				],
-				"url": "http://localhost:3000/v1/verify",
+				"url": "{{url}}/v1/verify",
 				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
 			},
 			"response": []
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "faad361a-7c1f-4e37-b02a-2f354ce09b06",
+			"id": "436307b2-ee2a-4096-b7b5-3e33fe656124",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "450c5a65-7ee3-4d2d-ae7b-1adc0f2fef43",
+			"id": "44880686-91a7-4e1c-9d00-904fabfb9be6",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "185944f4-b3ee-4cfe-bbc2-b4aa1ffd8a41",
+			"id": "c6c534fc-e0bb-485a-93d8-14b1db08c915",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "74fb45be-b117-4d32-a425-50ed1ab45ff0",
+			"id": "70d84c33-2514-4265-8849-48172f901fe3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "51646295-4bf4-483c-bad8-149275bf0045",
+			"id": "29af909e-64db-4cc5-af82-f75e2b14db40",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "63228fc3-9675-4d57-a5fd-6f21b17415e2",
+			"id": "87732256-5fda-4c56-81e7-890357b66a8c",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "8b25d54d-3f0f-485f-895c-442d0932b05a",
+			"id": "29831dc4-57d9-425c-9658-1b78f6036a27",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "6af0d3ee-4a7d-439f-a72b-19515fafb652",
+			"id": "c573bdeb-6c1b-4da7-a516-c97f94f0eb54",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "c1cb2d28-f02d-495c-b02d-c11e7f041bf5",
+			"id": "70f65166-d561-48a5-8b39-56a3535130ab",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "7453b34d-e465-4ab4-aa9e-2843e6aaaab9",
+			"id": "43b9a938-58cf-4410-9d48-e03e19fb3568",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "72e99b6f-be44-4496-b155-6a092395ad8d",
+			"id": "cd1a283d-fdb8-459b-83fd-03f4df751e2b",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
