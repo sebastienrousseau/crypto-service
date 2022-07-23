@@ -697,7 +697,7 @@
 						"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 					}
 				],
-				"url": "http://localhost:3000/v1/generate",
+				"url": "{{url}}/v1/generate",
 				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
 			},
 			"response": [
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "7e281dfa-1c7f-49fa-bf14-d657fe54c955",
+			"id": "e27f512c-e429-4f56-873b-86cad9df8f1f",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "5d9023cf-d7d6-412f-83cf-c1192a970251",
+			"id": "e97969b7-4473-435c-979e-f9a49c663c64",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "176f4b37-b646-4f2f-8b15-f1b8917a3726",
+			"id": "9d0d35d1-1f4a-405c-ad12-9d3279a5e3e7",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "dc9cbf7b-c256-41d6-84f4-e06a1d908ffd",
+			"id": "19530560-b3f0-43e8-b486-dfed511ccee3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "9e43c4e0-eda1-4c23-bdaa-bc78a49445e4",
+			"id": "fc816237-db36-44ad-b007-fa0c8fe1b04c",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "f5e93c1a-08d3-4b31-a7d3-821bed0ccfb6",
+			"id": "399d2bd8-f381-49b2-85e3-cabec69622b3",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "34fcf7dd-a82b-4b48-82c8-559a41a20a74",
+			"id": "3c3ae5bb-8898-4531-9380-913ce95c0b7b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "8f0c5c43-7d0b-4671-969e-9095eff7c53b",
+			"id": "cc315a12-8341-441e-9288-fb77b54e5572",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d13d6ff9-7a83-4406-9750-1760c4e3e169",
+			"id": "60cbb834-ecff-4277-b3f9-875e73a622a5",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "b3e0f30c-107f-4485-8353-232f695b7869",
+			"id": "f1203cce-d5a2-4f81-b6e3-27a249907ecf",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "354a8828-5473-4e36-ac08-62b26bb1ecd4",
+			"id": "72bf00db-a2eb-46c9-8b3d-16d36336cca0",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
