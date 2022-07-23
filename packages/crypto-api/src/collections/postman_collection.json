@@ -1060,7 +1060,7 @@
 						"type": "text"
 					}
 				],
-				"url": "http://localhost:3000/v1/revoke",
+				"url": "{{url}}/v1/revoke",
 				"description": "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
 			},
 			"response": []
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "436307b2-ee2a-4096-b7b5-3e33fe656124",
+			"id": "dfa95d22-8a15-451e-a238-f2a23907f6a2",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "44880686-91a7-4e1c-9d00-904fabfb9be6",
+			"id": "d7e37aaf-0532-4ee7-81fd-ba77cceabba8",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "c6c534fc-e0bb-485a-93d8-14b1db08c915",
+			"id": "bfe95856-e0d1-4d8a-b006-107999cfe759",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "70d84c33-2514-4265-8849-48172f901fe3",
+			"id": "01caa6ec-7602-4442-a4ea-fe531d92738a",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "29af909e-64db-4cc5-af82-f75e2b14db40",
+			"id": "0c46c199-c047-4c0f-8b20-da41e22933bf",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "87732256-5fda-4c56-81e7-890357b66a8c",
+			"id": "006f294d-83a7-4a02-89d1-ad321906eca8",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "29831dc4-57d9-425c-9658-1b78f6036a27",
+			"id": "d06d292c-e51c-47b8-878c-c472c632128a",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "c573bdeb-6c1b-4da7-a516-c97f94f0eb54",
+			"id": "a4bbb677-d7b8-4b06-a91c-13fecdb1c2fc",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "70f65166-d561-48a5-8b39-56a3535130ab",
+			"id": "c8bbe183-3754-4618-a90a-4db7c790e552",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "43b9a938-58cf-4410-9d48-e03e19fb3568",
+			"id": "5a8cfddc-df84-4405-b1be-b27c0e9ef9d2",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "cd1a283d-fdb8-459b-83fd-03f4df751e2b",
+			"id": "4ae8a988-e708-473f-b3d6-2648dfe8d026",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
