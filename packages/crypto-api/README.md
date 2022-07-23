@@ -138,7 +138,7 @@ Manage Environments.
 the imported environment. Once you select an environment, you can access
 variables within the active environmental scope.
 
-3️⃣ You can get started with a simple app by running the following in your terminal:
+3️⃣ Run your first application request
 
 ```shell
 
@@ -150,6 +150,10 @@ variables within the active environmental scope.
 ```
 
 4️⃣ Try it out and let us know what you think!
+
+If you want to contribute your own requests, you need a Postman license. 
+You can make your changes to the forked collection, and then hover over the 
+collection top node and select Create pull request.
 
 ![divider][divider]
 
