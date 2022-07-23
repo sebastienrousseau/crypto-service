@@ -61,6 +61,9 @@ Source code is available to everyone under the standard [MIT license][3].
 it on your computer. Alternatively, you can sign up to use the [web version][15]
 of Postman.
 
+Postman is an API development environment that makes sending API requests very
+easy.
+
 ![divider][divider]
 
 ## 🔧 Installation
@@ -117,13 +120,37 @@ You'll see something like this:
 
 2️⃣ Import the "Crypto API" Postman collection into Postman.
 
-Open the Postman application, and select **Import**.
+-   Open the Postman application, and select **Import**. On the File tab, select
+Upload Files.
 
 ![Postman][postman]
 
-3️⃣ Set up your app
+-   Browse your computer and select the `postman_collection.json` file in the 
+`collections` folder, then select **Open**.
 
-You can get started with a simple app by running the following in your terminal:
+-   Select Import.
+
+-   In the left navigation, select Collections, and expand 
+`🔐 The Crypto Service Suite APIs`. All the API requests in the collection 
+should be displayed.
+
+![Postman Collections][collections]
+
+3️⃣ Set up variables in Postman
+
+-   Click the gear icon in the upper right corner of the Postman app and select 
+Manage Environments.
+
+-   Click the Import button to import the `postman_environment.json` file in the 
+`environments` folder, then select **Open**.
+
+![Postman Environments][environments]
+
+-   Click the drop-down in the upper right corner of the Postman app to select
+the imported environment. Once you select an environment, you can access
+variables within the active environmental scope.
+
+4️⃣ You can get started with a simple app by running the following in your terminal:
 
 ```shell
 
@@ -134,7 +161,7 @@ You can get started with a simple app by running the following in your terminal:
 
 ```
 
-3️⃣ Try it out and let us know what you think!
+5️⃣ Try it out and let us know what you think!
 
 ![divider][divider]
 
@@ -249,4 +276,8 @@ these people and a bunch of awesome [contributors][12].
 
 [download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg "Download"
 
-[postman]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/postman@2x.svg "Postman"
+[postman]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/postman.svg "Postman"
+
+[collections]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/collections.svg "Collections"
+
+[Environments]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/environments.svg "Environments"
