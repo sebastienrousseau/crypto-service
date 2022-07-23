@@ -1,6 +1,6 @@
 import minimist from 'minimist';
 import * as fs from "fs";
-import { createMarkdown, response } from './utils';
+import { createMarkdown, response } from './util';
 
 function init() {
   const args = minimist(process.argv.slice(2));

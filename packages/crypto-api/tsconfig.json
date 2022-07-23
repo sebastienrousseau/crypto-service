@@ -9,6 +9,7 @@
         "rootDir": "./src"
     },
     "exclude": [
+        "src/lib",
         "node_modules",
         "dist",
         "__tests__"
