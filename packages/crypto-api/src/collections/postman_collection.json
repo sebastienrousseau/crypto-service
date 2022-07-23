@@ -1217,12 +1217,12 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "166d3c92-17cf-47c3-95e9-e11f086c399f",
+				"id": "f9b1db20-24f6-4c19-8b67-59cb6abfe350",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
-					"const currentDate = new Date().toISOString()",
-					"pm.collectionVariables.set(\"date\", currentDate)",
+					"const currentDate = new Date().toISOString();",
+					"pm.collectionVariables.set(\"date\", currentDate);",
 					""
 				]
 			}
@@ -1230,7 +1230,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "ed6808a1-d410-45f5-aed8-074a9426ed3c",
+				"id": "b0e4c738-3e50-42ac-b4d0-04af029e8610",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1240,32 +1240,32 @@
 	],
 	"variable": [
 		{
-			"id": "d0170876-283b-4225-9838-61db514a62ce",
+			"id": "64a9543c-9a69-40a6-a3a1-9ae5ad38c326",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "d0aee7bd-7309-4455-9c97-7bd14921ac07",
+			"id": "3f3503a9-fbcb-415d-9d2d-bca9b6f71c91",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "a3203f79-030b-47dd-ae96-92d8ad7c0ff2",
+			"id": "c3096c0c-2464-4891-9724-e618eff31147",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "224fdc68-3399-48d3-81d9-bfbc37a4df03",
+			"id": "973f5c18-cd7b-4d3f-bebd-5de3c308f1c4",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "02c3df09-103d-4480-ad3e-ddb044b193b2",
+			"id": "620c9c69-1913-465b-afe4-e8c3267ef5c8",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "a0307006-d00f-41c4-8fae-bcc75a290451",
+			"id": "d4811163-3f91-45cc-9fe5-d2041b5e135b",
 			"key": "revocationCertificate",
 			"value": ""
 		}
