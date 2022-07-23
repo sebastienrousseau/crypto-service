@@ -368,7 +368,7 @@
 					{
 						"key": "public-key",
 						"value": "{{publicKey}}",
-						"description": "(required) ",
+						"description": "(required) array of public keys or single key, to verify signatures.",
 						"type": "text"
 					}
 				],
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "d96d5942-0a38-43b4-91f6-b83ec5d4f5fc",
+			"id": "dd5fa531-3bdf-40e5-aa0a-4f355af5e3e3",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "e2870bfe-5ecc-4008-bc34-473b14284855",
+			"id": "c975e1d2-428a-47d1-af7c-b82d024e4bb4",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "81d7a0c4-136a-451f-bd3b-938265abfc9d",
+			"id": "424d09e7-59fa-40b7-a06a-9066facd098c",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "c569f40a-45b3-4c63-8f7e-8ed325f9f308",
+			"id": "b377d368-2b79-4dd8-a5d2-98bbdf84b742",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "95f2746e-a197-415b-8ca9-dd7b135ac9c5",
+			"id": "a8f3bee6-feab-4801-baa9-12e6cebddf76",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "eab8c202-1403-478a-ab39-b4c5f6dc93a0",
+			"id": "06fcdee5-e8ed-4168-a74f-70f9dc128ed9",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "e5cdb7ec-99e4-488a-840e-f95587224d18",
+			"id": "68dcd766-73c3-41da-8319-3f074f5a5595",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "4c9b1a61-b4b7-45b6-879b-a9307399a546",
+			"id": "c884bc55-5ab8-4d26-b362-d8f8d1bbb89f",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f9c85b53-dfe4-4e36-a6b5-d2228045707d",
+			"id": "1cc19952-01a3-4b4a-a817-cce6b7a67172",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "327347db-6874-455b-9a9e-08f01d81f1ff",
+			"id": "c975aca2-d7c9-41e9-916d-58aea525b7ae",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "cb178750-e62a-491a-9cb0-64a892933a15",
+			"id": "29892901-f5bc-435c-b4e1-0c2968f35430",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
