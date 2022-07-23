@@ -55,7 +55,7 @@ Crypto Service Suite can help you ensure the following:
 
 ![Banner representing Crypto API][crypto api]
 
-Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services. [Learn more][18][>][18]
+The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations. [Learn more][18][>][18]
 
 ![divider][divider]
 

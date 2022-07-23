@@ -12,7 +12,7 @@
 
 ![Banner representing Crypto API][crypto api]
 
-Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services.
+The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations.
 
 ![divider][divider]
 

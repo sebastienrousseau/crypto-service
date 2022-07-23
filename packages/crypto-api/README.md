@@ -16,9 +16,8 @@
 
 ## 👋 Welcome to Crypto API
 
-Crypto API is a set of portable APIs for common cryptographic operations such as
-data encryption, tokenisation, transaction authorization, code-signing and key
-life-cycle management and other security services.
+The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and 
+responses for common cryptographic operations.
 
 [![Getting Started][getting started]](#getting-started)
 [![Download Crypto API][download]][8]
@@ -39,19 +38,6 @@ The distribution includes the following:
     configure your API requests.
 
 1.  A **Markdown documentation file** that contains the API documentation.
-
-The cryptographic operations include:
-
-- Authentication via Digital Signature,
-- Confidentiality via Encryption and Decryption,
-- Compression,
-- Key Generation,
-- Key Management,
-- Pseudorandom Number Generation,
-- Signature Verification.
-
-Development of this library is hosted by [GitHub][1] at the [following page][2].
-Source code is available to everyone under the standard [MIT license][3].
 
 ![divider][divider]
 
@@ -84,8 +70,8 @@ manually downloaded from this repository's
 
 ### What's included
 
-Within the download you'll find all the crypto lib source files grouped into
-the *dist* folder.
+Within the download you'll find all the crypto api files grouped into the *dist*
+folder.
 
 You'll see something like this:
 
@@ -118,7 +104,9 @@ You'll see something like this:
 
 ```
 
-2️⃣ Import the "Crypto API" Postman collection into Postman.
+### Use the Crypto API Postman Collection
+
+1️⃣ Import the "Crypto API" Postman collection into Postman.
 
 -   Open the Postman application, and select **Import**. On the File tab, select
 Upload Files.
@@ -136,7 +124,7 @@ should be displayed.
 
 ![Postman Collections][collections]
 
-3️⃣ Set up variables in Postman
+2️⃣ Set up variables in Postman
 
 -   Click the gear icon in the upper right corner of the Postman app and select 
 Manage Environments.
@@ -150,7 +138,7 @@ Manage Environments.
 the imported environment. Once you select an environment, you can access
 variables within the active environmental scope.
 
-4️⃣ You can get started with a simple app by running the following in your terminal:
+3️⃣ You can get started with a simple app by running the following in your terminal:
 
 ```shell
 
@@ -161,29 +149,20 @@ variables within the active environmental scope.
 
 ```
 
-5️⃣ Try it out and let us know what you think!
+4️⃣ Try it out and let us know what you think!
 
 ![divider][divider]
 
-## ❯ Crypto Application Programming Interface (API) syntax
+## 📚 Access the documentation
 
-The Crypto API accepts multiple types of options. Options are a list of flags
-and other parameters that can control the behavior of the Crypto API as a
-whole.
+The `Crypto API` Postman collection comes with its own documentation. Once you
+have imported the collection into Postman, you can access the document from
+Postman itself.
 
-Below is the full list of supported options for the Crypto API.
+-  Open Postman and select the Collections tab.
 
-| Option | Description |
-|---|---|
-| help      | Displays the help message. |
-| decrypt   | Decrypts a message. |
-| encrypt   | Encrypts a message. |
-| generate  | Generates a new OpenPGP key pair. Supports RSA and ECC keys. |
-| reformat  | Reformats signature packets for a key. |
-| revoke    | Revokes a key. |
-| session   | Generate a new session key object. |
-| sign      | Signs a message. |
-| verify    | Verifies signatures of clear text signed message. |
+-  Click the three dots displayed next to "🔐 The Crypto Service Suite APIs",
+and select View documentation
 
 ![divider][divider]
 

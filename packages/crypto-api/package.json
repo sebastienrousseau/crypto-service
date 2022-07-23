@@ -18,7 +18,7 @@
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
-    "description": "Crypto API is a set of portable APIs for common cryptographic operations such as data encryption, tokenisation, transaction authorization, code-signing and key life-cycle management and other security services.",
+    "description": "The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations.",
     "dependencies": {
         "minimist": "^1.2.6"
     },
@@ -96,9 +96,10 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:coll && yarn run copy:env && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && yarn run copy:docs && yarn run copy:coll && yarn run copy:env && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
+        "copy:docs": "mkdirp dist/docs && cp ./src/docs/* dist/docs",
         "copy:coll": "mkdirp dist/collections && cp ./src/collections/* dist/collections",
         "copy:env": "mkdirp dist/environments && cp ./src/environments/* dist/environments",
         "copy:license": "cp LICENSE dist/",
@@ -106,7 +107,7 @@
         "copy:package": "cp package.json dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
-        "filesize:distribution": "filesizes dist/ > dist/Report.txt",
+        "filesize:distribution": "filesizes dist/ > dist/report.txt",
         "format": "prettier --write src/**/*.ts",
         "lint": "eslint src/**/*.ts",
         "lint:fix": "eslint --cache --fix src/**/*.ts",
