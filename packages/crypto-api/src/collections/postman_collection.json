@@ -1217,7 +1217,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "b151ebec-7168-4a3a-8bb3-2370e4e2aed5",
+				"id": "166d3c92-17cf-47c3-95e9-e11f086c399f",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
@@ -1230,7 +1230,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "9ca97897-30ee-414c-a741-bf5a03ec4e30",
+				"id": "ed6808a1-d410-45f5-aed8-074a9426ed3c",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1240,53 +1240,33 @@
 	],
 	"variable": [
 		{
-			"id": "45785bed-7c2a-4927-a35e-73f4f2bd0999",
-			"key": "generatedKeys",
+			"id": "d0170876-283b-4225-9838-61db514a62ce",
+			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "ab585c71-a98e-410e-a87c-42359b2e97b4",
-			"key": "encryptedData",
-			"value": ""
-		},
-		{
-			"id": "3d5827ff-c7e9-4274-bbda-55583cd277e9",
-			"key": "publicKey",
-			"value": ""
-		},
-		{
-			"id": "1834e3b9-7b0d-4abd-adc1-e4c951f178d6",
-			"key": "privateKey",
-			"value": ""
-		},
-		{
-			"id": "fa18f75c-30d9-434f-9f06-b502f8dce389",
-			"key": "revocationCertificate",
-			"value": ""
-		},
-		{
-			"id": "e4477b95-8e16-4d4b-ab36-f1250eb6de1c",
-			"key": "decryptedData",
-			"value": ""
-		},
-		{
-			"id": "6e3be424-01b8-4233-b2bc-79387a9b6386",
-			"key": "encryptedMsg",
-			"value": ""
-		},
-		{
-			"id": "2f2c05dd-1c18-4fde-a4ce-d08509bbb372",
+			"id": "d0aee7bd-7309-4455-9c97-7bd14921ac07",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "2cfa2562-c561-4ea1-8b3a-cd23df9c2698",
-			"key": "verificationData",
+			"id": "a3203f79-030b-47dd-ae96-92d8ad7c0ff2",
+			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "085fe9d7-6066-47b1-8b0d-e7a26afa5f74",
-			"key": "date",
+			"id": "224fdc68-3399-48d3-81d9-bfbc37a4df03",
+			"key": "publicKey",
+			"value": ""
+		},
+		{
+			"id": "02c3df09-103d-4480-ad3e-ddb044b193b2",
+			"key": "privateKey",
+			"value": ""
+		},
+		{
+			"id": "a0307006-d00f-41c4-8fae-bcc75a290451",
+			"key": "revocationCertificate",
 			"value": ""
 		}
 	]
