@@ -13,7 +13,7 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "cryptoapi": "dist/index"
+        "cryptoapi": "dist/index.js"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -100,13 +100,14 @@
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:coll": "mkdirp dist/collections && cp ./src/collections/* dist/collections",
+        "copy:docs": "mkdirp dist/docs && cp ./src/docs/* dist/docs",
         "copy:env": "mkdirp dist/environments && cp ./src/environments/* dist/environments",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "cp Makefile dist/",
         "copy:package": "cp package.json dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
-        "filesize:distribution": "filesizes dist/ > dist/Report.txt",
+        "filesize:distribution": "filesizes dist/ > dist/report.txt",
         "format": "prettier --write src/**/*.ts",
         "lint": "eslint src/**/*.ts",
         "lint:fix": "eslint --cache --fix src/**/*.ts",

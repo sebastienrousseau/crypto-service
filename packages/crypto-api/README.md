@@ -20,8 +20,6 @@ Crypto API is a set of portable APIs for common cryptographic operations such as
 data encryption, tokenisation, transaction authorization, code-signing and key
 life-cycle management and other security services.
 
-![Crypto API][crypto-api]
-
 [![Getting Started][getting started]](#getting-started)
 [![Download Crypto API][download]][8]
 
@@ -59,12 +57,9 @@ Source code is available to everyone under the standard [MIT license][3].
 
 ## Getting Started
 
-👉 Note: » Crypto API is a [Node.js][4] module available through the
-[npm registry][5]. Before installing, [download and install Node.js][4].
-Node.js 12.20.0 or or later.
-
-This allows you to always be on the latest version when we release new builds
-with automatic upgrades.
+👉 Before you begin: » Make sure you have downloaded [Postman][14] and installed
+it on your computer. Alternatively, you can sign up to use the [web version][15]
+of Postman.
 
 ![divider][divider]
 
@@ -93,6 +88,11 @@ You'll see something like this:
 
 ```shell
 .
+├── @types
+│   ├── types.d.ts
+│   ├── types.d.ts.map
+│   ├── types.js
+│   └── types.js.map
 ├── COPYRIGHT
 ├── Makefile
 ├── Report.txt
@@ -100,25 +100,28 @@ You'll see something like this:
 │   └── postman_collection.json
 ├── environments
 │   └── postman_environment.json
-├── lib
-│   ├── favicon-16x16.png
-│   ├── favicon-32x32.png
-│   ├── index.css
-│   ├── index.html
-│   ├── oauth2-redirect.html
-│   ├── swagger-ui-bundle.js
-│   ├── swagger-ui-bundle.js.map
-│   ├── swagger-ui-standalone-preset.js
-│   ├── swagger-ui-standalone-preset.js.map
-│   ├── swagger-ui.css
-│   └── swagger-ui.css.map
-└── package.json
+├── index.d.ts
+├── index.d.ts.map
+├── index.js
+├── index.js.map
+├── package.json
+└── utils
+    ├── index.d.ts
+    ├── index.d.ts.map
+    ├── index.js
+    └── index.js.map
 
-3 directories, 17 files
+4 directories, 18 files
 
 ```
 
-2️⃣ Set up your app
+2️⃣ Import the "Crypto API" Postman collection into Postman.
+
+Open the Postman application, and select **Import**.
+
+![Postman][postman]
+
+3️⃣ Set up your app
 
 You can get started with a simple app by running the following in your terminal:
 
@@ -213,7 +216,7 @@ these people and a bunch of awesome [contributors][12].
 
 [3]: https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
 
-[4]: https://nodejs.org/en/
+[4]: https://www.postman.com/downloads/
 
 [5]: https://www.npmjs.com/
 
@@ -233,10 +236,17 @@ these people and a bunch of awesome [contributors][12].
 
 [13]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 
+[14]: https://www.postman.com/downloads/
+
+[15]: https://www.postman.com/
+
+
 [divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
 
 [crypto-api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-api.svg "Crypto API"
 
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg
+[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg "Getting Started"
 
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg
+[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg "Download"
+
+[postman]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/postman@2x.svg "Postman"
