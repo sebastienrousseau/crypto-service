@@ -1217,7 +1217,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "202f8f65-f145-42ec-a830-0b98ec8b1823",
+				"id": "b151ebec-7168-4a3a-8bb3-2370e4e2aed5",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
@@ -1230,7 +1230,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "4de8e90b-a280-4441-b313-ac37cdb2841b",
+				"id": "9ca97897-30ee-414c-a741-bf5a03ec4e30",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1240,59 +1240,54 @@
 	],
 	"variable": [
 		{
-			"id": "c758a05d-8ad7-45af-b352-926455ab0f64",
+			"id": "45785bed-7c2a-4927-a35e-73f4f2bd0999",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "9db653a0-12c9-4cf8-98b6-009aef6fd007",
+			"id": "ab585c71-a98e-410e-a87c-42359b2e97b4",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "285be64d-f86b-4433-8dba-ca5de2eac7ea",
+			"id": "3d5827ff-c7e9-4274-bbda-55583cd277e9",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "1bff3327-ec54-42ed-8b61-d4a7f8841312",
+			"id": "1834e3b9-7b0d-4abd-adc1-e4c951f178d6",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "c0b4080c-0fa7-4c45-b9e5-55e2c57338c7",
+			"id": "fa18f75c-30d9-434f-9f06-b502f8dce389",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "0ec747e4-6081-4b2c-87c6-49fc201033d7",
+			"id": "e4477b95-8e16-4d4b-ab36-f1250eb6de1c",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "2c7b2a01-1712-426b-8199-36fbc3afdce8",
+			"id": "6e3be424-01b8-4233-b2bc-79387a9b6386",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "c729b512-da33-40f6-b518-3a7f43e38452",
+			"id": "2f2c05dd-1c18-4fde-a4ce-d08509bbb372",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "66bf9a8d-1ea5-4130-a39b-ad242ad3cb2c",
+			"id": "2cfa2562-c561-4ea1-8b3a-cd23df9c2698",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "17f0221d-ebc6-4256-b18b-e4f8e952cab7",
+			"id": "085fe9d7-6066-47b1-8b0d-e7a26afa5f74",
 			"key": "date",
 			"value": ""
-		},
-		{
-			"id": "d3c83ace-b734-4874-b880-04193e5f4e8d",
-			"key": "sandbox_host",
-			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
 	]
 }
