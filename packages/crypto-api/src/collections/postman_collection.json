@@ -1217,11 +1217,11 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "f5466c00-186a-4826-8b4a-5c4d3fcb1da3",
+				"id": "202f8f65-f145-42ec-a830-0b98ec8b1823",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
-					"const currentDate = new Date().toUTCString()",
+					"const currentDate = new Date().toISOString()",
 					"pm.collectionVariables.set(\"date\", currentDate)",
 					""
 				]
@@ -1230,7 +1230,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "fce4a4d2-63b3-4dca-84e7-305111132642",
+				"id": "4de8e90b-a280-4441-b313-ac37cdb2841b",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "ce126b4b-18b4-45ad-8240-451a0578ff64",
+			"id": "6deb14f4-5388-42fd-b46b-3b1fed378ffd",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "1a642980-d01d-4cf1-aa5e-d0854e34a310",
+			"id": "a36ff0b7-2dfa-41ac-bdd1-4c67725860bc",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "65453c95-8ae4-46db-b008-d5c1008d2a64",
+			"id": "303a73f5-993a-4ef8-b01f-30cbef026bf8",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "2e9fbf06-8233-4d12-826c-490a47daabdd",
+			"id": "bba48af2-ec0a-4444-a1d8-42ede2ed13f8",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "bddd978c-a72a-496a-a921-c031268f6272",
+			"id": "b33df1a2-c3a6-495d-b3d9-069562b5d656",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "b916132b-b6a3-4fde-94d4-6b733f0617c5",
+			"id": "7c318308-e690-47ea-8da0-10d93b99b2d3",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "7ebf9866-888e-4b74-9e70-ad2e09c6491c",
+			"id": "e1c158a2-7e92-47ac-86b9-481f4680f34b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "1843cc1d-d671-40e2-b954-c488cff2f786",
+			"id": "07a93d9b-42d0-4add-aa89-b62cfcb0a4b5",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d5f50d2c-8c05-4bcf-8095-0121c53368ed",
+			"id": "1eb0e8ba-dd96-4c6a-bd06-f6c4bcd9632a",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "41466e63-e2ec-4754-a791-858d6f45c2f4",
+			"id": "98904edf-b315-4636-a88f-24f57883991e",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "d9e43318-43ca-4bcf-9dd9-ec847101120c",
+			"id": "b0f87ffa-418f-4629-bd57-af98e5ca5cdd",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
