@@ -908,7 +908,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{url}}/health",
+				"url": "{{url}}/v1/health",
 				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
 			},
 			"response": [
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "f628c5ce-f62b-4f72-815e-39a185aa2fa1",
+			"id": "c4bdd73b-1246-4e75-b6ee-2a5657c09d4a",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "23e50b35-51ae-4113-a1ed-b11f4604005e",
+			"id": "5e4d80ea-de10-4141-881f-21b2be4d7f7e",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "4f422e9e-9109-480e-a8ea-48e366cf6155",
+			"id": "425658a8-5b13-4286-8308-74ca7a852cb6",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "a73c71a7-4ef0-4c56-9177-9650e9f00ba6",
+			"id": "fc6f753c-0b77-4dc5-9f55-0494f488cc2d",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "e9edb2bf-9176-4b1e-8a43-1567f4cf5f93",
+			"id": "1c1dda63-9919-49af-984e-fcf9e5e19db6",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "8bd527dd-c4a3-4523-9465-3b0ec42945c4",
+			"id": "c7a15cbc-c44e-4623-a2db-7610e8fd59a1",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "09504d20-0c37-48bb-89f8-ae9d5eab01fa",
+			"id": "54e0153c-7aea-4e30-bde9-1d16bfa7008f",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "221fbb63-48ea-4b73-8b17-eb6496eef657",
+			"id": "6c82932b-69c3-433c-b309-efcd124715ba",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "0d0adb17-4060-4fa3-b908-fbe520bc735f",
+			"id": "4f8b2064-606b-41ee-bbca-d97d84393f41",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "eaaacef0-3223-45c2-ae56-b49833961e78",
+			"id": "c3a98c2e-b4b9-4e06-b507-61df123d598a",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3efb5b9f-afea-47f0-908a-fc2502c0c616",
+			"id": "e31281a8-c10f-4032-b83e-e6ea80cbfe81",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
