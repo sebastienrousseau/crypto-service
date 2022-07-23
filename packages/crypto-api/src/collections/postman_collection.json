@@ -373,7 +373,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/decrypt",
-				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
+				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n##### Returns:\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
 			},
 			"response": [
 				{
@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "20395228-9bd2-4b34-a57e-4130535b74a6",
+			"id": "b3af77f3-3ffe-4006-9c2a-7d9a47363916",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "1fb2af45-8c1a-4fc9-b00c-c6b8bf3313d9",
+			"id": "06cbe88c-df95-438f-82f5-0a60ecfc4264",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "487a14c0-d2f7-49f5-b5e1-5a0ca816ce6b",
+			"id": "e5fe1fd4-c976-4131-b377-ed88dcf89203",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "cad47127-7e70-4207-8dc4-b2eb71b558ad",
+			"id": "ff086557-95e8-4edc-ba9d-bffb4829d139",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "5a750352-bd56-433b-80fd-7ef0bbc94b51",
+			"id": "635751b1-cba5-4073-922e-fbe26d6486f8",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "ffbe2788-35ea-40ad-8aaf-e37169a07089",
+			"id": "0c25abe4-5ec6-4f2d-83ea-9f23cb0745ce",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "cd9d5df4-d9ee-4e65-9926-49b4c6fdf8d5",
+			"id": "d042dfce-20b7-4649-a887-75fc034e682e",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "e45f24b1-528b-4723-b3a9-c696ca86dfd4",
+			"id": "ea0063e0-1a74-420a-9097-0fb454466e2e",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "336a0431-3f72-41f9-8d01-e234d0ba95b9",
+			"id": "3babe8cb-8af4-496d-86e6-ab7188710f08",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "8754f89a-5049-46ea-967b-77da4a133a11",
+			"id": "2b80590d-4763-49eb-8665-6e82497a0e42",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "ffd817e2-7e9a-44fc-9405-91c38f2539ef",
+			"id": "1de6e251-7c22-4743-9c6d-c17aed24c142",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
