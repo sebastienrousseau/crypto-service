@@ -356,7 +356,7 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "Passphrase to decrypt the message.",
+						"description": "(required) passphrase to decrypt the message.",
 						"type": "text"
 					},
 					{
@@ -368,6 +368,7 @@
 					{
 						"key": "public-key",
 						"value": "{{publicKey}}",
+						"description": "(required) ",
 						"type": "text"
 					}
 				],
@@ -1239,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "4b4a1814-2b23-404e-86fd-e77f105f90a6",
+			"id": "d96d5942-0a38-43b4-91f6-b83ec5d4f5fc",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "4d9c8500-4046-4f3c-a304-e2d593de2984",
+			"id": "e2870bfe-5ecc-4008-bc34-473b14284855",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "3d2765dc-0e58-4fc9-b99f-e01dd3cfc1e4",
+			"id": "81d7a0c4-136a-451f-bd3b-938265abfc9d",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "769e27d4-9121-40e3-92ef-71a93e82b0f1",
+			"id": "c569f40a-45b3-4c63-8f7e-8ed325f9f308",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "f25cfa33-810e-4286-97ce-7141ba601944",
+			"id": "95f2746e-a197-415b-8ca9-dd7b135ac9c5",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "25772053-2741-4c4b-b454-0aa065024cd5",
+			"id": "eab8c202-1403-478a-ab39-b4c5f6dc93a0",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "a0ceb440-eb00-4c19-87b8-a04bbdde17ed",
+			"id": "e5cdb7ec-99e4-488a-840e-f95587224d18",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "ce400f74-0ea0-4df3-99c2-872177fb265d",
+			"id": "4c9b1a61-b4b7-45b6-879b-a9307399a546",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "540adf16-757e-44f4-844d-37a3754ed738",
+			"id": "f9c85b53-dfe4-4e36-a6b5-d2228045707d",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "0483dc36-f2e6-45f7-bf46-8e064a735abd",
+			"id": "327347db-6874-455b-9a9e-08f01d81f1ff",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3575cea8-64db-401d-8f2a-8940021ad08b",
+			"id": "cb178750-e62a-491a-9cb0-64a892933a15",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
