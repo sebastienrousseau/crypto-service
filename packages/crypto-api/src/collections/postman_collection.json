@@ -1240,57 +1240,57 @@
 	],
 	"variable": [
 		{
-			"id": "d954cb5f-015c-4f7e-a6c1-baf12a516b74",
+			"id": "ce126b4b-18b4-45ad-8240-451a0578ff64",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "3fe2bd05-e27b-4856-b40a-8a8dcbc97dd5",
+			"id": "1a642980-d01d-4cf1-aa5e-d0854e34a310",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
-			"id": "4d01529b-6a99-4811-92a8-e13fd8da58db",
+			"id": "65453c95-8ae4-46db-b008-d5c1008d2a64",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "167c6a7b-6481-4cf6-8aaa-9726146b9588",
+			"id": "2e9fbf06-8233-4d12-826c-490a47daabdd",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "58740bff-a54d-45d5-88be-43225fd22d79",
+			"id": "bddd978c-a72a-496a-a921-c031268f6272",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "398804ca-60b6-44a2-a20c-bc4f0c188ece",
+			"id": "b916132b-b6a3-4fde-94d4-6b733f0617c5",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
-			"id": "681c0ca5-7a65-41cc-8830-6006eb3665b0",
+			"id": "7ebf9866-888e-4b74-9e70-ad2e09c6491c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "bf4e442a-ad31-4cd5-9313-549991298876",
+			"id": "1843cc1d-d671-40e2-b954-c488cff2f786",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "8a83ee43-15c8-4b6a-9604-bb97b397a448",
+			"id": "d5f50d2c-8c05-4bcf-8095-0121c53368ed",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
-			"id": "1f7c0d5d-2da6-4298-8540-b0ddae7513bc",
+			"id": "41466e63-e2ec-4754-a791-858d6f45c2f4",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "8bded933-c2b8-4f28-aca2-e99dd3c15234",
+			"id": "d9e43318-43ca-4bcf-9dd9-ec847101120c",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
