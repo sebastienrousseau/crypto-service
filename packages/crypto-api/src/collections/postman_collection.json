@@ -3,8 +3,7 @@
 		"_postman_id": "43d70b8d-339a-45a1-863d-46d7e5048bae",
 		"name": "🔐 The Crypto Service Suite APIs",
 		"description": "The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations.\n\n## Methods",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "332139"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
@@ -13,6 +12,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "f4cd51d0-213a-4c77-b574-9c4722c42178",
 						"exec": [
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
@@ -116,6 +116,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
+						"id": "880dfbe0-18b4-4c06-8457-92b29d9b7063",
 						"exec": [
 							""
 						],
@@ -123,6 +124,10 @@
 					}
 				}
 			],
+			"id": "fbc79448-fb2b-4550-a5f0-12f572dae2e4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -145,22 +150,12 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "http://localhost:3000/v1/encrypt",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"encrypt"
-					]
-				},
+				"url": "http://localhost:3000/v1/encrypt",
 				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message."
 			},
 			"response": [
 				{
+					"id": "1f5bea8e-452d-4897-836c-f8d2bd905f9f",
 					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
@@ -184,16 +179,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{url}}/v1/encrypt",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"v1",
-								"encrypt"
-							]
-						}
+						"url": "{{url}}/v1/encrypt"
 					},
 					"status": "OK",
 					"code": 200,
@@ -237,6 +223,7 @@
 						}
 					],
 					"cookie": [],
+					"responseTime": null,
 					"body": "{\n    \"data\": \"-----BEGIN PGP MESSAGE-----\\n\\nwcBMA1gs7khYahHvAQf/cPMwCrLY0vMqbG+PyJtOWmXLVcA91j/ZeX3/Dd+f\\nfLFuRUmoOQSg0z5HRTj0sGxcvWylyLGsgrOT1zDinI2MUwkUtf6Eo/U46rIB\\n0AusH9uvLeJFb7q65MYYXYp5/sgEbX0FPaJgY5RoSsajeZpipx/ppokFD/s1\\n8vfF8ez5aDJKf2I8hxsekPYKjYgFq3TNc0xEfAg6ofPp7axfqXTRtO2KOz2l\\ndhR0FDBOjEcY9f2da/fuwYtTgwOsFfTHpgfaLtNoDQKkWlXxQcY8vVD4k9jG\\nOcPp+6vNUlmTdLm33cHN4UAVS5ZV1At742hA0ZosiotaIobNug1Uz1Dz+q/t\\nc9LA0AEBc0eH8YkdaR+20pn1uuDsVC8dgkLy9GW6HbIV9iLS09TaVgqZYA7E\\ncqe+8BfeDjzkqzg+0+jBQQq0bVc24OfzLBMI/hVPNyTQ1tZGNKJnI/o+3M4o\\nkJ3yR6ePdpbV71JX71vblIg25MqwwG6YQUjbc5DCiZcxp5OWvfzVcfOu2531\\nRbCVG6JWDYnP3kMKSO2Ew49rN+YkTT9ehuRb89oF+/FWDpRwcmgFlFlYwZ/G\\ns89zQOx2dzBK+8pR1uINUPkGGUQfgCz1oj1DvDwFgoOTwOcw4ZnlGN6Uvs7L\\nA5TTJJFo2vcYJCNMvwBassavK1whnzvxlGdBkdtA8dNsv73+MvDEXjg2aOZe\\nLDujXYiYHb1fpU7qBYnBwjWNBJyScaA7Yr7Plht8eDCvte4vh/Vlx+WZchyD\\nr3BAyCpzgESHViKpL8WBfMew/M6L0J8k1NmPzdv2TNfrQ1Xl8b55ec4ejFkq\\nlZXTQUtdFQAqLtryMLRmpGDA+7nWO+de9w95R2fl50G9XtHzEq8fbPyorB4=\\n=os+S\\n-----END PGP MESSAGE-----\\n\"\n}"
 				}
 			]
@@ -247,6 +234,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "fc7f6706-d52c-46e2-b1c2-937977d08d76",
 						"exec": [
 							"let privateKey=pm.environment.get(\"privateKey\");",
 							"let publicKey=pm.environment.get(\"publicKey\");",
@@ -358,6 +346,10 @@
 					}
 				}
 			],
+			"id": "5052d0ac-ec4b-4d23-9e97-ed288484b0c1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -370,7 +362,7 @@
 					{
 						"key": "message",
 						"value": "{{encMessage}}",
-						"description": "Message to be decrypted.",
+						"description": "The message object with the encrypted data.",
 						"type": "text"
 					},
 					{
@@ -379,22 +371,12 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "http://localhost:3000/v1/decrypt",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"decrypt"
-					]
-				},
+				"url": "http://localhost:3000/v1/decrypt",
 				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
 			},
 			"response": [
 				{
+					"id": "74acbf29-f19f-4f9b-9136-8dda21b8fa23",
 					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
@@ -418,16 +400,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{url}}/v1/decrypt",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"v1",
-								"decrypt"
-							]
-						}
+						"url": "{{url}}/v1/decrypt"
 					},
 					"status": "OK",
 					"code": 200,
@@ -471,9 +444,11 @@
 						}
 					],
 					"cookie": [],
+					"responseTime": null,
 					"body": null
 				},
 				{
+					"id": "aa8a7d15-1494-417e-bb27-82550e9e1762",
 					"name": "500 Internal Server Error",
 					"originalRequest": {
 						"method": "GET",
@@ -497,16 +472,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{url}}/v1/decrypt",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"v1",
-								"decrypt"
-							]
-						}
+						"url": "{{url}}/v1/decrypt"
 					},
 					"status": "Internal Server Error",
 					"code": 500,
@@ -550,6 +516,7 @@
 						}
 					],
 					"cookie": [],
+					"responseTime": null,
 					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Could not find signing key with key ID 76dbb2b223dbcf2e\"\n}"
 				}
 			]
@@ -560,6 +527,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "55b8b0da-dcb6-4cba-a58f-72e1ac6d07ec",
 						"exec": [
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
@@ -661,6 +629,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
+						"id": "7133c329-ea0f-43ab-ba21-7734c9b96c58",
 						"exec": [
 							""
 						],
@@ -668,6 +637,10 @@
 					}
 				}
 			],
+			"id": "1b650290-5699-4984-9eb2-111564b09f9a",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -723,22 +696,12 @@
 						"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 					}
 				],
-				"url": {
-					"raw": "http://localhost:3000/v1/generate",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"generate"
-					]
-				},
+				"url": "http://localhost:3000/v1/generate",
 				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
 			},
 			"response": [
 				{
+					"id": "5a81af62-b54c-4484-9501-789dfbb561cd",
 					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
@@ -792,16 +755,7 @@
 								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 							}
 						],
-						"url": {
-							"raw": "{{url}}/v1/generate",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"v1",
-								"generate"
-							]
-						}
+						"url": "{{url}}/v1/generate"
 					},
 					"status": "OK",
 					"code": 200,
@@ -845,7 +799,8 @@
 						}
 					],
 					"cookie": [],
-					"body": ""
+					"responseTime": null,
+					"body": "{\n    \"data\": {\n        \"publicKey\": \"PGP PUBLIC KEY BLOCK\",\n        \"privateKey\": \"PGP PRIVATE KEY BLOCK\",\n        \"revocationCertificate\": \"PGP REVOCATION CERTIFICATE BLOCK\"\n    }\n}"
 				}
 			]
 		},
@@ -855,6 +810,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "fc7f6706-d52c-46e2-b1c2-937977d08d76",
 						"exec": [
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
@@ -944,43 +900,31 @@
 					}
 				}
 			],
+			"id": "10626e12-1461-45f8-a397-f2ff24835e69",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/health",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"health"
-					]
-				},
+				"url": "http://localhost:3000/health",
 				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
 			},
 			"response": [
 				{
+					"id": "a6a3695d-7591-44bf-a6bc-f882b6cc6f0e",
 					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "{{url}}/health",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"health"
-							]
-						}
+						"url": "{{url}}/health"
 					},
 					"status": "OK",
 					"code": 200,
 					"_postman_previewlanguage": "json",
 					"header": null,
 					"cookie": [],
+					"responseTime": null,
 					"body": "{\n    \"statusCode\": 200,\n    \"status\": \"ok\",\n    \"uptime\": 4707.284612625\n}"
 				}
 			]
@@ -991,6 +935,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "fc7f6706-d52c-46e2-b1c2-937977d08d76",
 						"exec": [
 							"let privateKey=pm.environment.get(\"privateKey\");",
 							"let publicKey=pm.environment.get(\"publicKey\");",
@@ -1100,6 +1045,10 @@
 					}
 				}
 			],
+			"id": "5b670560-cdc3-42f7-ba3a-2b4c14974f98",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1110,18 +1059,7 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "http://localhost:3000/v1/revoke",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"revoke"
-					]
-				},
+				"url": "http://localhost:3000/v1/revoke",
 				"description": "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
 			},
 			"response": []
@@ -1132,6 +1070,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "f4cd51d0-213a-4c77-b574-9c4722c42178",
 						"exec": [
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
@@ -1228,6 +1167,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
+						"id": "880dfbe0-18b4-4c06-8457-92b29d9b7063",
 						"exec": [
 							""
 						],
@@ -1235,6 +1175,10 @@
 					}
 				}
 			],
+			"id": "1df7ce8b-20eb-4776-a4a6-30d1788a42ae",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1262,18 +1206,7 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "http://localhost:3000/v1/verify",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"verify"
-					]
-				},
+				"url": "http://localhost:3000/v1/verify",
 				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
 			},
 			"response": []
@@ -1283,6 +1216,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
+				"id": "f5466c00-186a-4826-8b4a-5c4d3fcb1da3",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
@@ -1295,6 +1229,7 @@
 		{
 			"listen": "test",
 			"script": {
+				"id": "fce4a4d2-63b3-4dca-84e7-305111132642",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1304,46 +1239,57 @@
 	],
 	"variable": [
 		{
+			"id": "2a530766-86ae-485d-9e44-a6df7e15f887",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
+			"id": "fc9ec957-f549-462e-9106-b1c536476d0b",
 			"key": "encryptedData",
 			"value": ""
 		},
 		{
+			"id": "af0d4f2c-bed4-4ce1-8551-39bf1f1d8d07",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
+			"id": "cede3529-6efd-45d6-bdff-daca76a1604e",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
+			"id": "ecc9a874-c0c1-406e-b8cf-e1dc25e32583",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
+			"id": "5afedb10-f9c0-4786-806c-c8a46752f03d",
 			"key": "decryptedData",
 			"value": ""
 		},
 		{
+			"id": "fc41c93f-f833-45f4-a4fb-b6feada6697e",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
+			"id": "074c30a2-bc8c-4e1a-bb58-99de4ae6c2be",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
+			"id": "74b4b559-a132-40e8-bbc5-eae8f6bf5951",
 			"key": "verificationData",
 			"value": ""
 		},
 		{
+			"id": "e8a19e90-3541-4461-b1a0-649012bbe7e5",
 			"key": "date",
 			"value": ""
 		},
 		{
+			"id": "0f923925-a110-4ad2-8888-73cafe6f2660",
 			"key": "sandbox_host",
 			"value": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io"
 		}
