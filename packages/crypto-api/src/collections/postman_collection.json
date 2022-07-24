@@ -735,7 +735,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/generate",
-				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated.\n\n#### Returns\n\nThe generated key object in the form: `{ privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String, revocationCertificate:String }`.\n\n##### Type\n\nPromise."
+				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated.\n\n#### Returns\n\nThe generated key object in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String, revocationCertificate:String }.\n\n##### Type\n\nPromise."
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "f0410971-95b6-4ddf-967b-09ad8a509bd6",
+			"id": "5d35e82d-dfa6-45e7-b3e2-7d5a53122a76",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "ae73a85d-184d-45aa-bfb8-dbecc4ca4101",
+			"id": "5fc73ade-a283-4506-961d-a573f0b38c33",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "61da3c5a-bdb5-4f56-92d8-5b2cca460720",
+			"id": "e5119808-a10c-4312-b99a-03925ad29acf",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "2660501d-7036-4ea2-91ea-6b09f84c80c7",
+			"id": "e084202a-7a31-4fc5-87ad-f9261516f0a6",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "7c1f77e9-d630-4870-bcaa-6344cb4681db",
+			"id": "074e7001-814b-459a-87a5-c645e2464262",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "796b0f7c-8a7a-4425-9afb-039a73f1857c",
+			"id": "53fcce88-4dd0-4cf9-8b0a-24080e63a0ca",
 			"key": "revocationCertificate",
 			"value": ""
 		}
