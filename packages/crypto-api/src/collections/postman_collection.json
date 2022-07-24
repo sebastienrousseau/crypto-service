@@ -856,15 +856,13 @@
 								"key": "name",
 								"value": "{{name}}",
 								"type": "text",
-								"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’",
-								"disabled": true
+								"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
 							},
 							{
 								"key": "email",
 								"value": "{{email}}",
 								"type": "text",
-								"description": "(optional) An email address. e.g. 'jane@doe.com'",
-								"disabled": true
+								"description": "(optional) An email address. e.g. 'jane@doe.com'"
 							},
 							{
 								"key": "type",
@@ -877,36 +875,31 @@
 								"key": "passphrase",
 								"value": "{{passphrase}}",
 								"type": "text",
-								"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters).",
-								"disabled": true
+								"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters)."
 							},
 							{
 								"key": "rsaBits",
 								"value": "{{rsaBits}}",
 								"type": "text",
-								"description": "(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.",
-								"disabled": true
+								"description": "(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048."
 							},
 							{
 								"key": "curve",
 								"value": "{{curve}}",
 								"type": "text",
-								"description": "(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.",
-								"disabled": true
+								"description": "(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1."
 							},
 							{
 								"key": "keyExpirationTime",
 								"value": "{{keyExpirationTime}}",
 								"type": "text",
-								"description": "(optional) Number of seconds from the key creation time after which the key expires.",
-								"disabled": true
+								"description": "(optional) Number of seconds from the key creation time after which the key expires."
 							},
 							{
 								"key": "format",
 								"value": "{{format}}",
 								"type": "text",
-								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'.",
-								"disabled": true
+								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 							}
 						],
 						"url": "{{url}}/v1/generate"
@@ -1381,37 +1374,37 @@
 	],
 	"variable": [
 		{
-			"id": "6f3798eb-bf60-4182-be22-46a9636312b6",
+			"id": "ab55298f-9857-4756-8bd8-296f89443ecd",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "52c889ad-6294-4b31-807e-3536cba64fe8",
+			"id": "ddebac10-2571-4318-a891-423b26dae6b0",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "4cf8d5e2-5ec7-4ee5-8401-6e4d1bc4ad7c",
+			"id": "4490b7f5-e302-4ae0-9d8e-9f694b29da4c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "48db99f1-7e8b-47d6-9f07-787633ec4236",
+			"id": "4dde17d3-d90c-46f5-ba9b-292c820e8eda",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "5d7cf725-93d0-4926-b55c-5fe332c70ba3",
+			"id": "a226cba7-f453-48b8-836a-0328ef175e44",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "964d22fc-1910-43e4-913c-7bc7a22d2014",
+			"id": "fae1c787-b531-43d2-a0b7-90cd9dbc6af3",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "7a7612a3-70a9-4757-bf20-d4c0d62a4143",
+			"id": "4655bc9f-358e-4131-b84b-3ba02788ebdb",
 			"key": "generatedKeys",
 			"value": ""
 		}
