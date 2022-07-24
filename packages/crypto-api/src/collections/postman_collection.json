@@ -1335,7 +1335,6 @@
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
 							"let headersEtag = pm.response.headers.get(\"etag\");",
-							"// let headersVary = pm.response.headers.get(\"vary\");",
 							"let headersDate = pm.response.headers.get(\"Date\");",
 							"let headersConnection = pm.response.headers.get(\"Connection\");",
 							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
@@ -1348,7 +1347,6 @@
 							"    \"\\n → Environment: \" + pm.environment.name,",
 							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
 							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
-							"    // \"\\n → Vary: \" + headersVary",
 							"];",
 							"console.log(\"HTTP Headers:\" + consoleOutput);",
 							"",
@@ -1403,10 +1401,6 @@
 							"pm.test(\"content-type is present\", function () {",
 							"    pm.response.to.have.header(\"content-type\");",
 							"});",
-							"",
-							"// pm.test(\"vary is present\", function () {",
-							"//     pm.response.to.have.header(\"vary\");",
-							"// });",
 							"",
 							"pm.test(\"Date is present\", function () {",
 							"    pm.response.to.have.header(\"Date\");",
@@ -1632,42 +1626,42 @@
 	],
 	"variable": [
 		{
-			"id": "3f872e2f-334e-4b8b-9634-274860d30799",
+			"id": "50f17da9-a707-4983-8f7e-2bc2e3706f51",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3fb22788-6c48-48d9-a620-0f3502d4d25c",
+			"id": "a0a1e3e2-f4f0-4f0a-b750-edeed1f3e2a1",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f3ae07df-8245-43c2-944d-6c6f9542e860",
+			"id": "5a4d6a27-02c1-4121-85f1-cecee7064b61",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "362d385f-c604-4a48-9923-6aabb8a4368b",
+			"id": "cc43616f-8424-4d0c-b957-2b7d57c3ae2d",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "fb27315e-608d-4ed9-aacc-17ecffef7642",
+			"id": "0b4ce2f5-9cbd-4737-80f5-57dcb4ba3a5a",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "e9c6fd82-724a-4473-abcc-7b694c48994f",
+			"id": "e1566e48-bf77-4a8f-b811-a04cae334487",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "0edd0eb6-a342-4a2a-86b3-c921f5056bec",
+			"id": "57ad4fcb-86d8-4678-8ebe-0393cdd25497",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "89e7a34b-8ca9-43f0-b104-c878d1aeab2c",
+			"id": "0921011d-5868-44c7-b39d-dab7d2e32c82",
 			"key": "decryptedData",
 			"value": ""
 		}
