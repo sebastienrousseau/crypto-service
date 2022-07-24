@@ -766,7 +766,7 @@
 								"key": "type",
 								"value": "{{type}}",
 								"type": "text",
-								"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
+								"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
 							},
 							{
 								"key": "passphrase",
@@ -1381,37 +1381,37 @@
 	],
 	"variable": [
 		{
-			"id": "bff202c3-390b-4b92-85d7-32949fdaea37",
+			"id": "d3706447-230c-41e7-949d-6d9fc04609da",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "5c260968-66a7-4c2b-b709-64a8d438668f",
+			"id": "98de8944-2a1a-44e7-b2b2-48c9cb7c6eb9",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "e122b7f9-ed76-4130-a575-1b19671c49b4",
+			"id": "19b620b0-21f4-40bd-8aa8-fc6c06d996a6",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "68e9d996-20be-4bd2-949e-bc51cc12962b",
+			"id": "f9beee7c-7970-4472-8e7b-c6553f4400e1",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "43d37597-1b42-4582-b19e-3ca93cd4818a",
+			"id": "a467e032-648d-4e2f-861e-f4ecf39d3793",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "d0ad09a4-3f74-4806-8e17-64c34482a868",
+			"id": "5b5a51ef-1712-4364-bde8-47e9399d558c",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "ef8e2533-8849-49e0-add4-96dd17fdcc93",
+			"id": "e374add3-4298-45fe-b247-05348950c06a",
 			"key": "generatedKeys",
 			"value": ""
 		}
