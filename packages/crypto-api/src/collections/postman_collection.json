@@ -760,7 +760,7 @@
 								"key": "email",
 								"value": "{{email}}",
 								"type": "text",
-								"description": "(required) An email address. e.g. 'jane@doe.com'"
+								"description": "(optional) An email address. e.g. 'jane@doe.com'"
 							},
 							{
 								"key": "type",
@@ -1381,37 +1381,37 @@
 	],
 	"variable": [
 		{
-			"id": "642c3810-7c6f-440e-ba64-0e519bcba828",
+			"id": "bff202c3-390b-4b92-85d7-32949fdaea37",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "8e8a69c7-846c-4189-8463-78b4e8382720",
+			"id": "5c260968-66a7-4c2b-b709-64a8d438668f",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "5032a81e-506f-4826-9dae-05c5244b8fd3",
+			"id": "e122b7f9-ed76-4130-a575-1b19671c49b4",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "3cb2604a-1dd7-40c2-9ad9-062ab2efe900",
+			"id": "68e9d996-20be-4bd2-949e-bc51cc12962b",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "fa1c5785-02e9-41d2-bfc1-cfbb8b0592ae",
+			"id": "43d37597-1b42-4582-b19e-3ca93cd4818a",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "46235bb4-c443-449f-99ea-8382274e7d1c",
+			"id": "d0ad09a4-3f74-4806-8e17-64c34482a868",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "cd8489d5-c18a-4f7f-900e-e020c6013671",
+			"id": "ef8e2533-8849-49e0-add4-96dd17fdcc93",
 			"key": "generatedKeys",
 			"value": ""
 		}
