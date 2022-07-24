@@ -224,7 +224,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"data\": \"-----BEGIN PGP MESSAGE-----\\n\\nwcBMA1gs7khYahHvAQf/cPMwCrLY0vMqbG+PyJtOWmXLVcA91j/ZeX3/Dd+f\\nfLFuRUmoOQSg0z5HRTj0sGxcvWylyLGsgrOT1zDinI2MUwkUtf6Eo/U46rIB\\n0AusH9uvLeJFb7q65MYYXYp5/sgEbX0FPaJgY5RoSsajeZpipx/ppokFD/s1\\n8vfF8ez5aDJKf2I8hxsekPYKjYgFq3TNc0xEfAg6ofPp7axfqXTRtO2KOz2l\\ndhR0FDBOjEcY9f2da/fuwYtTgwOsFfTHpgfaLtNoDQKkWlXxQcY8vVD4k9jG\\nOcPp+6vNUlmTdLm33cHN4UAVS5ZV1At742hA0ZosiotaIobNug1Uz1Dz+q/t\\nc9LA0AEBc0eH8YkdaR+20pn1uuDsVC8dgkLy9GW6HbIV9iLS09TaVgqZYA7E\\ncqe+8BfeDjzkqzg+0+jBQQq0bVc24OfzLBMI/hVPNyTQ1tZGNKJnI/o+3M4o\\nkJ3yR6ePdpbV71JX71vblIg25MqwwG6YQUjbc5DCiZcxp5OWvfzVcfOu2531\\nRbCVG6JWDYnP3kMKSO2Ew49rN+YkTT9ehuRb89oF+/FWDpRwcmgFlFlYwZ/G\\ns89zQOx2dzBK+8pR1uINUPkGGUQfgCz1oj1DvDwFgoOTwOcw4ZnlGN6Uvs7L\\nA5TTJJFo2vcYJCNMvwBassavK1whnzvxlGdBkdtA8dNsv73+MvDEXjg2aOZe\\nLDujXYiYHb1fpU7qBYnBwjWNBJyScaA7Yr7Plht8eDCvte4vh/Vlx+WZchyD\\nr3BAyCpzgESHViKpL8WBfMew/M6L0J8k1NmPzdv2TNfrQ1Xl8b55ec4ejFkq\\nlZXTQUtdFQAqLtryMLRmpGDA+7nWO+de9w95R2fl50G9XtHzEq8fbPyorB4=\\n=os+S\\n-----END PGP MESSAGE-----\\n\"\n}"
+					"body": "{\n    \"data\": \"PGP MESSAGE\"\n}"
 				}
 			]
 		},
@@ -1240,32 +1240,32 @@
 	],
 	"variable": [
 		{
-			"id": "64a9543c-9a69-40a6-a3a1-9ae5ad38c326",
+			"id": "ed7077f3-c260-4949-b17f-268f42abecc6",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3f3503a9-fbcb-415d-9d2d-bca9b6f71c91",
+			"id": "af508db6-c890-4beb-9799-04d6224388f4",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "c3096c0c-2464-4891-9724-e618eff31147",
+			"id": "330a6503-321e-4ce2-8e5b-0095c18e703a",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "973f5c18-cd7b-4d3f-bebd-5de3c308f1c4",
+			"id": "7def4813-e2d0-458f-8196-0600a0096f17",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "620c9c69-1913-465b-afe4-e8c3267ef5c8",
+			"id": "d07381bd-4394-44ae-969c-fab77ae50af1",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "d4811163-3f91-45cc-9fe5-d2041b5e135b",
+			"id": "7ab9fc93-da3f-4aaa-910d-e1c08e31e0b5",
 			"key": "revocationCertificate",
 			"value": ""
 		}
