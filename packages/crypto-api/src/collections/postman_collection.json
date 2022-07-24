@@ -213,6 +213,67 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"data\": \"-----BEGIN PGP MESSAGE-----\\n\\nwcBMA1gs7khYahHvAQf+NGw+ZNERB3jnUPrGHaQK6Isn4tFmMRzWi7MHP6eP\\nQC1n9iMrDLZWwqESL7Rl1exvX5ZXck7vwo/PxsY7uZIo/dxTK3c1lCbzQkJr\\ntbZuxr2wXmAKRmXkGwAf6neD8Gdb2QH8gjHOPP/dnjyilXWLyAyOt0TJn2fA\\nP/BzAQodRJ211SAw1/UzG2xIQsq6We+UUtO7Sk7fbw4n6p7yXPgkPLSWYsP9\\nAUAjc4GJT3+demaojWcdT25C9sRWwO4mNCF0mD/95eDvqvebj5LHN+1x2wT3\\nqvZVaECUPgjRmxdvtRW3L5HenWKxc2lNYHybwTfW6ZFCueNLIsGPlclGdvAC\\n19LA0AGytlMJBM1HP+jD/FUlct7fBFRw8teSXQ7Y3JfvLzdyq+E1xVuhEXn9\\nMrjHHgw0cXYXZYgk8ep/+groKmnevXhhUdxGOu40Y4xn6hTH8Sw+vaqevtEb\\npMDQU9r8WnuybP27WnRd7+9ItMHwle7sUYifVP9UJpLsgb1w9bJiVJS6Rgxs\\nzrVr1Q8euKxmSd3OAcqCFqH7uuO64tHe1KxYImKiG5tV5hUjyrnhXOkxrMs9\\nIixw6CTgzJurASTw1vmRj7EeRODcc9T3Bgak0GK5kQCcSN+QPj4qlWsqb8eb\\ntEonjyHTsTlOVzleuKHnpoR14/Qgn3AC51+mNj/VCFMTg3ExZKQqHAD6jwQg\\nR3IcJyxAVPBjfMInNXyJ17WpirmDg/Ett2Bed0PDI+mPq8VZfD49puU+yXss\\ngkQkAgy/u4Q0KmbERu0JD3fwGG+t9OITQzXa01B6998RuBtIcC183cKeCoFR\\nNGoFCvhAe9i8ATAfoXkXsKvKpfxh+1LRWzpkgiAWcBMpp84bbwArSoU4c80=\\n=DHzc\\n-----END PGP MESSAGE-----\\n\"\n}"
+				},
+				{
+					"id": "93d47add-f3e3-4bd6-bc9b-f6ddf4f78f87",
+					"name": "/encrypt",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							},
+							{
+								"key": "message",
+								"value": "{{message}}",
+								"description": "(required) message to be encrypted.",
+								"type": "text"
+							},
+							{
+								"key": "public-key",
+								"value": "{{publicKey}}",
+								"description": "(optional) array of keys or single key, used to encrypt the message.",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": "{{url}}/v1/encrypt"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "85"
+						},
+						{
+							"key": "etag",
+							"value": "\"10c5cg5\""
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 24 Jul 2022 07:14:04 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Misformed armored text\"\n}"
 				}
 			]
 		},
@@ -1228,32 +1289,32 @@
 	],
 	"variable": [
 		{
-			"id": "73c46e8d-a681-4a68-8ede-5e01c6038388",
+			"id": "04fa8060-b214-4282-8b02-ff000602edf3",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "f9387b93-ffb2-4aa2-91c5-cc6ce90d0ea9",
+			"id": "5a817d35-f5f3-41e3-bb4c-eccdd705f2bc",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "59f96f48-010a-4455-98b7-838a254c93dc",
+			"id": "b3bfd6f4-e8ad-42b0-8d3f-ce5d6b2109db",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "bc5e07fc-7537-42a2-9471-fc4407c5988f",
+			"id": "26fde7dd-4025-4458-873e-8099aac83f85",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "6e91f415-06ba-4806-9e23-b90b6118709d",
+			"id": "ee43d5be-1f5d-4649-a553-0b8f6cf444ce",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "2c37317a-5874-4a29-89fc-3629eec7d856",
+			"id": "7b26a28b-8543-44ae-8a52-8dac873bd579",
 			"key": "revocationCertificate",
 			"value": ""
 		}
