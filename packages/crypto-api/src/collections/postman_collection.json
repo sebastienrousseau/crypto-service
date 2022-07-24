@@ -1240,54 +1240,6 @@
 			},
 			"response": [
 				{
-					"id": "74a0da08-a930-47f4-9cb0-b0d504abb6e3",
-					"name": "200 OK",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "passphrase",
-								"value": "{{passphrase}}",
-								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
-								"type": "text"
-							}
-						],
-						"url": "{{url}}/v1/revoke"
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "content-type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "etag",
-							"value": "\"1uumg8v\""
-						},
-						{
-							"key": "content-length",
-							"value": "7071"
-						},
-						{
-							"key": "Date",
-							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"responseTime": null,
-					"body": "{\n    \"data\": {\n        \"privateKey\": \"PGP PRIVATE KEY BLOCK\",\n        \"publicKey\": \"PGP PUBLIC KEY BLOCK\"\n    }\n}"
-				},
-				{
 					"id": "eb16c839-b25d-49d6-8d9d-ebf5ab21592f",
 					"name": "500 Internal Server Error",
 					"originalRequest": {
@@ -1505,42 +1457,42 @@
 	],
 	"variable": [
 		{
-			"id": "0b925cf7-5d91-4338-b392-1dc7b7499806",
+			"id": "73de91be-4277-4da7-bd55-03d4bcf9ed16",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "9ed6e3ef-ca3d-4ae8-aac5-b9fc53175a06",
+			"id": "561eccb3-ed1c-49d7-8b6f-1c785c6fed1a",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "12b1f00f-e443-4c21-9cc5-8725c7a81d8a",
+			"id": "157f69ee-be96-436b-960d-47ae3c07c455",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "fe76f455-e6d8-45e0-9d57-d2e01400cda4",
+			"id": "9298537c-08bc-4b5e-9292-e78ab29d733b",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "accf072f-9227-477a-9f46-fe7911319e92",
+			"id": "2d40d7f3-ba05-4613-9d1f-b7ba9eddbf45",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "b228bb01-5231-4559-b668-c4aecd8c0e37",
+			"id": "602d4bd6-2b6c-4b9e-9649-89ff17bb7296",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "0c9d2ace-3198-429f-9407-4744e98c672e",
+			"id": "8dd5b0cc-6544-41e6-a18f-d7af3760891f",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "cc1c58fe-3a6a-4917-9b13-381726897472",
+			"id": "8caeff3e-1caa-4fa8-822a-445d64b81519",
 			"key": "decryptedData",
 			"value": ""
 		}
