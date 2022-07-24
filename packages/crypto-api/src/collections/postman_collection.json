@@ -601,7 +601,7 @@
 							"",
 							"// Testing scripts",
 							"pm.test(\"Check the active environment\", () => {",
-							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"  pm.expect(pm.environment.name).to.eql(\"Production\");",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
@@ -1289,37 +1289,37 @@
 	],
 	"variable": [
 		{
-			"id": "05d072bb-4d7c-4eb8-8fce-f1c8bdcb7f9c",
+			"id": "16a78f7e-8761-486f-8d6b-e0ccc3152110",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "6c4f7361-c1d0-42e6-8b70-6682814d464e",
+			"id": "5396d59e-b69a-4eca-b869-287f2393adbd",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d0f17b78-cb41-4044-b319-27e743d7ba98",
+			"id": "efa846b0-19e6-4f27-ba58-fd41d0bc9c7f",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "828e2da0-a98d-42f3-958c-096b7ee88ac9",
+			"id": "95b24091-1682-41b9-99da-b52b34fe6152",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "9d327071-ee78-4c17-bc84-d640c5ded57d",
+			"id": "e55e4627-2c55-4cf8-b0a5-341b58e4cc80",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "c24dd7fe-de9d-4a86-8ca6-6dfec9676594",
+			"id": "b99a3437-0078-45d7-8729-c45a4fde9009",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "710e48cf-9090-4829-8b60-03b51e329f5d",
+			"id": "68efee34-ed06-4db8-8e10-2592f71909b9",
 			"key": "generatedKeys",
 			"value": ""
 		}
