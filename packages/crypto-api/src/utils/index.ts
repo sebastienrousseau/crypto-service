@@ -118,7 +118,17 @@ export function readResponse(responses) {
   let markdown = ''
   if (responses?.length) {
     const response = responses[0];
-    markdown += `### Response: ${response.code}\n`
+    console.log(response);
+    markdown += `### Response\n`
+    markdown += `\n`
+    markdown += `|Code|Status|\n`
+    markdown += `|---|---|\n`
+    responses.map(response => {
+    markdown += `|${response.code}|${response.status}|\n`
+    })
+    markdown += `\n`
+    markdown += `#### Example response\n`
+    markdown += `\n`
     markdown += `\`\`\`json\n`
     markdown += `${response.body}\n`
     markdown += `\`\`\`\n`
@@ -178,7 +188,7 @@ export const response = async (content: string, fileName: string) => {
   const output =
     fs.createWriteStream(
       path
-        .resolve(__dirname, "../docs/" + fileName + ".md"));
+        .resolve(__dirname, "../../src/docs/" + fileName + ".md"));
   output.write(content);
   output.on("finish", () => {
     console.log(
