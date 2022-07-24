@@ -1046,7 +1046,7 @@
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": "{{url}}/health"
+						"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/health"
 					},
 					"status": "OK",
 					"code": 200,
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "b28406f7-6829-4a89-a19f-b385cd85efc0",
+			"id": "3fc0e61d-8f58-4152-bb84-159e15346c0b",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "f847d9f1-7ed6-4327-bb61-c583dbe9cc9d",
+			"id": "5ddfbf2b-2878-4b3d-bc7f-b46c2a347fd3",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "33e1c2f4-34b5-4e4a-9a5c-b0cb3b5830ab",
+			"id": "b8de8b8a-97d9-431f-a7cf-2d7f53ac0b85",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "81c4a1f5-f632-480a-805c-76090790c1d3",
+			"id": "86c1f3cc-3c94-4042-b01d-911f7d3c961e",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "c668b3be-d27f-4450-884d-480a2504d219",
+			"id": "7b1db90a-f750-432d-856c-45440c8707d5",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "4fd78070-9262-4621-9c36-be560964413e",
+			"id": "55825ff4-6a61-4cc3-a4fa-592a0be43ee3",
 			"key": "revocationCertificate",
 			"value": ""
 		}
