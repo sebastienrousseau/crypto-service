@@ -856,21 +856,21 @@
 								"key": "name",
 								"value": "{{name}}",
 								"type": "text",
-								"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’",
+								"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’",
 								"disabled": true
 							},
 							{
 								"key": "email",
 								"value": "{{email}}",
 								"type": "text",
-								"description": "(required) An email address. e.g. 'jane@doe.com'",
+								"description": "(optional) An email address. e.g. 'jane@doe.com'",
 								"disabled": true
 							},
 							{
 								"key": "type",
 								"value": "{{type}}",
 								"type": "text",
-								"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.",
+								"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.",
 								"disabled": true
 							},
 							{
@@ -1381,37 +1381,37 @@
 	],
 	"variable": [
 		{
-			"id": "5e0d3a4c-bf3c-4bad-8ff7-d1b976c1af3e",
+			"id": "6f3798eb-bf60-4182-be22-46a9636312b6",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "ae09cc08-7ed0-426f-86f4-2a167798565b",
+			"id": "52c889ad-6294-4b31-807e-3536cba64fe8",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "c87d6ebb-e4f2-433d-b6fa-e3619f2c3f2e",
+			"id": "4cf8d5e2-5ec7-4ee5-8401-6e4d1bc4ad7c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "9ee69fdf-b20e-4dc3-a560-d2689c65e2c6",
+			"id": "48db99f1-7e8b-47d6-9f07-787633ec4236",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "69610f9a-f668-46ea-9a05-0a4083517cf2",
+			"id": "5d7cf725-93d0-4926-b55c-5fe332c70ba3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "f4f45c95-3b61-4533-b483-9703f2534cd7",
+			"id": "964d22fc-1910-43e4-913c-7bc7a22d2014",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "153512ec-fcf9-46b1-ac31-58ba66501a51",
+			"id": "7a7612a3-70a9-4757-bf20-d4c0d62a4143",
 			"key": "generatedKeys",
 			"value": ""
 		}
