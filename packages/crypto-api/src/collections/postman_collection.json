@@ -1469,7 +1469,73 @@
 				"url": "{{url}}/v1/verify",
 				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
 			},
-			"response": []
+			"response": [
+				{
+					"id": "6fff382c-e10b-424b-870e-85470b7d4b59",
+					"name": "/verify",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "message",
+								"value": "{{message}}",
+								"description": "(required) message to be verified.",
+								"type": "text"
+							},
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							},
+							{
+								"key": "verification-keys",
+								"value": "{{verificationKeys}}",
+								"description": "(required) array of publicKeys or single key, to verify signatures.",
+								"type": "text"
+							},
+							{
+								"key": "date",
+								"value": "{{date}}",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/verify"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"1mzkqe8\""
+						},
+						{
+							"key": "content-length",
+							"value": "62"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 24 Jul 2022 08:31:19 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"data\": {\n        \"signatures\": [],\n        \"data\": \"Hello Crypto Service APIs!\"\n    }\n}"
+				}
+			]
 		}
 	],
 	"event": [
@@ -1499,42 +1565,42 @@
 	],
 	"variable": [
 		{
-			"id": "f6ab7176-b7c2-4ab0-929b-cbdacaf33805",
+			"id": "76af2fde-29c9-4c7e-b98a-9142fd48c832",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3a16168d-22ac-473c-b014-5804c68b6cb0",
+			"id": "d034d4a2-2891-4ee4-b535-73459df56e73",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d325cd98-4ad3-422e-871a-50f275ad0585",
+			"id": "f7095993-1431-4483-99b1-591b395c6b4e",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "330bcd59-63e0-4cef-8489-f5d4c4773792",
+			"id": "77b34375-74c8-402c-90ac-8d0e691024e0",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "ae3b946b-f353-4e90-adb4-3fe269ffc371",
+			"id": "52c760c9-22fa-49e7-8c4c-9b3e3663d8c3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "f18f607d-9061-4ded-be07-fd2e86d6a2c3",
+			"id": "f361c248-9fc0-4848-aa57-f0753578af01",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "c7507984-54b7-4461-b7d8-6dffb1a3ea29",
+			"id": "960bce6f-6d0b-4278-8a76-c575a6167d2a",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "77cc0ce0-bbd9-44de-bfca-3e73a9cee776",
+			"id": "ee664ff8-f841-4434-bcb0-6f58ac091512",
 			"key": "decryptedData",
 			"value": ""
 		}
