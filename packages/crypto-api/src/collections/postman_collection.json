@@ -17,7 +17,7 @@
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
 							"let headersEtag = pm.response.headers.get(\"etag\");",
-							"let headersDate = pm.response.headers.get(\"Date\");",
+							"let headersDate = pm.response.collectionVariables.get(\"Date\");",
 							"let headersConnection = pm.response.headers.get(\"Connection\");",
 							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
 							"",
@@ -1499,42 +1499,42 @@
 	],
 	"variable": [
 		{
-			"id": "6c0b88ba-4051-4437-8144-2056bcbf8f20",
+			"id": "0be68f26-3e6e-4881-bbfe-7a601af302f1",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "81f5d5bb-ccf4-4fba-923b-08cc34e10dbc",
+			"id": "3f096a06-2dc6-4672-9320-b759b8cf4c42",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "4f9cc15b-2653-43f2-a5ee-0619c0cf4625",
+			"id": "439a0938-7176-42ec-aaeb-7b042e755f00",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "5e57ac05-5728-4a99-86ea-941bdc767308",
+			"id": "1c8e1f68-0de1-428c-a1ae-95602b611721",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "97c45ed5-2f42-4587-b8e3-6cb83ab71435",
+			"id": "75b9b6e1-bd66-4b8d-a497-4e11a8de37c9",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "ef61b181-f64a-4b9c-aaa5-651a8e369dee",
+			"id": "23eb65d9-40b7-49df-bae6-47bd40b50d19",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "9fba036d-fbd5-4175-bb54-b2237a9d9950",
+			"id": "24d900b1-47a1-426e-8332-095b274c1871",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "344c3a4b-ff45-46c0-b93d-e35ee72c54f3",
+			"id": "6851c7e5-8462-4d7d-9bd8-b015247896b5",
 			"key": "decryptedData",
 			"value": ""
 		}
