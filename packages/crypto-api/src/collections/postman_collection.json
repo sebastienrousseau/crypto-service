@@ -1229,7 +1229,7 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/revoke",
+				"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/v1/revoke",
 				"description": "# ❌ Revocation API\n\nRevokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored.\n\n#### Returns\n\nThe revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.\n\n##### Type\n\nPromise."
 			},
 			"response": [
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "61c72fb8-b79d-4a14-a5c6-068d483d8dd8",
+			"id": "6b781b56-7d5c-426b-bf14-2e192be66e8c",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "443a9d81-9d3c-47f2-acc1-f5fabbac3264",
+			"id": "a54e9b33-c022-45b3-b82f-051b276f13ba",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "11dac3aa-e47e-475d-94b7-198b794fceb1",
+			"id": "417245ad-7732-426e-8b5a-fd90884812ef",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "f1b6210c-9e2f-4fc5-b19c-c080de17f1a3",
+			"id": "eb88c181-47e0-429f-a676-79049b9ffa56",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "9b2c543b-ccdf-4aa9-8c51-6fabbc63edab",
+			"id": "b8ca4225-5c0b-40a6-9174-83e27488e320",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "9082e578-14a1-4ed4-987b-df899f2cef06",
+			"id": "45030f60-1c7a-4013-9fc6-b97258d5f113",
 			"key": "revocationCertificate",
 			"value": ""
 		}
