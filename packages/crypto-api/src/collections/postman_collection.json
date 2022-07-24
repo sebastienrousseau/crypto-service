@@ -735,7 +735,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/generate",
-				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
+				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated.\n\n#### Returns\n\nThe generated key object in the form: `{ privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String, revocationCertificate:String }`.\n\n##### Type\n\nPromise."
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "66c54b21-1ab0-4241-a195-01f653d3c53b",
+			"id": "4132d172-1052-4aae-b2c0-d7659ba1b45e",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "f8e09e00-b66f-445e-bfee-f5e76b856e67",
+			"id": "a4729177-8200-4209-af17-193b06620c44",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d00ef49e-3dd5-4a97-8f72-5530ef6f927d",
+			"id": "b123269a-b453-483d-b9f7-19cdaeb0cbb4",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "14df5b95-2b06-4fe8-ac6b-681bbc3f9fd4",
+			"id": "64e3054a-9aca-44ef-b3cf-c78cdbc26a13",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "cddf5c72-6f2f-4d89-92cc-7daa0a21148b",
+			"id": "cda5c467-dadf-45c8-8525-8ad96fb280e3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "70eca395-40a1-4344-b926-f93dc5781c61",
+			"id": "9551ed77-47fa-476b-8231-fd1b7faede86",
 			"key": "revocationCertificate",
 			"value": ""
 		}
