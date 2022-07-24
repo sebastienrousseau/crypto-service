@@ -415,7 +415,7 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/decrypt",
+				"url": "http://localhost:3000/v1/decrypt",
 				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
 			},
 			"response": [
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "0e28301b-8c4e-4ee7-b7d1-667361e9897a",
+			"id": "8618e8f6-1b43-4a39-9824-214560bee85a",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "78945ae8-af8f-4122-a604-0384a4084074",
+			"id": "03bdb9df-a432-431a-81ab-e5e1cac6f2af",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "3fba7214-8028-49e1-9ab9-7bba5df1ee8e",
+			"id": "ed3bf67a-774d-4133-85c1-866328fee1d7",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "df033877-a5f8-426f-b488-ad388f2a6e5b",
+			"id": "9a7ed586-3e7b-481f-af35-312ac6590f33",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "77e7b731-56bc-42a6-adbc-c7e906c4801e",
+			"id": "ecbdbcdc-341b-4def-a7d2-0aa625a6b3f8",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "1d47b419-8321-47e0-95c3-a828c7e1f1e3",
+			"id": "243fceda-3b78-47c8-b755-79267ec9a997",
 			"key": "revocationCertificate",
 			"value": ""
 		}
