@@ -793,7 +793,7 @@
 								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 							}
 						],
-						"url": "{{url}}/v1/generate"
+						"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/v1/generate"
 					},
 					"status": "OK",
 					"code": 200,
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "c4c3e424-9e73-44f8-9def-b4650d99028d",
+			"id": "6a063d6d-841f-4abc-87fd-fb627b3cdf57",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "61600c61-d8fd-4e24-9339-b8ff5c7a3c29",
+			"id": "045a2657-0b71-4cec-b57b-3a6106722036",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "1fa5a70b-46f4-4cec-89d9-1c05096f07da",
+			"id": "65a45e82-c4a2-48d7-9ffe-415a9086e1cf",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "f64e5b41-bfab-4d19-ace9-9c89d9cc8f0f",
+			"id": "3e24f3ff-294c-4f5d-9079-642571a85aec",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "b08d358a-a7a1-4466-8047-b37509d0579f",
+			"id": "a864f54c-036c-413f-a3fb-684e02113194",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "521cef28-4412-4042-8584-50d7b1819508",
+			"id": "89df615d-7ae5-4dd1-bc0d-5d5a35ca1ce9",
 			"key": "revocationCertificate",
 			"value": ""
 		}
