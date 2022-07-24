@@ -145,7 +145,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/encrypt",
-				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message."
+				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message (string if `armor` was true, the default; Uint8Array if `armor` was false).\n\n##### Type\n\nPromise.<(MaybeStream.|MaybeStream.)>"
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "b53be8f2-9e7d-4e01-a2ee-b362227ee512",
+			"id": "654f7f75-3907-4e5c-804b-37eb64f53afc",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "b31e8fd1-b23d-4473-a019-6d923534e3b3",
+			"id": "2be3c67a-5c07-4b7e-b884-88f0595bbfdc",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f0e6e9e6-491a-425e-bebb-98a0683e515c",
+			"id": "29cd8721-637c-40bc-b350-d0e7bd396ab6",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "13b7bcc6-35be-47ef-8dba-4747dcf38a71",
+			"id": "cf375ef8-46ff-46b9-980e-cb7a073bfc16",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "9b921a4c-b04b-4bdf-a135-fa5d59088543",
+			"id": "8e00a3d6-ba04-4091-b9be-a30ff4622356",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "028656c1-bbfd-4955-9e26-0f9507f0f13a",
+			"id": "c28b768a-e221-40b5-9107-c0e457777929",
 			"key": "revocationCertificate",
 			"value": ""
 		}
