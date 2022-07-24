@@ -145,7 +145,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/encrypt",
-				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message (string if `armor` was true, the default; Uint8Array if `armor` was false).\n\n##### Type\n\nPromise.<(MaybeStream.|MaybeStream.)>"
+				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message (string if `armor` was true, the default; Uint8Array if `armor` was false).\n\n#### Type\n\nPromise.<(MaybeStream.|MaybeStream.)>"
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "335adfa2-271d-4f95-a0d7-9e0a3914d0a3",
+			"id": "0a7c66fd-caa8-4ae3-8960-4fa1abbad46d",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "e96f71eb-b1d1-4a97-86f6-b795ef1ca56c",
+			"id": "18f50ac9-7d3b-4efe-80ec-5deb04dc10a8",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "dd961129-c734-4401-be17-080b8523e17a",
+			"id": "e2632a02-6449-4b55-8a23-76d17785ca28",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "8a97fdb9-2fb0-4a9d-a7ba-4cc1022611eb",
+			"id": "12f49605-aa64-46b9-be47-53b18e4aea12",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "98679f23-cfdd-42ae-b3f5-44858d92f749",
+			"id": "a1543482-f3e8-4fcb-8dff-c0b98c93587f",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "614e543e-6323-4987-82e9-fbeac2cec097",
+			"id": "637192c9-bb1f-4b4a-927a-df48de92dcf2",
 			"key": "revocationCertificate",
 			"value": ""
 		}
