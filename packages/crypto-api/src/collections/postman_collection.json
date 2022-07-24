@@ -845,6 +845,104 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"data\": {\n        \"publicKey\": \"PGP PUBLIC KEY BLOCK\",\n        \"privateKey\": \"PGP PRIVATE KEY BLOCK\",\n        \"revocationCertificate\": \"PGP REVOCATION CERTIFICATE BLOCK\"\n    }\n}"
+				},
+				{
+					"id": "0742ebe5-2790-43ba-bfa8-4a304b7aece1",
+					"name": "/generate",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "name",
+								"value": "{{name}}",
+								"type": "text",
+								"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’",
+								"disabled": true
+							},
+							{
+								"key": "email",
+								"value": "{{email}}",
+								"type": "text",
+								"description": "(required) An email address. e.g. 'jane@doe.com'",
+								"disabled": true
+							},
+							{
+								"key": "type",
+								"value": "{{type}}",
+								"type": "text",
+								"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.",
+								"disabled": true
+							},
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"type": "text",
+								"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters).",
+								"disabled": true
+							},
+							{
+								"key": "rsaBits",
+								"value": "{{rsaBits}}",
+								"type": "text",
+								"description": "(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.",
+								"disabled": true
+							},
+							{
+								"key": "curve",
+								"value": "{{curve}}",
+								"type": "text",
+								"description": "(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.",
+								"disabled": true
+							},
+							{
+								"key": "keyExpirationTime",
+								"value": "{{keyExpirationTime}}",
+								"type": "text",
+								"description": "(optional) Number of seconds from the key creation time after which the key expires.",
+								"disabled": true
+							},
+							{
+								"key": "format",
+								"value": "{{format}}",
+								"type": "text",
+								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'.",
+								"disabled": true
+							}
+						],
+						"url": "{{url}}/v1/generate"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "84"
+						},
+						{
+							"key": "etag",
+							"value": "\"1m9pnow\""
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 24 Jul 2022 07:28:33 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"No key type specified\"\n}"
 				}
 			]
 		},
@@ -1283,37 +1381,37 @@
 	],
 	"variable": [
 		{
-			"id": "9061eabc-f255-4eac-9bff-2f7825101719",
+			"id": "50b03ff8-0f0a-41bb-ba17-07aca4c51580",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "2e2d0573-1542-4b62-970d-27f0f5adb975",
+			"id": "ac23fd90-48bf-4622-bce7-d9eb918fc608",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "85a88cb3-a4ca-466e-a901-4966d38406a6",
+			"id": "df8cbdd3-e8d9-477c-9b5b-7d89c43832ca",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "1fdf67dc-9043-4795-ac83-f39748741c94",
+			"id": "9fe9bc03-27dd-4b1b-9aac-f63a6c9065d6",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "c4fab0f9-1039-42e8-9e1d-a424204190ba",
+			"id": "325a9a04-b03d-4c2c-b47e-0b2d23895f71",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "44274455-3175-42ca-9a38-1b2c8cdf9fc9",
+			"id": "7ab897ab-06ee-4677-86b0-034229a75605",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "2646c248-eda0-46b1-8544-b5c0a51cb3b9",
+			"id": "2e59d116-bb58-4407-a9b7-30183da7fc48",
 			"key": "generatedKeys",
 			"value": ""
 		}
