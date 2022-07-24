@@ -224,7 +224,8 @@
 								"key": "passphrase",
 								"value": "{{passphrase}}",
 								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "message",
@@ -236,8 +237,7 @@
 								"key": "public-key",
 								"value": "{{publicKey}}",
 								"description": "(required) array of keys or single key, used to encrypt the message.",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": "{{url}}/v1/encrypt"
@@ -273,7 +273,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Misformed armored text\"\n}"
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error decrypting private key: Incorrect key passphrase\"\n}"
 				}
 			]
 		},
@@ -1289,32 +1289,32 @@
 	],
 	"variable": [
 		{
-			"id": "460cb8d1-b352-478f-988c-6b0d789a2695",
+			"id": "541e5abc-7342-492b-8499-167a4b21ea99",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "f59c74ef-cccd-4d74-bc8a-d8d61cf279c3",
+			"id": "e0e567d8-d795-4c65-8288-f2c980ac0160",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "501c7dfa-8d6d-437f-9d6c-e61de2fe984a",
+			"id": "ca509c3f-5e21-4ced-8c70-f92f49e30376",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "b424688f-a37e-4e0b-91a7-c5a2210c6713",
+			"id": "73aa832a-b323-4f58-b490-da2955bb792f",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "a6cf9ba1-060f-4103-906a-05e426bd4852",
+			"id": "0f0af4c5-2b6a-4f89-a995-5e59913a03a0",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "39da1eaa-1751-41d7-9f4c-d8a82dcab0e5",
+			"id": "56337b71-755b-4287-92e4-8a1b31ab3efa",
 			"key": "revocationCertificate",
 			"value": ""
 		}
