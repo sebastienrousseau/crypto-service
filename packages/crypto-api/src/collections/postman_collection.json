@@ -28,7 +28,7 @@
 							"    \"\\n → Date: \" + headersDate,",
 							"    \"\\n → Environment: \" + pm.environment.name,",
 							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
-							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\"",
 							"];",
 							"console.log(\"HTTP Headers:\" + consoleOutput);",
 							"",
@@ -1499,42 +1499,42 @@
 	],
 	"variable": [
 		{
-			"id": "c5dc0d83-5ebb-4165-aabf-a0e3f3872b04",
+			"id": "6c0b88ba-4051-4437-8144-2056bcbf8f20",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "7a557c95-bd22-49bb-819b-532997cd7901",
+			"id": "81f5d5bb-ccf4-4fba-923b-08cc34e10dbc",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "d25447eb-4ec7-4fc4-a63e-705e4f134135",
+			"id": "4f9cc15b-2653-43f2-a5ee-0619c0cf4625",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "8b3aba97-97b4-48c4-a261-a4329a35833a",
+			"id": "5e57ac05-5728-4a99-86ea-941bdc767308",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "8c271e75-512d-461e-be54-4ddd3aeb3078",
+			"id": "97c45ed5-2f42-4587-b8e3-6cb83ab71435",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "62320c73-0027-44f5-a285-9ed77ec02466",
+			"id": "ef61b181-f64a-4b9c-aaa5-651a8e369dee",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "5a6d57e4-692c-4914-8c7f-4b9c9d219a1a",
+			"id": "9fba036d-fbd5-4175-bb54-b2237a9d9950",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "a55e6a01-4e06-495b-be21-01eb129a63c5",
+			"id": "344c3a4b-ff45-46c0-b93d-e35ee72c54f3",
 			"key": "decryptedData",
 			"value": ""
 		}
