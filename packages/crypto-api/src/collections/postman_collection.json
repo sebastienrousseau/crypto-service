@@ -144,7 +144,7 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/encrypt",
+				"url": "http://localhost:3000/v1/encrypt",
 				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message."
 			},
 			"response": [
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "6ab61108-b76d-4541-8850-d58fc57ad8d0",
+			"id": "0e28301b-8c4e-4ee7-b7d1-667361e9897a",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "990f3dec-b71b-4e14-83d3-00d1d8c07d07",
+			"id": "78945ae8-af8f-4122-a604-0384a4084074",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "608ed930-1559-45dc-83a0-ca727ba7327a",
+			"id": "3fba7214-8028-49e1-9ab9-7bba5df1ee8e",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "311e6225-5a5b-47cb-b8d2-245ef6adfb53",
+			"id": "df033877-a5f8-426f-b488-ad388f2a6e5b",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "0aed05bc-8e56-4c6d-90e9-21b60379dfc1",
+			"id": "77e7b731-56bc-42a6-adbc-c7e906c4801e",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "204cb841-41ed-4580-ba2b-596531b2f4c7",
+			"id": "1d47b419-8321-47e0-95c3-a828c7e1f1e3",
 			"key": "revocationCertificate",
 			"value": ""
 		}
