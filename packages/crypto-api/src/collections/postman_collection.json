@@ -1486,7 +1486,7 @@
 							{
 								"key": "passphrase",
 								"value": "{{passphrase}}",
-								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
 								"type": "text"
 							},
 							{
@@ -1632,42 +1632,42 @@
 	],
 	"variable": [
 		{
-			"id": "05f26fb7-77cf-4037-8a6b-39f205b4a7aa",
+			"id": "db93d19f-8b55-4276-8e3e-f89a318870a8",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "1e5b3691-f4ec-4d8a-af70-761ba3c17f05",
+			"id": "d08d0533-9d69-4e42-b31f-29e03273846a",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "fa804bb5-3521-4225-9034-3f0c8a476310",
+			"id": "ec5f3962-c379-40b6-9f44-5ee54ec6df62",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "32c11ff9-87a5-47b5-81ad-7e9f08db5ab1",
+			"id": "709cb367-6a6c-44d6-a30f-face8a8c9040",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "80ec9e24-6721-4895-ab35-720e19080e01",
+			"id": "24a46469-27fd-4843-a1a6-fdc381b028c3",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "28976dcf-35db-4650-b1c4-06bb7e9b388d",
+			"id": "65b6825c-572e-498b-a153-ea53ac3cd4ae",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "9c4b28fc-1052-4b18-ba99-d162e8b54c39",
+			"id": "1a6f8051-4877-46a1-8c7f-1931afa5f43d",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "77f1322e-7044-4bf7-b7d2-75f90386a552",
+			"id": "67b6fa67-2bec-4d9c-a961-3506c4cee6fc",
 			"key": "decryptedData",
 			"value": ""
 		}
