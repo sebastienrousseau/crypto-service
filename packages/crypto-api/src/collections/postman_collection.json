@@ -734,7 +734,7 @@
 						"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 					}
 				],
-				"url": "{{url}}/v1/generate",
+				"url": "http://localhost:3000/v1/generate",
 				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
 			},
 			"response": [
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "8618e8f6-1b43-4a39-9824-214560bee85a",
+			"id": "0ee3ff3d-d19d-4b81-8eb8-577d4a44dace",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "03bdb9df-a432-431a-81ab-e5e1cac6f2af",
+			"id": "016c505c-b5d2-4595-91ad-9c92081ccf4f",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "ed3bf67a-774d-4133-85c1-866328fee1d7",
+			"id": "e04f22ba-146d-4bda-a67c-7c06727aa585",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "9a7ed586-3e7b-481f-af35-312ac6590f33",
+			"id": "0b9e04b2-41ab-4f32-9051-7501a5b37cd0",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "ecbdbcdc-341b-4def-a7d2-0aa625a6b3f8",
+			"id": "8bd33d41-005f-46e9-89e8-e805e905872f",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "243fceda-3b78-47c8-b755-79267ec9a997",
+			"id": "d2250ba0-d85b-48a6-908f-e4ac67c82ea5",
 			"key": "revocationCertificate",
 			"value": ""
 		}
