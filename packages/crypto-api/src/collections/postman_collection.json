@@ -17,7 +17,6 @@
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
 							"let headersEtag = pm.response.headers.get(\"etag\");",
-							"// let headersVary = pm.response.headers.get(\"vary\");",
 							"let headersDate = pm.response.headers.get(\"Date\");",
 							"let headersConnection = pm.response.headers.get(\"Connection\");",
 							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
@@ -29,8 +28,7 @@
 							"    \"\\n → Date: \" + headersDate,",
 							"    \"\\n → Environment: \" + pm.environment.name,",
 							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
-							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
-							"    // \"\\n → Vary: \" + headersVary",
+							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\"",
 							"];",
 							"console.log(\"HTTP Headers:\" + consoleOutput);",
 							"",
@@ -93,10 +91,6 @@
 							"    pm.response.to.have.header(\"content-type\");",
 							"});",
 							"",
-							"// pm.test(\"vary is present\", function () {",
-							"//     pm.response.to.have.header(\"vary\");",
-							"// });",
-							"",
 							"pm.test(\"Date is present\", function () {",
 							"    pm.response.to.have.header(\"Date\");",
 							"});",
@@ -134,7 +128,7 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+						"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
 						"type": "text"
 					},
 					{
@@ -146,16 +140,16 @@
 					{
 						"key": "public-key",
 						"value": "{{publicKey}}",
-						"description": "(optional) array of keys or single key, used to encrypt the message.",
+						"description": "(required) array of keys or single key, used to encrypt the message.",
 						"type": "text"
 					}
 				],
 				"url": "{{url}}/v1/encrypt",
-				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message."
+				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message."
 			},
 			"response": [
 				{
-					"id": "1f5bea8e-452d-4897-836c-f8d2bd905f9f",
+					"id": "6fdba241-2966-4316-a906-4e362c6054c7",
 					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
@@ -163,7 +157,7 @@
 							{
 								"key": "passphrase",
 								"value": "{{passphrase}}",
-								"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
 								"type": "text"
 							},
 							{
@@ -175,7 +169,7 @@
 							{
 								"key": "public-key",
 								"value": "{{publicKey}}",
-								"description": "(optional) array of keys or single key, used to encrypt the message.",
+								"description": "(required) array of keys or single key, used to encrypt the message.",
 								"type": "text"
 							}
 						],
@@ -187,44 +181,93 @@
 					"header": [
 						{
 							"key": "content-type",
-							"value": "application/json; charset=utf-8",
-							"description": "",
-							"type": "text"
+							"value": "application/json; charset=utf-8"
 						},
 						{
 							"key": "etag",
-							"value": "\"1q0w29z\"",
-							"description": "",
-							"type": "text"
+							"value": "\"1hef0ck\""
 						},
 						{
 							"key": "content-length",
-							"value": "1006",
-							"description": "",
-							"type": "text"
+							"value": "1006"
 						},
 						{
 							"key": "Date",
-							"value": "Tue, 22 Feb 2022 22:22:22 GMT",
-							"description": "",
-							"type": "text"
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
 						},
 						{
 							"key": "Connection",
-							"value": "keep-alive",
-							"description": "",
-							"type": "text"
+							"value": "keep-alive"
 						},
 						{
 							"key": "Keep-Alive",
-							"value": "timeout=5",
-							"description": "",
-							"type": "text"
+							"value": "timeout=5"
 						}
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"data\": \"-----BEGIN PGP MESSAGE-----\\n\\nwcBMA1gs7khYahHvAQf/cPMwCrLY0vMqbG+PyJtOWmXLVcA91j/ZeX3/Dd+f\\nfLFuRUmoOQSg0z5HRTj0sGxcvWylyLGsgrOT1zDinI2MUwkUtf6Eo/U46rIB\\n0AusH9uvLeJFb7q65MYYXYp5/sgEbX0FPaJgY5RoSsajeZpipx/ppokFD/s1\\n8vfF8ez5aDJKf2I8hxsekPYKjYgFq3TNc0xEfAg6ofPp7axfqXTRtO2KOz2l\\ndhR0FDBOjEcY9f2da/fuwYtTgwOsFfTHpgfaLtNoDQKkWlXxQcY8vVD4k9jG\\nOcPp+6vNUlmTdLm33cHN4UAVS5ZV1At742hA0ZosiotaIobNug1Uz1Dz+q/t\\nc9LA0AEBc0eH8YkdaR+20pn1uuDsVC8dgkLy9GW6HbIV9iLS09TaVgqZYA7E\\ncqe+8BfeDjzkqzg+0+jBQQq0bVc24OfzLBMI/hVPNyTQ1tZGNKJnI/o+3M4o\\nkJ3yR6ePdpbV71JX71vblIg25MqwwG6YQUjbc5DCiZcxp5OWvfzVcfOu2531\\nRbCVG6JWDYnP3kMKSO2Ew49rN+YkTT9ehuRb89oF+/FWDpRwcmgFlFlYwZ/G\\ns89zQOx2dzBK+8pR1uINUPkGGUQfgCz1oj1DvDwFgoOTwOcw4ZnlGN6Uvs7L\\nA5TTJJFo2vcYJCNMvwBassavK1whnzvxlGdBkdtA8dNsv73+MvDEXjg2aOZe\\nLDujXYiYHb1fpU7qBYnBwjWNBJyScaA7Yr7Plht8eDCvte4vh/Vlx+WZchyD\\nr3BAyCpzgESHViKpL8WBfMew/M6L0J8k1NmPzdv2TNfrQ1Xl8b55ec4ejFkq\\nlZXTQUtdFQAqLtryMLRmpGDA+7nWO+de9w95R2fl50G9XtHzEq8fbPyorB4=\\n=os+S\\n-----END PGP MESSAGE-----\\n\"\n}"
+					"body": "{\n    \"data\": \"PGP MESSAGE\"\n}"
+				},
+				{
+					"id": "93d47add-f3e3-4bd6-bc9b-f6ddf4f78f87",
+					"name": "500 Internal Server Error",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "message",
+								"value": "{{message}}",
+								"description": "(required) message to be encrypted.",
+								"type": "text"
+							},
+							{
+								"key": "public-key",
+								"value": "{{publicKey}}",
+								"description": "(required) array of keys or single key, used to encrypt the message.",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/encrypt"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "85"
+						},
+						{
+							"key": "etag",
+							"value": "\"10c5cg5\""
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error decrypting private key: Incorrect key passphrase\"\n}"
 				}
 			]
 		},
@@ -533,7 +576,6 @@
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
 							"let headersEtag = pm.response.headers.get(\"etag\");",
-							"let headersVary = pm.response.headers.get(\"vary\");",
 							"let headersDate = pm.response.headers.get(\"Date\");",
 							"let headersConnection = pm.response.headers.get(\"Connection\");",
 							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
@@ -546,13 +588,12 @@
 							"    \"\\n → Environment: \" + pm.environment.name,",
 							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
 							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
-							"    \"\\n → Vary: \" + headersVary",
 							"];",
 							"console.log(\"HTTP Headers:\" + consoleOutput);",
 							"",
 							"// Testing scripts",
 							"pm.test(\"Check the active environment\", () => {",
-							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
+							"  pm.expect(pm.environment.name).to.eql(\"Production\");",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
@@ -573,8 +614,8 @@
 							"    pm.response.to.have.header('etag');",
 							"});",
 							"",
-							"pm.test(\"Response time is less than 100ms\", function () {",
-							"  pm.expect(pm.response.responseTime).to.be.below(100);",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(200);",
 							"});",
 							"",
 							"pm.test(\"Content-Type header is present\", () => {",
@@ -587,10 +628,6 @@
 							"",
 							"pm.test(\"content-type is present\", function () {",
 							"    pm.response.to.have.header(\"content-type\");",
-							"});",
-							"",
-							"pm.test(\"vary is present\", function () {",
-							"    pm.response.to.have.header(\"vary\");",
 							"});",
 							"",
 							"pm.test(\"Date is present\", function () {",
@@ -652,19 +689,19 @@
 						"key": "name",
 						"value": "{{name}}",
 						"type": "text",
-						"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
+						"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
 					},
 					{
 						"key": "email",
 						"value": "{{email}}",
 						"type": "text",
-						"description": "(required) An email address. e.g. 'jane@doe.com'"
+						"description": "(optional) An email address. e.g. 'jane@doe.com'"
 					},
 					{
 						"key": "type",
 						"value": "{{type}}",
 						"type": "text",
-						"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
+						"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
 					},
 					{
 						"key": "passphrase",
@@ -711,19 +748,19 @@
 								"key": "name",
 								"value": "{{name}}",
 								"type": "text",
-								"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
+								"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
 							},
 							{
 								"key": "email",
 								"value": "{{email}}",
 								"type": "text",
-								"description": "(required) An email address. e.g. 'jane@doe.com'"
+								"description": "(optional) An email address. e.g. 'jane@doe.com'"
 							},
 							{
 								"key": "type",
 								"value": "{{type}}",
 								"type": "text",
-								"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
+								"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
 							},
 							{
 								"key": "passphrase",
@@ -802,6 +839,97 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"data\": {\n        \"publicKey\": \"PGP PUBLIC KEY BLOCK\",\n        \"privateKey\": \"PGP PRIVATE KEY BLOCK\",\n        \"revocationCertificate\": \"PGP REVOCATION CERTIFICATE BLOCK\"\n    }\n}"
+				},
+				{
+					"id": "0742ebe5-2790-43ba-bfa8-4a304b7aece1",
+					"name": "500 Internal Server Error",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "name",
+								"value": "{{name}}",
+								"type": "text",
+								"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
+							},
+							{
+								"key": "email",
+								"value": "{{email}}",
+								"type": "text",
+								"description": "(optional) An email address. e.g. 'jane@doe.com'"
+							},
+							{
+								"key": "type",
+								"value": "{{type}}",
+								"type": "text",
+								"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.",
+								"disabled": true
+							},
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"type": "text",
+								"description": "(optional) A passphrase to encrypt the resulting private key. (min. 12 characters)."
+							},
+							{
+								"key": "rsaBits",
+								"value": "{{rsaBits}}",
+								"type": "text",
+								"description": "(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048."
+							},
+							{
+								"key": "curve",
+								"value": "{{curve}}",
+								"type": "text",
+								"description": "(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1."
+							},
+							{
+								"key": "keyExpirationTime",
+								"value": "{{keyExpirationTime}}",
+								"type": "text",
+								"description": "(optional) Number of seconds from the key creation time after which the key expires."
+							},
+							{
+								"key": "format",
+								"value": "{{format}}",
+								"type": "text",
+								"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
+							}
+						],
+						"url": "{{url}}/v1/generate"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "84"
+						},
+						{
+							"key": "etag",
+							"value": "\"1m9pnow\""
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error generating keypair: Unknown curve\"\n}"
 				}
 			]
 		},
@@ -908,7 +1036,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{url}}/v1/health",
+				"url": "{{url}}/health",
 				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
 			},
 			"response": [
@@ -918,7 +1046,7 @@
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": "{{url}}/v1/health"
+						"url": "{{url}}/health"
 					},
 					"status": "OK",
 					"code": 200,
@@ -927,6 +1055,47 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"statusCode\": 200,\n    \"status\": \"ok\",\n    \"uptime\": 4707.284612625\n}"
+				},
+				{
+					"id": "220bf226-f7c3-4697-9004-529dd8beb0ca",
+					"name": "404 Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/v1/health"
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"1el7r2z\""
+						},
+						{
+							"key": "content-length",
+							"value": "81"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"message\": \"Route GET:/v1/health not found\",\n    \"error\": \"Not Found\",\n    \"statusCode\": 404\n}"
 				}
 			]
 		},
@@ -1056,14 +1225,104 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+						"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
 						"type": "text"
 					}
 				],
 				"url": "{{url}}/v1/revoke",
 				"description": "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text."
 			},
-			"response": []
+			"response": [
+				{
+					"id": "9ba71895-ef2e-4786-a4a0-71752e45a280",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/revoke"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"wxtdlr\""
+						},
+						{
+							"key": "content-length",
+							"value": "7071"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"data\": {\n        \"privateKey\": \"PGP PRIVATE KEY BLOCK\\n\",\n        \"publicKey\": \"PGP PUBLIC KEY BLOCK\\n\"\n    }\n}"
+				},
+				{
+					"id": "eb16c839-b25d-49d6-8d9d-ebf5ab21592f",
+					"name": "500 Internal Server Error",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/v1/revoke"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "117"
+						},
+						{
+							"key": "etag",
+							"value": "\"3ogyef\""
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error decrypting private key: Incorrect key passphrase\"\n}"
+				}
+			]
 		},
 		{
 			"name": "/verify",
@@ -1076,7 +1335,6 @@
 							"// Declaring Headers",
 							"let headersContentType = pm.response.headers.get(\"content-type\");",
 							"let headersEtag = pm.response.headers.get(\"etag\");",
-							"// let headersVary = pm.response.headers.get(\"vary\");",
 							"let headersDate = pm.response.headers.get(\"Date\");",
 							"let headersConnection = pm.response.headers.get(\"Connection\");",
 							"let headersKeepAlive = pm.response.headers.get(\"Keep-Alive\");",
@@ -1089,7 +1347,6 @@
 							"    \"\\n → Environment: \" + pm.environment.name,",
 							"    \"\\n → Keep-Alive: \" + headersKeepAlive,",
 							"    \"\\n → Response Time: \" + pm.response.responseTime + \"ms\",",
-							"    // \"\\n → Vary: \" + headersVary",
 							"];",
 							"console.log(\"HTTP Headers:\" + consoleOutput);",
 							"",
@@ -1145,10 +1402,6 @@
 							"    pm.response.to.have.header(\"content-type\");",
 							"});",
 							"",
-							"// pm.test(\"vary is present\", function () {",
-							"//     pm.response.to.have.header(\"vary\");",
-							"// });",
-							"",
 							"pm.test(\"Date is present\", function () {",
 							"    pm.response.to.have.header(\"Date\");",
 							"});",
@@ -1192,7 +1445,7 @@
 					{
 						"key": "passphrase",
 						"value": "{{passphrase}}",
-						"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+						"description": "(optional) passphrase to encrypt the message key. (min. 12 characters).",
 						"type": "text"
 					},
 					{
@@ -1204,20 +1457,153 @@
 					{
 						"key": "date",
 						"value": "{{date}}",
+						"description": "(optional) use the given date for verification instead of the current time.",
 						"type": "text"
 					}
 				],
 				"url": "{{url}}/v1/verify",
 				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
 			},
-			"response": []
+			"response": [
+				{
+					"id": "6fff382c-e10b-424b-870e-85470b7d4b59",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "message",
+								"value": "{{message}}",
+								"description": "(required) message to be verified.",
+								"type": "text"
+							},
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							},
+							{
+								"key": "verification-keys",
+								"value": "{{verificationKeys}}",
+								"description": "(required) array of publicKeys or single key, to verify signatures.",
+								"type": "text"
+							},
+							{
+								"key": "date",
+								"value": "{{date}}",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/verify"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"1mzkqe8\""
+						},
+						{
+							"key": "content-length",
+							"value": "62"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"data\": {\n        \"signatures\": [],\n        \"data\": \"Hello Crypto Service APIs!\"\n    }\n}"
+				},
+				{
+					"id": "a8d8cd95-b345-4463-8337-59917f968c50",
+					"name": "500 Internal Server Error",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "message",
+								"value": "{{message}}",
+								"description": "(required) message to be verified.",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							},
+							{
+								"key": "verification-keys",
+								"value": "{{verificationKeys}}",
+								"description": "(required) array of publicKeys or single key, to verify signatures.",
+								"type": "text"
+							},
+							{
+								"key": "date",
+								"value": "{{date}}",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/verify"
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "content-length",
+							"value": "132"
+						},
+						{
+							"key": "etag",
+							"value": "\"16fnuop\""
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Feb 2022 22:22:22 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"createMessage: must pass options object containing `text` or `binary`\"\n}"
+				}
+			]
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "f9b1db20-24f6-4c19-8b67-59cb6abfe350",
+				"id": "ec9773b5-c55b-4d8a-ad84-b4d7ad3fd97e",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
@@ -1230,7 +1616,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "b0e4c738-3e50-42ac-b4d0-04af029e8610",
+				"id": "a4bce9a6-23b4-49de-9b99-80ea0639baa8",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1240,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "64a9543c-9a69-40a6-a3a1-9ae5ad38c326",
+			"id": "acfed021-989c-4987-a7e9-dc7c6123ec3c",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3f3503a9-fbcb-415d-9d2d-bca9b6f71c91",
+			"id": "997069fa-befe-4dbd-9378-00ea91be966d",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "c3096c0c-2464-4891-9724-e618eff31147",
+			"id": "8d3a5e71-2c17-4b3b-87b0-ab04fbb3cf6b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "973f5c18-cd7b-4d3f-bebd-5de3c308f1c4",
+			"id": "0067e24b-a124-441a-8343-465d5133f1ad",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "620c9c69-1913-465b-afe4-e8c3267ef5c8",
+			"id": "a1b5d16f-0668-48ad-bfa7-dcfa48b34d29",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "d4811163-3f91-45cc-9fe5-d2041b5e135b",
+			"id": "130730d0-f57c-4c8f-967e-5e06d069c122",
 			"key": "revocationCertificate",
 			"value": ""
 		}
