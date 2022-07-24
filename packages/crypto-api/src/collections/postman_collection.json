@@ -416,7 +416,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/decrypt",
-				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message.\n\n#### Type\n\nPromise.<\\>"
+				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "ad561ee3-0fac-4ebc-adbc-13d220ca4b11",
+			"id": "d13d9b36-db66-4a4e-a98e-1c078117b6cd",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "9811e57d-79ec-4efd-a1b6-56abf25b8c81",
+			"id": "6228cc7d-56d8-4e4d-bbf9-f47580db8029",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "c426d149-4987-4a1c-9ce8-ecf12c52a304",
+			"id": "808d371b-32ef-43fa-af0f-3b6e1af6e603",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "153d002d-9480-4b54-9f76-60c3aa73da59",
+			"id": "dd7a0a2b-3493-4796-9822-15fe63a477e5",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "bb12a22f-b68b-42cc-8be6-bc546bdf8c79",
+			"id": "3462fa3f-a85f-4224-a116-9ed3a96e3a96",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "04d99499-7427-4761-aa14-00e8d81433b1",
+			"id": "985d9bf6-da5e-43a3-93aa-c4160d88044b",
 			"key": "revocationCertificate",
 			"value": ""
 		}
