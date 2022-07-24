@@ -1292,15 +1292,7 @@
 					"name": "500 Internal Server Error",
 					"originalRequest": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "passphrase",
-								"value": "{{passphrase}}",
-								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
-								"type": "text",
-								"disabled": true
-							}
-						],
+						"header": [],
 						"url": "{{url}}/v1/revoke"
 					},
 					"status": "Internal Server Error",
@@ -1513,42 +1505,42 @@
 	],
 	"variable": [
 		{
-			"id": "e16f90a1-bcac-4063-b91b-9f6afe1ca33e",
+			"id": "3844a41c-c799-4308-b83d-8036c1665836",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "fa4f6b62-e2d4-4d6e-a61b-ee4bb58690b8",
+			"id": "862b17cf-3460-43a7-aef0-11ca2b1fc9f7",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "cd84f7f8-978a-41ef-8bc3-9593964e16e9",
+			"id": "1f251c4b-4eae-40dc-89ab-ef318291800a",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "1a1f23fb-7670-4ff6-884e-014a7fa8d290",
+			"id": "bce6cf91-68a7-4002-9da7-9cb25a47e474",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "e29855bf-05d6-400b-98fd-1bea1851cfbd",
+			"id": "45fa6df6-8658-4043-b14d-8c55a660fadf",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "760722ad-911e-49d1-96a9-b25f5658d36d",
+			"id": "27684392-b459-40ac-8819-6f745d7ad8c1",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "aa7b9cd3-3c31-41de-b19e-2dcf2aedd9ba",
+			"id": "2dc20620-1c2b-4fd8-a7c9-a575f1270cd6",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "4ae43e60-49b2-45d7-bb1e-d98dd6d330c5",
+			"id": "555e84a4-470b-47b0-aa4f-6b4fb157a510",
 			"key": "decryptedData",
 			"value": ""
 		}
