@@ -1603,7 +1603,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2ac17180-dfe7-490a-8712-da681b254791",
+				"id": "ec9773b5-c55b-4d8a-ad84-b4d7ad3fd97e",
 				"type": "text/javascript",
 				"exec": [
 					"// Current date",
@@ -1616,7 +1616,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "d7baf30a-e10d-4461-90c2-888bf43805c3",
+				"id": "a4bce9a6-23b4-49de-9b99-80ea0639baa8",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1626,43 +1626,33 @@
 	],
 	"variable": [
 		{
-			"id": "42c9fb55-9348-4840-bdc7-057fabea03a7",
+			"id": "acfed021-989c-4987-a7e9-dc7c6123ec3c",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "518f19e7-a804-4607-be5b-b70b59cb71ea",
+			"id": "997069fa-befe-4dbd-9378-00ea91be966d",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "dd0b5bb8-fcc7-4473-b8d1-ccdda86f2ad2",
+			"id": "8d3a5e71-2c17-4b3b-87b0-ab04fbb3cf6b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "a52de7f6-fe05-4bba-963c-e525e28b1d35",
+			"id": "0067e24b-a124-441a-8343-465d5133f1ad",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "0e88904f-55f0-4a2d-ab34-b954ddf3b077",
+			"id": "a1b5d16f-0668-48ad-bfa7-dcfa48b34d29",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "35539da6-13d1-478a-8790-362a3cc5d1b8",
+			"id": "130730d0-f57c-4c8f-967e-5e06d069c122",
 			"key": "revocationCertificate",
-			"value": ""
-		},
-		{
-			"id": "3108971b-df4e-43ac-9af3-ae83044f28a7",
-			"key": "generatedKeys",
-			"value": ""
-		},
-		{
-			"id": "06f686c1-e8b3-470d-808c-f2a04c008d36",
-			"key": "decryptedData",
 			"value": ""
 		}
 	]
