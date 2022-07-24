@@ -1462,7 +1462,7 @@
 					}
 				],
 				"url": "http://localhost:3000/v1/verify",
-				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
+				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message.\n\n#### Returns\n\nObject containing verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if `message` was a CleartextMessage)\n  data: MaybeStream, (if `message` was a Message)\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message.\n\n#### Type\n\nPromise.<(Object)>"
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "5986b1d5-7af9-4b04-8114-c7aacc83745e",
+			"id": "923047b3-ae84-4bed-9179-600b16d7b2be",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "702df6c9-ea27-4dcc-a818-a17f2e078d99",
+			"id": "bbc0fca2-08be-41b9-8459-cdef2c4f2310",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "1eac0840-d2ca-4e09-9109-e3ec26f73243",
+			"id": "dba0fe48-42a8-48f8-93e6-8cbe4278f12b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "64f09fc3-f81c-4cab-bce1-755d23c7935b",
+			"id": "bbe9ed28-477a-4018-98fb-a79a5407b836",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "acdbe235-a8cc-4455-b2a4-c95f46b01ad8",
+			"id": "59a24e9b-6597-4896-8af4-2cb384c31b0b",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "89cc7b65-7ffd-4000-a036-66bded0fec4b",
+			"id": "5819e298-0350-4e09-9e22-c39717c3b3e2",
 			"key": "revocationCertificate",
 			"value": ""
 		}
