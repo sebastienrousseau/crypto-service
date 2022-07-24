@@ -1052,7 +1052,7 @@
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": "{{url}}/v1/health"
+						"url": "{{url}}/health"
 					},
 					"status": "OK",
 					"code": 200,
@@ -1415,37 +1415,37 @@
 	],
 	"variable": [
 		{
-			"id": "6945c339-31f7-4614-8f6a-62295009393d",
+			"id": "0afea9eb-0f7a-45a7-9a69-f3d1966b87bb",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "324a282e-76a1-4a13-8954-c71ac7d25f84",
+			"id": "d481bc47-ae55-4557-ad3d-a2067078f271",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "af61611e-cfb1-42db-bcef-75c865848a9f",
+			"id": "34810a7b-a484-4cff-ba70-cee8df03adb1",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "420457f2-6358-4653-a2f5-7962eb56ea1b",
+			"id": "ea149b85-5f8f-43b6-8c7a-f415f12e2df4",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "1b8ee107-e22c-4c3c-9197-b0aeafad2bb8",
+			"id": "dce0a13d-bb17-427a-8174-871243bef85c",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "bbd835ee-fbe0-4318-92e3-56e11c105be2",
+			"id": "166a643a-d611-4698-b515-3a740e6b7f90",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "81b8ead1-d771-486b-9d4f-4ea9579e5540",
+			"id": "a722aaff-d5ea-4813-a64a-d41f5965bcfc",
 			"key": "generatedKeys",
 			"value": ""
 		}
