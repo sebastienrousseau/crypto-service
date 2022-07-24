@@ -516,7 +516,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{url}}/v1/decrypt"
+						"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/v1/decrypt"
 					},
 					"status": "Internal Server Error",
 					"code": 500,
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "d3c83a51-cd4f-4ce6-8211-e7a6d85f4198",
+			"id": "c4c3e424-9e73-44f8-9def-b4650d99028d",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "3c3925ff-bcd0-46c7-98d5-5f60508c8a02",
+			"id": "61600c61-d8fd-4e24-9339-b8ff5c7a3c29",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "e20c3bab-0358-4de1-8429-064b69468d6b",
+			"id": "1fa5a70b-46f4-4cec-89d9-1c05096f07da",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "fa22de7c-5e25-4d4c-b9ae-6a18c8b22dfb",
+			"id": "f64e5b41-bfab-4d19-ace9-9c89d9cc8f0f",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "03cc7424-200d-471d-98d7-40e027b34a33",
+			"id": "b08d358a-a7a1-4466-8047-b37509d0579f",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "69634aec-fc00-43d1-b7b1-58c1262b446c",
+			"id": "521cef28-4412-4042-8584-50d7b1819508",
 			"key": "revocationCertificate",
 			"value": ""
 		}
