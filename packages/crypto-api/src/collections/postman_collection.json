@@ -1289,33 +1289,38 @@
 	],
 	"variable": [
 		{
-			"id": "13c48cc4-4f11-42ce-8125-0afa9eb9b844",
+			"id": "05d072bb-4d7c-4eb8-8fce-f1c8bdcb7f9c",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "50626d55-9a4c-4e8d-ae3d-4fbc2b6626dd",
+			"id": "6c4f7361-c1d0-42e6-8b70-6682814d464e",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "b73ef081-0480-4d4a-9916-ccd40c5cf83d",
+			"id": "d0f17b78-cb41-4044-b319-27e743d7ba98",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "35805c6a-1495-4e4c-a155-3cc13e5ee444",
+			"id": "828e2da0-a98d-42f3-958c-096b7ee88ac9",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "4dc2be36-e9ff-49a3-baec-9b6e658d1c0b",
+			"id": "9d327071-ee78-4c17-bc84-d640c5ded57d",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "63003fcb-1c5f-4f68-a610-9343e2afc310",
+			"id": "c24dd7fe-de9d-4a86-8ca6-6dfec9676594",
 			"key": "revocationCertificate",
+			"value": ""
+		},
+		{
+			"id": "710e48cf-9090-4829-8b60-03b51e329f5d",
+			"key": "generatedKeys",
 			"value": ""
 		}
 	]
