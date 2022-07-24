@@ -935,7 +935,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"No key type specified\"\n}"
+					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error generating keypair: Unknown curve\"\n}"
 				}
 			]
 		},
@@ -1374,37 +1374,37 @@
 	],
 	"variable": [
 		{
-			"id": "df26446a-2378-4d27-8409-202dc3d3b446",
+			"id": "ecf241f6-f52a-4c05-9854-10aeb6572eea",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "fb9423ef-3c19-47bc-835a-b41b56462088",
+			"id": "88108c48-e08c-4179-8efd-287eeaed2c99",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "00607d1b-77e4-4bef-b133-067b5db9abb8",
+			"id": "196bfc15-b1e9-4f05-999e-e9c894f38712",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "1f5b0166-19d1-4bcd-9c91-594b813a5bce",
+			"id": "83437dc0-0001-47a2-accc-2d1e6d7b26e0",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "4746a52b-0f77-4784-a379-d54f061526eb",
+			"id": "658e4613-2f56-4af4-85b0-59e632bf71d7",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "72e4299c-5085-461d-94ea-717ef3f03678",
+			"id": "6eea9789-3254-4b65-921b-55c430fc27ff",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "66d86168-dc0d-4abc-9829-0522719f9a2e",
+			"id": "36acad0f-5072-4216-9a9b-017401c9f0f3",
 			"key": "generatedKeys",
 			"value": ""
 		}
