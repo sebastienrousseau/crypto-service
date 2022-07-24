@@ -1036,7 +1036,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{url}}/health",
+				"url": "http://localhost:3000/health",
 				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
 			},
 			"response": [
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "0ee3ff3d-d19d-4b81-8eb8-577d4a44dace",
+			"id": "fb994528-a808-4743-af35-cebab134e21a",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "016c505c-b5d2-4595-91ad-9c92081ccf4f",
+			"id": "c509940e-a83e-4271-b203-dc4f0b1ba75f",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "e04f22ba-146d-4bda-a67c-7c06727aa585",
+			"id": "0a0859cb-b752-4465-ac9d-df1785ef9481",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "0b9e04b2-41ab-4f32-9051-7501a5b37cd0",
+			"id": "1561b692-efe8-47de-a3e5-adf67abdf014",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "8bd33d41-005f-46e9-89e8-e805e905872f",
+			"id": "766783c1-a4b8-47c1-a64e-72961f3838d2",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "d2250ba0-d85b-48a6-908f-e4ac67c82ea5",
+			"id": "6068d8e8-4182-4052-bcb2-711f76517d92",
 			"key": "revocationCertificate",
 			"value": ""
 		}
