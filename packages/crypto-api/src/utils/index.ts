@@ -143,12 +143,12 @@ export function readResponse(responses) {
  */
 export function readMethods(method) {
   let markdown = ''
-
+  console.log(method);
   markdown += `\n`
   markdown += method?.request?.description !== undefined ? `#${method?.request?.description || ''}\n\n` : ``
   markdown += `### ${method?.request?.method} ${method.name}\n\n`
   markdown += `>\`\`\`\n`
-  markdown += `>${method?.request?.url?.raw}\n`
+  markdown += `>${method?.request?.url}\n`
   markdown += `>\`\`\`\n`
   markdown += readRequest(method?.request)
   markdown += readFormDataBody(method?.request?.body)
