@@ -144,8 +144,8 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/encrypt",
-				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message."
+				"url": "http://localhost:3000/v1/encrypt",
+				"description": "# 🔒 Encryption API\n\nEncrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.\n\n#### Returns\n\nEncrypted message (string if `armor` was true, the default; Uint8Array if `armor` was false).\n\n#### Type\n\nPromise.<(MaybeStream.|MaybeStream.)>"
 			},
 			"response": [
 				{
@@ -415,8 +415,8 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/decrypt",
-				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message."
+				"url": "http://localhost:3000/v1/decrypt",
+				"description": "# 🔓 Decryption API\n\nProvides the ability to decrypt an encrypted message with the user's private key, a session key or a password. The API returns the decrypted text.\n\n#### Returns\n\nObject containing decrypted and verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if format was 'utf8', the default)\n  data: MaybeStream, (if format was 'binary')\n  filename: String,\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message.\n\n#### Type\n\nPromise.<(Object)>"
 			},
 			"response": [
 				{
@@ -734,8 +734,8 @@
 						"description": "(optional) Format of the output keys e.g. 'armored' | 'object' | 'binary'."
 					}
 				],
-				"url": "{{url}}/v1/generate",
-				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated."
+				"url": "http://localhost:3000/v1/generate",
+				"description": "# 🏛️ Key Generation API\n\nCreates a key for cryptography using the specified algorithm. The key created using this API is used for encrypting clear text and decrypting the encrypted data.\n\nSupports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated.\n\n#### Returns\n\nThe generated key object in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String, revocationCertificate:String }.\n\n#### Type\n\nPromise.<(Object)>"
 			},
 			"response": [
 				{
@@ -1036,7 +1036,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{url}}/health",
+				"url": "http://localhost:3000/health",
 				"description": "# 👟 Health Check API\n\nThe Health Check API is a RESTful web service that uses HTTPS as a transport and JSON as a message serialisation format.\n\nThis collection checks the status of he 🔐 The Crypto Service Suite API endpoints."
 			},
 			"response": [
@@ -1229,8 +1229,8 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/revoke",
-				"description": "# ❌ Revocation API\n\nRevokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored.\n\n#### Returns\n\nThe revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.\n\n##### Type\n\nPromise."
+				"url": "http://localhost:3000/v1/revoke",
+				"description": "# ❌ Revocation API\n\nRevokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored.\n\n#### Returns\n\nThe revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.\n\n#### Type\n\nPromise.<(Object)>"
 			},
 			"response": [
 				{
@@ -1461,8 +1461,8 @@
 						"type": "text"
 					}
 				],
-				"url": "{{url}}/v1/verify",
-				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message."
+				"url": "http://localhost:3000/v1/verify",
+				"description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message.\n\n#### Returns\n\nObject containing verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if `message` was a CleartextMessage)\n  data: MaybeStream, (if `message` was a Message)\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message.\n\n#### Type\n\nPromise.<(Object)>"
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "6ab61108-b76d-4541-8850-d58fc57ad8d0",
+			"id": "923047b3-ae84-4bed-9179-600b16d7b2be",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "990f3dec-b71b-4e14-83d3-00d1d8c07d07",
+			"id": "bbc0fca2-08be-41b9-8459-cdef2c4f2310",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "608ed930-1559-45dc-83a0-ca727ba7327a",
+			"id": "dba0fe48-42a8-48f8-93e6-8cbe4278f12b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "311e6225-5a5b-47cb-b8d2-245ef6adfb53",
+			"id": "bbe9ed28-477a-4018-98fb-a79a5407b836",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "0aed05bc-8e56-4c6d-90e9-21b60379dfc1",
+			"id": "59a24e9b-6597-4896-8af4-2cb384c31b0b",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "204cb841-41ed-4580-ba2b-596531b2f4c7",
+			"id": "5819e298-0350-4e09-9e22-c39717c3b3e2",
 			"key": "revocationCertificate",
 			"value": ""
 		}
