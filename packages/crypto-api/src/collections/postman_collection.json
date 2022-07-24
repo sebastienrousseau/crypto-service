@@ -1463,6 +1463,7 @@
 					{
 						"key": "date",
 						"value": "{{date}}",
+						"description": "use the given date for verification instead of the current time",
 						"type": "text"
 					}
 				],
@@ -1631,42 +1632,42 @@
 	],
 	"variable": [
 		{
-			"id": "7be84d57-4e98-4d3a-9775-f5086ac42404",
+			"id": "cbd7852a-2042-4d38-95c7-af241551a22d",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "aa440d82-855c-4190-af49-96e9cf7b368b",
+			"id": "d0c40072-80b4-4cce-8add-03a328085b3e",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "46bea2a8-416e-4b7e-b5b8-7e7da2f374c9",
+			"id": "0da422e4-3d02-4101-8702-b83287e48b93",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "3b18ea89-e604-434c-9dec-22ac407e4e68",
+			"id": "2bbc1fc9-b90c-480a-bbe0-a095756c3912",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "aae74ec2-d64d-4186-bb61-c731a4ab7e6a",
+			"id": "5ca7e3c7-f074-4ffb-ba06-edf2291f9802",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "2f7f84bc-8d5c-42cf-8327-b1aad2fec241",
+			"id": "4bd868e5-6b5d-40c1-a68d-5509c96d95f3",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "92743149-239d-446d-be83-7d9981ef979a",
+			"id": "c6c2dd41-b2d8-4f45-a3b9-fe6b73518bb9",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "0cc04eec-7472-474b-8b22-c78fe68fdfbb",
+			"id": "754df7c3-03d7-47aa-aed9-eee628dd908e",
 			"key": "decryptedData",
 			"value": ""
 		}
