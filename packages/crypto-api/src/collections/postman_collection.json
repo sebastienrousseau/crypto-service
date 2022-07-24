@@ -1061,6 +1061,47 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"statusCode\": 200,\n    \"status\": \"ok\",\n    \"uptime\": 4707.284612625\n}"
+				},
+				{
+					"id": "220bf226-f7c3-4697-9004-529dd8beb0ca",
+					"name": "/health",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/v1/health"
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"1el7r2z\""
+						},
+						{
+							"key": "content-length",
+							"value": "81"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 24 Jul 2022 07:35:11 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"message\": \"Route GET:/v1/health not found\",\n    \"error\": \"Not Found\",\n    \"statusCode\": 404\n}"
 				}
 			]
 		},
@@ -1374,37 +1415,37 @@
 	],
 	"variable": [
 		{
-			"id": "2f301b92-98b4-4f0c-abd6-55ff8097d405",
+			"id": "bc96bd0b-1b6e-4274-a695-d4dfd3a23742",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "962c46d1-ce95-4d1e-bfcf-580d9e97c864",
+			"id": "f2d26dbc-c3b6-43bb-bcea-03d5762f1e73",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "61aa962b-1134-42a7-81e7-8b62379839a9",
+			"id": "11f74b17-7fe3-4cbe-955d-9da0a7765489",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "a815279a-4771-4d0b-9124-8c1a911388a5",
+			"id": "2721616b-7f94-45eb-a58b-8b885a4e1991",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "ac8f7945-55d4-4e5e-963b-fd5bab18db79",
+			"id": "de5b8cdf-43a1-44c8-bbef-8e3b0a9d40b0",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "a76700d9-fdd6-4484-9c52-ed50a464a148",
+			"id": "009928f5-df01-4cfb-9427-a12f0ea3ae73",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "f82e21d6-91f1-4213-8992-b68e1f3a310c",
+			"id": "93d56171-cd6c-4d14-91f0-142d14989301",
 			"key": "generatedKeys",
 			"value": ""
 		}
