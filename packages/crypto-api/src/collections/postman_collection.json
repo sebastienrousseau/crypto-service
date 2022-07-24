@@ -1287,7 +1287,7 @@
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
-						"url": "{{url}}/v1/revoke"
+						"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/v1/revoke"
 					},
 					"status": "Internal Server Error",
 					"code": 500,
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "5436b75f-82cb-4be1-baaa-763e3ee8b3c6",
+			"id": "a79c240a-d005-4868-bd89-4b563682419d",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "55997256-10cd-4eea-9047-4a767a13f3ad",
+			"id": "51d238ae-83d9-4d25-942b-2df747a5127a",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f26438a4-8f79-4462-821e-202aed98555d",
+			"id": "4f06d075-6724-4355-98c5-2d598cf1990b",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "0dae1f84-d094-4af4-8b41-3109de6f44f6",
+			"id": "1b9925cb-37ae-4e26-9833-24bc21a8db6b",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "ac5d1a54-3876-416c-a2ca-e0ead5d5b841",
+			"id": "9536f6b1-d02e-43a2-9f7b-0ecef964efb1",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "7c44abec-458b-4a3d-9b0f-580a2bf5fcd3",
+			"id": "2faaf7a2-d585-4d87-b035-d6385267cc05",
 			"key": "revocationCertificate",
 			"value": ""
 		}
