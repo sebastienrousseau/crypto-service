@@ -247,7 +247,7 @@ these people and a bunch of awesome [contributors][17].
 
 | Contributors |
 |---------|
-|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=117)](https://sebastienrousseau.co.uk)|
+|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=250)](https://sebastienrousseau.co.uk)|
 |[Sebastien Rousseau](https://github.com/sebastienrousseau)|
 
 [1]:  https://openpgpjs.org/
