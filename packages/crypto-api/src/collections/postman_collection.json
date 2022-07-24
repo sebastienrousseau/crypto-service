@@ -695,19 +695,19 @@
 						"key": "name",
 						"value": "{{name}}",
 						"type": "text",
-						"description": "(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
+						"description": "(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’"
 					},
 					{
 						"key": "email",
 						"value": "{{email}}",
 						"type": "text",
-						"description": "(required) An email address. e.g. 'jane@doe.com'"
+						"description": "(optional) An email address. e.g. 'jane@doe.com'"
 					},
 					{
 						"key": "type",
 						"value": "{{type}}",
 						"type": "text",
-						"description": "(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
+						"description": "(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'."
 					},
 					{
 						"key": "passphrase",
@@ -1381,37 +1381,37 @@
 	],
 	"variable": [
 		{
-			"id": "f485b4a9-d18e-4098-9697-c94d73e01276",
+			"id": "e7cc717a-ecad-4822-b066-be845c010808",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "ef64343b-ddb2-441d-8724-7a7b8f898eda",
+			"id": "5478b1b6-2892-4b6d-b923-70c91d125f02",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "6b16d45c-2ec6-4a9c-b5af-4697a1e124a8",
+			"id": "ff707b5c-1c2b-4d8d-b90a-1e3df18501a7",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "7d50de98-29b2-4bd2-bb3d-bf662876c8c5",
+			"id": "84b369b2-c972-43bc-ab12-af435b138703",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "6b82ed0a-a629-42aa-83a8-372e5aeb1c89",
+			"id": "db38d606-431b-4fa5-919c-7761fb68c661",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "e6213d60-7513-4230-90ca-0541d215c71b",
+			"id": "fe256490-fc3d-49eb-be98-3f29b64cccd2",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "9e0b09a5-88a3-4b4a-88d6-97b5c608e906",
+			"id": "f8f42db8-ee4d-47d2-bee2-ac2a63a116a9",
 			"key": "generatedKeys",
 			"value": ""
 		}
