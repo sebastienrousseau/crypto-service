@@ -1246,7 +1246,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{url}}/v1/revoke"
+						"url": "https://5fd4a9f0-ab46-4be5-bb60-0e98e0ff0111.mock.pstmn.io/v1/revoke"
 					},
 					"status": "OK",
 					"code": 200,
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "2aa6ca60-562d-4575-8908-eae6bdb74417",
+			"id": "5436b75f-82cb-4be1-baaa-763e3ee8b3c6",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "58b11fcf-9986-406b-a2cd-95c0a1384722",
+			"id": "55997256-10cd-4eea-9047-4a767a13f3ad",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "6d5388e3-3f4d-4507-9b19-d885207840b8",
+			"id": "f26438a4-8f79-4462-821e-202aed98555d",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "77d286aa-4048-484f-ba95-cc7437582b54",
+			"id": "0dae1f84-d094-4af4-8b41-3109de6f44f6",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "07368b4e-22f8-4108-aee0-e40b86e3a1d4",
+			"id": "ac5d1a54-3876-416c-a2ca-e0ead5d5b841",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "06439d09-6de7-45a3-96af-40fffc6915c3",
+			"id": "7c44abec-458b-4a3d-9b0f-580a2bf5fcd3",
 			"key": "revocationCertificate",
 			"value": ""
 		}
