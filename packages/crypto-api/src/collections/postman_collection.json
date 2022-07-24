@@ -1276,7 +1276,7 @@
 				},
 				{
 					"id": "9ba71895-ef2e-4786-a4a0-71752e45a280",
-					"name": "/revoke",
+					"name": "200 OK",
 					"originalRequest": {
 						"method": "GET",
 						"header": [
@@ -1499,42 +1499,42 @@
 	],
 	"variable": [
 		{
-			"id": "3feed4c0-a85d-48b7-b12b-71fea6ae65bb",
+			"id": "542cbda9-eee6-41c5-91b8-7d9a4c78f664",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "4673b301-c8bc-4ee9-bd91-90c5768b49c4",
+			"id": "5b86ea9c-a8c2-4cac-a8dd-87048c89fc77",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "dd2a3511-37b6-4805-ae1a-836b7715ee73",
+			"id": "d9a6ca7f-3ede-4889-b810-1aa32cadc677",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "227e1a85-dc77-49d2-9c05-f797aedc8fc4",
+			"id": "3c01aea0-1afd-4fe8-9c14-5caab0fd1e13",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "fcf1f95c-b731-4533-b104-af0701b587a1",
+			"id": "21ffa290-91dd-485e-b4f2-029198de9dca",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "fe8be500-c6cf-4584-b259-7e288ab85279",
+			"id": "8dc60730-5d12-4a80-b93c-67f973bd9b82",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "6cd7a45d-2fb2-43f4-a79d-cc113fdcadf0",
+			"id": "1dc3985a-deb2-48fb-a50c-ec60af68d0c5",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "1052d51d-99d0-4c40-8ad5-d965311949a3",
+			"id": "984fa1d0-4b80-4601-ad35-2e4eab901258",
 			"key": "decryptedData",
 			"value": ""
 		}
