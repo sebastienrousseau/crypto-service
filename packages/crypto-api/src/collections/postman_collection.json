@@ -1230,7 +1230,7 @@
 					}
 				],
 				"url": "{{url}}/v1/revoke",
-				"description": "# ❌ Revocation API\n\nProvides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text.\n\n#### Returns\n\nThe revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.\n\n##### Type\n\nPromise."
+				"description": "# ❌ Revocation API\n\nRevokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored.\n\n#### Returns\n\nThe revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.\n\n##### Type\n\nPromise."
 			},
 			"response": [
 				{
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "e0a38408-70ca-43e4-9102-00e4a7846d15",
+			"id": "61c72fb8-b79d-4a14-a5c6-068d483d8dd8",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "afb9f6e4-bdf1-442c-b37d-cbcad70b86db",
+			"id": "443a9d81-9d3c-47f2-acc1-f5fabbac3264",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "9e1ed56b-4cff-4c0f-ab2a-63e701a2f67f",
+			"id": "11dac3aa-e47e-475d-94b7-198b794fceb1",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "81650e1a-5df5-4334-92b9-79e1551aa89f",
+			"id": "f1b6210c-9e2f-4fc5-b19c-c080de17f1a3",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "32960c61-5a32-4218-a04f-6d26ba656785",
+			"id": "9b2c543b-ccdf-4aa9-8c51-6fabbc63edab",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "57108034-7003-4191-b66f-f02a4987c867",
+			"id": "9082e578-14a1-4ed4-987b-df899f2cef06",
 			"key": "revocationCertificate",
 			"value": ""
 		}
