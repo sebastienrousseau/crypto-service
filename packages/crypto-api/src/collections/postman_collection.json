@@ -206,7 +206,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"data\": \"PGP MESSAGE\"\n}"
+					"body": "{\n    \"data\": \"ENCRYPTED PGP MESSAGE\"\n}"
 				},
 				{
 					"id": "93d47add-f3e3-4bd6-bc9b-f6ddf4f78f87",
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "acfed021-989c-4987-a7e9-dc7c6123ec3c",
+			"id": "7a55154f-e274-4ef1-9f81-47a660df3b18",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "997069fa-befe-4dbd-9378-00ea91be966d",
+			"id": "1c84d6c3-2136-4e52-ad68-4ffbfa695254",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "8d3a5e71-2c17-4b3b-87b0-ab04fbb3cf6b",
+			"id": "d414d9b6-2aa2-4bdd-a63a-498d5056592c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "0067e24b-a124-441a-8343-465d5133f1ad",
+			"id": "b92792d9-9726-49f7-b81a-21b66b12cc4c",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "a1b5d16f-0668-48ad-bfa7-dcfa48b34d29",
+			"id": "3e864bcc-00b2-476f-91a7-89bcb5cbedf8",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "130730d0-f57c-4c8f-967e-5e06d069c122",
+			"id": "c08e9419-de9d-4c90-955b-82385c644d62",
 			"key": "revocationCertificate",
 			"value": ""
 		}
