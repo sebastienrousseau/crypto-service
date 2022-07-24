@@ -1279,6 +1279,54 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"statusCode\": 500,\n    \"error\": \"Internal Server Error\",\n    \"message\": \"Error decrypting private key: Incorrect key passphrase\"\n}"
+				},
+				{
+					"id": "119eda0f-5a05-43b8-9425-b119bf3a96b3",
+					"name": "/revoke",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "passphrase",
+								"value": "{{passphrase}}",
+								"description": "(required) - A passphrase to encrypt the message key. (min. 12 characters).",
+								"type": "text"
+							}
+						],
+						"url": "{{url}}/v1/revoke"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "content-type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "etag",
+							"value": "\"98qf8v\""
+						},
+						{
+							"key": "content-length",
+							"value": "7071"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 24 Jul 2022 08:06:37 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"data\": {\n        \"privateKey\": \"-----BEGIN PGP PRIVATE KEY BLOCK-----\\n\\n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\\n=HdoQ\\n-----END PGP PRIVATE KEY BLOCK-----\\n\",\n        \"publicKey\": \"-----BEGIN PGP PUBLIC KEY BLOCK-----\\n\\n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\\n=biwT\\n-----END PGP PUBLIC KEY BLOCK-----\\n\"\n    }\n}"
 				}
 			]
 		},
@@ -1457,42 +1505,42 @@
 	],
 	"variable": [
 		{
-			"id": "d04bd1cc-8950-4416-bd8d-c54d82f5c72a",
+			"id": "e9c77b01-b91c-46b1-a483-604f52ce0d04",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "9b8295bf-652b-4f3b-98fb-a8a857161430",
+			"id": "d6fa358f-82ae-4f5f-83ac-c921f64a0555",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "3c07944f-14a7-4588-81c7-d85ef7579fee",
+			"id": "7b543f9c-d4f8-4aef-aace-942bd5b9e223",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "8f5eca6d-e0b3-439c-b8a2-e7fb08fcf298",
+			"id": "6220c3c3-b26b-4e6b-a920-84b9e2a81545",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "4dde9675-c65f-4ffb-9253-d5d31e809692",
+			"id": "8118da97-addc-4488-aa30-a12c96c2e572",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "4c1f1894-7c17-4a72-a3a8-dccfbd5ba5e1",
+			"id": "167a152d-9d87-401b-93ff-20c5e4f6160b",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "6388e73e-5705-4873-8a94-0fb0b18993db",
+			"id": "63eb283e-07e7-4cd9-bf1d-6c91397c7611",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "1da59202-93a9-4a4f-9e78-1b599f9dae4b",
+			"id": "bae9393e-bc13-4260-b2d9-44eeec992bd2",
 			"key": "decryptedData",
 			"value": ""
 		}
