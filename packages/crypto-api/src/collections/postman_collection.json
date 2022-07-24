@@ -155,78 +155,6 @@
 			},
 			"response": [
 				{
-					"id": "1f5bea8e-452d-4897-836c-f8d2bd905f9f",
-					"name": "200 OK",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "passphrase",
-								"value": "{{passphrase}}",
-								"description": "(optional) - A passphrase to encrypt the message key. (min. 12 characters).",
-								"type": "text"
-							},
-							{
-								"key": "message",
-								"value": "{{message}}",
-								"description": "(required) message to be encrypted.",
-								"type": "text"
-							},
-							{
-								"key": "public-key",
-								"value": "{{publicKey}}",
-								"description": "(optional) array of keys or single key, used to encrypt the message.",
-								"type": "text"
-							}
-						],
-						"url": "{{url}}/v1/encrypt"
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "content-type",
-							"value": "application/json; charset=utf-8",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "etag",
-							"value": "\"1q0w29z\"",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "content-length",
-							"value": "1006",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "Date",
-							"value": "Tue, 22 Feb 2022 22:22:22 GMT",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5",
-							"description": "",
-							"type": "text"
-						}
-					],
-					"cookie": [],
-					"responseTime": null,
-					"body": "{\n    \"data\": \"PGP ENCRYPTED MESSAGE\"\n}"
-				},
-				{
 					"id": "6fdba241-2966-4316-a906-4e362c6054c7",
 					"name": "/encrypt",
 					"originalRequest": {
@@ -1300,32 +1228,32 @@
 	],
 	"variable": [
 		{
-			"id": "2258204f-9288-4249-82a6-17138c05dc9a",
+			"id": "4c7799de-77bf-4327-9b08-2aa709b2929f",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "36550583-73bb-4ffe-8de6-b64acc07ffa8",
+			"id": "737f6aa6-b187-4b79-ba9a-2ee4f42a0212",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "4854329e-9099-4747-a430-20ccd436b441",
+			"id": "e943949f-19f6-43dc-b38e-92a2ab99645c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "d8f67442-670f-4967-a948-15458dc046f6",
+			"id": "33b35bda-b9ae-44ee-9d92-d3b8fea89e36",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "1347117d-eb32-45e8-8687-3a022a68bb99",
+			"id": "c3cc77cf-e5f9-48e3-b76d-4f4265fbad00",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "22e5938d-582e-49e9-baa9-e80246a0d7a8",
+			"id": "716e934c-c61e-4501-8a42-1fdc36348708",
 			"key": "revocationCertificate",
 			"value": ""
 		}
