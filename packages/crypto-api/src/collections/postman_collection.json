@@ -146,7 +146,7 @@
 					{
 						"key": "public-key",
 						"value": "{{publicKey}}",
-						"description": "(optional) array of keys or single key, used to encrypt the message.",
+						"description": "(required) array of keys or single key, used to encrypt the message.",
 						"type": "text"
 					}
 				],
@@ -1289,32 +1289,32 @@
 	],
 	"variable": [
 		{
-			"id": "47214d6e-69ed-4ad9-9b02-2054e76d5f62",
+			"id": "e031cc01-04a5-4048-ab88-5b8e2f60e827",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "c3c95eeb-c487-4aa8-8fc1-9815dab5e116",
+			"id": "700bddc0-95ec-4a1c-9e8e-aeeffbcff8eb",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "33b732b7-eba6-4cf3-bf99-1df57723b327",
+			"id": "925dd09d-0e25-4e57-b684-eed03492ee52",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "840ae1d9-7a4d-40fb-9242-6409613b797a",
+			"id": "87403419-057a-44a0-af6d-92fe57c77f0d",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "95560cb8-e92c-4857-b855-9b853cd20584",
+			"id": "0c32e304-9ce2-4dc0-8d15-b1ef1b0005da",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "1e4a8e05-3ec0-4387-bf69-a6b96d4952dc",
+			"id": "a9e78b4c-3a7b-4607-a710-a0e6582b6715",
 			"key": "revocationCertificate",
 			"value": ""
 		}
