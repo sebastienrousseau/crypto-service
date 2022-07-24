@@ -1528,7 +1528,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"data\": {\n        \"signatures\": [],\n        \"data\": \"The cleartext of the signed message\"\n    }\n}"
+					"body": "{\n    \"data\": {\n        \"signatures\": \"The detached signature or an empty signature for unsigned messages\",\n        \"data\": \"The cleartext of the signed message\"\n    }\n}"
 				},
 				{
 					"id": "a8d8cd95-b345-4463-8337-59917f968c50",
@@ -1626,32 +1626,32 @@
 	],
 	"variable": [
 		{
-			"id": "02e6c2d1-be25-461f-9041-f937a90fcafd",
+			"id": "2228572a-bbd2-4434-899e-ad774f31f7b0",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "6d0d4078-36c1-4d8d-87b1-78e1d3aa1a33",
+			"id": "d520e288-f624-4ee5-8e24-abed1dc41371",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "f189c31e-5812-4267-bc76-f689576a8786",
+			"id": "c596a83f-9118-4fb0-8fa5-225c44dab83c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "89c4a774-c32e-4c6a-b3b0-6f61b870c52d",
+			"id": "3418a476-f10b-404a-98fb-2a58b8d3a38a",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "5a5b7a96-5a0c-4e43-b941-8b1934c7e19b",
+			"id": "0ab75992-082d-4030-ac1a-478792f987d0",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "f1604bd7-c62c-474c-ad44-ea518897c023",
+			"id": "f75cdbd7-2a85-4745-b88f-17eb27e2b48d",
 			"key": "revocationCertificate",
 			"value": ""
 		}
