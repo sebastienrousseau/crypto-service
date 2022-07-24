@@ -212,7 +212,7 @@
 					],
 					"cookie": [],
 					"responseTime": null,
-					"body": "{\n    \"data\": \"-----BEGIN PGP MESSAGE-----\\n\\nwcBMA1gs7khYahHvAQf+NGw+ZNERB3jnUPrGHaQK6Isn4tFmMRzWi7MHP6eP\\nQC1n9iMrDLZWwqESL7Rl1exvX5ZXck7vwo/PxsY7uZIo/dxTK3c1lCbzQkJr\\ntbZuxr2wXmAKRmXkGwAf6neD8Gdb2QH8gjHOPP/dnjyilXWLyAyOt0TJn2fA\\nP/BzAQodRJ211SAw1/UzG2xIQsq6We+UUtO7Sk7fbw4n6p7yXPgkPLSWYsP9\\nAUAjc4GJT3+demaojWcdT25C9sRWwO4mNCF0mD/95eDvqvebj5LHN+1x2wT3\\nqvZVaECUPgjRmxdvtRW3L5HenWKxc2lNYHybwTfW6ZFCueNLIsGPlclGdvAC\\n19LA0AGytlMJBM1HP+jD/FUlct7fBFRw8teSXQ7Y3JfvLzdyq+E1xVuhEXn9\\nMrjHHgw0cXYXZYgk8ep/+groKmnevXhhUdxGOu40Y4xn6hTH8Sw+vaqevtEb\\npMDQU9r8WnuybP27WnRd7+9ItMHwle7sUYifVP9UJpLsgb1w9bJiVJS6Rgxs\\nzrVr1Q8euKxmSd3OAcqCFqH7uuO64tHe1KxYImKiG5tV5hUjyrnhXOkxrMs9\\nIixw6CTgzJurASTw1vmRj7EeRODcc9T3Bgak0GK5kQCcSN+QPj4qlWsqb8eb\\ntEonjyHTsTlOVzleuKHnpoR14/Qgn3AC51+mNj/VCFMTg3ExZKQqHAD6jwQg\\nR3IcJyxAVPBjfMInNXyJ17WpirmDg/Ett2Bed0PDI+mPq8VZfD49puU+yXss\\ngkQkAgy/u4Q0KmbERu0JD3fwGG+t9OITQzXa01B6998RuBtIcC183cKeCoFR\\nNGoFCvhAe9i8ATAfoXkXsKvKpfxh+1LRWzpkgiAWcBMpp84bbwArSoU4c80=\\n=DHzc\\n-----END PGP MESSAGE-----\\n\"\n}"
+					"body": "{\n    \"data\": \"PGP MESSAGE\"\n}"
 				},
 				{
 					"id": "93d47add-f3e3-4bd6-bc9b-f6ddf4f78f87",
@@ -1505,42 +1505,42 @@
 	],
 	"variable": [
 		{
-			"id": "cf94ab85-33d0-419e-bf2b-a82c6ca12b62",
+			"id": "5d3a798b-44e4-4809-a0f9-fca6379ad534",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "2d0b8f51-a14b-4400-9ddd-4774c7e68656",
+			"id": "7b48c9b8-9e6c-4da5-a533-88cb863b0595",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "7b773fe5-7ce4-459f-aad4-35b7504b72c4",
+			"id": "2dc81dcb-45eb-41ee-a7d1-2a8e4004c2d6",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "0f0cc199-d5b5-48f1-9219-d81bf0166bb4",
+			"id": "daf30a0b-ee3d-46c1-9bcf-e0294da780dd",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "c4941b24-8bb6-42b3-908f-455054f49622",
+			"id": "6acc0174-917b-478c-8bd0-db37dd9c64d1",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "857e0a2c-b08c-4731-807f-086ebd718c82",
+			"id": "0cbaa04d-f035-42c1-b812-c0a1cf6d242c",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "da6478cc-fb39-42c5-923d-71be5eb5283b",
+			"id": "a1edc32f-64b4-4f9c-b789-7f8c348a8d9c",
 			"key": "generatedKeys",
 			"value": ""
 		},
 		{
-			"id": "3ee3597e-6460-4080-81a7-0a8e500e3fd6",
+			"id": "3348094b-d20e-4184-a396-75aacd03d6e6",
 			"key": "decryptedData",
 			"value": ""
 		}
