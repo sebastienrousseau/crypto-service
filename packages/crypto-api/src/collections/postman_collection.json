@@ -636,10 +636,6 @@
 							"    pm.response.to.have.header(\"content-type\");",
 							"});",
 							"",
-							"pm.test(\"vary is present\", function () {",
-							"    pm.response.to.have.header(\"vary\");",
-							"});",
-							"",
 							"pm.test(\"Date is present\", function () {",
 							"    pm.response.to.have.header(\"Date\");",
 							"});",
@@ -1287,37 +1283,37 @@
 	],
 	"variable": [
 		{
-			"id": "7ca6df29-3881-47d1-8046-d239d2d51c77",
+			"id": "e515d0ba-c2e2-445e-88a1-18f26e195bad",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "39ecc3d4-83b8-4f50-b605-aa379cf33370",
+			"id": "9bd3e7e6-b6b0-4749-879a-1c1929de85db",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "982ee6bf-dc8e-4cb9-a9c6-34c764c70790",
+			"id": "784a94ad-f9b3-426c-982f-910bf3bf920c",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "4f17640c-0e08-4901-a8da-5cef584ad26a",
+			"id": "46f0bb4f-03ec-4d34-8c13-f4dffbffb92f",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "233c4eb0-2bd1-44ab-9c7d-db8c095c4d93",
+			"id": "2f22685c-172f-415a-8df4-fa4331b19808",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "585505a0-616e-401a-bc04-ca6a0de0d05d",
+			"id": "d8f7cd40-e16c-43c2-8485-39ee61b4df94",
 			"key": "revocationCertificate",
 			"value": ""
 		},
 		{
-			"id": "07442fdc-8df8-4d99-b339-8d0db257725a",
+			"id": "a3de523e-6623-4817-b072-537002b52f49",
 			"key": "generatedKeys",
 			"value": ""
 		}
