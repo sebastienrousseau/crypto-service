@@ -1240,32 +1240,32 @@
 	],
 	"variable": [
 		{
-			"id": "3e111577-b7bb-4a61-b190-e1a36e962fc4",
+			"id": "6de87226-c8e4-498e-9da3-7696f118fb7b",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "e18c08ea-582a-4291-a25b-3117f444a8ba",
+			"id": "98d40189-bb32-45ae-81b9-c24a74144e90",
 			"key": "encMessage",
 			"value": ""
 		},
 		{
-			"id": "16825769-eede-46e7-9886-222672e6f766",
+			"id": "e26d8d5e-edef-4bc3-949c-88f706b5e459",
 			"key": "encryptedMsg",
 			"value": ""
 		},
 		{
-			"id": "26800a32-1b44-4233-bab4-42ea4a7f0246",
+			"id": "bc41db3f-868d-4f3f-8d48-18145d02d8b6",
 			"key": "publicKey",
 			"value": ""
 		},
 		{
-			"id": "72218d1b-b28e-4391-889a-fc3d6b9f577c",
+			"id": "b11c40b8-1896-49ae-b576-0302af0d0f0f",
 			"key": "privateKey",
 			"value": ""
 		},
 		{
-			"id": "f08ded6d-7ae9-4467-ad65-79a3f1b9519e",
+			"id": "21ae2485-0827-4423-94b2-2d86e3f42144",
 			"key": "revocationCertificate",
 			"value": ""
 		}
