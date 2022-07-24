@@ -8,30 +8,39 @@ The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and 
 
 Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords must be specified. If private keys are specified, those will be used to sign the message.
 
+#### Returns
+
+Encrypted message (string if `armor` was true, the default; Uint8Array if `armor` was false).
+
+#### Type
+
+Promise.<(MaybeStream.|MaybeStream.)>
+
 ### GET /encrypt
 
 >```
->undefined
+>http://localhost:3000/v1/encrypt
 >```
 
 ### Request Headers
 
 |Parameter|Value|Description|
 |---|---|---|
-|passphrase|{{passphrase}}|(optional) - A passphrase to encrypt the message key. (min. 12 characters).|
+|passphrase|{{passphrase}}|(required) - A passphrase to encrypt the message key. (min. 12 characters).|
 |message|{{message}}|(required) message to be encrypted.|
-|public-key|{{publicKey}}|(optional) array of keys or single key, used to encrypt the message.|
+|public-key|{{publicKey}}|(required) array of keys or single key, used to encrypt the message.|
 ### Response
 
 |Code|Status|
 |---|---|
 |200|OK|
+|500|Internal Server Error|
 
 #### Example response
 
 ```json
 {
-    "data": "-----BEGIN PGP MESSAGE-----\n\nwcBMA1gs7khYahHvAQf/cPMwCrLY0vMqbG+PyJtOWmXLVcA91j/ZeX3/Dd+f\nfLFuRUmoOQSg0z5HRTj0sGxcvWylyLGsgrOT1zDinI2MUwkUtf6Eo/U46rIB\n0AusH9uvLeJFb7q65MYYXYp5/sgEbX0FPaJgY5RoSsajeZpipx/ppokFD/s1\n8vfF8ez5aDJKf2I8hxsekPYKjYgFq3TNc0xEfAg6ofPp7axfqXTRtO2KOz2l\ndhR0FDBOjEcY9f2da/fuwYtTgwOsFfTHpgfaLtNoDQKkWlXxQcY8vVD4k9jG\nOcPp+6vNUlmTdLm33cHN4UAVS5ZV1At742hA0ZosiotaIobNug1Uz1Dz+q/t\nc9LA0AEBc0eH8YkdaR+20pn1uuDsVC8dgkLy9GW6HbIV9iLS09TaVgqZYA7E\ncqe+8BfeDjzkqzg+0+jBQQq0bVc24OfzLBMI/hVPNyTQ1tZGNKJnI/o+3M4o\nkJ3yR6ePdpbV71JX71vblIg25MqwwG6YQUjbc5DCiZcxp5OWvfzVcfOu2531\nRbCVG6JWDYnP3kMKSO2Ew49rN+YkTT9ehuRb89oF+/FWDpRwcmgFlFlYwZ/G\ns89zQOx2dzBK+8pR1uINUPkGGUQfgCz1oj1DvDwFgoOTwOcw4ZnlGN6Uvs7L\nA5TTJJFo2vcYJCNMvwBassavK1whnzvxlGdBkdtA8dNsv73+MvDEXjg2aOZe\nLDujXYiYHb1fpU7qBYnBwjWNBJyScaA7Yr7Plht8eDCvte4vh/Vlx+WZchyD\nr3BAyCpzgESHViKpL8WBfMew/M6L0J8k1NmPzdv2TNfrQ1Xl8b55ec4ejFkq\nlZXTQUtdFQAqLtryMLRmpGDA+7nWO+de9w95R2fl50G9XtHzEq8fbPyorB4=\n=os+S\n-----END PGP MESSAGE-----\n"
+    "data": "Encrypted message (string if armor was true, the default; Uint8Array if armor was false)."
 }
 ```
 
@@ -64,10 +73,14 @@ Object containing decrypted and verified message in the form:
 
 where `signatures` contains a separate entry for each signature packet found in the input message.
 
+#### Type
+
+Promise.<(Object)>
+
 ### GET /decrypt
 
 >```
->undefined
+>http://localhost:3000/v1/decrypt
 >```
 
 ### Request Headers
@@ -99,19 +112,27 @@ Creates a key for cryptography using the specified algorithm. The key created us
 
 Supports RSA and ECC keys. By default, primary and sub keys will be of same type. The generated primary key will have signing capabilities. By default, one sub key with encryption capabilities is also generated.
 
+#### Returns
+
+The generated key object in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String, revocationCertificate:String }.
+
+#### Type
+
+Promise.<(Object)>
+
 ### GET /generate
 
 >```
->undefined
+>http://localhost:3000/v1/generate
 >```
 
 ### Request Headers
 
 |Parameter|Value|Description|
 |---|---|---|
-|name|{{name}}|(required) String consisting of a First name and Last name. e.g. ‘Jane Doe’|
-|email|{{email}}|(required) An email address. e.g. 'jane@doe.com'|
-|type|{{type}}|(optional) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.|
+|name|{{name}}|(optional) String consisting of a First name and Last name. e.g. ‘Jane Doe’|
+|email|{{email}}|(optional) An email address. e.g. 'jane@doe.com'|
+|type|{{type}}|(required) The primary key algorithm type: 'ecc' | 'rsa'. Default: 'ecc'.|
 |passphrase|{{passphrase}}|(optional) A passphrase to encrypt the resulting private key. (min. 12 characters).|
 |rsaBits|{{rsaBits}}|(optional) Number of bits for RSA keys: 2048 or 4096. Defaults to 2048.|
 |curve|{{curve}}|(optional) elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1.|
@@ -122,6 +143,7 @@ Supports RSA and ECC keys. By default, primary and sub keys will be of same type
 |Code|Status|
 |---|---|
 |200|OK|
+|500|Internal Server Error|
 
 #### Example response
 
@@ -147,7 +169,7 @@ This collection checks the status of he 🔐 The Crypto Service Suite API endpoi
 ### GET /health
 
 >```
->undefined
+>http://localhost:3000/health
 >```
 
 ### Request Headers
@@ -159,6 +181,7 @@ This collection checks the status of he 🔐 The Crypto Service Suite API endpoi
 |Code|Status|
 |---|---|
 |200|OK|
+|404|Not Found|
 
 #### Example response
 
@@ -175,19 +198,45 @@ This collection checks the status of he 🔐 The Crypto Service Suite API endpoi
 
 ## ❌ Revocation API
 
-Provides the ability to decrypt an encrypted text with the specified key and algorithm. The API returns the decrypted text.
+Revokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored.
+
+#### Returns
+
+The revoked key in the form: { privateKey:PrivateKey|Uint8Array|String, publicKey:PublicKey|Uint8Array|String } if private key is passed, or { privateKey: null, publicKey:PublicKey|Uint8Array|String } otherwise.
+
+#### Type
+
+Promise.<(Object)>
 
 ### GET /revoke
 
 >```
->undefined
+>http://localhost:3000/v1/revoke
 >```
 
 ### Request Headers
 
 |Parameter|Value|Description|
 |---|---|---|
-|passphrase|{{passphrase}}|(optional) - A passphrase to encrypt the message key. (min. 12 characters).|
+|passphrase|{{passphrase}}|(required) - A passphrase to encrypt the message key. (min. 12 characters).|
+### Response
+
+|Code|Status|
+|---|---|
+|200|OK|
+|500|Internal Server Error|
+
+#### Example response
+
+```json
+{
+    "data": {
+        "privateKey": "PGP PRIVATE KEY BLOCK",
+        "publicKey": "PGP PUBLIC KEY BLOCK"
+    }
+}
+```
+
 
 ![divider][divider]
 
@@ -195,10 +244,34 @@ Provides the ability to decrypt an encrypted text with the specified key and alg
 
 Verifies signatures for cleartext signed message.
 
+#### Returns
+
+Object containing verified message in the form:
+
+``` json
+{
+  data: MaybeStream, (if `message` was a CleartextMessage)
+  data: MaybeStream, (if `message` was a Message)
+  signatures: [
+    {
+      keyID: module:type/keyid~KeyID,
+      verified: Promise,
+      signature: Promise
+    }, ...
+  ]
+}
+```
+
+where `signatures` contains a separate entry for each signature packet found in the input message.
+
+#### Type
+
+Promise.<(Object)>
+
 ### GET /verify
 
 >```
->undefined
+>http://localhost:3000/v1/verify
 >```
 
 ### Request Headers
@@ -206,9 +279,27 @@ Verifies signatures for cleartext signed message.
 |Parameter|Value|Description|
 |---|---|---|
 |message|{{message}}|(required) message to be verified.|
-|passphrase|{{passphrase}}|(required) - A passphrase to encrypt the message key. (min. 12 characters).|
+|passphrase|{{passphrase}}|(optional) passphrase to encrypt the message key. (min. 12 characters).|
 |verification-keys|{{verificationKeys}}|(required) array of publicKeys or single key, to verify signatures.|
-|date|{{date}}|undefined|
+|date|{{date}}|(optional) use the given date for verification instead of the current time.|
+### Response
+
+|Code|Status|
+|---|---|
+|200|OK|
+|500|Internal Server Error|
+
+#### Example response
+
+```json
+{
+    "data": {
+        "signatures": "The detached signature or an empty signature for unsigned messages (Signature)",
+        "data": "The cleartext of the signed message (String)"
+    }
+}
+```
+
 
 ![divider][divider]
 
