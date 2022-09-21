@@ -131,7 +131,7 @@
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
-        "copy:makefile": "cp Makefile dist/",
+        "copy:makefile": "mkdirp dist && cp Makefile dist/",
         "copy:package": "cp ./package.json ./dist/",
         "copy:readme": "cp README.md dist/",
         "docs": "typedoc",
