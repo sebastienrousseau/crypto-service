@@ -106,7 +106,7 @@
         "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn copy:key && yarn run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
+        "copy:key": "mkdirp dist/key/ && cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "mkdirp dist && cp Makefile dist/",
         "copy:package": "cp package.json dist/",
