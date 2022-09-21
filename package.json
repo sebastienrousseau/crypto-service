@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "lerna": "^5.3.0"
+        "lerna": "^5.5.2"
     },
     "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
@@ -41,8 +41,8 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@commitlint/cli": "^17.0.3",
-        "@commitlint/config-conventional": "^17.0.3",
+        "@commitlint/cli": "^17.1.2",
+        "@commitlint/config-conventional": "^17.1.0",
         "eslint-plugin-prettier": "^4.2.1",
         "husky": "^8.0.1",
         "mkdirp": "^1.0.4",
