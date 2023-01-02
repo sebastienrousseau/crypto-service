@@ -1,51 +1,51 @@
 {
-    "dependencies": {
-        "lerna": "^5.5.2"
-    },
-    "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
-    "engines": {
-        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
-    },
-    "homepage": "https://crypto-service.co",
-    "license": "MIT",
-    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
-    "name": "@sebastienrousseau/crypto-service",
-    "private": true,
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://npm.pkg.github.com"
-    },
-    "scripts": {
-        "bootstrap": "lerna bootstrap",
-        "build": "lerna run build --stream",
-        "clean": "lerna run clean --stream",
-        "docs": "lerna run docs --stream",
-        "lint:fix": "lerna run lint:fix --no-bail",
-        "lint": "lerna run lint --stream",
-        "markdown": "yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
-        "prepare": "husky install",
-        "format": "lerna run format --stream",
-        "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-cli && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-cli/dist/* && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
-        "release:prepare": "lerna run release:prepare --stream",
-        "release:publish": "lerna run release:publish --stream",
-        "release": "yarn install && yarn release:prepare && yarn release:publish && yarn clean",
-        "start:crypto-lib": "lerna run yarn start --scope=@sebastienrousseau/crypto-lib",
-        "start:crypto-server": "lerna run yarn start --scope=@sebastienrousseau/crypto-server",
-        "start": "lerna run start --stream",
-        "test": "lerna run test --stream"
-    },
-    "useWorkspaces": true,
-    "version": "0.0.2",
-    "workspaces": [
-        "packages/*"
-    ],
-    "devDependencies": {
-        "@commitlint/cli": "^17.1.2",
-        "@commitlint/config-conventional": "^17.1.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "husky": "^8.0.1",
-        "mkdirp": "^1.0.4",
-        "rimraf": "^3.0.2"
-    }
+  "dependencies": {
+    "lerna": "^6.3.0"
+  },
+  "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "homepage": "https://crypto-service.co",
+  "license": "MIT",
+  "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+  "lockfileVersion": 1,
+  "name": "@sebastienrousseau/crypto-service",
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build --stream",
+    "clean": "lerna run clean --stream",
+    "docs": "lerna run docs --stream",
+    "lint:fix": "lerna run lint:fix --no-bail",
+    "lint": "lerna run lint --stream",
+    "markdown": "yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
+    "prepare": "husky install",
+    "format": "lerna run format --stream",
+    "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-cli && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-cli/dist/* && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
+    "release:prepare": "lerna run release:prepare --stream",
+    "release:publish": "lerna run release:publish --stream",
+    "release": "yarn install && yarn release:prepare && yarn release:publish && yarn clean",
+    "start:crypto-lib": "lerna run yarn start --scope=@sebastienrousseau/crypto-lib",
+    "start:crypto-server": "lerna run yarn start --scope=@sebastienrousseau/crypto-server",
+    "start": "lerna run start --stream",
+    "test": "lerna run test --stream"
+  },
+  "useWorkspaces": true,
+  "version": "0.0.2",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.2",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^3.0.2"
+  }
 }
