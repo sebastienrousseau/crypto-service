@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "lerna": "^5.5.4"
+        "lerna": "^6.5.0"
     },
     "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
