@@ -76,7 +76,9 @@ export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
     { encoding: "utf-8" },
   );
   const encryptedString = encrypted.toString();
-  const encryptedBase64 = Buffer.from(encryptedString, 'binary').toString('base64')
+  const encryptedBase64 = Buffer.from(encryptedString, "binary").toString(
+    "base64",
+  );
   encryptedMsg.write(encryptedBase64);
   encryptedMsg.on("finish", () => {
     console.log("✅ Wrote encrypted message data to file");

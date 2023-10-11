@@ -1138,7 +1138,7 @@
 							"// Testing scripts",
 							"pm.test(\"Check the active environment\", () => {",
 							"  console.log(\"Environment: \" + pm.environment.name);",
-							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.2\");",
+							"  pm.expect(pm.environment.name).to.eql(\"Production Environment v0.0.3\");",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",

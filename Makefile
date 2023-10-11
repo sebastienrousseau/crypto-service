@@ -17,74 +17,68 @@
 # Build tasks
 #
 
-# @HELP Link local packages together and install remaining package dependencies.
-bootstrap:
-	@echo
-	@echo "Link local packages together and install remaining package dependencies."
-	@npx yarn bootstrap
-
-# @HELP Run an npm `build` script in each package that contains that script.
+# @HELP Concurrently Building All Packages
 build:
 	@echo
-	@echo "Run an npm `build` script in each package that contains that script."
-	@npx yarn build
+	@echo "Concurrently Building All Packages"
+	@npx lerna run build --stream
 
 #
 # Clean up tasks
 #
 
-# @HELP Remove the `node_modules` directory from all packages.
+# @HELP Concurrently Cleaning All Packages
 clean:
 	@echo
-	@echo "Remove the `node_modules` directory from all packages."
-	@npx yarn clean
+	@echo "Concurrently Cleaning All Packages"
+	@npx lerna run clean --stream
 
 #
 # Documentation tasks
 #
 
-# @HELP Generate documentation for all packages.
+# @HELP Concurrently Generating Documentation for All Packages
 docs:
 	@echo
-	@echo "Generate documentation for all packages."
-	@npx yarn doc
+	@echo "Concurrently Generating Documentation for All Packages"
+	@npx lerna run docs --stream
 
 #
 # Maintenance tasks
 #
 
-# @HELP Run `npm run lint` in each package.
+# @HELP Concurrently Linting All Packages
 lint:
 	@echo
-	@echo "Run `npm run lint` in each package."
-	@npx yarn lint
+	@echo "Concurrently Linting All Packages"
+	@npx lerna run lint --stream
 
-# @HELP Run `npm run fix` in each package.
-fix:
+# @HELP Fix Lint Issues Across All Packages Without Exiting on Error
+lint-fix:
 	@echo
-	@echo "Run `npm run fix` in each package."
-	@npx yarn fix
+	@echo "Fix Lint Issues Across All Packages Without Exiting on Error"
+	@npx lerna run lint:fix --no-bail
 
-# @HELP Run `npm run markdown` in each package.
+# @HELP Running Remark and Markdown Scripts Across All Packages
 markdown:
 	@echo
-	@echo "Run `npm run markdown` in each package."
-	@npx yarn markdown
+	@echo "Running Remark and Markdown Scripts Across All Packages"
+	@npx lerna exec -- yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel
 
-# @HELP Run `npm run prettier` in each package.
-prettier:
+# @HELP Concurrently Formatting All Packages
+format:
 	@echo
-	@echo "Run `npm run prettier` in each package."
-	@npx yarn prettier
+	@echo "Concurrently Formatting All Packages"
+	@npx lerna run format --stream
 
 #
 # Publishing tasks
 #
 
-# @HELP Publish packages in the current project.
+# @HELP Perform a Yarn Release
 release:
 	@echo
-	@echo "Publish packages in the current project."
+	@echo "Perform a Yarn Release"
 	@npx yarn release
 
 #
@@ -127,7 +121,7 @@ test:
 node_modules: package.json
 	@echo
 	@echo "Install all packages in the current project."
-	@npm install
+	@pnpm install
 
 #
 # Run Crypto Service Suite tasks
@@ -137,31 +131,31 @@ node_modules: package.json
 rsa-2048:
 	@echo
 	@echo "Generate RSA-2048 key."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 2048 --expiration 0 --format armored --sign true
+	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 2048 --expiration 0 --format armored --sign true || echo "An error occurred while generating the RSA-2048 key."
 
 # @HELP Generate RSA-4096 key.
 rsa-4096:
 	@echo
 	@echo "Generate RSA-4096 key."
-	npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 4096 --expiration 0 --format armored --sign true
+	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 4096 --expiration 0 --format armored --sign true
 
 # @HELP Generate Curve 25519 key pair.
 curve-25519:
 	@echo
 	@echo "Generate Curve 25519 key pair."
-	npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve curve25519 --bits null --expiration 0 --format armored --sign true
+	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve curve25519 --bits null --expiration 0 --format armored --sign true
 
 # @HELP Generate p256 key pair.
 curve-p256:
 	@echo
 	@echo "Generate p256 key pair."
-	npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p256 --bits null --expiration 0 --format armored --sign true
+	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p256 --bits null --expiration 0 --format armored --sign true
 
 # @HELP Generate p384 key pair.
 curve-p384:
 	@echo
 	@echo "Generate p384 key pair."
-	npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p384 --bits null --expiration 0 --format armored --sign true
+	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p384 --bits null --expiration 0 --format armored --sign true
 
 # @HELP Generate p521 key pair.
 curve-p521:
@@ -196,6 +190,11 @@ curve-brainpoolP512r1:
 # @HELP Display the help menu.
 help:
 	@ echo
+	@ echo 'The Crypto Service Suite'
+	@ echo
+	@ echo 'https://crypto-service.co/'
+	@ echo
+	@ echo
 	@ echo '  Usage:'
 	@ echo ''
 	@ echo '    make <target> [flags...]'
@@ -210,4 +209,4 @@ help:
 	@ echo ''
 
 
-.PHONY: bootstrap, build, clean, docs, lint, fix, markdown, prettier, release, start, start-crypto-lib, start-crypto-server, test, node_modules, rsa-2048, rsa-4096, curve-25519, curve-p256, curve-p384, curve-p521, curve-secp256k1, curve-brainpoolP256r1, curve-brainpoolP384r1, curve-brainpoolP512r1, help
+.PHONY: build, clean, docs, lint, lint-fix, markdown, prettier, release, start, start-crypto-lib, start-crypto-server, test, node_modules, rsa-2048, rsa-4096, curve-25519, curve-p256, curve-p384, curve-p521, curve-secp256k1, curve-brainpoolP256r1, curve-brainpoolP384r1, curve-brainpoolP512r1, help

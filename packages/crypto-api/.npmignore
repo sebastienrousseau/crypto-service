@@ -1,9 +1,9 @@
 .DS_Store
 .git*
 .vscode/
+assets/
 coverage/
 docs/
-assets/
 Makefile
 node_modules
 test/

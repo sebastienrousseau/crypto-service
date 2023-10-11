@@ -71,13 +71,13 @@ export const revoke = async (data: types.dataRevoke) => {
   const revokePrivKey = await fs.createWriteStream(
     path.resolve(__dirname, "../key/rsa-revoke.key"),
     { encoding: "utf8" },
-    );
-    const revokePrivateKeyString = revokePrivKey.toString();
-    revokePrivKey.write(Buffer.from(revokePrivateKeyString).toString("base64"));
-    revokePrivKey.on("finish", () => {
-      console.log("✅ Wrote revoke private key data to file");
-    });
-    revokePrivKey.end();
+  );
+  const revokePrivateKeyString = revokePrivKey.toString();
+  revokePrivKey.write(Buffer.from(revokePrivateKeyString).toString("base64"));
+  revokePrivKey.on("finish", () => {
+    console.log("✅ Wrote revoke private key data to file");
+  });
+  revokePrivKey.end();
 
   return revokeKey;
 };

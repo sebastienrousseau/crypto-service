@@ -1,4 +1,4 @@
-tmp
 build
-dist
 coverage
+dist
+tmp

@@ -11,12 +11,14 @@ const handleVerify = async () => {
     {
       type: "text",
       name: "verificationKeys",
-      message: "Provide an array of publicKeys or single key, to verify signatures in base64 format",
+      message:
+        "Provide an array of publicKeys or single key, to verify signatures in base64 format",
     },
     {
       type: "text",
       name: "date",
-      message: "Provide an ISO Date string formatted date to verify message. If not provided, current date will be used. (YYYY-MM-DDTHH:mm:ss.sssZ)",
+      message:
+        "Provide an ISO Date string formatted date to verify message. If not provided, current date will be used. (YYYY-MM-DDTHH:mm:ss.sssZ)",
     },
   ]);
 

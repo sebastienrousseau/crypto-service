@@ -36,7 +36,7 @@ The Crypto Service Suite Suite encompasses four products, [Crypto API][18],
 Service Suite Applications.
 
 [![Getting Started][getting started]](#getting-started)
-[![Download Crypto Service Suite v0.0.2][download]][9]
+[![Download Crypto Service Suite v0.0.3][download]][9]
 
 Crypto Service Suite code is safe by design, and runs lightning-fast. It is 
 based on [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol.
@@ -186,7 +186,7 @@ Update your apps to use new features, and test your apps against API changes.
 |Date|Download|Release Note|
 | :-: | :-: | :-: |
 |May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service Suite 0.0.1 Release Note][10]|
-|May 30, 2022|⬇️ [0.0.2][9]|📝 [Crypto Service Suite 0.0.2 Release Note][11]|
+|May 30, 2022|⬇️ [0.0.3][9]|📝 [Crypto Service Suite 0.0.3 Release Note][11]|
 
 ![divider][divider]
 
@@ -264,9 +264,9 @@ these people and a bunch of awesome
 [6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
 [7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
 [8]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.1.zip
-[9]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.2.zip
+[9]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.3.zip
 [10]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
-[11]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2
+[11]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.3
 [12]: https://nodejs.org/en/
 [13]: https://www.npmjs.com/
 [14]: https://yarnpkg.com/getting-started

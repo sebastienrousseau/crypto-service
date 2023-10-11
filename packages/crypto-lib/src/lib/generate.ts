@@ -68,10 +68,10 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       userIDs: [{ name: data.name, email: data.email }],
       type: data.type,
       passphrase: data.passphrase,
-      rsaBits: Number( Math.min((data.rsaBits),2048)),
+      rsaBits: Number(Math.min(data.rsaBits, 2048)),
       curve: data.curve,
-      keyExpirationTime: Number( Math.min((data.keyExpirationTime),0)),
-      format: data.format
+      keyExpirationTime: Number(Math.min(data.keyExpirationTime, 0)),
+      format: data.format,
     });
 
   console.log(privateKey);
@@ -80,7 +80,8 @@ export async function generate(data: types.dataGenerate): Promise<object> {
 
   if (data.type) {
     const pbkey = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".pub"));
+      path.resolve(__dirname, "../key/" + data.type + ".pub"),
+    );
     pbkey.write(Buffer.from(publicKey).toString("base64"));
     pbkey.on("finish", () => {
       console.log(
@@ -109,8 +110,8 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     certificate.on("finish", () => {
       console.log(
         "🔏 The revocation certificate data was written to `" +
-        data.type +
-        ".cert`",
+          data.type +
+          ".cert`",
       );
     });
     certificate.end();
@@ -133,7 +134,7 @@ if (args instanceof Array && args.length) {
     rsaBits: Number(args[9]),
     curve: args[11],
     keyExpirationTime: Number(args[13]),
-    format: args[15]
+    format: args[15],
   };
   // console.log(data);
   generate(data);

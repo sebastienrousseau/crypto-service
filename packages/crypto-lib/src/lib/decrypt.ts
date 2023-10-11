@@ -47,30 +47,26 @@ const args = process.argv.slice(2);
  */
 
 export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
-
   const message = await openpgp.readMessage({
-    armoredMessage:
-      Buffer
-        .from(data.message, "base64")
-        .toString("utf-8"),
+    armoredMessage: Buffer.from(data.message, "base64").toString("utf-8"),
   });
 
   const passphrase = data.passphrase;
 
-  const publicKeyArmored =
-    Buffer
-      .from(data.publicKey.toString(), "base64")
-      .toString("utf-8");
+  const publicKeyArmored = Buffer.from(
+    data.publicKey.toString(),
+    "base64",
+  ).toString("utf-8");
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
   const privateKeyBase64 = readFileSync(
     path.resolve(__dirname, "../key/rsa.key"),
   );
-  const privateKeyArmored =
-    Buffer
-      .from(privateKeyBase64.toString(), "base64")
-      .toString("utf-8");
+  const privateKeyArmored = Buffer.from(
+    privateKeyBase64.toString(),
+    "base64",
+  ).toString("utf-8");
 
   const privateKey = await openpgp.decryptKey({
     privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),

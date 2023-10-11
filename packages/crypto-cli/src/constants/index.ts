@@ -1,4 +1,3 @@
-
 import * as en from "./en";
 import * as fr from "./fr";
 
@@ -10,8 +9,7 @@ async function language(data: string) {
     if (data === "en") {
       console.log("en", data);
       constants = en.translations;
-    }
-    else if (data === "fr") {
+    } else if (data === "fr") {
       console.log("fr", data);
       constants = fr.translations;
     }

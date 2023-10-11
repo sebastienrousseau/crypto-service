@@ -1,6 +1,6 @@
 import { writeUtils } from "../utils/write.utils";
 import prompts from "prompts";
-import { language, locale, constants } from "../constants/index"
+import { language, locale, constants } from "../constants/index";
 
 language(locale);
 
@@ -9,8 +9,7 @@ const handleHelp = async () => {
     {
       type: "select",
       name: constants.PROMPT_SELECT_TTL,
-      message:
-        constants.PROMPT_SELECT_DES_HLP,
+      message: constants.PROMPT_SELECT_DES_HLP,
       choices: [
         {
           title: constants.CLI_FN_3_TTL,

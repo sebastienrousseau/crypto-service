@@ -19,16 +19,17 @@ const args = process.argv.slice(2);
 
 export const verify = async (data: types.dataVerify) => {
   const message = data.message;
-  const publicKey = Buffer.from(data.verificationKeys.toString(), "base64").toString(
-    "utf-8",
-  );
+  const publicKey = Buffer.from(
+    data.verificationKeys.toString(),
+    "base64",
+  ).toString("utf-8");
 
   const verified = await openpgp.verify({
     message: await openpgp.createMessage({ text: message }),
     verificationKeys: await openpgp.readKey({
       armoredKey: publicKey,
     }),
-    date: data.date
+    date: data.date,
   });
   console.log(verified);
   return verified;

@@ -1,9 +1,33 @@
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
+/**
+ * @file Defines a route for the root endpoint of the Crypto Server application.
+ * @author The Crypto Service Suite
+ * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
+ * @license Apache-2.0 OR MIT
+ */
+
 import * as fastify from 'fastify';
 import { v4 as uuidv4 } from "uuid";
 import { LIB_VERSION } from '../../config/constants';
+
+// Generate a unique identifier for the server instance.
 const id = uuidv4();
 
-export default (app: fastify.FastifyInstance) => {
+/**
+ * Registers a GET route `/` that provides general information about the Crypto Server.
+ *
+ * @param app {fastify.FastifyInstance} - The Fastify instance to register the route.
+ *
+ * @example
+ * GET /
+ *
+ * @returns {Object} General information about the Crypto Server.
+ */
+export default (app: fastify.FastifyInstance): void => {
 
   app.get("/", async () => {
     return {

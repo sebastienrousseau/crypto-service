@@ -10,4 +10,4 @@ export const welcome = async (data: string) => {
   console.log(format.cyan(figlet.textSync(data)));
   console.log("\n");
   return welcome;
-}
+};

@@ -1391,7 +1391,7 @@
   integrity sha512-34hCzwW4z9ARYDbN2iwI/9SvtWvCLgIAjx5dzmMU0pZI2gW6I6U/k95vEhOhacImCxCW1Ui1LuZ2UuKKSnSMfA==
 
 "@sebastienrousseau/eslint-config@^0.0.2":
-  version "0.0.2"
+  version "0.0.3"
   resolved "https://registry.yarnpkg.com/@sebastienrousseau/eslint-config/-/eslint-config-0.0.2.tgz#0af71a30f841c4a5e74d084272ec8c722452f573"
   integrity sha512-IsT6c3TBv3u0TekGPeHwS0GLpI1pNJTJHKRzRpkvR6Mp+xLnZZaCU8GW6CMVh38jmUEda/3/no91Gw1Q8047mw==
   dependencies:
