@@ -23,7 +23,6 @@
         "lint:fix": "lerna run lint:fix --no-bail",
         "lint": "lerna run lint --stream",
         "markdown": "lerna exec -- yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
-        "prepare": "husky install",
         "format": "lerna run format --stream",
         "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-cli && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-cli/dist/* && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
         "release:prepare": "lerna run release:prepare --stream",
