@@ -4,7 +4,7 @@
     },
     "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
-        ">=16.14 || >=18.6.0"
+        "node": ">=16.14.0 || >=18.6.0"
     },
     "homepage": "https://crypto-service.co",
     "license": "MIT",
