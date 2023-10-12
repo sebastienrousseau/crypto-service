@@ -9,43 +9,29 @@ on:
       - "*"
 
 jobs:
-  job:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Setup Node.js 14.x
+      - run: echo ${{github.ref}}
+      - uses: actions/checkout@v2
+      - name: Build on Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install yarn dependencies
-        # run: yarn --frozen-lockfile --ignore-scripts
+      - name: npm install, build, and test
         run: |
-          yarn run bootstrap
-
-      - name: Run lint fix
-        run: |
-          yarn lint:fix
-
-      - name: Run prettier
-        run: |
-          yarn format
-
-      - name: Run remark
-        run: |
-          yarn markdown
-
-      - name: Building
-        run: |
-          yarn run build
+          npm install -g pnpm
+          pnpm install
+          pnpm run build
+          pnpm run test
 
       - name: Testing & Coverage
         run: |
-          yarn run test
+          npm run test
 
       - name: Coveralls Crypto-Cli
         uses: coverallsapp/github-action@master
