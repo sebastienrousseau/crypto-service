@@ -42,21 +42,28 @@ export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
   const { message, passphrase, publicKey: publicKeyBase64, privateKey: privateKeyBase64 } = data;
 
   const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("utf-8");
-  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("utf-8");
-
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
-  const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({
-      armoredKey: privateKeyArmored,
-    }),
-    passphrase,
-  });
 
-  const encrypted = await openpgp.encrypt({
-    message: await openpgp.createMessage({ text: message }),
+  // Build encryption options
+  const pgpMessage = await openpgp.createMessage({ text: message });
+  const encryptOptions = {
+    message: pgpMessage,
     encryptionKeys: publicKey,
-    signingKeys: privateKey,
-  });
+  } as Parameters<typeof openpgp.encrypt>[0];
+
+  // Add signing if private key is provided
+  if (privateKeyBase64) {
+    const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("utf-8");
+    const privateKey = await openpgp.decryptKey({
+      privateKey: await openpgp.readPrivateKey({
+        armoredKey: privateKeyArmored,
+      }),
+      passphrase,
+    });
+    encryptOptions.signingKeys = privateKey;
+  }
+
+  const encrypted = await openpgp.encrypt(encryptOptions);
 
   return encrypted.toString();
 };

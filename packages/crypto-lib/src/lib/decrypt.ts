@@ -53,6 +53,10 @@ export const decrypt = async (data: types.dataDecrypt): Promise<{ data: string; 
     armoredMessage: Buffer.from(encryptedMessage, "base64").toString("utf-8"),
   });
 
+  if (!privateKeyBase64) {
+    throw new Error("Private key is required for decryption");
+  }
+
   const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("utf-8");
   const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("utf-8");
 

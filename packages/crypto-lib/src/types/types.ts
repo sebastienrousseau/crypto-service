@@ -80,7 +80,7 @@ export type dataEncrypt = {
   passphrase: string;
   message: string;
   publicKey: string;
-  privateKey: string;
+  privateKey?: string;
 };
 
 /**
@@ -100,7 +100,7 @@ export type dataDecrypt = {
   passphrase: string;
   message: string;
   publicKey: string;
-  privateKey: string;
+  privateKey?: string;
 };
 
 /**
