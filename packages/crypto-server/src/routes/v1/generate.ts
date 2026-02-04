@@ -12,6 +12,7 @@
 
 import * as fastify from 'fastify';
 import generate from '@sebastienrousseau/crypto-lib/dist/lib/generate';
+import enums from '@sebastienrousseau/crypto-lib/dist/enums';
 import { IHeadersGenerate } from '../../@types/types';
 
 /**
@@ -56,12 +57,12 @@ export default (app: fastify.FastifyInstance): void => {
           name: String(request.headers["name"]),
           email: String(request.headers["email"])
         }],
-        type: String(request.headers["type"]),
+        type: String(request.headers["type"]) as keyof typeof enums.type,
         passphrase: String(request.headers["passphrase"]),
         rsaBits: Number(request.headers["rsaBits"] ?? 2048),
-        curve: String(request.headers["curve"]),
+        curve: String(request.headers["curve"]) as keyof typeof enums.curve,
         keyExpirationTime: Number(request.headers["keyExpirationTime"] ?? 0),
-        format: String(request.headers["format"]),
+        format: String(request.headers["format"]) as keyof typeof enums.format,
       });
       reply.send({ data: generateKeyPair });
     } catch (error) {
