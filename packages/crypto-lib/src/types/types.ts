@@ -1,3 +1,13 @@
+import enums from '../enums';
+
+/**
+ * User ID interface for OpenPGP key generation
+ */
+export interface UserID {
+  name: string;
+  email: string;
+}
+
 /**
  * ### types/types.dateGenerate
  *
@@ -5,30 +15,29 @@
  *
  * @module types/types
  * @public
- * @param {Any} curve - Curve enumeration.
+ * @param {string} curve - Curve enumeration.
  * @param {Date} date - Date enumeration.
  * @param {String} email - Email enumeration.
- * @param {Any} format - Format enumeration.
+ * @param {string} format - Format enumeration.
  * @param {Number} keyExpirationTime - Key expiration time enumeration.
  * @param {String} name - Name enumeration.
  * @param {String} passphrase - Password enumeration.
  * @param {Number} rsaBits - RSA bits enumeration.
- * @param {Any} type - Type enumeration.
- * @param {Any} userIDs - User IDs enumeration.
+ * @param {string} type - Type enumeration.
+ * @param {UserID[]} userIDs - User IDs enumeration.
  *
  */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export type dataGenerate = {
   date: Date;
   name: string;
   email: string;
-  userIDs: any;
-  type: any;
+  userIDs: UserID[];
+  type: keyof typeof enums.type;
   passphrase: string;
   rsaBits: number;
-  curve: any;
+  curve: keyof typeof enums.curve;
   keyExpirationTime: number;
-  format: any;
+  format: keyof typeof enums.format;
 };
 
 /**
@@ -64,12 +73,14 @@ export type dataRevoke = {
  * @param {String} passphrase - Passphrase enumeration.
  * @param {String} message - Message enumeration.
  * @param {String} publicKey - Public key enumeration.
+ * @param {String} privateKey - Private key enumeration (base64 encoded).
  *
  */
 export type dataEncrypt = {
   passphrase: string;
   message: string;
   publicKey: string;
+  privateKey: string;
 };
 
 /**
@@ -82,12 +93,14 @@ export type dataEncrypt = {
  * @param {String} passphrase - Passphrase enumeration.
  * @param {String} message - Encrypted message enumeration.
  * @param {String} publicKey - Public key enumeration.
+ * @param {String} privateKey - Private key enumeration (base64 encoded).
  *
  */
 export type dataDecrypt = {
   passphrase: string;
   message: string;
   publicKey: string;
+  privateKey: string;
 };
 
 /**
@@ -116,12 +129,12 @@ export type dataSign = {
  * @module types/types
  * @public
  * @param {String} message            - (required) message to be verified.
- * @param {String} verificationKeys   - (required) array of publicKeys or single
+ * @param {string | string[]} verificationKeys   - (required) array of publicKeys or single
  *                                    key, to verify signatures.
  * @param {Boolean} expectSigned      - (optional) If true, verification throws
  *                                    if the message is not signed with the
  *                                    provided publicKeys.
- * @param {Any} format                - (optional) Whether to return data as a
+ * @param {string} format                - (optional) Whether to return data as a
  *                                    string(Stream) or Uint8Array(Stream). If
  *                                    'utf8' (the default), also normalize
  *                                    newlines.
@@ -136,7 +149,7 @@ export type dataSign = {
 export type dataVerify = {
   date: Date;
   message: string;
-  verificationKeys: any;
+  verificationKeys: string | string[];
 };
 
 /**
