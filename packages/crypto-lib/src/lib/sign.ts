@@ -80,7 +80,7 @@ export const sign = async (data: types.dataSign) => {
   return signed;
 };
 
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[1] && args[3]) {
   const data = {
     passphrase: args[1],
     message: args[3],

@@ -35,7 +35,7 @@ export const verify = async (data: types.dataVerify) => {
   return verified;
 };
 
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[1] && args[3]) {
   const data = {
     message: args[1],
     verificationKeys: args[3],

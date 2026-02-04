@@ -98,7 +98,7 @@ export const reformat = async (data: types.dataReformat): Promise<object> => {
 
   return reformatKeys;
 };
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[1] && args[5] && args[7]) {
   const data = {
     date: new Date(),
     email: args[1],

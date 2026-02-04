@@ -82,7 +82,7 @@ export const revoke = async (data: types.dataRevoke) => {
   return revokeKey;
 };
 
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[3]) {
   const data = {
     flag: Number(args[1]), // optional
     passphrase: args[3],
