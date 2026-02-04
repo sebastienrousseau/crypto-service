@@ -13,40 +13,51 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
     steps:
       - run: echo ${{github.ref}}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build on Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: npm install, build, and test
-        run: |
-          npm install -g pnpm
-          pnpm install
-          pnpm run build
-          pnpm run test
+      - name: Install pnpm
+        run: npm install -g pnpm@latest
 
-      - name: Testing & Coverage
-        run: |
-          npm run test
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test
+        run: pnpm run test
 
       - name: Coveralls Crypto-Cli
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           base-path: packages/crypto-cli
           flag-name: crypto-cli
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
-          path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
+          file: ./packages/crypto-cli/coverage/lcov.info
 
       - name: Coveralls Crypto-Lib
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           base-path: packages/crypto-lib
           flag-name: crypto-lib
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
-          path-to-lcov: ./packages/crypto-lib/coverage/lcov.info
+          file: ./packages/crypto-lib/coverage/lcov.info
+
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
