@@ -88,7 +88,7 @@ export const decrypt = async (data: types.dataDecrypt): Promise<{ data: string; 
   };
 };
 
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[3] && args[5]) {
   const data = {
     passphrase: args[1],
     message: args[3],

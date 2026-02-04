@@ -129,7 +129,7 @@ export async function generate(data: types.dataGenerate): Promise<object> {
 export default generate;
 
 /* Checking if the args variable is empty or not. */
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[1] && args[3] && args[5]) {
   const data: types.dataGenerate = {
     date: new Date(),
     name: args[1],

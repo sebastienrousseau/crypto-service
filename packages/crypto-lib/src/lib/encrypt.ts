@@ -68,7 +68,7 @@ export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
   return encrypted.toString();
 };
 
-if (args instanceof Array && args.length) {
+if (args instanceof Array && args.length && args[3] && args[5]) {
   const data = {
     passphrase: args[1],
     message: args[3],
