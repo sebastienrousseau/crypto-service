@@ -2,15 +2,15 @@
 import { generate } from "../../src/lib/generate"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
+import * as types from "../../src/types/types";
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-const data = {
+const data: types.dataGenerate = {
   rsaBits: 2048,
-  curve: '',
+  curve: 'p256',
   email: 'jane@doe.com',
-  comment: 'test comment',
   keyExpirationTime: 0,
   format: 'armored',
   name: 'Jane Doe',
@@ -85,8 +85,8 @@ describe('generateKey passphrase', function () {
 
 describe('generateKey type', function () {
   it('should fail for invalid type (KeyOptions: type)', async function () {
-    const type = "123456789";
-    const test = generate({ ...data, type });
+    const invalidData = { ...data, type: "123456789" as types.dataGenerate["type"] };
+    const test = generate(invalidData);
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
