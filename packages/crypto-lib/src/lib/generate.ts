@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
+import enums from "../enums";
 import path from "path";
 
 const args = process.argv.slice(2);
@@ -62,17 +63,20 @@ const args = process.argv.slice(2);
  */
 
 export async function generate(data: types.dataGenerate): Promise<object> {
+  // Build options with proper type assertions for openpgp compatibility
+  const options = {
+    date: new Date(),
+    userIDs: [{ name: data.name, email: data.email }],
+    type: data.type,
+    passphrase: data.passphrase,
+    rsaBits: Number(Math.min(data.rsaBits, 2048)),
+    curve: data.curve,
+    keyExpirationTime: Number(Math.min(data.keyExpirationTime, 0)),
+    format: data.format,
+  } as Parameters<typeof openpgp.generateKey>[0];
+
   const { privateKey, publicKey, revocationCertificate } =
-    await openpgp.generateKey({
-      date: new Date(),
-      userIDs: [{ name: data.name, email: data.email }],
-      type: data.type,
-      passphrase: data.passphrase,
-      rsaBits: Number(Math.min(data.rsaBits, 2048)),
-      curve: data.curve,
-      keyExpirationTime: Number(Math.min(data.keyExpirationTime, 0)),
-      format: data.format,
-    });
+    await openpgp.generateKey(options);
 
   console.log(privateKey);
   console.log(publicKey);
@@ -82,7 +86,8 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     const pbkey = fs.createWriteStream(
       path.resolve(__dirname, "../key/" + data.type + ".pub"),
     );
-    pbkey.write(Buffer.from(publicKey).toString("base64"));
+    const publicKeyString = typeof publicKey === 'string' ? publicKey : publicKey.armor();
+    pbkey.write(Buffer.from(publicKeyString).toString("base64"));
     pbkey.on("finish", () => {
       console.log(
         "🔑 The public key data was written to `" + data.type + ".pub`",
@@ -94,7 +99,8 @@ export async function generate(data: types.dataGenerate): Promise<object> {
       path.resolve(__dirname, "../key/" + data.type + ".key"),
       { encoding: "utf8" },
     );
-    prkey.write(Buffer.from(privateKey).toString("base64"));
+    const privateKeyString = typeof privateKey === 'string' ? privateKey : privateKey.armor();
+    prkey.write(Buffer.from(privateKeyString).toString("base64"));
     prkey.on("finish", () => {
       console.log(
         "🔒 The private key data was written to `" + data.type + ".key`",
@@ -124,17 +130,17 @@ export default generate;
 
 /* Checking if the args variable is empty or not. */
 if (args instanceof Array && args.length) {
-  const data = {
+  const data: types.dataGenerate = {
     date: new Date(),
     name: args[1],
     email: args[3],
     userIDs: [{ name: args[1], email: args[3] }],
-    type: args[5],
+    type: args[5] as keyof typeof enums.type,
     passphrase: args[7],
     rsaBits: Number(args[9]),
-    curve: args[11],
+    curve: args[11] as keyof typeof enums.curve,
     keyExpirationTime: Number(args[13]),
-    format: args[15],
+    format: args[15] as keyof typeof enums.format,
   };
   // console.log(data);
   generate(data);
