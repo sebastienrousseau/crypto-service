@@ -19,7 +19,8 @@ const handleEncrypt = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseEncrypt);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseEncrypt); // Removed for security
 
   const data = {
     passphrase: responseEncrypt.passphrase,

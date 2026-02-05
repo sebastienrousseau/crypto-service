@@ -13,14 +13,22 @@
 import * as fastify from 'fastify';
 import decrypt from '@sebastienrousseau/crypto-lib/dist/lib/decrypt';
 import { IHeadersDecrypt } from '../../@types/types';
+import {
+  validateRequiredString,
+  validateBase64,
+  sendValidationError,
+  validateApiKey,
+  ValidationError
+} from '../../utils/validation';
 
 /**
  * Registers a GET route `/v1/decrypt` for data decryption.
  *
  * The route expects headers containing:
  * - `passphrase`: The passphrase for decryption.
- * - `message`: The encrypted message to decrypt.
- * - `public-key`: The public key to be used for decryption.
+ * - `message`: The encrypted message to decrypt (base64 encoded).
+ * - `public-key`: The public key to be used for decryption (base64 encoded).
+ * - `x-api-key`: Optional API key for authentication.
  *
  * @param app {fastify.FastifyInstance} - The Fastify instance to register the route.
  *
@@ -38,14 +46,55 @@ export default (app: fastify.FastifyInstance): void => {
     Headers: IHeadersDecrypt;
   }>("/v1/decrypt", async (request, reply) => {
     try {
-      const encryptedData = await decrypt({
-        passphrase: String(request.headers["passphrase"]),
-        message: String(request.headers["message"]),
-        publicKey: String(request.headers["public-key"]),
+      // API Key authentication (optional - controlled by environment variable)
+      const apiKeyConfig = process.env.CRYPTO_API_KEY;
+      if (!validateApiKey(request.headers["x-api-key"], apiKeyConfig)) {
+        return reply.status(401).send({ error: 'Unauthorized: Invalid or missing API key' });
+      }
+
+      // Input validation
+      const errors: ValidationError[] = [];
+
+      const passphraseResult = validateRequiredString(
+        request.headers["passphrase"],
+        "passphrase"
+      );
+      if (!passphraseResult.valid) {
+        errors.push(passphraseResult.error);
+      }
+
+      const messageResult = validateBase64(
+        request.headers["message"],
+        "message"
+      );
+      if (!messageResult.valid) {
+        errors.push(messageResult.error);
+      }
+
+      const publicKeyResult = validateBase64(
+        request.headers["public-key"],
+        "public-key"
+      );
+      if (!publicKeyResult.valid) {
+        errors.push(publicKeyResult.error);
+      }
+
+      if (errors.length > 0) {
+        return sendValidationError(reply, errors);
+      }
+
+      // Type assertion is safe here because we've validated all inputs above
+      const decryptedData = await decrypt({
+        passphrase: (passphraseResult as { valid: true; value: string }).value,
+        message: (messageResult as { valid: true; value: string }).value,
+        publicKey: (publicKeyResult as { valid: true; value: string }).value,
       });
-      reply.send({ data: encryptedData });
+
+      reply.send({ data: decryptedData });
     } catch (error) {
-        reply.status(500).send({ error: 'Decryption failed' });
+      // Log error internally but don't expose details to client
+      request.log.error(error, 'Decryption operation failed');
+      reply.status(500).send({ error: 'Decryption failed' });
     }
   });
 };

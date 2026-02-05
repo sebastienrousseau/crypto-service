@@ -11,6 +11,40 @@
  */
 
 /**
+ * Allowed key types for generation
+ */
+export const KEY_TYPES = ['ecc', 'rsa'] as const;
+export type KeyType = typeof KEY_TYPES[number];
+
+/**
+ * Allowed curve types for ECC keys
+ */
+export const CURVE_TYPES = [
+  'curve25519',
+  'ed25519',
+  'p256',
+  'p384',
+  'p521',
+  'secp256k1',
+  'brainpoolP256r1',
+  'brainpoolP384r1',
+  'brainpoolP512r1'
+] as const;
+export type CurveType = typeof CURVE_TYPES[number];
+
+/**
+ * Allowed key formats
+ */
+export const FORMAT_TYPES = ['armored', 'binary', 'object'] as const;
+export type FormatType = typeof FORMAT_TYPES[number];
+
+/**
+ * Allowed revocation flags
+ */
+export const REVOCATION_FLAGS = [0, 1, 2, 3] as const;
+export type RevocationFlag = typeof REVOCATION_FLAGS[number];
+
+/**
  * @interface IQuerystring
  * Represents the structure for query strings with username and password.
  */
@@ -22,14 +56,7 @@ export interface IQuerystring {
 /**
  * @interface IHeadersGenerate
  * Represents the structure for headers used in key generation.
- *
- * @remarks
- * - `type`, `curve`, and `format` are set to any to accommodate various possible types.
- * - Consider refining the types or using enums if a finite set of values are possible.
- *
- * @todo Consider replacing `any` types with specific types or enums.
  */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface IHeadersGenerate {
   date: Date;
   name: string;
@@ -38,12 +65,12 @@ export interface IHeadersGenerate {
     name: string;
     email: string;
   }>;
-  type: any;
+  type: KeyType;
   passphrase: string;
   rsaBits: number;
-  curve: any;
+  curve: CurveType;
   keyExpirationTime: number;
-  format: any;
+  format: FormatType;
 }
 
 /**
@@ -69,10 +96,11 @@ export interface IHeadersDecrypt {
 /**
  * @interface IHeadersRevoke
  * Represents the structure for headers used in key revocation.
+ * Note: flag is a string in HTTP headers and will be parsed to number.
  */
 export interface IHeadersRevoke {
   passphrase: string;
-  flag: number;
+  flag: string;
   reason: string;
 }
 
