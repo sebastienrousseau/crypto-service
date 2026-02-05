@@ -31,6 +31,21 @@ export type AuthorizationInfo = {
 };
 
 /**
+ * Represents a collection item in a JSON document.
+ * Can be either a folder with nested items or a method/endpoint.
+ */
+export type CollectionItem = {
+  /** The name of the item. */
+  name: string;
+  /** Nested items for folder structures. */
+  item?: CollectionItem[];
+  /** Optional request details for endpoint items. */
+  request?: JsonRequest;
+  /** Optional array of response details. */
+  response?: ResponseType[];
+};
+
+/**
  * Represents a JSON Document.
  */
 export type JsonDocument = {
@@ -41,8 +56,8 @@ export type JsonDocument = {
     /** The name of the document. */
     name: string;
   };
-  /** A string representing item(s) within the document. */
-  item: string;
+  /** An array of items within the document. */
+  item: CollectionItem[];
 };
 
 /**

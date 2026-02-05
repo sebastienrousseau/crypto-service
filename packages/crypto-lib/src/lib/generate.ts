@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
 import enums from "../enums";
-import path from "path";
+import * as path from "path";
 
 const args = process.argv.slice(2);
 // console.log(args);

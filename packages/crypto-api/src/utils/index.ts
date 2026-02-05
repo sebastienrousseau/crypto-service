@@ -16,13 +16,13 @@ import path from "path";
  */
 export const createMarkdown = (data: JsonDocument): string => {
   let markdown = "";
-  if (data) {
-    markdown += `# ${data.info.name}\n\n`;
+  if (data && data.info) {
+    markdown += `# ${data.info.name || ""}\n\n`;
     markdown +=
       data.info.description !== undefined
         ? `${data.info.description || ""}\n`
         : ``;
-    markdown += readItems(data.item);
+    markdown += readItems(data.item || []);
     markdown += `\n`;
     markdown += `\n`;
   }

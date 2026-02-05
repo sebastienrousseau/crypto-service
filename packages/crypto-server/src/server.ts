@@ -51,7 +51,7 @@ async function init(): Promise<fastify.FastifyInstance> {
 
   // Register plugins with the Fastify instance.
   await app
-    .register(Accepts) // fastify-accepts plugin
+    .register(Accepts, { decorateReply: true }) // fastify-accepts plugin
     .register(Etag) // fastify-etag plugin
     .register(fastifyCompress, compressOptions) // fastify-compress plugin
     .register(fastifyHealthcheck, healthCheckOptions) // fastify-healthcheck plugin

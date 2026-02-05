@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import path from "path";
+import * as path from "path";
 import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
 import * as types from "../types/types";

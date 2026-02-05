@@ -22,17 +22,23 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install pnpm
-        run: npm install -g pnpm@latest
-
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
 
       - name: Build
-        run: pnpm run build
+        run: yarn build
 
       - name: Test
-        run: pnpm run test
+        run: yarn test
+
+      - name: Coveralls Crypto-Api
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-api
+          flag-name: crypto-api
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-api/coverage/lcov.info
 
       - name: Coveralls Crypto-Cli
         uses: coverallsapp/github-action@v2
@@ -51,6 +57,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           file: ./packages/crypto-lib/coverage/lcov.info
+
+      - name: Coveralls Crypto-Server
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-server
+          flag-name: crypto-server
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-server/coverage/lcov.info
 
   finish:
     needs: build
