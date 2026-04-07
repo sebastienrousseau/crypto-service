@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+set -eu
+
+# Run lint across every workspace package on every commit. Tests are intentionally
+# not run here — they're slow enough (RSA 4096 keygen) to discourage commits.
+pnpm -r run lint

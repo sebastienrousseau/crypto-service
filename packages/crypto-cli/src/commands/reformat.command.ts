@@ -1,62 +1,56 @@
-import reformat from "@sebastienrousseau/crypto-lib/dist/lib/reformat";
 import prompts from "prompts";
+import { reformat } from "@sebastienrousseau/crypto-lib";
+import { readArmored, writeArmored } from "../utils/io.utils";
 
-const handleReformat = async () => {
-  const responseReformat = await prompts([
+const handleReformat = async (): Promise<void> => {
+  const response = await prompts([
     {
       type: "text",
-      name: "email",
-      message: "Provide an email address",
-    },
-    {
-      type: "text",
-      name: "expiration",
-      message: "Provide an expiration date",
-    },
-    {
-      type: "text",
-      name: "name",
-      message: "Provide a first and last name",
+      name: "privateKeyPath",
+      message: "Path to your armored private key (.asc)",
     },
     {
       type: "password",
       name: "passphrase",
-      message: "Provide a passphrase",
+      message: "Passphrase for the private key",
+    },
+    { type: "text", name: "name", message: "New user name" },
+    { type: "text", name: "email", message: "New user email" },
+    {
+      type: "number",
+      name: "keyExpirationTime",
+      message: "New expiration in seconds (0 = never)",
+      initial: 0,
     },
     {
       type: "text",
-      name: "publicKey",
-      message: "Provide a public key in base64 format",
+      name: "outDir",
+      message: "Output directory",
+      initial: "./",
     },
   ]);
-  console.log(responseReformat);
 
-  const data = {
-    date: new Date(),
-    email: responseReformat.email,
-    expiration: responseReformat.expiration,
-    name: responseReformat.name,
-    passphrase: responseReformat.passphrase,
-    publicKey: responseReformat.publicKey,
-  };
-
-  if (
-    responseReformat.email === "" ||
-    responseReformat.expiration === "" ||
-    responseReformat.name === "" ||
-    responseReformat.passphrase === "" ||
-    responseReformat.publicKey === ""
-  ) {
-    console.error(
-      "\n🔔 You must provide a value for each of the properties.\n",
-    );
-  } else {
-    // console.log(data);
-    await reformat(data);
+  if (!response.privateKeyPath || !response.name || !response.email) {
+    console.error("\n🔔 privateKeyPath, name and email are required.\n");
+    return;
   }
-};
-export default handleReformat;
 
-// # sourceMappingURL=reformat.command.js.map
-// Language: typescript
-// path: packages/crypto-cli/src/commands/reformat.command.ts
+  const result = await reformat({
+    privateKey: {
+      armored: await readArmored(response.privateKeyPath),
+      passphrase: response.passphrase,
+    },
+    name: response.name,
+    email: response.email,
+    keyExpirationTime: response.keyExpirationTime,
+  });
+
+  const stem = `reformat-${Date.now()}`;
+  await writeArmored(`${response.outDir}/${stem}.pub.asc`, result.publicKey);
+  await writeArmored(`${response.outDir}/${stem}.key.asc`, result.privateKey);
+
+  console.log(`✅ Reformatted public key  : ${response.outDir}/${stem}.pub.asc`);
+  console.log(`✅ Reformatted private key : ${response.outDir}/${stem}.key.asc`);
+};
+
+export default handleReformat;

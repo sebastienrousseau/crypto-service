@@ -1,48 +1,67 @@
-import decrypt from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
 import prompts from "prompts";
+import { decrypt } from "@sebastienrousseau/crypto-lib";
+import { readArmored, writeArmored } from "../utils/io.utils";
 
-const handleDecrypt = async () => {
-  const responseDecrypt = await prompts([
+const handleDecrypt = async (): Promise<void> => {
+  const response = await prompts([
     {
       type: "text",
-      name: "message",
-      message: "Provide an encrypted message in base64 format",
+      name: "messagePath",
+      message: "Path to the armored encrypted message",
+    },
+    {
+      type: "text",
+      name: "privateKeyPath",
+      message: "Path to your armored private key (.asc)",
     },
     {
       type: "password",
       name: "passphrase",
-      message: "Provide a passphrase",
+      message: "Passphrase for the private key",
     },
     {
       type: "text",
-      name: "publicKey",
-      message: "Provide a public key in base64 format",
+      name: "verifyKeyPath",
+      message:
+        "(optional) path to a sender public key to verify embedded signatures",
+      initial: "",
+    },
+    {
+      type: "text",
+      name: "outPath",
+      message: "Output path for the plaintext",
+      initial: "./decrypted.txt",
     },
   ]);
-  console.log(responseDecrypt);
 
-  const data = {
-    passphrase: responseDecrypt.passphrase,
-    message: responseDecrypt.message,
-    publicKey: responseDecrypt.publicKey,
+  if (!response.messagePath || !response.privateKeyPath) {
+    console.error("\n🔔 messagePath and privateKeyPath are required.\n");
+    return;
+  }
+
+  const encryptedMessage = await readArmored(response.messagePath);
+  const decryptionKey = {
+    armored: await readArmored(response.privateKeyPath),
+    passphrase: response.passphrase,
   };
 
-  if (
-    responseDecrypt.passphrase === "" ||
-    responseDecrypt.message === "" ||
-    responseDecrypt.publicKey === ""
-  ) {
-    console.error(
-      "\n🔔 You must provide a value for each of the properties.\n",
-    );
-  } else {
-    // console.log(data);
-    await decrypt(data);
+  const decryptArgs: Parameters<typeof decrypt>[0] = {
+    encryptedMessage,
+    decryptionKey,
+  };
+  if (response.verifyKeyPath) {
+    decryptArgs.verificationKey = await readArmored(response.verifyKeyPath);
+  }
+
+  const result = await decrypt(decryptArgs);
+
+  await writeArmored(response.outPath, result.data);
+  console.log(`✅ Plaintext written to ${response.outPath}`);
+  if (result.signatures.length > 0) {
+    for (const sig of result.signatures) {
+      console.log(`✔️  Signature verified by key ${sig.keyID}`);
+    }
   }
 };
 
 export default handleDecrypt;
-
-// # sourceMappingURL=decrypt.command.js.map
-// Language: typescript
-// Path: packages/crypto-cli/src/commands/decrypt.command.ts

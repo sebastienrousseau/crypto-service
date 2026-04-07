@@ -7,6 +7,7 @@
     }
   },
   "packages": ["packages/*"],
-  "npmClient": "yarn",
-  "version": "independent"
+  "npmClient": "pnpm",
+  "version": "independent",
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }

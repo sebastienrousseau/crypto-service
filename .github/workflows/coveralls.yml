@@ -2,39 +2,65 @@ name: "Crypto Service Suite CI"
 
 on:
   pull_request:
-    branches:
-      - "*"
+    branches: ["*"]
   push:
-    branches:
-      - "*"
+    branches: ["*"]
 
 jobs:
+  hygiene:
+    name: Hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Forbid private key material in tree
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -E '\.(key|asc|pem|p12|pfx)$'; then
+            echo "::error::private key material committed"
+            exit 1
+          fi
+
+      - name: Forbid side effects on import
+        run: |
+          set -euo pipefail
+          # `crypto-api/init()` and the legacy `crypto-lib` lib files used to
+          # auto-run on require/import — guard against regression.
+          ! grep -RIn --include='*.ts' \
+            -E '^(init|generate|encrypt|decrypt|sign|verify|revoke|reformat|session)\(\);' \
+            packages/crypto-api/src packages/crypto-lib/src
+
   build:
+    name: Build & test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [20.x, 22.x]
     steps:
-      - run: echo ${{github.ref}}
-      - uses: actions/checkout@v2
-      - name: Build on Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: npm install, build, and test
-        run: |
-          npm install -g pnpm
-          pnpm install
-          pnpm run build
-          pnpm run test
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-      - name: Testing & Coverage
-        run: |
-          npm run test
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test
+        run: pnpm run test
 
       - name: Coveralls Crypto-Cli
-        uses: coverallsapp/github-action@master
+        if: matrix.node-version == '22.x'
+        uses: coverallsapp/github-action@v2
         with:
           base-path: packages/crypto-cli
           flag-name: crypto-cli
@@ -43,10 +69,23 @@ jobs:
           path-to-lcov: ./packages/crypto-cli/coverage/lcov.info
 
       - name: Coveralls Crypto-Lib
-        uses: coverallsapp/github-action@master
+        if: matrix.node-version == '22.x'
+        uses: coverallsapp/github-action@v2
         with:
           base-path: packages/crypto-lib
           flag-name: crypto-lib
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           path-to-lcov: ./packages/crypto-lib/coverage/lcov.info
+
+  finish-coverage:
+    name: Finalize Coveralls
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark coverage build complete
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          carryforward: "crypto-cli,crypto-lib"

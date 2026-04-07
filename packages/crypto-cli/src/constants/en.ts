@@ -1,4 +1,9 @@
-// CLI constants
+// CLI constants — English locale.
+//
+// `Translations` is the canonical shape exported here so that other locales
+// (e.g. `fr.ts`) can declare `: Translations` and get a compile-time error
+// the moment a new key is added without being mirrored — closing the
+// historical "missing fr keys → undefined at runtime" footgun.
 export const translations = {
   CLI_TITLE: "🔐 Crypto CLI",
   CLI_DESCRIPTION:
@@ -113,3 +118,12 @@ export const translations = {
   CLI_ERR_1: "🔔 You must select a command.",
   CLI_ERR_2: "🔔 You must select a valid option.",
 } as const;
+
+/**
+ * The canonical shape of every locale's translations table. Other locales
+ * declare `: Translations` so missing keys are caught at compile time.
+ *
+ * The mapped type strips the `as const` literal so locales can supply their
+ * own translated strings without a TS error from the literal mismatch.
+ */
+export type Translations = { [K in keyof typeof translations]: string };

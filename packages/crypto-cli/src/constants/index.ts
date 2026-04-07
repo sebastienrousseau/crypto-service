@@ -1,19 +1,25 @@
 import * as en from "./en";
 import * as fr from "./fr";
 
-const locale = Intl.DateTimeFormat().resolvedOptions().locale.slice(0, 2);
-let constants;
+const supported = {
+  en: en.translations,
+  fr: fr.translations,
+} as const;
 
-async function language(data: string) {
-  {
-    if (data === "en") {
-      console.log("en", data);
-      constants = en.translations;
-    } else if (data === "fr") {
-      console.log("fr", data);
-      constants = fr.translations;
-    }
-  }
-}
+type Locale = keyof typeof supported;
 
-export { language, constants, locale };
+const detected = Intl.DateTimeFormat()
+  .resolvedOptions()
+  .locale.slice(0, 2)
+  .toLowerCase() as Locale;
+
+/** Resolved locale code (always one of the supported keys). */
+export const locale: Locale = detected in supported ? detected : "en";
+
+/**
+ * The translation table for the resolved locale.
+ *
+ * Synchronous resolution avoids the race in the previous implementation,
+ * where the CLI rendered before an async `language()` had set this binding.
+ */
+export const constants = supported[locale];

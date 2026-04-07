@@ -13,22 +13,20 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "cryptocli": "dist/cli"
+        "cryptocli": "dist/cli.js"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
     "dependencies": {
-        "@types/openpgp": "^4.4.19",
+        "@sebastienrousseau/crypto-lib": "workspace:*",
         "figlet": "^1.6.0",
         "kleur": "^4.1.5",
-        "openpgp": "^5.10.2",
         "prompts": "^2.4.2"
     },
     "description": "The Crypto Lib Command Line Interface (CLI) is a unified tool to perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification which are invoked from the command prompt or terminal.",
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
-        "@sebastienrousseau/crypto-lib": "0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
         "@sebastienrousseau/jsdoc-config": "^0.0.5",
         "@sebastienrousseau/markdownlint-config": "^0.0.1",
@@ -68,7 +66,7 @@
         "test": "__tests__"
     },
     "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
+        "node": ">=20.18"
     },
     "files": [
         "dist/**/*"
@@ -89,7 +87,6 @@
     ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
     "main": "./dist/cli.js",
     "name": "@sebastienrousseau/crypto-cli",
     "private": false,
@@ -103,10 +100,9 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn copy:key && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && pnpm run copy:makefile && pnpm run copy:package && pnpm run copy:copyright && pnpm run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:key": "mkdirp dist/key/ && cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "mkdirp dist && cp Makefile dist/",
         "copy:package": "cp package.json dist/",
@@ -115,12 +111,12 @@
         "filesize:distribution": "filesizes dist/ > dist/Report.txt",
         "lint:fix": "eslint --cache --fix src/**/*.ts",
         "lint": "eslint src/**/*.ts",
-        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
-        "prepack": "yarn build",
+        "markdown": "pnpm remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
+        "prepack": "pnpm run build",
         "format": "prettier --write src/**/*.ts",
-        "release": "yarn release:prepare && yarn release:publish",
-        "release:prepare": "yarn pack",
-        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
+        "release": "pnpm run release:prepare && pnpm run release:publish",
+        "release:prepare": "pnpm pack",
+        "release:publish": "npm publish --access public --ignore-scripts",
         "start": "node dist/cli.js",
         "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },

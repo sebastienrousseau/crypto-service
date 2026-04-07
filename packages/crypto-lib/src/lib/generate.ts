@@ -1,141 +1,61 @@
-import * as fs from "fs";
 import * as openpgp from "openpgp";
-import * as types from "../types/types";
-import path from "path";
-
-const args = process.argv.slice(2);
-// console.log(args);
+import type { GenerateInput, GenerateOutput } from "../types/types";
 
 /**
- * ### generate
+ * Generate a fresh OpenPGP key pair.
  *
- * Generates a new OpenPGP public and private key pair. Supports RSA and ECC
- * keys. By default, primary and subkeys will be of same type. The generated
- * primary key will have signing capabilities. By default, one subkey with
- * encryption capabilities is also generated.
- *
- * @public
- * @param {Object} data             - Data used to generate
- * @param {String} data.name        - Name of the user.
- * @param {String} data.email       - Email of the user.
- * @param {String} data.passphrase  - Passphrase enumeration. The passphrase
- *                                    used to encrypt the generated private key.
- *                                    If omitted or empty, the key won't be
- *                                    encrypted.
- * @param {String} data.type        - Type of key to be generated.
- * @param {String} data.curve       - Curve of key to be generated.
- * @param {String} data.bits        - Bits of key to be generated.
- * @param {String} data.expiration  - Expiration of key to be generated. Number
- *                                    of seconds from the key creation time
- *                                    after which the key expires.
- *                                    0 never expires.
- * @param {String} data.format      - Format of key to be generated. The primary
- *                                    key algorithm type: ECC (default) or RSA.
- * @returns {Promise<String>}       - Generated key.
- *
- * @async
- * @static
+ * The library is pure: nothing is written to disk and nothing is logged.
+ * The caller is responsible for persisting the returned key material.
  *
  * @example
- * ```javascript
- * import { generate } from "crypto-lib";
- *
- * const data = {
- *  name: "name",
- *  email: "email",
- *  passphrase: "passphrase",
- *  type: "type",
- *  curve: "curve",
- *  bits: "bits",
- *  expiration: "expiration",
- *  format: "format"
- * };
- *
- * const result = await generate(data);
- * result.then(function (data) {
- * return data.toString(); // returns the armored key
+ * ```ts
+ * const key = await generate({
+ *   name: "Jane Doe",
+ *   email: "jane@doe.com",
+ *   passphrase: "correct horse battery staple",
+ *   type: "rsa",
+ *   rsaBits: 4096,
+ *   keyExpirationTime: 60 * 60 * 24 * 365,
  * });
- * result.catch(function (err) {
- * throw err;
- * }); // error handling
- *
+ * ```
  */
-
-export async function generate(data: types.dataGenerate): Promise<object> {
-  const { privateKey, publicKey, revocationCertificate } =
-    await openpgp.generateKey({
-      date: new Date(),
-      userIDs: [{ name: data.name, email: data.email }],
-      type: data.type,
-      passphrase: data.passphrase,
-      rsaBits: Number(Math.min(data.rsaBits, 2048)),
-      curve: data.curve,
-      keyExpirationTime: Number(Math.min(data.keyExpirationTime, 0)),
-      format: data.format,
-    });
-
-  console.log(privateKey);
-  console.log(publicKey);
-  console.log(revocationCertificate);
-
-  if (data.type) {
-    const pbkey = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".pub"),
-    );
-    pbkey.write(Buffer.from(publicKey).toString("base64"));
-    pbkey.on("finish", () => {
-      console.log(
-        "🔑 The public key data was written to `" + data.type + ".pub`",
-      );
-    });
-    pbkey.end();
-
-    const prkey = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".key"),
-      { encoding: "utf8" },
-    );
-    prkey.write(Buffer.from(privateKey).toString("base64"));
-    prkey.on("finish", () => {
-      console.log(
-        "🔒 The private key data was written to `" + data.type + ".key`",
-      );
-    });
-    prkey.end();
-
-    const certificate = fs.createWriteStream(
-      path.resolve(__dirname, "../key/" + data.type + ".cert"),
-      { encoding: "utf8" },
-    );
-    certificate.write(Buffer.from(revocationCertificate).toString("base64"));
-    certificate.on("finish", () => {
-      console.log(
-        "🔏 The revocation certificate data was written to `" +
-          data.type +
-          ".cert`",
-      );
-    });
-    certificate.end();
-
-    return { publicKey, privateKey, revocationCertificate };
+export async function generate(input: GenerateInput): Promise<GenerateOutput> {
+  if (!input?.name || !input?.email) {
+    throw new Error("generate: name and email are required");
   }
-  return Promise.reject(new Error("No key type specified"));
-}
-export default generate;
 
-/* Checking if the args variable is empty or not. */
-if (args instanceof Array && args.length) {
-  const data = {
+  const type: "rsa" | "ecc" = input.type ?? "ecc";
+
+  // Force a sane minimum: RFC says 2048 is the floor; cap-down bugs in the
+  // previous implementation silently produced 2048-bit RSA keys.
+  const rsaBits =
+    type === "rsa" ? Math.max(Number(input.rsaBits) || 2048, 2048) : undefined;
+
+  const curve = type === "ecc" ? input.curve ?? "curve25519" : undefined;
+
+  // Negative or non-numeric expirations collapse to "never expires" (0).
+  const expiration = Math.max(Number(input.keyExpirationTime) || 0, 0);
+
+  // Build options without explicit `undefined` properties so they satisfy
+  // openpgp's `exactOptionalPropertyTypes`-friendly typings.
+  const options: openpgp.GenerateKeyOptions & { format?: "armored" } = {
+    type,
+    userIDs: [{ name: input.name, email: input.email }],
+    keyExpirationTime: expiration,
+    format: "armored",
     date: new Date(),
-    name: args[1],
-    email: args[3],
-    userIDs: [{ name: args[1], email: args[3] }],
-    type: args[5],
-    passphrase: args[7],
-    rsaBits: Number(args[9]),
-    curve: args[11],
-    keyExpirationTime: Number(args[13]),
-    format: args[15],
   };
-  // console.log(data);
-  generate(data);
+  if (rsaBits !== undefined) options.rsaBits = rsaBits;
+  if (curve !== undefined) options.curve = curve;
+  if (input.passphrase !== undefined) options.passphrase = input.passphrase;
+
+  const result = await openpgp.generateKey(options);
+
+  return {
+    publicKey: result.publicKey,
+    privateKey: result.privateKey,
+    revocationCertificate: result.revocationCertificate,
+  };
 }
+
+export default generate;

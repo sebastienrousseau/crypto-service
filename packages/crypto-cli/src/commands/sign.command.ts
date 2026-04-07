@@ -1,56 +1,50 @@
-import sign from "@sebastienrousseau/crypto-lib/dist/lib/sign";
 import prompts from "prompts";
+import { sign } from "@sebastienrousseau/crypto-lib";
+import { readArmored, writeArmored } from "../utils/io.utils";
 
-const handleSign = async () => {
-  const responseSign = await prompts([
+const handleSign = async (): Promise<void> => {
+  const response = await prompts([
+    { type: "text", name: "message", message: "Message to sign" },
+    {
+      type: "text",
+      name: "privateKeyPath",
+      message: "Path to your armored private key (.asc)",
+    },
     {
       type: "password",
       name: "passphrase",
-      message: "Provide a passphrase",
-    },
-    {
-      type: "text",
-      name: "message",
-      message: "Provide a message to encrypt",
+      message: "Passphrase for the private key",
     },
     {
       type: "confirm",
       name: "detached",
-      message: "Provide true or false",
+      message: "Detached signature?",
+      initial: false,
     },
     {
       type: "text",
-      name: "publicKey",
-      message: "Provide a public key in base64 format",
+      name: "outPath",
+      message: "Output path",
+      initial: "./signed.asc",
     },
   ]);
 
-  console.log(responseSign);
-
-  const data = {
-    date: new Date(),
-    passphrase: responseSign.passphrase,
-    message: responseSign.message,
-    detached: responseSign.detached,
-    publicKey: responseSign.publicKey,
-  };
-
-  if (
-    responseSign.passphrase === "" ||
-    responseSign.message === "" ||
-    responseSign.detached === "" ||
-    responseSign.publicKey === ""
-  ) {
-    console.error(
-      "\n🔔 You must provide a value for each of the properties.\n",
-    );
-  } else {
-    // console.log(data);
-    await sign(data);
+  if (!response.message || !response.privateKeyPath) {
+    console.error("\n🔔 message and privateKeyPath are required.\n");
+    return;
   }
-};
-export default handleSign;
 
-// # sourceMappingURL=sign.command.js.map
-// Language: typescript
-// path: packages/crypto-cli/src/commands/sign.command.ts
+  const result = await sign({
+    message: response.message,
+    signingKey: {
+      armored: await readArmored(response.privateKeyPath),
+      passphrase: response.passphrase,
+    },
+    detached: response.detached,
+  });
+
+  await writeArmored(response.outPath, result);
+  console.log(`✅ ${response.detached ? "Detached signature" : "Signed message"} written to ${response.outPath}`);
+};
+
+export default handleSign;

@@ -1,103 +1,45 @@
-import * as fs from "fs";
-import path from "path";
-import { readFileSync } from "fs";
 import * as openpgp from "openpgp";
-import * as types from "../types/types";
-
-const args = process.argv.slice(2);
-// console.log(args);
+import type { EncryptInput } from "../types/types";
 
 /**
- * ### encrypt
+ * Encrypt a message to one or more public keys, optionally signing it.
  *
- * Encrypts a message using public keys, passwords or both at once.
- * At least one of `encryptionKeys` or `passwords` must be specified.
- * If signing keys are specified, those will be used to sign the message.
- *
- * @public
- * @param {Object} data           - Data to be encrypted.
- * @param {String} passphrase     - Array of passwords or a single password to
- *                                  encrypt the message.
- * @param {String} message        - Message to be encrypted.
- * @param {String} publicKey      - Public key enumeration base64 encoded.
- *                                  This can be an array of keys or single
- *                                  key, used to encrypt the message.
- * @param {String} privateKey     - Private key enumeration base64 encoded.
- *                                  Private keys are used for signing. If
- *                                  omitted message will not be signed.
- * @returns {Promise<String>}     - Encrypted message (string if `armor` was
- *                                  true, the default; Uint8Array if `armor`
- *                                  was false).
- * @async
- * @static
- *
- * @example
- * ```javascript
- * import { encrypt } from "crypto-lib";
- *
- * const data = {
- *  passphrase: "passphrase",
- *  message: "message",
- *  publicKey: "base64 encoded public key"
- * };
- *
+ * Returns the armored ciphertext as a string. The library is pure: nothing
+ * is written to disk and nothing is logged.
  */
+export async function encrypt(input: EncryptInput): Promise<string> {
+  if (!input?.message || !input?.encryptionKey) {
+    throw new Error("encrypt: message and encryptionKey are required");
+  }
 
-export const encrypt = async (data: types.dataEncrypt): Promise<object> => {
-  const message = data.message;
-  const passphrase = data.passphrase;
-
-  const privateKeyBase64 = readFileSync(process.cwd() + "/src/key/rsa.key");
-  const publicKeyArmored = Buffer.from(
-    data.publicKey.toString(),
-    "base64",
-  ).toString("utf-8");
-  const privateKeyArmored = Buffer.from(
-    privateKeyBase64.toString(),
-    "base64",
-  ).toString("utf-8");
-  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
-  const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({
-      armoredKey: privateKeyArmored,
-    }),
-    passphrase,
+  const encryptionKeys = await openpgp.readKeys({
+    armoredKeys: input.encryptionKey,
   });
 
-  const encrypted = await openpgp.encrypt({
-    message: await openpgp.createMessage({ text: message }),
-    encryptionKeys: publicKey,
-    signingKeys: privateKey,
-  });
-  console.log(encrypted);
+  const message = await openpgp.createMessage({ text: input.message });
 
-  const encryptedMsg = await fs.createWriteStream(
-    path.resolve(__dirname, "../data/encrypted.txt"),
-    { encoding: "utf-8" },
-  );
-  const encryptedString = encrypted.toString();
-  const encryptedBase64 = Buffer.from(encryptedString, "binary").toString(
-    "base64",
-  );
-  encryptedMsg.write(encryptedBase64);
-  encryptedMsg.on("finish", () => {
-    console.log("✅ Wrote encrypted message data to file");
-  });
-  encryptedMsg.end();
-
-  return encrypted;
-};
-
-if (args instanceof Array && args.length) {
-  const data = {
-    passphrase: args[1],
-    message: args[3],
-    publicKey: args[5],
+  const options: openpgp.EncryptOptions & { format?: "armored" } = {
+    message,
+    encryptionKeys,
+    format: "armored",
   };
-  encrypt(data);
+
+  if (input.signingKey) {
+    const armored = await openpgp.readPrivateKey({
+      armoredKey: input.signingKey.armored,
+    });
+    options.signingKeys = armored.isDecrypted()
+      ? armored
+      : await openpgp.decryptKey({
+          privateKey: armored,
+          passphrase: input.signingKey.passphrase ?? "",
+        });
+  }
+
+  // openpgp's overload returns `WebStream<string>` because Message is
+  // stream-capable in principle, but for a non-stream input the runtime
+  // value is a plain string. The cast is a static-only fix.
+  return (await openpgp.encrypt(options)) as unknown as string;
 }
 
 export default encrypt;
-
-//# sourceMappingURL=encrypt.js.map
-// Language: typescript

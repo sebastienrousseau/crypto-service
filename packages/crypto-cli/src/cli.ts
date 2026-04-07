@@ -1,137 +1,82 @@
 #!/usr/bin/env node
 
-import { Command } from './commands/index'
+import { Command } from "./commands/index";
 import { welcome } from "./helpers/banner";
-import { language, locale, constants } from "./constants/index"
+import { constants } from "./constants/index";
 import { writeUtils } from "./utils/write.utils";
-import format from 'kleur';
-import prompts from 'prompts';
+import format from "kleur";
+import prompts from "prompts";
 
-language(locale);
-console.clear();
-welcome(constants.CLI_TITLE);
-writeUtils.writeLn(constants.CLI_TITLE);
-writeUtils.writeLn("");
-writeUtils.writeLn(constants.CLI_DESCRIPTION);
-writeUtils.writeLn("");
+async function main(): Promise<void> {
+  console.clear();
+  welcome(constants.CLI_TITLE);
+  writeUtils.writeLn(constants.CLI_TITLE);
+  writeUtils.writeLn("");
+  writeUtils.writeLn(constants.CLI_DESCRIPTION);
+  writeUtils.writeLn("");
 
-(async () => {
   const response = await prompts({
-    type: 'select',
-    name: constants.PROMPT_SELECT_TTL,
-    message: constants.PROMPT_SELECT_DES+"\n\n",
+    type: "select",
+    name: "selection",
+    message: constants.PROMPT_SELECT_DES + "\n\n",
     choices: [
-      {
-        title: constants.CLI_FN_1_TTL,
-        description: constants.CLI_FN_1_DES,
-        value: constants.CLI_FN_1_TTL,
-      },
-      {
-        title: constants.CLI_FN_2_TTL,
-        description: constants.CLI_FN_2_DES,
-        value: constants.CLI_FN_2_TTL,
-      },
-      {
-        title: constants.CLI_FN_3_TTL,
-        description: constants.CLI_FN_3_DES,
-        value: constants.CLI_FN_3_TTL,
-      },
-      {
-        title: constants.CLI_FN_4_TTL,
-        description: constants.CLI_FN_4_DES,
-        value: constants.CLI_FN_4_TTL,
-      },
-      {
-        title: constants.CLI_FN_5_TTL,
-        description: constants.CLI_FN_5_DES,
-        value: constants.CLI_FN_5_TTL,
-      },
-      {
-        title: constants.CLI_FN_6_TTL,
-        description: constants.CLI_FN_6_DES,
-        value: constants.CLI_FN_6_TTL,
-      },
-      {
-        title: constants.CLI_FN_7_TTL,
-        description: constants.CLI_FN_7_DES,
-        value: constants.CLI_FN_7_TTL,
-      },
-      {
-        title: constants.CLI_FN_8_TTL,
-        description: constants.CLI_FN_8_DES,
-        value: constants.CLI_FN_8_TTL,
-      },
-      {
-        title: constants.CLI_FN_9_TTL,
-        description: constants.CLI_FN_9_DES,
-        value: constants.CLI_FN_9_TTL,
-      },
+      { title: constants.CLI_FN_1_TTL, description: constants.CLI_FN_1_DES, value: "generate" },
+      { title: constants.CLI_FN_2_TTL, description: constants.CLI_FN_2_DES, value: "encrypt" },
+      { title: constants.CLI_FN_3_TTL, description: constants.CLI_FN_3_DES, value: "decrypt" },
+      { title: constants.CLI_FN_4_TTL, description: constants.CLI_FN_4_DES, value: "reformat" },
+      { title: constants.CLI_FN_5_TTL, description: constants.CLI_FN_5_DES, value: "revoke" },
+      { title: constants.CLI_FN_6_TTL, description: constants.CLI_FN_6_DES, value: "session" },
+      { title: constants.CLI_FN_7_TTL, description: constants.CLI_FN_7_DES, value: "sign" },
+      { title: constants.CLI_FN_8_TTL, description: constants.CLI_FN_8_DES, value: "verify" },
+      { title: constants.CLI_FN_9_TTL, description: constants.CLI_FN_9_DES, value: "help" },
     ],
   });
 
-  switch (response.Selection) {
-    case constants.CLI_FN_1_TTL: {
-      writeUtils.writeLn("");
+  switch (response.selection) {
+    case "generate":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleGenerate();
+      await Command.handleGenerate();
       break;
-    }
-    case constants.CLI_FN_2_TTL: {
-      writeUtils.writeLn("");
+    case "encrypt":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleEncrypt();
+      await Command.handleEncrypt();
       break;
-    }
-    case constants.CLI_FN_3_TTL: {
-      writeUtils.writeLn("");
+    case "decrypt":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleDecrypt();
+      await Command.handleDecrypt();
       break;
-    }
-    case constants.CLI_FN_4_TTL: {
-      writeUtils.writeLn("");
+    case "reformat":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleReformat();
+      await Command.handleReformat();
       break;
-    }
-    case constants.CLI_FN_5_TTL: {
-      writeUtils.writeLn("");
+    case "revoke":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleRevoke();
+      await Command.handleRevoke();
       break;
-    }
-    case constants.CLI_FN_6_TTL: {
-      writeUtils.writeLn("");
+    case "session":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleSession();
+      await Command.handleSession();
       break;
-    }
-    case constants.CLI_FN_7_TTL: {
-      writeUtils.writeLn("");
+    case "sign":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleSign();
+      await Command.handleSign();
       break;
-    }
-    case constants.CLI_FN_8_TTL: {
-      writeUtils.writeLn("");
+    case "verify":
       writeUtils.writeLn(format.green(constants.CLI_HDL_1_DES));
-      Command.handleVerify();
+      await Command.handleVerify();
       break;
-    }
-    case constants.CLI_FN_9_TTL: {
-      writeUtils.writeLn("");
+    case "help":
       writeUtils.writeLn(format.green(constants.CLI_FN_9_TTL));
-      Command.handleHelp();
+      await Command.handleHelp();
       break;
-    }
-    default: {
-      writeUtils.writeLn("");
+    default:
       writeUtils.writeLn(format.red(constants.CLI_ERR_1));
+      process.exitCode = 1;
       break;
-    }
   }
-})();
+}
 
-// # sourceMappingURL=cli.js.map
-// Language: typescript
-// Path: packages/crypto-cli/src/cli.ts
+main().catch((err) => {
+  writeUtils.writeLn(format.red(`Error: ${err instanceof Error ? err.message : String(err)}`), false, true);
+  process.exit(1);
+});

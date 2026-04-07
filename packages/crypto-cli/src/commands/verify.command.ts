@@ -1,50 +1,49 @@
-import verify from "@sebastienrousseau/crypto-lib/dist/lib/verify";
 import prompts from "prompts";
+import { verify } from "@sebastienrousseau/crypto-lib";
+import { readArmored } from "../utils/io.utils";
 
-const handleVerify = async () => {
-  const responseVerify = await prompts([
+const handleVerify = async (): Promise<void> => {
+  const response = await prompts([
     {
       type: "text",
-      name: "message",
-      message: "Provide a message to be verified.",
+      name: "messagePath",
+      message:
+        "Path to the cleartext-signed message OR the plaintext (when using a detached signature)",
     },
     {
       type: "text",
-      name: "verificationKeys",
-      message:
-        "Provide an array of publicKeys or single key, to verify signatures in base64 format",
+      name: "verifyKeyPath",
+      message: "Path to the signer's armored public key (.asc)",
     },
     {
       type: "text",
-      name: "date",
-      message:
-        "Provide an ISO Date string formatted date to verify message. If not provided, current date will be used. (YYYY-MM-DDTHH:mm:ss.sssZ)",
+      name: "signaturePath",
+      message: "(optional) path to a detached signature",
+      initial: "",
     },
   ]);
 
-  console.log(responseVerify);
+  if (!response.messagePath || !response.verifyKeyPath) {
+    console.error("\n🔔 messagePath and verifyKeyPath are required.\n");
+    return;
+  }
 
-  const data = {
-    message: responseVerify.message,
-    verificationKeys: responseVerify.verificationKeys,
-    date: new Date(),
-  };
-
-  if (
-    responseVerify.message === "" ||
-    responseVerify.verificationKeys === "" ||
-    responseVerify.date === ""
-  ) {
+  try {
+    const verifyArgs: Parameters<typeof verify>[0] = {
+      message: await readArmored(response.messagePath),
+      verificationKey: await readArmored(response.verifyKeyPath),
+    };
+    if (response.signaturePath) {
+      verifyArgs.signature = await readArmored(response.signaturePath);
+    }
+    const result = await verify(verifyArgs);
+    console.log(`✅ Signature valid (signed by ${result.signedBy})`);
+  } catch (err) {
     console.error(
-      "\n🔔 You must provide a value for each of the properties.\n",
+      `❌ Signature INVALID: ${err instanceof Error ? err.message : String(err)}`,
     );
-  } else {
-    console.log(data);
-    await verify(data);
+    process.exitCode = 1;
   }
 };
-export default handleVerify;
 
-// # sourceMappingURL=verify.command.js.map
-// Language: typescript
-// path: packages/crypto-cli/src/commands/verify.command.ts
+export default handleVerify;

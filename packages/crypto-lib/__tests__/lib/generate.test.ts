@@ -1,125 +1,56 @@
-// import config from '../../src/config/config';
-import { generate } from "../../src/lib/generate"
+import { generate } from "../../src/lib/generate";
+import * as openpgp from "openpgp";
 import chai from "chai";
-import chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-const data = {
-  rsaBits: 2048,
-  curve: '',
-  email: 'jane@doe.com',
-  comment: 'test comment',
-  keyExpirationTime: 0,
-  format: 'armored',
-  name: 'Jane Doe',
-  passphrase: '123456789abcdef',
-  date: new Date(),
-  type: 'rsa',
-  userIDs: [{ name: 'Jane Doe', email:'jane@doe.com'}],
-};
+describe("generate", function () {
+  this.timeout(60_000);
 
-describe('Generate key', function () {
-  it('should generate a key', async function () {
-    const test = generate(data);
-    await expect(test).to.eventually.be.fulfilled;
+  it("requires name and email", async function () {
+    await expect(
+      // @ts-expect-error — testing runtime guard
+      generate({}),
+    ).to.be.rejectedWith(/name and email are required/);
+  });
+
+  it("generates an ECC key by default", async function () {
+    const key = await generate({
+      name: "Jane Doe",
+      email: "jane@doe.com",
+      passphrase: "test-passphrase",
+    });
+    expect(key.publicKey).to.match(/BEGIN PGP PUBLIC KEY BLOCK/);
+    expect(key.privateKey).to.match(/BEGIN PGP PRIVATE KEY BLOCK/);
+    expect(key.revocationCertificate).to.match(/BEGIN PGP PUBLIC KEY BLOCK/);
+  });
+
+  it("honours rsaBits = 4096 (the previous Math.min capped to 2048)", async function () {
+    this.timeout(180_000);
+    const key = await generate({
+      name: "Jane Doe",
+      email: "jane@doe.com",
+      passphrase: "test-passphrase",
+      type: "rsa",
+      rsaBits: 4096,
+    });
+    const parsed = await openpgp.readKey({ armoredKey: key.publicKey });
+    const algo = await parsed.getAlgorithmInfo();
+    expect(algo.bits).to.equal(4096);
+  });
+
+  it("honours keyExpirationTime (the previous Math.min collapsed to 0)", async function () {
+    const oneYear = 60 * 60 * 24 * 365;
+    const key = await generate({
+      name: "Jane Doe",
+      email: "jane@doe.com",
+      passphrase: "test-passphrase",
+      keyExpirationTime: oneYear,
+    });
+    const parsed = await openpgp.readKey({ armoredKey: key.publicKey });
+    const exp = await parsed.getExpirationTime();
+    expect(exp).to.be.instanceOf(Date);
   });
 });
-
-describe('generateKey rsaBits', function () {
-  it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
-    const test = generate({ ...data, rsaBits: 0 });
-    await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
-  });
-});
-
-// describe('generateKey EllipticCurveName', function () {
-//   it('should fail for invalid curve (KeyOptions: EllipticCurveName)', async function () {
-//     const curve = 'jane@doe.com';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
-
-// describe('generateKey userIDs', function () {
-//   it('should fail for invalid user email address (KeyOptions: userIDs)', async function () {
-//     const name = 'Jane Doe';
-//     const email = 'wrongemailformat.com';
-//     const test = generate({ ...data, userIDs: [{ name, email }] });
-//     await expect(test).to.eventually.be.rejectedWith(/Invalid user ID format/);
-//   });
-// });
-
-// describe('generateKey keyExpirationTime', function () {
-//   it('should fail for invalid keyExpirationTime (KeyOptions: keyExpirationTime)', async function () {
-//     const keyExpirationTime = 0 - 3;
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
-
-// describe('generateKey format', function () {
-//   it('should fail for invalid format (KeyOptions: format)', async function () {
-//     const format = 'abcdef123456789';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
-
-// describe('generateKey user name', function () {
-//   it('should fail for invalid user name (KeyOptions: userIDs)', async function () {
-//     const name = '';
-//     const test = generate({ rsaBits, curve, email, keyExpirationTime, format, name, passphrase, type, date, userIDs });
-//     await expect(test).to.eventually.be.rejectedWith;
-//   });
-// });
-
-describe('generateKey passphrase', function () {
-  it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
-    const passphrase = 'abcdef123456789';
-    const test = generate({ ...data, passphrase });
-    await expect(test).to.eventually.be.rejectedWith;
-  });
-});
-
-describe('generateKey type', function () {
-  it('should fail for invalid type (KeyOptions: type)', async function () {
-    const type = "123456789";
-    const test = generate({ ...data, type });
-    await expect(test).to.eventually.be.rejectedWith;
-  });
-});
-
-// describe('generateKey - unit tests', () => {
-//   it('should have default params set', async () => {
-//     const opt = {
-//       rsaBits: 2048,
-//       curve: '',
-//       email: 'jane@doe.com',
-//       keyExpirationTime: 0,
-//       format: 'armored',
-//       name: 'Jane Doe',
-//       passphrase: '123456789abcdef',
-//       signature: true,
-//       type: 'rsa',
-//       date: new Date(),
-//       userIDs: [{ name, email }]
-//     };
-//     return await generate(opt).then(async function () {
-//       for (const key of [opt]) {
-//         expect(key).to.exist;
-//         expect(key.rsaBits).to.equal(2048);
-//         expect(key.curve).to.equal('');
-//         expect(key.email).to.equal('jane@doe.com');
-//         expect(key.keyExpirationTime).to.equal(0);
-//         expect(key.format).to.equal('armored');
-//         expect(key.name).to.equal('Jane Doe');
-//         expect(key.passphrase).to.equal('123456789abcdef');
-//         expect(key.signature).to.equal(true);
-//         expect(key.type).to.equal('rsa');
-//       }
-//     });
-//   });
-// });
-

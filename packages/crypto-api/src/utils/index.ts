@@ -1,18 +1,26 @@
 /**
- * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * SPDX-License-Identifier: MIT
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ *
+ * NOTE: this package is a Postman→Markdown converter and is mis-named as
+ * `crypto-api`. It has no cryptographic code. See package.json for the
+ * renaming proposal.
  */
 
-import { AuthorizationInfo, JsonDocument, JsonRequest, ResponseType } from "../@types/types";
+import {
+  AuthorizationInfo,
+  JsonDocument,
+  JsonRequest,
+  ResponseType,
+} from "../@types/types";
 import * as fs from "fs";
 import path from "path";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Loose = any;
+
 /**
- * Creates a markdown structure from a JSON document type definition.
- *
- * @param data - The JSON data to be converted into markdown format.
- * @returns - The markdown string representing the input data.
+ * Creates a markdown structure from a Postman-style JSON document.
  */
 export const createMarkdown = (data: JsonDocument): string => {
   let markdown = "";
@@ -22,7 +30,7 @@ export const createMarkdown = (data: JsonDocument): string => {
       data.info.description !== undefined
         ? `${data.info.description || ""}\n`
         : ``;
-    markdown += readItems(data.item);
+    markdown += readItems(data.item as unknown as Loose[]);
     markdown += `\n`;
     markdown += `\n`;
   }
@@ -31,9 +39,6 @@ export const createMarkdown = (data: JsonDocument): string => {
 
 /**
  * Generates markdown for displaying authorization information.
- *
- * @param data - The authorization data to be converted into markdown format.
- * @returns - The markdown string representing the authorization data.
  */
 export const readAuthorization = (data: AuthorizationInfo): string => {
   let markdown = "";
@@ -44,7 +49,7 @@ export const readAuthorization = (data: AuthorizationInfo): string => {
       markdown += `|Param|value|Type|\n`;
       markdown += `|---|---|---|\n`;
 
-      data.bearer.map((auth) => {
+      data.bearer.forEach((auth) => {
         markdown += `|${auth.key}|${auth.value}|${auth.type}|\n`;
       });
       markdown += `\n`;
@@ -56,9 +61,6 @@ export const readAuthorization = (data: AuthorizationInfo): string => {
 
 /**
  * Generates markdown for displaying request headers.
- *
- * @param data - The request data containing headers information.
- * @returns - The markdown string representing the request headers.
  */
 export function readRequest(data: JsonRequest): string {
   let markdown = "\n";
@@ -66,30 +68,20 @@ export function readRequest(data: JsonRequest): string {
   markdown += `\n`;
   markdown += `|Parameter|Value|Description|\n`;
   markdown += `|---|---|---|\n`;
-  data.header.map((header) => {
+  data.header.forEach((header) => {
     markdown += `|${header.key}|${header.value}|${header.description}|\n`;
   });
   return markdown;
 }
 
-
-/**
- * Generates markdown for displaying response headers.
- *
- * @param data - The response data containing headers information.
- * @param statusCode - The status code of the response.
- * @param headers - The headers of the response.
- * @param body - The body of the response.
- * @returns - The markdown string representing the response headers.
- * */
-export function readQueryParams(url) {
+export function readQueryParams(url: Loose): string {
   let markdown = "";
   if (url?.query) {
     markdown += `### Query Params\n`;
     markdown += `\n`;
     markdown += `|Param|value|\n`;
     markdown += `|---|---|\n`;
-    url.query.map((query) => {
+    url.query.forEach((query: Loose) => {
       markdown += `|${query.key}|${query.value}|\n`;
     });
     markdown += `\n`;
@@ -98,11 +90,7 @@ export function readQueryParams(url) {
   return markdown;
 }
 
-/**
- * Read objects of each method
- * @param {object} body
- */
-export function readFormDataBody(body) {
+export function readFormDataBody(body: Loose): string {
   let markdown = "";
 
   if (body) {
@@ -120,13 +108,13 @@ export function readFormDataBody(body) {
       markdown += `\n`;
       markdown += `|Param|value|Type|\n`;
       markdown += `|---|---|---|\n`;
-      body.formdata.map((form) => {
+      body.formdata.forEach((form: Loose) => {
         markdown += `|${form.key}|${
           form.type === "file"
             ? form.src
             : form.value !== undefined
-            ? form.value.replace(/\\n/g, "")
-            : ""
+              ? String(form.value).replace(/\\n/g, "")
+              : ""
         }|${form.type}|\n`;
       });
       markdown += `\n`;
@@ -137,42 +125,30 @@ export function readFormDataBody(body) {
   return markdown;
 }
 
-/**
- * Read methods of response.
- *
- * @param responses - An array of response objects, each containing code, status, and body properties.
- * @returns A markdown string that documents the response codes, statuses, and an example body.
- */
 export function readResponse(responses: ResponseType[]): string {
   let markdown = "";
   if (responses?.length) {
-    const response = responses[0];
-    console.log(response);
+    const example = responses[0];
     markdown += `### Response\n`;
     markdown += `\n`;
     markdown += `|Code|Status|\n`;
     markdown += `|---|---|\n`;
-    responses.map((response) => {
-      markdown += `|${response.code}|${response.status}|\n`;
+    responses.forEach((r) => {
+      markdown += `|${r.code}|${r.status}|\n`;
     });
     markdown += `\n`;
     markdown += `#### Example response\n`;
     markdown += `\n`;
     markdown += `\`\`\`json\n`;
-    markdown += `${response.body}\n`;
+    markdown += `${example.body}\n`;
     markdown += `\`\`\`\n`;
     markdown += `\n`;
   }
   return markdown;
 }
 
-/**
- * Read methods of each item
- * @param {object} post
- */
-export function readMethods(method) {
+export function readMethods(method: Loose): string {
   let markdown = "";
-  console.log(method);
   markdown += `\n`;
   markdown +=
     method?.request?.description !== undefined
@@ -193,13 +169,9 @@ export function readMethods(method) {
   return markdown;
 }
 
-/**
- * Read items of json postman
- * @param {Array} items
- */
-export function readItems(items, folderDeep = 1) {
+export function readItems(items: Loose[], folderDeep = 1): string {
   let markdown = "";
-  items.forEach((item) => {
+  items.forEach((item: Loose) => {
     if (item.item) {
       markdown += `${"#".repeat(folderDeep)} 📁 Collection: ${item.name} \n`;
       markdown += readItems(item.item, folderDeep + 1);
@@ -211,13 +183,10 @@ export function readItems(items, folderDeep = 1) {
   return markdown;
 }
 
-/**
- * Creates a markdown file with specified content.
- *
- * @param content - The markdown content to be written to the file.
- * @param fileName - The name of the file (without extension) to be created.
- */
-export const response = async (content: string, fileName: string) => {
+export const response = async (
+  content: string,
+  fileName: string,
+): Promise<void> => {
   const output = fs.createWriteStream(
     path.resolve(__dirname, "../../src/docs/" + fileName + ".md"),
   );

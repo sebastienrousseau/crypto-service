@@ -1,45 +1,67 @@
-import { encrypt } from "../../src/lib/encrypt"
+import { encrypt } from "../../src/lib/encrypt";
+import { decrypt } from "../../src/lib/decrypt";
+import { generate } from "../../src/lib/generate";
 import chai from "chai";
-import chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-
 const { expect } = chai;
 
-const data = {
-  passphrase: '123456789abcdef',
-  message: 'Hello Crypto Service Suite APIs!',
-  publicKey: 'LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4c0JOQkdLc2dFZ0JDQUM3ODBFR1hiamVzZ0E0YkFPMTNqYVN2REdqUUIrTHB1RGlWdGlDL0ZmejRIdjMKOWUxejV2dWNtckFwQjZJS3NtQytMazZuVmgxWUhaeXFTUk10N0NQU3Vham1SRVZNZTgzU3RsR0RuT1NnCkx1dkxJemduc0pTamlqcUJVQUNrbGZ5emhoNzJ0b3BIWXVjRUZFVDVDSG9FWEJaOGhYZkNpNjNITk9ILwpadWVYM3h5eHY3QUp1WFZqd0RoMlcyWUkyendTd01NK1Z3ZEhFNUs3TVo4eG0zSk9IVGpHRVYyS3dHa28KYTl6dHZ6TWVyNkpxWjQ5bmpqOGpoVHhidVlONFJBQkUrcWc1a1RJejFpbStkRXNncWhDelpyeGJOMEZtCjdFNWZ1YUorbGtGVmpYM3J6U3VWMzdTb0hNMThJZzJwRHdCN2JrelF1TjlWaXorUGNtZFFaM3JqQUJFQgpBQUhORjBwaGJtVWdSRzlsSUR4cVlXNWxRR1J2WlM1amIyMCt3c0NLQkJBQkNBQWRCUUppcklCSUJBc0oKQndnREZRZ0tCQllBQWdFQ0dRRUNHd01DSGdFQUlRa1EySlNGTTI0T1liOFdJUVJkaHNtRkhzSTdYeFdmCmZOYllsSVV6Ymc1aHY0ZWhDQUN2Vm0xcmdHWW9Pc1hES1NjTVVMOGFvRU1IRE5lUURGNVUzeWJreUJCMQpXM0RTUVhUaUtkTXBMM01qVTFMam05bDlCUFpWMDJnSElCWlVyNXNtUmpTeDBIZGJNNzZRcElSMGZQK3gKTXJDN0o5THZVcExMNVZ5bkFsWnArbjBKeWQxN216RUtUNkQ4Uk45NkVrYlFQMEhmb3F5b2V3QVpaZVdHCmJXcXZsalFteWZGdUgrb1ZUOHlLOThJZkV2NWppK2dQbFVTVDBOb2RML2hFRnY2UFdRWGo2VkZrNmV0YQozekxzV3U5aWZwREhkdHBXMFBXUEwwSmhTQ3E0NDN1ZllJVmg3em1QeW42MW16UnpyQTZsdS9VN1JKMWkKZE1NSUpsZUxic0dScEVNYWRXdkM2a3JjeG5uUmsvMEduQXFVS3N5d3BrZnJIYXljNitKRW1PcmswOWdhCnpzQk5CR0tzZ0VnQkNBQ3FwWDduemQ3cjVxdmZjMzRjL1h6dmVudGZEN215aGl4YTJqa1hzVlpOSWZuegpRRm1YR1lCVGdsazhZclFJblRhSzcyaTdleXVGSlBIVzBjV3dwTTFmRWpPYmYwb0swZG1jSGZtWm5aUWEKYWpibHg1Z0pUb1BVRURmYzBUUEdoUWNma1Q2eW9vYTUrRjdlYnNMVGk3SWJDeFFPNTFjdGRBRVArNjlDCkpyOFovdWY1am94MmgzOTZvU3pFd1FjOFF0UkdGVkR1ZHpJUEw4VCs2SVpvV1NLbWVUTTcvcXVmNHNydwpjY0FWb1V1YllQNHVuQ3IzQTVZYnB3cW83L25lWkd2UVFZcDhneXdqclcrclovNVlCc1BCUnZwQVduTGoKNy9pMlJRRFlSWEJJWG9kRmc2eXBXQU8vWVd1UTczcWd2UzZSTDBiT0VuMGpiU2RYbGJReWZsakpBQkVCCkFBSEN3SFlFR0FFSUFBa0ZBbUtzZ0VnQ0d3d0FJUWtRMkpTRk0yNE9ZYjhXSVFSZGhzbUZIc0k3WHhXZgpmTmJZbElVemJnNWh2NXliQi85aFRFNytHMktoRnh2ZUpMRG1RbUt6Z1BxUDdJRCtUbThHSi82WTZXM0YKeEsxT3M0TFBrNmFEUklSUXNhNU5FZjUrNGZkZVpXSE9mcWRwazFacW9VMU8wTG1rMThKNG1OTkUwOW02CkxWb3kwS09Qb2c5OTZQRThQVWZHM2RaYTRnMXJVNlZnT1dlZGc2UElxT3JDeFBiQmtGU2dzYmhmdzJ1MQpVNWp5UkRUeXQzVGw3YjZOQVR4OEFQSW5EZDNGVk45WDRDMkFFMGJmQWoyYU82L29JalJYOHFLeG0vMisKMDdFNDJoQWorNFBSZHJLZjJYS2tXUFZ3bk5iREdxMDJ1a0M5eWV0aHRYR3N4QXM3VjFOWmdKZWZLUXZKCnNsbXFJMWcyanp1dkFwVU1YQ1JuOWMwd3BQcEZ6a1k2SkxKZWtSNmVDZnQxK2xqeWxtMjZ1UTltTjBGTAo9UnQ3MAotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCg==',
-};
+describe("encrypt -> decrypt round-trip", function () {
+  this.timeout(60_000);
 
-describe('encrypt', function () {
-  it('should encrypt a message', async function () {
-    const test = encrypt(data);
-    await expect(test).to.eventually.be.fulfilled;
+  it("preserves plaintext through an ECC keypair", async function () {
+    const key = await generate({
+      name: "Round Trip",
+      email: "rt@example.com",
+      passphrase: "pp",
+    });
+    const ciphertext = await encrypt({
+      message: "Hello Crypto Service Suite APIs!",
+      encryptionKey: key.publicKey,
+    });
+    expect(ciphertext).to.match(/BEGIN PGP MESSAGE/);
+
+    const result = await decrypt({
+      encryptedMessage: ciphertext,
+      decryptionKey: { armored: key.privateKey, passphrase: "pp" },
+    });
+    expect(result.data).to.equal("Hello Crypto Service Suite APIs!");
+    expect(result.signatures).to.deep.equal([]);
+  });
+
+  it("verifies an embedded signature when verificationKey is supplied", async function () {
+    const sender = await generate({
+      name: "Sender",
+      email: "s@example.com",
+      passphrase: "pp",
+    });
+    const recipient = await generate({
+      name: "Recipient",
+      email: "r@example.com",
+      passphrase: "pp",
+    });
+
+    const ciphertext = await encrypt({
+      message: "signed-and-encrypted",
+      encryptionKey: recipient.publicKey,
+      signingKey: { armored: sender.privateKey, passphrase: "pp" },
+    });
+
+    const result = await decrypt({
+      encryptedMessage: ciphertext,
+      decryptionKey: { armored: recipient.privateKey, passphrase: "pp" },
+      verificationKey: sender.publicKey,
+    });
+    expect(result.data).to.equal("signed-and-encrypted");
+    expect(result.signatures).to.have.lengthOf(1);
+    expect(result.signatures[0].valid).to.equal(true);
+  });
+
+  it("rejects empty input", async function () {
+    await expect(
+      // @ts-expect-error — testing runtime guard
+      encrypt({}),
+    ).to.be.rejectedWith(/message and encryptionKey are required/);
   });
 });
-
-  describe('encrypt with arguments', function() {
-      it('should encrypt a message', function() {
-        process.argv = process.argv.slice(2,0);
-        process.argv.push('encrypt');
-        process.argv.push('passphrase');
-        process.argv.push('123456789abcdef');
-        process.argv.push('message');
-        process.argv.push('Hello Crypto Service Suite APIs!');
-        process.argv.push('publicKey');
-        process.argv.push('LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4c0JOQkdLc2dFZ0JDQUM3ODBFR1hiamVzZ0E0YkFPMTNqYVN2REdqUUIrTHB1RGlWdGlDL0ZmejRIdjMKOWUxejV2dWNtckFwQjZJS3NtQytMazZuVmgxWUhaeXFTUk10N0NQU3Vham1SRVZNZTgzU3RsR0RuT1NnCkx1dkxJemduc0pTamlqcUJVQUNrbGZ5emhoNzJ0b3BIWXVjRUZFVDVDSG9FWEJaOGhYZkNpNjNITk9ILwpadWVYM3h5eHY3QUp1WFZqd0RoMlcyWUkyendTd01NK1Z3ZEhFNUs3TVo4eG0zSk9IVGpHRVYyS3dHa28KYTl6dHZ6TWVyNkpxWjQ5bmpqOGpoVHhidVlONFJBQkUrcWc1a1RJejFpbStkRXNncWhDelpyeGJOMEZtCjdFNWZ1YUorbGtGVmpYM3J6U3VWMzdTb0hNMThJZzJwRHdCN2JrelF1TjlWaXorUGNtZFFaM3JqQUJFQgpBQUhORjBwaGJtVWdSRzlsSUR4cVlXNWxRR1J2WlM1amIyMCt3c0NLQkJBQkNBQWRCUUppcklCSUJBc0oKQndnREZRZ0tCQllBQWdFQ0dRRUNHd01DSGdFQUlRa1EySlNGTTI0T1liOFdJUVJkaHNtRkhzSTdYeFdmCmZOYllsSVV6Ymc1aHY0ZWhDQUN2Vm0xcmdHWW9Pc1hES1NjTVVMOGFvRU1IRE5lUURGNVUzeWJreUJCMQpXM0RTUVhUaUtkTXBMM01qVTFMam05bDlCUFpWMDJnSElCWlVyNXNtUmpTeDBIZGJNNzZRcElSMGZQK3gKTXJDN0o5THZVcExMNVZ5bkFsWnArbjBKeWQxN216RUtUNkQ4Uk45NkVrYlFQMEhmb3F5b2V3QVpaZVdHCmJXcXZsalFteWZGdUgrb1ZUOHlLOThJZkV2NWppK2dQbFVTVDBOb2RML2hFRnY2UFdRWGo2VkZrNmV0YQozekxzV3U5aWZwREhkdHBXMFBXUEwwSmhTQ3E0NDN1ZllJVmg3em1QeW42MW16UnpyQTZsdS9VN1JKMWkKZE1NSUpsZUxic0dScEVNYWRXdkM2a3JjeG5uUmsvMEduQXFVS3N5d3BrZnJIYXljNitKRW1PcmswOWdhCnpzQk5CR0tzZ0VnQkNBQ3FwWDduemQ3cjVxdmZjMzRjL1h6dmVudGZEN215aGl4YTJqa1hzVlpOSWZuegpRRm1YR1lCVGdsazhZclFJblRhSzcyaTdleXVGSlBIVzBjV3dwTTFmRWpPYmYwb0swZG1jSGZtWm5aUWEKYWpibHg1Z0pUb1BVRURmYzBUUEdoUWNma1Q2eW9vYTUrRjdlYnNMVGk3SWJDeFFPNTFjdGRBRVArNjlDCkpyOFovdWY1am94MmgzOTZvU3pFd1FjOFF0UkdGVkR1ZHpJUEw4VCs2SVpvV1NLbWVUTTcvcXVmNHNydwpjY0FWb1V1YllQNHVuQ3IzQTVZYnB3cW83L25lWkd2UVFZcDhneXdqclcrclovNVlCc1BCUnZwQVduTGoKNy9pMlJRRFlSWEJJWG9kRmc2eXBXQU8vWVd1UTczcWd2UzZSTDBiT0VuMGpiU2RYbGJReWZsakpBQkVCCkFBSEN3SFlFR0FFSUFBa0ZBbUtzZ0VnQ0d3d0FJUWtRMkpTRk0yNE9ZYjhXSVFSZGhzbUZIc0k3WHhXZgpmTmJZbElVemJnNWh2NXliQi85aFRFNytHMktoRnh2ZUpMRG1RbUt6Z1BxUDdJRCtUbThHSi82WTZXM0YKeEsxT3M0TFBrNmFEUklSUXNhNU5FZjUrNGZkZVpXSE9mcWRwazFacW9VMU8wTG1rMThKNG1OTkUwOW02CkxWb3kwS09Qb2c5OTZQRThQVWZHM2RaYTRnMXJVNlZnT1dlZGc2UElxT3JDeFBiQmtGU2dzYmhmdzJ1MQpVNWp5UkRUeXQzVGw3YjZOQVR4OEFQSW5EZDNGVk45WDRDMkFFMGJmQWoyYU82L29JalJYOHFLeG0vMisKMDdFNDJoQWorNFBSZHJLZjJYS2tXUFZ3bk5iREdxMDJ1a0M5eWV0aHRYR3N4QXM3VjFOWmdKZWZLUXZKCnNsbXFJMWcyanp1dkFwVU1YQ1JuOWMwd3BQcEZ6a1k2SkxKZWtSNmVDZnQxK2xqeWxtMjZ1UTltTjBGTAo9UnQ3MAotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCg==');
-        expect(process.argv[0]).to.equal('encrypt');
-        expect(process.argv[2]).to.equal('123456789abcdef');
-        expect(process.argv[4]).to.equal('Hello Crypto Service Suite APIs!');
-        expect(process.argv[6]).to.equal('LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4c0JOQkdLc2dFZ0JDQUM3ODBFR1hiamVzZ0E0YkFPMTNqYVN2REdqUUIrTHB1RGlWdGlDL0ZmejRIdjMKOWUxejV2dWNtckFwQjZJS3NtQytMazZuVmgxWUhaeXFTUk10N0NQU3Vham1SRVZNZTgzU3RsR0RuT1NnCkx1dkxJemduc0pTamlqcUJVQUNrbGZ5emhoNzJ0b3BIWXVjRUZFVDVDSG9FWEJaOGhYZkNpNjNITk9ILwpadWVYM3h5eHY3QUp1WFZqd0RoMlcyWUkyendTd01NK1Z3ZEhFNUs3TVo4eG0zSk9IVGpHRVYyS3dHa28KYTl6dHZ6TWVyNkpxWjQ5bmpqOGpoVHhidVlONFJBQkUrcWc1a1RJejFpbStkRXNncWhDelpyeGJOMEZtCjdFNWZ1YUorbGtGVmpYM3J6U3VWMzdTb0hNMThJZzJwRHdCN2JrelF1TjlWaXorUGNtZFFaM3JqQUJFQgpBQUhORjBwaGJtVWdSRzlsSUR4cVlXNWxRR1J2WlM1amIyMCt3c0NLQkJBQkNBQWRCUUppcklCSUJBc0oKQndnREZRZ0tCQllBQWdFQ0dRRUNHd01DSGdFQUlRa1EySlNGTTI0T1liOFdJUVJkaHNtRkhzSTdYeFdmCmZOYllsSVV6Ymc1aHY0ZWhDQUN2Vm0xcmdHWW9Pc1hES1NjTVVMOGFvRU1IRE5lUURGNVUzeWJreUJCMQpXM0RTUVhUaUtkTXBMM01qVTFMam05bDlCUFpWMDJnSElCWlVyNXNtUmpTeDBIZGJNNzZRcElSMGZQK3gKTXJDN0o5THZVcExMNVZ5bkFsWnArbjBKeWQxN216RUtUNkQ4Uk45NkVrYlFQMEhmb3F5b2V3QVpaZVdHCmJXcXZsalFteWZGdUgrb1ZUOHlLOThJZkV2NWppK2dQbFVTVDBOb2RML2hFRnY2UFdRWGo2VkZrNmV0YQozekxzV3U5aWZwREhkdHBXMFBXUEwwSmhTQ3E0NDN1ZllJVmg3em1QeW42MW16UnpyQTZsdS9VN1JKMWkKZE1NSUpsZUxic0dScEVNYWRXdkM2a3JjeG5uUmsvMEduQXFVS3N5d3BrZnJIYXljNitKRW1PcmswOWdhCnpzQk5CR0tzZ0VnQkNBQ3FwWDduemQ3cjVxdmZjMzRjL1h6dmVudGZEN215aGl4YTJqa1hzVlpOSWZuegpRRm1YR1lCVGdsazhZclFJblRhSzcyaTdleXVGSlBIVzBjV3dwTTFmRWpPYmYwb0swZG1jSGZtWm5aUWEKYWpibHg1Z0pUb1BVRURmYzBUUEdoUWNma1Q2eW9vYTUrRjdlYnNMVGk3SWJDeFFPNTFjdGRBRVArNjlDCkpyOFovdWY1am94MmgzOTZvU3pFd1FjOFF0UkdGVkR1ZHpJUEw4VCs2SVpvV1NLbWVUTTcvcXVmNHNydwpjY0FWb1V1YllQNHVuQ3IzQTVZYnB3cW83L25lWkd2UVFZcDhneXdqclcrclovNVlCc1BCUnZwQVduTGoKNy9pMlJRRFlSWEJJWG9kRmc2eXBXQU8vWVd1UTczcWd2UzZSTDBiT0VuMGpiU2RYbGJReWZsakpBQkVCCkFBSEN3SFlFR0FFSUFBa0ZBbUtzZ0VnQ0d3d0FJUWtRMkpTRk0yNE9ZYjhXSVFSZGhzbUZIc0k3WHhXZgpmTmJZbElVemJnNWh2NXliQi85aFRFNytHMktoRnh2ZUpMRG1RbUt6Z1BxUDdJRCtUbThHSi82WTZXM0YKeEsxT3M0TFBrNmFEUklSUXNhNU5FZjUrNGZkZVpXSE9mcWRwazFacW9VMU8wTG1rMThKNG1OTkUwOW02CkxWb3kwS09Qb2c5OTZQRThQVWZHM2RaYTRnMXJVNlZnT1dlZGc2UElxT3JDeFBiQmtGU2dzYmhmdzJ1MQpVNWp5UkRUeXQzVGw3YjZOQVR4OEFQSW5EZDNGVk45WDRDMkFFMGJmQWoyYU82L29JalJYOHFLeG0vMisKMDdFNDJoQWorNFBSZHJLZjJYS2tXUFZ3bk5iREdxMDJ1a0M5eWV0aHRYR3N4QXM3VjFOWmdKZWZLUXZKCnNsbXFJMWcyanp1dkFwVU1YQ1JuOWMwd3BQcEZ6a1k2SkxKZWtSNmVDZnQxK2xqeWxtMjZ1UTltTjBGTAo9UnQ3MAotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCg==');
-        expect(data).to.exist;
-        expect(data).to.be.an('object');
-        expect(data).to.have.property('passphrase');
-        expect(data).to.have.property('message');
-        expect(data).to.have.property('publicKey');
-        expect(data.passphrase).to.be.a('string');
-        expect(data.message).to.be.a('string');
-        expect(data.publicKey).to.be.a('string');
-      });
-    });

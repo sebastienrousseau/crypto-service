@@ -13,15 +13,16 @@
         "target": "git://github.com/sebastienrousseau/crypto-service.git"
     },
     "bin": {
-        "cryptoapi": "dist/index"
+        "cryptoapi": "dist/index.js"
     },
     "bugs": {
         "url": "https://github.com/sebastienrousseau/crypto-service/issues"
     },
-    "description": "The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations.",
+    "description": "Internal documentation tooling for the Crypto Service Suite. Converts a Postman collection JSON file to markdown reference docs. NOTE: this package contains no cryptographic code despite its `crypto-api` name (kept for historical/import-path stability). Marked `private: true` so it cannot be accidentally published.",
     "dependencies": {
         "minimist": "^1.2.8"
     },
+    "files_note": "Internal tool only — NOT published. See `private: true` below. The historical name is preserved to avoid breaking the `@sebastienrousseau/crypto-api` import path used by repo tooling. A future rename to `@sebastienrousseau/postman-doc-gen` is the cleaner long-term fix.",
     "devDependencies": {
         "@sebastienrousseau/c8-config": "^0.0.3",
         "@sebastienrousseau/eslint-config": "^0.0.2",
@@ -32,6 +33,7 @@
         "@sebastienrousseau/remark-config": "^0.0.3",
         "@types/chai": "^4.3.7",
         "@types/chai-as-promised": "^7.1.6",
+        "@types/minimist": "^1.2.5",
         "@types/mocha": "^10.0.2",
         "@types/node":"^20.8.4",
         "@typescript-eslint/eslint-plugin": "^6.7.5",
@@ -62,7 +64,7 @@
         "test": "__tests__"
     },
     "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
+        "node": ">=20.18"
     },
     "files": [
         "dist/**/*"
@@ -83,21 +85,16 @@
     ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
     "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-api",
-    "private": false,
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://npm.pkg.github.com"
-    },
+    "private": true,
     "repository": {
         "directory": "packages/crypto-api",
         "type": "git",
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:docs && yarn run copy:coll && yarn run copy:env && yarn run copy:makefile && yarn copy:package && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && pnpm run copy:docs && pnpm run copy:coll && pnpm run copy:env && pnpm run copy:makefile && pnpm run copy:package && pnpm run copy:copyright && pnpm run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
         "copy:docs": "mkdirp dist/docs && cp ./src/docs/* dist/docs",
@@ -112,11 +109,11 @@
         "format": "prettier --write src/**/*.ts",
         "lint": "eslint src/**/*.ts",
         "lint:fix": "eslint --cache --fix src/**/*.ts",
-        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
-        "prepack": "yarn build",
-        "release": "yarn release:prepare && yarn release:publish",
-        "release:prepare": "yarn pack",
-        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
+        "markdown": "pnpm remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
+        "prepack": "pnpm run build",
+        "release": "pnpm run release:prepare && pnpm run release:publish",
+        "release:prepare": "pnpm pack",
+        "release:publish": "npm publish --access public --ignore-scripts",
         "start": "node dist/index.js",
         "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
     },

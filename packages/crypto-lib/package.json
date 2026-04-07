@@ -64,7 +64,7 @@
         "test": "__tests__"
     },
     "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
+        "node": ">=20.18"
     },
     "files": [
         "dist/"
@@ -102,7 +102,6 @@
     ],
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
     "main": "./dist/index.js",
     "name": "@sebastienrousseau/crypto-lib",
     "private": false,
@@ -116,11 +115,9 @@
         "url": "git@github.com:sebastienrousseau/crypto-service.git"
     },
     "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:key && yarn run copy:data && yarn run copy:copyright && yarn run filesize:distribution",
+        "build": "tsc --build tsconfig.json && pnpm run copy:makefile && pnpm run copy:package && pnpm run copy:copyright && pnpm run filesize:distribution",
         "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
         "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:data": "mkdirp dist/data && cp -fr src/data/*.txt dist/data/ && cp -fr src/data/*.sig dist/data/",
-        "copy:key": "mkdirp dist/key && cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
         "copy:license": "cp LICENSE dist/",
         "copy:makefile": "mkdirp dist/ && cp Makefile dist/",
         "copy:package": "cp ./package.json ./dist/",

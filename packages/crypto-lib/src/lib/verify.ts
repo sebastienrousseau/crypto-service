@@ -1,50 +1,61 @@
 import * as openpgp from "openpgp";
-import * as types from "../types/types";
-
-const args = process.argv.slice(2);
+import type { VerifyInput, VerifyOutput } from "../types/types";
 
 /**
- * ### sign
+ * Verify a cleartext-signed message or a (plaintext, detached signature) pair.
  *
- * @param data                  - Data to be signed.
- * @param data.message          - (required) message to be verified.
- * @param data.verificationKeys - (required) array of publicKeys or single key,
- *                                to verify signatures.
- * @param data.date             - (optional) Use the given date for verification
- *                                instead of the current time.
- * @returns {Promise<String>}   - Signed message (string if `armor` was true,
- *                                the default; Uint8Array if `armor` was false).
- *
+ * - Throws if no signature is present (a missing signature is not "valid").
+ * - Throws if any signature fails to verify.
+ * - Returns `{ valid: true, signedBy }` for the first verifying key only on
+ *   success.
  */
+export async function verify(input: VerifyInput): Promise<VerifyOutput> {
+  if (!input?.message || !input?.verificationKey) {
+    throw new Error("verify: message and verificationKey are required");
+  }
 
-export const verify = async (data: types.dataVerify) => {
-  const message = data.message;
-  const publicKey = Buffer.from(
-    data.verificationKeys.toString(),
-    "base64",
-  ).toString("utf-8");
-
-  const verified = await openpgp.verify({
-    message: await openpgp.createMessage({ text: message }),
-    verificationKeys: await openpgp.readKey({
-      armoredKey: publicKey,
-    }),
-    date: data.date,
+  const verificationKeys = await openpgp.readKeys({
+    armoredKeys: input.verificationKey,
   });
-  console.log(verified);
-  return verified;
-};
+  const date = input.date ?? new Date();
 
-if (args instanceof Array && args.length) {
-  const data = {
-    message: args[1],
-    verificationKeys: args[3],
-    date: new Date(args[11]),
-  };
-  verify(data);
+  // openpgp.verify has overloads keyed on the message type, so we split
+  // the call site rather than passing a union.
+  let result: openpgp.VerifyMessageResult<openpgp.MaybeStream<string>>;
+  if (input.signature) {
+    const message = await openpgp.createMessage({ text: input.message });
+    const signature = await openpgp.readSignature({
+      armoredSignature: input.signature,
+    });
+    result = await openpgp.verify({
+      message,
+      signature,
+      verificationKeys,
+      date,
+    });
+  } else {
+    const message = await openpgp.readCleartextMessage({
+      cleartextMessage: input.message,
+    });
+    result = await openpgp.verify({
+      message,
+      verificationKeys,
+      date,
+    });
+  }
+
+  if (!result.signatures || result.signatures.length === 0) {
+    throw new Error("verify: no signature found");
+  }
+
+  // openpgp.verify NEVER throws for an invalid signature — you must await
+  // each `.verified` promise. The previous implementation skipped this and
+  // silently reported "verified" for any input string.
+  for (const sig of result.signatures) {
+    await sig.verified;
+  }
+
+  return { valid: true, signedBy: result.signatures[0].keyID.toHex() };
 }
 
 export default verify;
-
-// # sourceMappingURL=verify.js.map
-// Language: typescript

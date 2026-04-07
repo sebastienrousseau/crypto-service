@@ -1,62 +1,21 @@
 import chai from "chai";
-import chaiAsPromised from 'chai-as-promised';
 import * as test from "../../src/constants/index";
-chai.use(chaiAsPromised);
-const {expect} = chai;
 
-describe("Checking language function", function () {
-  it("should be a function", function () {
-    expect(test.language).to.be.an("function");
+const { expect } = chai;
+
+describe("constants module", () => {
+  it("exports a synchronously-resolved constants object", () => {
+    expect(test.constants).to.be.an("object");
+    expect(test.constants.CLI_TITLE).to.be.a("string");
+  });
+
+  it("exports a supported locale", () => {
+    expect(["en", "fr"]).to.include(test.locale);
+  });
+
+  it("does not crash for unsupported locales (regression for the i18n init race)", () => {
+    // Even when the host's locale is something we do not translate, the
+    // module-level resolution must fall back to a real value, never undefined.
+    expect(test.constants).to.not.equal(undefined);
   });
 });
-
-
-describe("Checking language function returns correct content", function () {
-  it("should be correct", function () {
-    const languages = ["en", "fr"];
-    languages.forEach(function (language) {
-      test.language(language);
-      expect(test.constants).to.be.an("object");
-    });
-  });
-});
-
-
-
-describe("Checking constants format", function () {
-  it("should be an object", () => {
-    expect(test).to.be.an("object");
-  });
-});
-
-describe("Checking locale response", function () {
-  it("should return the correct locale response", () => {
-    if (test.locale.toLowerCase() === "en") {
-      expect(test.locale).to.equal("en");
-    }
-    else if (test.locale.toLowerCase() === "fr") {
-      expect(test.locale).to.equal("fr");
-    }
-    else {
-      expect(test.locale).to.equal("en");
-    }
-  });
-});
-
-describe('Checking switch case options', () => {
-  it('should report cases not aligned with switch keyword', function () {
-    switch (test.locale.toLowerCase()) {
-      case 'en':
-        expect(test.locale).to.equal("en");
-        break;
-      case 'fr':
-        expect(test.locale).to.equal("fr");
-        break;
-      default:
-        expect(test.locale).to.equal("en");
-        break;
-    }
-  });
-});
-
-

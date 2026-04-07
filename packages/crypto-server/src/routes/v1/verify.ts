@@ -1,56 +1,48 @@
 /**
- * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-/**
- * @file Defines a route for signature verification in the Fastify application.
- * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
- */
+import * as fastify from "fastify";
+import { verify, type VerifyInput } from "@sebastienrousseau/crypto-lib";
+import type { VerifyBody } from "../../@types/types";
 
-import * as fastify from 'fastify';
-import verify from '@sebastienrousseau/crypto-lib/dist/lib/verify';
-import fastifyRateLimit from "@fastify/rate-limit";
-import { IHeadersVerify } from '../../@types/types';
-import { rateLimitOptions } from "../../config/constants";
+const bodySchema = {
+  type: "object",
+  required: ["message", "verificationKey"],
+  additionalProperties: false,
+  properties: {
+    message: { type: "string", maxLength: 131072 },
+    verificationKey: { type: "string", maxLength: 65536 },
+    signature: { type: "string", maxLength: 65536 },
+    date: { type: "string", format: "date-time" },
+  },
+} as const;
 
-/**
- * Registers a GET route `/v1/verify` for signature verification.
- *
- * The route expects headers containing:
- * - `date`: The date associated with the message.
- * - `message`: The message to verify.
- * - `verification-keys`: The keys to use for verification.
- *
- * @param app {fastify.FastifyInstance} - The Fastify instance to register the route.
- *
- * @example
- * GET /v1/verify
- * Headers:
- *   - date: "2023-10-09T08:07:06Z"
- *   - message: "myMessage"
- *   - verification-keys: "myVerificationKeys"
- *
- * @returns {Object} The verification data.
- */
 export default (app: fastify.FastifyInstance): void => {
-
-  app
-    .register(fastifyRateLimit, rateLimitOptions) // fastify-rate-limit plugin
-    .get<{
-      Headers: IHeadersVerify;
-    }>("/v1/verify", async (request, reply) => {
+  app.post<{ Body: VerifyBody }>(
+    "/v1/verify",
+    {
+      schema: { body: bodySchema },
+      preHandler: app.requireAuth,
+    },
+    async (request, reply) => {
       try {
-        const verifyData = await verify({
-          date: new Date(String(request.headers["date"])),
-          message: String(request.headers["message"]),
-          verificationKeys: String(request.headers["verification-keys"]),
-        });
-        reply.send({ data: verifyData });
-      } catch (error) {
-          reply.status(500).send({ error: 'Verification failed' });
+        const args: VerifyInput = {
+          message: request.body.message,
+          verificationKey: request.body.verificationKey,
+        };
+        if (request.body.signature !== undefined)
+          args.signature = request.body.signature;
+        if (request.body.date !== undefined)
+          args.date = new Date(request.body.date);
+
+        const data = await verify(args);
+        return reply.header("Cache-Control", "no-store").send({ data });
+      } catch (err) {
+        request.log.error({ err }, "verify failed");
+        return reply.status(400).send({ error: "verify_failed" });
       }
-    });
+    },
+  );
 };

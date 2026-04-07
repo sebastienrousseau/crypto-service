@@ -1,7 +1,7 @@
+#!/usr/bin/env node
 /**
- * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * SPDX-License-Identifier: MIT
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
 /**
@@ -96,4 +96,8 @@ export async function init(): Promise<void> {
   }
 }
 
-init();
+// Only run when invoked as a CLI; importing this module must not have side
+// effects (the previous implementation auto-fired init() at import time).
+if (require.main === module) {
+  void init();
+}

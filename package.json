@@ -4,12 +4,11 @@
     },
     "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
     "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
+        "node": ">=20.18"
     },
     "homepage": "https://crypto-service.co",
     "license": "MIT",
     "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
     "name": "@sebastienrousseau/crypto-service",
     "private": true,
     "publishConfig": {
@@ -17,27 +16,21 @@
         "registry": "https://npm.pkg.github.com"
     },
     "scripts": {
-        "build": "lerna run build --stream",
-        "clean": "lerna run clean --stream",
-        "docs": "lerna run docs --stream",
-        "lint:fix": "lerna run lint:fix --no-bail",
-        "lint": "lerna run lint --stream",
-        "markdown": "lerna exec -- yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
-        "format": "lerna run format --stream",
-        "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-cli && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-cli/dist/* && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
-        "release:prepare": "lerna run release:prepare --stream",
-        "release:publish": "lerna run release:publish --stream",
-        "release": "yarn install && yarn release:prepare && yarn release:publish && yarn clean",
-        "start:crypto-lib": "lerna run start --scope=@sebastienrousseau/crypto-lib",
-        "start:crypto-server": "lerna run start --scope=@sebastienrousseau/crypto-server",
-        "start": "lerna run start --stream",
-        "test": "lerna run test --stream"
+        "prepare": "husky install",
+        "build": "pnpm -r run build",
+        "clean": "pnpm -r run clean",
+        "docs": "pnpm -r run docs",
+        "lint:fix": "pnpm -r run lint:fix",
+        "lint": "pnpm -r run lint",
+        "format": "pnpm -r run format",
+        "release:prepare": "pnpm -r run release:prepare",
+        "release:publish": "pnpm -r run release:publish",
+        "release": "pnpm install && pnpm run release:prepare && pnpm run release:publish",
+        "start:crypto-server": "pnpm --filter @sebastienrousseau/crypto-server run start",
+        "start": "pnpm -r run start",
+        "test": "pnpm -r run test"
     },
-    "useWorkspaces": true,
     "version": "0.0.3",
-    "workspaces": [
-        "packages/*"
-    ],
     "devDependencies": {
         "@commitlint/cli": "^17.7.2",
         "@commitlint/config-conventional": "^17.7.0",

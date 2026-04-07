@@ -1,185 +1,141 @@
 /**
- * ### types/types.dateGenerate
+ * Public input/output types for crypto-lib.
  *
- * Types used in the Generate Keypair function.
- *
- * @module types/types
- * @public
- * @param {Any} curve - Curve enumeration.
- * @param {Date} date - Date enumeration.
- * @param {String} email - Email enumeration.
- * @param {Any} format - Format enumeration.
- * @param {Number} keyExpirationTime - Key expiration time enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} passphrase - Password enumeration.
- * @param {Number} rsaBits - RSA bits enumeration.
- * @param {Any} type - Type enumeration.
- * @param {Any} userIDs - User IDs enumeration.
- *
+ * Design rules:
+ *  - All key material is supplied by the caller as armored ASCII strings.
+ *  - The library never reads the filesystem and never holds operator keys.
+ *  - Passphrases live as long as the function call and are never logged.
  */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-export type dataGenerate = {
-  date: Date;
+
+import type { EllipticCurveName } from "openpgp";
+
+/** A passphrase-protected armored OpenPGP private key. */
+export type ArmoredPrivateKey = {
+  /** ASCII-armored private key block. */
+  armored: string;
+  /** Passphrase used to decrypt the private key. Omit for unencrypted keys. */
+  passphrase?: string;
+};
+
+/** Input for {@link generate}. */
+export type GenerateInput = {
   name: string;
   email: string;
-  userIDs: any;
-  type: any;
-  passphrase: string;
-  rsaBits: number;
-  curve: any;
-  keyExpirationTime: number;
-  format: any;
+  /** Passphrase to encrypt the new private key. Empty/omitted = unencrypted. */
+  passphrase?: string;
+  /** Algorithm family. Defaults to `"ecc"`. */
+  type?: "rsa" | "ecc";
+  /** RSA modulus size when `type === "rsa"`. Minimum and default: 2048. */
+  rsaBits?: number;
+  /** Curve name when `type === "ecc"`. Defaults to `"curve25519"`. */
+  curve?: EllipticCurveName;
+  /** Lifetime in seconds. `0` (default) = never expires. */
+  keyExpirationTime?: number;
 };
 
-/**
- * ### types/types.dataRevoke
- *
- * Types used in the Revoke Key function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {Number} flag - Flag enumeration. Default value is '0' - No reason specified. (optional)
- *
- * Other possible values are:
- *    '1'  when the Key is superseded,
- *    '2'  when the Key material has been compromised,
- *    '3'  when the Key is retired and no longer used
- *    '32' when the User ID information is no longer valid.
- * @param {string} reason - Reason enumeration. (optional)
- */
-export type dataRevoke = {
-  passphrase: string;
-  flag: number;
-  reason: string;
-};
-
-/**
- * ### types/types.dataEncrypt
- *
- * Types used in the Encrypt function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} message - Message enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
-export type dataEncrypt = {
-  passphrase: string;
-  message: string;
+/** Output for {@link generate}. */
+export type GenerateOutput = {
   publicKey: string;
+  privateKey: string;
+  revocationCertificate: string;
 };
 
-/**
- * ### types/types.dataDecrypt
- *
- * Types used in the Decrypt function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} message - Encrypted message enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
-export type dataDecrypt = {
-  passphrase: string;
+/** Input for {@link encrypt}. */
+export type EncryptInput = {
   message: string;
+  /** Armored OpenPGP public key (or concatenated keys) used to encrypt. */
+  encryptionKey: string;
+  /** Optional armored private key + passphrase used to sign the message. */
+  signingKey?: ArmoredPrivateKey;
+};
+
+/** Input for {@link decrypt}. */
+export type DecryptInput = {
+  /** Armored OpenPGP message to decrypt. */
+  encryptedMessage: string;
+  /** Armored private key + passphrase used to decrypt. */
+  decryptionKey: ArmoredPrivateKey;
+  /** Optional armored public key used to verify embedded signatures. */
+  verificationKey?: string;
+};
+
+/** Output for {@link decrypt}. */
+export type DecryptOutput = {
+  data: string;
+  /** Verified signatures, if any. Empty when `verificationKey` is omitted. */
+  signatures: { keyID: string; valid: boolean }[];
+};
+
+/** Input for {@link sign}. */
+export type SignInput = {
+  message: string;
+  signingKey: ArmoredPrivateKey;
+  /** When true, returns a detached signature instead of a cleartext message. */
+  detached?: boolean;
+};
+
+/** Input for {@link verify}. */
+export type VerifyInput = {
+  /**
+   * If `signature` is omitted, this must be an armored cleartext-signed
+   * message. Otherwise it is the plaintext that was detach-signed.
+   */
+  message: string;
+  /** Armored public key (one or more concatenated). */
+  verificationKey: string;
+  /** Optional armored detached signature. */
+  signature?: string;
+  /** Override the verification time. Defaults to `new Date()`. */
+  date?: Date;
+};
+
+/** Output for {@link verify}. */
+export type VerifyOutput = {
+  /** Always true on success — invalid signatures cause `verify` to throw. */
+  valid: true;
+  /** Lower-case hex of the first signing key ID. */
+  signedBy: string;
+};
+
+/** Input for {@link revoke}. */
+export type RevokeInput = {
+  /** Armored private key (with passphrase) of the key to revoke. */
+  privateKey: ArmoredPrivateKey;
+  /**
+   * Optional revocation reason.
+   * Flag values follow RFC 4880 §5.2.3.23:
+   *   0 = no reason, 1 = superseded, 2 = compromised,
+   *   3 = retired, 32 = user ID no longer valid.
+   */
+  reason?: { flag?: number; string?: string };
+};
+
+/** Output for {@link revoke}. */
+export type RevokeOutput = {
   publicKey: string;
+  privateKey: string;
 };
 
-/**
- * ### types/types.dataSign
- *
- * Types used in the Sign function.
- *
- * @module types/types
- * @public
- * @param {String} message             - Message enumeration.
- * @param {Boolean} detached           - If true, the return value should
- *                                       contain a detached signature
- * @param {String} passphrase          - Passphrase enumeration.
- */
-export type dataSign = {
-  message: string;
-  detached: boolean;
-  passphrase: string;
-};
-
-/**
- * ### types/types.dataVerify
- *
- * Types used in the Signature Verification function.
- *
- * @module types/types
- * @public
- * @param {String} message            - (required) message to be verified.
- * @param {String} verificationKeys   - (required) array of publicKeys or single
- *                                    key, to verify signatures.
- * @param {Boolean} expectSigned      - (optional) If true, verification throws
- *                                    if the message is not signed with the
- *                                    provided publicKeys.
- * @param {Any} format                - (optional) Whether to return data as a
- *                                    string(Stream) or Uint8Array(Stream). If
- *                                    'utf8' (the default), also normalize
- *                                    newlines.
- * @param {String} signature          - (optional) Detached signature for
- *                                    verification.
- * @param {Date} date                 - (optional) Use the given date for
- *                                    verification instead of the current time.
- * @param {String} config             - (optional) Custom configuration settings
- *                                    to overwrite those in config.
- *
- */
-export type dataVerify = {
-  date: Date;
-  message: string;
-  verificationKeys: any;
-};
-
-/**
- * ### types/types.dataSessionKey
- *
- * Types used in the Session Key function.
- *
- * @module types/types
- * @public
- * @param {String} email - Email enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
-export type dataSessionKey = {
-  email: string;
+/** Input for {@link reformat}. */
+export type ReformatInput = {
+  /** Armored private key (with passphrase) of the key to reformat. */
+  privateKey: ArmoredPrivateKey;
   name: string;
-  publicKey: string;
-};
-
-/**
- * ### types/types.dataReformat
- *
- * Types used in the Reformat function.
- *
- * @module types/types
- * @public
- * @param {String} date - Date enumeration.
- * @param {String} email - Email enumeration.
- * @param {String} expiration - Expiration enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
-export type dataReformat = {
-  date: Date;
   email: string;
-  expiration: number;
-  name: string;
-  passphrase: string;
-  publicKey: string;
+  /** Lifetime in seconds for the new self-signature. `0` = never expires. */
+  keyExpirationTime?: number;
 };
 
-// # sourceMappingURL=types.js.map
-// Language: typescript
+/** Output for {@link reformat}. */
+export type ReformatOutput = {
+  publicKey: string;
+  privateKey: string;
+};
+
+/** Input for {@link session}. */
+export type SessionInput = {
+  /** Armored OpenPGP public key. */
+  encryptionKey: string;
+  name: string;
+  email: string;
+};
