@@ -18,9 +18,17 @@ name = "javascript"
 enabled = true
 
   [analyzers.meta]
-  plugins = ["typescript"]
+  dialect = "typescript"
   environment = ["nodejs", "mocha"]
   module_system = "es-modules"
+  skip_doc_coverage = [
+    "function-declaration",
+    "function-expression",
+    "arrow-function-expression",
+    "class-declaration",
+    "class-expression",
+    "method-definition",
+  ]
 
 [[transformers]]
 name = "prettier"
