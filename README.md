@@ -1,293 +1,275 @@
 # 🔐 The Crypto Service Suite
 
-![Banner representing Crypto Service Suite][crypto service suite]
+A pnpm/Lerna monorepo of four TypeScript packages providing OpenPGP key
+management, encryption, signing, verification, and a Fastify REST front, on top
+of [OpenPGP.js](https://openpgpjs.org/) (RFC 4880).
 
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge\&color=f14041)](https://www.npmjs.com/package/@sebastienrousseau/crypto-service)
-![Codacy grade](https://img.shields.io/codacy/grade/40d370244f3843f389094afe7719c4e4?style=for-the-badge)
-[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
-[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
+[![CI](https://github.com/sebastienrousseau/crypto-service/actions/workflows/coveralls.yml/badge.svg?branch=main)](https://github.com/sebastienrousseau/crypto-service/actions/workflows/coveralls.yml)
+[![Coverage](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/main.svg?style=flat-square)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=flat-square)](https://lerna.js.org/)
+[![Maintained with pnpm](https://img.shields.io/badge/maintained%20with-pnpm%209-orange?style=flat-square)](https://pnpm.io/)
 
-[![Contributors][contributors-shield]](https://github.com/sebastienrousseau/crypto-service/graphs/contributors)
-[![Forks][forks-shield]](https://github.com/sebastienrousseau/crypto-service/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge\&color=ff69b4)](https://opensource.org/licenses/MIT)
-![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+## Packages
 
-[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service.svg?type=small)](https://app.fossa.com/projects/custom%2B3308%2Fgithub.com%2Fsebastienrousseau%2Fcrypto-service?ref=badge_small)
+| Package | Role | Published |
+|---|---|---|
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)       | Pure async functions over openpgp 5. Caller supplies armored keys; the library never touches the filesystem. | ✅ |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server) | Fastify REST front (`/v1/{encrypt,decrypt,sign,verify,generate,revoke,reformat,session}`) with JWT auth, helmet, rate-limit, schema validation. | ✅ |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)       | Prompts-driven interactive CLI for the same eight operations, talking to `crypto-lib` directly. | ✅ |
+| [`@sebastienrousseau/crypto-api`](packages/crypto-api)       | Internal Postman → Markdown documentation generator. **Not published.** | 🔒 private |
 
-**[Website](https://crypto-service.co) • [Documentation](https://crypto-service/docs/) 
-• [Report Bug](https://github.com/sebastienrousseau/crypto-service/issues) 
-• [Request Feature](https://github.com/sebastienrousseau/crypto-service/issues) 
-• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+See [`docs/architecture.md`](docs/architecture.md) for the C4 diagram and
+request lifecycle.
 
-***
+---
 
-## 👋 Welcome to the Crypto Service Suite
+## Quick Start (15 minutes, all platforms)
 
-The Crypto Service Suite is a set of products that delivers common crypto 
-functions.
+### Prerequisites
 
-It is a powerful and centralized cryptographic suite of security tools that 
-solves common application crypto problems, including integration, data 
-encryption, tokenization, transaction authorization, code-signing and key 
-life-cycle management and other security services. 
+| Tool    | Version    | Why |
+|---------|------------|---|
+| Node.js | **≥ 20.18** | Engines field across all packages. Node 18 is EOL since April 2025. |
+| pnpm    | **≥ 9**     | Workspace tooling. Install via `corepack enable && corepack prepare pnpm@9 --activate`. |
+| Git     | any        | Sign your commits — see [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md). |
 
-The Crypto Service Suite Suite encompasses four products, [Crypto API][18],
-[Crypto CLI][16], [Crypto Lib][6] and [Crypto Server][7] part of the Crypto
-Service Suite Applications.
+#### Platform notes
 
-[![Getting Started][getting started]](#getting-started)
-[![Download Crypto Service Suite v0.0.3][download]][9]
+- **macOS:**
+  ```bash
+  brew install node@20
+  corepack enable
+  ```
+- **Linux / WSL:** use [`mise`](https://mise.jdx.dev) (preferred) or [`nvm`](https://github.com/nvm-sh/nvm):
+  ```bash
+  mise use -g node@20.18
+  corepack enable
+  ```
+- **Windows (native PowerShell):** install Node.js 20.18 LTS via the MSI, then from an Admin shell:
+  ```powershell
+  corepack enable
+  ```
 
-Crypto Service Suite code is safe by design, and runs lightning-fast. It is 
-based on [OpenPGP.js][1] - a JavaScript implementation of the OpenPGP protocol.
-It implements [RFC4880][2] and parts of [RFC4880bis][3].
+### Clone, install, build, test
 
-Crypto Service Suite can help you ensure the following:
+```bash
+git clone git@github.com:sebastienrousseau/crypto-service.git
+cd crypto-service
+pnpm install --frozen-lockfile
+pnpm -r run build
+pnpm -r run test
+```
 
-- Authentication of communicating parties,
-- Integrity of data,
-- Message Level Encryption for encryption and non-repudiation.,
-- Privacy of data.
+Expected last lines:
 
-![divider][divider]
+```
+packages/crypto-api    test:  107 passing
+packages/crypto-lib    test:   24 passing
+packages/crypto-server test:   11 passing
+packages/crypto-cli    test:    8 passing
+```
 
-## 🚀 Crypto API
+### Hello World — encrypt + decrypt with `crypto-lib`
 
-![Banner representing Crypto API][crypto api]
+```ts
+import { generate, encrypt, decrypt } from "@sebastienrousseau/crypto-lib";
 
-The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and responses for common cryptographic operations. [Learn more][18][>][18]
+const key = await generate({
+  name: "Jane Doe",
+  email: "jane@doe.com",
+  passphrase: "correct horse battery staple",
+  type: "ecc",                           // or "rsa"
+  keyExpirationTime: 60 * 60 * 24 * 365, // 1 year (0 = never expires)
+});
 
-![divider][divider]
+const ciphertext = await encrypt({
+  message: "Hello Crypto Service Suite!",
+  encryptionKey: key.publicKey, // ASCII-armored
+});
 
-## ❯ Crypto CLI
+const result = await decrypt({
+  encryptedMessage: ciphertext,
+  decryptionKey: {
+    armored: key.privateKey,
+    passphrase: "correct horse battery staple",
+  },
+});
 
-![Banner representing Crypto CLI][crypto cli]
+console.log(result.data); // "Hello Crypto Service Suite!"
+```
 
-Crypto CLI is a simple, yet powerful, command line interface that can be used to
-perform common cryptographic operations from the command prompt or terminal.
-[Learn more][16][>][16]
+### Hello World — boot the REST server
 
-![divider][divider]
+```bash
+# 1. Mint a 32-character JWT secret. The server refuses to start with anything shorter.
+export JWT_SECRET="$(openssl rand -hex 32)"
 
-## ⚙️ Crypto Lib
+# 2. Start the server.
+pnpm --filter @sebastienrousseau/crypto-server start
+# → 🚀 Server listening on http://127.0.0.1:3000/
 
-![Banner representing Crypto Lib][crypto lib]
+# 3. From another terminal, mint a tester JWT and call /v1/generate.
+#    (Replace this with your real token-issuance flow in production.)
+TOKEN=$(node -e "console.log(require('jsonwebtoken').sign({sub:'tester'}, process.env.JWT_SECRET))")
 
-Crypto Lib is a powerful intuitive cryptographic JavaScript library that
-encapsulates common algorithms, functions and provides an interface for
-low-level cryptographic operations. [Learn more][6][>][6]
+curl -s -X POST http://127.0.0.1:3000/v1/generate \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@doe.com",
+    "passphrase": "correct horse battery staple",
+    "type": "ecc"
+  }' | jq '.data.publicKey'
+```
 
-![divider][divider]
+---
 
-## 🖥️ Crypto Server
+## Architecture (at a glance)
 
-![Banner representing Crypto Server][crypto server]
+```mermaid
+flowchart LR
+    User[👤 Operator]
+    CLI[crypto-cli<br/>prompts-driven REPL]
+    Server[crypto-server<br/>Fastify + JWT + helmet]
+    Lib[crypto-lib<br/>pure async functions]
+    OpenPGP[openpgp 5<br/>RFC 4880]
 
-Crypto Server is a [Fastify](https://www.fastify.io) web server that exposes
-easy consumable REST APIs to perform low-level cryptographic operations. It is
-implemented using Node.js and relies on Crypto Lib. [Learn more][7][>][7]
+    User -->|interactive prompts| CLI
+    User -->|HTTPS POST + Bearer JWT| Server
+    CLI -->|imports| Lib
+    Server -->|imports| Lib
+    Lib -->|wraps| OpenPGP
+```
 
-![divider][divider]
+Long form: [`docs/architecture.md`](docs/architecture.md) and the per-package
+READMEs.
 
-## Getting Started
+---
 
-👉 Note: » Crypto Service Suite is a [Node.js][12] module available through the
-[npm registry][13]. Before installing, [download and install Node.js][12].
-Node.js 12.20.0 or higher is required.
+## Repository Layout
 
-This allows you to always be on the latest version when we release new builds
-with automatic upgrades.
-
-Crypto Service Suite helps put you in control of your sensitive information.
-You’ll find below details on how to get started and how to configure Crypto
-Service Suite and its products.
-
-![divider][divider]
-
-## 🔧 Installation
-
-The first step to using Crypto Service Suite is to download and install the
-application and other required components.
-
-1️⃣ Install Crypto Service Suite via [`npm`][13], [`yarn`][14] or [`pnpm`][15]
-package managers to use Crypto Service Suite with Node.js or the Command Line
-Interface:
-
-- `npm i @sebastienrousseau/crypto-service`
-- `yarn add @sebastienrousseau/crypto-service`
-- `pnpm add @sebastienrousseau/crypto-service`
-
-For users who are unable to install the Crypto Service Suite, released builds
-can be manually downloaded from this repository's
-[Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
-
-You can also clone the main repository to get all source files including build
-scripts: `git clone https://github.com/sebastienrousseau/crypto-service.git`
-
-2️⃣ What's included?
-
-Within the download you'll find all the crypto lib source files grouped into
-the *dist* folder.
-
-You'll see something like this:
-
-```shell
+```
 .
-├── COPYRIGHT
-├── LICENSE
-├── Makefile
-├── README.md
-├── Report.txt
-├── index.js
-├── package.json
-└── src
-    ├── bin
-    │   └── crypto-service.js
-    ├── data
-    │   ├── decrypted.txt
-    │   └── encrypted.txt
-    ├── key
-    │   ├── ecc.priv.pgp
-    │   ├── ecc.pub.pgp
-    │   ├── rsa.priv.pgp
-    │   └── rsa.pub.pgp
-    ├── lib
-    │   ├── README.md
-    │   ├── decrypt.js
-    │   ├── encrypt.js
-    │   ├── generate.js
-    │   └── revoke-key.js
-    └── server.js
-
-5 directories, 20 files
-
+├── .github/                  ← CI workflows, issue templates, CONTRIBUTING, SECURITY
+├── .husky/                   ← husky 8 git hooks (pre-commit runs pnpm -r lint)
+├── docs/                     ← architecture notes
+├── packages/
+│   ├── crypto-lib/           ← pure crypto core
+│   │   ├── src/
+│   │   │   ├── lib/          ← generate / encrypt / decrypt / sign / verify / revoke / reformat / session
+│   │   │   ├── types/        ← public input/output types
+│   │   │   └── bin/          ← cryptolib re-export entrypoint
+│   │   └── __tests__/        ← mocha specs
+│   ├── crypto-server/        ← Fastify REST front
+│   │   ├── src/routes/v1/    ← one file per endpoint
+│   │   ├── src/config/       ← server constants + redact paths
+│   │   └── __tests__/        ← server.test.ts
+│   ├── crypto-cli/           ← interactive prompts CLI
+│   │   └── src/commands/     ← one file per crypto-lib operation
+│   └── crypto-api/           ← (private) Postman → Markdown doc generator
+├── tsconfig.base.json        ← TS strict + exactOptionalPropertyTypes (project-wide)
+├── lerna.json                ← independent versioning, pnpm client
+└── pnpm-workspace.yaml
 ```
 
-3️⃣ Set up your app
+---
 
-You can get started with a simple app by running the following in your terminal:
+## Development Workflow
 
-```shell
+| Task                          | Command |
+|-------------------------------|---------|
+| Install / refresh deps        | `pnpm install --frozen-lockfile` |
+| Build all packages            | `pnpm -r run build` |
+| Lint all packages             | `pnpm -r run lint`  (also runs as a pre-commit hook) |
+| Lint with autofix             | `pnpm -r run lint:fix` |
+| Test all packages             | `pnpm -r run test` |
+| Test a single package         | `pnpm --filter @sebastienrousseau/crypto-lib run test` |
+| Generate API docs (typedoc)   | `pnpm -r run docs` |
+| Clean all build artefacts     | `pnpm -r run clean` |
+| Start the REST server         | `JWT_SECRET=<32+ chars> pnpm --filter @sebastienrousseau/crypto-server start` |
+| Launch the interactive CLI    | `pnpm --filter @sebastienrousseau/crypto-cli start` |
 
-> mkdir my-app
-> cd my-app
-> yarn add @sebastienrousseau/crypto-service -D
-> yarn start
+The Makefile at the repo root mirrors the most common targets (`make build`,
+`make test`, `make lint`) for `make`-friendly editors.
 
-```
-4️⃣ Try it out and let us know what you think!
+---
 
-![divider][divider]
+## Environment Variables
 
-## 🔗 Releases
+All variables are read by `crypto-server` only.
 
-Update your apps to use new features, and test your apps against API changes.
+| Name             | Default      | Required | Notes |
+|------------------|--------------|----------|---|
+| `JWT_SECRET`     | _(none)_     | **yes**  | Must be ≥ 32 chars. Server refuses to start otherwise. |
+| `HOST`           | `127.0.0.1`  | no       | Bind address. |
+| `PORT`           | `3000`       | no       | Listen port. |
+| `PROTOCOL`       | `http`       | no       | Cosmetic — used for the welcome banner only. Terminate TLS at your reverse proxy. |
+| `CORS_ORIGINS`   | _(deny all)_ | no       | Comma-separated allow-list. Default behaviour is **deny all** — set explicitly for browser clients. |
+| `TRUST_PROXY`    | _(off)_      | no       | Comma-separated CIDR list. Without this, the rate-limiter trusts the socket address verbatim — exactly what you want unless you're behind a known proxy. |
+| `LOG_LEVEL`      | `info`       | no       | Pino level. |
 
-|Date|Download|Release Note|
-| :-: | :-: | :-: |
-|May 17, 2022|⬇️ [0.0.1][8]|📝 [Crypto Service Suite 0.0.1 Release Note][10]|
-|May 30, 2022|⬇️ [0.0.3][9]|📝 [Crypto Service Suite 0.0.3 Release Note][11]|
+---
 
-![divider][divider]
+## Troubleshooting
 
-## 🚥 Semantic Versioning Policy
+| Symptom | Fix |
+|---|---|
+| `Error: JWT_SECRET environment variable is required` on startup | Export a 32+ char secret: `export JWT_SECRET="$(openssl rand -hex 32)"`. |
+| `pnpm install` reports lockfile mismatch | Make sure you're on Node ≥ 20.18 and pnpm 9. Run `corepack prepare pnpm@9 --activate`. |
+| `Error: No test files found` from `crypto-server` | You're on a stale checkout from before #107. Pull `main`. |
+| RSA-4096 keygen test times out on slow machines | Pure CPU work — bump the per-test timeout in `packages/crypto-lib/__tests__/lib/generate.test.ts` (currently 180s). |
+| `git push` fails with `remote: Permission denied` | Origin defaults to HTTPS; switch the push URL to SSH: `git remote set-url --push origin git@github.com:<owner>/crypto-service.git`. |
+| Pre-commit hook is silent on a fresh clone | Run `pnpm install` once after cloning — that fires the `prepare` script which wires `.husky/`. |
+| `Cannot find any files matching pattern "./test/**/*"` | Cosmetic warning from the inherited mocha config. Tests live under `__tests__/`; the warning is harmless. |
 
-For transparency into our release cycle and in striving to maintain backward
-compatibility, `crypto-service` follows [semantic versioning](http://semver.org/)
-and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+---
 
-![divider][divider]
+## Releases
 
-## ✅ Changelog
+Releases are cut from `main` via Lerna's independent versioning. Tagged
+releases are at
+[github.com/sebastienrousseau/crypto-service/releases](https://github.com/sebastienrousseau/crypto-service/releases).
 
-- [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
+Crypto Service Suite follows [semantic versioning](https://semver.org/). The
+public API is `crypto-lib`'s eight pure functions and the `crypto-server` v1
+HTTP surface.
 
-![divider][divider]
+---
 
-## 📖 Code of Conduct
+## Contributing
+
+- Read [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).
+- **Sign your commits.** SSH or GPG signing is required. One-time setup:
+  ```bash
+  git config commit.gpgsign true
+  git config gpg.format ssh                # or 'openpgp'
+  git config user.signingkey ~/.ssh/<your_key>.pub
+  ```
+- Use [conventional commits](.github/conventional_commit_messages.md)
+  (`feat:`, `fix:`, `docs:`, …).
+- Open a PR against `main` and make sure CI is green before requesting
+  review.
+
+---
+
+## Security
+
+Please report vulnerabilities privately via
+[`.github/SECURITY.md`](.github/SECURITY.md). The CI hygiene job blocks any
+commit that adds `.key`, `.asc`, `.pem`, `.p12`, or `.pfx` files to the tree.
+
+---
+
+## Code of Conduct
 
 We are committed to preserving and fostering a diverse, welcoming community.
-Please read our [Code of Conduct](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CODE-OF-CONDUCT.md).
+Please read our
+[Code of Conduct](.github/CODE-OF-CONDUCT.md).
 
-![divider][divider]
+---
 
-## ⭐️ Our Values
+## License
 
-- We believe perfection must consider everything.
-- We take our passion beyond code into our daily practices.
-- We are just obsessed about creating and delivering exceptional solutions.
-
-![divider][divider]
-
-## ❤️ Contributing
-
-Thank you for using Crypto Service Suite! If you like the library, it would be 
-great if you can give it a star ⭐ on [GitHub][17].
-
-There are also many ways in which you can participate in this project, for
-example:
-
-* [Submit bugs and feature requests](https://github.com/sebastienrousseau/crypto-service/issues/new), and help us verify as they are checked in,
-* Review [source code changes](https://github.com/sebastienrousseau/crypto-service/pulls), and help us improve our code quality,
-* Review the [documentation](https://github.com/sebastienrousseau/crypto-service/docs) and make pull requests for anything from typos to additional and new content.
-
-Please read carefully through our
-[Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)
-for further details on the process for submitting pull requests to us.
-
-![divider][divider]
-
-## 🥂 License
-
-Copyright (c) Sebastien Rousseau. All rights reserved.
-
-Licensed under the [MIT](LICENSE) license.
-
-![divider][divider]
-
-## 💖 Acknowledgements
-
-[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
-these people and a bunch of awesome
-[contributors](https://github.com/sebastienrousseau/crypto-service/graphs/contributors).
-
-| Contributors |
-|---------|
-|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=250)](https://sebastienrousseau.co.uk)|
-|[Sebastien Rousseau](https://github.com/sebastienrousseau)|
-
-[1]: https://openpgpjs.org/
-[2]: https://tools.ietf.org/html/rfc4880
-[3]: https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
-[4]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
-[5]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
-[6]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
-[7]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
-[8]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.1.zip
-[9]: https://github.com/sebastienrousseau/crypto-service/archive/refs/tags/sebastienrousseau-crypto-service-0.0.3.zip
-[10]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1
-[11]: https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.3
-[12]: https://nodejs.org/en/
-[13]: https://www.npmjs.com/
-[14]: https://yarnpkg.com/getting-started
-[15]: https://pnpm.io/motivation
-[16]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli
-[17]: https://github.com/sebastienrousseau/crypto-service
-[18]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api
-
-[contributors-shield]: https://img.shields.io/github/contributors/sebastienrousseau/crypto-service.svg?style=for-the-badge
-[contributors-url]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
-[crypto api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-api-small.svg "crypto api"
-[crypto cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-small.svg "crypto cli"
-[crypto lib]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-lib-small.svg "crypto lib"
-[crypto server]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-small.svg "crypto server"
-[crypto service suite]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-service-logo.svg "crypto service suite"
-[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg "divider"
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
-[forks-shield]: https://img.shields.io/github/forks/sebastienrousseau/crypto-service.svg?style=for-the-badge
-[forks-url]: https://github.com/sebastienrousseau/crypto-service/network/members
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
-[issues-shield]: https://img.shields.io/github/issues/sebastienrousseau/crypto-service.svg?style=for-the-badge
-[issues-url]: https://github.com/sebastienrousseau/crypto-service/issues
-[stars-shield]: https://img.shields.io/github/stars/sebastienrousseau/crypto-service.svg?style=for-the-badge
-[stars-url]: https://github.com/sebastienrousseau/crypto-service/stargazers
+MIT — see [LICENSE](LICENSE). Copyright © Sebastien Rousseau.

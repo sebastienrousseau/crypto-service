@@ -1,266 +1,151 @@
-# 🚀 Crypto API
+# 📝 @sebastienrousseau/crypto-api
 
-![Banner representing the Crypto Application Programming Interface (API)](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-api-logo.svg)
+> ⚠️ **This package contains no cryptographic code.** Despite its name (kept
+> for historical / import-path stability), `crypto-api` is the suite's
+> internal Postman → Markdown documentation generator. It is marked
+> `"private": true` and is **not published** to any registry.
+>
+> If you came here looking for HTTP cryptographic operations, you want
+> [`@sebastienrousseau/crypto-server`](../crypto-server). If you came
+> here looking for the pure crypto core, you want
+> [`@sebastienrousseau/crypto-lib`](../crypto-lib).
 
-[![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-api)
-[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main\&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
-[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge\&logo=)](https://opensource.org/licenses/MIT)
-![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+---
 
-**[Website](https://crypto-api.io) • [Documentation](https://crypto-api.io/docs/)
-• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+## What it does
 
-***
+`crypto-api` reads a [Postman](https://www.postman.com/) collection v2.x
+JSON export and emits a Markdown reference document. It's used inside the
+suite to keep the human-readable HTTP API documentation in sync with the
+machine-readable Postman collection.
 
-## 👋 Welcome to Crypto API
+It's a single ~200-line module with no runtime dependencies beyond
+`minimist` and the Node.js standard library.
 
-The Crypto Service Suite APIs are typical REST APIs that use HTTPS requests and 
-responses for common cryptographic operations.
+---
 
-[![Getting Started][getting started]](#getting-started)
-[![Download Crypto API][download]][8]
+## Installation
 
-![divider][divider]
+This package is `private: true` and never published. Use it from inside the
+workspace:
 
-## ✨ Key Features
-
-The Crypto API provides a range of key artefacts and tools to assist you with
-cryptographic operations.
-
-The distribution includes the following:
-
-1.  A **Postman collection file** that provides a set of predefined API requests
-    to help you interact with [Crypto Server][13].
-
-1.  A **Postman environment configuration file** that provides key parameters to
-    configure your API requests.
-
-1.  A **Markdown documentation file** that contains the API documentation.
-
-![divider][divider]
-
-## Getting Started
-
-👉 Before you begin: » Make sure you have downloaded [Postman][14] and installed
-it on your computer. Alternatively, you can sign up to use the [web version][15]
-of Postman.
-
-Postman is an API development environment that makes sending API requests very
-easy.
-
-![divider][divider]
-
-## 🔧 Installation
-
-The first step to using Crypto API is to download and install the
-application and other required components.
-
-1️⃣ Install the Crypto API via [`npm`][5], [`yarn`][6] or [`pnpm`][7] package
-managers:
-
-- `npm i @sebastienrousseau/crypto-api`
-- `yarn add @sebastienrousseau/crypto-api`
-- `pnpm add @sebastienrousseau/crypto-api`
-
-For users who are unable to install the Crypto API, released builds can be
-manually downloaded from this repository's
-[Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
-
-### What's included
-
-Within the download you'll find all the crypto api files grouped into the *dist*
-folder.
-
-You'll see something like this:
-
-```shell
-.
-├── @types
-│   ├── types.d.ts
-│   ├── types.d.ts.map
-│   ├── types.js
-│   └── types.js.map
-├── COPYRIGHT
-├── Makefile
-├── Report.txt
-├── collections
-│   └── postman_collection.json
-├── environments
-│   └── postman_environment.json
-├── index.d.ts
-├── index.d.ts.map
-├── index.js
-├── index.js.map
-├── package.json
-└── utils
-    ├── index.d.ts
-    ├── index.d.ts.map
-    ├── index.js
-    └── index.js.map
-
-4 directories, 18 files
-
+```bash
+# from the repo root
+pnpm install --frozen-lockfile
+pnpm --filter @sebastienrousseau/crypto-api run build
 ```
 
-### Use the Crypto API Postman Collection
+Requires **Node.js ≥ 20.18**.
 
-1️⃣ Import the "Crypto API" Postman collection into Postman.
+---
 
--   Open the Postman application, and select **Import**. On the File tab, select
-Upload Files.
+## Usage
 
-![Postman][postman]
-
--   Browse your computer and select the `postman_collection.json` file in the 
-`collections` folder, then select **Open**.
-
--   Select Import.
-
--   In the left navigation, select Collections, and expand 
-`🔐 The Crypto Service Suite APIs`. All the API requests in the collection 
-should be displayed.
-
-![Postman Collections][collections]
-
-2️⃣ Set up variables in Postman
-
--   Click the gear icon in the upper right corner of the Postman app and select 
-Manage Environments.
-
--   Click the Import button to import the `postman_environment.json` file in the 
-`environments` folder, then select **Open**.
-
-![Postman Environments][environments]
-
--   Click the drop-down in the upper right corner of the Postman app to select
-the imported environment. Once you select an environment, you can access
-variables within the active environmental scope.
-
-3️⃣ Run your first application request
-
-```shell
-
-> mkdir my-app
-> cd my-app
-> yarn add @sebastienrousseau/crypto-api -D
-> yarn start
-
+```bash
+node packages/crypto-api/dist/index.js <path-to-collection.json> <output-name>
 ```
 
-4️⃣ Try it out and let us know what you think!
+Or from inside the package:
 
-If you want to contribute your own requests, you need a Postman license. 
-You can make your changes to the forked collection, and then hover over the 
-collection top node and select Create pull request.
+```bash
+cd packages/crypto-api
+node dist/index.js ./src/collections/postman_collection.json crypto-server-api
+# → ./src/docs/crypto-server-api.md
+```
 
-![divider][divider]
+The generated Markdown lands in `packages/crypto-api/src/docs/<output-name>.md`.
 
-## 📚 Access the documentation
+### Programmatic use
 
-The `Crypto API` Postman collection comes with its own documentation. Once you
-have imported the collection into Postman, you can access the document from
-Postman itself.
+```ts
+import { createMarkdown } from "@sebastienrousseau/crypto-api/dist/utils";
+import * as fs from "fs/promises";
 
--  Open Postman and select the Collections tab.
+const collection = JSON.parse(
+  await fs.readFile("./postman_collection.json", "utf8"),
+);
+const markdown = createMarkdown(collection);
+await fs.writeFile("./api.md", markdown, "utf8");
+```
 
--  Click the three dots displayed next to "🔐 The Crypto Service Suite APIs",
-and select View documentation
+The public exports are:
 
-![divider][divider]
+| Export | Role |
+|---|---|
+| `createMarkdown(doc)`              | Top-level — turns a Postman v2.x JSON document into a Markdown string. |
+| `readAuthorization(authInfo)`      | Section helper for `## 🔑 Authentication` blocks. |
+| `readRequest(req)`                 | Section helper for `### Request Headers` tables. |
+| `readQueryParams(url)`             | Section helper for `### Query Params` tables. |
+| `readFormDataBody(body)`           | Section helper for `### Body (raw|formdata)` blocks. |
+| `readResponse(responses[])`        | Section helper for `### Response` tables + example body. |
+| `readMethods(method)`              | Renders a single Postman item (one HTTP request). |
+| `readItems(items[], folderDepth?)` | Recursively renders folders + leaf items. |
+| `response(content, fileName)`      | Writes the rendered Markdown to `src/docs/<fileName>.md`. |
 
-## 🚥 Semantic Versioning Policy
+Defensive guarantees the test suite locks in:
 
-For transparency into our release cycle and in striving to maintain backward
-compatibility, `crypto-api` follows [semantic versioning](http://semver.org/)
-and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+- `createMarkdown(null)` returns `""` instead of throwing.
+- `createMarkdown({ info: null, item: undefined })` returns a small
+  fallback string instead of throwing.
+- `readResponse([])` returns `""`.
+- `readResponse(...)` does **not** print to stdout (the previous
+  implementation logged a side-effect line, which has been removed).
 
-![divider][divider]
+---
 
-## ✅ Changelog
+## Why is it called `crypto-api`?
 
-- [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
+For historical reasons. Earlier drafts of the Crypto Service Suite used
+`@sebastienrousseau/crypto-api` as the placeholder for what became
+`crypto-server`, and the documentation tool was originally bundled inside
+it. When the REST work was extracted into `crypto-server`, the doc
+generator stayed behind under the `crypto-api` package name to avoid
+breaking import paths in older tooling.
 
-![divider][divider]
+The package is `private: true` so the misleading name can never be
+published to npm. A future rename to something like
+`@sebastienrousseau/postman-doc-gen` is the cleaner long-term fix —
+tracked separately.
 
-## ❤️ Contributing
+---
 
-Thank you for using Crypto API! If you like the library, it would be great if
-you can give it a star ⭐ on [GitHub][2].
+## Local development
 
-There are also many ways in which you can participate in this project, for
-example:
+```bash
+pnpm --filter @sebastienrousseau/crypto-api run build
+pnpm --filter @sebastienrousseau/crypto-api run test
+pnpm --filter @sebastienrousseau/crypto-api run lint
+```
 
--   [Submit bugs and feature requests][9], and help us verify as they are
-    checked in,
+The test suite has **107 specs** across four files:
 
--   Review [source code changes][10], and help us improve our code quality,
+```
+packages/crypto-api/__tests__/
+├── api.test.ts      ← end-to-end exercises createMarkdown + helpers
+├── index.test.ts    ← init() argument parsing, error paths
+├── types.test.ts    ← shape assertions for the public types
+└── utils.test.ts    ← per-helper edge cases (null, malformed, empty)
+```
 
--   Review the [documentation][11] and make pull requests for anything from
-    typos to additional and new content.
+Source layout:
 
-![divider][divider]
+```
+packages/crypto-api/
+├── src/
+│   ├── @types/types.ts   ← public type definitions
+│   ├── utils/index.ts    ← all the rendering helpers
+│   ├── index.ts          ← bin entrypoint with init()
+│   ├── collections/      ← input Postman collections
+│   ├── environments/     ← input Postman environments
+│   └── docs/             ← output Markdown files (gitignored except README)
+└── __tests__/
+```
 
-## 🥂 License
+The `src/docs/*.md` files are gitignored (except `README.md`) — the test
+suite writes throwaway fixtures there, and you should not commit them.
 
-Copyright (c) Sebastien Rousseau. All rights reserved.
+---
 
-Licensed under the [MIT](LICENSE) license.
+## License
 
-![divider][divider]
-
-## 🏢 Acknowledgements
-
-[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
-these people and a bunch of awesome [contributors][12].
-
-| Contributors |
-|---------|
-|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=250)](https://sebastienrousseau.co.uk)|
-|[Sebastien Rousseau](https://github.com/sebastienrousseau)|
-
-[1]: https://github.com
-
-[2]: https://github.com/sebastienrousseau/crypto-service
-
-[3]: https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
-
-[4]: https://www.postman.com/downloads/
-
-[5]: https://www.npmjs.com/
-
-[6]: https://yarnpkg.com/getting-started
-
-[7]: https://pnpm.io/motivation
-
-[8]: https://github.com/sebastienrousseau/crypto-service/packages/
-
-[9]: https://github.com/sebastienrousseau/crypto-service/issues/new
-
-[10]: https://github.com/sebastienrousseau/crypto-service/pulls
-
-[11]: https://github.com/sebastienrousseau/crypto-service/docs
-
-[12]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
-
-[13]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server
-
-[14]: https://www.postman.com/downloads/
-
-[15]: https://www.postman.com/
-
-
-[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
-
-[crypto-api]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-api.svg "Crypto API"
-
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg "Getting Started"
-
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg "Download"
-
-[postman]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/postman.svg "Postman"
-
-[collections]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/collections.svg "Collections"
-
-[Environments]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/environments.svg "Environments"
+MIT — see [LICENSE](LICENSE). Copyright © Sebastien Rousseau.

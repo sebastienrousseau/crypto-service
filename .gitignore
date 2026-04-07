@@ -129,4 +129,8 @@ ehthumbs.db
 lib-cov
 Gemfile.lock
 tsconfig.tsbuildinfo
-pnpm-lock.yaml
+
+# pnpm-lock.yaml is intentionally tracked.
+# CI uses `pnpm install --frozen-lockfile`, which fails the build if the
+# lockfile is missing or out of sync. The repo will not get reproducible
+# installs without it.

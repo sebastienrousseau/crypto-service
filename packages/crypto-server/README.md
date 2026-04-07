@@ -1,180 +1,351 @@
-# 🖥️ Crypto Server
+# 🖥️ @sebastienrousseau/crypto-server
 
-![Banner representing Crypto Server](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-server-logo.svg)
+A [Fastify](https://www.fastify.io) REST front for the
+[Crypto Service Suite](https://github.com/sebastienrousseau/crypto-service).
+Eight authenticated `POST /v1/*` endpoints over JWT, schema-validated, with
+helmet, CORS default-deny, rate limiting, pino redaction, and zero secret
+material in logs.
 
-[![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-server)
-[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
-[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
-![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+[![NPM Version](https://img.shields.io/npm/v/@sebastienrousseau/crypto-server.svg?style=flat-square)](https://www.npmjs.com/package/@sebastienrousseau/crypto-server)
+[![Coverage](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/main.svg?style=flat-square)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-**[Website](https://crypto-server.io) • [Documentation](https://crypto-server.io/docs/) 
-• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
-• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+> Part of the [Crypto Service Suite](https://github.com/sebastienrousseau/crypto-service).
+> See the root [README](../../README.md) and
+> [`docs/architecture.md`](../../docs/architecture.md) for the bigger picture.
 
-***
+---
 
-## 👋 Welcome to Crypto Server
+## Quick Start
 
-Crypto Server is a [Fastify][3] web server that exposes easy consumable REST
-APIs to perform low-level cryptographic operations. It is implemented using
-Node.js and relies on [Crypto Lib][2].
+```bash
+# 1. Mint a 32-character JWT secret. The server refuses to start without one.
+export JWT_SECRET="$(openssl rand -hex 32)"
 
-It supports the following cryptographic operations:
+# 2. Start the server (from the repo root, in workspace mode):
+pnpm --filter @sebastienrousseau/crypto-server start
+# → 🚀 Server listening on http://127.0.0.1:3000/
 
-- Digital Signing,
-- Encryption and Decryption,
-- Key Generation,
-- Key Management,
-- Pseudorandom Number Generation,
-- Signature Verification.
+# 3. From another terminal, mint a tester JWT:
+export TOKEN=$(node -e "console.log(require('jsonwebtoken').sign({sub:'tester'}, process.env.JWT_SECRET))")
 
-Development of this server is hosted by [GitHub][6] at the [following page][7].
-Source code is available to everyone under the standard [MIT license][8].
-
-## Getting Started
-
-Crypto Server is a [Node.js][4] module available through the [npm registry][5].
-Before installing, [download and install Node.js][4]. Node.js 12.20.0 or higher 
-is required.
-
-Installation is done using either [`npm`][5],
-[`yarn`][9] or [`pnpm`][10] package managers to use Crypto Server with Node.js
-or the Command Line Interface:
-
-- `npm i @sebastienrousseau/crypto-server`
-- `yarn add @sebastienrousseau/crypto-server`
-- `pnpm add @sebastienrousseau/crypto-server`
-
-## Quick start
-
-### Starting the Crypto Server
-
-- Open Terminal for Mac or Command Prompt for Windows,
-- Enter one of the following commands to start the Crypto Server:   
-
-#### NPM
-
-- `npm run start:server`
-
-#### Yarn
-
-- `yarn start:server`
-
-#### PNPM
-
-- `pnpm start:server`
-
-This will start the Crypto Server on your local machine with the following
-environment details:
-
-- Protocol: http,
-- Hostname: localhost,
-- Port: 3000,
-- IP: 127.0.0.1.
-
-The Crypto Server should be listening on
-[http://localhost:3000/](http://localhost:3000/)
-
-## What are the Crypto Service Suite APIs?
-
-The Crypto Service Suite APIs give you access to a range of security and encryption
-solutions to perform low-level cryptographic operations, key storage operations,
-protect static data, and securely share secrets.
-
-On arrival of a new API request, the Crypto Server performs the request
-operation in the host environment, subsequently the response is transferred back
-to the requesting application. All operations that are performed andd coming
-through the Crypto Server are monitored so statistics can be made and acted upon
-
-The APIs created with Crypto Server should be used with HTTPS endpoints only in
-a production web server.
-
-For greater security, you should choose a minimum Transport Layer Security (TLS)
-protocol version to be enforced for your API Gateway custom domain. Crypto
-Server recommends either a TLS version 1.3 or TLS version 1.3 security policy.
-
-### Commands & Options
-
-#### `/generate`
-
-This endpoint allows you to create a new Key Pair.
-
-|Content-Type|Value|Description|
-|---|---|---|
-|type|rsa|The primary key algorithm type: ECC (default) or RSA. |
-|bits|2048|Number of bits for RSA keys (defaults to 4096 bits). |
-|name|Jane Doe|First name and Last name |
-|email|jane@doe.com|Email address |
-|passphrase|123456789abcdef|The passphrase used to encrypt the private key. |
-|curve|null|Elliptic curve for ECC keys. See Appendix for more detail... |
-|expiration|0|Number of seconds from the key creation time. |
-|format|armored|Format of the output keys e.g. 'armored' | 'object' | 'binary'.|
-
-```shell
-curl --location --request GET 'http://localhost:3000/v1/generate' \
---header 'type: rsa' \
---header 'bits: 2048' \
---header 'name: Jane Doe' \
---header 'email: jane@doe.com' \
---header 'passphrase: 123456789abcdef' \
---header 'curve: null' \
---header 'expiration: 0' \
---header 'format: armored'
+# 4. Smoke-test the welcome route:
+curl -s http://127.0.0.1:3000/ | jq .version    # → "0.0.3"
+curl -s http://127.0.0.1:3000/health            # → 200 OK
 ```
 
-#### `/encrypt`
+Requires **Node.js ≥ 20.18**.
 
-This endpoint allows you to encrypt data in a single operation.
+---
 
-|Content-Type|Value|Description|
-|---|---|---|
-|passphrase|123456789abcdef|Passphrase to encrypt the message.|
-|message|Hello Crypto Service Suite!|Message to be encrypted.|
-|publicKey|{{publicKey}}|A public key.|
-|privateKey|{{privateKey}}|A private key.|
+## Endpoints
 
-```shell
-curl --location --request GET 'http://localhost:3000/v1/encrypt' \
---header 'passphrase: 123456789abcdef' \
---header 'message: Hello Crypto Service Suite!' \
---header 'publicKey: LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4c0JOQkdLSHhCUUJDQURmS0VyYUVnT1VYZHFKVGVTdnUzb2NPWGg2VytxWllDbndOUFVvRjZpcnREbGUKNzVVYTByYkFUZEsxbXF4S1g0L0hraGhzQllQRXdNRHE0RnVzbkxOK0ZnNVdmdGpSR0M5NmJENnRmbVIzClJZY0p5WTEwTFlDRS9GS21iLzFJRGIrT2RtRk8weEpPSWxaTERSeVJSN0xwUlRDNE1mMkRiaFNheExqcwpZdFVhaFZPcCtNeHBkNmFWektYYUpkVVVmVWRYbVliRnpaM0YzK1RMa01zMFdaY05vRDJ3bWNpSGJVUXIKT1JnRkhoQ0I2dUNLNEs3d2R4OStjTllkTkQyb2t6WjJTdmRVenQ3QUZrajFra05XeVM3VWprWmVEdm9UCmp5dFNpZXFMQWJ3L2NUaXRrTjJ1MlZJU1UxMHEwbFhMSERaWWFXTll1OHRMaHFYM0F4c3FNQ1V0QUJFQgpBQUhORjBwaGJtVWdSRzlsSUR4cVlXNWxRR1J2WlM1amIyMCt3c0NLQkJBQkNBQWRCUUppaDhRVUJBc0oKQndnREZRZ0tCQllBQWdFQ0dRRUNHd01DSGdFQUlRa1E5L09ucUlLaTh2RVdJUVExYXRBVHl5WTZZcDFoCjN6ZjM4NmVvZ3FMeThZeUFDQUNudlF1aFMxeHV2YnhUQVdZcWkrcjNFUkpOSzVINUFkOWpFNERUWUZPTQowcDRuMmJwSlQwa2t1bkMzckp0Z2tQbnRNVFJ6eEJvS0QrcmRIdS9FZno1MjNPMENJbjlCOG8vWWpvencKQVFBMldHLzhIdlRYOU0yZVUzOVM3SkptS1I4aks5TDVtYlduV1I2eEZadExSc0pIT2FzSm50S1BsUkFSCnpXNmwweTNjRzRueFJieHM2QS9tczFjM05seDdodjErN24yaTN6d3l2aE52Rys5Y0F0TlM3L3NkLzExbgpYQUJ0QWt2WjU3SnUwWXBKQ3JuMHhvblJuN0kyQ1lTd1BNVTZKMTFIL2l5eXdTNFB5aHlrV2lHMmhNNC8KM3ZMVDdpQVoxZlhkczk0SDFQTW9zNEZMbU50YkphSC83OXRyRFNpem1zY0ExbG9IUlFSOHVvNElKNkx6CnpzQk5CR0tIeEJRQkNBRHNNblVIWkVydTl5V2ljYjRxajJxWGhuanFSOVZHZVdvaEd1UFNRc2dpLzNRRQp4K3FJSjJFeU1LelQ1aXRYT01tQU1pbk5GRGd3ek1FQ081Nk53TWdWUXJnSm5LdnNGR0gxdVFUb0MzaHcKR1pjUDArUTB0aThPWmFLOUZFbngra1FYNXJjYWRGWTBSOW9KTEFNS1JzOU45YmJ2eU40VzRCMW5weklmClF6NWloMUNIQnRqektpVTdaVzBKM1ZLa285NHp4bGZiZVRKS2ZxWnl4eGtuMVVPZWliWWp4dGYrZXZKaQpPOUZMUGpOcGkwem8zZ3kvQ1Y5UGtDUjA3c295aTVJeVVNNE9CRzBoRFNjV2Z4a0xEc0M0b0tzTjJhaGYKeHovSWc0em9FNUk2L0t5c2U1QW1GaWZSaHhaUnRhY3JyOTBqazc4a2Q1S0p6WXhETXhTK0ZzUUJBQkVCCkFBSEN3SFlFR0FFSUFBa0ZBbUtIeEJRQ0d3d0FJUWtROS9PbnFJS2k4dkVXSVFRMWF0QVR5eVk2WXAxaAozemYzODZlb2dxTHk4WDBTQ0FDY0FFTWQ2c2JvVHVOZlVPb2RaQjdvM25NV2RDMEVja1kzSnhLbFE3b0kKV0hpUTNTdU9ibXduWGhSTHJ4TTZ4ZmtUQ3pYK2FUQ2NCemhlZmFMWVU4R1BsSU00SFRhank0MHVNb2Y2CkV3SnpFenpucjhZRVVmdU1Pd094anFrZHpjK2llbk9lT2V6b2dQeTFieGtZTmpHeHpaTFFUekptMkhXWAowOFlNWWtqMXJNTmg0VGZQMnZaYUFHem5LMHBrb0lHdVBHQTdPTTVpRHFIa3pyeWppWG1pV1VVM1lTcHYKMTV5VkEyQXBxN2o1ZFJWd2d4eFpLS2xhOW5iaXhYUEdhTVFSV0w3RUcxM0pMbTFidVlxUXVsVExyMTNkClByKzR2NStlQ3NEZkRpcU9veFYyU000R0ZxanBaRUFBNEZlZFlTMmx1ZXV3WUdvVnRtT1BOdjViME9iUAo9YTZHRQotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCg==' \
---header 'privateKey: LS0tLS1CRUdJTiBQR1AgUFJJVkFURSBLRVkgQkxPQ0stLS0tLQoKeGNNR0JHS0h4QlFCQ0FEZktFcmFFZ09VWGRxSlRlU3Z1M29jT1hoNlcrcVpZQ253TlBVb0Y2aXJ0RGxlCjc1VWEwcmJBVGRLMW1xeEtYNC9Ia2hoc0JZUEV3TURxNEZ1c25MTitGZzVXZnRqUkdDOTZiRDZ0Zm1SMwpSWWNKeVkxMExZQ0UvRkttYi8xSURiK09kbUZPMHhKT0lsWkxEUnlSUjdMcFJUQzRNZjJEYmhTYXhManMKWXRVYWhWT3ArTXhwZDZhVnpLWGFKZFVVZlVkWG1ZYkZ6WjNGMytUTGtNczBXWmNOb0Qyd21jaUhiVVFyCk9SZ0ZIaENCNnVDSzRLN3dkeDkrY05ZZE5EMm9reloyU3ZkVXp0N0FGa2oxa2tOV3lTN1Vqa1plRHZvVApqeXRTaWVxTEFidy9jVGl0a04ydTJWSVNVMTBxMGxYTEhEWllhV05ZdTh0TGhxWDNBeHNxTUNVdEFCRUIKQUFIK0NRTUlhRCtXMXJEYitZN2cweXB1M2h0UElQSXZUYm15dkNMOUZKVitLZzdrRFZHVG5QR1Q0NGhMCm9GRXZrNEZIeHdjSHp4SytjLzUvQnltM2JqWlMzMStDNTBqbTQvUDYrVGVPWGRXakVBT1JSQUJxb05pRgpVcUcrSWpiZnlvbkFzSEx5aVcrQ1BDczJyVnlJQTRCdGhHWHBtRmtYQnpIYk5QSTE3cThvS2ZBQnViY3oKeVYrbkxzd1g4TC9md1lRcHRmTjZ2ZGVhNjVUMzdOTGYzWGdkU29SVUx5ZnpsK1VSVEE5dW1kNDRHWUQrCk9pZk1hb2tKZ3E4RENMWHk3R2VYeDh1V1Fod1l3N2hYV3JhWXUyU21VdjdDaWxDeG9QRkNORnh6aFdiQgoraHlpbWVZam9KbS9VeEJtbEZZSHY0c3Mrb21NazhQQ2M3L1Z3WEZ5U0xpL2M5Q3ROakVCamJIaGZ6VlEKSVFtSVd2aUhibkwzSVNmdkFvR2tPMHBQMHhmczh3dGx6RVhqRm9aRXlUeW1vOGhROXV4V1BxNVFjSkxrCkZrcmhZcUZqYndIMjc3Szd2K2dESHp2SDlHSnljYlhMZHpyVzNmMERPM1NUNHlrcHFQaWdTeHRiMkE1Tgo1STlIbTZmOFl1KzVUNWlVajFiUVdJOEErR0VkZXI5VTl0RjdpN2QycHB2S2VvL0ZxUU10eUh2Wm0zaG4KNmNQNFpyd09Kdmk5b0lsaVhXdHZySWM0QU5SV0FSSks5WkswTlZsdlZxOGEzR1l6SUY3ODNzeTM5dTZ2ClJCeHI4dll3WC9KSjNPR2tnVWlhVW12czBTNmhxU0d5RkRubi9kbUZ6elBlTzZ5eGl2WkhkeWs5T0pGSAo4N0hMdmF6WFdhWExkbWlPOU1WWFpRYWM3NlI1RTZodTk0U0ZRWjZ3YWRsTGxWeW43V0MzT1BYeHFzOXYKS2hyRzk2TkJqYTl3bnBqSFVLb1NDbG9PQW16UEVKWW54a2xGQXhucWJNQ1lCUGV4bFpqKzNzbVY4RWVmCnpmSHJrOTdFZmNEWHZtQTAwK0RtaXYzbi9hampQUjIyTTh5QVkyRFFlbHM4YThZbU1ZMm5JTldyVUIySgoxa1VJcW5rVVc0SmtwY29OZUlQbUJKVTZRSC9pYm9zVTdicW56OG1EZm9QenAyWjYwZ0ZNUEpjM0hISTUKb2JtSW9TUFJUWG85THBkWjdZRmUzUnZ0cDFKVHgzM3F6UmRLWVc1bElFUnZaU0E4YW1GdVpVQmtiMlV1ClkyOXRQc0xBaWdRUUFRZ0FIUVVDWW9mRUZBUUxDUWNJQXhVSUNnUVdBQUlCQWhrQkFoc0RBaDRCQUNFSgpFUGZ6cDZpQ292THhGaUVFTldyUUU4c21PbUtkWWQ4MzkvT25xSUtpOHZHTWdBZ0FwNzBMb1V0Y2JyMjgKVXdGbUtvdnE5eEVTVFN1UitRSGZZeE9BMDJCVGpOS2VKOW02U1U5SkpMcHd0NnliWUpENTdURTBjOFFhCkNnL3EzUjd2eEg4K2R0enRBaUovUWZLUDJJNk04QUVBTmxodi9CNzAxL1RObmxOL1V1eVNaaWtmSXl2UworWm0xcDFrZXNSV2JTMGJDUnptckNaN1NqNVVRRWMxdXBkTXQzQnVKOFVXOGJPZ1A1ck5YTnpaY2U0YjkKZnU1OW90ODhNcjRUYnh2dlhBTFRVdS83SGY5ZFoxd0FiUUpMMmVleWJ0R0tTUXE1OU1hSjBaK3lOZ21FCnNEekZPaWRkUi80c3NzRXVEOG9jcEZvaHRvVE9QOTd5MCs0Z0dkWDEzYlBlQjlUektMT0JTNWpiV3lXaAovKy9iYXcwb3M1ckhBTlphQjBVRWZMcU9DQ2VpODhmREJnUmloOFFVQVFnQTdESjFCMlJLN3ZjbG9uRysKS285cWw0WjQ2a2ZWUm5scUlScmowa0xJSXY5MEJNZnFpQ2RoTWpDczArWXJWempKZ0RJcHpSUTRNTXpCCkFqdWVqY0RJRlVLNENaeXI3QlJoOWJrRTZBdDRjQm1YRDlQa05MWXZEbVdpdlJSSjhmcEVGK2EzR25SVwpORWZhQ1N3RENrYlBUZlcyNzhqZUZ1QWRaNmN5SDBNK1lvZFFod2JZOHlvbE8yVnRDZDFTcEtQZU04WlgKMjNreVNuNm1jc2NaSjlWRG5vbTJJOGJYL25yeVlqdlJTejR6YVl0TTZONE12d2xmVDVBa2RPN0tNb3VTCk1sRE9EZ1J0SVEwbkZuOFpDdzdBdUtDckRkbW9YOGMveUlPTTZCT1NPdnlzckh1UUpoWW4wWWNXVWJXbgpLNi9kSTVPL0pIZVNpYzJNUXpNVXZoYkVBUUFSQVFBQi9na0RDSHVaSUcyc3YvenM0SEhaWEpoMFdKa2kKWitkbjFqYUw3RXowdjVuRzBTWDh6cjFaYWwxU2ZmZFNHcDRFampSbEdNRVdhK25pdkhIQW1QcWdXN0JTCldJdmhYNWN6VTQ0NU1ZOG1TOXFjOGRZT1VMa0FOVUhoTzFtZlZ1U2d6RHdPZUl3eTg4NlkydnVLWnJ1UgpsVm1wZjJ2L1lVdDBDNzNkdTVpZ1hoQmlMMVhJbS93MHFwL2FZN1NmRmNUeEJ2UTVjL1BrSUtmZ2pJeDYKOStRejJ4ZllYSnk5M0Z4MjF0MVMwUFFvRHdTcFZvVjdkc1lRS3ZhMWcyRGNpTmM4UW1TYTV1QlN5ckZ4CjJNaG5MdTY4eTg5SnFNNEgzWjBvUTg2RGhxREE0eWFWaFlnRk1qQ0RSRVJRVXFhb1dBWWJqcHQyVHpHWQphb0tZUVI1VGprbDd1VnFQSlZia3BQbFZXdnJNNDVQblpxSkpjSWdlNmIvVHhoNkE5WWVRaTRtVi9LS3MKS1ZqUWd5OXFUT2V3cmZGNERiODVXdjRiekhEckZyR3hGbVNZTWVPY1h2ZVl0TGZPVlM5RmpiQ1pJZ0U1ClBRaUtXWDNzeXViVHg2eEw1aGUxUVl0SUdoaUJmZS9TV3Z0WUoxZlJUT3Y1MFBkM3JRSjB4ZVJmQ2hONgpQbkQ3ZzBGQ2xIeFJvc1k4dld5ZXNUenVpdUMxTWhPTzlqaGNwVGZpR05wU0dpNjdUNlIzcjVmdTNtSmEKb1UrcGlRSGVDaGhjSjRIeFZkQ24rQ05QS1VqQ3N0RnY0MndvRlMvOHZJeksvZkswZjQzVlRERWtVeUtPClUxUWZiNWRianNrYWpTY3NKd09FYklaeFdySkVDcUtPd2RRaHVMakpnLzNlQldtZUh3NCtWeGJsTFo5MQpvVFZWN1B0MjlqUm50WDN4VXl4d2pSVHVVK0toZ3pVSTFySFAzNCt0NTFoYVR1WmlWbTZFaU1MNUxJTkcKenFvbGgwc0pUcW9JZ1BKNTZtQmFieFcxUmtUMCthWEVXWlY4b0RoK0xoY2d0VGoyd201bXgwUnBmZCswCkJGWmQvTE9EaDBrTGF6ZW14TkRReU5MWVRTbXQwK3hqcUIvUnFlVEZkZ0U3dSthMTFTZm1MejJRaDRBVApvRU5qVS9YREFoWERkQlQ0TkhqOGxtbGxWV0RueGJ4b2xPOE9hWGhVREVsOTBCKzN0S2EyY3d4WnI2ckQKZWNMQWRnUVlBUWdBQ1FVQ1lvZkVGQUliREFBaENSRDM4NmVvZ3FMeThSWWhCRFZxMEJQTEpqcGluV0hmCk4vZnpwNmlDb3ZMeGZSSUlBSndBUXgzcXh1aE80MTlRNmgxa0h1amVjeFowTFFSeVJqY25FcVZEdWdoWQplSkRkSzQ1dWJDZGVGRXV2RXpyRitSTUxOZjVwTUp3SE9GNTlvdGhUd1krVWd6Z2ROcVBMalM0eWgvb1QKQW5NVFBPZXZ4Z1JSKzR3N0E3R09xUjNOejZKNmM1NDU3T2lBL0xWdkdSZzJNYkhOa3RCUE1tYllkWmZUCnhneGlTUFdzdzJIaE44L2E5bG9BYk9jclNtU2dnYTQ4WURzNHptSU9vZVRPdktPSmVhSlpSVGRoS20vWApuSlVEWUNtcnVQbDFGWENESEZrb3FWcjJkdUxGYzhab3hCRll2c1FiWGNrdWJWdTVpcEM2Vk11dlhkMCsKdjdpL241NEt3TjhPS282akZYWkl6Z1lXcU9sa1FBRGdWNTFoTGFXNTY3QmdhaFcyWTQ4Mi9sdlE1czg9Cj1rTjFICi0tLS0tRU5EIFBHUCBQUklWQVRFIEtFWSBCTE9DSy0tLS0tCg=='
+All `/v1/*` endpoints are `POST`, take a JSON body, return a JSON envelope
+`{ "data": ... }` or `{ "error": "..." }`, and require a valid JWT in the
+`Authorization: Bearer <token>` header.
+
+| Method | Path | Lib function | Body |
+|---|---|---|---|
+| GET    | `/`            | _(welcome banner)_   | n/a |
+| GET    | `/health`      | _(healthcheck)_      | n/a |
+| POST   | `/v1/generate` | `generate()`         | `{ name, email, passphrase?, type?, rsaBits?, curve?, keyExpirationTime? }` |
+| POST   | `/v1/encrypt`  | `encrypt()`          | `{ message, encryptionKey, signingKey? }` |
+| POST   | `/v1/decrypt`  | `decrypt()`          | `{ encryptedMessage, decryptionKey, verificationKey? }` |
+| POST   | `/v1/sign`     | `sign()`             | `{ message, signingKey, detached? }` |
+| POST   | `/v1/verify`   | `verify()`           | `{ message, verificationKey, signature?, date? }` |
+| POST   | `/v1/revoke`   | `revoke()`           | `{ privateKey, reason? }` |
+| POST   | `/v1/reformat` | `reformat()`         | `{ privateKey, name, email, keyExpirationTime? }` |
+| POST   | `/v1/session`  | `session()`          | `{ encryptionKey, name, email }` |
+
+Body shape, length caps, and exhaustive validation rules live in the per-route
+files under [`src/routes/v1/`](src/routes/v1/).
+
+### Auth
+
+Every `/v1/*` route is gated by `requireAuth`, which calls
+`request.jwtVerify()`. A missing or invalid JWT returns:
+
+```http
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+{"error":"unauthorized"}
 ```
 
-#### `/decrypt`
+`crypto-server` does **not** issue JWTs. Mint them out of band with your
+existing identity provider, or for local testing:
 
-This endpoint allows you to decrypt data in a single operation.
-
-|Content-Type|Value|Description|
-|---|---|---|
-|passphrase|123456789abcdef|Passphrase to decrypt the message.|
-|message|{{data}}|Message to be decrypted.|
-
-```shell
-curl --location --request GET 'http://localhost:3000/v1/decrypt' \
---header 'passphrase: 123456789abcdef' \
---header 'message: LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgp3Y0ZNQXpMNWFTdVU0RWM4QVJBQWtnUUVEMVNwaTN5MmRrME1kbHQwYmtsMEdIWEoxbytxZHdzeWxZdlIKcjVycGVydXVmeWd3V0JTR1p6UHNSMG51MFg4SWxIQ0hYR2pha0N2WFVhMEZHTFNHR2pqRHdZQmViZjAvCitIVE51K1BMYzRvVmlvMXAwZEZraFFuOVVHSG82b1NVQmNqcmdsWTlsTW4ySzg3RVp2M1BUZ2k3aGtiMwpOWVhFazl5dWdLalVGU1RtMERDdGdpNkt2YUpycURpZStLbnJxSVNrckpxS0I0T1FuOUlNQk1UY3kxVEgKQld2QStyQ2llSFBNRHIrNFRwbTU5cFgxQUhCb0xPRm9WK1c1YlJoNEY5VHVxNzRaMW9pV2cyUFFEM252CjFtdnlZN1VIdEVuczBFbzYvWFRTQnZzNndQdFBJT2FoWGlTSC9UYmNod1RNTjlBZ1NSa3YzeEpWcGhjSgpPaGRGaFNMQ1dSUlR5UGxlUWpNeEoyemwwRm1JM2IrZnNYUkZlKzRCRjhiQjl6MUV4Nk9KOE1raG9yOFYKN3B5ZHR2UUVBVFlXMHVEc3pNb09UNHhqYnUvL29ESk45dnRINnBTY1hnQ3o2MGI4TTdHaXl6VGFoV3FLCmsvSklVWHJORjB2cjk3RWVnRGs3VXNFV3Y4MFhYdkg3dEtVTFNQcnRSTmxnbytqSjk5SzBmcm9iK1QxQwpIcVp4UzdpZCsxaTJOOHhQcUZnd2lDeHhXS1dMTGllQW1GRVVuQ3NXYUR0b05OZUhYbkJyLzk5b25PZGoKd0pWT0krQS9uZlU5bXh2ZGFnWlNqWnlMQ0ZDa1REQ05GeWxKL0dmUnZIWndBNGsya0ZqZXUvQWhQa0Y5Ck1EQktZdmNSWFJudklLOW5STHhIYjZKMUpoS3ppbnFpbHgrZmpQak9kdVRTd2NzQnlicThXenRPbmpscwp3WkZZVU9uQjdsQ0N4d3lxc3hqNlBQdkpLODFTOTBhaElQMkNUVVVsWWlMWTRSa05qRjlwNnArSXZoVW4KeFB3UXFwSU03V2ZpckZOM0tJT3QrOWpyazE3YStFVWtOelBuNm5jMHdobTUzWDFtaWhHOEJPYXc5UFgwCmlSWHZuTTlEL0dkWHI4ZTNhWDFRTnBXOVVlKzZ5c1NqZi85bEs5MVo5aTl4eUpmSW51eS9EdXpjSGtYawpTa1Z5VjRablE3MCsrY0JvN1JaYUkzZ3Zuak9HYkF2Z3dVakJIYUoyL0Vqd0oyd1FESm9lbkVYdUFEeTcKOHhLRWk2V2p3V1lBUXVlUmh1cGdhYmJIcVFGazltTWhHSGcvMlpkNkViMTYyTmVYeTU2RkYrK1lWSm5jCnJrSVN5bkFmdWJSc1hmZXUxYS9TWWJvR2h0cTNheWQ3VTM3YVpCUmtuclFieldxYituV2YvRk54YkRvRAprTkpsV1BDSHZBeHhNRTd3U2gxRkZQNmtCL24yVWxTV1JNUWZwY25hbzFFUW9QUGdQcWtDcm9vSXh4WVMKWEsySlEzOWtucmpmY053bEJZYlVkZnlNaVlSRi84cHJxT25YU242czJDTUN6WjAzamlNeEpYYmFDS0N6CnNqVXpmMDVMTnJ5V01nR0dmQWFRcWZhN3NYM3NtL3VjL09IV25paFpVaWsrVlZQbzNPVGE1NG0vRnd2YgpjQmxseFV6UHVYSzg3NG1lQVNPanRZc2luOUQzVnNIWVdHa0g5azJ6eFgyZEU1cTZUeGxUaU9FOWx0UHUKRWxmWXloU1dtMXJYVUxDZmprYkE2TjlSSEFMR0VNU0Uwa3p1QXpGZmh0OFlpVkhxcHZULytrWjF1azA3ClZLejhnS09UQllMNG84ZWt6V2ZJZ2N3MThkcmZ4SThIUHQ1cUtEZzJpUUM3M1BBS1gxaEJxVHp4LzJSbAptS2FBeFZ5NW1yanVwWmV3RnpMc2tiYlRhYWszd0Y2eHZVWktFNmFHdFRFcnZIVWJlL0xoL00zajVBQTQKUGRZQSs3djZMd3BTcGRVYTRQK2xKb0d0SVQremRQTXF2TE1Od3lyYk9nSWVveEZXZHNxQk9qM1kwNk0xCmhJUk9IamRnVG9yUUhvOD0KPTh4MUMKLS0tLS1FTkQgUEdQIE1FU1NBR0UtLS0tLQo='
+```bash
+node -e "console.log(require('jsonwebtoken').sign({sub:'tester'}, process.env.JWT_SECRET))"
 ```
 
-## Contributing to Crypto Server
+---
 
-Contributions to Crypto Server are welcomed and encouraged! Please see our 
-[Contributing Guidelines][1] for further details on the process for submitting
-pull requests to us.
+## Curl examples
 
-## Appendix
+> ⚠️ The examples below use placeholder armored keys. In production, never
+> embed key material in shell history. Read armored keys from files:
+> `--data @body.json`, then `shred -u body.json` when done.
 
-*Elliptic curve for ECC keys: curve25519, p256, p384, p521, secp256k1,
-brainpoolP256r1,brainpoolP384r1, or brainpoolP512r1.*
+### `POST /v1/generate`
 
-[1]: https://github.com/sebastienrousseau/crypto-server/blob/master/.github/CONTRIBUTING.md
-[2]: https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib
-[3]: https://www.fastify.io
-[4]: https://nodejs.org/en/
-[5]: https://www.npmjs.com/
-[6]: https://github.com
-[7]: https://github.com/sebastienrousseau/crypto-server
-[8]: https://github.com/sebastienrousseau/crypto-server/blob/main/LICENSE
-[9]: https://yarnpkg.com/getting-started
-[10]: https://pnpm.io/motivation
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/generate \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@doe.com",
+    "passphrase": "correct horse battery staple",
+    "type": "ecc",
+    "curve": "curve25519",
+    "keyExpirationTime": 31536000
+  }' | jq .
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "publicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...",
+    "privateKey": "-----BEGIN PGP PRIVATE KEY BLOCK-----\n...",
+    "revocationCertificate": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n..."
+  }
+}
+```
+
+### `POST /v1/encrypt`
+
+```bash
+cat > /tmp/encrypt.json <<'JSON'
+{
+  "message": "Hello Crypto Service Suite!",
+  "encryptionKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n... (armored) ...\n-----END PGP PUBLIC KEY BLOCK-----\n"
+}
+JSON
+
+curl -s -X POST http://127.0.0.1:3000/v1/encrypt \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data @/tmp/encrypt.json | jq .
+
+shred -u /tmp/encrypt.json
+```
+
+### `POST /v1/decrypt`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/decrypt \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data @/tmp/decrypt.json | jq .
+```
+
+`/tmp/decrypt.json`:
+
+```json
+{
+  "encryptedMessage": "-----BEGIN PGP MESSAGE-----\n...",
+  "decryptionKey": {
+    "armored": "-----BEGIN PGP PRIVATE KEY BLOCK-----\n...",
+    "passphrase": "correct horse battery staple"
+  },
+  "verificationKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n..."
+}
+```
+
+### `POST /v1/sign`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/sign \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "the message",
+    "signingKey": {
+      "armored": "-----BEGIN PGP PRIVATE KEY BLOCK-----\n...",
+      "passphrase": "correct horse battery staple"
+    },
+    "detached": false
+  }' | jq .
+```
+
+### `POST /v1/verify`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/verify \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "-----BEGIN PGP SIGNED MESSAGE-----\n...",
+    "verificationKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n..."
+  }' | jq .
+```
+
+### `POST /v1/revoke`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/revoke \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "privateKey": {
+      "armored": "-----BEGIN PGP PRIVATE KEY BLOCK-----\n...",
+      "passphrase": "correct horse battery staple"
+    },
+    "reason": { "flag": 2, "string": "compromised" }
+  }' | jq .
+```
+
+Reason flags follow RFC 4880 §5.2.3.23: `0` = no reason, `1` = superseded,
+`2` = compromised, `3` = retired, `32` = user ID no longer valid.
+
+### `POST /v1/reformat`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/reformat \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "privateKey": {
+      "armored": "-----BEGIN PGP PRIVATE KEY BLOCK-----\n...",
+      "passphrase": "correct horse battery staple"
+    },
+    "name": "Jane D. Roe",
+    "email": "jane.roe@example.com",
+    "keyExpirationTime": 63072000
+  }' | jq .
+```
+
+### `POST /v1/session`
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/session \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "encryptionKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...",
+    "name": "Recipient",
+    "email": "recipient@example.com"
+  }' | jq .
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "algorithm": "aes256",
+    "data": "ab12cd34..."
+  }
+}
+```
+
+The `data` field is the session key bytes hex-encoded. Raw `Uint8Array`
+serialises poorly over JSON, hence the explicit hex encoding.
+
+---
+
+## Environment
+
+| Name             | Default      | Required | Notes |
+|------------------|--------------|----------|---|
+| `JWT_SECRET`     | _(none)_     | **yes**  | ≥ 32 chars enforced at boot. Server refuses to start otherwise. |
+| `HOST`           | `127.0.0.1`  | no       | Bind address. |
+| `PORT`           | `3000`       | no       | Listen port. |
+| `PROTOCOL`       | `http`       | no       | Cosmetic only — used for the welcome banner. Terminate TLS at your reverse proxy. |
+| `CORS_ORIGINS`   | _(deny all)_ | no       | Comma-separated allow-list. Default behaviour is **deny all**. |
+| `TRUST_PROXY`    | _(off)_      | no       | Comma-separated CIDR list. Without this, the rate-limiter trusts the socket address verbatim — exactly what you want unless you're behind a known proxy. **Never set this to `true` in production.** |
+| `LOG_LEVEL`      | `info`       | no       | Pino level: `fatal`, `error`, `warn`, `info`, `debug`, `trace`. |
+
+---
+
+## Defenses on every `/v1/*` route
+
+| Layer | What it catches |
+|---|---|
+| Helmet headers | click-jacking, MIME sniffing, XSS framing |
+| CORS default-deny | non-allow-listed browser origins |
+| Rate limit (10/min/IP) | brute force, cost amplification |
+| JWT preHandler | unauthenticated callers |
+| Ajv body schema (`additionalProperties: false`, length caps) | type confusion, oversize bodies, prototype pollution (`onProtoPoisoning: "error"`) |
+| Pure-function `crypto-lib` call | returns ciphertext or throws — no side effects |
+| Pino redaction | passphrase / Authorization-header leakage in logs |
+| `Cache-Control: no-store` on every response | intermediate caches |
+
+See [`docs/architecture.md`](../../docs/architecture.md#3-layered-defenses-on-every-v1-route)
+for the full sequence diagram of a request lifecycle.
+
+---
+
+## Local development
+
+```bash
+# from the repo root
+pnpm install --frozen-lockfile
+pnpm --filter @sebastienrousseau/crypto-server run build
+pnpm --filter @sebastienrousseau/crypto-server run test
+pnpm --filter @sebastienrousseau/crypto-server run lint
+
+# run with hot-reload (TS source via ts-node):
+JWT_SECRET="$(openssl rand -hex 32)" \
+  pnpm --filter @sebastienrousseau/crypto-server start
+```
+
+Source layout:
+
+```
+packages/crypto-server/
+├── src/
+│   ├── @types/types.ts      ← FastifyInstance.requireAuth + body types
+│   ├── config/constants.ts  ← Fastify options, redact paths, rate limit
+│   ├── lib/logger.ts        ← winston (separate from Fastify's pino)
+│   ├── routes/
+│   │   ├── index.ts         ← registers every v1 route + welcome
+│   │   └── v1/
+│   │       ├── decrypt.ts
+│   │       ├── encrypt.ts
+│   │       ├── generate.ts
+│   │       ├── reformat.ts
+│   │       ├── revoke.ts
+│   │       ├── session.ts
+│   │       ├── sign.ts
+│   │       ├── verify.ts
+│   │       └── index.ts     ← welcome route
+│   ├── server.ts            ← init() — Helmet/CORS/JWT/RateLimit registration
+│   └── index.ts             ← bin entrypoint
+└── __tests__/
+    └── server.test.ts       ← bootstrap, JWT, schema, /health, new routes
+```
+
+---
+
+## Production deployment
+
+- **Always run behind a TLS-terminating reverse proxy** (nginx, Caddy,
+  Cloudflare, AWS ALB). `crypto-server` itself only speaks plain HTTP.
+- Set `TRUST_PROXY` to a comma-separated CIDR list of *your* proxies.
+  Never set it to `true`.
+- Set `CORS_ORIGINS` explicitly if browsers need to call the API.
+- Mint `JWT_SECRET` with `openssl rand -hex 32` (or longer) and store it
+  in your secrets manager. Rotate by restarting with a new value.
+- Keep `LOG_LEVEL=info` in production. Pino redaction is configured to
+  drop every passphrase path and the Authorization header.
+- Run with a process manager (`systemd`, `pm2`, k8s deployment) and a
+  liveness probe against `GET /health`.
+
+---
+
+## Versioning
+
+`crypto-server` follows [semantic versioning](https://semver.org/). The
+public API is the `POST /v1/*` HTTP surface. The `GET /` and `GET /health`
+routes are stable but informational.
+
+## Changelog
+
+See [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases).
+
+## License
+
+MIT — see [LICENSE](LICENSE). Copyright © Sebastien Rousseau.
