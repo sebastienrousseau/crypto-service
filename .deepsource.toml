@@ -1,8 +1,26 @@
 version = 1
 
+test_patterns = [
+  "**/__tests__/**",
+  "**/*.test.ts",
+  "**/*.test.js",
+]
+
+exclude_patterns = [
+  "**/dist/**",
+  "**/node_modules/**",
+  "**/coverage/**",
+  "pnpm-lock.yaml",
+]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
+
+  [analyzers.meta]
+  plugins = ["typescript"]
+  environment = ["nodejs", "mocha"]
+  module_system = "es-modules"
 
 [[transformers]]
 name = "prettier"

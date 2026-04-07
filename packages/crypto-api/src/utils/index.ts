@@ -26,7 +26,9 @@ type Loose = any;
  * `item` array no longer throws — both were real crashes that the new
  * test suite caught.
  */
-export const createMarkdown = (data: JsonDocument): string => {
+export const createMarkdown = (
+  data: JsonDocument | null | undefined,
+): string => {
   let markdown = "";
   if (!data) return markdown;
   if (data.info) {
@@ -38,8 +40,8 @@ export const createMarkdown = (data: JsonDocument): string => {
   if (Array.isArray(data.item)) {
     markdown += readItems(data.item as unknown as Loose[]);
   }
-  markdown += `\n`;
-  markdown += `\n`;
+  markdown += "\n";
+  markdown += "\n";
   return markdown;
 };
 
@@ -80,6 +82,10 @@ export function readRequest(data: JsonRequest): string {
   return markdown;
 }
 
+/**
+ * Generates markdown for the query-string parameters of a Postman request URL.
+ * Returns the empty string when the URL has no `query` array.
+ */
 export function readQueryParams(url: Loose): string {
   let markdown = "";
   if (url?.query) {
@@ -96,6 +102,11 @@ export function readQueryParams(url: Loose): string {
   return markdown;
 }
 
+/**
+ * Generates markdown for the request body of a Postman request, supporting
+ * both `raw` (JSON) and `formdata` modes. Returns the empty string for
+ * unsupported or missing body shapes.
+ */
 export function readFormDataBody(body: Loose): string {
   let markdown = "";
 
@@ -131,6 +142,10 @@ export function readFormDataBody(body: Loose): string {
   return markdown;
 }
 
+/**
+ * Generates markdown for the example responses attached to a Postman request.
+ * Returns the empty string when there are no responses.
+ */
 export function readResponse(responses: ResponseType[]): string {
   let markdown = "";
   if (responses?.length) {
@@ -153,6 +168,10 @@ export function readResponse(responses: ResponseType[]): string {
   return markdown;
 }
 
+/**
+ * Generates markdown for a single Postman request, including its method,
+ * URL, headers, body, query params, auth and example responses.
+ */
 export function readMethods(method: Loose): string {
   let markdown = "";
   markdown += `\n`;
@@ -175,6 +194,11 @@ export function readMethods(method: Loose): string {
   return markdown;
 }
 
+/**
+ * Recursively walks a Postman collection's `item` array, emitting headings
+ * for nested folders and per-method markdown for leaves. `folderDeep`
+ * controls the heading level for the current folder.
+ */
 export function readItems(items: Loose[], folderDeep = 1): string {
   let markdown = "";
   items.forEach((item: Loose) => {
@@ -189,10 +213,12 @@ export function readItems(items: Loose[], folderDeep = 1): string {
   return markdown;
 }
 
-export const response = async (
-  content: string,
-  fileName: string,
-): Promise<void> => {
+/**
+ * Writes generated markdown to `src/docs/<fileName>.md`. Synchronous from the
+ * caller's point of view: opens a write stream, pushes the content, and
+ * closes it. Logs a confirmation when the underlying stream finishes.
+ */
+export const response = (content: string, fileName: string): void => {
   const output = fs.createWriteStream(
     path.resolve(__dirname, "../../src/docs/" + fileName + ".md"),
   );

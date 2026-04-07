@@ -50,7 +50,7 @@ export async function init(): Promise<void> {
 
     try {
       await fs.access(filePath);
-    } catch (error) {
+    } catch {
       console.log('Path is not valid or the file does not exist.');
       return;
     }
@@ -99,5 +99,8 @@ export async function init(): Promise<void> {
 // Only run when invoked as a CLI; importing this module must not have side
 // effects (the previous implementation auto-fired init() at import time).
 if (require.main === module) {
-  void init();
+  init().catch((err) => {
+    console.error('init() failed:', err);
+    process.exitCode = 1;
+  });
 }

@@ -74,12 +74,12 @@ describe('Crypto API Test Suite', () => {
   describe('Utility Functions', () => {
     describe('createMarkdown', () => {
       it('should handle null data gracefully', () => {
-        const result = createMarkdown(null as any);
+        const result = createMarkdown(null);
         expect(result).to.equal('');
       });
 
       it('should handle undefined data gracefully', () => {
-        const result = createMarkdown(undefined as any);
+        const result = createMarkdown(undefined);
         expect(result).to.equal('');
       });
 
