@@ -31,7 +31,7 @@ export type AuthorizationInfo = {
 };
 
 /**
- * Represents a JSON Document.
+ * Represents a JSON Document (Postman collection v2.x shape).
  */
 export type JsonDocument = {
   /** Contains metadata about the document. */
@@ -41,8 +41,15 @@ export type JsonDocument = {
     /** The name of the document. */
     name: string;
   };
-  /** A string representing item(s) within the document. */
-  item: string;
+  /**
+   * The items inside the collection. Postman v2.x exports this as an
+   * array of either folders (which themselves contain `item`) or
+   * leaf request/method entries. The previous declaration (`string`)
+   * was wrong and the runtime code already cast it to an array, which
+   * the new test suite now catches.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  item: any[];
 };
 
 /**

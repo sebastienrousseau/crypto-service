@@ -21,19 +21,25 @@ type Loose = any;
 
 /**
  * Creates a markdown structure from a Postman-style JSON document.
+ *
+ * Defensive against malformed input: a missing `info` block or a missing
+ * `item` array no longer throws — both were real crashes that the new
+ * test suite caught.
  */
 export const createMarkdown = (data: JsonDocument): string => {
   let markdown = "";
-  if (data) {
-    markdown += `# ${data.info.name}\n\n`;
-    markdown +=
-      data.info.description !== undefined
-        ? `${data.info.description || ""}\n`
-        : ``;
-    markdown += readItems(data.item as unknown as Loose[]);
-    markdown += `\n`;
-    markdown += `\n`;
+  if (!data) return markdown;
+  if (data.info) {
+    markdown += `# ${data.info.name ?? ""}\n\n`;
+    if (data.info.description !== undefined) {
+      markdown += `${data.info.description || ""}\n`;
+    }
   }
+  if (Array.isArray(data.item)) {
+    markdown += readItems(data.item as unknown as Loose[]);
+  }
+  markdown += `\n`;
+  markdown += `\n`;
   return markdown;
 };
 

@@ -16,6 +16,12 @@
 debug
 dist
 
+# Test fixtures written by the Postman→Markdown response() helper.
+# The tool's output goes to src/docs/, but the test suite generates
+# throwaway markdown files there — keep only README.md tracked.
+src/docs/*.md
+!src/docs/README.md
+
 # Logs
 logs
 *.log
