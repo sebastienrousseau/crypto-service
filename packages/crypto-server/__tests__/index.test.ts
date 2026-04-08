@@ -124,8 +124,12 @@ describe('Crypto Server', () => {
         expect(fastifyOptions.logger).to.be.true;
       });
 
-      it('should have trustProxy enabled', () => {
-        expect(fastifyOptions.trustProxy).to.be.true;
+      it('should not unconditionally trust proxy headers', () => {
+        // Default must be `false` (or an explicit CIDR list supplied via
+        // the TRUSTED_PROXY_CIDRS env var). Blanket `true` enabled IP-
+        // based rate-limit bypass via spoofed X-Forwarded-For headers.
+        const tp = fastifyOptions.trustProxy;
+        expect(tp === false || Array.isArray(tp)).to.equal(true);
       });
 
       it('should have proto poisoning protection', () => {

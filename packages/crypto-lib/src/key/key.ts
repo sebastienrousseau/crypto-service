@@ -1,100 +1,47 @@
-import { readFileSync } from "fs";
-
 /**
- * ### PrivateKeyBase64
- *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the private key file and returns the base64 string.
- *
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-export const PrivateKeyBase64 = readFileSync("./src/key/rsa.key");
-
 /**
- * ### PublicKeyBase64
+ * @file Backwards-compatible async accessors over the lazy keystore.
  *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the public key file and returns the base64 string.
- *
+ * Previously this file issued three `readFileSync` calls at module load
+ * time (see git history). That pattern blocked the event loop on every
+ * `import` and crashed the process if the CWD did not match the
+ * package source root. All accessors are now thin wrappers around the
+ * memoized async keystore — callers must `await` them.
  */
 
-export const PublicKeyBase64 = readFileSync("./src/key/rsa.pub");
+import { loadKeystore } from "./keystore";
 
 /**
- * ### RevocationCertificateBase64
- *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the revocation certificate file and returns the base64 string.
- *
+ * Returns the shipped armored private key. Async — callers must await.
  */
-
-export const RevocationCertificateBase64 = readFileSync("./src/key/rsa.cert");
-
-/**
- * ### PrivateKey
- *
- * @param {string} PrivateKeyBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the private key.
- *
- */
-
-export const PrivateKey = Buffer.from(
-  PrivateKeyBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-/**
- * ### PublicKey
- *
- * @param {string} PublicKeyBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the public key.
- *
- */
-
-export const PublicKey = Buffer.from(
-  PublicKeyBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-/**
- * ### RevocationCertificate
- *
- * @param {string} RevocationCertificateBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the revocation certificate.
- *
- */
-
-export const RevocationCertificate = Buffer.from(
-  RevocationCertificateBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-export default {
-  PrivateKeyBase64,
-  PublicKeyBase64,
-  RevocationCertificateBase64,
-  PrivateKey,
-  PublicKey,
-  RevocationCertificate,
+export const getPrivateKey = async (): Promise<string> => {
+  const ks = await loadKeystore();
+  return ks.privateKeyArmored;
 };
 
-// # sourceMappingURL=key.js.map
-// Language: typescript
+/**
+ * Returns the shipped armored public key. Async — callers must await.
+ */
+export const getPublicKey = async (): Promise<string> => {
+  const ks = await loadKeystore();
+  return ks.publicKeyArmored;
+};
+
+/**
+ * Returns the shipped revocation certificate (armored). Async — callers
+ * must await.
+ */
+export const getRevocationCertificate = async (): Promise<string> => {
+  const ks = await loadKeystore();
+  return ks.revocationArmored;
+};
+
+export default {
+  getPrivateKey,
+  getPublicKey,
+  getRevocationCertificate,
+};

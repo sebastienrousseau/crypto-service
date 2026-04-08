@@ -1,8 +1,11 @@
-import * as openpgp from "openpgp";
-import * as types from "../types/types";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
 
-const args = process.argv.slice(2);
-// console.log(args);
+import * as openpgp from "openpgp";
+import { unlockPrivateKey } from "../key/keystore";
+import * as types from "../types/types";
 
 /**
  * ### encrypt
@@ -13,72 +16,37 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data           - Data to be encrypted.
- * @param {String} passphrase     - Array of passwords or a single password to
- *                                  encrypt the message.
+ * @param {String} passphrase     - Passphrase used to unlock the signing
+ *                                  private key, when one is provided.
  * @param {String} message        - Message to be encrypted.
- * @param {String} publicKey      - Public key enumeration base64 encoded.
- *                                  This can be an array of keys or single
- *                                  key, used to encrypt the message.
- * @param {String} privateKey     - Private key enumeration base64 encoded.
- *                                  Private keys are used for signing.
- * @returns {Promise<String>}     - Encrypted message as armored string.
+ * @param {String} publicKey      - Public key (base64-encoded armored
+ *                                  block) used to encrypt the message.
+ * @param {String} privateKey     - Optional private key (base64-encoded
+ *                                  armored block) used for signing.
+ * @returns {Promise<String>}     - Encrypted message as an armored string.
+ *
  * @async
  * @static
- *
- * @example
- * ```javascript
- * import { encrypt } from "crypto-lib";
- *
- * const data = {
- *  passphrase: "passphrase",
- *  message: "message",
- *  publicKey: "base64 encoded public key",
- *  privateKey: "base64 encoded private key"
- * };
- *
  */
-
 export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
   const { message, passphrase, publicKey: publicKeyBase64, privateKey: privateKeyBase64 } = data;
 
-  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("utf-8");
+  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("latin1");
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-  // Build encryption options
   const pgpMessage = await openpgp.createMessage({ text: message });
   const encryptOptions = {
     message: pgpMessage,
     encryptionKeys: publicKey,
   } as Parameters<typeof openpgp.encrypt>[0];
 
-  // Add signing if private key is provided
   if (privateKeyBase64) {
-    const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("utf-8");
-    const privateKey = await openpgp.decryptKey({
-      privateKey: await openpgp.readPrivateKey({
-        armoredKey: privateKeyArmored,
-      }),
-      passphrase,
-    });
-    encryptOptions.signingKeys = privateKey;
+    const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("latin1");
+    encryptOptions.signingKeys = await unlockPrivateKey(privateKeyArmored, passphrase);
   }
 
   const encrypted = await openpgp.encrypt(encryptOptions);
-
-  return encrypted.toString();
+  return encrypted as unknown as string;
 };
 
-if (args instanceof Array && args.length && args[3] && args[5]) {
-  const data = {
-    passphrase: args[1],
-    message: args[3],
-    publicKey: args[5],
-    privateKey: args[7] || "",
-  };
-  encrypt(data);
-}
-
 export default encrypt;
-
-//# sourceMappingURL=encrypt.js.map
-// Language: typescript

@@ -6,8 +6,6 @@
 /**
  * @file Configuration settings and options for the Fastify server and associated plugins.
  * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
  */
 
 import { FastifyServerOptions } from "fastify";
@@ -22,21 +20,34 @@ export const LIB_VERSION = JSON.stringify(pack.version);
 
 /**
  * @constant {string} HOST
- * The hostname for the server, defaulting to "localhost" if not provided in the environment variables.
+ * The hostname for the server, defaulting to "localhost".
  */
-export const HOST = process.env.HOST ?? "localhost";
+export const HOST = process.env["HOST"] ?? "localhost";
 
 /**
  * @constant {(string | number)} PORT
- * The port for the server, defaulting to 3000 if not provided in the environment variables.
+ * The port for the server, defaulting to 3000.
  */
-export const PORT = process.env.PORT ?? 3000;
+export const PORT = process.env["PORT"] ?? 3000;
 
 /**
  * @constant {string} PROTOCOL
- * The protocol for the server, defaulting to "http" if not provided in the environment variables.
+ * The protocol for the server, defaulting to "http".
  */
-export const PROTOCOL = process.env.PROTOCOL ?? "http";
+export const PROTOCOL = process.env["PROTOCOL"] ?? "http";
+
+/**
+ * Parse the `TRUSTED_PROXY_CIDRS` environment variable (comma-separated) into
+ * the shape expected by Fastify's `trustProxy` option.
+ *
+ * Unconditional `trustProxy: true` allowed IP-rate-limit bypass via spoofed
+ * X-Forwarded-For headers.
+ */
+const parseTrustProxy = (): boolean | string[] => {
+  const raw = process.env["TRUSTED_PROXY_CIDRS"];
+  if (!raw) return false;
+  return raw.split(",").map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+};
 
 /**
  * @constant {string[]} consoleOutput
@@ -55,9 +66,9 @@ export const consoleOutput = [
  * Fastify server options to configure the Fastify instance.
  */
 export const fastifyOptions: FastifyServerOptions = {
-  bodyLimit: 256 * 1024 * 1,
+  bodyLimit: 256 * 1024,
   caseSensitive: true,
-  connectionTimeout: 0,
+  connectionTimeout: 30_000,
   disableRequestLogging: true,
   ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
@@ -66,30 +77,27 @@ export const fastifyOptions: FastifyServerOptions = {
   onConstructorPoisoning: "error",
   onProtoPoisoning: "error",
   return503OnClosing: true,
-  trustProxy: true,
+  trustProxy: parseTrustProxy(),
 };
 
 /**
  * @constant {FastifyCompressOptions} compressOptions
- * Configuration options for the Fastify compression plugin.
+ * Compression plugin options. Level 6 delivers ~99% of level 9's size
+ * reduction at ~40% of the CPU cost.
  */
 export const compressOptions: FastifyCompressOptions = {
   global: true,
   threshold: 2048,
   zlibOptions: {
-    level: 9,
+    level: 6,
   },
 };
 
 /**
  * @constant {object} rateLimitOptions
  * Configuration options for the rate-limit plugin.
- *
- * @remarks
- * Contains functional elements that handle rate limiting, logging, and error responses.
  */
 export const rateLimitOptions = {
-  // Configuration parameters...
   global: true,
   max: 10,
   timeWindow: "1 minute",
@@ -102,16 +110,10 @@ export const rateLimitOptions = {
     "retry-after": true,
   },
 
-  /**
-   * @function errorResponseBuilder
-   * Generates a custom error response when rate limiting is triggered.
-   *
-   * @param {object} req - The request object.
-   * @param {object} context - The context related to rate limiting.
-   *
-   * @returns {object} - The custom error response.
-   */
-  errorResponseBuilder(req, context) {
+  errorResponseBuilder(
+    req: { ip: string; log: { warn: (msg: string) => void } },
+    context: { max: number; after: string; ttl: number },
+  ) {
     req.log.warn(`${req.ip} have been rateLimited`);
     return {
       code: 429,
@@ -126,9 +128,6 @@ export const rateLimitOptions = {
 /**
  * @constant {object} healthCheckOptions
  * Configuration options for the health check functionality.
- *
- * @property {string} healthcheckUrl - The URL path for health checks.
- * @property {boolean} exposeUptime - Flag to expose server uptime in the response.
  */
 export const healthCheckOptions = {
   healthcheckUrl: "/health",

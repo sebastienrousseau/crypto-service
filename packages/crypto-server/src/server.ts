@@ -1,14 +1,10 @@
 /**
  * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
 /**
  * @fileoverview Main server setup for the Crypto Service Suite application.
- * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
  */
 
 import {
@@ -25,42 +21,37 @@ import fastifyCompress from "@fastify/compress";
 import fastifyHealthcheck from "fastify-healthcheck";
 import fastifyRateLimit from "@fastify/rate-limit";
 import logger from "./lib/logger";
-import routes from './routes';
+import routes from "./routes";
 import * as fastify from "fastify";
 
 /**
  * Initializes and configures the Fastify application instance.
  *
- * This async function initializes a Fastify instance and configures it with various plugins.
- * It logs the environment details, registers routes, and returns the configured Fastify instance.
- *
- * @function
- * @async
- * @returns {Promise<fastify.FastifyInstance>} - The configured Fastify instance.
+ * Plugins are registered **before** routes so that compression, rate
+ * limiting, ETags and content negotiation apply to every route. The
+ * previous ordering (routes first) silently disabled all of these
+ * plugins for every registered route.
  */
 async function init(): Promise<fastify.FastifyInstance> {
-
-  // Create a new fastify instance with options defined in `fastifyOptions`.
   const app = fastify.fastify(fastifyOptions);
 
-  // Logger middleware for fastify instance (logs to console)
   logger.info("\n\nEnvironment details: " + consoleOutput);
 
-  // Register API routes.
-  routes(app);
-
-  // Register plugins with the Fastify instance.
   await app
-    .register(Accepts, { decorateReply: true }) // fastify-accepts plugin
-    .register(Etag) // fastify-etag plugin
-    .register(fastifyCompress, compressOptions) // fastify-compress plugin
-    .register(fastifyHealthcheck, healthCheckOptions) // fastify-healthcheck plugin
-    .register(fastifyRateLimit, rateLimitOptions) // fastify-rate-limit plugin
-    .ready();
+    .register(Accepts, { decorateReply: true })
+    .register(Etag)
+    .register(fastifyCompress, compressOptions)
+    .register(fastifyHealthcheck, healthCheckOptions)
+    .register(fastifyRateLimit, rateLimitOptions);
 
-  // Return the configured Fastify instance.
-  return app
+  // Register routes inside an encapsulated plugin so they inherit all
+  // the plugins registered above.
+  await app.register(async (scope) => {
+    routes(scope);
+  });
+
+  await app.ready();
+  return app;
 }
 
-// Export the `init` function to be used elsewhere.
 export { init };

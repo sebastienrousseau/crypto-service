@@ -344,17 +344,21 @@ describe('utils/index.ts - Core Utility Functions', () => {
       expect(result).to.equal('');
     });
 
-    it('should handle console.log call in readResponse', () => {
+    it('should render a response without logging to stdout', () => {
       const responses: ResponseType[] = [{
         code: 200,
         status: 'OK',
         body: '{"test": "data"}'
       }];
 
-      readResponse(responses);
+      const result = readResponse(responses);
 
-      // Verify that console.log was called (mocked to capture output)
-      expect(logOutput.length).to.be.greaterThan(0);
+      // readResponse must not emit to stdout (debug console.log was
+      // removed as part of the hot-path cleanup) and must still include
+      // the response code, status and body in its output.
+      expect(logOutput.length).to.equal(0);
+      expect(result).to.include('|200|OK|');
+      expect(result).to.include('{"test": "data"}');
     });
   });
 

@@ -1,100 +1,34 @@
-import { readFileSync } from "fs";
-
 /**
- * ### PrivateKeyBase64
- *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the private key file and returns the base64 string.
- *
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-export const PrivateKeyBase64 = readFileSync("./src/key/rsa.key");
-
 /**
- * ### PublicKeyBase64
- *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the public key file and returns the base64 string.
- *
+ * @file Lazy async key accessors. The previous implementation issued three
+ * `readFileSync` calls at module load, which crashed the CLI whenever the
+ * working directory was not the package source root.
  */
 
-export const PublicKeyBase64 = readFileSync("./src/key/rsa.pub");
+import { readFile } from "fs/promises";
+import * as path from "path";
 
-/**
- * ### RevocationCertificateBase64
- *
- * @param {string} filePath
- * @returns {string}
- * @private
- * @memberof key
- * @description Reads the revocation certificate file and returns the base64 string.
- *
- */
+const keyPath = (name: string): string =>
+  path.resolve(__dirname, "..", "key", name);
 
-export const RevocationCertificateBase64 = readFileSync("./src/key/rsa.cert");
-
-/**
- * ### PrivateKey
- *
- * @param {string} PrivateKeyBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the private key.
- *
- */
-
-export const PrivateKey = Buffer.from(
-  PrivateKeyBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-/**
- * ### PublicKey
- *
- * @param {string} PublicKeyBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the public key.
- *
- */
-
-export const PublicKey = Buffer.from(
-  PublicKeyBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-/**
- * ### RevocationCertificate
- *
- * @param {string} RevocationCertificateBase64
- * @returns {string}
- * @private
- * @memberof key
- * @description Returns the revocation certificate.
- *
- */
-
-export const RevocationCertificate = Buffer.from(
-  RevocationCertificateBase64.toString(),
-  "base64",
-).toString("utf-8");
-
-export default {
-  PrivateKeyBase64,
-  PublicKeyBase64,
-  RevocationCertificateBase64,
-  PrivateKey,
-  PublicKey,
-  RevocationCertificate,
+const decode = async (file: string): Promise<string> => {
+  const raw = await readFile(keyPath(file));
+  if (raw.length >= 5 && raw.subarray(0, 5).toString("ascii") === "-----") {
+    return raw.toString("latin1");
+  }
+  return Buffer.from(raw.toString("latin1"), "base64").toString("latin1");
 };
 
-// # sourceMappingURL=key.js.map
-// Language: typescript
+export const getPrivateKey = (): Promise<string> => decode("rsa.key");
+export const getPublicKey = (): Promise<string> => decode("rsa.pub");
+export const getRevocationCertificate = (): Promise<string> => decode("rsa.cert");
+
+export default {
+  getPrivateKey,
+  getPublicKey,
+  getRevocationCertificate,
+};

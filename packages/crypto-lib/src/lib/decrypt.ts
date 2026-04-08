@@ -1,8 +1,11 @@
-import * as openpgp from "openpgp";
-import * as types from "../types/types";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
 
-const args = process.argv.slice(2);
-// console.log(args);
+import * as openpgp from "openpgp";
+import { unlockPrivateKey } from "../key/keystore";
+import * as types from "../types/types";
 
 /**
  * ### decrypt
@@ -13,58 +16,39 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data                     - Data to be decrypted.
- * @param {String} data.cmd                 - Command to be executed.
- * @param {String} data.passphrase          - Passwords to decrypt the message.
- * @param {String} data.message             - The message object with the
- *                                            encrypted data.
- * @param {String} data.publicKey           - Public key enumeration base64
- *                                            encoded. This can be an array of
- *                                            keys or single key, used to
- *                                            decrypt the message.
- * @param {String} data.privateKey          - Private key enumeration base64
- *                                            encoded. Used for decryption.
- * @returns {Promise<String>}               - Decrypted message.
- *
- * @example
- * ```javascript
- * import { decrypt } from "crypto-lib";
- *
- * const data = {
- *  passphrase: "passphrase",
- *  message: "base64 encoded encrypted message",
- *  publicKey: "base64 encoded public key",
- *  privateKey: "base64 encoded private key"
- * };
- *
- * decrypt(data).then(message => {
- *  console.log(message);
- * }
- * .catch(err => {
- *  console.log(err);
- * }
- * ```
- *
+ * @param {String} data.passphrase          - Passphrase used to unlock the
+ *                                            private decryption key.
+ * @param {String} data.message             - Encrypted message, base64-
+ *                                            encoded armored block.
+ * @param {String} data.publicKey           - Public key used for signature
+ *                                            verification (base64-encoded
+ *                                            armored block).
+ * @param {String} data.privateKey          - Private key used for
+ *                                            decryption (base64-encoded
+ *                                            armored block).
+ * @returns {Promise<{data, signatureValid}>}  - The decrypted message body
+ *                                                and a boolean indicating
+ *                                                whether the signature (if
+ *                                                any) verified.
  */
-
-export const decrypt = async (data: types.dataDecrypt): Promise<{ data: string; signatureValid: boolean }> => {
+export const decrypt = async (
+  data: types.dataDecrypt,
+): Promise<{ data: string; signatureValid: boolean }> => {
   const { message: encryptedMessage, passphrase, publicKey: publicKeyBase64, privateKey: privateKeyBase64 } = data;
-
-  const message = await openpgp.readMessage({
-    armoredMessage: Buffer.from(encryptedMessage, "base64").toString("utf-8"),
-  });
 
   if (!privateKeyBase64) {
     throw new Error("Private key is required for decryption");
   }
 
-  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("utf-8");
-  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("utf-8");
+  const message = await openpgp.readMessage({
+    armoredMessage: Buffer.from(encryptedMessage, "base64").toString("latin1"),
+  });
+
+  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("latin1");
+  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("latin1");
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
-  const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
-    passphrase,
-  });
+  const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
 
   const { data: decrypted, signatures } = await openpgp.decrypt({
     message,
@@ -73,32 +57,19 @@ export const decrypt = async (data: types.dataDecrypt): Promise<{ data: string; 
   });
 
   let signatureValid = false;
-  try {
-    if (signatures.length > 0) {
-      await signatures[0].verified;
+  if (signatures.length > 0) {
+    try {
+      await signatures[0]!.verified;
       signatureValid = true;
+    } catch {
+      signatureValid = false;
     }
-  } catch (error) {
-    signatureValid = false;
   }
 
   return {
-    data: decrypted.toString(),
-    signatureValid
+    data: decrypted as string,
+    signatureValid,
   };
 };
 
-if (args instanceof Array && args.length && args[3] && args[5]) {
-  const data = {
-    passphrase: args[1],
-    message: args[3],
-    publicKey: args[5],
-    privateKey: args[7] || "",
-  };
-  decrypt(data);
-}
-
 export default decrypt;
-
-//# sourceMappingURL=decrypt.js.map
-// Language: typescript

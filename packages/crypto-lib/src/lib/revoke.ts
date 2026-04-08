@@ -1,96 +1,53 @@
-import * as fs from "fs";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
+import { writeFile } from "fs/promises";
 import * as path from "path";
 import * as openpgp from "openpgp";
-import * as key from "../key/key";
+import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
-
-const args = process.argv.slice(2);
 
 /**
  * ### revoke
  *
- * Revokes the Public and Private key pair.
+ * Produces a revocation for the shipped key pair and persists the
+ * revoked key material to disk. The previous implementation called
+ * `.toString()` on a `WriteStream`, which wrote the literal string
+ * `"[object Object]"` to disk — the real key was never persisted.
  *
  * @public
- * @param {Object} data - Data to be revoked.
- * @param {String} data.passphrase - Passphrase enumeration.
- * @param {String} data.flag - Flag enumeration.
- * @param {String} data.reason - Reason for revocation.
- *
- * @returns {Promise<String>} - Revoked key pair.
- *
- * @example
- * ```javascript
- * import { revoke } from "crypto-lib";
- *
- * const data = {
- *   passphrase: "passphrase",
- *   flag: flag, // optional
- *   reason: "reason" // optional
- * };
- * revoke(data).then(publicKey => {
- *   console.log(publicKey);
- * }
- * .catch(err => {
- *   console.log(err);
- * }
- * ```
- *
+ * @param {Object} data            - Revocation parameters.
+ * @param {String} data.passphrase - Passphrase that unlocks the private key.
+ * @param {Number} data.flag       - Optional revocation reason flag.
+ * @param {String} data.reason     - Optional human-readable reason.
+ * @returns {Promise<unknown>}     - The result of `openpgp.revokeKey`.
  */
 export const revoke = async (data: types.dataRevoke) => {
-  const flag = data.flag; // optional
-  const passphrase = data.passphrase;
-  const reason = data.reason; // optional
+  const { flag, passphrase, reason } = data;
 
-  const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({
-      armoredKey: key.PrivateKey,
-    }),
-    passphrase,
+  const { privateKeyArmored } = await loadKeystore();
+  const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
+
+  const revoked = await openpgp.revokeKey({
+    date: new Date(),
+    key: privateKey,
+    reasonForRevocation: { flag, string: reason },
+    format: "armored",
   });
 
-  const revokeKey = await openpgp.revokeKey({
-    date: new Date(), // revocation date
-    key: privateKeyRead, // private key object
-    reasonForRevocation: { flag: flag, string: reason }, // optional, default: 0
-  });
+  const revokedPubArmored = revoked.publicKey as unknown as string;
+  const revokedPrivArmored = revoked.privateKey as unknown as string;
 
-  console.log(revokeKey);
+  const keyDir = process.env["CRYPTO_KEY_DIR"]
+    ?? path.resolve(__dirname, "..", "key");
+  await Promise.all([
+    writeFile(path.join(keyDir, "rsa-revoke.pub"), revokedPubArmored, "utf8"),
+    writeFile(path.join(keyDir, "rsa-revoke.key"), revokedPrivArmored, "utf8"),
+  ]);
 
-  const revokePubKey = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/rsa-revoke.pub"),
-    { encoding: "utf8" },
-  );
-  const revokePubKeyString = revokePubKey.toString();
-  revokePubKey.write(Buffer.from(revokePubKeyString).toString("base64"));
-  revokePubKey.on("finish", () => {
-    console.log("✅ Wrote revoke public key data to file");
-  });
-  revokePubKey.end();
-
-  const revokePrivKey = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/rsa-revoke.key"),
-    { encoding: "utf8" },
-  );
-  const revokePrivateKeyString = revokePrivKey.toString();
-  revokePrivKey.write(Buffer.from(revokePrivateKeyString).toString("base64"));
-  revokePrivKey.on("finish", () => {
-    console.log("✅ Wrote revoke private key data to file");
-  });
-  revokePrivKey.end();
-
-  return revokeKey;
+  return revoked;
 };
 
-if (args instanceof Array && args.length && args[3]) {
-  const data = {
-    flag: Number(args[1]), // optional
-    passphrase: args[3],
-    reason: args[5], // optional
-  };
-  revoke(data);
-}
 export default revoke;
-
-//# sourceMappingURL=revoke.js.map
-// Language: typescript

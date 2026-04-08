@@ -1,90 +1,42 @@
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
 import * as openpgp from "openpgp";
 import * as types from "../types/types";
-
-const args = process.argv.slice(2);
 
 /**
  * ### session
  *
- * Generate a new session key object, taking the algorithm preferences of the
- * passed public keys into account.
+ * Generate a new session key object, taking the algorithm preferences
+ * of the passed public key into account.
  *
  * @public
  * @param {Object} data               - Data used to generate session key.
- * @param {String} data.email         - Email enumeration.
- * @param {String} data.name          - Name enumeration.
- * @param {String} data.publicKey     - Public key enumeration base64 encoded.
- *                                      key, used to encrypt the message.
- *                                      This can be an array of keys or single.
+ * @param {String} data.email         - User email.
+ * @param {String} data.name          - User name.
+ * @param {String} data.publicKey     - Base64-encoded armored public key.
  *
- * @returns {Promise<String>} - Object with session key data and algorithm.
- *
- * @example
- * ```javascript
- * import { session } from "crypto-lib";
- *
- * const data = {
- * email: "email",
- * name: "name",
- * publicKey: "base64 encoded public key"
- * };
- *
- * session(data).then(sessionKey => {
- * console.log(sessionKey);
- * }
- * .catch(err => {
- * console.log(err);
- * }
- * ```
+ * @returns {Promise<openpgp.SessionKey>} - Session key object.
  */
-
 export const session = async (
   data: types.dataSessionKey,
 ): Promise<openpgp.SessionKey> => {
-  const publicKeyBase64 = data.publicKey;
-  const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
-  const publicKey = publicKeyBuffer.toString("utf-8");
+  const publicKeyArmored = Buffer.from(data.publicKey, "base64").toString("latin1");
+  const encryptionKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-  const EncryptSessionKeyOptions = {
-    encryptionKeys: await openpgp.readKey({
-      armoredKey: publicKey,
-    }),
-    format: "armored",
-    wildcard: true,
+  return openpgp.generateSessionKey({
+    encryptionKeys: encryptionKey,
     date: new Date(),
     encryptionUserIDs: [{ name: data.name, email: data.email }],
-  };
-
-  const sessionKey = await openpgp.generateSessionKey(
-    EncryptSessionKeyOptions && {
-      encryptionKeys: await openpgp.readKey({
-        armoredKey: publicKey,
-      }),
-      date: new Date(),
-      encryptionUserIDs: [{ name: data.name, email: data.email }],
-      config: {
-        preferredHashAlgorithm: 8, // use SHA-256
-        preferredSymmetricAlgorithm: 9, // use AES-256
-        preferredCompressionAlgorithm: 1, // use ZIP
-        checksumRequired: true, // require integrity checks
-        minRSABits: 2048, // require at least 2048 bit RSA keys
-        passwordCollisionCheck: true, // check if a password is a collision of a previous password
-      },
+    config: {
+      preferredHashAlgorithm: 8,           // SHA-256
+      preferredSymmetricAlgorithm: 9,      // AES-256
+      preferredCompressionAlgorithm: 1,    // ZIP
+      minRSABits: 2048,
     },
-  );
-  console.log(sessionKey);
-  return sessionKey;
+  });
 };
 
-/* Checking if the args variable is empty or not. */
-if (args instanceof Array && args.length && args[1] && args[3] && args[5]) {
-  const data = {
-    email: args[1],
-    name: args[3],
-    publicKey: args[5],
-  };
-  session(data);
-}
-
-/* Exporting the function `session` so that it can be used in other files. */
 export default session;

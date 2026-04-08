@@ -58,7 +58,7 @@ export default {
     keySize6144: 6144,
     keySize7680: 7680,
     keySize8192: 8192,
-    keySize1536: 15360,
+    keySize15360: 15360,
   },
 
   /**
