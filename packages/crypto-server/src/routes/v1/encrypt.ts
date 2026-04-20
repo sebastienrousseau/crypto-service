@@ -13,15 +13,25 @@
 import type { FastifyInstance } from "fastify";
 import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
 import { IBodyEncrypt } from "../../@types/types";
+import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import {
-  validateRequiredString,
-  validateBase64,
-  sendValidationError,
-  validateApiKey,
-  ValidationError,
-} from "../../utils/validation";
+  rejectUnauthorized,
+  collectValidation,
+} from "../../utils/route-helpers";
 
 const encryptSchema = {
+  tags: ["Encryption"],
+  summary: "Encrypt a message",
+  description:
+    "Encrypts a plaintext message using the supplied PGP public key and passphrase.",
+  response: {
+    200: { type: "object", properties: { data: { type: "string" } } },
+    400: {
+      type: "object",
+      properties: { error: { type: "string" }, details: { type: "array" } },
+    },
+    401: { type: "object", properties: { error: { type: "string" } } },
+  },
   body: {
     type: "object",
     required: ["passphrase", "message", "publicKey"],
@@ -41,31 +51,23 @@ export default (app: FastifyInstance): void => {
     { schema: encryptSchema },
     async (request, reply) => {
       try {
-        const apiKeyConfig = process.env["CRYPTO_API_KEY"];
-        if (!validateApiKey(request.headers["x-api-key"], apiKeyConfig)) {
-          return reply.status(401).send({ error: "Unauthorized: Invalid or missing API key" });
-        }
+        if (rejectUnauthorized(request, reply)) return;
 
         const body = request.body as IBodyEncrypt;
-        const errors: ValidationError[] = [];
-
-        const passphraseResult = validateRequiredString(body.passphrase, "passphrase");
-        if (!passphraseResult.valid) errors.push(passphraseResult.error);
-
-        const messageResult = validateRequiredString(body.message, "message");
-        if (!messageResult.valid) errors.push(messageResult.error);
-
-        const publicKeyResult = validateBase64(body.publicKey, "publicKey");
-        if (!publicKeyResult.valid) errors.push(publicKeyResult.error);
-
-        if (errors.length > 0) {
-          return sendValidationError(reply, errors);
-        }
+        const v = collectValidation(
+          {
+            passphrase: validateRequiredString(body.passphrase, "passphrase"),
+            message: validateRequiredString(body.message, "message"),
+            publicKey: validateBase64(body.publicKey, "publicKey"),
+          },
+          reply,
+        );
+        if (!v) return;
 
         const encryptedData = await encrypt({
-          passphrase: (passphraseResult as { valid: true; value: string }).value,
-          message: (messageResult as { valid: true; value: string }).value,
-          publicKey: (publicKeyResult as { valid: true; value: string }).value,
+          passphrase: v.passphrase,
+          message: v.message,
+          publicKey: v.publicKey,
           ...(body.privateKey ? { privateKey: body.privateKey } : {}),
         });
 

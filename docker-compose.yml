@@ -1,0 +1,42 @@
+services:
+  crypto-server:
+    build:
+      context: .
+      target: production
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
+      - LOG_LEVEL=info
+      # - CRYPTO_API_KEY=your-secret-key
+      # - CORS_ORIGIN=https://your-app.com
+      # - TRUSTED_PROXY_CIDRS=10.0.0.0/8
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  crypto-server-dev:
+    build:
+      context: .
+      target: build
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=3000
+      - LOG_LEVEL=debug
+    command: node packages/crypto-server/dist/src/index.js
+    profiles:
+      - dev

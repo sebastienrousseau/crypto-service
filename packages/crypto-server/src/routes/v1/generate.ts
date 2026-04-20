@@ -23,12 +23,37 @@ import {
   validateOptionalNumber,
   validateEmail,
   validateEnum,
-  sendValidationError,
-  validateApiKey,
-  ValidationError,
 } from "../../utils/validation";
+import {
+  rejectUnauthorized,
+  collectValidation,
+} from "../../utils/route-helpers";
 
 const generateSchema = {
+  tags: ["Key Management"],
+  summary: "Generate a key pair",
+  description:
+    "Generates an OpenPGP key pair (RSA or ECC). The private key is NOT returned for security.",
+  response: {
+    200: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            publicKey: { type: "string" },
+            revocationCertificate: { type: "string" },
+          },
+        },
+        warning: { type: "string" },
+      },
+    },
+    400: {
+      type: "object",
+      properties: { error: { type: "string" }, details: { type: "array" } },
+    },
+    401: { type: "object", properties: { error: { type: "string" } } },
+  },
   body: {
     type: "object",
     required: ["name", "email", "type", "passphrase", "curve", "format"],
@@ -52,67 +77,52 @@ export default (app: FastifyInstance): void => {
     { schema: generateSchema },
     async (request, reply) => {
       try {
-        const apiKeyConfig = process.env["CRYPTO_API_KEY"];
-        if (!validateApiKey(request.headers["x-api-key"], apiKeyConfig)) {
-          return reply.status(401).send({ error: "Unauthorized: Invalid or missing API key" });
-        }
+        if (rejectUnauthorized(request, reply)) return;
 
         const body = request.body as IBodyGenerate;
-        const errors: ValidationError[] = [];
-
-        const nameResult = validateRequiredString(body.name, "name");
-        if (!nameResult.valid) errors.push(nameResult.error);
-
-        const emailResult = validateEmail(body.email, "email");
-        if (!emailResult.valid) errors.push(emailResult.error);
-
-        const typeResult = validateEnum<KeyType>(body.type, "type", KEY_TYPES);
-        if (!typeResult.valid) errors.push(typeResult.error);
-
-        const passphraseResult = validateRequiredString(body.passphrase, "passphrase");
-        if (!passphraseResult.valid) errors.push(passphraseResult.error);
-
-        const curveResult = validateEnum<CurveType>(body.curve, "curve", CURVE_TYPES);
-        if (!curveResult.valid) errors.push(curveResult.error);
-
-        const formatResult = validateEnum<FormatType>(body.format, "format", FORMAT_TYPES);
-        if (!formatResult.valid) errors.push(formatResult.error);
-
-        const rsaBitsResult = validateOptionalNumber(
-          body.rsaBits,
-          2048,
-          "rsaBits",
-          { min: 2048, max: 4096 },
+        const v = collectValidation(
+          {
+            name: validateRequiredString(body.name, "name"),
+            email: validateEmail(body.email, "email"),
+            type: validateEnum<KeyType>(body.type, "type", KEY_TYPES),
+            passphrase: validateRequiredString(body.passphrase, "passphrase"),
+            curve: validateEnum<CurveType>(body.curve, "curve", CURVE_TYPES),
+            format: validateEnum<FormatType>(
+              body.format,
+              "format",
+              FORMAT_TYPES,
+            ),
+            rsaBits: validateOptionalNumber(body.rsaBits, 2048, "rsaBits", {
+              min: 2048,
+              max: 4096,
+            }),
+            keyExpirationTime: validateOptionalNumber(
+              body.keyExpirationTime,
+              0,
+              "keyExpirationTime",
+              { min: 0 },
+            ),
+          },
+          reply,
         );
-        if (!rsaBitsResult.valid) errors.push(rsaBitsResult.error);
-
-        const keyExpirationTimeResult = validateOptionalNumber(
-          body.keyExpirationTime,
-          0,
-          "keyExpirationTime",
-          { min: 0 },
-        );
-        if (!keyExpirationTimeResult.valid) errors.push(keyExpirationTimeResult.error);
-
-        if (errors.length > 0) {
-          return sendValidationError(reply, errors);
-        }
-
-        const name = (nameResult as { valid: true; value: string }).value;
-        const email = (emailResult as { valid: true; value: string }).value;
+        if (!v) return;
 
         const generated = (await generate({
           date: new Date(),
-          name,
-          email,
-          userIDs: [{ name, email }],
-          type: (typeResult as { valid: true; value: KeyType }).value,
-          passphrase: (passphraseResult as { valid: true; value: string }).value,
-          rsaBits: (rsaBitsResult as { valid: true; value: number }).value,
-          curve: (curveResult as { valid: true; value: CurveType }).value,
-          keyExpirationTime: (keyExpirationTimeResult as { valid: true; value: number }).value,
-          format: (formatResult as { valid: true; value: FormatType }).value,
-        })) as { privateKey: string; publicKey: string; revocationCertificate: string };
+          name: v.name,
+          email: v.email,
+          userIDs: [{ name: v.name, email: v.email }],
+          type: v.type as KeyType,
+          passphrase: v.passphrase,
+          rsaBits: v.rsaBits as number,
+          curve: v.curve as CurveType,
+          keyExpirationTime: v.keyExpirationTime as number,
+          format: v.format as FormatType,
+        })) as {
+          privateKey: string;
+          publicKey: string;
+          revocationCertificate: string;
+        };
 
         // Private key is intentionally NOT returned over the wire.
         return reply.send({

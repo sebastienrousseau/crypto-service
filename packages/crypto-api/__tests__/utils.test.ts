@@ -12,6 +12,7 @@ import {
   readQueryParams,
   readFormDataBody,
   readResponse,
+  readItems,
 } from '../src/utils';
 import {
   JsonDocument,
@@ -525,6 +526,88 @@ describe('utils/index.ts - Core Utility Functions', () => {
       const result = readRequest(requestWithEmptyHeaders);
       expect(result).to.include('### Request Headers');
       expect(result).to.include('|Parameter|Value|Description|');
+    });
+  });
+
+  describe('readItems', () => {
+    it('should handle nested folder/collection items with sub-items', () => {
+      const items = [
+        {
+          name: 'User Endpoints',
+          item: [
+            {
+              name: 'Get User',
+              request: {
+                method: 'GET',
+                url: '/users/1',
+                description: 'Fetch a user',
+              },
+            },
+          ],
+        },
+      ] as any;
+
+      const result = readItems(items);
+
+      // The folder heading should appear at depth 1
+      expect(result).to.include('# 📁 Collection: User Endpoints');
+      // The nested endpoint should be rendered via readMethods
+      expect(result).to.include('Get User');
+    });
+
+    it('should increase heading depth for deeply nested folders', () => {
+      const items = [
+        {
+          name: 'Root Folder',
+          item: [
+            {
+              name: 'Sub Folder',
+              item: [
+                {
+                  name: 'Leaf Endpoint',
+                  request: {
+                    method: 'POST',
+                    url: '/leaf',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ] as any;
+
+      const result = readItems(items);
+
+      // Root folder at depth 1
+      expect(result).to.include('# 📁 Collection: Root Folder');
+      // Sub folder at depth 2
+      expect(result).to.include('## 📁 Collection: Sub Folder');
+      // Leaf endpoint rendered
+      expect(result).to.include('Leaf Endpoint');
+    });
+
+    it('should handle a mix of folders and endpoints at the same level', () => {
+      const items = [
+        {
+          name: 'Auth Folder',
+          item: [
+            {
+              name: 'Login',
+              request: { method: 'POST', url: '/login' },
+            },
+          ],
+        },
+        {
+          name: 'Health Check',
+          request: { method: 'GET', url: '/health' },
+        },
+      ] as any;
+
+      const result = readItems(items);
+
+      expect(result).to.include('# 📁 Collection: Auth Folder');
+      expect(result).to.include('Login');
+      expect(result).to.include('Health Check');
     });
   });
 });

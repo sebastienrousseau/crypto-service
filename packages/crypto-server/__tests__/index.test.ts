@@ -112,8 +112,8 @@ describe('Crypto Server', () => {
         expect(fastifyOptions.caseSensitive).to.be.true;
       });
 
-      it('should have disableRequestLogging set to true', () => {
-        expect(fastifyOptions.disableRequestLogging).to.be.true;
+      it('should have request logging enabled', () => {
+        expect(fastifyOptions.disableRequestLogging).to.be.false;
       });
 
       it('should have keepAliveTimeout configured', () => {

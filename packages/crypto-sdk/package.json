@@ -1,0 +1,28 @@
+{
+  "name": "@sebastienrousseau/crypto-sdk",
+  "version": "0.0.3",
+  "description": "Type-safe TypeScript client for the Crypto Service Suite v2 API. Zero dependencies, fetch-based.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "clean": "rimraf ./dist"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.7.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
+}

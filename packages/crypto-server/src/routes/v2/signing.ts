@@ -1,0 +1,126 @@
+/**
+ * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
+import type { FastifyInstance } from "fastify";
+import {
+  generateEd25519KeyPair,
+  ed25519Sign,
+  ed25519Verify,
+} from "@sebastienrousseau/crypto-lib/dist/modern";
+import { rejectUnauthorized } from "../../utils/route-helpers";
+
+export default (app: FastifyInstance): void => {
+  app.post(
+    "/v2/keys/generate",
+    {
+      schema: {
+        tags: ["Key Management"],
+        summary: "Generate an Ed25519 key pair",
+        description:
+          "Generates a new Ed25519 signing key pair. The private key is returned — store it securely.",
+        body: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            algorithm: {
+              type: "string",
+              enum: ["ed25519"],
+              default: "ed25519",
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        if (rejectUnauthorized(request, reply)) return;
+        const keyPair = generateEd25519KeyPair();
+        return reply.send({ data: keyPair });
+      } catch (error) {
+        request.log.error(error, "v2 key generation failed");
+        return reply.status(500).send({ error: "Key generation failed" });
+      }
+    },
+  );
+
+  app.post(
+    "/v2/sign",
+    {
+      schema: {
+        tags: ["Signing"],
+        summary: "Sign with Ed25519",
+        description: "Create an Ed25519 digital signature over a message.",
+        body: {
+          type: "object",
+          required: ["privateKey", "message"],
+          additionalProperties: false,
+          properties: {
+            privateKey: { type: "string", minLength: 64, maxLength: 64 },
+            message: {
+              type: "string",
+              minLength: 1,
+              maxLength: 10 * 1024 * 1024,
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        if (rejectUnauthorized(request, reply)) return;
+        const { privateKey, message } = request.body as {
+          privateKey: string;
+          message: string;
+        };
+        const result = ed25519Sign(privateKey, message);
+        return reply.send({ data: result });
+      } catch (error) {
+        request.log.error(error, "v2 signing failed");
+        return reply.status(500).send({ error: "Signing failed" });
+      }
+    },
+  );
+
+  app.post(
+    "/v2/verify",
+    {
+      schema: {
+        tags: ["Signing"],
+        summary: "Verify an Ed25519 signature",
+        description:
+          "Verify a digital signature against a message and public key.",
+        body: {
+          type: "object",
+          required: ["publicKey", "message", "signature"],
+          additionalProperties: false,
+          properties: {
+            publicKey: { type: "string", minLength: 64, maxLength: 64 },
+            message: {
+              type: "string",
+              minLength: 1,
+              maxLength: 10 * 1024 * 1024,
+            },
+            signature: { type: "string", minLength: 128, maxLength: 128 },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        if (rejectUnauthorized(request, reply)) return;
+        const { publicKey, message, signature } = request.body as {
+          publicKey: string;
+          message: string;
+          signature: string;
+        };
+        const result = ed25519Verify(publicKey, message, signature);
+        return reply.send({ data: result });
+      } catch (error) {
+        request.log.error(error, "v2 verification failed");
+        return reply.status(500).send({ error: "Verification failed" });
+      }
+    },
+  );
+};

@@ -11,6 +11,7 @@
  * and does not apply to JSON body fields.
  */
 
+import { timingSafeEqual } from "crypto";
 import { FastifyReply } from "fastify";
 
 /**
@@ -41,7 +42,10 @@ export function validateRequiredString(
   if (typeof value !== "string" || value.trim() === "") {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be a non-empty string` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be a non-empty string`,
+      },
     };
   }
   return { valid: true, value };
@@ -65,19 +69,28 @@ export function validateRequiredNumber(
   if (!Number.isFinite(numValue)) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be a valid number` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be a valid number`,
+      },
     };
   }
   if (options?.min !== undefined && numValue < options.min) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be at least ${options.min}` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be at least ${options.min}`,
+      },
     };
   }
   if (options?.max !== undefined && numValue > options.max) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be at most ${options.max}` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be at most ${options.max}`,
+      },
     };
   }
   return { valid: true, value: numValue };
@@ -113,7 +126,10 @@ export function validateBase64(
   if (!base64Regex.test(stringResult.value)) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be valid base64 encoded data` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be valid base64 encoded data`,
+      },
     };
   }
   return { valid: true, value: stringResult.value };
@@ -133,7 +149,10 @@ export function validateEmail(
   if (!emailRegex.test(stringResult.value)) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be a valid email address` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be a valid email address`,
+      },
     };
   }
   return { valid: true, value: stringResult.value };
@@ -176,7 +195,10 @@ export function validateDateString(
   if (Number.isNaN(date.getTime())) {
     return {
       valid: false,
-      error: { field: fieldName, message: `${fieldName} must be a valid ISO date string` },
+      error: {
+        field: fieldName,
+        message: `${fieldName} must be a valid ISO date string`,
+      },
     };
   }
   return { valid: true, value: date };
@@ -208,5 +230,11 @@ export function validateApiKey(
   }
   if (apiKey === undefined || apiKey === null) return false;
   const key = Array.isArray(apiKey) ? apiKey[0] : apiKey;
-  return typeof key === "string" && key === expectedKey;
+  if (typeof key !== "string") return false;
+
+  // Constant-time comparison prevents timing-based key extraction.
+  const a = Buffer.from(key);
+  const b = Buffer.from(expectedKey);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }

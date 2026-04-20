@@ -199,12 +199,32 @@ describe('index.ts - Main Entry Point', () => {
     });
 
     it('should handle unknown error types', async () => {
-      // This is harder to test directly since we need to trigger a non-Error exception
-      // We can at least verify the code path exists by checking the function structure
-      expect(init).to.be.a('function');
+      // Create a valid file so fs.access and fs.readFile pass, then
+      // monkey-patch JSON.parse to throw a non-Error value.
+      const testFilePath = path.join(__dirname, 'unknown-err-test.json');
+      const originalJsonParse = JSON.parse;
 
-      // The error handling for unknown errors is present in the code
-      // but difficult to trigger in a unit test without mocking internals
+      try {
+        await fs.writeFile(testFilePath, '{"valid": true}');
+
+        process.argv = ['node', 'script.js', testFilePath, 'output.md'];
+
+        // Patch JSON.parse to throw a string (non-Error) which triggers
+        // the `else` branch in the catch block (lines 95-96).
+        JSON.parse = () => { throw 'something went wrong'; };
+
+        await init();
+
+        expect(errorOutputs.length).to.be.greaterThan(0);
+        expect(errorOutputs[0]).to.include('An unknown error occurred:');
+      } finally {
+        JSON.parse = originalJsonParse;
+        try {
+          await fs.unlink(testFilePath);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
     });
 
     it('should handle file access errors correctly', async () => {

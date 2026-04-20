@@ -10,7 +10,9 @@
 
 import { FastifyServerOptions } from "fastify";
 import { FastifyCompressOptions } from "@fastify/compress";
-import * as pack from "../../package.json";
+import type { FastifyCorsOptions } from "@fastify/cors";
+import type { FastifyHelmetOptions } from "@fastify/helmet";
+import pack from "../../package.json";
 
 /**
  * @constant {string} LIB_VERSION
@@ -46,7 +48,10 @@ export const PROTOCOL = process.env["PROTOCOL"] ?? "http";
 const parseTrustProxy = (): boolean | string[] => {
   const raw = process.env["TRUSTED_PROXY_CIDRS"];
   if (!raw) return false;
-  return raw.split(",").map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+  return raw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
 };
 
 /**
@@ -69,7 +74,7 @@ export const fastifyOptions: FastifyServerOptions = {
   bodyLimit: 256 * 1024,
   caseSensitive: true,
   connectionTimeout: 30_000,
-  disableRequestLogging: true,
+  disableRequestLogging: false,
   ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
   logger: true,
@@ -91,6 +96,30 @@ export const compressOptions: FastifyCompressOptions = {
   zlibOptions: {
     level: 6,
   },
+};
+
+/**
+ * @constant {FastifyHelmetOptions} helmetOptions
+ * Security headers via @fastify/helmet. ContentSecurityPolicy is relaxed
+ * for the JSON-only API surface.
+ */
+export const helmetOptions: FastifyHelmetOptions = {
+  global: true,
+  contentSecurityPolicy: false,
+};
+
+/**
+ * @constant {FastifyCorsOptions} corsOptions
+ * Cross-Origin Resource Sharing defaults. Restrict to specific origins
+ * in production via the `CORS_ORIGIN` environment variable (comma-separated).
+ */
+export const corsOptions: FastifyCorsOptions = {
+  origin: process.env["CORS_ORIGIN"]
+    ? process.env["CORS_ORIGIN"].split(",").map((o) => o.trim())
+    : false,
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "x-api-key"],
+  credentials: true,
 };
 
 /**

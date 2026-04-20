@@ -7,3 +7,7 @@ assets/
 Makefile
 node_modules
 test/
+__tests__/
+src/key/*.key
+src/key/*.pub
+src/key/*.cert

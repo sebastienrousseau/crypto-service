@@ -9,16 +9,33 @@
 
 import type { FastifyInstance } from "fastify";
 import revoke from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
-import { IBodyRevoke, REVOCATION_FLAGS, RevocationFlag } from "../../@types/types";
+import { IBodyRevoke, REVOCATION_FLAGS } from "../../@types/types";
 import {
   validateRequiredString,
   validateRequiredNumber,
-  sendValidationError,
-  validateApiKey,
-  ValidationError,
 } from "../../utils/validation";
+import {
+  rejectUnauthorized,
+  collectValidation,
+} from "../../utils/route-helpers";
 
 const revokeSchema = {
+  tags: ["Key Management"],
+  summary: "Revoke a key pair",
+  description:
+    "Revokes the shipped key pair with a reason code (0=unspecified, 1=superseded, 2=compromised, 3=retired).",
+  response: {
+    200: {
+      type: "object",
+      additionalProperties: true,
+      properties: { data: {} },
+    },
+    400: {
+      type: "object",
+      properties: { error: { type: "string" }, details: { type: "array" } },
+    },
+    401: { type: "object", properties: { error: { type: "string" } } },
+  },
   body: {
     type: "object",
     required: ["passphrase", "flag", "reason"],
@@ -37,38 +54,23 @@ export default (app: FastifyInstance): void => {
     { schema: revokeSchema },
     async (request, reply) => {
       try {
-        const apiKeyConfig = process.env["CRYPTO_API_KEY"];
-        if (!validateApiKey(request.headers["x-api-key"], apiKeyConfig)) {
-          return reply.status(401).send({ error: "Unauthorized: Invalid or missing API key" });
-        }
+        if (rejectUnauthorized(request, reply)) return;
 
         const body = request.body as IBodyRevoke;
-        const errors: ValidationError[] = [];
-
-        const passphraseResult = validateRequiredString(body.passphrase, "passphrase");
-        if (!passphraseResult.valid) errors.push(passphraseResult.error);
-
-        const flagResult = validateRequiredNumber(body.flag, "flag", { min: 0, max: 3 });
-        if (!flagResult.valid) {
-          errors.push(flagResult.error);
-        } else if (!REVOCATION_FLAGS.includes(flagResult.value as RevocationFlag)) {
-          errors.push({
-            field: "flag",
-            message: `flag must be one of: ${REVOCATION_FLAGS.join(", ")}`,
-          });
-        }
-
-        const reasonResult = validateRequiredString(body.reason, "reason");
-        if (!reasonResult.valid) errors.push(reasonResult.error);
-
-        if (errors.length > 0) {
-          return sendValidationError(reply, errors);
-        }
+        const v = collectValidation(
+          {
+            passphrase: validateRequiredString(body.passphrase, "passphrase"),
+            flag: validateRequiredNumber(body.flag, "flag", { min: 0, max: 3 }),
+            reason: validateRequiredString(body.reason, "reason"),
+          },
+          reply,
+        );
+        if (!v) return;
 
         const revocationData = await revoke({
-          passphrase: (passphraseResult as { valid: true; value: string }).value,
-          flag: (flagResult as { valid: true; value: number }).value,
-          reason: (reasonResult as { valid: true; value: string }).value,
+          passphrase: v.passphrase as string,
+          flag: v.flag as number,
+          reason: v.reason as string,
         });
 
         return reply.send({ data: revocationData });
