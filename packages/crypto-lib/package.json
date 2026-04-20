@@ -31,7 +31,7 @@
     "lint:fix": "eslint --cache --fix src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "start": "node dist/index.js",
-    "test": "CRYPTO_KEY_DIR=\"$(pwd)/__tests__/fixtures/keys\" CRYPTO_KEY_OUT_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test": "mkdir -p \"${TMPDIR:-/tmp}/crypto-lib-test-out\" && CRYPTO_KEY_DIR=\"$(pwd)/__tests__/fixtures/keys\" CRYPTO_KEY_OUT_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" CRYPTO_DATA_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
   "dependencies": {
