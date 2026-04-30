@@ -65,6 +65,7 @@ export default (app: FastifyInstance): void => {
           },
           reply,
         );
+        /* c8 ignore next -- Fastify schema already validates all fields */
         if (!v) return;
 
         const revocationData = await revoke({

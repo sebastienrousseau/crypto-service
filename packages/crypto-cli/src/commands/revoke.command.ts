@@ -19,7 +19,8 @@ const handleRevoke = async () => {
       message: "Provide a reason for revocation (optional)",
     },
   ]);
-  console.log(responseRevoke);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseRevoke);
 
   const data = {
     date: new Date(),

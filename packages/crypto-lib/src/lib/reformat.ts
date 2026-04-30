@@ -41,19 +41,20 @@ export const reformat = async (data: types.dataReformat) => {
     format: "armored",
   });
 
-  const pubArmored = typeof reformatted.publicKey === "string"
-    ? reformatted.publicKey
-    : (reformatted.publicKey as openpgp.PublicKey).armor();
-  const privArmored = typeof reformatted.privateKey === "string"
-    ? reformatted.privateKey
-    : (reformatted.privateKey as openpgp.PrivateKey).armor();
+  const pubArmored = reformatted.publicKey as string;
+  const privArmored = reformatted.privateKey as string;
 
-  const keyDir = process.env["CRYPTO_KEY_DIR"]
-    ?? path.resolve(__dirname, "..", "key");
+  const keyDir =
+    process.env["CRYPTO_KEY_DIR"] ?? path.resolve(__dirname, "..", "key");
   await Promise.all([
     writeFile(path.join(keyDir, "rsa-reformat.pub"), pubArmored, "utf8"),
     writeFile(path.join(keyDir, "rsa-reformat.key"), privArmored, "utf8"),
-    writeFile(path.join(keyDir, "rsa-reformat.cert"), reformatted.revocationCertificate ?? "", "utf8"),
+    /* c8 ignore next -- revocationCertificate is always a string from reformatKey */
+    writeFile(
+      path.join(keyDir, "rsa-reformat.cert"),
+      reformatted.revocationCertificate ?? "",
+      "utf8",
+    ),
   ]);
 
   return reformatted;

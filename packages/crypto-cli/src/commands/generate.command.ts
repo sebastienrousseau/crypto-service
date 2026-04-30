@@ -45,7 +45,8 @@ const handleGenerate = async () => {
     },
   ]);
 
-  console.log(responseGenerate);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseGenerate);
 
   const data = {
     date: new Date(),

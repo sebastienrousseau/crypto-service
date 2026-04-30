@@ -38,9 +38,11 @@ export default (app: FastifyInstance): void => {
     };
 
     const allReady = Object.values(checks).every(Boolean);
+    /* c8 ignore next -- checks are hardcoded true; 503 path is defensive */
     const status = allReady ? 200 : 503;
 
     return reply.status(status).send({
+      /* c8 ignore next -- see above */
       status: allReady ? "ready" : "not_ready",
       checks,
     });

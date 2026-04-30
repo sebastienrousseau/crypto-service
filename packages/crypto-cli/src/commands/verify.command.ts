@@ -22,7 +22,8 @@ const handleVerify = async () => {
     },
   ]);
 
-  console.log(responseVerify);
+  // Security: Do not log user input
+  // console.log(responseVerify);
 
   const data = {
     message: responseVerify.message,

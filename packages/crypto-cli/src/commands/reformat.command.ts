@@ -29,7 +29,8 @@ const handleReformat = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseReformat);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseReformat);
 
   const data = {
     date: new Date(),

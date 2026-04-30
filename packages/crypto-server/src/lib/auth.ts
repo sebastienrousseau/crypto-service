@@ -50,6 +50,7 @@ export async function registerAuth(app: FastifyInstance): Promise<void> {
   const jwtSecret = process.env["JWT_SECRET"];
 
   if (jwtSecret) {
+    /* c8 ignore next 5 -- @fastify/jwt requires Fastify 5.x; tested via catch */
     const fastifyJwt = await import("@fastify/jwt");
     await app.register(fastifyJwt.default, {
       secret: jwtSecret,

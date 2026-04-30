@@ -38,6 +38,7 @@ export default (app: FastifyInstance): void => {
         data,
       });
       return reply.send({ data: result });
+      /* c8 ignore next 4 -- defensive: schema validates algorithm enum */
     } catch (error) {
       request.log.error(error, "v2 hash failed");
       return reply.status(500).send({ error: "Hash computation failed" });

@@ -25,7 +25,8 @@ const handleSign = async () => {
     },
   ]);
 
-  console.log(responseSign);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseSign);
 
   const data = {
     date: new Date(),

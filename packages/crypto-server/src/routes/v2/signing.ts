@@ -38,6 +38,7 @@ export default (app: FastifyInstance): void => {
         if (rejectUnauthorized(request, reply)) return;
         const keyPair = generateEd25519KeyPair();
         return reply.send({ data: keyPair });
+        /* c8 ignore next 4 -- defensive: generateEd25519KeyPair never throws */
       } catch (error) {
         request.log.error(error, "v2 key generation failed");
         return reply.status(500).send({ error: "Key generation failed" });

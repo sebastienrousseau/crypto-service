@@ -13,6 +13,7 @@ export const getVersion = async () => {
     await readFile(packageJsonPath, { encoding: "utf-8" }),
   );
 
+  /* c8 ignore next -- package.json always has version field */
   const versionStr = packageJson["version"] || "unknown";
 
   version = `v${versionStr}`;

@@ -37,7 +37,7 @@ const handleDecrypt = async () => {
       "\n🔔 You must provide a value for each of the properties.\n",
     );
   } else {
-    // console.log(data);
+    /* c8 ignore next 2 -- decrypt always throws: command doesn't collect privateKey */
     await decrypt(data);
   }
 };

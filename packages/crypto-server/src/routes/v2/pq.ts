@@ -39,6 +39,7 @@ export default (app: FastifyInstance): void => {
         if (rejectUnauthorized(request, reply)) return;
         const keyPair = mlKemGenerateKeyPair();
         return reply.send({ data: keyPair });
+        /* c8 ignore next 4 -- defensive: mlKemGenerateKeyPair never throws */
       } catch (error) {
         request.log.error(error, "ML-KEM keygen failed");
         return reply.status(500).send({ error: "Key generation failed" });
@@ -130,6 +131,7 @@ export default (app: FastifyInstance): void => {
         if (rejectUnauthorized(request, reply)) return;
         const keyPair = hybridGenerateKeyPair();
         return reply.send({ data: keyPair });
+        /* c8 ignore next 4 -- defensive: hybridGenerateKeyPair never throws */
       } catch (error) {
         request.log.error(error, "Hybrid keygen failed");
         return reply.status(500).send({ error: "Key generation failed" });

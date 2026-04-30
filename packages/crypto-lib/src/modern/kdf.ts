@@ -59,12 +59,19 @@ export interface KdfResult {
   keyLength: number;
 }
 
+const HEX_RE = /^[0-9a-fA-F]*$/;
+
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  if (encoding === "hex") return Buffer.from(input, "hex");
+  if (encoding === "hex") {
+    if (!HEX_RE.test(input)) {
+      throw new Error("Invalid hex string");
+    }
+    return Buffer.from(input, "hex");
+  }
   return Buffer.from(input, "utf8");
 }
 

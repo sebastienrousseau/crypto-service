@@ -43,7 +43,8 @@ describe("Modern Crypto Primitives", () => {
     });
 
     it("should reject invalid key length", () => {
-      expect(() => aeadEncrypt({ key: "short", plaintext: "test" })).to.throw(/32 bytes/);
+      // Use valid hex that is too short (16 bytes instead of 32)
+      expect(() => aeadEncrypt({ key: "aa".repeat(16), plaintext: "test" })).to.throw(/32 bytes/);
     });
 
     it("should reject too-short ciphertext", () => {

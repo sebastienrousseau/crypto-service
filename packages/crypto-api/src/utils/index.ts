@@ -36,13 +36,13 @@ interface BodyShape {
 
 interface MethodLike {
   name: string;
-  request?: (JsonRequest & {
+  request?: JsonRequest & {
     method?: string;
     description?: string;
     url?: UrlWithQuery | string;
     body?: BodyShape;
     auth?: AuthorizationInfo;
-  });
+  };
   response?: ResponseType[];
 }
 
@@ -71,7 +71,9 @@ export const createMarkdown = (data: JsonDocument): string => {
 /**
  * Generates markdown for displaying authorization information.
  */
-export const readAuthorization = (data: AuthorizationInfo | undefined): string => {
+export const readAuthorization = (
+  data: AuthorizationInfo | undefined,
+): string => {
   if (!data || !data.bearer) return "";
   const parts: string[] = [];
   parts.push(`## 🔑 Authentication ${data.type}\n\n`);
@@ -104,7 +106,9 @@ export function readRequest(data: JsonRequest | undefined): string {
 /**
  * Generates markdown for displaying query parameters.
  */
-export function readQueryParams(url: UrlWithQuery | string | null | undefined): string {
+export function readQueryParams(
+  url: UrlWithQuery | string | null | undefined,
+): string {
   if (!url || typeof url === "string" || !url.query) return "";
   const parts: string[] = [];
   parts.push("### Query Params\n\n");
@@ -136,11 +140,12 @@ export function readFormDataBody(body: BodyShape | null | undefined): string {
     parts.push("|---|---|---|\n");
     for (let i = 0, len = body.formdata.length; i < len; i++) {
       const form = body.formdata[i]!;
-      const value = form.type === "file"
-        ? (form.src ?? "")
-        : form.value !== undefined
-          ? form.value.replace(/\\n/g, "")
-          : "";
+      const value =
+        form.type === "file"
+          ? (form.src ?? "")
+          : form.value !== undefined
+            ? form.value.replace(/\\n/g, "")
+            : "";
       parts.push(`|${form.key}|${value}|${form.type}|\n`);
     }
     parts.push("\n\n");
@@ -179,9 +184,8 @@ export function readMethods(method: MethodLike): string {
   }
   parts.push(`### ${method.request?.method ?? ""} ${method.name}\n\n`);
   parts.push(">```\n");
-  const urlString = typeof method.request?.url === "string"
-    ? method.request.url
-    : "";
+  const urlString =
+    typeof method.request?.url === "string" ? method.request.url : "";
   parts.push(`>${urlString}\n`);
   parts.push(">```\n");
   parts.push(readRequest(method.request));
@@ -213,10 +217,15 @@ export function readItems(items: ItemShape[], folderDeep = 1): string {
 /**
  * Creates a markdown file with specified content.
  */
-export const response = async (content: string, fileName: string): Promise<void> => {
+export const response = async (
+  content: string,
+  fileName: string,
+): Promise<void> => {
   const dir = path.resolve(__dirname, "../../src/docs");
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, fileName + ".md"), content, "utf8");
+  // Sanitize fileName to prevent path traversal
+  const safeName = path.basename(fileName);
+  await writeFile(path.join(dir, safeName + ".md"), content, "utf8");
 };
 
 export default { createMarkdown, response };

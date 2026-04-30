@@ -19,7 +19,8 @@ const handleSession = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseSession);
+  // Security: Do not log user input
+  // console.log(responseSession);
 
   const data = {
     email: responseSession.email,
