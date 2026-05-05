@@ -5,6 +5,9 @@
 
 /**
  * @file POST `/v1/decrypt` — decrypt a PGP message.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/decrypt or POST /v2/secretbox/open instead.
  */
 
 import type { FastifyInstance } from "fastify";

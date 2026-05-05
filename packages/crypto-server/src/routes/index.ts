@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -18,7 +18,16 @@ import v2Routes from "./v2";
 import probeRoutes from "./probes";
 
 export default (app: fastify.FastifyInstance): void => {
-  // v1: OpenPGP-based operations (backward compatible)
+  // v1: OpenPGP-based operations (deprecated — will be removed in v1.0.0)
+  // Add deprecation warning header to all v1 responses
+  app.addHook("onSend", async (request, reply) => {
+    if (request.url.startsWith("/v1/")) {
+      reply.header("Deprecation", "true");
+      reply.header("Sunset", "2027-01-01T00:00:00Z");
+      reply.header("Link", '</v2>; rel="successor-version"');
+    }
+  });
+
   decryptRoute(app);
   encryptRoute(app);
   generateRoute(app);

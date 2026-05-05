@@ -5,6 +5,9 @@
 
 /**
  * @file POST `/v1/generate` — generate an OpenPGP key pair.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/keys/generate instead.
  */
 
 import type { FastifyInstance } from "fastify";

@@ -5,6 +5,9 @@
 
 /**
  * @file POST `/v1/revoke` — revoke the shipped key pair.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use the v2 key management API instead.
  */
 
 import type { FastifyInstance } from "fastify";

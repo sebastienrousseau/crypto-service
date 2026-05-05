@@ -1,6 +1,7 @@
 import { reformat } from "../../src/lib/reformat"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
+import { _resetKeystoreForTests } from "../../src/key/keystore";
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
@@ -15,6 +16,9 @@ const data = {
 };
 
 describe('reformat', function () {
+  before(() => { _resetKeystoreForTests(); });
+  after(() => { _resetKeystoreForTests(); });
+
   it('should reformat a message', async function () {
     const test = reformat(data);
     await expect(test).to.eventually.be.fulfilled;

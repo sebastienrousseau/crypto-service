@@ -691,6 +691,172 @@ describe("CryptoClient", () => {
   });
 
   // -----------------------------------------------------------------------
+  // New Methods: PQ Signatures, Secretbox, Sealedbox, Password, Key Wrap, MAC
+  // -----------------------------------------------------------------------
+
+  describe("pqSign()", () => {
+    it("should call /v2/pq/dsa/sign", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { signature: "s", algorithm: "ml-dsa-65" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqSign({ level: 65, secretKey: "sk", message: "msg" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/dsa/sign");
+    });
+  });
+
+  describe("pqVerify()", () => {
+    it("should call /v2/pq/dsa/verify", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { valid: true, algorithm: "ml-dsa-65" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqVerify({ level: 65, publicKey: "pk", message: "msg", signature: "sig" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/dsa/verify");
+    });
+  });
+
+  describe("pqSignKeygen()", () => {
+    it("should call /v2/pq/dsa/keygen", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { publicKey: "p", secretKey: "s", algorithm: "ml-dsa-44" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqSignKeygen({ level: 44 });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/dsa/keygen");
+    });
+  });
+
+  describe("pqHashSign()", () => {
+    it("should call /v2/pq/hash-sign/sign", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { signature: "s", algorithm: "slh-dsa" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqHashSign({ variant: "shake-128f", secretKey: "sk", message: "m" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/hash-sign/sign");
+    });
+  });
+
+  describe("pqHashVerify()", () => {
+    it("should call /v2/pq/hash-sign/verify", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { valid: true, algorithm: "slh-dsa" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqHashVerify({ variant: "shake-128f", publicKey: "pk", message: "m", signature: "s" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/hash-sign/verify");
+    });
+  });
+
+  describe("pqHashSignKeygen()", () => {
+    it("should call /v2/pq/hash-sign/keygen", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { publicKey: "p", secretKey: "s", algorithm: "slh-dsa" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.pqHashSignKeygen({ variant: "shake-128f" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/hash-sign/keygen");
+    });
+  });
+
+  describe("secretboxSeal()", () => {
+    it("should call /v2/secretbox/seal", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { sealed: "ct" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.secretboxSeal({ key: "k", plaintext: "p" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/secretbox/seal");
+    });
+  });
+
+  describe("secretboxOpen()", () => {
+    it("should call /v2/secretbox/open", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { plaintext: "pt" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.secretboxOpen({ key: "k", ciphertext: "ct" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/secretbox/open");
+    });
+  });
+
+  describe("sealedboxSeal()", () => {
+    it("should call /v2/sealedbox/seal", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { sealed: "s", ephemeralPublicKey: "e" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.sealedboxSeal({ recipientPublicKey: "pk", plaintext: "p" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/sealedbox/seal");
+    });
+  });
+
+  describe("sealedboxOpen()", () => {
+    it("should call /v2/sealedbox/open", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { plaintext: "pt" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.sealedboxOpen({ recipientSecretKey: "sk", sealed: "s" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/sealedbox/open");
+    });
+  });
+
+  describe("passwordEncrypt()", () => {
+    it("should call /v2/password/encrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { ciphertext: "ct" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.passwordEncrypt({ password: "pw", plaintext: "pt" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/password/encrypt");
+    });
+  });
+
+  describe("passwordDecrypt()", () => {
+    it("should call /v2/password/decrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { plaintext: "pt" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.passwordDecrypt({ password: "pw", ciphertext: "ct" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/password/decrypt");
+    });
+  });
+
+  describe("passwordHash()", () => {
+    it("should call /v2/password/hash", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { hash: "h", salt: "s", params: { t: 3, m: 65536, p: 4 }, algorithm: "argon2id", phc: "$argon2id$..." } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.passwordHash({ password: "pw" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/password/hash");
+    });
+  });
+
+  describe("passwordVerify()", () => {
+    it("should call /v2/password/verify", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { valid: true } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.passwordVerify({ password: "pw", hash: "h", salt: "s", params: { t: 3, m: 65536, p: 4 } });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/password/verify");
+    });
+  });
+
+  describe("mac()", () => {
+    it("should call /v2/mac/compute", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { mac: "m", algorithm: "hmac-sha256" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.mac({ algorithm: "hmac-sha256", key: "k", data: "d" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/mac/compute");
+    });
+  });
+
+  describe("macVerify()", () => {
+    it("should call /v2/mac/verify", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { valid: true } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.macVerify({ algorithm: "hmac-sha256", key: "k", data: "d", mac: "m" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/mac/verify");
+    });
+  });
+
+  describe("keyWrap()", () => {
+    it("should call /v2/keys/wrap", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { wrappedKey: "wk" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.keyWrap({ kek: "k", keyToWrap: "kw" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/keys/wrap");
+    });
+  });
+
+  describe("keyUnwrap()", () => {
+    it("should call /v2/keys/unwrap", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: { key: "k" } });
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000", fetch });
+      await client.keyUnwrap({ kek: "k", wrappedKey: "wk" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/keys/unwrap");
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Utility: algorithms, health
   // -----------------------------------------------------------------------
 

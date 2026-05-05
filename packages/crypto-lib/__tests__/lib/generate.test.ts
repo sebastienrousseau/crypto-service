@@ -3,6 +3,7 @@ import { generate } from "../../src/lib/generate"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import * as types from "../../src/types/types";
+import { _resetKeystoreForTests } from "../../src/key/keystore";
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
@@ -21,6 +22,9 @@ const data: types.dataGenerate = {
 };
 
 describe('Generate key', function () {
+  before(() => { _resetKeystoreForTests(); });
+  after(() => { _resetKeystoreForTests(); });
+
   it('should generate a key', async function () {
     const test = generate(data);
     await expect(test).to.eventually.be.fulfilled;

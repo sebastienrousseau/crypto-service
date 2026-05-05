@@ -5,6 +5,9 @@
 
 /**
  * @file POST `/v1/verify` — verify a signed message.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/verify instead.
  */
 
 import type { FastifyInstance } from "fastify";

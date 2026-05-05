@@ -7,6 +7,7 @@ import handleRevoke from "./revoke.command";
 import handleSession from "./session.command";
 import handleSign from "./sign.command";
 import handleVerify from "./verify.command";
+import { ModernCommand } from "./modern";
 
 export const Command = {
   handleDecrypt,
@@ -18,4 +19,5 @@ export const Command = {
   handleSession,
   handleSign,
   handleVerify,
+  ...ModernCommand,
 };

@@ -6,6 +6,9 @@
 /**
  * @file POST `/v1/encrypt` — encrypt a message with a supplied public key.
  *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/encrypt or POST /v2/secretbox/seal instead.
+ *
  * Accepts a JSON body (not headers) so secrets do not transit through the
  * request line or end up in reverse-proxy access logs.
  */

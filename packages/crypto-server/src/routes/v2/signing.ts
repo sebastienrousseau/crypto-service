@@ -5,46 +5,13 @@
 
 import type { FastifyInstance } from "fastify";
 import {
-  generateEd25519KeyPair,
   ed25519Sign,
   ed25519Verify,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
 export default (app: FastifyInstance): void => {
-  app.post(
-    "/v2/keys/generate",
-    {
-      schema: {
-        tags: ["Key Management"],
-        summary: "Generate an Ed25519 key pair",
-        description:
-          "Generates a new Ed25519 signing key pair. The private key is returned — store it securely.",
-        body: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            algorithm: {
-              type: "string",
-              enum: ["ed25519"],
-              default: "ed25519",
-            },
-          },
-        },
-      },
-    },
-    async (request, reply) => {
-      try {
-        if (rejectUnauthorized(request, reply)) return;
-        const keyPair = generateEd25519KeyPair();
-        return reply.send({ data: keyPair });
-        /* c8 ignore next 4 -- defensive: generateEd25519KeyPair never throws */
-      } catch (error) {
-        request.log.error(error, "v2 key generation failed");
-        return reply.status(500).send({ error: "Key generation failed" });
-      }
-    },
-  );
+  // Key generation moved to keys.ts (supports all algorithms)
 
   app.post(
     "/v2/sign",
