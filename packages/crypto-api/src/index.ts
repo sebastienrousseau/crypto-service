@@ -10,7 +10,11 @@
  * then utilizes utility functions to generate and handle the markdown content.
  */
 
-import minimist from "minimist";
+// eslint-disable-next-line
+const minimist = require("minimist") as (argv: string[]) => {
+  _: string[];
+  [k: string]: unknown;
+};
 import * as fs from "fs/promises";
 import { createMarkdown, response } from "./utils";
 
