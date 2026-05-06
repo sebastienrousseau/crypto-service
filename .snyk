@@ -1,0 +1,6 @@
+# Snyk (https://snyk.io) policy file
+# ignores vulnerabilities until expiry date
+version: v1.25.0
+ignore: {}
+# Note: This project uses fastify ^4.28.0 (currently 4.29.1).
+# Fastify 5.x CVEs do not affect the 4.x branch.

@@ -80,7 +80,7 @@ export const readAuthorization = (
   parts.push("|Param|value|Type|\n");
   parts.push("|---|---|---|\n");
   for (let i = 0, len = data.bearer.length; i < len; i++) {
-    const auth = data.bearer[i]!;
+    const auth = data.bearer[i];
     parts.push(`|${auth.key}|${auth.value}|${auth.type}|\n`);
   }
   parts.push("\n\n");
@@ -97,7 +97,7 @@ export function readRequest(data: JsonRequest | undefined): string {
   parts.push("|Parameter|Value|Description|\n");
   parts.push("|---|---|---|\n");
   for (let i = 0, len = data.header.length; i < len; i++) {
-    const header = data.header[i]!;
+    const header = data.header[i];
     parts.push(`|${header.key}|${header.value}|${header.description}|\n`);
   }
   return parts.join("");
@@ -115,8 +115,8 @@ export function readQueryParams(
   parts.push("|Param|value|\n");
   parts.push("|---|---|\n");
   for (let i = 0, len = url.query.length; i < len; i++) {
-    const q = url.query[i]!;
-    parts.push(`|${q.key}|${q.value}|\n`);
+    const param = url.query[i];
+    if (param) parts.push(`|${param.key}|${param.value}|\n`);
   }
   parts.push("\n\n");
   return parts.join("");
@@ -139,7 +139,7 @@ export function readFormDataBody(body: BodyShape | null | undefined): string {
     parts.push("|Param|value|Type|\n");
     parts.push("|---|---|---|\n");
     for (let i = 0, len = body.formdata.length; i < len; i++) {
-      const form = body.formdata[i]!;
+      const form = body.formdata[i];
       const value =
         form.type === "file"
           ? (form.src ?? "")
@@ -159,13 +159,13 @@ export function readFormDataBody(body: BodyShape | null | undefined): string {
 export function readResponse(responses: ResponseType[] | undefined): string {
   if (!responses || responses.length === 0) return "";
   const parts: string[] = [];
-  const first = responses[0]!;
+  const first = responses[0];
   parts.push("### Response\n\n");
   parts.push("|Code|Status|\n");
   parts.push("|---|---|\n");
   for (let i = 0, len = responses.length; i < len; i++) {
-    const r = responses[i]!;
-    parts.push(`|${r.code}|${r.status}|\n`);
+    const resp = responses[i];
+    if (resp) parts.push(`|${resp.code}|${resp.status}|\n`);
   }
   parts.push("\n#### Example response\n\n");
   parts.push("```json\n");
