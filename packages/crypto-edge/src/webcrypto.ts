@@ -64,6 +64,17 @@ function toBytes(input: string | Uint8Array): Uint8Array {
 }
 
 /**
+ * Convert a Uint8Array to an ArrayBuffer (WebCrypto-compatible BufferSource).
+ * Avoids TS strictness issues with Uint8Array's ArrayBufferLike vs ArrayBuffer.
+ */
+function buf(data: Uint8Array): ArrayBuffer {
+  return data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.byteLength,
+  ) as ArrayBuffer;
+}
+
+/**
  * Convert a Uint8Array to a lowercase hex string without relying on
  * `Buffer`.
  */
@@ -107,7 +118,7 @@ export async function hash(
 ): Promise<string> {
   const subtle = getSubtle();
   const input = toBytes(data);
-  const digest = await subtle.digest(algorithm, input);
+  const digest = await subtle.digest(algorithm, buf(input));
   return toHex(new Uint8Array(digest));
 }
 
@@ -148,7 +159,7 @@ export async function encrypt(
 
   const cryptoKey = await subtle.importKey(
     "raw",
-    key,
+    buf(key),
     { name: "AES-GCM" },
     false,
     ["encrypt"],
@@ -156,14 +167,14 @@ export async function encrypt(
 
   const params: AesGcmParams = {
     name: "AES-GCM",
-    iv,
+    iv: buf(iv),
     tagLength: 128,
   };
   if (aad) {
-    params.additionalData = aad;
+    params.additionalData = buf(aad);
   }
 
-  const encrypted = await subtle.encrypt(params, cryptoKey, plaintext);
+  const encrypted = await subtle.encrypt(params, cryptoKey, buf(plaintext));
   const sealed = new Uint8Array(encrypted);
 
   return {
@@ -211,7 +222,7 @@ export async function decrypt(
 
   const cryptoKey = await subtle.importKey(
     "raw",
-    key,
+    buf(key),
     { name: "AES-GCM" },
     false,
     ["decrypt"],
@@ -219,14 +230,14 @@ export async function decrypt(
 
   const params: AesGcmParams = {
     name: "AES-GCM",
-    iv,
+    iv: buf(iv),
     tagLength: 128,
   };
   if (aad) {
-    params.additionalData = aad;
+    params.additionalData = buf(aad);
   }
 
-  const decrypted = await subtle.decrypt(params, cryptoKey, sealed);
+  const decrypted = await subtle.decrypt(params, cryptoKey, buf(sealed));
   return new Uint8Array(decrypted);
 }
 
@@ -255,13 +266,13 @@ export async function sign(options: EdgeHmacSignOptions): Promise<Uint8Array> {
 
   const cryptoKey = await subtle.importKey(
     "raw",
-    key,
+    buf(key),
     { name: "HMAC", hash: { name: hashAlg } },
     false,
     ["sign"],
   );
 
-  const signature = await subtle.sign("HMAC", cryptoKey, data);
+  const signature = await subtle.sign("HMAC", cryptoKey, buf(data));
   return new Uint8Array(signature);
 }
 
@@ -291,13 +302,13 @@ export async function verify(options: EdgeHmacVerifyOptions): Promise<boolean> {
 
   const cryptoKey = await subtle.importKey(
     "raw",
-    key,
+    buf(key),
     { name: "HMAC", hash: { name: hashAlg } },
     false,
     ["verify"],
   );
 
-  return subtle.verify("HMAC", cryptoKey, signature, data);
+  return subtle.verify("HMAC", cryptoKey, buf(signature), buf(data));
 }
 
 // ---------------------------------------------------------------------------
