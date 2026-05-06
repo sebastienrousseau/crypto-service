@@ -58,6 +58,7 @@ function deriveChunkNonce(
   return nonce;
 }
 
+/** Options for chunk-based streaming AEAD encryption. */
 export interface StreamEncryptOptions {
   /** 256-bit key (32 bytes; hex string or Uint8Array). */
   key: string | Uint8Array;
@@ -67,6 +68,7 @@ export interface StreamEncryptOptions {
   chunkSize?: number;
 }
 
+/** Result of a streaming AEAD encryption operation. */
 export interface StreamEncryptResult {
   /** Encrypted stream as a single Uint8Array. */
   ciphertext: Uint8Array;
@@ -74,6 +76,7 @@ export interface StreamEncryptResult {
   algorithm: "xchacha20-poly1305-stream";
 }
 
+/** Options for chunk-based streaming AEAD decryption. */
 export interface StreamDecryptOptions {
   /** 256-bit key (32 bytes; hex string or Uint8Array). */
   key: string | Uint8Array;

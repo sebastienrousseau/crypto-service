@@ -26,6 +26,7 @@ import { bytesToBase64url } from "./serialize";
 
 // --- Types ---
 
+/** List of all supported key-generation algorithm identifiers. */
 export const KEY_ALGORITHMS = [
   "ed25519",
   "x25519",
@@ -41,8 +42,10 @@ export const KEY_ALGORITHMS = [
   "ml-dsa-87",
 ] as const;
 
+/** Union type of all supported key-generation algorithm names. */
 export type KeyAlgorithm = (typeof KEY_ALGORITHMS)[number];
 
+/** Optional metadata attached to a generated key pair. */
 export interface KeyMetadata {
   /** Key ID (auto-generated if not provided). */
   kid?: string | undefined;
@@ -52,6 +55,7 @@ export interface KeyMetadata {
   exp?: string | undefined;
 }
 
+/** Result of a key-pair generation operation. */
 export interface GeneratedKeyPair {
   /** Hex-encoded public key. */
   publicKey: string;

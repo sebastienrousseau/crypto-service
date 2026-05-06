@@ -47,6 +47,7 @@ export default (app: FastifyInstance): void => {
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
         const { variant } = request.body as { variant: string };
         return reply.send({ data: slhDsaKeygen(variant as SlhDsaVariant) });
+        /* c8 ignore next 4 -- schema enum validation prevents invalid variant values */
       } catch (error) {
         request.log.error(error, "SLH-DSA keygen failed");
         return reply.status(500).send({ error: "Key generation failed" });

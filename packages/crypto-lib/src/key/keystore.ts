@@ -24,9 +24,13 @@ import { readFile } from "fs/promises";
 import * as path from "path";
 import * as openpgp from "openpgp";
 
+/** Immutable container holding the three shipped PGP key artifacts. */
 export interface Keystore {
+  /** ASCII-armored private key. */
   readonly privateKeyArmored: string;
+  /** ASCII-armored public key. */
   readonly publicKeyArmored: string;
+  /** ASCII-armored revocation certificate. */
   readonly revocationArmored: string;
 }
 
@@ -36,7 +40,10 @@ const ARMOR_BEGIN = Buffer.from("-----", "ascii");
  * Decode either already-ASCII-armored or legacy base64-wrapped key bytes.
  */
 export function decodeArmor(raw: Buffer): string {
-  if (raw.length >= ARMOR_BEGIN.length && raw.subarray(0, ARMOR_BEGIN.length).equals(ARMOR_BEGIN)) {
+  if (
+    raw.length >= ARMOR_BEGIN.length &&
+    raw.subarray(0, ARMOR_BEGIN.length).equals(ARMOR_BEGIN)
+  ) {
     // Fast path: file is already ASCII armor, no allocation needed beyond the string.
     return raw.toString("latin1");
   }

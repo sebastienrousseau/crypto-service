@@ -14,6 +14,7 @@
 import { x25519 } from "@noble/curves/ed25519";
 import { randomBytes } from "@noble/ciphers/webcrypto";
 
+/** X25519 Diffie-Hellman key pair (128-bit security). */
 export interface X25519KeyPair {
   /** Hex-encoded 32-byte private key. */
   privateKey: string;
@@ -21,6 +22,7 @@ export interface X25519KeyPair {
   publicKey: string;
 }
 
+/** Result of an X25519 Diffie-Hellman key exchange. */
 export interface KeyExchangeResult {
   /** Hex-encoded 32-byte shared secret. */
   sharedSecret: string;

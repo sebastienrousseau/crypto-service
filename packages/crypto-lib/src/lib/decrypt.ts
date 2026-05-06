@@ -33,8 +33,18 @@ import * as types from "../types/types";
  */
 export const decrypt = async (
   data: types.dataDecrypt,
-): Promise<{ data: string; signatureValid: boolean }> => {
-  const { message: encryptedMessage, passphrase, publicKey: publicKeyBase64, privateKey: privateKeyBase64 } = data;
+): Promise<{
+  /** Decrypted message body. */
+  data: string;
+  /** Whether the signature (if any) verified. */
+  signatureValid: boolean;
+}> => {
+  const {
+    message: encryptedMessage,
+    passphrase,
+    publicKey: publicKeyBase64,
+    privateKey: privateKeyBase64,
+  } = data;
 
   if (!privateKeyBase64) {
     throw new Error("Private key is required for decryption");
@@ -44,8 +54,12 @@ export const decrypt = async (
     armoredMessage: Buffer.from(encryptedMessage, "base64").toString("latin1"),
   });
 
-  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("latin1");
-  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("latin1");
+  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString(
+    "latin1",
+  );
+  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString(
+    "latin1",
+  );
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
   const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
@@ -72,4 +86,5 @@ export const decrypt = async (
   };
 };
 
+/** Default export of the decrypt function. */
 export default decrypt;

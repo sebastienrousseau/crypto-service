@@ -27,6 +27,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** Long-term identity key pair (X25519 + Ed25519). */
 export interface IdentityKeyPair {
   /** Hex-encoded X25519 private key (32 bytes). */
   privateKey: string;
@@ -38,6 +39,7 @@ export interface IdentityKeyPair {
   signingPublicKey: string;
 }
 
+/** Signed X25519 pre-key authenticated by the identity key. */
 export interface SignedPreKey {
   /** Hex-encoded X25519 private key (32 bytes). */
   privateKey: string;
@@ -47,6 +49,7 @@ export interface SignedPreKey {
   signature: string;
 }
 
+/** One-time X25519 pre-key (unsigned, single use). */
 export interface OneTimePreKey {
   /** Hex-encoded X25519 private key (32 bytes). */
   privateKey: string;
@@ -54,6 +57,7 @@ export interface OneTimePreKey {
   publicKey: string;
 }
 
+/** ML-KEM-768 post-quantum pre-key signed by the identity key. */
 export interface PqPreKey {
   /** Hex-encoded ML-KEM-768 public (encapsulation) key. */
   publicKey: string;
@@ -63,6 +67,7 @@ export interface PqPreKey {
   signature: string;
 }
 
+/** Parameters for initiating a PQXDH session (sender side). */
 export interface InitiateSessionParams {
   /** Initiator's identity key pair. */
   identityKeyPair: IdentityKeyPair;
@@ -76,6 +81,7 @@ export interface InitiateSessionParams {
   remotePqPreKeyPublic: string;
 }
 
+/** Result of initiating a PQXDH session (shared secret + ephemeral data). */
 export interface InitiateSessionResult {
   /** Hex-encoded 32-byte shared secret. */
   sharedSecret: string;
@@ -87,6 +93,7 @@ export interface InitiateSessionResult {
   algorithm: "pqxdh";
 }
 
+/** Parameters for responding to a PQXDH session (receiver side). */
 export interface RespondToSessionParams {
   /** Responder's identity key pair. */
   identityKeyPair: IdentityKeyPair;
@@ -104,6 +111,7 @@ export interface RespondToSessionParams {
   pqCiphertext: string;
 }
 
+/** Result of responding to a PQXDH session. */
 export interface RespondToSessionResult {
   /** Hex-encoded 32-byte shared secret. */
   sharedSecret: string;

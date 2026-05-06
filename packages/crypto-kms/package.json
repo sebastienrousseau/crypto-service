@@ -1,0 +1,52 @@
+{
+  "name": "@sebastienrousseau/crypto-kms",
+  "version": "0.0.3",
+  "description": "Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "clean": "rimraf ./coverage ./dist",
+    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs"
+  },
+  "dependencies": {
+    "@sebastienrousseau/crypto-lib": "workspace:*"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-kms": "^3.0.0",
+    "@google-cloud/kms": "^4.0.0",
+    "@azure/keyvault-keys": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-kms": {
+      "optional": true
+    },
+    "@google-cloud/kms": {
+      "optional": true
+    },
+    "@azure/keyvault-keys": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.0",
+    "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
+}

@@ -16,6 +16,7 @@
 import { xchacha20poly1305 } from "@noble/ciphers/chacha";
 import { randomBytes } from "@noble/ciphers/webcrypto";
 
+/** Result of an XChaCha20-Poly1305 encryption operation. */
 export interface AeadEncryptResult {
   /** Base64-encoded ciphertext (nonce || ciphertext || tag). */
   ciphertext: string;
@@ -23,6 +24,7 @@ export interface AeadEncryptResult {
   algorithm: "xchacha20-poly1305";
 }
 
+/** Options for XChaCha20-Poly1305 encryption. */
 export interface AeadEncryptOptions {
   /** 256-bit key (32 bytes), hex or Uint8Array. */
   key: string | Uint8Array;
@@ -32,6 +34,7 @@ export interface AeadEncryptOptions {
   aad?: Uint8Array;
 }
 
+/** Options for XChaCha20-Poly1305 decryption. */
 export interface AeadDecryptOptions {
   /** 256-bit key (32 bytes), hex or Uint8Array. */
   key: string | Uint8Array;

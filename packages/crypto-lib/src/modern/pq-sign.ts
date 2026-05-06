@@ -19,10 +19,13 @@ import { ed25519 } from "@noble/curves/ed25519";
 
 // --- Types ---
 
+/** ML-DSA security level (NIST Level 2/3/5). */
 export type MlDsaLevel = 44 | 65 | 87;
 
+/** ML-DSA algorithm identifier string. */
 export type MlDsaAlgorithm = "ml-dsa-44" | "ml-dsa-65" | "ml-dsa-87";
 
+/** ML-DSA key pair (public + secret keys). */
 export interface MlDsaKeyPairResult {
   /** Hex-encoded public key. */
   publicKey: string;
@@ -32,6 +35,7 @@ export interface MlDsaKeyPairResult {
   algorithm: MlDsaAlgorithm;
 }
 
+/** Result of an ML-DSA signing operation. */
 export interface MlDsaSignResult {
   /** Hex-encoded signature. */
   signature: string;
@@ -39,6 +43,7 @@ export interface MlDsaSignResult {
   algorithm: MlDsaAlgorithm;
 }
 
+/** Result of an ML-DSA signature verification. */
 export interface MlDsaVerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;
@@ -46,6 +51,7 @@ export interface MlDsaVerifyResult {
   algorithm: MlDsaAlgorithm;
 }
 
+/** Result of an Ed25519 + ML-DSA hybrid signing operation. */
 export interface HybridSignResult {
   /** Hex-encoded Ed25519 signature. */
   ed25519Signature: string;
@@ -55,6 +61,7 @@ export interface HybridSignResult {
   algorithm: string;
 }
 
+/** Result of an Ed25519 + ML-DSA hybrid verification. */
 export interface HybridVerifyResult {
   /** Whether both signatures are valid. */
   valid: boolean;

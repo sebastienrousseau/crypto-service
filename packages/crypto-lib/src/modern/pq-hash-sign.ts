@@ -34,6 +34,7 @@ import {
 
 // --- Types ---
 
+/** SLH-DSA variant (hash function x security level x speed/size trade-off). */
 export type SlhDsaVariant =
   | "sha2-128f"
   | "sha2-128s"
@@ -48,6 +49,7 @@ export type SlhDsaVariant =
   | "shake-256f"
   | "shake-256s";
 
+/** SLH-DSA key pair (public + secret keys). */
 export interface SlhDsaKeyPairResult {
   /** Hex-encoded public key. */
   publicKey: string;
@@ -57,6 +59,7 @@ export interface SlhDsaKeyPairResult {
   algorithm: string;
 }
 
+/** Result of an SLH-DSA signing operation. */
 export interface SlhDsaSignResult {
   /** Hex-encoded signature. */
   signature: string;
@@ -64,6 +67,7 @@ export interface SlhDsaSignResult {
   algorithm: string;
 }
 
+/** Result of an SLH-DSA signature verification. */
 export interface SlhDsaVerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;

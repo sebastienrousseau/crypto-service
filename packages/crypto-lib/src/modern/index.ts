@@ -63,7 +63,7 @@ export type {
   HybridDecapsulateResult,
 } from "./pq";
 
-// ML-KEM (all parameter sets + advanced hybrids)
+/** ML-KEM (all parameter sets + advanced hybrids). */
 export {
   mlKemKeygen,
   mlKemEncapsulate as mlKemEncap,
@@ -96,7 +96,7 @@ export type {
   X448MlKemDecapsulateResult,
 } from "./pq-kem";
 
-// ML-DSA (FIPS 204)
+/** ML-DSA digital signatures (FIPS 204). */
 export {
   mlDsaKeygen,
   mlDsaSign,
@@ -114,7 +114,7 @@ export type {
   HybridVerifyResult,
 } from "./pq-sign";
 
-// SLH-DSA (FIPS 205)
+/** SLH-DSA stateless hash-based signatures (FIPS 205). */
 export { slhDsaKeygen, slhDsaSign, slhDsaVerify } from "./pq-hash-sign";
 export type {
   SlhDsaVariant,
@@ -123,7 +123,7 @@ export type {
   SlhDsaVerifyResult,
 } from "./pq-hash-sign";
 
-// HMAC + KMAC
+/** HMAC and KMAC message authentication codes. */
 export {
   computeHmac,
   verifyHmac,
@@ -145,7 +145,7 @@ export type {
   KmacVerifyResult,
 } from "./mac";
 
-// Argon2 password hashing (id, i, d variants)
+/** Argon2 password hashing (id, i, d variants). */
 export { hashPassword, verifyPassword, verifyPasswordPhc } from "./password";
 export type {
   Argon2Variant,
@@ -157,7 +157,7 @@ export type {
   VerifyPhcOptions,
 } from "./password";
 
-// Additional curves (P-256, P-384, Ed448, X448, Schnorr)
+/** Additional elliptic curves (P-256, P-384, Ed448, X448, Schnorr). */
 export {
   generateP256KeyPair,
   p256Sign,
@@ -199,6 +199,7 @@ export type {
  * List of all supported modern algorithms for the /v2/algorithms endpoint.
  */
 export const SUPPORTED_ALGORITHMS = {
+  /** Supported symmetric encryption algorithms. */
   encryption: [
     "xchacha20-poly1305",
     "aes-128-gcm",
@@ -206,6 +207,7 @@ export const SUPPORTED_ALGORITHMS = {
     "aes-128-gcm-siv",
     "aes-256-gcm-siv",
   ],
+  /** Supported hash algorithms. */
   hashing: [
     "sha256",
     "sha384",
@@ -215,6 +217,7 @@ export const SUPPORTED_ALGORITHMS = {
     "blake2b",
     "blake3",
   ],
+  /** Supported key derivation functions. */
   kdf: [
     "scrypt",
     "hkdf-sha256",
@@ -223,6 +226,7 @@ export const SUPPORTED_ALGORITHMS = {
     "argon2i",
     "argon2d",
   ],
+  /** Supported message authentication code algorithms. */
   mac: [
     "hmac-sha256",
     "hmac-sha384",
@@ -232,6 +236,7 @@ export const SUPPORTED_ALGORITHMS = {
     "kmac-128",
     "kmac-256",
   ],
+  /** Supported digital signature algorithms. */
   signing: [
     "ed25519",
     "ed448",
@@ -257,6 +262,7 @@ export const SUPPORTED_ALGORITHMS = {
     "ed25519-ml-dsa-65",
     "ed25519-ml-dsa-87",
   ],
+  /** Supported key exchange algorithms. */
   keyExchange: [
     "x25519",
     "x448",
@@ -268,6 +274,7 @@ export const SUPPORTED_ALGORITHMS = {
     "p256-ml-kem-768",
     "x448-ml-kem-1024",
   ],
+  /** Supported post-quantum algorithms. */
   postQuantum: [
     "ml-kem-512",
     "ml-kem-768",

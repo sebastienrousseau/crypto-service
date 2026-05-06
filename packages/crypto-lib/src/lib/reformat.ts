@@ -49,7 +49,7 @@ export const reformat = async (data: types.dataReformat) => {
   await Promise.all([
     writeFile(path.join(keyDir, "rsa-reformat.pub"), pubArmored, "utf8"),
     writeFile(path.join(keyDir, "rsa-reformat.key"), privArmored, "utf8"),
-    /* c8 ignore next -- revocationCertificate is always a string from reformatKey */
+    /* c8 ignore next 5 -- revocationCertificate is always a string from reformatKey */
     writeFile(
       path.join(keyDir, "rsa-reformat.cert"),
       reformatted.revocationCertificate ?? "",

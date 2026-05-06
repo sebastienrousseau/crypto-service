@@ -35,13 +35,17 @@ function hexToBytes(hex: string): Uint8Array {
 
 // --- Types ---
 
+/** A recipient identified by a classical X25519 public key. */
 export interface ClassicalRecipient {
+  /** Recipient type discriminator for classical X25519. */
   type: "x25519";
   /** Recipient's X25519 public key (hex, 32 bytes). */
   publicKey: string;
 }
 
+/** A recipient identified by hybrid X25519 + ML-KEM-768 public keys. */
 export interface PqRecipient {
+  /** Recipient type discriminator for hybrid PQ. */
   type: "x25519-ml-kem-768";
   /** Recipient's X25519 public key (hex, 32 bytes). */
   x25519PublicKey: string;
@@ -49,8 +53,10 @@ export interface PqRecipient {
   mlKemPublicKey: string;
 }
 
+/** A recipient descriptor (classical or post-quantum hybrid). */
 export type Recipient = ClassicalRecipient | PqRecipient;
 
+/** A DEK wrapped for a single recipient. */
 export interface WrappedKey {
   /** Recipient type. */
   type: "x25519" | "x25519-ml-kem-768";
@@ -62,6 +68,7 @@ export interface WrappedKey {
   mlKemCiphertext?: string;
 }
 
+/** Result of encrypting data for multiple recipients. */
 export interface MultiRecipientEncryptResult {
   /** Base64-encoded ciphertext (secretbox). */
   ciphertext: string;

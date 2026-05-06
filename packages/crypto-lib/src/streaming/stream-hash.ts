@@ -16,6 +16,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3";
 import { blake2b } from "@noble/hashes/blake2b";
 import { blake3 } from "@noble/hashes/blake3";
 
+/** Supported streaming hash algorithm identifiers. */
 export const STREAM_HASH_ALGORITHMS = [
   "sha256",
   "sha384",
@@ -25,6 +26,7 @@ export const STREAM_HASH_ALGORITHMS = [
   "blake2b",
   "blake3",
 ] as const;
+/** Union type of supported streaming hash algorithm names. */
 export type StreamHashAlgorithm = (typeof STREAM_HASH_ALGORITHMS)[number];
 
 interface HashLike {
@@ -42,6 +44,7 @@ const factories: Record<StreamHashAlgorithm, () => HashLike> = {
   blake3: () => blake3.create(),
 };
 
+/** Incremental hasher that processes data in chunks and produces a digest. */
 export interface StreamingHasher {
   /** Feed data into the hash. Can be called multiple times. */
   update(data: string | Uint8Array): StreamingHasher;

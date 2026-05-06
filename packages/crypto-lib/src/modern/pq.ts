@@ -24,6 +24,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- ML-KEM (Kyber) standalone ---
 
+/** ML-KEM-768 key pair (encapsulation + decapsulation keys). */
 export interface MlKemKeyPair {
   /** Hex-encoded public (encapsulation) key. */
   publicKey: string;
@@ -33,6 +34,7 @@ export interface MlKemKeyPair {
   algorithm: "ml-kem-768";
 }
 
+/** Result of an ML-KEM-768 encapsulation operation. */
 export interface MlKemEncapsulateResult {
   /** Hex-encoded ciphertext to send to the secret key holder. */
   ciphertext: string;
@@ -42,6 +44,7 @@ export interface MlKemEncapsulateResult {
   algorithm: "ml-kem-768";
 }
 
+/** Result of an ML-KEM-768 decapsulation operation. */
 export interface MlKemDecapsulateResult {
   /** Hex-encoded 32-byte shared secret. */
   sharedSecret: string;
@@ -92,6 +95,7 @@ export function mlKemDecapsulate(
 
 // --- Hybrid X25519 + ML-KEM-768 ---
 
+/** X25519 + ML-KEM-768 hybrid key pair. */
 export interface HybridKeyPair {
   /** X25519 private key (hex, 32 bytes). */
   x25519PrivateKey: string;
@@ -105,6 +109,7 @@ export interface HybridKeyPair {
   algorithm: "x25519-ml-kem-768";
 }
 
+/** Result of an X25519 + ML-KEM-768 hybrid encapsulation. */
 export interface HybridEncapsulateResult {
   /** X25519 ephemeral public key (hex, 32 bytes). */
   x25519EphemeralPublic: string;
@@ -116,6 +121,7 @@ export interface HybridEncapsulateResult {
   algorithm: "x25519-ml-kem-768";
 }
 
+/** Result of an X25519 + ML-KEM-768 hybrid decapsulation. */
 export interface HybridDecapsulateResult {
   /** Hex-encoded 32-byte combined shared secret. */
   sharedSecret: string;

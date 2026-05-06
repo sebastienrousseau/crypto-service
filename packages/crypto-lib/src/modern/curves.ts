@@ -22,6 +22,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** ECDSA P-256 key pair. */
 export interface P256KeyPair {
   /** Hex-encoded private key. */
   privateKey: string;
@@ -31,6 +32,7 @@ export interface P256KeyPair {
   algorithm: "ecdsa-p256";
 }
 
+/** Result of an ECDSA P-256 signing operation. */
 export interface P256SignResult {
   /** Hex-encoded ECDSA signature. */
   signature: string;
@@ -38,6 +40,7 @@ export interface P256SignResult {
   algorithm: "ecdsa-p256";
 }
 
+/** Result of an ECDSA P-256 verification. */
 export interface P256VerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;
@@ -45,6 +48,7 @@ export interface P256VerifyResult {
   algorithm: "ecdsa-p256";
 }
 
+/** ECDSA P-384 key pair. */
 export interface P384KeyPair {
   /** Hex-encoded private key. */
   privateKey: string;
@@ -54,6 +58,7 @@ export interface P384KeyPair {
   algorithm: "ecdsa-p384";
 }
 
+/** Result of an ECDSA P-384 signing operation. */
 export interface P384SignResult {
   /** Hex-encoded ECDSA signature. */
   signature: string;
@@ -61,6 +66,7 @@ export interface P384SignResult {
   algorithm: "ecdsa-p384";
 }
 
+/** Result of an ECDSA P-384 verification. */
 export interface P384VerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;
@@ -68,6 +74,7 @@ export interface P384VerifyResult {
   algorithm: "ecdsa-p384";
 }
 
+/** Ed448 key pair (224-bit security). */
 export interface Ed448KeyPair {
   /** Hex-encoded 57-byte private key. */
   privateKey: string;
@@ -77,6 +84,7 @@ export interface Ed448KeyPair {
   algorithm: "ed448";
 }
 
+/** Result of an Ed448 signing operation. */
 export interface Ed448SignResult {
   /** Hex-encoded Ed448 signature. */
   signature: string;
@@ -84,6 +92,7 @@ export interface Ed448SignResult {
   algorithm: "ed448";
 }
 
+/** Result of an Ed448 signature verification. */
 export interface Ed448VerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;
@@ -91,6 +100,7 @@ export interface Ed448VerifyResult {
   algorithm: "ed448";
 }
 
+/** X448 Diffie-Hellman key pair (224-bit security). */
 export interface X448KeyPair {
   /** Hex-encoded 56-byte private key. */
   privateKey: string;
@@ -100,6 +110,7 @@ export interface X448KeyPair {
   algorithm: "x448";
 }
 
+/** Result of an X448 Diffie-Hellman key exchange. */
 export interface X448ExchangeResult {
   /** Hex-encoded 56-byte shared secret. */
   sharedSecret: string;
@@ -107,6 +118,7 @@ export interface X448ExchangeResult {
   algorithm: "x448";
 }
 
+/** Result of an ECDH P-256 key exchange. */
 export interface EcdhP256Result {
   /** Hex-encoded shared secret. */
   sharedSecret: string;
@@ -114,6 +126,7 @@ export interface EcdhP256Result {
   algorithm: "ecdh-p256";
 }
 
+/** Result of an ECDH P-384 key exchange. */
 export interface EcdhP384Result {
   /** Hex-encoded shared secret. */
   sharedSecret: string;
@@ -121,6 +134,7 @@ export interface EcdhP384Result {
   algorithm: "ecdh-p384";
 }
 
+/** Schnorr (BIP-340, secp256k1) key pair. */
 export interface SchnorrKeyPair {
   /** Hex-encoded 32-byte private key. */
   privateKey: string;
@@ -130,6 +144,7 @@ export interface SchnorrKeyPair {
   algorithm: "schnorr";
 }
 
+/** Result of a Schnorr (BIP-340) signing operation. */
 export interface SchnorrSignResult {
   /** Hex-encoded 64-byte Schnorr signature (BIP-340). */
   signature: string;
@@ -137,6 +152,7 @@ export interface SchnorrSignResult {
   algorithm: "schnorr";
 }
 
+/** Result of a Schnorr (BIP-340) signature verification. */
 export interface SchnorrVerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;

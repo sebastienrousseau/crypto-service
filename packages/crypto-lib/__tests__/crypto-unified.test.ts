@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { crypto } from "../src/crypto";
 import { generateKeyPair } from "../src/keys/keygen";
 import { generateSchnorrKeyPair } from "../src/modern/curves";
+import { hashPassword as hashPw } from "../src/modern/password";
 
 describe("Unified crypto API (expanded)", () => {
   describe("sign/verify with all algorithms", () => {
@@ -76,13 +77,14 @@ describe("Unified crypto API (expanded)", () => {
 
   describe("verifyPasswordPhc", () => {
     it("should hash and verify via PHC", () => {
-      const result = crypto.hashPassword("my-password");
+      // Use low-cost params to avoid timeout
+      const result = hashPw({ password: "my-password", memoryCost: 1024, timeCost: 1 });
       const verified = crypto.verifyPasswordPhc("my-password", result.phc);
       expect(verified.valid).to.be.true;
     });
 
     it("should reject wrong password via PHC", () => {
-      const result = crypto.hashPassword("my-password");
+      const result = hashPw({ password: "my-password", memoryCost: 1024, timeCost: 1 });
       const verified = crypto.verifyPasswordPhc("wrong", result.phc);
       expect(verified.valid).to.be.false;
     });

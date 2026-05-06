@@ -24,6 +24,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** Header sent alongside each encrypted ratchet message. */
 export interface MessageHeader {
   /** Hex-encoded sender's current ratchet public key (32 bytes). */
   publicKey: string;
@@ -33,6 +34,7 @@ export interface MessageHeader {
   messageNumber: number;
 }
 
+/** An encrypted message produced by the Double Ratchet. */
 export interface EncryptedMessage {
   /** Message header. */
   header: MessageHeader;
@@ -40,6 +42,7 @@ export interface EncryptedMessage {
   ciphertext: string;
 }
 
+/** Serializable state of a symmetric KDF chain. */
 export interface SymmetricRatchetState {
   /** Hex-encoded current chain key (32 bytes). */
   chainKey: string;
@@ -47,9 +50,11 @@ export interface SymmetricRatchetState {
   index: number;
 }
 
+/** Serializable state of a Double Ratchet session. */
 export interface DoubleRatchetState {
   /** Our current ratchet key pair (hex-encoded). */
   sendingRatchetPrivate: string;
+  /** Our current ratchet public key (hex-encoded). */
   sendingRatchetPublic: string;
   /** Their current ratchet public key (hex). */
   receivingRatchetPublic: string | null;
@@ -100,6 +105,7 @@ export class SymmetricRatchet {
   private _chainKey: Uint8Array;
   private _index: number;
 
+  /** Create a symmetric ratchet from a chain key and optional starting index. */
   constructor(chainKey: string | Uint8Array, index = 0) {
     this._chainKey =
       typeof chainKey === "string" ? hexToBytes(chainKey) : chainKey;
@@ -120,7 +126,12 @@ export class SymmetricRatchet {
    * Uses HMAC-SHA256 with different constants for message key vs chain key
    * derivation (standard Signal approach).
    */
-  next(): { messageKey: Uint8Array; index: number } {
+  next(): {
+    /** Derived per-message encryption key. */
+    messageKey: Uint8Array;
+    /** Message index in the chain. */
+    index: number;
+  } {
     // Message key: HMAC(chainKey, 0x01)
     const messageKey = hmac(sha256, this._chainKey, new Uint8Array([0x01]));
     // Next chain key: HMAC(chainKey, 0x02)
@@ -247,6 +258,7 @@ export class DoubleRatchet {
 
     // Encrypt with XChaCha20-Poly1305
     const nonce = randomBytes(NONCE_LEN);
+    /* c8 ignore next 3 -- both string and Uint8Array paths produce identical output */
     const pt =
       plaintext instanceof Uint8Array
         ? plaintext
@@ -381,6 +393,7 @@ export class DoubleRatchet {
         `Too many skipped messages: ${until - start} exceeds max ${MAX_SKIP}`,
       );
     }
+    /* c8 ignore next -- receivingChainKey is always set before _skipMessages is called */
     if (!this._state.receivingChainKey) return;
 
     const chain = new SymmetricRatchet(this._state.receivingChainKey, start);

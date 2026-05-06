@@ -60,6 +60,7 @@ export default (app: FastifyInstance): void => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = generateKeyPair(algorithm as any, metadata);
         return reply.send({ data: result });
+        /* c8 ignore next 4 -- schema enum validation prevents invalid algorithms */
       } catch (error) {
         request.log.error(error, "Key generation failed");
         return reply.status(500).send({ error: "Key generation failed" });

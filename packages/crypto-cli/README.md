@@ -1,274 +1,267 @@
-# ❯ Crypto CLI
+<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
 
-![Banner representing the Crypto Command Line Interface (CLI)](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/crypto-cli-logo.svg)
+<div align="center">
 
-[![NPM Version](https://img.shields.io/npm/v/solid-js.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-cli)
-[![Coverage Status](https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service/solid.svg?branch=main&style=for-the-badge\&color=blueviolet)](https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main)
-[![Maintained with Lerna](https://img.shields.io/badge/maintained%20with-lerna-blue?style=for-the-badge)](https://lerna.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=)](https://opensource.org/licenses/MIT)
-![Made with Love](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/made-with-love.svg)
+<img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli-logo.svg" alt="Crypto CLI Logo" width="261" />
 
-**[Website](https://crypto-cli.io) • [Documentation](https://crypto-cli.io/docs/) 
-• [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues) 
-• [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/master/.github/CONTRIBUTING.md)**
+# Crypto CLI
 
-***
+An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms.
 
-## 👋 Welcome to Crypto CLI
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/sebastienrousseau/crypto-service/actions)
+[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-cli?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sebastienrousseau/crypto-cli)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge)](https://github.com/sebastienrousseau/crypto-service)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
 
-Crypto CLI is a simple, yet powerful, command line interface that can be used to
-perform common cryptographic operations from the command prompt or terminal.
+</div>
 
-![Crypto CLI][crypto-cli]
+---
 
-[![Getting Started][getting started]](#getting-started)
-[![Download Crypto CLI][download]][13]
+## Contents
 
-![divider][divider]
+- [Install](#install) -- global install and one-off execution
+- [Quick Start](#quick-start) -- launch the interactive menu
+- [Commands](#commands) -- legacy OpenPGP and modern crypto commands
+- [Modern Command Details](#modern-command-details) -- algorithms and options per command
+- [Examples](#examples) -- runnable shell scripts
+- [Configuration](#configuration) -- environment variables
+- [Security](#security) -- threat model and best practices
+- [License](#license) -- terms of use
 
-## ✨ Key Features
+---
 
-The cryptographic operations include:
+## Install
 
-- Authentication via Digital Signature,
-- Confidentiality via Encryption and Decryption,
-- Compression,
-- Key Generation,
-- Key Management,
-- Pseudorandom Number Generation,
-- Signature Verification.
+**Global install (recommended):**
 
-This library is based on [OpenPGP.js][1] - a JavaScript implementation of the
-OpenPGP protocol. It implements [RFC4880][2] and parts of [RFC4880bis][3].
-
-Development of this library is hosted by [GitHub][4] at the [following page][5].
-Source code is available to everyone under the standard [MIT license][6].
-
-![divider][divider]
-
-## Getting Started
-
-👉 Note: » Crypto CLI is a [Node.js][7] module available through the
-[npm registry][8]. Before installing, [download and install Node.js][7].
-Node.js 12.20.0 or or later.
-
-This allows you to always be on the latest version when we release new builds
-with automatic upgrades.
-
-![divider][divider]
-
-## 🔧 Installation
-
-The first step to using Crypto CLI is to download and install the
-application and other required components.
-
-1️⃣ Install the Crypto CLI via [`npm`][8], [`yarn`][9] or [`pnpm`][10] package
-managers:
-
-- `npm i @sebastienrousseau/crypto-cli`
-- `yarn add @sebastienrousseau/crypto-cli`
-- `pnpm add @sebastienrousseau/crypto-cli`
-
-For users who are unable to install the Crypto CLI, released builds can be 
-manually downloaded from this repository's
-[Releases page](https://github.com/sebastienrousseau/crypto-service/releases/).
-
-### What's included
-
-Within the download you'll find all the crypto lib source files grouped into
-the *dist* folder.
-
-You'll see something like this:
-
-```shell
-.
-├── COPYRIGHT
-├── Makefile
-├── Report.txt
-├── cli.d.ts
-├── cli.d.ts.map
-├── cli.js
-├── cli.js.map
-├── commands
-│   ├── decrypt.command.d.ts
-│   ├── decrypt.command.d.ts.map
-│   ├── decrypt.command.js
-│   ├── decrypt.command.js.map
-│   ├── encrypt.command.d.ts
-│   ├── encrypt.command.d.ts.map
-│   ├── encrypt.command.js
-│   ├── encrypt.command.js.map
-│   ├── generate.command.d.ts
-│   ├── generate.command.d.ts.map
-│   ├── generate.command.js
-│   ├── generate.command.js.map
-│   ├── help.command.d.ts
-│   ├── help.command.d.ts.map
-│   ├── help.command.js
-│   ├── help.command.js.map
-│   ├── index.d.ts
-│   ├── index.d.ts.map
-│   ├── index.js
-│   ├── index.js.map
-│   ├── reformat.command.d.ts
-│   ├── reformat.command.d.ts.map
-│   ├── reformat.command.js
-│   ├── reformat.command.js.map
-│   ├── revoke.command.d.ts
-│   ├── revoke.command.d.ts.map
-│   ├── revoke.command.js
-│   ├── revoke.command.js.map
-│   ├── session.command.d.ts
-│   ├── session.command.d.ts.map
-│   ├── session.command.js
-│   ├── session.command.js.map
-│   ├── sign.command.d.ts
-│   ├── sign.command.d.ts.map
-│   ├── sign.command.js
-│   ├── sign.command.js.map
-│   ├── verify.command.d.ts
-│   ├── verify.command.d.ts.map
-│   ├── verify.command.js
-│   └── verify.command.js.map
-├── helpers
-│   ├── banner.d.ts
-│   ├── banner.d.ts.map
-│   ├── banner.js
-│   └── banner.js.map
-├── key
-│   ├── key.d.ts
-│   ├── key.d.ts.map
-│   ├── key.js
-│   ├── key.js.map
-│   ├── rsa-reformat.cert
-│   ├── rsa-reformat.key
-│   ├── rsa-reformat.pub
-│   ├── rsa-revoke.key
-│   ├── rsa-revoke.pub
-│   ├── rsa.cert
-│   ├── rsa.key
-│   └── rsa.pub
-├── package.json
-└── utils
-    ├── version.utils.d.ts
-    ├── version.utils.d.ts.map
-    ├── version.utils.js
-    ├── version.utils.js.map
-    ├── write.utils.d.ts
-    ├── write.utils.d.ts.map
-    ├── write.utils.js
-    └── write.utils.js.map
-
-4 directories, 72 files
-
+```bash
+npm install -g @sebastienrousseau/crypto-cli
 ```
 
-2️⃣ Set up your app
+**One-off execution with npx:**
 
-You can get started with a simple app by running the following in your terminal:
-
-```shell
-
-> mkdir my-app
-> cd my-app
-> yarn add @sebastienrousseau/crypto-cli -D
-> yarn start
-
+```bash
+npx @sebastienrousseau/crypto-cli
 ```
 
-3️⃣ Try it out and let us know what you think!
+**Local install in a project:**
 
-![divider][divider]
+```bash
+pnpm add @sebastienrousseau/crypto-cli
+```
 
-## ❯ Crypto Command Line Interface (CLI) syntax
+> **Requires:** Node.js >= 22
 
-The Crypto CLI accepts multiple types of options. Options are a list of flags
-and other parameters that can control the behavior of the Crypto CLI as a
-whole. 
+---
 
-Below is the full list of supported options for the Crypto CLI.
+## Quick Start
 
-| Option | Description |
-|---|---|
-| help      | Displays the help message. |
-| decrypt   | Decrypts a message. |
-| encrypt   | Encrypts a message. |
-| generate  | Generates a new OpenPGP key pair. Supports RSA and ECC keys. |
-| reformat  | Reformats signature packets for a key. |
-| revoke    | Revokes a key. |
-| session   | Generate a new session key object. |
-| sign      | Signs a message. |
-| verify    | Verifies signatures of clear text signed message. |
+Launch the interactive menu:
 
-![divider][divider]
+```bash
+cryptocli
+```
 
-## 🚥 Semantic Versioning Policy
+You will be presented with a selection prompt:
 
-For transparency into our release cycle and in striving to maintain backward
-compatibility, `crypto-cli` follows [semantic versioning](http://semver.org/)
-and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+```
+? Select a function to execute.
 
-![divider][divider]
+  Generate         -- Generate a new OpenPGP key pair
+  Encrypt          -- Encrypt a message (OpenPGP)
+  Decrypt          -- Decrypt a message (OpenPGP)
+  Reformat         -- Reformat signature packets for a key
+  Revoke           -- Revoke a key
+  Session          -- Generate a new session key object
+  Sign             -- Sign a message (OpenPGP)
+  Verify           -- Verify a signed message (OpenPGP)
+  Modern Keygen    -- Generate keys (Ed25519, ML-DSA, ML-KEM, etc.)
+  Modern Hash      -- Hash data (SHA-2, SHA-3, BLAKE2b, BLAKE3)
+  Modern Encrypt   -- Encrypt (XChaCha20, AES-GCM, AES-GCM-SIV)
+  Modern Sign      -- Sign/verify (Ed25519, ECDSA, Schnorr, ML-DSA)
+  Password Hash    -- Hash/verify passwords (Argon2id/i/d)
+  Help             -- Get help on a command
+```
 
-## ✅ Changelog
+Use arrow keys to navigate, then press Enter to select a command.
 
-- [GitHub Releases](https://github.com/sebastienrousseau/crypto-service/releases)
+---
 
-![divider][divider]
+## Commands
 
-## ❤️ Contributing
+### Legacy Commands (OpenPGP)
 
-Thank you for using Crypto CLI! If you like the library, it would be great if
-you can give it a star ⭐ on [GitHub][5].
+| Command    | Description                                                    |
+| ---------- | -------------------------------------------------------------- |
+| `Generate` | Generate a new OpenPGP key pair (RSA or ECC)                   |
+| `Encrypt`  | Encrypt a message using public keys, passwords, or both        |
+| `Decrypt`  | Decrypt a message with a private key, session key, or password |
+| `Sign`     | Sign a message with an OpenPGP private key                     |
+| `Verify`   | Verify signatures of a cleartext signed message                |
+| `Revoke`   | Revoke an OpenPGP key with a reason                            |
+| `Reformat` | Reformat signature packets and rewrap a key object             |
+| `Session`  | Generate a new session key object from public key preferences  |
 
-There are also many ways in which you can participate in this project, for
-example:
+### Modern Commands (v2)
 
-- [Submit bugs and feature requests][14], and help us verify as they are checked
-in,
-- Review [source code changes][15], and help us improve our code quality,
-- Review the [documentation][16] and make pull requests for anything from typos
-to additional and new content.
+| Command          | Description                                                 |
+| ---------------- | ----------------------------------------------------------- |
+| `Modern Keygen`  | Generate key pairs for 12 algorithms including post-quantum |
+| `Modern Hash`    | Hash data with 7 algorithms (SHA-2, SHA-3, BLAKE)           |
+| `Modern Encrypt` | Encrypt/decrypt with 5 AEAD ciphers                         |
+| `Modern Sign`    | Sign and verify with 8 algorithms including ML-DSA          |
+| `Password Hash`  | Hash and verify passwords with 3 Argon2 variants            |
 
-![divider][divider]
+---
 
-## 🥂 License
+## Modern Command Details
 
-Copyright (c) Sebastien Rousseau. All rights reserved.
+### Keygen
 
-Licensed under the [MIT](LICENSE) license.
+Generate key pairs for any of 12 supported algorithms. Each key pair is returned with an algorithm identifier, key ID, and public/private keys in hex or JSON format.
 
-![divider][divider]
+| Algorithm     | Type             | Use            |
+| ------------- | ---------------- | -------------- |
+| `ed25519`     | Edwards curve    | Signing        |
+| `x25519`      | Montgomery curve | Key exchange   |
+| `ed448`       | Edwards curve    | Signing        |
+| `x448`        | Montgomery curve | Key exchange   |
+| `p256`        | NIST curve       | Signing / ECDH |
+| `p384`        | NIST curve       | Signing / ECDH |
+| `ml-kem-512`  | Post-quantum KEM | Encryption     |
+| `ml-kem-768`  | Post-quantum KEM | Encryption     |
+| `ml-kem-1024` | Post-quantum KEM | Encryption     |
+| `ml-dsa-44`   | Post-quantum DSA | Signing        |
+| `ml-dsa-65`   | Post-quantum DSA | Signing        |
+| `ml-dsa-87`   | Post-quantum DSA | Signing        |
 
-## 🏢 Acknowledgements
+**Options:** algorithm, key ID (auto-generated if empty), key usage (`sig` or `enc`), output format (`json` or `hex`).
 
-[Crypto Service Suite](https://crypto-service.co) is beautifully crafted by
-these people and a bunch of awesome [contributors][17].
+### Hash
 
-| Contributors |
-|---------|
-|[![Sebastien Rousseau](https://avatars0.githubusercontent.com/u/1394998?s=250)](https://sebastienrousseau.co.uk)|
-|[Sebastien Rousseau](https://github.com/sebastienrousseau)|
+Hash arbitrary data with one of 7 supported algorithms.
 
-[1]:  https://openpgpjs.org/
-[2]:  https://tools.ietf.org/html/rfc4880
-[3]:  https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-10
-[4]:  https://github.com
-[5]:  https://github.com/sebastienrousseau/crypto-service
-[6]:  https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE
-[7]:  https://nodejs.org/en/
-[8]:  https://www.npmjs.com/
-[9]:  https://yarnpkg.com/getting-started
-[10]: https://pnpm.io/motivation
-[11]: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
-[12]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography
-[13]: https://github.com/sebastienrousseau/crypto-service/packages/
-[14]: https://github.com/sebastienrousseau/crypto-service/issues/new
-[15]: https://github.com/sebastienrousseau/crypto-service/pulls
-[16]: https://github.com/sebastienrousseau/crypto-service/docs
-[17]: https://github.com/sebastienrousseau/crypto-service/graphs/contributors
+| Algorithm  | Digest size |
+| ---------- | ----------- |
+| `sha256`   | 256-bit     |
+| `sha384`   | 384-bit     |
+| `sha512`   | 512-bit     |
+| `sha3-256` | 256-bit     |
+| `sha3-512` | 512-bit     |
+| `blake2b`  | 512-bit     |
+| `blake3`   | 256-bit     |
 
-[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/divider.svg
-[crypto-cli]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli.svg "Crypto CLI"
-[getting started]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-primary.svg 
-[download]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/master/assets/button-secondary.svg 
+**Options:** algorithm, data to hash, output format (`json` or `plain`).
+
+### Encrypt
+
+Encrypt plaintext with one of 5 AEAD ciphers. Requires a 32-byte hex key (64 hex characters).
+
+| Algorithm            | Notes                               |
+| -------------------- | ----------------------------------- |
+| `xchacha20-poly1305` | 24-byte nonce, recommended default  |
+| `aes-256-gcm`        | 12-byte nonce, hardware-accelerated |
+| `aes-128-gcm`        | 12-byte nonce, 128-bit key          |
+| `aes-256-gcm-siv`    | Nonce-misuse resistant              |
+| `aes-128-gcm-siv`    | Nonce-misuse resistant, 128-bit key |
+
+**Options:** algorithm, encryption key (hex), plaintext, output format (`json` or `hex`).
+
+### Sign
+
+Sign and verify messages with one of 8 algorithms. Three actions are available: generate a key pair and sign, sign with an existing key, or verify a signature.
+
+| Algorithm    | Type                  |
+| ------------ | --------------------- |
+| `ed25519`    | Edwards curve         |
+| `ed448`      | Edwards curve         |
+| `ecdsa-p256` | NIST P-256            |
+| `ecdsa-p384` | NIST P-384            |
+| `schnorr`    | BIP-340 (secp256k1)   |
+| `ml-dsa-44`  | Post-quantum (NIST 2) |
+| `ml-dsa-65`  | Post-quantum (NIST 3) |
+| `ml-dsa-87`  | Post-quantum (NIST 5) |
+
+**Actions:**
+
+1. **Generate key pair + sign** -- creates a fresh key pair, signs the message, and outputs both keys and signature.
+2. **Sign with existing key** -- prompts for a private key in hex, then signs.
+3. **Verify signature** -- prompts for a public key and signature in hex, then verifies.
+
+### Password Hash
+
+Hash and verify passwords using Argon2, the winner of the Password Hashing Competition. Output is in PHC string format (`$argon2id$v=19$m=65536,t=3,p=4$...`).
+
+| Variant    | Description                      |
+| ---------- | -------------------------------- |
+| `argon2id` | Recommended -- hybrid resistance |
+| `argon2i`  | Side-channel resistant           |
+| `argon2d`  | GPU resistant                    |
+
+**Actions:**
+
+1. **Hash password** -- returns the PHC string, raw hash, salt, and parameters.
+2. **Verify password** -- checks a password against a PHC string.
+
+---
+
+## Examples
+
+Runnable shell scripts are provided in the [`examples/`](./examples/) directory:
+
+| File                                    | Purpose                                   |
+| --------------------------------------- | ----------------------------------------- |
+| [`keygen.sh`](./examples/keygen.sh)     | Generate Ed25519, P-256, and ML-KEM keys  |
+| [`hash.sh`](./examples/hash.sh)         | Hash data with various algorithms         |
+| [`encrypt.sh`](./examples/encrypt.sh)   | Encrypt and decrypt with modern ciphers   |
+| [`sign.sh`](./examples/sign.sh)         | Sign and verify with modern algorithms    |
+| [`password.sh`](./examples/password.sh) | Hash and verify passwords with Argon2     |
+| [`legacy.sh`](./examples/legacy.sh)     | Legacy OpenPGP key generation and signing |
+
+Run any example:
+
+```bash
+bash examples/keygen.sh
+```
+
+---
+
+## Configuration
+
+The CLI respects the following environment variables:
+
+| Variable             | Default      | Description                               |
+| -------------------- | ------------ | ----------------------------------------- |
+| `CRYPTO_KEY_DIR`     | `./keys`     | Directory for reading key files           |
+| `CRYPTO_DATA_DIR`    | `./data`     | Directory for reading data files          |
+| `CRYPTO_KEY_OUT_DIR` | `./keys/out` | Directory for writing generated key files |
+
+Example:
+
+```bash
+export CRYPTO_KEY_DIR="$HOME/.crypto/keys"
+export CRYPTO_DATA_DIR="$HOME/.crypto/data"
+export CRYPTO_KEY_OUT_DIR="$HOME/.crypto/keys/out"
+cryptocli
+```
+
+---
+
+## Security
+
+- **Key material** is never logged to the console by default. Legacy commands suppress passphrase and private key output.
+- **Argon2** parameters use secure defaults: 64 MiB memory, 3 iterations, 4 lanes.
+- **Post-quantum algorithms** (ML-KEM, ML-DSA) follow the NIST FIPS 203/204 specifications.
+- **AEAD ciphers** generate random nonces per encryption; `AES-GCM-SIV` provides nonce-misuse resistance.
+- **Timing-safe comparisons** are used for all signature and password verification.
+
+If you discover a security vulnerability, please report it privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories/new).
+
+---
+
+## License
+
+Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+<p align="right"><a href="#contents">Back to Top</a></p>

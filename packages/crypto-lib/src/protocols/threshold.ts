@@ -22,6 +22,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** A single share from Shamir's Secret Sharing scheme. */
 export interface Share {
   /** Share index (1-based, never 0). */
   index: number;
@@ -29,6 +30,7 @@ export interface Share {
   value: string;
 }
 
+/** Result of splitting a secret into shares via Shamir's scheme. */
 export interface SplitResult {
   /** Array of n shares; any `threshold` of them can reconstruct the secret. */
   shares: Share[];
@@ -38,6 +40,7 @@ export interface SplitResult {
   algorithm: "shamir-ed25519";
 }
 
+/** Feldman VSS commitments used to verify shares without revealing the secret. */
 export interface FeldmanCommitments {
   /** Hex-encoded commitment points (Ed25519 points), one per coefficient. */
   commitments: string[];
@@ -99,6 +102,7 @@ function randomFieldElement(): bigint {
   for (let i = 0; i < raw.length; i++) {
     value = (value * BigInt(256) + BigInt(raw[i])) % P;
   }
+  /* c8 ignore next -- probabilistic: random scalar is zero with negligible probability */
   if (value === BigInt(0)) value = BigInt(1);
   return value;
 }
@@ -336,7 +340,14 @@ export function splitSecretWithCommitments(
   secret: string,
   n: number,
   threshold: number,
-): { shares: Share[]; commitments: FeldmanCommitments; threshold: number } {
+): {
+  /** Generated shares for distribution. */
+  shares: Share[];
+  /** Feldman VSS commitments for share verification. */
+  commitments: FeldmanCommitments;
+  /** Minimum shares required for reconstruction. */
+  threshold: number;
+} {
   if (threshold < 2) {
     throw new Error("Threshold must be at least 2");
   }

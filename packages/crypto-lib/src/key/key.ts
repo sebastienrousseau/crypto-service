@@ -40,8 +40,12 @@ export const getRevocationCertificate = async (): Promise<string> => {
   return ks.revocationArmored;
 };
 
+/** Default export bundling all key accessor functions. */
 export default {
+  /** Retrieve the shipped armored private key. */
   getPrivateKey,
+  /** Retrieve the shipped armored public key. */
   getPublicKey,
+  /** Retrieve the shipped revocation certificate. */
   getRevocationCertificate,
 };

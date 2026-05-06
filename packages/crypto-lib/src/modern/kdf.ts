@@ -17,13 +17,16 @@ import { pbkdf2 } from "@noble/hashes/pbkdf2";
 import { sha256 } from "@noble/hashes/sha256";
 import { randomBytes } from "@noble/ciphers/webcrypto";
 
+/** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
   "scrypt",
   "hkdf-sha256",
   "pbkdf2-sha256",
 ] as const;
+/** Union of supported KDF algorithm names. */
 export type KdfAlgorithm = (typeof KDF_ALGORITHMS)[number];
 
+/** Options for deriving a key using a KDF. */
 export interface KdfDeriveOptions {
   /** Algorithm to use. */
   algorithm: KdfAlgorithm;
@@ -48,6 +51,7 @@ export interface KdfDeriveOptions {
   };
 }
 
+/** Result of a KDF key derivation. */
 export interface KdfResult {
   /** Hex-encoded derived key. */
   derivedKey: string;

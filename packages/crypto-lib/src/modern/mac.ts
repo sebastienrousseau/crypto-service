@@ -19,6 +19,7 @@ import { kmac128, kmac256 } from "@noble/hashes/sha3-addons";
 
 // --- Types ---
 
+/** Supported HMAC hash algorithms. */
 export const HMAC_ALGORITHMS = [
   "sha256",
   "sha384",
@@ -27,8 +28,10 @@ export const HMAC_ALGORITHMS = [
   "sha3-512",
 ] as const;
 
+/** Union of supported HMAC algorithm names. */
 export type HmacAlgorithm = (typeof HMAC_ALGORITHMS)[number];
 
+/** Options for computing an HMAC. */
 export interface HmacComputeOptions {
   /** Hash algorithm to use. */
   algorithm: HmacAlgorithm;
@@ -38,6 +41,7 @@ export interface HmacComputeOptions {
   data: string | Uint8Array;
 }
 
+/** Result of an HMAC computation. */
 export interface HmacComputeResult {
   /** Hex-encoded MAC. */
   mac: string;
@@ -45,6 +49,7 @@ export interface HmacComputeResult {
   algorithm: HmacAlgorithm;
 }
 
+/** Options for verifying an HMAC. */
 export interface HmacVerifyOptions {
   /** Hash algorithm to use. */
   algorithm: HmacAlgorithm;
@@ -56,6 +61,7 @@ export interface HmacVerifyOptions {
   mac: string;
 }
 
+/** Result of an HMAC verification. */
 export interface HmacVerifyResult {
   /** Whether the MAC is valid. */
   valid: boolean;
@@ -152,10 +158,13 @@ export function verifyHmac(options: HmacVerifyOptions): HmacVerifyResult {
 
 // --- KMAC (Keccak-based MAC, NIST SP 800-185) ---
 
+/** Supported KMAC algorithm variants. */
 export const KMAC_ALGORITHMS = ["kmac-128", "kmac-256"] as const;
 
+/** Union of supported KMAC algorithm names. */
 export type KmacAlgorithm = (typeof KMAC_ALGORITHMS)[number];
 
+/** Options for computing a KMAC. */
 export interface KmacComputeOptions {
   /** KMAC algorithm variant. */
   algorithm: KmacAlgorithm;
@@ -169,6 +178,7 @@ export interface KmacComputeOptions {
   outputLength?: number;
 }
 
+/** Result of a KMAC computation. */
 export interface KmacComputeResult {
   /** Hex-encoded MAC. */
   mac: string;
@@ -176,6 +186,7 @@ export interface KmacComputeResult {
   algorithm: KmacAlgorithm;
 }
 
+/** Options for verifying a KMAC. */
 export interface KmacVerifyOptions {
   /** KMAC algorithm variant. */
   algorithm: KmacAlgorithm;
@@ -191,6 +202,7 @@ export interface KmacVerifyOptions {
   outputLength?: number;
 }
 
+/** Result of a KMAC verification. */
 export interface KmacVerifyResult {
   /** Whether the MAC is valid. */
   valid: boolean;

@@ -16,6 +16,7 @@
 import { ed25519 } from "@noble/curves/ed25519";
 import { randomBytes } from "@noble/ciphers/webcrypto";
 
+/** Ed25519 key pair (32-byte private + 32-byte public). */
 export interface Ed25519KeyPair {
   /** Hex-encoded 32-byte private key. */
   privateKey: string;
@@ -23,6 +24,7 @@ export interface Ed25519KeyPair {
   publicKey: string;
 }
 
+/** Result of an Ed25519 signing operation. */
 export interface SignResult {
   /** Hex-encoded 64-byte Ed25519 signature. */
   signature: string;
@@ -30,6 +32,7 @@ export interface SignResult {
   algorithm: "ed25519";
 }
 
+/** Result of an Ed25519 signature verification. */
 export interface VerifyResult {
   /** Whether the signature is valid. */
   valid: boolean;

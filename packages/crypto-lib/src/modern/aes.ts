@@ -21,6 +21,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** Options for AES-GCM encryption. */
 export interface AesGcmEncryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;
@@ -30,9 +31,12 @@ export interface AesGcmEncryptOptions {
   aad?: Uint8Array;
 }
 
+/** AES-GCM algorithm identifier (128 or 256 bit). */
 export type AesGcmAlgorithm = "aes-256-gcm" | "aes-128-gcm";
+/** AES-GCM-SIV algorithm identifier (128 or 256 bit). */
 export type AesGcmSivAlgorithm = "aes-256-gcm-siv" | "aes-128-gcm-siv";
 
+/** Result of an AES-GCM encryption operation. */
 export interface AesGcmEncryptResult {
   /** Base64-encoded ciphertext (nonce || ciphertext || tag). */
   ciphertext: string;
@@ -40,6 +44,7 @@ export interface AesGcmEncryptResult {
   algorithm: AesGcmAlgorithm;
 }
 
+/** Options for AES-GCM-SIV encryption (nonce-misuse resistant). */
 export interface AesGcmSivEncryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;
@@ -49,6 +54,7 @@ export interface AesGcmSivEncryptOptions {
   aad?: Uint8Array;
 }
 
+/** Result of an AES-GCM-SIV encryption operation. */
 export interface AesGcmSivEncryptResult {
   /** Base64-encoded ciphertext (nonce || ciphertext || tag). */
   ciphertext: string;
@@ -56,6 +62,7 @@ export interface AesGcmSivEncryptResult {
   algorithm: AesGcmSivAlgorithm;
 }
 
+/** Options for AES-GCM-SIV decryption. */
 export interface AesGcmSivDecryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;
@@ -65,6 +72,7 @@ export interface AesGcmSivDecryptOptions {
   aad?: Uint8Array;
 }
 
+/** Options for AES-GCM decryption. */
 export interface AesGcmDecryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;

@@ -30,6 +30,7 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** Server-side record created during PAKE registration. */
 export interface RegistrationRecord {
   /** Server ID bound to this registration. */
   serverId: string;
@@ -45,6 +46,7 @@ export interface RegistrationRecord {
   oprfSalt: string;
 }
 
+/** Client-to-server message initiating a PAKE login. */
 export interface LoginRequest {
   /** Hex-encoded blinded element (P-256 point). */
   blindedElement: string;
@@ -52,6 +54,7 @@ export interface LoginRequest {
   clientEphemeralPublic: string;
 }
 
+/** Ephemeral client state kept between login start and finish. */
 export interface ClientLoginState {
   /** Hex-encoded blind scalar (P-256 scalar). */
   blind: string;
@@ -63,6 +66,7 @@ export interface ClientLoginState {
   clientEphemeralPublic: string;
 }
 
+/** Server-to-client response during PAKE login. */
 export interface LoginResponse {
   /** Hex-encoded evaluated element (P-256 point). */
   evaluatedElement: string;
@@ -78,6 +82,7 @@ export interface LoginResponse {
   serverMac: string;
 }
 
+/** Server-side state kept between login respond and client verification. */
 export interface ServerLoginState {
   /** Hex-encoded session key (server-side). */
   sessionKey: string;
@@ -85,6 +90,7 @@ export interface ServerLoginState {
   expectedClientMac: string;
 }
 
+/** Result returned by the client after completing login. */
 export interface LoginFinishResult {
   /** Hex-encoded 32-byte session key. */
   sessionKey: string;
@@ -126,6 +132,7 @@ function hashToScalar(password: string, salt: Uint8Array): bigint {
     scalar = (scalar * BigInt(256) + BigInt(expanded[i])) % n;
   }
   // Ensure non-zero
+  /* c8 ignore next -- probabilistic: random scalar is zero with negligible probability */
   if (scalar === BigInt(0)) scalar = BigInt(1);
   return scalar;
 }
@@ -153,6 +160,7 @@ function randomScalar(): bigint {
   for (let i = 0; i < raw.length; i++) {
     scalar = (scalar * BigInt(256) + BigInt(raw[i])) % n;
   }
+  /* c8 ignore next -- probabilistic: random scalar is zero with negligible probability */
   if (scalar === BigInt(0)) scalar = BigInt(1);
   return scalar;
 }
@@ -254,7 +262,9 @@ export function serverRegister(
  * @returns Login request to send to server, and client state to keep.
  */
 export function clientStartLogin(password: string): {
+  /** Login request to send to the server. */
   request: LoginRequest;
+  /** Ephemeral client state to keep for login finish. */
   state: ClientLoginState;
 } {
   // Generate a random salt for the initial blinding (server will use its own)
@@ -300,7 +310,12 @@ export function clientStartLogin(password: string): {
 export function serverRespondLogin(
   request: LoginRequest,
   record: RegistrationRecord,
-): { response: LoginResponse; state: ServerLoginState } {
+): {
+  /** Login response to send to the client. */
+  response: LoginResponse;
+  /** Server state to keep for client verification. */
+  state: ServerLoginState;
+} {
   const blindedPoint = hexToPoint(request.blindedElement);
   const serverPrivScalar = hexToScalar(record.serverPrivateKey);
   const clientEphPub = hexToPoint(request.clientEphemeralPublic);

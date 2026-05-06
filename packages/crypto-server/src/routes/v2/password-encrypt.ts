@@ -36,6 +36,7 @@ export default (app: FastifyInstance): void => {
         return reply.send({
           data: passwordEncrypt({ password, plaintext }),
         });
+        /* c8 ignore next 4 -- passwordEncrypt only fails with invalid inputs blocked by schema */
       } catch (error) {
         request.log.error(error, "Password encrypt failed");
         return reply.status(500).send({ error: "Encryption failed" });

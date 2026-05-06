@@ -37,6 +37,7 @@ function toData(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }
 
+/** Result of an anonymous sealed-box encryption (X25519). */
 export interface SealedBoxResult {
   /** Base64-encoded sealed box. */
   sealed: string;
@@ -44,6 +45,7 @@ export interface SealedBoxResult {
   algorithm: "x25519-xchacha20-poly1305";
 }
 
+/** Result of a post-quantum sealed-box encryption (X25519 + ML-KEM-768). */
 export interface PqSealedBoxResult {
   /** Base64-encoded sealed box. */
   sealed: string;

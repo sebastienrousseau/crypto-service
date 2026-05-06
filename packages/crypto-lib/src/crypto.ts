@@ -56,6 +56,7 @@ import {
 } from "./registry";
 import { computeHmac, verifyHmac, type HmacAlgorithm } from "./modern/mac";
 
+/** Supported digital signature algorithms. */
 export type SignAlgorithm =
   | "ed25519"
   | "ed448"
@@ -217,9 +218,13 @@ export const crypto = {
 
   /** Algorithm registry helpers. */
   registry: {
+    /** Look up an algorithm by name. */
     get: getAlgorithm,
+    /** List all registered algorithms, optionally filtered by category. */
     list: listAlgorithms,
+    /** Get the recommended algorithm for a category. */
     recommended,
+    /** Check whether an algorithm is deprecated. */
     isDeprecated,
   },
 } as const;

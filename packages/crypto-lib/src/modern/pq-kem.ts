@@ -30,10 +30,13 @@ import { randomBytes } from "@noble/ciphers/webcrypto";
 
 // --- Types ---
 
+/** ML-KEM security level (NIST Level 1/3/5). */
 export type MlKemLevel = 512 | 768 | 1024;
 
+/** ML-KEM algorithm identifier string. */
 export type MlKemAlgorithm = "ml-kem-512" | "ml-kem-768" | "ml-kem-1024";
 
+/** Hybrid KEM algorithm identifier combining classical + post-quantum. */
 export type HybridKemAlgorithm =
   | "x25519-ml-kem-512"
   | "x25519-ml-kem-768"
@@ -41,6 +44,7 @@ export type HybridKemAlgorithm =
   | "p256-ml-kem-768"
   | "x448-ml-kem-1024";
 
+/** ML-KEM key pair (encapsulation + decapsulation keys). */
 export interface MlKemKeyPairResult {
   /** Hex-encoded public (encapsulation) key. */
   publicKey: string;
@@ -50,6 +54,7 @@ export interface MlKemKeyPairResult {
   algorithm: MlKemAlgorithm;
 }
 
+/** Result of an ML-KEM encapsulation operation. */
 export interface MlKemEncapsulateResult {
   /** Hex-encoded ciphertext to send to the secret key holder. */
   ciphertext: string;
@@ -59,6 +64,7 @@ export interface MlKemEncapsulateResult {
   algorithm: MlKemAlgorithm;
 }
 
+/** Result of an ML-KEM decapsulation operation. */
 export interface MlKemDecapsulateResult {
   /** Hex-encoded 32-byte shared secret. */
   sharedSecret: string;
@@ -66,6 +72,7 @@ export interface MlKemDecapsulateResult {
   algorithm: MlKemAlgorithm;
 }
 
+/** X25519 + ML-KEM hybrid key pair. */
 export interface HybridKemKeyPair {
   /** X25519 private key (hex, 32 bytes). */
   x25519PrivateKey: string;
@@ -79,6 +86,7 @@ export interface HybridKemKeyPair {
   algorithm: HybridKemAlgorithm;
 }
 
+/** Result of an X25519 + ML-KEM hybrid encapsulation. */
 export interface HybridKemEncapsulateResult {
   /** X25519 ephemeral public key (hex, 32 bytes). */
   x25519EphemeralPublic: string;
@@ -90,6 +98,7 @@ export interface HybridKemEncapsulateResult {
   algorithm: HybridKemAlgorithm;
 }
 
+/** Result of an X25519 + ML-KEM hybrid decapsulation. */
 export interface HybridKemDecapsulateResult {
   /** Hex-encoded 32-byte combined shared secret. */
   sharedSecret: string;
@@ -292,6 +301,7 @@ export function hybridKemDecapsulate(
 
 // --- P-256 + ML-KEM-768 Hybrid (TLS interop) ---
 
+/** P-256 + ML-KEM-768 hybrid key pair for TLS interoperability. */
 export interface P256MlKemKeyPair {
   /** P-256 private key (hex). */
   p256PrivateKey: string;
@@ -305,6 +315,7 @@ export interface P256MlKemKeyPair {
   algorithm: "p256-ml-kem-768";
 }
 
+/** Result of a P-256 + ML-KEM-768 hybrid encapsulation. */
 export interface P256MlKemEncapsulateResult {
   /** P-256 ephemeral public key (hex). */
   p256EphemeralPublic: string;
@@ -316,6 +327,7 @@ export interface P256MlKemEncapsulateResult {
   algorithm: "p256-ml-kem-768";
 }
 
+/** Result of a P-256 + ML-KEM-768 hybrid decapsulation. */
 export interface P256MlKemDecapsulateResult {
   /** Combined shared secret (hex, 32 bytes). */
   sharedSecret: string;
@@ -421,6 +433,7 @@ export function p256MlKemDecapsulate(
 
 // --- X448 + ML-KEM-1024 Hybrid (maximum security) ---
 
+/** X448 + ML-KEM-1024 hybrid key pair (maximum security, NIST Level 5). */
 export interface X448MlKemKeyPair {
   /** X448 private key (hex, 56 bytes). */
   x448PrivateKey: string;
@@ -434,6 +447,7 @@ export interface X448MlKemKeyPair {
   algorithm: "x448-ml-kem-1024";
 }
 
+/** Result of an X448 + ML-KEM-1024 hybrid encapsulation. */
 export interface X448MlKemEncapsulateResult {
   /** X448 ephemeral public key (hex). */
   x448EphemeralPublic: string;
@@ -445,6 +459,7 @@ export interface X448MlKemEncapsulateResult {
   algorithm: "x448-ml-kem-1024";
 }
 
+/** Result of an X448 + ML-KEM-1024 hybrid decapsulation. */
 export interface X448MlKemDecapsulateResult {
   /** Combined shared secret (hex, 32 bytes). */
   sharedSecret: string;

@@ -43,6 +43,7 @@ function toData(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }
 
+/** Result of a secretbox encryption (XChaCha20-Poly1305). */
 export interface SecretboxResult {
   /** Base64-encoded sealed box (nonce || ciphertext || tag). */
   sealed: string;

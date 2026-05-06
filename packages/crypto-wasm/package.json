@@ -1,0 +1,35 @@
+{
+  "name": "@sebastienrousseau/crypto-wasm",
+  "version": "0.0.3",
+  "description": "WebAssembly performance accelerator for crypto-lib — near-native speed for heavy cryptographic operations.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/",
+    "wasm/"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",
+    "clean": "rimraf ./coverage ./dist",
+    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.0",
+    "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
+}

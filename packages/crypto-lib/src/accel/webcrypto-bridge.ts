@@ -25,8 +25,10 @@ import * as nodeCrypto from "node:crypto";
 
 // --- Types ---
 
+/** Supported SHA-2 algorithms for WebCrypto hashing. */
 export type WebCryptoHashAlgorithm = "SHA-256" | "SHA-384" | "SHA-512";
 
+/** Options for WebCrypto-accelerated AES-GCM encryption. */
 export interface WebCryptoAesGcmEncryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;
@@ -36,6 +38,7 @@ export interface WebCryptoAesGcmEncryptOptions {
   aad?: Uint8Array;
 }
 
+/** Result of a WebCrypto-accelerated AES-GCM encryption. */
 export interface WebCryptoAesGcmEncryptResult {
   /** Base64-encoded ciphertext (nonce || ciphertext || tag). */
   ciphertext: string;
@@ -43,6 +46,7 @@ export interface WebCryptoAesGcmEncryptResult {
   accelerated: boolean;
 }
 
+/** Options for WebCrypto-accelerated AES-GCM decryption. */
 export interface WebCryptoAesGcmDecryptOptions {
   /** 128-bit or 256-bit key (16 or 32 bytes), hex string or Uint8Array. */
   key: string | Uint8Array;
@@ -52,6 +56,7 @@ export interface WebCryptoAesGcmDecryptOptions {
   aad?: Uint8Array;
 }
 
+/** Result of a WebCrypto-accelerated AES-GCM decryption. */
 export interface WebCryptoAesGcmDecryptResult {
   /** Decrypted plaintext bytes. */
   plaintext: Uint8Array;
@@ -59,6 +64,7 @@ export interface WebCryptoAesGcmDecryptResult {
   accelerated: boolean;
 }
 
+/** Options for WebCrypto-accelerated SHA-2 hashing. */
 export interface WebCryptoHashOptions {
   /** Hash algorithm to use. */
   algorithm: WebCryptoHashAlgorithm;
@@ -66,6 +72,7 @@ export interface WebCryptoHashOptions {
   data: string | Uint8Array;
 }
 
+/** Result of a WebCrypto-accelerated hash computation. */
 export interface WebCryptoHashResult {
   /** Hex-encoded hash digest. */
   digest: string;

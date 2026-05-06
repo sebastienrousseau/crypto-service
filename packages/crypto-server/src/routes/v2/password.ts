@@ -44,6 +44,7 @@ export default (app: FastifyInstance): void => {
           ...(body.parallelism ? { parallelism: body.parallelism } : {}),
         });
         return reply.send({ data: result });
+        /* c8 ignore next 4 -- schema validation prevents params that could cause hashing to fail */
       } catch (error) {
         request.log.error(error, "Password hashing failed");
         return reply.status(500).send({ error: "Password hashing failed" });

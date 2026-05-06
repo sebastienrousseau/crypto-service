@@ -19,6 +19,7 @@ import * as secretbox from "../high-level/secretbox";
 
 // --- Types ---
 
+/** A single key stored in the keyring. */
 export interface KeyEntry {
   /** Unique key ID. */
   kid: string;
@@ -38,12 +39,15 @@ export interface KeyEntry {
   archived: boolean;
 }
 
+/** JSON Web Key Set (JWKS) per RFC 7517 Section 5. */
 export interface Jwks {
+  /** Array of JWK objects in the set. */
   keys: Jwk[];
 }
 
 // --- Keyring ---
 
+/** In-memory keyring for storing, looking up, rotating, and exporting keys. */
 export class Keyring {
   private keys: Map<string, KeyEntry> = new Map();
 

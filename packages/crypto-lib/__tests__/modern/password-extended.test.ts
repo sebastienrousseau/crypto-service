@@ -14,13 +14,13 @@ describe("Argon2 Extended (variants + PHC format)", () => {
     });
 
     it("should verify via PHC string", () => {
-      const result = hashPassword({ password: "my-secret" });
+      const result = hashPassword({ password: "my-secret", memoryCost: 1024, timeCost: 1 });
       const verified = verifyPasswordPhc({ password: "my-secret", phc: result.phc });
       expect(verified.valid).to.be.true;
     });
 
     it("should reject wrong password via PHC", () => {
-      const result = hashPassword({ password: "my-secret" });
+      const result = hashPassword({ password: "my-secret", memoryCost: 1024, timeCost: 1 });
       const verified = verifyPasswordPhc({ password: "wrong", phc: result.phc });
       expect(verified.valid).to.be.false;
     });
@@ -34,7 +34,7 @@ describe("Argon2 Extended (variants + PHC format)", () => {
     });
 
     it("should verify argon2i hash", () => {
-      const result = hashPassword({ password: "test", variant: "argon2i" });
+      const result = hashPassword({ password: "test", variant: "argon2i", memoryCost: 1024, timeCost: 1 });
       const verified = verifyPassword({
         password: "test",
         hash: result.hash,
@@ -46,7 +46,7 @@ describe("Argon2 Extended (variants + PHC format)", () => {
     });
 
     it("should verify argon2i via PHC", () => {
-      const result = hashPassword({ password: "test", variant: "argon2i" });
+      const result = hashPassword({ password: "test", variant: "argon2i", memoryCost: 1024, timeCost: 1 });
       const verified = verifyPasswordPhc({ password: "test", phc: result.phc });
       expect(verified.valid).to.be.true;
     });
@@ -60,7 +60,7 @@ describe("Argon2 Extended (variants + PHC format)", () => {
     });
 
     it("should verify argon2d hash", () => {
-      const result = hashPassword({ password: "test", variant: "argon2d" });
+      const result = hashPassword({ password: "test", variant: "argon2d", memoryCost: 1024, timeCost: 1 });
       const verified = verifyPassword({
         password: "test",
         hash: result.hash,

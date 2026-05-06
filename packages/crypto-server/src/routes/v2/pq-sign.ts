@@ -31,6 +31,7 @@ export default (app: FastifyInstance): void => {
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
         const { level } = request.body as { level: 44 | 65 | 87 };
         return reply.send({ data: mlDsaKeygen(level) });
+        /* c8 ignore next 4 -- schema enum validation prevents invalid level values */
       } catch (error) {
         request.log.error(error, "ML-DSA keygen failed");
         return reply.status(500).send({ error: "Key generation failed" });

@@ -88,6 +88,7 @@ export async function generate(data: dataGenerate) {
   return generate;
 }
 
+/** Reformat an existing OpenPGP key with new parameters. */
 export async function reformat(data: dataReformat) {
   const reformat = await key.reformat.default(data);
   return reformat;
@@ -196,12 +197,20 @@ export async function verify(data: dataVerify) {
  *
  */
 export default {
+  /** Decrypt a PGP-encrypted message. */
   decrypt,
+  /** Encrypt a message with PGP. */
   encrypt,
+  /** Generate a new PGP key pair. */
   generate,
+  /** Reformat an existing PGP key. */
   reformat,
+  /** Revoke a PGP key pair. */
   revoke,
+  /** Generate a PGP session key. */
   session,
+  /** Sign a message with PGP. */
   sign,
+  /** Verify a PGP-signed message. */
   verify,
 };

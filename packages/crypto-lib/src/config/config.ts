@@ -1,5 +1,6 @@
 import enums from "../enums";
 
+/** Default cryptographic configuration (key type, size, curve, format). */
 export default {
   /**
    * ### config.preferredRSABits

@@ -14,24 +14,29 @@ import { sha256 } from "@noble/hashes/sha256";
 
 // ─── Raw format conversions ────────────────────────────────────────
 
+/** Convert a hex string to a Uint8Array. */
 export function hexToBytes(hex: string): Uint8Array {
   if (!/^[0-9a-fA-F]*$/.test(hex)) throw new Error("Invalid hex string");
   if (hex.length % 2 !== 0) throw new Error("Hex string must have even length");
   return Buffer.from(hex, "hex");
 }
 
+/** Convert a Uint8Array to a lowercase hex string. */
 export function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }
 
+/** Convert a Uint8Array to a standard base64 string. */
 export function bytesToBase64(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("base64");
 }
 
+/** Convert a standard base64 string to a Uint8Array. */
 export function base64ToBytes(b64: string): Uint8Array {
   return Buffer.from(b64, "base64");
 }
 
+/** Convert a Uint8Array to a URL-safe base64 string (no padding). */
 export function bytesToBase64url(bytes: Uint8Array): string {
   return Buffer.from(bytes)
     .toString("base64")
@@ -40,6 +45,7 @@ export function bytesToBase64url(bytes: Uint8Array): string {
     .replace(/=+$/, "");
 }
 
+/** Convert a URL-safe base64 string to a Uint8Array. */
 export function base64urlToBytes(b64url: string): Uint8Array {
   const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
   const pad = (4 - (b64.length % 4)) % 4;
@@ -48,6 +54,7 @@ export function base64urlToBytes(b64url: string): Uint8Array {
 
 // ─── PEM ───────────────────────────────────────────────────────────
 
+/** Allowed PEM header/footer label strings. */
 export type PemLabel =
   | "PUBLIC KEY"
   | "PRIVATE KEY"
@@ -72,7 +79,12 @@ export function encodePem(label: PemLabel, der: Uint8Array): string {
 /**
  * Decode PEM to raw bytes.  Returns the DER content and the label.
  */
-export function decodePem(pem: string): { label: string; data: Uint8Array } {
+export function decodePem(pem: string): {
+  /** PEM header label (e.g. "PUBLIC KEY"). */
+  label: string;
+  /** DER-encoded content bytes. */
+  data: Uint8Array;
+} {
   const match = pem.match(
     /-----BEGIN ([A-Z0-9 ]+)-----\s*([\s\S]+?)\s*-----END \1-----/,
   );
@@ -84,14 +96,23 @@ export function decodePem(pem: string): { label: string; data: Uint8Array } {
 
 // ─── JWK ───────────────────────────────────────────────────────────
 
+/** JSON Web Key (JWK) representation per RFC 7517. */
 export interface Jwk {
+  /** Key type (e.g. "OKP", "EC", "RSA"). */
   kty: string;
+  /** Cryptographic curve name (e.g. "Ed25519", "X25519", "P-256"). */
   crv?: string;
+  /** Algorithm intended for use with the key (e.g. "EdDSA"). */
   alg?: string;
+  /** Key usage: "sig" for signing, "enc" for encryption. */
   use?: string;
+  /** Key ID. */
   kid?: string;
+  /** Base64url-encoded public key coordinate. */
   x?: string;
+  /** Base64url-encoded private key scalar. */
   d?: string;
+  /** Additional JWK members. */
   [key: string]: unknown;
 }
 
@@ -135,7 +156,12 @@ export function x25519ToJwk(publicKeyHex: string, privateKeyHex?: string): Jwk {
 /**
  * Import a JWK to raw hex key(s).
  */
-export function jwkToHex(jwk: Jwk): { publicKey: string; privateKey?: string } {
+export function jwkToHex(jwk: Jwk): {
+  /** Hex-encoded public key. */
+  publicKey: string;
+  /** Hex-encoded private key (if present in JWK). */
+  privateKey?: string;
+} {
   if (!jwk.x) throw new Error("JWK missing 'x' (public key) field");
   const pub = base64urlToBytes(jwk.x);
   const result: { publicKey: string; privateKey?: string } = {

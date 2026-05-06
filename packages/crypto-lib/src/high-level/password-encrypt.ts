@@ -31,6 +31,7 @@ const DEFAULT_TIME = 3;
 const DEFAULT_MEMORY = 65536; // 64 MiB
 const DEFAULT_PARALLELISM = 4;
 
+/** Options for password-based encryption (Argon2id + XChaCha20-Poly1305). */
 export interface PasswordEncryptOptions {
   /** Password (UTF-8 string or bytes). */
   password: string | Uint8Array;
@@ -44,6 +45,7 @@ export interface PasswordEncryptOptions {
   parallelism?: number;
 }
 
+/** Result of a password-based encryption. */
 export interface PasswordEncryptResult {
   /** Base64-encoded encrypted payload (self-describing format). */
   encrypted: string;

@@ -20,6 +20,7 @@ import { cpus } from "node:os";
 
 // --- Types ---
 
+/** Configuration options for the worker thread pool. */
 export interface WorkerPoolOptions {
   /** Number of worker threads. Default: Math.max(1, cpus / 2). */
   size?: number;
@@ -27,6 +28,7 @@ export interface WorkerPoolOptions {
   workerScript?: string;
 }
 
+/** Descriptor for a task to be executed in a worker thread. */
 export interface WorkerTask {
   /** Module path to import (absolute or package specifier). */
   modulePath: string;
@@ -94,9 +96,11 @@ export class WorkerPool {
   private workers: WorkerEntry[] = [];
   private queue: PendingTask[] = [];
   private terminated = false;
+  /** Number of worker threads in the pool. */
   public readonly size: number;
 
   constructor(options: WorkerPoolOptions = {}) {
+    /* c8 ignore next 3 -- only reachable from worker threads (separate V8 instance) */
     if (!isMainThread) {
       throw new Error("WorkerPool must be created from the main thread");
     }
@@ -195,6 +199,7 @@ export class WorkerPool {
       if (msg.success) {
         pending.resolve(msg.result);
       } else {
+        /* c8 ignore next -- worker error messages always include .error */
         pending.reject(new Error(msg.error ?? "Worker task failed"));
       }
 

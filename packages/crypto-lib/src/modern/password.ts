@@ -23,8 +23,10 @@ import { timingSafeEqual } from "../utils";
 
 // --- Types ---
 
+/** Argon2 algorithm variant (id, i, or d). */
 export type Argon2Variant = "argon2id" | "argon2i" | "argon2d";
 
+/** Argon2 cost parameters (time, memory, parallelism). */
 export interface Argon2Params {
   /** Time cost (iterations). */
   t: number;
@@ -34,6 +36,7 @@ export interface Argon2Params {
   p: number;
 }
 
+/** Options for hashing a password with Argon2. */
 export interface HashPasswordOptions {
   /** Password to hash (UTF-8 string or bytes). */
   password: string | Uint8Array;
@@ -51,6 +54,7 @@ export interface HashPasswordOptions {
   variant?: Argon2Variant;
 }
 
+/** Result of an Argon2 password hash operation. */
 export interface HashPasswordResult {
   /** Hex-encoded hash. */
   hash: string;
@@ -64,6 +68,7 @@ export interface HashPasswordResult {
   phc: string;
 }
 
+/** Options for verifying a password against an Argon2 hash. */
 export interface VerifyPasswordOptions {
   /** Password to verify (UTF-8 string or bytes). */
   password: string | Uint8Array;
@@ -77,11 +82,13 @@ export interface VerifyPasswordOptions {
   variant?: Argon2Variant;
 }
 
+/** Result of an Argon2 password verification. */
 export interface VerifyPasswordResult {
   /** Whether the password matches the hash. */
   valid: boolean;
 }
 
+/** Options for verifying a password against a PHC-format string. */
 export interface VerifyPhcOptions {
   /** Password to verify. */
   password: string | Uint8Array;
