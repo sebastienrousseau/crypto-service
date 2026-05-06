@@ -38,17 +38,26 @@ export interface AwsKmsOptions {
  * const encrypted = await provider.encrypt(key.keyId, plaintext);
  * ```
  */
+/**
+ * Minimal interface for the AWS KMS SDK client.
+ * Uses `never` to avoid explicit `any` while supporting dynamic peer dep.
+ */
+/** Minimal interface for the AWS KMS SDK client (peer dependency). */
+interface AwsKmsClient {
+  send(command: unknown): Promise<Record<string, any>>; // eslint-disable-line
+}
+
 export class AwsKmsProvider implements KmsProvider {
   readonly name = "aws";
   private readonly options: AwsKmsOptions;
-  private client: unknown;
+  private client: AwsKmsClient | null;
 
   constructor(options: AwsKmsOptions) {
     this.options = options;
     this.client = null; // Lazy-loaded from peer dependency
   }
 
-  private async getClient(): Promise<unknown> {
+  private async getClient(): Promise<AwsKmsClient> {
     if (!this.client) {
       try {
         const mod = await import("@aws-sdk/client-kms");
@@ -59,7 +68,7 @@ export class AwsKmsProvider implements KmsProvider {
         if (this.options.endpoint) {
           config.endpoint = this.options.endpoint;
         }
-        this.client = new mod.KMSClient(config);
+        this.client = new mod.KMSClient(config) as unknown as AwsKmsClient;
       } catch {
         throw new Error(
           "AWS KMS requires @aws-sdk/client-kms. Install it: npm install @aws-sdk/client-kms",
@@ -108,17 +117,21 @@ export class AwsKmsProvider implements KmsProvider {
   ): Promise<KmsKeyMetadata> {
     const client = await this.getClient();
     const { CreateKeyCommand } = await import("@aws-sdk/client-kms");
-    const input: Record<string, unknown> = {
-      KeyUsage: usage === "sign" ? "SIGN_VERIFY" : "ENCRYPT_DECRYPT",
-      KeySpec: algorithm.toUpperCase().replace(/-/g, "_"),
-    };
-    if (metadata) {
-      input.Tags = Object.entries(metadata).map(([k, v]) => ({
-        TagKey: k,
-        TagValue: v,
-      }));
-    }
-    const result = await client.send(new CreateKeyCommand(input));
+    const keySpec = algorithm.toUpperCase().replace(/-/g, "_");
+    const result = await client.send(
+      new CreateKeyCommand({
+        KeyUsage: usage === "sign" ? "SIGN_VERIFY" : "ENCRYPT_DECRYPT",
+        KeySpec: keySpec as any,
+        ...(metadata
+          ? {
+              Tags: Object.entries(metadata).map(([k, v]) => ({
+                TagKey: k,
+                TagValue: v,
+              })),
+            }
+          : {}),
+      }),
+    );
     return {
       keyId: result.KeyMetadata?.KeyId ?? "",
       algorithm,
@@ -164,14 +177,13 @@ export class AwsKmsProvider implements KmsProvider {
   ): Promise<KmsEncryptResult> {
     const client = await this.getClient();
     const { EncryptCommand } = await import("@aws-sdk/client-kms");
-    const input: Record<string, unknown> = {
-      KeyId: keyId,
-      Plaintext: plaintext,
-    };
-    if (context) {
-      input.EncryptionContext = context;
-    }
-    const result = await client.send(new EncryptCommand(input));
+    const result = await client.send(
+      new EncryptCommand({
+        KeyId: keyId,
+        Plaintext: plaintext,
+        ...(context ? { EncryptionContext: context } : {}),
+      }),
+    );
     const out: KmsEncryptResult = {
       ciphertext: Buffer.from(result.CiphertextBlob!).toString("base64"),
       keyId: result.KeyId ?? keyId,
@@ -189,14 +201,13 @@ export class AwsKmsProvider implements KmsProvider {
   ): Promise<KmsDecryptResult> {
     const client = await this.getClient();
     const { DecryptCommand } = await import("@aws-sdk/client-kms");
-    const input: Record<string, unknown> = {
-      KeyId: keyId,
-      CiphertextBlob: Buffer.from(ciphertext, "base64"),
-    };
-    if (context) {
-      input.EncryptionContext = context;
-    }
-    const result = await client.send(new DecryptCommand(input));
+    const result = await client.send(
+      new DecryptCommand({
+        KeyId: keyId,
+        CiphertextBlob: Buffer.from(ciphertext, "base64"),
+        ...(context ? { EncryptionContext: context } : {}),
+      }),
+    );
     return {
       plaintext: new Uint8Array(result.Plaintext!),
       keyId: result.KeyId ?? keyId,
@@ -215,7 +226,7 @@ export class AwsKmsProvider implements KmsProvider {
         KeyId: keyId,
         Message: data,
         MessageType: "RAW",
-        SigningAlgorithm: algorithm as string,
+        SigningAlgorithm: algorithm as any,
       }),
     );
     return {
@@ -239,7 +250,7 @@ export class AwsKmsProvider implements KmsProvider {
         Message: data,
         MessageType: "RAW",
         Signature: Buffer.from(signature, "base64"),
-        SigningAlgorithm: algorithm as string,
+        SigningAlgorithm: algorithm as any,
       }),
     );
     return result.SignatureValid ?? false;
@@ -261,7 +272,7 @@ export class AwsKmsProvider implements KmsProvider {
     const result = await client.send(
       new GenerateDataKeyCommand({
         KeyId: keyId,
-        KeySpec: keySpec as string,
+        KeySpec: keySpec as any,
       }),
     );
     return {

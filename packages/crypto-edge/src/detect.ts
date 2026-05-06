@@ -14,6 +14,10 @@
 
 import type { EdgeRuntime, RuntimeCapabilities } from "./types";
 
+// Runtime globals vary across environments; typed access is not feasible.
+// Uses `any` because globalThis properties differ across Workers/Deno/Bun/Node.
+const g = globalThis as Record<string, any>; // eslint-disable-line
+
 /**
  * Detect the current JavaScript runtime environment.
  *
@@ -31,7 +35,7 @@ import type { EdgeRuntime, RuntimeCapabilities } from "./types";
  * @returns The detected {@link EdgeRuntime} identifier.
  */
 export function detectRuntime(): EdgeRuntime {
-  const g = globalThis as Record<string, unknown>;
+  // Uses module-level `g` reference
 
   // Cloudflare Workers: navigator.userAgent === "Cloudflare-Workers"
   if (
@@ -82,7 +86,7 @@ export function detectRuntime(): EdgeRuntime {
  * available in the current runtime.
  */
 export function getCapabilities(): RuntimeCapabilities {
-  const g = globalThis as Record<string, unknown>;
+  // Uses module-level `g` reference
   const runtime = detectRuntime();
 
   const hasWebCrypto = typeof g.crypto !== "undefined" && g.crypto !== null;

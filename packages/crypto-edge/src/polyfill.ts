@@ -236,7 +236,7 @@ export function installPolyfills(): {
     };
   }
 
-  const g = globalThis as Record<string, unknown>;
+  const g = globalThis as Record<string, any>; // eslint-disable-line
   const result = {
     textEncoder: false,
     textDecoder: false,
