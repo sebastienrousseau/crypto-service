@@ -47,7 +47,7 @@ describe('Decrypt Function - Coverage Tests', () => {
       try {
         await decrypt(testData);
         expect.fail('Should have thrown error for empty private key');
-      } catch (error: any) {
+      } catch (error: unknown) {
         // The actual error depends on how the validation is implemented
         expect(error).to.exist;
       }
@@ -58,13 +58,13 @@ describe('Decrypt Function - Coverage Tests', () => {
         message: Buffer.from('test message').toString('base64'),
         passphrase: testKeys.passphrase,
         publicKey: testKeys.publicKeyBase64,
-        privateKey: undefined as any
+        privateKey: undefined as never
       };
 
       try {
         await decrypt(testData);
         expect.fail('Should have thrown error for undefined private key');
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error).to.exist;
       }
     });
@@ -74,13 +74,13 @@ describe('Decrypt Function - Coverage Tests', () => {
         message: Buffer.from('test message').toString('base64'),
         passphrase: testKeys.passphrase,
         publicKey: testKeys.publicKeyBase64,
-        privateKey: null as any
+        privateKey: null as never
       };
 
       try {
         await decrypt(testData);
         expect.fail('Should have thrown error for null private key');
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error).to.exist;
       }
     });

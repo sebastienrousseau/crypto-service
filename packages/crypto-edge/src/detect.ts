@@ -31,7 +31,7 @@ import type { EdgeRuntime, RuntimeCapabilities } from "./types";
  * @returns The detected {@link EdgeRuntime} identifier.
  */
 export function detectRuntime(): EdgeRuntime {
-  const g = globalThis as any;
+  const g = globalThis as Record<string, unknown>;
 
   // Cloudflare Workers: navigator.userAgent === "Cloudflare-Workers"
   if (
@@ -82,7 +82,7 @@ export function detectRuntime(): EdgeRuntime {
  * available in the current runtime.
  */
 export function getCapabilities(): RuntimeCapabilities {
-  const g = globalThis as any;
+  const g = globalThis as Record<string, unknown>;
   const runtime = detectRuntime();
 
   const hasWebCrypto = typeof g.crypto !== "undefined" && g.crypto !== null;

@@ -22,7 +22,7 @@ import {
 } from '../src/@types/types';
 
 describe('utils/index.ts - Core Utility Functions', () => {
-  let originalConsoleLog: any;
+  let originalConsoleLog: typeof console.log;
   let logOutput: string[];
 
   beforeEach(() => {
@@ -71,7 +71,7 @@ describe('utils/index.ts - Core Utility Functions', () => {
     });
 
     it('should handle null/undefined data gracefully', () => {
-      const result = createMarkdown(null as any);
+      const result = createMarkdown(null as never);
       expect(result).to.equal('');
     });
 
@@ -82,7 +82,7 @@ describe('utils/index.ts - Core Utility Functions', () => {
           description: undefined
         },
         item: []
-      } as any;
+      } as unknown as JsonDocument;
 
       const result = createMarkdown(testDoc);
       expect(result).to.include('# Test API\n\n');
@@ -128,13 +128,13 @@ describe('utils/index.ts - Core Utility Functions', () => {
     });
 
     it('should handle null/undefined data gracefully', () => {
-      const result = readAuthorization(null as any);
+      const result = readAuthorization(null as never);
       expect(result).to.equal('');
     });
 
     it('should handle auth data without bearer tokens', () => {
       const authData: AuthorizationInfo = {
-        bearer: null as any,
+        bearer: null as never,
         key: 'auth_key',
         type: 'Bearer',
         value: 'auth_value'
@@ -336,8 +336,8 @@ describe('utils/index.ts - Core Utility Functions', () => {
     });
 
     it('should return empty string for null/undefined responses', () => {
-      expect(readResponse(null as any)).to.equal('');
-      expect(readResponse(undefined as any)).to.equal('');
+      expect(readResponse(null as never)).to.equal('');
+      expect(readResponse(undefined as never)).to.equal('');
     });
 
     it('should return empty string for empty array', () => {
@@ -365,24 +365,24 @@ describe('utils/index.ts - Core Utility Functions', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle null inputs gracefully across all functions', () => {
-      expect(() => createMarkdown(null as any)).to.not.throw();
-      expect(() => readAuthorization(null as any)).to.not.throw();
+      expect(() => createMarkdown(null as never)).to.not.throw();
+      expect(() => readAuthorization(null as never)).to.not.throw();
       expect(() => readQueryParams(null)).to.not.throw();
       expect(() => readFormDataBody(null)).to.not.throw();
-      expect(() => readResponse(null as any)).to.not.throw();
+      expect(() => readResponse(null as never)).to.not.throw();
     });
 
     it('should handle undefined inputs gracefully', () => {
       expect(() => readQueryParams(undefined)).to.not.throw();
       expect(() => readFormDataBody(undefined)).to.not.throw();
-      expect(() => readResponse(undefined as any)).to.not.throw();
+      expect(() => readResponse(undefined as never)).to.not.throw();
     });
 
     it('should handle malformed data structures', () => {
       const malformedDoc = {
         info: null,
         item: undefined
-      } as any;
+      } as unknown as JsonDocument;
 
       expect(() => createMarkdown(malformedDoc)).to.not.throw();
     });
@@ -545,7 +545,7 @@ describe('utils/index.ts - Core Utility Functions', () => {
             },
           ],
         },
-      ] as any;
+      ] as unknown as Parameters<typeof readItems>[0];
 
       const result = readItems(items);
 
@@ -574,7 +574,7 @@ describe('utils/index.ts - Core Utility Functions', () => {
             },
           ],
         },
-      ] as any;
+      ] as unknown as Parameters<typeof readItems>[0];
 
       const result = readItems(items);
 
@@ -601,7 +601,7 @@ describe('utils/index.ts - Core Utility Functions', () => {
           name: 'Health Check',
           request: { method: 'GET', url: '/health' },
         },
-      ] as any;
+      ] as unknown as Parameters<typeof readItems>[0];
 
       const result = readItems(items);
 

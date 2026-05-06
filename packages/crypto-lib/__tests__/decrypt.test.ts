@@ -136,7 +136,7 @@ Mock encrypted message for testing
 
     it('should reject null input safely', async () => {
       try {
-        await decrypt(null as any);
+        await decrypt(null as never);
         expect.fail('Should have thrown error');
       } catch (error) {
         expect(error).to.exist;
@@ -145,7 +145,7 @@ Mock encrypted message for testing
 
     it('should reject undefined input safely', async () => {
       try {
-        await decrypt(undefined as any);
+        await decrypt(undefined as never);
         expect.fail('Should have thrown error');
       } catch (error) {
         expect(error).to.exist;

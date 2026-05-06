@@ -74,12 +74,12 @@ describe('Crypto API Test Suite', () => {
   describe('Utility Functions', () => {
     describe('createMarkdown', () => {
       it('should handle null data gracefully', () => {
-        const result = createMarkdown(null as any);
+        const result = createMarkdown(null as never);
         expect(result).to.equal('');
       });
 
       it('should handle undefined data gracefully', () => {
-        const result = createMarkdown(undefined as any);
+        const result = createMarkdown(undefined as never);
         expect(result).to.equal('');
       });
 
@@ -107,7 +107,7 @@ describe('Crypto API Test Suite', () => {
       });
 
       it('should handle null authorization data', () => {
-        const result = readAuthorization(null as any);
+        const result = readAuthorization(null as never);
         expect(result).to.equal('');
       });
 
@@ -180,7 +180,7 @@ describe('Crypto API Test Suite', () => {
       });
 
       it('should handle null responses', () => {
-        const result = readResponse(null as any);
+        const result = readResponse(null as never);
         expect(result).to.equal('');
       });
     });
@@ -256,8 +256,8 @@ describe('Crypto API Test Suite', () => {
 
   describe('Main Entry Point', () => {
     let originalArgv: string[];
-    let logSpy: any[];
-    let errorSpy: any[];
+    let logSpy: unknown[][];
+    let errorSpy: unknown[][];
 
     beforeEach(() => {
       originalArgv = process.argv;
@@ -268,12 +268,12 @@ describe('Crypto API Test Suite', () => {
       const originalLog = console.log;
       const originalError = console.error;
 
-      console.log = (...args: any[]) => {
+      console.log = (...args: unknown[]) => {
         logSpy.push(args);
         originalLog(...args);
       };
 
-      console.error = (...args: any[]) => {
+      console.error = (...args: unknown[]) => {
         errorSpy.push(args);
         originalError(...args);
       };
@@ -309,7 +309,7 @@ describe('Crypto API Test Suite', () => {
         // Clean up
         try {
           await fs.unlink(testFilePath);
-        } catch {}
+        } catch { /* expected */ }
       }
     });
   });
@@ -358,16 +358,16 @@ describe('Crypto API Test Suite', () => {
 
   describe('Edge Cases and Error Handling', () => {
     it('should handle undefined values gracefully', () => {
-      expect(() => createMarkdown(undefined as any)).to.not.throw();
-      expect(() => readAuthorization(undefined as any)).to.not.throw();
-      expect(() => readResponse(undefined as any)).to.not.throw();
+      expect(() => createMarkdown(undefined as never)).to.not.throw();
+      expect(() => readAuthorization(undefined as never)).to.not.throw();
+      expect(() => readResponse(undefined as never)).to.not.throw();
     });
 
     it('should handle malformed JSON structures', () => {
       const malformedDoc = {
         info: null,
         item: 'not an array'
-      } as any;
+      } as unknown as JsonDocument;
 
       // Test that the function exists and can handle null info
       expect(createMarkdown).to.be.a('function');

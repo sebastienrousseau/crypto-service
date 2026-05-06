@@ -57,8 +57,7 @@ export default (app: FastifyInstance): void => {
           algorithm: string;
           metadata?: { kid?: string; use?: "sig" | "enc"; exp?: string };
         };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = generateKeyPair(algorithm as any, metadata);
+        const result = generateKeyPair(algorithm as never, metadata);
         return reply.send({ data: result });
         /* c8 ignore next 4 -- schema enum validation prevents invalid algorithms */
       } catch (error) {

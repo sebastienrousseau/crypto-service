@@ -130,7 +130,7 @@ Mock private key for testing
 
     it('should handle null input safely', async () => {
       try {
-        await encrypt(null as any);
+        await encrypt(null as never);
         expect.fail('Should have thrown error');
       } catch (error) {
         expect(error).to.exist;
@@ -139,7 +139,7 @@ Mock private key for testing
 
     it('should handle undefined input safely', async () => {
       try {
-        await encrypt(undefined as any);
+        await encrypt(undefined as never);
         expect.fail('Should have thrown error');
       } catch (error) {
         expect(error).to.exist;

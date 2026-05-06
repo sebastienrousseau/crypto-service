@@ -51,12 +51,12 @@ describe('Lib Functions Coverage Tests', () => {
           name: 'Test',
           email: 'test@test.com',
           userIDs: [{ name: 'Test', email: 'test@test.com' }],
-          type: 'ecc' as any,
-          curve: 'curve25519' as any,
+          type: 'ecc',
+          curve: 'curve25519',
           passphrase: 'test123',
           rsaBits: 2048,
           keyExpirationTime: 0,
-          format: 'armored' as any
+          format: 'armored'
         });
 
         expect(result).to.have.property('privateKey');
@@ -73,13 +73,13 @@ describe('Lib Functions Coverage Tests', () => {
           date: new Date(),
           name: '',
           email: '',
-          type: 'invalid' as any,
+          type: 'invalid' as never,
           userIDs: [],
           passphrase: '',
-          curve: '' as any,
+          curve: '' as never,
           rsaBits: 0,
           keyExpirationTime: 0,
-          format: '' as any
+          format: '' as never
         });
         expect.fail('Should have thrown error for invalid parameters');
       } catch (error) {
@@ -289,14 +289,14 @@ describe('Lib Functions Coverage Tests', () => {
 
       for (const { name, func } of testFunctions) {
         try {
-          await func(null as any);
+          await func(null as never);
           expect.fail(`${name} should have thrown error for null input`);
         } catch (error) {
           expect(error).to.exist;
         }
 
         try {
-          await func(undefined as any);
+          await func(undefined as never);
           expect.fail(`${name} should have thrown error for undefined input`);
         } catch (error) {
           expect(error).to.exist;
@@ -314,7 +314,7 @@ describe('Lib Functions Coverage Tests', () => {
 
       for (const { name, func, data } of testCases) {
         try {
-          await func(data as any);
+          await func(data as never);
           expect.fail(`${name} should have thrown error for invalid base64`);
         } catch (error) {
           expect(error).to.exist;

@@ -123,10 +123,10 @@ describe("Coverage Gaps", function () {
 
     it("should throw when keyExpirationTime is NaN", async () => {
       try {
-        await generate({ ...baseData, keyExpirationTime: NaN as any });
+        await generate({ ...baseData, keyExpirationTime: NaN as never });
         expect.fail("Should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.equal(
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(
           "keyExpirationTime must be a non-negative number of seconds"
         );
       }
@@ -136,8 +136,8 @@ describe("Coverage Gaps", function () {
       try {
         await generate({ ...baseData, keyExpirationTime: -1 });
         expect.fail("Should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.equal(
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(
           "keyExpirationTime must be a non-negative number of seconds"
         );
       }
@@ -145,10 +145,10 @@ describe("Coverage Gaps", function () {
 
     it("should throw when keyExpirationTime is Infinity", async () => {
       try {
-        await generate({ ...baseData, keyExpirationTime: Infinity as any });
+        await generate({ ...baseData, keyExpirationTime: Infinity as never });
         expect.fail("Should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.equal(
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(
           "keyExpirationTime must be a non-negative number of seconds"
         );
       }
@@ -192,7 +192,7 @@ describe("Coverage Gaps", function () {
           name: "Test User",
           email: "test@test.com",
           userIDs: [{ name: "Test User", email: "test@test.com" }],
-          type: "" as any,
+          type: "" as never,
           curve: "p256" as const,
           passphrase: "testpassphrase",
           rsaBits: 2048,
@@ -200,7 +200,7 @@ describe("Coverage Gaps", function () {
           format: "armored" as const,
         });
         expect.fail("Should have thrown");
-      } catch (err: any) {
+      } catch (err: unknown) {
         // If openpgp.generateKey succeeds with the falsy type, we get
         // "No key type specified". If openpgp rejects the type first,
         // we still cover the code path leading to the guard.
@@ -215,7 +215,7 @@ describe("Coverage Gaps", function () {
           name: "Test User",
           email: "test@test.com",
           userIDs: [{ name: "Test User", email: "test@test.com" }],
-          type: undefined as any,
+          type: undefined as never,
           curve: "p256" as const,
           passphrase: "testpassphrase",
           rsaBits: 2048,
@@ -223,7 +223,7 @@ describe("Coverage Gaps", function () {
           format: "armored" as const,
         });
         expect.fail("Should have thrown");
-      } catch (err: any) {
+      } catch (err: unknown) {
         expect(err).to.be.an("error");
       }
     });

@@ -23,7 +23,8 @@ An interactive command-line interface for cryptographic operations, supporting b
 - [Install](#install) -- global install and one-off execution
 - [Quick Start](#quick-start) -- launch the interactive menu
 - [Commands](#commands) -- legacy OpenPGP and modern crypto commands
-- [Modern Command Details](#modern-command-details) -- algorithms and options per command
+- [Modern Command Details](#modern-command-details) -- algorithms and
+  options per command
 - [Examples](#examples) -- runnable shell scripts
 - [Configuration](#configuration) -- environment variables
 - [Security](#security) -- threat model and best practices
@@ -170,7 +171,9 @@ Encrypt plaintext with one of 5 AEAD ciphers. Requires a 32-byte hex key (64 hex
 
 ### Sign
 
-Sign and verify messages with one of 8 algorithms. Three actions are available: generate a key pair and sign, sign with an existing key, or verify a signature.
+Sign and verify messages with one of 8 algorithms. Three actions are
+available: generate a key pair and sign, sign with an existing key,
+or verify a signature.
 
 | Algorithm    | Type                  |
 | ------------ | --------------------- |

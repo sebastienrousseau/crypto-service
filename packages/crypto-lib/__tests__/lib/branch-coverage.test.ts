@@ -73,12 +73,12 @@ describe("Lib Branch Coverage", function () {
         name: "Test User",
         email: "test@branch.com",
         userIDs: [{ name: "Test User", email: "test@branch.com" }],
-        type: "ecc" as any,
-        curve: "curve25519" as any,
+        type: "ecc",
+        curve: "curve25519",
         passphrase: "testpass123",
         rsaBits: 2048,
         keyExpirationTime: 0,
-        format: "object" as any,
+        format: "object",
       });
 
       expect(result).to.have.property("publicKey");
@@ -127,12 +127,12 @@ describe("Lib Branch Coverage", function () {
         name: "Fallback Test",
         email: "fallback@test.com",
         userIDs: [{ name: "Fallback Test", email: "fallback@test.com" }],
-        type: "ecc" as any,
-        curve: "curve25519" as any,
+        type: "ecc",
+        curve: "curve25519",
         passphrase: "testpass123",
         rsaBits: 2048,
         keyExpirationTime: 0,
-        format: "armored" as any,
+        format: "armored",
       });
       expect(result).to.have.property("publicKey");
     });
@@ -149,12 +149,12 @@ describe("Lib Branch Coverage", function () {
           name: "Fallback Test 2",
           email: "fallback2@test.com",
           userIDs: [{ name: "Fallback Test 2", email: "fallback2@test.com" }],
-          type: "ecc" as any,
-          curve: "curve25519" as any,
+          type: "ecc",
+          curve: "curve25519",
           passphrase: "testpass123",
           rsaBits: 2048,
           keyExpirationTime: 0,
-          format: "armored" as any,
+          format: "armored",
         });
       } catch {
         // May fail if fallback dir doesn't exist, but branch is covered

@@ -4,6 +4,7 @@
  */
 
 import { expect } from "chai";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import { rejectUnauthorized, collectValidation } from "../src/utils/route-helpers";
 import { validateRequiredString, validateRequiredNumber, ValidationResult } from "../src/utils/validation";
 
@@ -49,16 +50,16 @@ describe("Route helpers", () => {
       delete process.env["CRYPTO_API_KEY"];
       const { reply } = createMockReply();
       const request = createMockRequest();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rejectUnauthorized(request as any, reply as any)).to.be.false;
+
+      expect(rejectUnauthorized(request as unknown as FastifyRequest, reply as unknown as FastifyReply)).to.be.false;
     });
 
     it("should reject when API key is missing from request", () => {
       process.env["CRYPTO_API_KEY"] = "test-key";
       const { reply } = createMockReply();
       const request = createMockRequest();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rejectUnauthorized(request as any, reply as any)).to.be.true;
+
+      expect(rejectUnauthorized(request as unknown as FastifyRequest, reply as unknown as FastifyReply)).to.be.true;
       expect(reply.statusCode).to.equal(401);
     });
 
@@ -66,16 +67,16 @@ describe("Route helpers", () => {
       process.env["CRYPTO_API_KEY"] = "test-key";
       const { reply } = createMockReply();
       const request = createMockRequest({ "x-api-key": "test-key" });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rejectUnauthorized(request as any, reply as any)).to.be.false;
+
+      expect(rejectUnauthorized(request as unknown as FastifyRequest, reply as unknown as FastifyReply)).to.be.false;
     });
 
     it("should reject when API key does not match", () => {
       process.env["CRYPTO_API_KEY"] = "test-key";
       const { reply } = createMockReply();
       const request = createMockRequest({ "x-api-key": "wrong-key" });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rejectUnauthorized(request as any, reply as any)).to.be.true;
+
+      expect(rejectUnauthorized(request as unknown as FastifyRequest, reply as unknown as FastifyReply)).to.be.true;
       expect(reply.statusCode).to.equal(401);
     });
   });
@@ -88,8 +89,8 @@ describe("Route helpers", () => {
           name: validateRequiredString("Alice", "name"),
           age: validateRequiredNumber(30, "age"),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        reply as any,
+  
+        reply as unknown as FastifyReply,
       );
       expect(result).to.not.be.null;
       expect(result!.name).to.equal("Alice");
@@ -103,8 +104,8 @@ describe("Route helpers", () => {
           name: validateRequiredString("", "name"),
           age: validateRequiredNumber(30, "age"),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        reply as any,
+  
+        reply as unknown as FastifyReply,
       );
       expect(result).to.be.null;
       expect(reply.statusCode).to.equal(400);
@@ -117,8 +118,8 @@ describe("Route helpers", () => {
           name: validateRequiredString("", "name"),
           email: validateRequiredString("", "email"),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        reply as any,
+  
+        reply as unknown as FastifyReply,
       );
       expect(result).to.be.null;
       expect(reply.statusCode).to.equal(400);
@@ -132,8 +133,8 @@ describe("Route helpers", () => {
         good: { valid: true, value: "ok" },
         bad: { valid: false, error: { field: "bad", message: "invalid" } },
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = collectValidation(results, reply as any);
+
+      const result = collectValidation(results, reply as unknown as FastifyReply);
       expect(result).to.be.null;
     });
   });

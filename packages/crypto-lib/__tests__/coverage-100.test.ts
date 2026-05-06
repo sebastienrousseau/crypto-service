@@ -214,7 +214,7 @@ describe("WebCrypto Bridge — noble fallback paths", function () {
       disableWebCrypto();
       try {
         await webCryptoHash({
-          algorithm: "SHA-1" as any,
+          algorithm: "SHA-1" as never,
           data: "hello",
         });
         expect.fail("Should have thrown");
@@ -277,7 +277,7 @@ describe("multi-recipient — missing ML-KEM ciphertext", () => {
       multiDecryptPQ(
         "ee".repeat(32),
         "ff".repeat(32),
-        fakeWrappedKey as any,
+        fakeWrappedKey as never,
         "cc".repeat(16),
       ),
     ).to.throw("Missing ML-KEM ciphertext");
@@ -294,7 +294,7 @@ describe("multi-recipient — missing ML-KEM ciphertext", () => {
       multiDecryptPQ(
         Buffer.alloc(32, 0xee),
         Buffer.alloc(32, 0xff),
-        fakeWrappedKey as any,
+        fakeWrappedKey as never,
         "cc".repeat(16),
       ),
     ).to.throw("Missing ML-KEM ciphertext");
@@ -312,7 +312,7 @@ describe("multi-recipient — missing ML-KEM ciphertext", () => {
       multiDecryptPQ(
         "zz-not-hex",
         "ff".repeat(32),
-        fakeWrappedKey as any,
+        fakeWrappedKey as never,
         "cc".repeat(16),
       ),
     ).to.throw("Invalid hex string");
@@ -413,7 +413,7 @@ import {
   aesKwpWrap,
   aesKwpUnwrap,
 } from "../src/high-level/key-wrap";
-import { seal as sealBoxSeal, openPQ } from "../src/high-level/sealedbox";
+import { openPQ } from "../src/high-level/sealedbox";
 import { SymmetricRatchet } from "../src/protocols/ratchet";
 
 describe("key-wrap — Uint8Array branches", () => {

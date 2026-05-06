@@ -13,6 +13,7 @@ import {
   readFormDataBody,
   readMethods,
 } from "../src/utils";
+import type { JsonDocument } from "../src/@types/types";
 
 describe("utils – branch coverage", () => {
   describe("createMarkdown – undefined item", () => {
@@ -20,7 +21,7 @@ describe("utils – branch coverage", () => {
       const result = createMarkdown({
         info: { name: "Test", description: "desc" },
         // item is missing/undefined
-      } as any);
+      } as unknown as JsonDocument);
       expect(result).to.include("# Test");
       expect(result).to.include("desc");
     });
@@ -28,7 +29,7 @@ describe("utils – branch coverage", () => {
     it("should handle data with null item", () => {
       const result = createMarkdown({
         info: { name: "Test", description: "desc" },
-        item: null as any,
+        item: null as never,
       });
       expect(result).to.include("# Test");
     });
@@ -39,7 +40,7 @@ describe("utils – branch coverage", () => {
       const result = readFormDataBody({
         mode: "raw",
         raw: undefined,
-      } as any);
+      });
       expect(result).to.include("Body (**raw**)");
       expect(result).to.include("```json");
     });
@@ -47,8 +48,8 @@ describe("utils – branch coverage", () => {
     it("should handle raw mode with null raw content", () => {
       const result = readFormDataBody({
         mode: "raw",
-        raw: null,
-      } as any);
+        raw: null as unknown as string,
+      });
       expect(result).to.include("Body (**raw**)");
     });
   });
@@ -60,7 +61,7 @@ describe("utils – branch coverage", () => {
         formdata: [
           { key: "avatar", type: "file", src: undefined },
         ],
-      } as any);
+      });
       expect(result).to.include("formdata");
       expect(result).to.include("avatar");
       expect(result).to.include("file");
@@ -75,9 +76,12 @@ describe("utils – branch coverage", () => {
           description: "",
           method: "GET",
           url: "http://example.com",
+          header: [],
+          key: "",
+          value: "",
         },
         response: [],
-      } as any);
+      });
       expect(result).to.include("GET Test Endpoint");
       // Empty description should produce "#\n\n"
       expect(result).to.include("#\n");

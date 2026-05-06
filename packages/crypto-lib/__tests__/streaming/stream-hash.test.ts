@@ -32,7 +32,7 @@ describe("Streaming Hash", () => {
   });
 
   it("should reject unsupported algorithm", () => {
-    expect(() => createHasher("md5" as any)).to.throw(/Unsupported/);
+    expect(() => createHasher("md5" as never)).to.throw(/Unsupported/);
   });
 
   it("should handle empty input", () => {

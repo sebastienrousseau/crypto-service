@@ -199,10 +199,19 @@ Polyfills provided:
 
 ## Limitations
 
-- **No Node.js built-ins.** This package deliberately avoids `Buffer`, `node:crypto`, `fs`, and other Node-specific APIs. Use `@sebastienrousseau/crypto-lib` directly for full Node.js capabilities.
-- **Symmetric only.** The Web Crypto wrapper focuses on AES-GCM and HMAC. For asymmetric operations (ECDSA, RSA, post-quantum), use crypto-lib.
-- **Algorithm coverage.** Only algorithms available in the Web Crypto specification are supported. Post-quantum algorithms are not available in edge runtimes via this package.
-- **The `getRandomValues` polyfill is insecure.** Only use it for testing; never rely on it for key generation or encryption in production.
+- **No Node.js built-ins.** This package deliberately avoids `Buffer`,
+  `node:crypto`, `fs`, and other Node-specific APIs. Use
+  `@sebastienrousseau/crypto-lib` directly for full Node.js
+  capabilities.
+- **Symmetric only.** The Web Crypto wrapper focuses on AES-GCM and
+  HMAC. For asymmetric operations (ECDSA, RSA, post-quantum), use
+  crypto-lib.
+- **Algorithm coverage.** Only algorithms available in the Web Crypto
+  specification are supported. Post-quantum algorithms are not
+  available in edge runtimes via this package.
+- **The `getRandomValues` polyfill is insecure.** Only use it for
+  testing; never rely on it for key generation or encryption in
+  production.
 
 ---
 

@@ -101,7 +101,7 @@ describe('Encrypt Function - Coverage Tests', () => {
         message: 'Hello, no private key!',
         passphrase: testKeys.passphrase,
         publicKey: testKeys.publicKeyBase64,
-        privateKey: undefined as any // Undefined - no signing
+        privateKey: undefined as never // Undefined - no signing
       };
 
       const result = await encrypt(testData);
@@ -129,7 +129,7 @@ describe('Encrypt Function - Coverage Tests', () => {
         message: 'Hello, null private key!',
         passphrase: testKeys.passphrase,
         publicKey: testKeys.publicKeyBase64,
-        privateKey: null as any // Null - no signing
+        privateKey: null as never // Null - no signing
       };
 
       const result = await encrypt(testData);

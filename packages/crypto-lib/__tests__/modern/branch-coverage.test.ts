@@ -70,7 +70,7 @@ describe("Modern Crypto – Branch Coverage", () => {
   describe("KDF – unsupported algorithm", () => {
     it("should throw for unsupported KDF algorithm", () => {
       expect(() =>
-        kdfDerive({ algorithm: "argon2" as any, password: "test" }),
+        kdfDerive({ algorithm: "argon2" as never, password: "test" }),
       ).to.throw(/Unsupported KDF algorithm/);
     });
   });

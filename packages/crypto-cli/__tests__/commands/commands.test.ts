@@ -52,8 +52,8 @@ describe("Command Handlers", function () {
     consoleErrors = [];
     origLog = console.log;
     origError = console.error;
-    console.log = (...args: any[]) => consoleOutput.push(args.join(" "));
-    console.error = (...args: any[]) => consoleErrors.push(args.join(" "));
+    console.log = (...args: unknown[]) => consoleOutput.push(args.map(String).join(" "));
+    console.error = (...args: unknown[]) => consoleErrors.push(args.map(String).join(" "));
   });
 
   afterEach(() => {
@@ -76,7 +76,7 @@ describe("Command Handlers", function () {
 
     it("should have all handlers as functions", () => {
       for (const key of Object.keys(Command)) {
-        expect((Command as any)[key]).to.be.a("function");
+        expect((Command as Record<string, unknown>)[key]).to.be.a("function");
       }
     });
   });
@@ -121,7 +121,7 @@ describe("Command Handlers", function () {
       prompts.inject(["dGVzdA==", FIXTURE_PASSPHRASE, FIXTURE_PUB_BASE64]);
       try {
         await Command.handleDecrypt();
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Expected: "Private key is required for decryption" or similar
         expect(err).to.exist;
       }

@@ -11,8 +11,8 @@ import { init } from '../src/index';
 
 describe('index.ts - Main Entry Point', () => {
   let originalArgv: string[];
-  let originalConsoleLog: any;
-  let originalConsoleError: any;
+  let originalConsoleLog: typeof console.log;
+  let originalConsoleError: typeof console.error;
   let logOutputs: string[];
   let errorOutputs: string[];
 
@@ -30,7 +30,7 @@ describe('index.ts - Main Entry Point', () => {
       logOutputs.push(message);
     };
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       errorOutputs.push(args.join(' '));
     };
   });
