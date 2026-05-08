@@ -11,45 +11,49 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — password ===\n");
+  header("crypto-server -- password");
 
   const password = "my-secure-password";
 
-  // Hash
-  const hashResult = await post("/v2/password/hash", {
-    password,
-    timeCost: 3,
-    memoryCost: 65536,
-    parallelism: 1,
+  const hashData = await task("Hash password with Argon2id", async () => {
+    const res = await post("/v2/password/hash", {
+      password,
+      timeCost: 3,
+      memoryCost: 65536,
+      parallelism: 1,
+    });
+    const body = (await res.json()) as {
+      data: { hash: string; salt: string; params: unknown };
+    };
+    return body.data;
   });
-  console.log("Hash result:", JSON.stringify(hashResult.data, null, 2));
 
-  // Verify
-  const verifyResult = await post("/v2/password/verify", {
-    password,
-    hash: hashResult.data.hash,
-    salt: hashResult.data.salt,
-    params: hashResult.data.params,
+  await task("Verify password against hash", async () => {
+    const res = await post("/v2/password/verify", {
+      password,
+      hash: hashData.hash,
+      salt: hashData.salt,
+      params: hashData.params,
+    });
+    const body = (await res.json()) as { data: boolean };
+    if (!body.data) throw new Error("Verification failed");
   });
-  console.log("Verified:", verifyResult.data);
 
-  console.log("\nDone.");
+  summary(2);
 }
 
 main().catch(console.error);

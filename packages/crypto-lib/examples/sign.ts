@@ -7,31 +7,31 @@
  * Run: `npx ts-node examples/sign.ts`
  */
 
+import { header, task, summary } from "./support";
 import { generateEd25519KeyPair, ed25519Sign, ed25519Verify } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — sign ===\n");
+async function main() {
+  header("crypto-lib -- sign");
 
-  // Generate Ed25519 key pair
-  const kp = generateEd25519KeyPair();
-  console.log(`Public key:  ${kp.publicKey.slice(0, 32)}...`);
-  console.log(`Private key: ${kp.privateKey.slice(0, 32)}...`);
+  const kp = await task("Generate Ed25519 key pair", () => generateEd25519KeyPair());
 
-  // Sign a message
   const message = "Authenticate this payload.";
-  const { signature, algorithm } = ed25519Sign(kp.privateKey, message);
-  console.log(`\nAlgorithm:   ${algorithm}`);
-  console.log(`Signature:   ${signature.slice(0, 40)}...`);
 
-  // Verify the signature
-  const { valid } = ed25519Verify(kp.publicKey, message, signature);
-  console.log(`Valid:       ${valid}`);
+  const sig = await task("Sign message", () => {
+    return ed25519Sign(kp.privateKey, message);
+  });
 
-  // Verify with wrong message
-  const { valid: invalid } = ed25519Verify(kp.publicKey, "tampered", signature);
-  console.log(`Tampered:    ${invalid} (expected false)`);
+  await task("Verify valid signature", () => {
+    const { valid } = ed25519Verify(kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("Signature verification failed");
+  });
 
-  console.log("\nDone.");
+  await task("Reject tampered message", () => {
+    const { valid } = ed25519Verify(kp.publicKey, "tampered", sig.signature);
+    if (valid) throw new Error("Should have rejected tampered message");
+  });
+
+  summary(4);
 }
 
 main();

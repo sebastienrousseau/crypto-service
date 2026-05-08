@@ -9,34 +9,34 @@
  */
 
 import { CryptoClient } from "../src";
+import { header, task, summary } from "./support";
 
 const client = new CryptoClient({
   baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
 });
 
 async function main() {
-  console.log("\n=== crypto-sdk — secretbox ===\n");
+  header("crypto-sdk -- secretbox");
 
   const key = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
   const plaintext = "Top-secret information";
 
-  // Seal
-  const sealed = await client.secretboxSeal({ key, plaintext });
-  console.log("Sealed:", sealed.data.sealed.slice(0, 40) + "...");
-
-  // Seal with additional authenticated data (AAD)
-  const sealedAad = await client.secretboxSeal({
-    key,
-    plaintext,
-    aad: "context-metadata",
+  const sealed = await task("Seal plaintext", async () => {
+    return client.secretboxSeal({ key, plaintext });
   });
-  console.log("Sealed (AAD):", sealedAad.data.sealed.slice(0, 40) + "...");
 
-  // Open
-  const opened = await client.secretboxOpen({ key, ciphertext: sealed.data.sealed });
-  console.log("Opened:", opened.data.plaintext);
+  await task("Seal plaintext with AAD", async () => {
+    return client.secretboxSeal({ key, plaintext, aad: "context-metadata" });
+  });
 
-  console.log("\nDone.");
+  await task("Open sealed ciphertext", async () => {
+    const { data } = await client.secretboxOpen({ key, ciphertext: sealed.data.sealed });
+    if (data.plaintext !== plaintext) {
+      throw new Error("Round-trip mismatch");
+    }
+  });
+
+  summary(3);
 }
 
 main().catch(console.error);

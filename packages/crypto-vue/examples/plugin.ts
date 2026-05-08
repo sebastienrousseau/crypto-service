@@ -2,41 +2,39 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file CryptoPlugin installation demo.
+ * CryptoPlugin installation and injection key inspection.
  *
- * Demonstrates installing the Vue plugin with global options.
+ * Demonstrates that the Vue plugin and its injection symbol are
+ * exported correctly and can be used with `app.use()`.
  *
- * ```ts
- * // main.ts
- * import { createApp } from "vue";
- * import { CryptoPlugin } from "@sebastienrousseau/crypto-vue";
- * import App from "./App.vue";
- *
- * const app = createApp(App);
- *
- * app.use(CryptoPlugin, {
- *   serverUrl: "https://api.example.com",
- *   apiKey: "your-api-key",
- *   defaultKey: "your-256-bit-hex-key",
- * });
- *
- * app.mount("#app");
- * ```
- *
- * Composables automatically pick up the injected options:
- *
- * ```ts
- * // MyComponent.vue
- * import { useEncrypt } from "@sebastienrousseau/crypto-vue";
- *
- * // The defaultKey from CryptoPlugin is used if no key is passed
- * const { encrypt, decrypt, ciphertext, plaintext } = useEncrypt();
- * ```
+ * Run: `npx ts-node examples/plugin.ts`
  */
 
-import { CryptoPlugin } from "../src";
+import { header, task, summary } from "./support";
+import { CryptoPlugin, CryptoSymbol } from "../src";
 
-console.log("CryptoPlugin:", CryptoPlugin);
-console.log(
-  "Install the plugin with: app.use(CryptoPlugin, { serverUrl, apiKey, defaultKey })",
-);
+async function main() {
+  header("crypto-vue -- plugin");
+
+  await task("Inspect CryptoPlugin export", () => {
+    if (!CryptoPlugin || typeof CryptoPlugin.install !== "function") {
+      throw new Error("CryptoPlugin is not a valid Vue plugin");
+    }
+  });
+
+  await task("Inspect CryptoSymbol injection key", () => {
+    if (typeof CryptoSymbol !== "symbol") {
+      throw new Error("CryptoSymbol is not a Symbol");
+    }
+  });
+
+  await task("Verify plugin has install method", () => {
+    if (typeof CryptoPlugin.install !== "function") {
+      throw new Error("CryptoPlugin.install is not a function");
+    }
+  });
+
+  summary(3);
+}
+
+main();

@@ -7,50 +7,33 @@
  * Run: `npx ts-node examples/keyring.ts`
  */
 
+import { header, task, summary } from "./support";
 import { Keyring, crypto } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — keyring ===\n");
+async function main() {
+  header("crypto-lib -- keyring");
 
-  // Create a new keyring
   const ring = new Keyring();
 
-  // Add keys for different purposes
-  const sigKey = ring.add("ed25519", { use: "sig" });
-  console.log(`Added Ed25519 signing key:   ${sigKey.kid}`);
+  const sigKey = await task("Add Ed25519 signing key", () => ring.add("ed25519", { use: "sig" }));
 
-  const encKey = ring.add("x25519", { use: "enc" });
-  console.log(`Added X25519 encryption key: ${encKey.kid}`);
+  await task("Add X25519 encryption key", () => ring.add("x25519", { use: "enc" }));
 
-  console.log(`Keyring size: ${ring.size}`);
+  await task("Rotate signing key", () => ring.rotate(sigKey.kid));
 
-  // List active keys
-  const active = ring.list();
-  console.log(`\nActive keys: ${active.length}`);
-  for (const k of active) {
-    console.log(`  ${k.kid} (${k.algorithm}, use=${k.use ?? "any"})`);
-  }
+  await task("Export public keys as JWKS", () => {
+    const jwks = ring.toJwks();
+    if (jwks.keys.length === 0) throw new Error("JWKS is empty");
+  });
 
-  // Rotate the signing key (archives old, generates new)
-  const newSigKey = ring.rotate(sigKey.kid);
-  console.log(`\nRotated: ${sigKey.kid} -> ${newSigKey.kid}`);
-  console.log(`Keyring size (including archived): ${ring.size}`);
-  console.log(`Active keys after rotation: ${ring.list().length}`);
+  await task("Encrypt and restore keyring", () => {
+    const password = crypto.randomKey();
+    const encrypted = ring.toEncrypted(password);
+    const restored = Keyring.fromEncrypted(password, encrypted);
+    if (restored.size !== ring.size) throw new Error("Keyring sizes differ");
+  });
 
-  // Export public keys as JWKS
-  const jwks = ring.toJwks();
-  console.log(`\nJWKS (${jwks.keys.length} keys):`);
-  console.log(JSON.stringify(jwks, null, 2));
-
-  // Encrypt and restore the keyring
-  const password = crypto.randomKey();
-  const encrypted = ring.toEncrypted(password);
-  console.log(`\nEncrypted keyring: ${encrypted.slice(0, 40)}...`);
-
-  const restored = Keyring.fromEncrypted(password, encrypted);
-  console.log(`Restored keyring size: ${restored.size}`);
-
-  console.log("\nDone.");
+  summary(5);
 }
 
 main();

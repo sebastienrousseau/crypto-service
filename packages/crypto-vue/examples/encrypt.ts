@@ -2,47 +2,57 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file useEncrypt composable demo.
+ * Secretbox encrypt and decrypt round-trip via the useEncrypt composable.
  *
- * Demonstrates reactive symmetric encryption/decryption using
- * XChaCha20-Poly1305 (secretbox).
+ * Demonstrates symmetric authenticated encryption (XChaCha20-Poly1305)
+ * with a hex-encoded 256-bit key.
  *
- *   <script setup lang="ts">
- *   import { useEncrypt } from "@sebastienrousseau/crypto-vue";
- *
- *   const { encrypt, decrypt, randomKey, ciphertext, plaintext } = useEncrypt();
- *   const key = randomKey();
- *   </script>
- *
- *   <template>
- *     <button @click="encrypt(key, 'hello world')">Encrypt</button>
- *     <p v-if="ciphertext">Ciphertext: {{ ciphertext }}</p>
- *     <button @click="decrypt(key, ciphertext!)" :disabled="!ciphertext">Decrypt</button>
- *     <p v-if="plaintext">Plaintext: {{ plaintext }}</p>
- *   </template>
+ * Run: `npx ts-node examples/encrypt.ts`
  */
 
+import { header, task, summary } from "./support";
 import { useEncrypt } from "../src";
 
-async function demo() {
-  const { encrypt, decrypt, randomKey, ciphertext, plaintext, error } =
+async function main() {
+  header("crypto-vue -- encrypt");
+
+  const { encrypt, decrypt, randomKey, ciphertext, plaintext, isProcessing, error } =
     useEncrypt();
 
-  // Generate a random 256-bit key
   const key = randomKey();
-  console.log("Key:", key);
+  const message = "Hello, crypto-vue!";
 
-  // Encrypt a message
-  const ct = await encrypt(key, "Hello, crypto-vue!");
-  console.log("Ciphertext:", ct);
-  console.log("Reactive ciphertext:", ciphertext.value);
+  await task("Generate random 256-bit key", () => {
+    if (!key || key.length !== 64) {
+      throw new Error("Expected 64-char hex key");
+    }
+  });
 
-  // Decrypt
-  const pt = await decrypt(key, ct);
-  console.log("Decrypted bytes:", pt);
-  console.log("Reactive plaintext:", plaintext.value);
+  await task("Encrypt plaintext with secretbox", async () => {
+    const ct = await encrypt(key, message);
+    if (!ct || ct.length === 0) throw new Error("Ciphertext not produced");
+  });
 
-  console.log("Error:", error.value); // null
+  await task("Decrypt ciphertext back to plaintext", async () => {
+    const pt = await decrypt(key, ciphertext.value!);
+    if (!pt) throw new Error("Plaintext not produced");
+  });
+
+  await task("Verify round-trip integrity", () => {
+    if (plaintext.value !== message) {
+      throw new Error(`Expected "${message}", got "${plaintext.value}"`);
+    }
+  });
+
+  await task("Confirm isProcessing is false after completion", () => {
+    if (isProcessing.value) throw new Error("Expected isProcessing to be false");
+  });
+
+  await task("Confirm no errors occurred", () => {
+    if (error.value) throw new Error(`Unexpected error: ${error.value.message}`);
+  });
+
+  summary(6);
 }
 
-demo().catch(console.error);
+main();

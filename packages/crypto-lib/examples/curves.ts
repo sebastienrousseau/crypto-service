@@ -7,58 +7,48 @@
  * Run: `npx ts-node examples/curves.ts`
  */
 
+import { header, task, summary } from "./support";
 import {
-  generateP256KeyPair,
-  p256Sign,
-  p256Verify,
-  generateP384KeyPair,
-  p384Sign,
-  p384Verify,
-  generateEd448KeyPair,
-  ed448Sign,
-  ed448Verify,
-  generateSchnorrKeyPair,
-  schnorrSign,
-  schnorrVerify,
+  generateP256KeyPair, p256Sign, p256Verify,
+  generateP384KeyPair, p384Sign, p384Verify,
+  generateEd448KeyPair, ed448Sign, ed448Verify,
+  generateSchnorrKeyPair, schnorrSign, schnorrVerify,
 } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — curves ===\n");
+async function main() {
+  header("crypto-lib -- curves");
 
   const message = "Multi-curve signing demo.";
 
-  // ECDSA P-256 (FIPS 186-5)
-  const p256kp = generateP256KeyPair();
-  const p256sig = p256Sign(p256kp.privateKey, message);
-  const p256ok = p256Verify(p256kp.publicKey, message, p256sig.signature);
-  console.log(`P-256 (ECDSA):  ${p256ok.valid ? "PASS" : "FAIL"}`);
+  await task("P-256 (ECDSA, FIPS 186-5) sign and verify", () => {
+    const kp = generateP256KeyPair();
+    const sig = p256Sign(kp.privateKey, message);
+    const { valid } = p256Verify(kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("P-256 verification failed");
+  });
 
-  // ECDSA P-384 (FIPS 186-5)
-  const p384kp = generateP384KeyPair();
-  const p384sig = p384Sign(p384kp.privateKey, message);
-  const p384ok = p384Verify(p384kp.publicKey, message, p384sig.signature);
-  console.log(`P-384 (ECDSA):  ${p384ok.valid ? "PASS" : "FAIL"}`);
+  await task("P-384 (ECDSA, FIPS 186-5) sign and verify", () => {
+    const kp = generateP384KeyPair();
+    const sig = p384Sign(kp.privateKey, message);
+    const { valid } = p384Verify(kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("P-384 verification failed");
+  });
 
-  // Ed448 (RFC 8032)
-  const ed448kp = generateEd448KeyPair();
-  const ed448sig = ed448Sign(ed448kp.privateKey, message);
-  const ed448ok = ed448Verify(ed448kp.publicKey, message, ed448sig.signature);
-  console.log(`Ed448 (EdDSA):  ${ed448ok.valid ? "PASS" : "FAIL"}`);
+  await task("Ed448 (EdDSA, RFC 8032) sign and verify", () => {
+    const kp = generateEd448KeyPair();
+    const sig = ed448Sign(kp.privateKey, message);
+    const { valid } = ed448Verify(kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("Ed448 verification failed");
+  });
 
-  // Schnorr (BIP-340, secp256k1)
-  const schnorrkp = generateSchnorrKeyPair();
-  const schnorrsig = schnorrSign(schnorrkp.privateKey, message);
-  const schnorrok = schnorrVerify(schnorrkp.publicKey, message, schnorrsig.signature);
-  console.log(`Schnorr (BIP-340): ${schnorrok.valid ? "PASS" : "FAIL"}`);
+  await task("Schnorr (BIP-340, secp256k1) sign and verify", () => {
+    const kp = generateSchnorrKeyPair();
+    const sig = schnorrSign(kp.privateKey, message);
+    const { valid } = schnorrVerify(kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("Schnorr verification failed");
+  });
 
-  // Print key sizes
-  console.log(`\nKey sizes (public):`);
-  console.log(`  P-256:   ${p256kp.publicKey.length / 2} bytes`);
-  console.log(`  P-384:   ${p384kp.publicKey.length / 2} bytes`);
-  console.log(`  Ed448:   ${ed448kp.publicKey.length / 2} bytes`);
-  console.log(`  Schnorr: ${schnorrkp.publicKey.length / 2} bytes`);
-
-  console.log("\nDone.");
+  summary(4);
 }
 
 main();

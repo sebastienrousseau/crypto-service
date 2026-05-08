@@ -1,55 +1,52 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
-<!-- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-wasm-logo.svg" alt="crypto-wasm" width="128" />
+</p>
 
-![Crypto WASM logo](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-wasm-logo.svg)
+<h1 align="center">crypto-wasm</h1>
 
-# Crypto WASM
+<p align="center">
+  WebAssembly performance accelerator for crypto-lib -- near-native speed for SHA-256, AES-GCM, Argon2, Ed25519, and X25519.
+</p>
 
-WebAssembly performance accelerator for crypto-lib — near-native speed for SHA-256, AES-GCM, Argon2, Ed25519, and X25519.
-
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&branch=main)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-wasm.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-wasm)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg?style=for-the-badge)](https://nodejs.org/)
-
-**[Website](https://crypto-service.co)
-&middot; [Documentation](https://crypto-service.co/docs/)
-&middot; [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-&middot; [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/main/.github/CONTRIBUTING.md)**
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-wasm"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-wasm?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) &mdash; Add the accelerator to your project
-- [Quick Start](#quick-start) &mdash; Accelerate crypto operations in three lines
-- [How It Works](#how-it-works) &mdash; Auto-detection, fallback, and integration
-- [Supported Operations](#supported-operations) &mdash; Full list of accelerated primitives
-- [Building from Source](#building-from-source) &mdash; Compile the WASM module with Rust
-- [Benchmarks](#benchmarks) &mdash; JS vs WASM performance comparison
-- [Examples](#examples) &mdash; Runnable scripts for every feature
-- [License](#license) &mdash; MIT
+- [Install](#install) — add the accelerator to your project
+- [Quick Start](#quick-start) — accelerate crypto operations in three lines
+- [How It Works](#how-it-works) — auto-detection, fallback, and integration
+- [Supported Operations](#supported-operations) — full list of accelerated primitives
+- [Building from Source](#building-from-source) — compile the WASM module with Rust
+- [Benchmarks](#benchmarks) — JS vs WASM performance comparison
+- [Examples](#examples) — runnable scripts for every feature
+- [Security](#security) — responsible disclosure
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
-# npm
 npm install @sebastienrousseau/crypto-wasm
-
-# yarn
-yarn add @sebastienrousseau/crypto-wasm
-
-# pnpm
+# or
 pnpm add @sebastienrousseau/crypto-wasm
 ```
 
 > **Requirements:** Node >= 22 or any environment with WebAssembly support (all modern browsers, Deno, Bun).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -64,10 +61,12 @@ import {
 const accel = new WasmAccelerator();
 await accel.init();
 
-// Hash data — uses WASM when available, JS fallback otherwise
+// Hash data -- uses WASM when available, JS fallback otherwise
 const digest = await accel.hash("sha256", new TextEncoder().encode("hello"));
 console.log(Buffer.from(digest).toString("hex"));
 ```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -116,6 +115,8 @@ const caps = detectCapabilities();
 // { wasmSupported: true, streamingSupported: true, simdSupported: true }
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Supported Operations
@@ -131,6 +132,8 @@ const caps = detectCapabilities();
 | Ed25519 Sign    | `ed25519-sign`    | Ed25519 signature generation         |
 | Ed25519 Verify  | `ed25519-verify`  | Ed25519 signature verification       |
 | X25519          | `x25519-exchange` | X25519 Diffie-Hellman key exchange   |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -153,6 +156,8 @@ pnpm run build:wasm
 ```
 
 The compiled `.wasm` file is placed in `wasm/crypto_accel.wasm`. Until the Rust source is added, the `build:wasm` script is a no-op placeholder.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -185,27 +190,45 @@ console.log(`Speedup: ${result.speedup.toFixed(2)}x`);
 
 > Note: Actual speedups depend on runtime, hardware, and input size. Without the compiled WASM module, both paths use the JS fallback and speedup will be approximately 1.0x.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Examples
 
-Runnable TypeScript examples are provided in the `examples/` directory.
-
-| Example    | File                                        | Description                                |
-| ---------- | ------------------------------------------- | ------------------------------------------ |
-| Accelerate | [`accelerate.ts`](./examples/accelerate.ts) | Basic WASM acceleration for hashing        |
-| Benchmark  | [`benchmark.ts`](./examples/benchmark.ts)   | Compare JS vs WASM performance             |
-| Detect     | [`detect.ts`](./examples/detect.ts)         | Check WASM availability and capabilities   |
-| Fallback   | [`fallback.ts`](./examples/fallback.ts)     | Graceful fallback when WASM is unavailable |
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
 ```bash
-npx ts-node examples/accelerate.ts
+npx ts-node examples/<name>.ts
 ```
+
+| Category   | Example                                 | Purpose                                    |
+| ---------- | --------------------------------------- | ------------------------------------------ |
+| Accelerate | [accelerate.ts](examples/accelerate.ts) | Basic WASM acceleration for hashing        |
+| Benchmark  | [benchmark.ts](examples/benchmark.ts)   | Compare JS vs WASM performance             |
+| Detect     | [detect.ts](examples/detect.ts)         | Check WASM availability and capabilities   |
+| Fallback   | [fallback.ts](examples/fallback.ts)     | Graceful fallback when WASM is unavailable |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Security
+
+**Transparent fallback.** If the WASM module is unavailable, all operations fall back to the pure-JavaScript implementation with no code changes required.
+
+**No native dependencies.** The JavaScript fallback uses the audited `@noble/*` family — pure TypeScript, no C bindings.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
 Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

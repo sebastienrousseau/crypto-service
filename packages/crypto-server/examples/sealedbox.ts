@@ -11,64 +11,89 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — sealedbox ===\n");
+  header("crypto-server -- sealedbox");
 
-  // Generate X25519 key pair for classical sealed box
-  const x25519Keys = await post("/v2/keys/generate", { algorithm: "x25519" });
-  const { publicKey, privateKey } = x25519Keys.data;
+  // --- Classical sealed box ---
 
-  // Seal (classical)
-  const sealed = await post("/v2/sealedbox/seal", {
-    recipientPublicKey: publicKey,
-    plaintext: "Anonymous message",
-  });
-  console.log("Sealed:", sealed.data.slice(0, 60) + "...");
-
-  // Open (classical)
-  const opened = await post("/v2/sealedbox/open", {
-    recipientSecretKey: privateKey,
-    sealed: sealed.data,
-  });
-  console.log("Opened:", opened.data);
-
-  // Post-quantum sealed box
-  console.log("\n--- PQ Sealed Box ---");
-  const x25519Pair = await post("/v2/keys/generate", { algorithm: "x25519" });
-  const mlKemPair = await post("/v2/keys/generate", {
-    algorithm: "ml-kem-768",
+  const x25519Keys = await task("Generate X25519 key pair", async () => {
+    const res = await post("/v2/keys/generate", { algorithm: "x25519" });
+    const body = (await res.json()) as {
+      data: { publicKey: string; privateKey: string };
+    };
+    return body.data;
   });
 
-  const pqSealed = await post("/v2/sealedbox/seal-pq", {
-    x25519PublicKey: x25519Pair.data.publicKey,
-    mlKemPublicKey: mlKemPair.data.publicKey,
-    plaintext: "Quantum-safe message",
+  const sealed = await task("Seal (classical X25519)", async () => {
+    const res = await post("/v2/sealedbox/seal", {
+      recipientPublicKey: x25519Keys.publicKey,
+      plaintext: "Anonymous message",
+    });
+    const body = (await res.json()) as { data: string };
+    return body.data;
   });
-  console.log("PQ Sealed:", JSON.stringify(pqSealed.data).slice(0, 60) + "...");
 
-  const pqOpened = await post("/v2/sealedbox/open-pq", {
-    x25519SecretKey: x25519Pair.data.privateKey,
-    mlKemSecretKey: mlKemPair.data.privateKey,
-    sealed: pqSealed.data,
+  await task("Open (classical X25519)", async () => {
+    const res = await post("/v2/sealedbox/open", {
+      recipientSecretKey: x25519Keys.privateKey,
+      sealed,
+    });
+    const body = (await res.json()) as { data: string };
+    if (body.data !== "Anonymous message") throw new Error("Mismatch");
   });
-  console.log("PQ Opened:", pqOpened.data);
 
-  console.log("\nDone.");
+  // --- Post-quantum sealed box ---
+
+  const pqX25519 = await task("Generate X25519 key pair (PQ sealed box)", async () => {
+    const res = await post("/v2/keys/generate", { algorithm: "x25519" });
+    const body = (await res.json()) as {
+      data: { publicKey: string; privateKey: string };
+    };
+    return body.data;
+  });
+
+  const pqMlKem = await task("Generate ML-KEM-768 key pair (PQ sealed box)", async () => {
+    const res = await post("/v2/keys/generate", { algorithm: "ml-kem-768" });
+    const body = (await res.json()) as {
+      data: { publicKey: string; privateKey: string };
+    };
+    return body.data;
+  });
+
+  const pqSealed = await task("Seal (PQ X25519+ML-KEM-768)", async () => {
+    const res = await post("/v2/sealedbox/seal-pq", {
+      x25519PublicKey: pqX25519.publicKey,
+      mlKemPublicKey: pqMlKem.publicKey,
+      plaintext: "Quantum-safe message",
+    });
+    const body = (await res.json()) as { data: unknown };
+    return body.data;
+  });
+
+  await task("Open (PQ X25519+ML-KEM-768)", async () => {
+    const res = await post("/v2/sealedbox/open-pq", {
+      x25519SecretKey: pqX25519.privateKey,
+      mlKemSecretKey: pqMlKem.privateKey,
+      sealed: pqSealed,
+    });
+    const body = (await res.json()) as { data: string };
+    if (body.data !== "Quantum-safe message") throw new Error("Mismatch");
+  });
+
+  summary(7);
 }
 
 main().catch(console.error);

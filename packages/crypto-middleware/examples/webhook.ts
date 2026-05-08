@@ -1,52 +1,61 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+
 /**
- * Example: Webhook signature verification middleware.
+ * Webhook signature verification middleware.
  *
  * Verifies incoming webhook payloads using HMAC-SHA256 signatures,
  * similar to GitHub's webhook verification (x-hub-signature-256).
  *
- * Run:
- *   HMAC_KEY=<hex-key> npx ts-node examples/webhook.ts
- *
- * Then:
- *   # Compute signature: echo -n '{"event":"push"}' | openssl dgst -sha256 -hmac <key>
- *   curl -X POST http://localhost:3000/webhooks/github \
- *     -H "Content-Type: application/json" \
- *     -H "x-hub-signature-256: sha256=<hex-signature>" \
- *     -d '{"event":"push"}'
+ * Run: `npx ts-node examples/webhook.ts`
  */
 
-import express from "express";
-import { createCryptoMiddleware } from "../src";
+import { header, task, summary } from "./support";
+import { verifyHmacSignature, CryptoMiddlewareError } from "../src";
+import { computeHmac } from "@sebastienrousseau/crypto-lib";
 
 const HMAC_KEY =
-  process.env.HMAC_KEY ??
   "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
 
-const app = express();
-app.use(express.json());
+async function main() {
+  header("crypto-middleware -- webhook");
 
-// Verify signatures on all webhook routes
-app.use(
-  "/webhooks",
-  createCryptoMiddleware({
-    hmacKey: HMAC_KEY,
-    routes: ["/webhooks/**"],
-    operations: ["verify-signature"],
-  }),
-);
+  await task("Verify valid HMAC-SHA256 signature", async () => {
+    const body = '{"event":"push","ref":"refs/heads/main"}';
+    const { mac } = computeHmac({ algorithm: "sha256", key: HMAC_KEY, data: body });
+    const valid = verifyHmacSignature(HMAC_KEY, body, mac);
+    if (!valid) throw new Error("Signature should be valid");
+  });
 
-app.post("/webhooks/github", (req, res) => {
-  console.log("Verified webhook payload:", req.body);
-  res.json({ status: "accepted" });
-});
+  await task("Verify sha256= prefixed signature (GitHub format)", async () => {
+    const body = '{"action":"completed"}';
+    const { mac } = computeHmac({ algorithm: "sha256", key: HMAC_KEY, data: body });
+    const valid = verifyHmacSignature(HMAC_KEY, body, `sha256=${mac}`);
+    if (!valid) throw new Error("Prefixed signature should be valid");
+  });
 
-app.post("/webhooks/stripe", (req, res) => {
-  console.log("Verified Stripe event:", req.body);
-  res.json({ status: "accepted" });
-});
+  await task("Reject invalid signature", async () => {
+    const body = '{"event":"push"}';
+    try {
+      verifyHmacSignature(HMAC_KEY, body, "deadbeef".repeat(8));
+      throw new Error("Should have thrown");
+    } catch (err) {
+      if (!(err instanceof CryptoMiddlewareError)) throw err;
+      if (err.code !== "INVALID_SIGNATURE") throw new Error("Expected INVALID_SIGNATURE");
+    }
+  });
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => {
-  console.log(`Webhook server on http://localhost:${PORT}`);
-  console.log("POST /webhooks/github with x-hub-signature-256 header");
-});
+  await task("Reject missing signature", async () => {
+    try {
+      verifyHmacSignature(HMAC_KEY, "body", "");
+      throw new Error("Should have thrown");
+    } catch (err) {
+      if (!(err instanceof CryptoMiddlewareError)) throw err;
+      if (err.code !== "MISSING_SIGNATURE") throw new Error("Expected MISSING_SIGNATURE");
+    }
+  });
+
+  summary(4);
+}
+
+main();

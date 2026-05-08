@@ -10,41 +10,42 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — keygen ===\n");
+  header("crypto-server -- keygen");
 
   const algorithms = ["ed25519", "x25519", "p256", "ml-kem-768"];
 
   for (const algorithm of algorithms) {
-    const result = await post("/v2/keys/generate", { algorithm });
-    console.log(`${algorithm}:`);
-    console.log(`  publicKey: ${result.data.publicKey.slice(0, 40)}...`);
-    console.log();
+    await task(`Generate ${algorithm} key pair`, async () => {
+      const res = await post("/v2/keys/generate", { algorithm });
+      const body = (await res.json()) as { data: { publicKey: string } };
+      if (!body.data.publicKey) throw new Error("No public key returned");
+    });
   }
 
-  // With metadata
-  const withMeta = await post("/v2/keys/generate", {
-    algorithm: "ed25519",
-    metadata: { kid: "my-signing-key", use: "sig" },
+  await task("Generate Ed25519 key pair with metadata", async () => {
+    const res = await post("/v2/keys/generate", {
+      algorithm: "ed25519",
+      metadata: { kid: "my-signing-key", use: "sig" },
+    });
+    const body = (await res.json()) as { data: { publicKey: string } };
+    if (!body.data.publicKey) throw new Error("No public key returned");
   });
-  console.log("With metadata:", JSON.stringify(withMeta.data, null, 2));
 
-  console.log("\nDone.");
+  summary(5);
 }
 
 main().catch(console.error);

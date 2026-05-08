@@ -3,37 +3,33 @@
 
 /**
  * ML-DSA-65 (FIPS 204) post-quantum digital signatures.
- * Demonstrates key generation, signing, and verification.
  *
  * Run: `npx ts-node examples/pqsign.ts`
  */
 
+import { header, task, summary } from "./support";
 import { mlDsaKeygen, mlDsaSign, mlDsaVerify } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — pqsign ===\n");
+async function main() {
+  header("crypto-lib -- pqsign");
 
-  // Generate an ML-DSA-65 key pair (NIST Level 3)
-  const kp = mlDsaKeygen(65);
-  console.log(`Algorithm:    ${kp.algorithm}`);
-  console.log(`Public key:   ${kp.publicKey.slice(0, 40)}... (${kp.publicKey.length / 2} bytes)`);
-  console.log(`Secret key:   ${kp.secretKey.slice(0, 40)}... (${kp.secretKey.length / 2} bytes)`);
+  const kp = await task("Generate ML-DSA-65 key pair", () => mlDsaKeygen(65));
 
-  // Sign a message
   const message = "Post-quantum secure message.";
-  const sig = mlDsaSign(65, kp.secretKey, message);
-  console.log(`\nSignature:    ${sig.signature.slice(0, 40)}... (${sig.signature.length / 2} bytes)`);
-  console.log(`Algorithm:    ${sig.algorithm}`);
 
-  // Verify the signature
-  const result = mlDsaVerify(65, kp.publicKey, message, sig.signature);
-  console.log(`\nValid:        ${result.valid}`);
+  const sig = await task("Sign message", () => mlDsaSign(65, kp.secretKey, message));
 
-  // Verify with tampered message
-  const tampered = mlDsaVerify(65, kp.publicKey, "tampered", sig.signature);
-  console.log(`Tampered:     ${tampered.valid} (expected false)`);
+  await task("Verify valid signature", () => {
+    const { valid } = mlDsaVerify(65, kp.publicKey, message, sig.signature);
+    if (!valid) throw new Error("Verification failed");
+  });
 
-  console.log("\nDone.");
+  await task("Reject tampered message", () => {
+    const { valid } = mlDsaVerify(65, kp.publicKey, "tampered", sig.signature);
+    if (valid) throw new Error("Should have rejected");
+  });
+
+  summary(4);
 }
 
 main();

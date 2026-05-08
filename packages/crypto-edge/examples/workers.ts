@@ -1,18 +1,12 @@
-/**
- * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0 OR MIT
- */
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Cloudflare Workers example.
+ * Cloudflare Workers example for crypto-edge.
  *
- * Demonstrates how to use crypto-edge inside a Cloudflare Workers
- * handler. Deploy this as a Worker script to hash, encrypt, or sign
- * data at the edge.
+ * Deploy this as a Worker script to hash, encrypt, or sign data at the edge.
  *
- * ```bash
- * wrangler deploy examples/workers.ts
- * ```
+ * Run: `npx ts-node examples/workers.ts`
  */
 
 import {
@@ -22,7 +16,11 @@ import {
   decrypt,
   generateKey,
 } from "../src";
+import { header, task, taskWithOutput, summary } from "./support";
 
+/**
+ * Cloudflare Workers fetch handler.
+ */
 export default {
   async fetch(request: Request): Promise<Response> {
     const runtime = detectRuntime();
@@ -72,3 +70,35 @@ export default {
     }
   },
 };
+
+async function main() {
+  header("crypto-edge -- workers");
+
+  await taskWithOutput("Detect runtime", () => {
+    return [detectRuntime()];
+  });
+
+  await taskWithOutput("SHA-256 hash", async () => {
+    const digest = await hash("SHA-256", "hello from the edge");
+    return [digest];
+  });
+
+  await taskWithOutput("AES-GCM encrypt and decrypt", async () => {
+    const key = await generateKey({ algorithm: "AES-GCM", length: 256 });
+    const message = "secret";
+    const { ciphertext } = await encrypt({
+      key,
+      plaintext: new TextEncoder().encode(message),
+    });
+    const plaintext = await decrypt({ key, ciphertext });
+    const decoded = new TextDecoder().decode(plaintext);
+    return [
+      `decrypted: "${decoded}"`,
+      `match:     ${decoded === message}`,
+    ];
+  });
+
+  summary(3);
+}
+
+main();

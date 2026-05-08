@@ -1,55 +1,58 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
-<!-- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-sdk-logo.svg" alt="crypto-sdk" width="128" />
+</p>
 
-![Crypto SDK logo](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-sdk-logo.svg)
+<h1 align="center">crypto-sdk</h1>
 
-# Crypto SDK
+<p align="center">
+  A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.
+</p>
 
-A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.
-
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&branch=main)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-sdk.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-sdk)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge)](https://github.com/sebastienrousseau/crypto-service)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg?style=for-the-badge)](https://nodejs.org/)
-
-**[Website](https://crypto-service.co)
-&middot; [Documentation](https://crypto-service.co/docs/)
-&middot; [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-&middot; [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/main/.github/CONTRIBUTING.md)**
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-sdk"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-sdk?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) &mdash; Add the SDK to your project
-- [Quick Start](#quick-start) &mdash; Create a client and hash data in four lines
-- [Authentication](#authentication) &mdash; API key and JWT token options
-- [API Methods](#api-methods) &mdash; Full reference of every client method
-- [Error Handling](#error-handling) &mdash; Working with `CryptoApiError`
-- [Examples](#examples) &mdash; Runnable scripts for every feature
-- [License](#license) &mdash; MIT
+- [Install](#install) — add the SDK to your project
+- [Quick Start](#quick-start) — create a client and hash data in four lines
+- [API Reference](#api-reference) — full reference of every client method
+- [Examples](#examples) — runnable scripts for every feature
+- [Security](#security) — guarantees and responsible disclosure
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
-# npm
 npm install @sebastienrousseau/crypto-sdk
-
-# yarn
-yarn add @sebastienrousseau/crypto-sdk
-
-# pnpm
+# or
 pnpm add @sebastienrousseau/crypto-sdk
 ```
 
-> **Requirements:** Node >= 22 or any environment with a global `fetch` (browsers, Deno, Bun).
+**From source**
+
+```bash
+git clone https://github.com/sebastienrousseau/crypto-service.git
+cd crypto-service
+pnpm install
+pnpm --filter @sebastienrousseau/crypto-sdk build
+```
+
+Requires **Node >= 22** or any environment with a global `fetch` (browsers, Deno, Bun).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -66,10 +69,6 @@ const { data } = await client.hash({ algorithm: "sha256", data: "hello" });
 console.log(data.digest);
 ```
 
----
-
-## Authentication
-
 `CryptoClient` accepts two optional authentication mechanisms:
 
 | Option   | Header sent                     | Description      |
@@ -82,19 +81,30 @@ const client = new CryptoClient({
   baseUrl: "http://localhost:3000",
   apiKey: process.env.CRYPTO_API_KEY,
 });
-
-// or with a JWT token
-const client2 = new CryptoClient({
-  baseUrl: "http://localhost:3000",
-  token: "eyJhbGciOiJIUzI1NiIs...",
-});
 ```
 
 You can also supply a custom `fetch` implementation via the `fetch` option.
 
+Failed requests throw a `CryptoApiError`:
+
+```ts
+import { CryptoClient, CryptoApiError } from "@sebastienrousseau/crypto-sdk";
+
+try {
+  await client.hash({ algorithm: "invalid", data: "test" });
+} catch (err) {
+  if (err instanceof CryptoApiError) {
+    console.error(err.status); // HTTP status code (e.g. 400)
+    console.error(err.body.error); // Error message from the server
+  }
+}
+```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
-## API Methods
+## API Reference
 
 Every method returns `Promise<ApiResponse<T>>` where `ApiResponse<T>` is `{ data: T }`.
 
@@ -198,63 +208,57 @@ Every method returns `Promise<ApiResponse<T>>` where `ApiResponse<T>` is `{ data
 | `algorithms()` | `GET /v2/algorithms` | List all supported algorithms |
 | `health()`     | `GET /health`        | Server health check           |
 
----
-
-## Error Handling
-
-Failed requests throw a `CryptoApiError`:
-
-```ts
-import { CryptoClient, CryptoApiError } from "@sebastienrousseau/crypto-sdk";
-
-const client = new CryptoClient({ baseUrl: "http://localhost:3000" });
-
-try {
-  await client.hash({ algorithm: "invalid", data: "test" });
-} catch (err) {
-  if (err instanceof CryptoApiError) {
-    console.error(err.status); // HTTP status code (e.g. 400)
-    console.error(err.body.error); // Error message from the server
-    console.error(err.body.details); // Optional field-level validation errors
-  }
-}
-```
-
-The `ApiError` interface:
-
-```ts
-interface ApiError {
-  error: string;
-  details?: Array<{ field: string; message: string }>;
-}
-```
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## Examples
 
-Runnable TypeScript examples are provided in the `examples/` directory. Each requires the crypto-server running on `http://localhost:3000` (override via `CRYPTO_SERVER_URL`).
-
-| Example           | File                                        | Description                                           |
-| ----------------- | ------------------------------------------- | ----------------------------------------------------- |
-| Hashing           | [`hash.ts`](./examples/hash.ts)             | Compute SHA-256 and BLAKE2b digests                   |
-| Encrypt / Decrypt | [`encrypt.ts`](./examples/encrypt.ts)       | AES-256-GCM encrypt and decrypt                       |
-| Sign / Verify     | [`sign.ts`](./examples/sign.ts)             | Ed25519 key generation, signing, and verification     |
-| Password Ops      | [`password.ts`](./examples/password.ts)     | Argon2 hashing, verification, and password encryption |
-| Key Generation    | [`keygen.ts`](./examples/keygen.ts)         | Generate key pairs for multiple algorithms            |
-| Secretbox         | [`secretbox.ts`](./examples/secretbox.ts)   | Symmetric authenticated encryption                    |
-| PQ KEM            | [`pqkem.ts`](./examples/pqkem.ts)           | Hybrid X25519 + ML-KEM key exchange                   |
-| PQ Signing        | [`pqsign.ts`](./examples/pqsign.ts)         | ML-DSA post-quantum signing                           |
-| Algorithms        | [`algorithms.ts`](./examples/algorithms.ts) | List all supported algorithms                         |
+All examples are self-contained TypeScript files in the `examples/` directory. Each requires the crypto-server running on `http://localhost:3000` (override via `CRYPTO_SERVER_URL`).
 
 ```bash
 npx ts-node examples/hash.ts
 ```
+
+| Category     | Example                                 | Purpose                                           |
+| ------------ | --------------------------------------- | ------------------------------------------------- |
+| Algorithms   | [algorithms.ts](examples/algorithms.ts) | List all supported algorithms                     |
+| Encryption   | [encrypt.ts](examples/encrypt.ts)       | AES-256-GCM encrypt and decrypt                   |
+| Hashing      | [hash.ts](examples/hash.ts)             | Compute SHA-256 and BLAKE2b digests               |
+| KDF          | [kdf.ts](examples/kdf.ts)               | Key derivation with HKDF-SHA256                   |
+| Key Gen      | [keygen.ts](examples/keygen.ts)         | Generate key pairs for multiple algorithms        |
+| Key Wrap     | [keywrap.ts](examples/keywrap.ts)       | AES key wrapping and unwrapping                   |
+| MAC          | [mac.ts](examples/mac.ts)               | HMAC-SHA256 compute and verify                    |
+| Passwords    | [password.ts](examples/password.ts)     | Argon2 hashing, verification, password encryption |
+| PQ KEM       | [pqkem.ts](examples/pqkem.ts)           | Hybrid X25519 + ML-KEM key exchange               |
+| PQ Sign      | [pqsign.ts](examples/pqsign.ts)         | ML-DSA post-quantum signing                       |
+| PQ Hash Sign | [pqhashsign.ts](examples/pqhashsign.ts) | SLH-DSA post-quantum hash-based signing           |
+| Sealed Box   | [sealedbox.ts](examples/sealedbox.ts)   | Anonymous public-key encryption                   |
+| Secretbox    | [secretbox.ts](examples/secretbox.ts)   | Symmetric authenticated encryption                |
+| Signing      | [sign.ts](examples/sign.ts)             | Ed25519 signing and verification                  |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Security
+
+**Zero dependencies.** The SDK has no runtime dependencies -- it uses the global `fetch` API available in Node >= 22, browsers, Deno, and Bun.
+
+**Typed responses.** Every method returns strongly-typed responses. Failures throw `CryptoApiError` with the HTTP status code and server error body, never silently swallowed.
+
+**No ambient network access.** The client only communicates with the `baseUrl` you provide. No telemetry, no analytics, no phone-home.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
 Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

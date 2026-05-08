@@ -11,60 +11,93 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — pqkem ===\n");
+  header("crypto-server -- pqkem");
 
   // --- ML-KEM-768 standalone ---
-  console.log("--- ML-KEM-768 ---");
-  const keyPair = await post("/v2/pq/keygen", {});
-  console.log("Public key length:", keyPair.data.publicKey.length);
 
-  const encap = await post("/v2/pq/encapsulate", {
-    publicKey: keyPair.data.publicKey,
+  const keyPair = await task("Generate ML-KEM-768 key pair", async () => {
+    const res = await post("/v2/pq/keygen", {});
+    const body = (await res.json()) as {
+      data: { publicKey: string; secretKey: string };
+    };
+    return body.data;
   });
-  console.log("Shared secret (sender):", encap.data.sharedSecret.slice(0, 32) + "...");
 
-  const decap = await post("/v2/pq/decapsulate", {
-    secretKey: keyPair.data.secretKey,
-    ciphertext: encap.data.ciphertext,
+  const encap = await task("Encapsulate shared secret", async () => {
+    const res = await post("/v2/pq/encapsulate", {
+      publicKey: keyPair.publicKey,
+    });
+    const body = (await res.json()) as {
+      data: { ciphertext: string; sharedSecret: string };
+    };
+    return body.data;
   });
-  console.log("Shared secret (recipient):", decap.data.slice(0, 32) + "...");
+
+  await task("Decapsulate shared secret", async () => {
+    const res = await post("/v2/pq/decapsulate", {
+      secretKey: keyPair.secretKey,
+      ciphertext: encap.ciphertext,
+    });
+    const body = (await res.json()) as { data: string };
+    if (!body.data) throw new Error("Decapsulation failed");
+  });
 
   // --- Hybrid X25519 + ML-KEM-768 ---
-  console.log("\n--- Hybrid X25519 + ML-KEM-768 ---");
-  const hybridKeys = await post("/v2/pq/hybrid/keygen", {});
-  console.log("X25519 public key:", hybridKeys.data.x25519PublicKey);
 
-  const hybridEncap = await post("/v2/pq/hybrid/encapsulate", {
-    x25519PublicKey: hybridKeys.data.x25519PublicKey,
-    mlKemPublicKey: hybridKeys.data.mlKemPublicKey,
+  const hybridKeys = await task("Generate hybrid X25519+ML-KEM-768 key pair", async () => {
+    const res = await post("/v2/pq/hybrid/keygen", {});
+    const body = (await res.json()) as {
+      data: {
+        x25519PublicKey: string;
+        x25519PrivateKey: string;
+        mlKemPublicKey: string;
+        mlKemSecretKey: string;
+      };
+    };
+    return body.data;
   });
-  console.log("Hybrid shared secret:", hybridEncap.data.sharedSecret.slice(0, 32) + "...");
 
-  const hybridDecap = await post("/v2/pq/hybrid/decapsulate", {
-    x25519PrivateKey: hybridKeys.data.x25519PrivateKey,
-    mlKemSecretKey: hybridKeys.data.mlKemSecretKey,
-    x25519EphemeralPublic: hybridEncap.data.x25519EphemeralPublic,
-    mlKemCiphertext: hybridEncap.data.mlKemCiphertext,
+  const hybridEncap = await task("Hybrid encapsulate", async () => {
+    const res = await post("/v2/pq/hybrid/encapsulate", {
+      x25519PublicKey: hybridKeys.x25519PublicKey,
+      mlKemPublicKey: hybridKeys.mlKemPublicKey,
+    });
+    const body = (await res.json()) as {
+      data: {
+        sharedSecret: string;
+        x25519EphemeralPublic: string;
+        mlKemCiphertext: string;
+      };
+    };
+    return body.data;
   });
-  console.log("Hybrid recovered secret:", hybridDecap.data.slice(0, 32) + "...");
 
-  console.log("\nDone.");
+  await task("Hybrid decapsulate", async () => {
+    const res = await post("/v2/pq/hybrid/decapsulate", {
+      x25519PrivateKey: hybridKeys.x25519PrivateKey,
+      mlKemSecretKey: hybridKeys.mlKemSecretKey,
+      x25519EphemeralPublic: hybridEncap.x25519EphemeralPublic,
+      mlKemCiphertext: hybridEncap.mlKemCiphertext,
+    });
+    const body = (await res.json()) as { data: string };
+    if (!body.data) throw new Error("Hybrid decapsulation failed");
+  });
+
+  summary(6);
 }
 
 main().catch(console.error);

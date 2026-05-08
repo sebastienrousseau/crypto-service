@@ -10,52 +10,56 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — kdf ===\n");
+  header("crypto-server -- kdf");
 
-  // scrypt
-  const scryptResult = await post("/v2/kdf", {
-    algorithm: "scrypt",
-    password: "my-password",
-    keyLength: 32,
-    params: { N: 16384, r: 8, p: 1 },
+  await task("Derive key with scrypt", async () => {
+    const res = await post("/v2/kdf", {
+      algorithm: "scrypt",
+      password: "my-password",
+      keyLength: 32,
+      params: { N: 16384, r: 8, p: 1 },
+    });
+    const body = (await res.json()) as { data: unknown };
+    if (!body.data) throw new Error("No derived key returned");
   });
-  console.log("scrypt derived key:", JSON.stringify(scryptResult.data, null, 2));
 
-  // HKDF-SHA256
-  const hkdfResult = await post("/v2/kdf", {
-    algorithm: "hkdf-sha256",
-    password: "input-key-material",
-    keyLength: 32,
-    params: { info: "application-context" },
+  await task("Derive key with HKDF-SHA256", async () => {
+    const res = await post("/v2/kdf", {
+      algorithm: "hkdf-sha256",
+      password: "input-key-material",
+      keyLength: 32,
+      params: { info: "application-context" },
+    });
+    const body = (await res.json()) as { data: unknown };
+    if (!body.data) throw new Error("No derived key returned");
   });
-  console.log("HKDF-SHA256:", JSON.stringify(hkdfResult.data, null, 2));
 
-  // PBKDF2-SHA256
-  const pbkdf2Result = await post("/v2/kdf", {
-    algorithm: "pbkdf2-sha256",
-    password: "my-password",
-    keyLength: 32,
-    params: { iterations: 100000 },
+  await task("Derive key with PBKDF2-SHA256", async () => {
+    const res = await post("/v2/kdf", {
+      algorithm: "pbkdf2-sha256",
+      password: "my-password",
+      keyLength: 32,
+      params: { iterations: 100000 },
+    });
+    const body = (await res.json()) as { data: unknown };
+    if (!body.data) throw new Error("No derived key returned");
   });
-  console.log("PBKDF2-SHA256:", JSON.stringify(pbkdf2Result.data, null, 2));
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main().catch(console.error);

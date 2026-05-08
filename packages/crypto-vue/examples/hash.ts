@@ -2,44 +2,54 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file useHash composable demo.
+ * SHA-256, SHA3-256, and BLAKE3 hashing via the useHash composable.
  *
- * Demonstrates reactive cryptographic hashing with multiple algorithms.
+ * Demonstrates computing cryptographic digests with multiple algorithms
+ * and inspecting the reactive state.
  *
- *   <script setup lang="ts">
- *   import { useHash } from "@sebastienrousseau/crypto-vue";
- *
- *   const { hash, digest, algorithm, isHashing } = useHash();
- *   </script>
- *
- *   <template>
- *     <button @click="hash('sha3-256', 'hello')">Hash with SHA3-256</button>
- *     <p v-if="digest">{{ algorithm }}: {{ digest }}</p>
- *   </template>
+ * Run: `npx ts-node examples/hash.ts`
  */
 
+import { header, task, summary } from "./support";
 import { useHash } from "../src";
 
-async function demo() {
+async function main() {
+  header("crypto-vue -- hash");
+
   const { hash, digest, algorithm, isHashing, error } = useHash();
 
-  console.log("isHashing:", isHashing.value); // false
+  await task("Hash with SHA-256", async () => {
+    const d = await hash("sha256", "hello world");
+    if (!d || d.length === 0) throw new Error("Empty digest");
+  });
 
-  // Hash with SHA3-256
-  const h1 = await hash("sha3-256", "hello world");
-  console.log("SHA3-256:", h1);
-  console.log("Reactive digest:", digest.value);
-  console.log("Algorithm:", algorithm.value);
+  await task("Hash with SHA3-256", async () => {
+    const d = await hash("sha3-256", "hello world");
+    if (!d || d.length === 0) throw new Error("Empty digest");
+  });
 
-  // Hash with BLAKE3
-  const h2 = await hash("blake3", "hello world");
-  console.log("BLAKE3:", h2);
+  await task("Hash with BLAKE3", async () => {
+    const d = await hash("blake3", "hello world");
+    if (!d || d.length === 0) throw new Error("Empty digest");
+  });
 
-  // Hash with SHA-512
-  const h3 = await hash("sha512", "hello world");
-  console.log("SHA-512:", h3);
+  await task("Verify digest state is updated", () => {
+    if (!digest.value) throw new Error("Digest state is null");
+  });
 
-  console.log("Error:", error.value); // null
+  await task("Verify algorithm state is updated", () => {
+    if (!algorithm.value) throw new Error("Algorithm state is null");
+  });
+
+  await task("Confirm isHashing is false after completion", () => {
+    if (isHashing.value) throw new Error("Expected isHashing to be false");
+  });
+
+  await task("Confirm no errors occurred", () => {
+    if (error.value) throw new Error(`Unexpected error: ${error.value.message}`);
+  });
+
+  summary(7);
 }
 
-demo().catch(console.error);
+main();

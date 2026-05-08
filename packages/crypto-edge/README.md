@@ -1,55 +1,59 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
-<!-- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-edge-logo.svg" alt="crypto-edge" width="128" />
+</p>
 
-![Crypto Edge logo](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-edge-logo.svg)
+<h1 align="center">crypto-edge</h1>
 
-# Crypto Edge
+<p align="center">
+  Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.
+</p>
 
-Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.
-
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&branch=main)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-edge.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-edge)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
-**[Website](https://crypto-service.co)
-&middot; [Documentation](https://crypto-service.co/docs/)
-&middot; [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-&middot; [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/main/.github/CONTRIBUTING.md)**
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-edge"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-edge?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) &mdash; Add the package to your project
-- [Quick Start](#quick-start) &mdash; Hash data in three lines
-- [Supported Runtimes](#supported-runtimes) &mdash; Where crypto-edge runs
-- [Runtime Detection](#runtime-detection) &mdash; Detect the current environment
-- [Web Crypto API](#web-crypto-api) &mdash; Edge-compatible cryptographic operations
-- [Polyfills](#polyfills) &mdash; Fill in missing APIs on constrained runtimes
-- [Limitations](#limitations) &mdash; What to be aware of
-- [Examples](#examples) &mdash; Runnable scripts for every target
-- [License](#license) &mdash; MIT
+- [Install](#install) — add the package to your project
+- [Quick Start](#quick-start) — hash data in three lines
+- [Supported Runtimes](#supported-runtimes) — where crypto-edge runs
+- [Features](#features) — runtime detection, Web Crypto, polyfills
+- [Examples](#examples) — runnable scripts for every target
+- [Security](#security) — guarantees and threat model
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
-# npm
 npm install @sebastienrousseau/crypto-edge
-
-# yarn
-yarn add @sebastienrousseau/crypto-edge
-
-# pnpm
+# or
 pnpm add @sebastienrousseau/crypto-edge
 ```
 
-> **Requirements:** Any runtime with the Web Crypto API (`crypto.subtle`). No Node.js-specific dependencies.
+**From source**
+
+```bash
+git clone https://github.com/sebastienrousseau/crypto-service.git
+cd crypto-service
+pnpm install
+pnpm --filter @sebastienrousseau/crypto-edge build
+```
+
+> **Requirements:** Any runtime with the Web Crypto API (`crypto.subtle`). No Node.js-specific dependencies. Node >= 22 for local development.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -65,6 +69,8 @@ console.log(digest);
 // b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Supported Runtimes
@@ -79,9 +85,13 @@ console.log(digest);
 | Node.js            | `node`               |    Yes     |     Yes     | Node >= 15 (globalThis.crypto)   |
 | Unknown            | `unknown`            |   Varies   |   Varies    | Use `getCapabilities()` to check |
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
-## Runtime Detection
+## Features
+
+### Runtime Detection
 
 Detect the current JavaScript runtime and probe its capabilities:
 
@@ -111,13 +121,11 @@ if (isEdgeCryptoAvailable()) {
 }
 ```
 
----
-
-## Web Crypto API
+### Web Crypto API
 
 All functions use **only** the standard Web Crypto API (`crypto.subtle`). No Node.js built-ins are imported.
 
-### Hashing
+#### Hashing
 
 ```ts
 import { hash } from "@sebastienrousseau/crypto-edge";
@@ -126,7 +134,7 @@ const sha256 = await hash("SHA-256", "hello");
 const sha512 = await hash("SHA-512", new Uint8Array([1, 2, 3]));
 ```
 
-### Encryption / Decryption (AES-GCM)
+#### Encryption / Decryption (AES-GCM)
 
 ```ts
 import { generateKey, encrypt, decrypt } from "@sebastienrousseau/crypto-edge";
@@ -139,7 +147,7 @@ const { ciphertext } = await encrypt({
 const plaintext = await decrypt({ key, ciphertext });
 ```
 
-### Signing / Verification (HMAC)
+#### Signing / Verification (HMAC)
 
 ```ts
 import { sign, verify } from "@sebastienrousseau/crypto-edge";
@@ -155,7 +163,7 @@ const ok = await verify({
 });
 ```
 
-### Key Generation
+#### Key Generation
 
 ```ts
 import { generateKey } from "@sebastienrousseau/crypto-edge";
@@ -164,9 +172,7 @@ const aesKey = await generateKey({ algorithm: "AES-GCM", length: 256 });
 const aes128 = await generateKey({ algorithm: "AES-CBC", length: 128 });
 ```
 
----
-
-## Polyfills
+### Polyfills
 
 Some minimal runtimes may be missing standard globals. Call `installPolyfills()` once at startup:
 
@@ -195,9 +201,7 @@ Polyfills provided:
 
 > **Warning:** The `crypto.getRandomValues` polyfill uses `Math.random` and is NOT cryptographically secure. It is intended for testing in environments without a CSPRNG. A console warning is emitted when activated.
 
----
-
-## Limitations
+### Limitations
 
 - **No Node.js built-ins.** This package deliberately avoids `Buffer`,
   `node:crypto`, `fs`, and other Node-specific APIs. Use
@@ -213,22 +217,52 @@ Polyfills provided:
   testing; never rely on it for key generation or encryption in
   production.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Examples
 
-Runnable example scripts are available in the `examples/` directory:
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
-| File                                           | Description                |
-| ---------------------------------------------- | -------------------------- |
-| [`examples/detect.ts`](./examples/detect.ts)   | Runtime detection          |
-| [`examples/hash.ts`](./examples/hash.ts)       | Edge-compatible hashing    |
-| [`examples/workers.ts`](./examples/workers.ts) | Cloudflare Workers usage   |
-| [`examples/vercel.ts`](./examples/vercel.ts)   | Vercel Edge Function usage |
-| [`examples/browser.ts`](./examples/browser.ts) | Browser usage              |
+```bash
+npx ts-node examples/<name>.ts
+```
+
+| Category   | Example                             | Purpose                     |
+| ---------- | ----------------------------------- | --------------------------- |
+| Detection  | [detect.ts](examples/detect.ts)     | Runtime detection           |
+| Hashing    | [hash.ts](examples/hash.ts)         | Edge-compatible hashing     |
+| Encryption | [encrypt.ts](examples/encrypt.ts)   | AES-GCM encrypt and decrypt |
+| Workers    | [workers.ts](examples/workers.ts)   | Cloudflare Workers usage    |
+| Vercel     | [vercel.ts](examples/vercel.ts)     | Vercel Edge Function usage  |
+| Browser    | [browser.ts](examples/browser.ts)   | Browser usage               |
+| Polyfills  | [polyfill.ts](examples/polyfill.ts) | Polyfill installation       |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Security
+
+**No native dependencies.** All cryptographic operations use the Web Crypto API built into each runtime. There is no C, Rust, or WASM code to audit separately.
+
+**Timing-safe comparisons.** HMAC verification uses the Web Crypto API's own constant-time comparison.
+
+**Zero unsafe code.** No `eval`, no dynamic `require`, no `Function` constructor. No ambient network access.
+
+**Secure defaults.** AES-GCM nonces are always generated randomly via `crypto.getRandomValues`. Key lengths default to 256 bits.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
-MIT &copy; 2022-2026 [Sebastien Rousseau](https://github.com/sebastienrousseau). All rights reserved.
+Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
+
+<p align="right"><a href="#contents">Back to Top</a></p>

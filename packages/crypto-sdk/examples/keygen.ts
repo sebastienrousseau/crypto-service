@@ -9,32 +9,30 @@
  */
 
 import { CryptoClient } from "../src";
+import { header, task, summary } from "./support";
 
 const client = new CryptoClient({
   baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
 });
 
 async function main() {
-  console.log("\n=== crypto-sdk — keygen ===\n");
+  header("crypto-sdk -- keygen");
 
   const algorithms = ["ed25519", "ed448", "ecdsa-p256", "ecdsa-p384"];
 
   for (const algorithm of algorithms) {
-    const keys = await client.generateKeyPair({ algorithm });
-    console.log(`${algorithm}:`);
-    console.log("  Public key:", keys.data.publicKey.slice(0, 32) + "...");
-    console.log("  Key ID:   ", keys.data.kid);
-    console.log("  Algorithm:", keys.data.algorithm);
-    console.log();
+    await task(`Generate ${algorithm} key pair`, async () => {
+      const { data } = await client.generateKeyPair({ algorithm });
+      return data.kid;
+    });
   }
 
-  // Default (ed25519) when no algorithm is specified
-  const defaultKeys = await client.generateKeyPair();
-  console.log("Default (no algorithm specified):");
-  console.log("  Algorithm:", defaultKeys.data.algorithm);
-  console.log("  Key ID:   ", defaultKeys.data.kid);
+  await task("Generate default key pair (no algorithm)", async () => {
+    const { data } = await client.generateKeyPair();
+    return data.algorithm;
+  });
 
-  console.log("\nDone.");
+  summary(algorithms.length + 1);
 }
 
 main().catch(console.error);

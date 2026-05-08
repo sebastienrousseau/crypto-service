@@ -11,56 +11,55 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — secretbox ===\n");
+  header("crypto-server -- secretbox");
 
-  // 256-bit key as hex
   const key =
     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
   const plaintext = "Top secret message";
 
-  // Seal
-  const sealResult = await post("/v2/secretbox/seal", { key, plaintext });
-  console.log("Sealed:", sealResult.data);
-
-  // Open
-  const openResult = await post("/v2/secretbox/open", {
-    key,
-    ciphertext: sealResult.data,
+  const ciphertext = await task("Seal with secretbox", async () => {
+    const res = await post("/v2/secretbox/seal", { key, plaintext });
+    const body = (await res.json()) as { data: string };
+    return body.data;
   });
-  console.log("Opened:", openResult.data);
 
-  // Seal with AAD
-  const sealAad = await post("/v2/secretbox/seal", {
-    key,
-    plaintext,
-    aad: "associated-data",
+  await task("Open secretbox", async () => {
+    const res = await post("/v2/secretbox/open", { key, ciphertext });
+    const body = (await res.json()) as { data: string };
+    if (body.data !== plaintext) throw new Error("Mismatch");
   });
-  console.log("Sealed (AAD):", sealAad.data);
 
-  const openAad = await post("/v2/secretbox/open", {
-    key,
-    ciphertext: sealAad.data,
-    aad: "associated-data",
+  const ciphertextAad = await task("Seal with secretbox (AAD)", async () => {
+    const res = await post("/v2/secretbox/seal", { key, plaintext, aad: "associated-data" });
+    const body = (await res.json()) as { data: string };
+    return body.data;
   });
-  console.log("Opened (AAD):", openAad.data);
 
-  console.log("\nDone.");
+  await task("Open secretbox (AAD)", async () => {
+    const res = await post("/v2/secretbox/open", {
+      key,
+      ciphertext: ciphertextAad,
+      aad: "associated-data",
+    });
+    const body = (await res.json()) as { data: string };
+    if (body.data !== plaintext) throw new Error("Mismatch");
+  });
+
+  summary(4);
 }
 
 main().catch(console.error);

@@ -1,34 +1,33 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli-logo.svg" alt="crypto-cli" width="128" />
+</p>
 
-<img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-cli-logo.svg" alt="Crypto CLI Logo" width="261" />
+<h1 align="center">crypto-cli</h1>
 
-# Crypto CLI
+<p align="center">
+  An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms.
+</p>
 
-An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-cli?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sebastienrousseau/crypto-cli)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge)](https://github.com/sebastienrousseau/crypto-service)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-cli"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-cli?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) -- global install and one-off execution
-- [Quick Start](#quick-start) -- launch the interactive menu
-- [Commands](#commands) -- legacy OpenPGP and modern crypto commands
-- [Modern Command Details](#modern-command-details) -- algorithms and
-  options per command
-- [Examples](#examples) -- runnable shell scripts
-- [Configuration](#configuration) -- environment variables
-- [Security](#security) -- threat model and best practices
-- [License](#license) -- terms of use
+- [Install](#install) — global install and one-off execution
+- [Quick Start](#quick-start) — launch the interactive menu
+- [Commands Reference](#commands-reference) — legacy OpenPGP and modern crypto commands
+- [Examples](#examples) — runnable shell scripts
+- [Security](#security) — threat model and best practices
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
@@ -52,7 +51,9 @@ npx @sebastienrousseau/crypto-cli
 pnpm add @sebastienrousseau/crypto-cli
 ```
 
-> **Requires:** Node.js >= 22
+Requires **Node >= 22**.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -87,9 +88,11 @@ You will be presented with a selection prompt:
 
 Use arrow keys to navigate, then press Enter to select a command.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
-## Commands
+## Commands Reference
 
 ### Legacy Commands (OpenPGP)
 
@@ -114,13 +117,7 @@ Use arrow keys to navigate, then press Enter to select a command.
 | `Modern Sign`    | Sign and verify with 8 algorithms including ML-DSA          |
 | `Password Hash`  | Hash and verify passwords with 3 Argon2 variants            |
 
----
-
-## Modern Command Details
-
-### Keygen
-
-Generate key pairs for any of 12 supported algorithms. Each key pair is returned with an algorithm identifier, key ID, and public/private keys in hex or JSON format.
+### Keygen Algorithms
 
 | Algorithm     | Type             | Use            |
 | ------------- | ---------------- | -------------- |
@@ -137,11 +134,7 @@ Generate key pairs for any of 12 supported algorithms. Each key pair is returned
 | `ml-dsa-65`   | Post-quantum DSA | Signing        |
 | `ml-dsa-87`   | Post-quantum DSA | Signing        |
 
-**Options:** algorithm, key ID (auto-generated if empty), key usage (`sig` or `enc`), output format (`json` or `hex`).
-
-### Hash
-
-Hash arbitrary data with one of 7 supported algorithms.
+### Hash Algorithms
 
 | Algorithm  | Digest size |
 | ---------- | ----------- |
@@ -153,11 +146,7 @@ Hash arbitrary data with one of 7 supported algorithms.
 | `blake2b`  | 512-bit     |
 | `blake3`   | 256-bit     |
 
-**Options:** algorithm, data to hash, output format (`json` or `plain`).
-
-### Encrypt
-
-Encrypt plaintext with one of 5 AEAD ciphers. Requires a 32-byte hex key (64 hex characters).
+### Encrypt Algorithms
 
 | Algorithm            | Notes                               |
 | -------------------- | ----------------------------------- |
@@ -167,13 +156,7 @@ Encrypt plaintext with one of 5 AEAD ciphers. Requires a 32-byte hex key (64 hex
 | `aes-256-gcm-siv`    | Nonce-misuse resistant              |
 | `aes-128-gcm-siv`    | Nonce-misuse resistant, 128-bit key |
 
-**Options:** algorithm, encryption key (hex), plaintext, output format (`json` or `hex`).
-
-### Sign
-
-Sign and verify messages with one of 8 algorithms. Three actions are
-available: generate a key pair and sign, sign with an existing key,
-or verify a signature.
+### Sign Algorithms
 
 | Algorithm    | Type                  |
 | ------------ | --------------------- |
@@ -186,15 +169,7 @@ or verify a signature.
 | `ml-dsa-65`  | Post-quantum (NIST 3) |
 | `ml-dsa-87`  | Post-quantum (NIST 5) |
 
-**Actions:**
-
-1. **Generate key pair + sign** -- creates a fresh key pair, signs the message, and outputs both keys and signature.
-2. **Sign with existing key** -- prompts for a private key in hex, then signs.
-3. **Verify signature** -- prompts for a public key and signature in hex, then verifies.
-
-### Password Hash
-
-Hash and verify passwords using Argon2, the winner of the Password Hashing Competition. Output is in PHC string format (`$argon2id$v=19$m=65536,t=3,p=4$...`).
+### Password Hash Variants
 
 | Variant    | Description                      |
 | ---------- | -------------------------------- |
@@ -202,35 +177,7 @@ Hash and verify passwords using Argon2, the winner of the Password Hashing Compe
 | `argon2i`  | Side-channel resistant           |
 | `argon2d`  | GPU resistant                    |
 
-**Actions:**
-
-1. **Hash password** -- returns the PHC string, raw hash, salt, and parameters.
-2. **Verify password** -- checks a password against a PHC string.
-
----
-
-## Examples
-
-Runnable shell scripts are provided in the [`examples/`](./examples/) directory:
-
-| File                                    | Purpose                                   |
-| --------------------------------------- | ----------------------------------------- |
-| [`keygen.sh`](./examples/keygen.sh)     | Generate Ed25519, P-256, and ML-KEM keys  |
-| [`hash.sh`](./examples/hash.sh)         | Hash data with various algorithms         |
-| [`encrypt.sh`](./examples/encrypt.sh)   | Encrypt and decrypt with modern ciphers   |
-| [`sign.sh`](./examples/sign.sh)         | Sign and verify with modern algorithms    |
-| [`password.sh`](./examples/password.sh) | Hash and verify passwords with Argon2     |
-| [`legacy.sh`](./examples/legacy.sh)     | Legacy OpenPGP key generation and signing |
-
-Run any example:
-
-```bash
-bash examples/keygen.sh
-```
-
----
-
-## Configuration
+### Configuration
 
 The CLI respects the following environment variables:
 
@@ -240,14 +187,37 @@ The CLI respects the following environment variables:
 | `CRYPTO_DATA_DIR`    | `./data`     | Directory for reading data files          |
 | `CRYPTO_KEY_OUT_DIR` | `./keys/out` | Directory for writing generated key files |
 
-Example:
-
 ```bash
 export CRYPTO_KEY_DIR="$HOME/.crypto/keys"
 export CRYPTO_DATA_DIR="$HOME/.crypto/data"
 export CRYPTO_KEY_OUT_DIR="$HOME/.crypto/keys/out"
 cryptocli
 ```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Examples
+
+Runnable shell scripts are provided in the [`examples/`](examples/) directory:
+
+| Category   | Example                             | Purpose                                   |
+| ---------- | ----------------------------------- | ----------------------------------------- |
+| Keygen     | [keygen.sh](examples/keygen.sh)     | Generate Ed25519, P-256, and ML-KEM keys  |
+| Hashing    | [hash.sh](examples/hash.sh)         | Hash data with various algorithms         |
+| Encryption | [encrypt.sh](examples/encrypt.sh)   | Encrypt and decrypt with modern ciphers   |
+| Signing    | [sign.sh](examples/sign.sh)         | Sign and verify with modern algorithms    |
+| Passwords  | [password.sh](examples/password.sh) | Hash and verify passwords with Argon2     |
+| Legacy     | [legacy.sh](examples/legacy.sh)     | Legacy OpenPGP key generation and signing |
+
+Run any example:
+
+```bash
+bash examples/keygen.sh
+```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -261,10 +231,14 @@ cryptocli
 
 If you discover a security vulnerability, please report it privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories/new).
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## License
 
 Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

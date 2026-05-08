@@ -1,74 +1,75 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+
 /**
- * Example: Full encrypted request/response pipeline.
+ * Full encrypted request/response pipeline.
  *
  * Demonstrates the complete flow:
- *   1. Client encrypts a JSON payload using secretbox.
- *   2. Middleware decrypts the incoming request body.
- *   3. Handler processes the plaintext.
- *   4. Middleware encrypts the outgoing response.
- *   5. Client decrypts the response.
+ *   1. Client encrypts a JSON payload using encryptPayload.
+ *   2. Server decrypts the payload using decryptPayload.
+ *   3. Server re-encrypts the response.
+ *   4. Client decrypts the response.
  *
- * Run:
- *   npx ts-node examples/encrypted.ts
+ * Run: `npx ts-node examples/encrypted.ts`
  */
 
-import express from "express";
-import { createCryptoMiddleware, encryptPayload, decryptPayload } from "../src";
+import { header, task, summary } from "./support";
+import { encryptPayload, decryptPayload, CryptoMiddlewareError } from "../src";
 
-// 256-bit key (64 hex chars)
 const KEY =
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-// --- Server setup ---
+async function main() {
+  header("crypto-middleware -- encrypted");
 
-const app = express();
-app.use(express.json());
-
-app.use(
-  createCryptoMiddleware({
-    key: KEY,
-    operations: ["decrypt-request", "encrypt-response"],
-  }),
-);
-
-app.post("/echo", (req, res) => {
-  // At this point, req.body is the decrypted plaintext object
-  console.log("[Server] Received plaintext:", req.body);
-  res.json({
-    echo: req.body,
-    processedAt: new Date().toISOString(),
-  });
-});
-
-const PORT = Number(process.env.PORT) || 3000;
-
-app.listen(PORT, async () => {
-  console.log(`Server running on http://localhost:${PORT}\n`);
-
-  // --- Client simulation ---
-  const payload = { message: "Hello, encrypted world!", count: 42 };
-  console.log("[Client] Original payload:", payload);
-
-  // Encrypt the payload
-  const sealed = encryptPayload(KEY, payload);
-  console.log("[Client] Encrypted (truncated):", sealed.slice(0, 60) + "...");
-
-  // Send encrypted request
-  const response = await fetch(`http://localhost:${PORT}/echo`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ encrypted: sealed }),
+  await task("Encrypt a JSON payload", async () => {
+    const sealed = encryptPayload(KEY, { message: "hello", count: 42 });
+    if (typeof sealed !== "string" || sealed.length === 0) {
+      throw new Error("Expected non-empty sealed string");
+    }
   });
 
-  const encryptedResponse = (await response.json()) as { encrypted: string };
-  console.log(
-    "[Client] Encrypted response (truncated):",
-    encryptedResponse.encrypted.slice(0, 60) + "...",
-  );
+  await task("Round-trip encrypt then decrypt", async () => {
+    const original = { userId: 1, role: "admin" };
+    const sealed = encryptPayload(KEY, original);
+    const decrypted = decryptPayload(KEY, sealed) as Record<string, unknown>;
+    if (decrypted.userId !== 1 || decrypted.role !== "admin") {
+      throw new Error("Round-trip mismatch");
+    }
+  });
 
-  // Decrypt the response
-  const decrypted = decryptPayload(KEY, encryptedResponse.encrypted);
-  console.log("[Client] Decrypted response:", decrypted);
+  await task("Encrypt and decrypt a string payload", async () => {
+    const sealed = encryptPayload(KEY, "plain text data");
+    const decrypted = decryptPayload(KEY, sealed);
+    if (decrypted !== "plain text data") {
+      throw new Error("String round-trip mismatch");
+    }
+  });
 
-  process.exit(0);
-});
+  await task("Reject decryption with wrong key", async () => {
+    const sealed = encryptPayload(KEY, { secret: true });
+    const wrongKey = "f".repeat(64);
+    try {
+      decryptPayload(wrongKey, sealed);
+      throw new Error("Should have thrown");
+    } catch (err) {
+      if (!(err instanceof CryptoMiddlewareError)) throw err;
+      if (err.code !== "DECRYPTION_FAILED") {
+        throw new Error("Expected DECRYPTION_FAILED");
+      }
+    }
+  });
+
+  await task("Reject decryption of corrupted ciphertext", async () => {
+    try {
+      decryptPayload(KEY, "not-valid-base64-sealed-box");
+      throw new Error("Should have thrown");
+    } catch (err) {
+      if (!(err instanceof CryptoMiddlewareError)) throw err;
+    }
+  });
+
+  summary(5);
+}
+
+main();

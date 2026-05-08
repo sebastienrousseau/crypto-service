@@ -5,10 +5,13 @@
  * Manual usage of EncryptionTransformer as a standard TypeORM
  * ValueTransformer on a @Column.
  *
+ * Demonstrates the low-level approach where you attach the transformer
+ * to individual columns instead of using `@EncryptedColumn`.
+ *
  * Run: `npx ts-node examples/transformer.ts`
- * Requires: a running database (SQLite used here for simplicity)
  */
 
+import { header, task, summary } from "./support";
 import "reflect-metadata";
 import { DataSource, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { EncryptionTransformer } from "../src";
@@ -37,6 +40,8 @@ class Secret {
 // ── 3. Use normally ────────────────────────────────────────────────
 
 async function main() {
+  header("crypto-typeorm -- transformer");
+
   const ds = new DataSource({
     type: "sqlite",
     database: ":memory:",
@@ -45,26 +50,44 @@ async function main() {
     logging: false,
   });
 
-  await ds.initialize();
+  await task("Initialise in-memory SQLite data source", async () => {
+    await ds.initialize();
+  });
+
   const repo = ds.getRepository(Secret);
 
-  const secret = repo.create({
-    value: "super-secret-token-abc123",
-    label: "API key for service X",
+  const secret = await task("Insert secret with encrypted value column", async () => {
+    const s = repo.create({
+      value: "super-secret-token-abc123",
+      label: "API key for service X",
+    });
+    await repo.save(s);
+    return s;
   });
-  await repo.save(secret);
 
-  const loaded = await repo.findOneByOrFail({ id: secret.id });
-  console.log("Decrypted value:", loaded.value); // super-secret-token-abc123
-  console.log("Label (plain):", loaded.label); // API key for service X
+  await task("Load secret and verify decrypted value", async () => {
+    const loaded = await repo.findOneByOrFail({ id: secret.id });
+    if (loaded.value !== "super-secret-token-abc123") {
+      throw new Error("Value mismatch");
+    }
+    if (loaded.label !== "API key for service X") {
+      throw new Error("Label mismatch");
+    }
+  });
 
-  // You can also use the transformer directly
-  const encrypted = transformer.to("hello world");
-  console.log("Encrypted:", encrypted);
-  const decrypted = transformer.from(encrypted);
-  console.log("Decrypted:", decrypted); // hello world
+  await task("Use transformer directly for encrypt/decrypt round-trip", async () => {
+    const encrypted = transformer.to("hello world");
+    const decrypted = transformer.from(encrypted);
+    if (decrypted !== "hello world") {
+      throw new Error(`Expected "hello world", got "${decrypted}"`);
+    }
+  });
 
-  await ds.destroy();
+  await task("Destroy data source", async () => {
+    await ds.destroy();
+  });
+
+  summary(4);
 }
 
-main().catch(console.error);
+main();

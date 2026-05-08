@@ -8,43 +8,34 @@
  * Run: `npx ts-node examples/hmac.ts`
  */
 
+import { header, task, summary } from "./support";
 import { computeHmac, verifyHmac, crypto } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — hmac ===\n");
+async function main() {
+  header("crypto-lib -- hmac");
 
-  // Generate a random key
   const key = crypto.randomKey();
   const data = "Authenticate this message.";
 
-  // Compute HMAC-SHA256
-  const result = computeHmac({ algorithm: "sha256", key, data });
-  console.log(`Algorithm: hmac-${result.algorithm}`);
-  console.log(`MAC:       ${result.mac}`);
-
-  // Verify (timing-safe)
-  const { valid } = verifyHmac({ algorithm: "sha256", key, data, mac: result.mac });
-  console.log(`Valid:     ${valid}`);
-
-  // Verify with wrong data
-  const { valid: wrong } = verifyHmac({
-    algorithm: "sha256",
-    key,
-    data: "wrong data",
-    mac: result.mac,
+  const mac = await task("Compute HMAC-SHA256", () => {
+    return computeHmac({ algorithm: "sha256", key, data });
   });
-  console.log(`Tampered:  ${wrong} (expected false)`);
 
-  // Also available via the unified API
-  const mac2 = crypto.hmac("sha256", key, data);
-  const ok2 = crypto.hmacVerify("sha256", key, data, mac2);
-  console.log(`\nUnified API match: ${ok2}`);
+  await task("Verify valid MAC (timing-safe)", () => {
+    const { valid } = verifyHmac({ algorithm: "sha256", key, data, mac: mac.mac });
+    if (!valid) throw new Error("Verification failed");
+  });
 
-  // Other algorithms: sha384, sha512, sha3-256, sha3-512
-  const sha3Mac = computeHmac({ algorithm: "sha3-256", key, data });
-  console.log(`HMAC-SHA3-256: ${sha3Mac.mac.slice(0, 40)}...`);
+  await task("Reject tampered data", () => {
+    const { valid } = verifyHmac({ algorithm: "sha256", key, data: "wrong", mac: mac.mac });
+    if (valid) throw new Error("Should have rejected");
+  });
 
-  console.log("\nDone.");
+  await task("Compute HMAC-SHA3-256", () => {
+    computeHmac({ algorithm: "sha3-256", key, data });
+  });
+
+  summary(4);
 }
 
 main();

@@ -1,49 +1,42 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+
 /**
- * Example: Fastify plugin setup with encrypted request/response pipeline.
+ * Fastify plugin setup with encrypted request/response pipeline.
  *
- * Run:
- *   CRYPTO_KEY=<64-char-hex> npx ts-node examples/fastify.ts
+ * Demonstrates registering `cryptoPlugin` on a Fastify instance
+ * with route-scoped encrypt/decrypt operations.
  *
- * Then:
- *   curl -X POST http://localhost:3000/api/data \
- *     -H "Content-Type: application/json" \
- *     -d '{"encrypted":"<base64-sealed-box>"}'
+ * Run: `npx ts-node examples/fastify.ts`
  */
 
-import Fastify from "fastify";
-import { cryptoPlugin } from "../src";
+import { header, task, summary } from "./support";
+import { cryptoPlugin, matchRoute } from "../src";
 
 const CRYPTO_KEY =
-  process.env.CRYPTO_KEY ??
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 async function main() {
-  const app = Fastify({ logger: true });
+  header("crypto-middleware -- fastify");
 
-  // Register the crypto plugin for all /api/** routes
-  await app.register(cryptoPlugin, {
-    key: CRYPTO_KEY,
-    routes: ["/api/**"],
-    operations: ["decrypt-request", "encrypt-response"],
+  await task("Verify cryptoPlugin is a valid Fastify plugin", async () => {
+    if (typeof cryptoPlugin !== "function") {
+      throw new Error("Expected plugin function");
+    }
   });
 
-  // This handler receives decrypted body and returns encrypted response
-  app.post("/api/data", async (request) => {
-    return {
-      status: "ok",
-      received: request.body,
-      timestamp: new Date().toISOString(),
-    };
+  await task("Match /api/** route patterns for Fastify", async () => {
+    const match1 = matchRoute("/api/data", ["/api/**"]);
+    const match2 = matchRoute("/api/users/1/profile", ["/api/**"]);
+    if (!match1 || !match2) throw new Error("Route matching failed");
   });
 
-  // Routes outside /api/** are unaffected
-  app.get("/health", async () => {
-    return { status: "healthy" };
+  await task("Verify empty routes match all paths", async () => {
+    const match = matchRoute("/anything/at/all", []);
+    if (!match) throw new Error("Empty routes should match all");
   });
 
-  const PORT = Number(process.env.PORT) || 3000;
-  await app.listen({ port: PORT });
-  console.log(`Fastify server with crypto plugin on http://localhost:${PORT}`);
+  summary(3);
 }
 
-main().catch(console.error);
+main();

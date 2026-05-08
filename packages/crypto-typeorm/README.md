@@ -1,53 +1,52 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
-<!-- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-typeorm-logo.svg" alt="crypto-typeorm" width="128" />
+</p>
 
-# Crypto TypeORM
+<h1 align="center">crypto-typeorm</h1>
 
-TypeORM column-level encryption with a single decorator, powered by crypto-lib.
+<p align="center">
+  TypeORM column-level encryption with a single decorator, powered by crypto-lib.
+</p>
 
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&branch=main)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-typeorm.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-typeorm)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg?style=for-the-badge)](https://nodejs.org/)
-
-**[Website](https://crypto-service.co)
-&middot; [Documentation](https://crypto-service.co/docs/)
-&middot; [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-&middot; [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/main/.github/CONTRIBUTING.md)**
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-typeorm"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-typeorm?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) &mdash; Add the package to your project
-- [Quick Start](#quick-start) &mdash; Encrypt a column with one decorator
-- [Configuration](#configuration) &mdash; Encryption keys and options
-- [Decorator API](#decorator-api) &mdash; `@EncryptedColumn` reference
-- [Subscriber API](#subscriber-api) &mdash; `EncryptionSubscriber` reference
-- [Transformer API](#transformer-api) &mdash; `EncryptionTransformer` reference
-- [Examples](#examples) &mdash; Runnable scripts for every approach
-- [License](#license) &mdash; MIT
+- [Install](#install) — add the package to your project
+- [Quick Start](#quick-start) — encrypt a column with one decorator
+- [Configuration](#configuration) — encryption keys and options
+- [Decorator API](#decorator-api) — `@EncryptedColumn` reference
+- [Subscriber API](#subscriber-api) — `EncryptionSubscriber` reference
+- [Transformer API](#transformer-api) — `EncryptionTransformer` reference
+- [Examples](#examples) — runnable scripts for every approach
+- [Security](#security) — responsible disclosure
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
-# npm
 npm install @sebastienrousseau/crypto-typeorm
-
-# yarn
-yarn add @sebastienrousseau/crypto-typeorm
-
-# pnpm
+# or
 pnpm add @sebastienrousseau/crypto-typeorm
 ```
 
 > **Peer dependency:** `typeorm ^0.3.0` must be installed in your project.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -71,6 +70,8 @@ class User {
 
 That is it. The `ssn` column is stored as an XChaCha20-Poly1305 sealed box (Base64) and decrypted transparently on every read.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Configuration
@@ -86,6 +87,8 @@ All APIs accept an `EncryptionConfig` object:
 ### Environment variable fallback
 
 `@EncryptedColumn` will read `process.env.TYPEORM_ENCRYPTION_KEY` when no key is provided in decorator options.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -108,6 +111,8 @@ A property decorator that combines TypeORM's `@Column` with an `EncryptionTransf
 | `encrypt` | `EncryptionConfig` | Encryption key and options |
 
 The column type defaults to `"text"` to accommodate Base64 sealed boxes.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -145,6 +150,8 @@ const ds = new DataSource({
 
 Decryption is wrapped in a try/catch so that legacy unencrypted rows are left as-is during a gradual migration.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Transformer API
@@ -180,27 +187,47 @@ class Secret {
 
 Non-string values passed to `to()` are JSON-serialised before encryption. `null` and `undefined` pass through unchanged in both directions.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Examples
 
-Runnable example scripts live in `examples/`:
-
-| Script                                        | Description                                       |
-| --------------------------------------------- | ------------------------------------------------- |
-| [`decorator.ts`](./examples/decorator.ts)     | Using `@EncryptedColumn` on entity fields         |
-| [`subscriber.ts`](./examples/subscriber.ts)   | Centralised encryption via `EncryptionSubscriber` |
-| [`transformer.ts`](./examples/transformer.ts) | Manual `ValueTransformer` on `@Column`            |
-| [`migration.ts`](./examples/migration.ts)     | Encrypting existing plaintext columns             |
-
-Run any example with:
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
 ```bash
-npx ts-node examples/decorator.ts
+npx ts-node examples/<name>.ts
 ```
+
+| Category    | Example                                   | Purpose                                           |
+| ----------- | ----------------------------------------- | ------------------------------------------------- |
+| Decorator   | [decorator.ts](examples/decorator.ts)     | Using `@EncryptedColumn` on entity fields         |
+| Subscriber  | [subscriber.ts](examples/subscriber.ts)   | Centralised encryption via `EncryptionSubscriber` |
+| Transformer | [transformer.ts](examples/transformer.ts) | Manual `ValueTransformer` on `@Column`            |
+| Migration   | [migration.ts](examples/migration.ts)     | Encrypting existing plaintext columns             |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Security
+
+**Authenticated encryption.** All field encryption uses XChaCha20-Poly1305 via crypto-lib's secretbox. Each write generates a fresh random nonce.
+
+**Graceful fallback.** Decryption failures return the original value, enabling seamless migration from plaintext to encrypted columns.
+
+**No native dependencies.** Built on `@sebastienrousseau/crypto-lib` which uses the audited `@noble/*` family — pure TypeScript, no C bindings.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
-MIT -- see [LICENSE](../../LICENSE) for details.
+Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
+
+<p align="right"><a href="#contents">Back to Top</a></p>

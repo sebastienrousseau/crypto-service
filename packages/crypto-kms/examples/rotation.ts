@@ -11,60 +11,59 @@
  */
 
 import { LocalKmsProvider } from "../src";
+import { header, task, summary } from "./support";
 
 async function main() {
-  console.log("\n=== crypto-kms — key rotation ===\n");
+  header("crypto-kms -- Key Rotation");
 
   const kms = new LocalKmsProvider();
 
-  // Step 1: Create an encryption key
-  const key = await kms.createKey("aes-256-gcm", "encrypt");
-  console.log("Created key:", key.keyId);
-  console.log("Created at: ", key.createdAt);
+  const key = await task("Create encryption key", async () => {
+    return kms.createKey("aes-256-gcm", "encrypt");
+  });
 
-  // Step 2: Encrypt data with the original key
-  const plaintext = new TextEncoder().encode("Data before rotation");
-  const encrypted = await kms.encrypt(key.keyId, plaintext);
-  console.log("\nEncrypted with original key.");
+  const encrypted = await task("Encrypt data with original key", async () => {
+    const plaintext = new TextEncoder().encode("Data before rotation");
+    return kms.encrypt(key.keyId, plaintext);
+  });
 
-  // Step 3: Decrypt with original key (still works)
-  const decrypted = await kms.decrypt(key.keyId, encrypted.ciphertext);
-  console.log("Decrypted: ", new TextDecoder().decode(decrypted.plaintext));
+  await task("Decrypt with original key", async () => {
+    const decrypted = await kms.decrypt(key.keyId, encrypted.ciphertext);
+    return new TextDecoder().decode(decrypted.plaintext);
+  });
 
-  // Step 4: Rotate the key — generates new key material
-  console.log("\n--- Rotating key ---");
-  const rotated = await kms.rotateKey(key.keyId);
-  console.log("Key rotated:", rotated.keyId);
-  console.log("New created:", rotated.createdAt);
+  await task("Rotate encryption key material", async () => {
+    return kms.rotateKey(key.keyId);
+  });
 
-  // Step 5: Note — data encrypted with the old material can NOT be decrypted
-  // with the new material. In production, you would re-encrypt existing data.
-  console.log("\nNote: old ciphertext must be re-encrypted with the new key material.");
+  await task("Re-encrypt and decrypt with rotated key", async () => {
+    const newPlaintext = new TextEncoder().encode("Data after rotation");
+    const newEncrypted = await kms.encrypt(key.keyId, newPlaintext);
+    const newDecrypted = await kms.decrypt(key.keyId, newEncrypted.ciphertext);
+    return new TextDecoder().decode(newDecrypted.plaintext);
+  });
 
-  // Step 6: Encrypt new data with the rotated key
-  const newPlaintext = new TextEncoder().encode("Data after rotation");
-  const newEncrypted = await kms.encrypt(key.keyId, newPlaintext);
-  const newDecrypted = await kms.decrypt(key.keyId, newEncrypted.ciphertext);
-  console.log("Re-encrypted and decrypted:", new TextDecoder().decode(newDecrypted.plaintext));
+  const signKey = await task("Create signing key", async () => {
+    return kms.createKey("ed25519", "sign");
+  });
 
-  // Step 7: Rotate a signing key
-  const signKey = await kms.createKey("ed25519", "sign");
-  console.log("\nCreated signing key:", signKey.keyId);
+  await task("Sign and verify before rotation", async () => {
+    const msg = new TextEncoder().encode("test message");
+    const sig = await kms.sign(signKey.keyId, msg);
+    return kms.verify(signKey.keyId, msg, sig.signature);
+  });
 
-  const msg = new TextEncoder().encode("test message");
-  const sig = await kms.sign(signKey.keyId, msg);
-  const valid = await kms.verify(signKey.keyId, msg, sig.signature);
-  console.log("Pre-rotation signature valid:", valid);
+  await task("Rotate signing key", async () => {
+    return kms.rotateKey(signKey.keyId);
+  });
 
-  await kms.rotateKey(signKey.keyId);
-  console.log("Signing key rotated.");
+  await task("Sign and verify after rotation", async () => {
+    const msg = new TextEncoder().encode("test message");
+    const sig = await kms.sign(signKey.keyId, msg);
+    return kms.verify(signKey.keyId, msg, sig.signature);
+  });
 
-  // New signatures use the new key pair
-  const newSig = await kms.sign(signKey.keyId, msg);
-  const newValid = await kms.verify(signKey.keyId, msg, newSig.signature);
-  console.log("Post-rotation signature valid:", newValid);
-
-  console.log("\nDone.");
+  summary(9);
 }
 
 main().catch(console.error);

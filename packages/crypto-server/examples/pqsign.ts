@@ -11,49 +11,56 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — pqsign ===\n");
+  header("crypto-server -- pqsign");
 
-  const level = 65; // ML-DSA-65
+  const level = 65;
 
-  // Generate key pair
-  const keyPair = await post("/v2/pq/dsa/keygen", { level });
-  console.log("ML-DSA-65 public key length:", keyPair.data.publicKey.length);
+  const keyPair = await task("Generate ML-DSA-65 key pair", async () => {
+    const res = await post("/v2/pq/dsa/keygen", { level });
+    const body = (await res.json()) as {
+      data: { publicKey: string; secretKey: string };
+    };
+    return body.data;
+  });
 
-  // Sign a message
   const message = "Post-quantum signatures are here!";
-  const signResult = await post("/v2/pq/dsa/sign", {
-    level,
-    secretKey: keyPair.data.secretKey,
-    message,
-  });
-  console.log("Signature length:", signResult.data.length);
 
-  // Verify
-  const verifyResult = await post("/v2/pq/dsa/verify", {
-    level,
-    publicKey: keyPair.data.publicKey,
-    message,
-    signature: signResult.data,
+  const signature = await task("Sign message with ML-DSA-65", async () => {
+    const res = await post("/v2/pq/dsa/sign", {
+      level,
+      secretKey: keyPair.secretKey,
+      message,
+    });
+    const body = (await res.json()) as { data: string };
+    return body.data;
   });
-  console.log("Valid:", verifyResult.data);
 
-  console.log("\nDone.");
+  await task("Verify ML-DSA-65 signature", async () => {
+    const res = await post("/v2/pq/dsa/verify", {
+      level,
+      publicKey: keyPair.publicKey,
+      message,
+      signature,
+    });
+    const body = (await res.json()) as { data: boolean };
+    if (!body.data) throw new Error("Verification failed");
+  });
+
+  summary(3);
 }
 
 main().catch(console.error);

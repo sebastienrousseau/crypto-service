@@ -1,51 +1,45 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
-<!-- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-kms-logo.svg" alt="crypto-kms" width="128" />
+</p>
 
-![Crypto KMS logo](https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-kms-logo.svg)
+<h1 align="center">crypto-kms</h1>
 
-# Crypto KMS
+<p align="center">
+  Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault -- unified under a single TypeScript interface.
+</p>
 
-Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault — unified under a single TypeScript interface.
-
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&branch=main)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-kms.svg?style=for-the-badge)](https://www.npmjs.com/package/@sebastienrousseau/crypto-kms)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg?style=for-the-badge)](https://nodejs.org/)
-
-**[Website](https://crypto-service.co)
-&middot; [Documentation](https://crypto-service.co/docs/)
-&middot; [Submit an Issue](https://github.com/sebastienrousseau/crypto-service/issues)
-&middot; [Contributing Guidelines](https://github.com/sebastienrousseau/crypto-service/blob/main/.github/CONTRIBUTING.md)**
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-kms"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-kms?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
 ## Contents
 
-- [Install](#install) &mdash; Add the package to your project
-- [Quick Start](#quick-start) &mdash; Create a provider and manage keys in four lines
-- [Providers](#providers) &mdash; Supported cloud and local backends
-- [API Reference](#api-reference) &mdash; The `KmsProvider` interface
-- [Authentication](#authentication) &mdash; Credentials for each provider
-- [Examples](#examples) &mdash; Runnable scripts for every pattern
-- [Security](#security) &mdash; Responsible disclosure
-- [License](#license) &mdash; MIT
+- [Install](#install) — add the package to your project
+- [Quick Start](#quick-start) — create a provider and manage keys in four lines
+- [Providers](#providers) — supported cloud and local backends
+- [API Reference](#api-reference) — the `KmsProvider` interface
+- [Authentication](#authentication) — credentials for each provider
+- [Examples](#examples) — runnable scripts for every pattern
+- [Security](#security) — responsible disclosure
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
-# npm
 npm install @sebastienrousseau/crypto-kms
-
-# yarn
-yarn add @sebastienrousseau/crypto-kms
-
-# pnpm
+# or
 pnpm add @sebastienrousseau/crypto-kms
 ```
 
@@ -64,6 +58,8 @@ npm install @azure/keyvault-keys
 
 > **Requirements:** Node >= 22. The local provider has zero additional dependencies.
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Quick Start
@@ -81,6 +77,8 @@ const decrypted = await kms.decrypt(key.keyId, encrypted.ciphertext);
 console.log(new TextDecoder().decode(decrypted.plaintext)); // "secret"
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Providers
@@ -94,6 +92,8 @@ console.log(new TextDecoder().decode(decrypted.plaintext)); // "secret"
 | **Local** | `LocalKmsProvider` | In-memory (crypto-lib)     | None                   |
 
 All providers implement the same `KmsProvider` interface, making it trivial to swap backends without changing application code.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -146,6 +146,8 @@ interface KmsSignResult {
 }
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Authentication
@@ -158,34 +160,46 @@ interface KmsSignResult {
 | **Vault** | Pass `token` in `VaultKmsOptions`. Supports any Vault auth method that produces a token                                                  |
 | **Local** | No authentication required                                                                                                               |
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Examples
 
-Runnable TypeScript examples are provided in the `examples/` directory.
-
-| Example             | File                                    | Description                                              |
-| ------------------- | --------------------------------------- | -------------------------------------------------------- |
-| Local Provider      | [`local.ts`](./examples/local.ts)       | Create keys, encrypt/decrypt with the in-memory provider |
-| AWS KMS             | [`aws.ts`](./examples/aws.ts)           | AWS KMS setup and usage pattern                          |
-| Envelope Encryption | [`envelope.ts`](./examples/envelope.ts) | Envelope encryption with `generateDataKey`               |
-| Key Rotation        | [`rotation.ts`](./examples/rotation.ts) | Key rotation workflow                                    |
-| Multi-Provider      | [`multi.ts`](./examples/multi.ts)       | Provider-agnostic code across multiple backends          |
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
 ```bash
-npx ts-node examples/local.ts
+npx ts-node examples/<name>.ts
 ```
+
+| Category | Example                             | Purpose                                                  |
+| -------- | ----------------------------------- | -------------------------------------------------------- |
+| Local    | [local.ts](examples/local.ts)       | Create keys, encrypt/decrypt with the in-memory provider |
+| AWS      | [aws.ts](examples/aws.ts)           | AWS KMS setup and usage pattern                          |
+| Envelope | [envelope.ts](examples/envelope.ts) | Envelope encryption with `generateDataKey`               |
+| Rotation | [rotation.ts](examples/rotation.ts) | Key rotation workflow                                    |
+| Multi    | [multi.ts](examples/multi.ts)       | Provider-agnostic code across multiple backends          |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## Security
 
-If you discover a security vulnerability, please report it responsibly. Send an email to [security@crypto-service.co](mailto:security@crypto-service.co) instead of opening a public issue. We will acknowledge your report within 48 hours.
+**No native dependencies.** The local provider uses the audited `@noble/*` family via crypto-lib — pure TypeScript, no C bindings.
+
+**Timing-safe comparisons.** Signature verification and MAC validation use constant-time comparison to prevent timing side-channel attacks.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
 Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

@@ -2,11 +2,13 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Example: Using pre-built test fixtures.
+ * Using pre-built test fixtures.
  *
  * Fixture generators create complete, ready-to-use test data in one
  * call. They combine deterministic keys, mock operations, and known
  * test vectors so you can focus on testing your own code.
+ *
+ * Run: `npx ts-node examples/fixtures.ts`
  */
 
 import {
@@ -15,43 +17,54 @@ import {
   createTestSignedMessage,
   createTestPasswordHash,
 } from "@sebastienrousseau/crypto-testing";
+import { header, task, summary } from "./support";
 
-// --- Full keyring with signing, exchange, and symmetric keys ---
-const keyring = createTestKeyring();
-console.log("Signing key (Ed25519):", keyring.signing.publicKey);
-console.log("Exchange key (X25519):", keyring.exchange.publicKey);
-console.log("ECDSA key (P-256)    :", keyring.ecdsa.publicKey);
-console.log("Symmetric key (AES)  :", keyring.symmetric);
-console.log("HMAC key             :", keyring.hmac);
+async function main() {
+  header("crypto-testing -- test fixtures");
 
-// --- Pre-encrypted message ---
-const encrypted = createTestEncryptedMessage();
-console.log("Plaintext :", encrypted.plaintext);
-console.log("Ciphertext:", encrypted.ciphertext);
-console.log("Key       :", encrypted.key);
-// Use mockDecrypt(encrypted.key, encrypted.ciphertext) to recover plaintext
+  await task("Create a full test keyring", () => {
+    const keyring = createTestKeyring();
+    if (!keyring.signing.publicKey) throw new Error("Missing signing key");
+    if (!keyring.exchange.publicKey) throw new Error("Missing exchange key");
+    if (!keyring.ecdsa.publicKey) throw new Error("Missing ECDSA key");
+    if (!keyring.symmetric) throw new Error("Missing symmetric key");
+    if (!keyring.hmac) throw new Error("Missing HMAC key");
+  });
 
-// Custom plaintext
-const custom = createTestEncryptedMessage("my secret data");
-console.log("Custom ciphertext:", custom.ciphertext);
+  await task("Create a pre-encrypted message (default plaintext)", () => {
+    const encrypted = createTestEncryptedMessage();
+    if (!encrypted.ciphertext) throw new Error("Missing ciphertext");
+    if (encrypted.algorithm !== "mock-xor") throw new Error("Wrong algorithm");
+  });
 
-// --- Pre-signed message ---
-const signed = createTestSignedMessage();
-console.log("Message  :", signed.message);
-console.log("Signature:", signed.signature);
-console.log("Algorithm:", signed.algorithm);
-// Use mockVerify(signed.publicKey, signed.message, signed.signature, signed.privateKey)
+  await task("Create a pre-encrypted message (custom plaintext)", () => {
+    const encrypted = createTestEncryptedMessage("my secret data");
+    if (encrypted.plaintext !== "my secret data") throw new Error("Wrong plaintext");
+  });
 
-// With a specific algorithm
-const ecdsaSigned = createTestSignedMessage("p256");
-console.log("ECDSA signature:", ecdsaSigned.signature);
+  await task("Create a pre-signed message (Ed25519)", () => {
+    const signed = createTestSignedMessage();
+    if (!signed.signature) throw new Error("Missing signature");
+    if (signed.algorithm !== "ed25519") throw new Error("Wrong algorithm");
+  });
 
-// --- Pre-hashed password ---
-const pwHash = createTestPasswordHash();
-console.log("Hash :", pwHash.hash);
-console.log("Salt :", pwHash.salt);
-console.log("PHC  :", pwHash.phc);
+  await task("Create a pre-signed message (P-256)", () => {
+    const signed = createTestSignedMessage("p256");
+    if (signed.algorithm !== "p256") throw new Error("Wrong algorithm");
+  });
 
-// With a custom password
-const customPw = createTestPasswordHash("hunter2");
-console.log("Custom PHC:", customPw.phc);
+  await task("Create a pre-hashed password (default)", () => {
+    const pwHash = createTestPasswordHash();
+    if (!pwHash.hash) throw new Error("Missing hash");
+    if (!pwHash.phc) throw new Error("Missing PHC string");
+  });
+
+  await task("Create a pre-hashed password (custom)", () => {
+    const pwHash = createTestPasswordHash("hunter2");
+    if (!pwHash.phc.startsWith("$mock-argon2id$")) throw new Error("Bad PHC");
+  });
+
+  summary(7);
+}
+
+main();

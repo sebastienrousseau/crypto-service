@@ -8,34 +8,31 @@
  * Run: `npx ts-node examples/secretbox.ts`
  */
 
+import { header, task, summary } from "./support";
 import { secretbox, crypto } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — secretbox ===\n");
+async function main() {
+  header("crypto-lib -- secretbox");
 
-  // Generate a 256-bit key
-  const key = crypto.randomKey();
-  console.log(`Key: ${key.slice(0, 16)}...`);
+  const key = await task("Generate 256-bit key", () => crypto.randomKey());
 
-  // Seal (encrypt + authenticate)
   const plaintext = "Secretbox makes symmetric crypto simple.";
-  const { sealed, algorithm } = secretbox.seal(key, plaintext);
-  console.log(`Algorithm:  ${algorithm}`);
-  console.log(`Sealed:     ${sealed.slice(0, 40)}...`);
 
-  // Open (decrypt + verify)
-  const opened = secretbox.open(key, sealed);
-  const recovered = Buffer.from(opened).toString("utf8");
-  console.log(`Recovered:  ${recovered}`);
-  console.log(`Match:      ${recovered === plaintext}`);
+  await task("Seal (encrypt + authenticate)", () => {
+    const { sealed } = secretbox.seal(key, plaintext);
+    const opened = secretbox.open(key, sealed);
+    const recovered = Buffer.from(opened).toString("utf8");
+    if (recovered !== plaintext) throw new Error("Round-trip failed");
+  });
 
-  // Round-trip with raw bytes
-  const raw = new Uint8Array([0xde, 0xad, 0xbe, 0xef]);
-  const { sealed: s2 } = secretbox.seal(key, raw);
-  const opened2 = secretbox.open(key, s2);
-  console.log(`\nBinary round-trip: ${Buffer.from(opened2).toString("hex") === "deadbeef"}`);
+  await task("Seal and open raw bytes", () => {
+    const raw = new Uint8Array([0xde, 0xad, 0xbe, 0xef]);
+    const { sealed } = secretbox.seal(key, raw);
+    const opened = secretbox.open(key, sealed);
+    if (Buffer.from(opened).toString("hex") !== "deadbeef") throw new Error("Binary round-trip failed");
+  });
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

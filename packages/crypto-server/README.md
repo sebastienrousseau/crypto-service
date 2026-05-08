@@ -1,20 +1,22 @@
-<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-server-logo.svg" alt="crypto-server" width="128" />
+</p>
 
-<img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-server-logo.svg" alt="Crypto Server logo" width="261" />
+<h1 align="center">crypto-server</h1>
 
-# Crypto Server
+<p align="center">
+  A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.
+</p>
 
-A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.
-
-[![Build](https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/sebastienrousseau/crypto-service/actions)
-[![npm](https://img.shields.io/npm/v/@sebastienrousseau/crypto-server.svg?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sebastienrousseau/crypto-server)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge&logo=codecov)](https://github.com/sebastienrousseau/crypto-service)
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Node](https://img.shields.io/node/v/@sebastienrousseau/crypto-server?style=for-the-badge&logo=node.js)](https://nodejs.org/)
-
-</div>
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-server"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-server?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
 
 ---
 
@@ -23,21 +25,32 @@ A hardened Fastify REST API for cryptographic operations, with rate limiting, Op
 - [Install](#install) — add the package and configure environment variables
 - [Quick Start](#quick-start) — launch the server and make your first request
 - [Architecture](#architecture) — Fastify, route versioning, and middleware stack
-- [API Reference](#api-reference) — complete table of all v2 endpoints
+- [API Routes](#api-routes) — complete table of all v2 endpoints
 - [Authentication](#authentication) — API key and JWT bearer token support
 - [Configuration](#configuration) — environment variables reference
 - [Examples](#examples) — runnable TypeScript examples
 - [Security](#security) — responsible disclosure and hardening notes
-- [License](#license) — MIT OR Apache-2.0
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
 npm install @sebastienrousseau/crypto-server
 # or
 pnpm add @sebastienrousseau/crypto-server
+```
+
+**From source**
+
+```bash
+git clone https://github.com/sebastienrousseau/crypto-service.git
+cd crypto-service
+pnpm install
+pnpm --filter @sebastienrousseau/crypto-server build
 ```
 
 Set the following environment variables before starting the server:
@@ -48,7 +61,9 @@ export CRYPTO_API_KEY="your-secret-api-key"
 export LOG_LEVEL="info"
 ```
 
-> **Node >= 22** is required.
+Requires **Node >= 22**.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -77,6 +92,8 @@ curl -s -X POST http://localhost:3000/v2/hash \
 }
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Architecture
@@ -102,9 +119,11 @@ Request
 | `/v2/*`                       | **Current**    | Modern endpoints using `@noble/*` primitives and post-quantum algorithms.     |
 | `/live`, `/ready`, `/metrics` | Stable         | Infrastructure probes (no auth required).                                     |
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
-## API Reference
+## API Routes
 
 All v2 endpoints accept and return `application/json`. Authenticated requests must include an `x-api-key` header (or `Authorization: Bearer <jwt>`).
 
@@ -231,6 +250,8 @@ All v2 endpoints accept and return `application/json`. Authenticated requests mu
 | `GET`  | `/ready`   | Readiness probe (Kubernetes)  |
 | `GET`  | `/metrics` | Prometheus-compatible metrics |
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Authentication
@@ -249,6 +270,8 @@ curl -H "x-api-key: your-secret-api-key" ...
 # JWT Bearer
 curl -H "Authorization: Bearer eyJhbGciOi..." ...
 ```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
@@ -269,54 +292,70 @@ curl -H "Authorization: Bearer eyJhbGciOi..." ...
 | `CRYPTO_KEY_OUT_DIR`  | --            | Directory for key output                           |
 | `SHUTDOWN_TIMEOUT_MS` | `30000`       | Graceful shutdown timeout in milliseconds          |
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ---
 
 ## Examples
 
-Runnable TypeScript examples are provided in the `examples/` directory. Each file is self-contained and uses `fetch` to call the server.
-
-| File                                        | Purpose                                  |
-| ------------------------------------------- | ---------------------------------------- |
-| [`hash.ts`](./examples/hash.ts)             | Hash data via POST /v2/hash              |
-| [`encrypt.ts`](./examples/encrypt.ts)       | Encrypt and decrypt via v2 endpoints     |
-| [`sign.ts`](./examples/sign.ts)             | Sign and verify via v2 endpoints         |
-| [`password.ts`](./examples/password.ts)     | Password hash and verify                 |
-| [`keygen.ts`](./examples/keygen.ts)         | Generate keys via POST /v2/keys/generate |
-| [`secretbox.ts`](./examples/secretbox.ts)   | Secretbox seal and open                  |
-| [`sealedbox.ts`](./examples/sealedbox.ts)   | Sealed box operations                    |
-| [`pqkem.ts`](./examples/pqkem.ts)           | Post-quantum KEM operations              |
-| [`pqsign.ts`](./examples/pqsign.ts)         | Post-quantum signing                     |
-| [`hmac.ts`](./examples/hmac.ts)             | HMAC compute and verify                  |
-| [`kdf.ts`](./examples/kdf.ts)               | Key derivation                           |
-| [`algorithms.ts`](./examples/algorithms.ts) | List supported algorithms                |
-| [`probes.ts`](./examples/probes.ts)         | Health and readiness checks              |
+All examples are self-contained TypeScript files in the `examples/` directory. Each uses `fetch` to call the server. Run any example with:
 
 ```bash
 # Start the server in one terminal:
 pnpm --filter @sebastienrousseau/crypto-server start
 
 # Run an example in another:
-npx ts-node examples/hash.ts
+npx ts-node examples/<name>.ts
 ```
+
+| Category        | Example                                         | Purpose                                  |
+| --------------- | ----------------------------------------------- | ---------------------------------------- |
+| Algorithms      | [algorithms.ts](examples/algorithms.ts)         | List supported algorithms                |
+| Encryption      | [encrypt.ts](examples/encrypt.ts)               | Encrypt and decrypt via v2 endpoints     |
+| Hashing         | [hash.ts](examples/hash.ts)                     | Hash data via POST /v2/hash              |
+| HMAC            | [hmac.ts](examples/hmac.ts)                     | HMAC compute and verify                  |
+| KDF             | [kdf.ts](examples/kdf.ts)                       | Key derivation                           |
+| Key Generation  | [keygen.ts](examples/keygen.ts)                 | Generate keys via POST /v2/keys/generate |
+| Key Wrap        | [keywrap.ts](examples/keywrap.ts)               | AES key wrapping and unwrapping          |
+| Passwords       | [password.ts](examples/password.ts)             | Password hash and verify                 |
+| PW Encrypt      | [pwencrypt.ts](examples/pwencrypt.ts)           | Password-based encryption and decryption |
+| PQ KEM          | [pqkem.ts](examples/pqkem.ts)                   | Post-quantum KEM operations              |
+| PQ Sign         | [pqsign.ts](examples/pqsign.ts)                 | Post-quantum ML-DSA signing              |
+| PQ Hash Sign    | [pqhashsign.ts](examples/pqhashsign.ts)         | Post-quantum SLH-DSA signing             |
+| Probes          | [probes.ts](examples/probes.ts)                 | Health and readiness checks              |
+| Multi-Recipient | [multirecipient.ts](examples/multirecipient.ts) | Multi-recipient encryption               |
+| Sealed Box      | [sealedbox.ts](examples/sealedbox.ts)           | Sealed box operations                    |
+| Secretbox       | [secretbox.ts](examples/secretbox.ts)           | Secretbox seal and open                  |
+| Signing         | [sign.ts](examples/sign.ts)                     | Sign and verify via v2 endpoints         |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## Security
 
-If you discover a security vulnerability, please report it responsibly by emailing **sebastienrousseau@users.noreply.github.com** rather than opening a public issue.
-
 The server applies the following hardening measures by default:
 
-- **Rate limiting** via `@fastify/rate-limit`
-- **Security headers** via `@fastify/helmet` (CSP, HSTS, X-Frame-Options, etc.)
-- **Timing-safe comparison** for API key validation
-- **Input validation** via JSON Schema on every route
-- **No secrets in logs** -- request bodies are never logged
+**Rate limiting** via `@fastify/rate-limit`.
+
+**Security headers** via `@fastify/helmet` (CSP, HSTS, X-Frame-Options, etc.).
+
+**Timing-safe comparison** for API key validation.
+
+**Input validation** via JSON Schema on every route.
+
+**No secrets in logs.** Request bodies are never logged.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## License
 
 Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

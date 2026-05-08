@@ -5,15 +5,18 @@
  * Using EncryptionSubscriber to auto-encrypt/decrypt fields without
  * modifying entity classes.
  *
+ * The subscriber approach keeps entities clean -- encryption
+ * configuration is centralised in the data source setup.
+ *
  * Run: `npx ts-node examples/subscriber.ts`
- * Requires: a running database (SQLite used here for simplicity)
  */
 
+import { header, task, summary } from "./support";
 import "reflect-metadata";
 import { DataSource, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { EncryptionSubscriber } from "../src";
 
-// ── 1. Plain entity — no encryption decorators ─────────────────────
+// ── 1. Plain entity -- no encryption decorators ─────────────────────
 
 @Entity()
 class Payment {
@@ -33,6 +36,8 @@ const ENCRYPTION_KEY =
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 async function main() {
+  header("crypto-typeorm -- subscriber");
+
   const subscriber = new EncryptionSubscriber({
     key: ENCRYPTION_KEY,
     fields: new Map([["Payment", ["cardNumber"]]]),
@@ -47,30 +52,49 @@ async function main() {
     logging: false,
   });
 
-  await ds.initialize();
+  await task("Initialise data source with EncryptionSubscriber", async () => {
+    await ds.initialize();
+  });
+
   const repo = ds.getRepository(Payment);
 
-  // Insert — cardNumber is encrypted, holderName is left as plaintext
-  const payment = repo.create({
-    cardNumber: "4111-1111-1111-1111",
-    holderName: "Alice Smith",
+  const payment = await task("Insert payment (cardNumber encrypted, holderName plain)", async () => {
+    const p = repo.create({
+      cardNumber: "4111-1111-1111-1111",
+      holderName: "Alice Smith",
+    });
+    await repo.save(p);
+    return p;
   });
-  await repo.save(payment);
 
-  // Read — cardNumber is decrypted automatically
-  const loaded = await repo.findOneByOrFail({ id: payment.id });
-  console.log("Card:", loaded.cardNumber); // 4111-1111-1111-1111
-  console.log("Holder:", loaded.holderName); // Alice Smith (never encrypted)
+  await task("Load payment and verify decrypted card number", async () => {
+    const loaded = await repo.findOneByOrFail({ id: payment.id });
+    if (loaded.cardNumber !== "4111-1111-1111-1111") {
+      throw new Error("Card number mismatch");
+    }
+    if (loaded.holderName !== "Alice Smith") {
+      throw new Error("Holder name mismatch");
+    }
+  });
 
-  // Verify raw storage
-  const raw = await ds.query(
-    "SELECT cardNumber, holderName FROM payment WHERE id = ?",
-    [payment.id],
-  );
-  console.log("Raw card (encrypted):", raw[0].cardNumber.slice(0, 40) + "...");
-  console.log("Raw holder (plaintext):", raw[0].holderName);
+  await task("Verify raw card is encrypted, holder is plaintext", async () => {
+    const raw = await ds.query(
+      "SELECT cardNumber, holderName FROM payment WHERE id = ?",
+      [payment.id],
+    );
+    if (raw[0].cardNumber === "4111-1111-1111-1111") {
+      throw new Error("Card stored as plaintext");
+    }
+    if (raw[0].holderName !== "Alice Smith") {
+      throw new Error("Holder name should be plaintext");
+    }
+  });
 
-  await ds.destroy();
+  await task("Destroy data source", async () => {
+    await ds.destroy();
+  });
+
+  summary(4);
 }
 
-main().catch(console.error);
+main();

@@ -11,6 +11,8 @@
  * Run: `npx ts-node examples/utilities.ts`
  */
 
+import { header, task, summary } from "./support";
+
 import type { JsonDocument } from "../src/@types/types";
 import {
   createMarkdown,
@@ -19,92 +21,104 @@ import {
   readResponse,
 } from "../src/utils";
 
-function main() {
-  console.log("\n=== crypto-api — utilities ===\n");
+async function main() {
+  header("crypto-api -- utilities");
 
-  // 1. createMarkdown — convert a full document
-  const doc: JsonDocument = {
-    info: {
-      name: "Crypto Service Suite APIs",
-      description: "REST APIs for common cryptographic operations.",
-    },
-    item: [
-      {
-        name: "Key Generation",
-        item: [
-          {
-            name: "Generate Ed25519 Key Pair",
-            request: {
-              header: [
+  // 1. createMarkdown -- convert a full document
+  await task("createMarkdown -- convert a full JsonDocument to Markdown", () => {
+    const doc: JsonDocument = {
+      info: {
+        name: "Crypto Service Suite APIs",
+        description: "REST APIs for common cryptographic operations.",
+      },
+      item: [
+        {
+          name: "Key Generation",
+          item: [
+            {
+              name: "Generate Ed25519 Key Pair",
+              request: {
+                header: [
+                  {
+                    key: "Content-Type",
+                    value: "application/json",
+                    description: "JSON content type",
+                  },
+                ],
+                key: "generate",
+                value: "ed25519",
+                description: "## Generate Keys\n",
+              },
+              response: [
                 {
-                  key: "Content-Type",
-                  value: "application/json",
-                  description: "JSON content type",
+                  code: 200,
+                  status: "OK",
+                  body: '{\n  "publicKey": "base64...",\n  "secretKey": "base64..."\n}',
                 },
               ],
-              key: "generate",
-              value: "ed25519",
-              description: "## Generate Keys\n",
             },
-            response: [
-              {
-                code: 200,
-                status: "OK",
-                body: '{\n  "publicKey": "base64...",\n  "secretKey": "base64..."\n}',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-
-  console.log("--- createMarkdown ---");
-  const markdown = createMarkdown(doc);
-  console.log(markdown);
-
-  // 2. readAuthorization — render auth info
-  console.log("--- readAuthorization ---");
-  const authMarkdown = readAuthorization({
-    bearer: [
-      { key: "token", type: "string", value: "eyJhbGciOi..." },
-      { key: "expiry", type: "number", value: "3600" },
-    ],
-    key: "Authorization",
-    type: "Bearer",
-    value: "eyJhbGciOi...",
+          ],
+        },
+      ],
+    };
+    const markdown = createMarkdown(doc);
+    if (!markdown) throw new Error("createMarkdown returned empty string");
+    return markdown;
   });
-  console.log(authMarkdown || "(empty — no bearer data)");
 
-  // 3. readRequest — render request headers
-  console.log("--- readRequest ---");
-  const reqMarkdown = readRequest({
-    header: [
-      { key: "Content-Type", value: "application/json", description: "JSON" },
-      { key: "X-Request-Id", value: "uuid-1234", description: "Trace ID" },
-    ],
-    key: "encrypt",
-    value: "aes-256-gcm",
-    description: "Encrypt endpoint",
+  // 2. readAuthorization -- render auth info
+  await task("readAuthorization -- render bearer auth as Markdown table", () => {
+    const authMarkdown = readAuthorization({
+      bearer: [
+        { key: "token", type: "string", value: "eyJhbGciOi..." },
+        { key: "expiry", type: "number", value: "3600" },
+      ],
+      key: "Authorization",
+      type: "Bearer",
+      value: "eyJhbGciOi...",
+    });
+    if (!authMarkdown) throw new Error("readAuthorization returned empty string");
+    return authMarkdown;
   });
-  console.log(reqMarkdown || "(empty — no headers)");
 
-  // 4. readResponse — render response table
-  console.log("--- readResponse ---");
-  const resMarkdown = readResponse([
-    { code: 200, status: "OK", body: '{"result":"success"}' },
-    { code: 400, status: "Bad Request", body: '{"error":"invalid input"}' },
-  ]);
-  console.log(resMarkdown || "(empty — no responses)");
+  // 3. readRequest -- render request headers
+  await task("readRequest -- render request headers as Markdown table", () => {
+    const reqMarkdown = readRequest({
+      header: [
+        { key: "Content-Type", value: "application/json", description: "JSON" },
+        { key: "X-Request-Id", value: "uuid-1234", description: "Trace ID" },
+      ],
+      key: "encrypt",
+      value: "aes-256-gcm",
+      description: "Encrypt endpoint",
+    });
+    if (!reqMarkdown) throw new Error("readRequest returned empty string");
+    return reqMarkdown;
+  });
 
-  // 5. Edge case — empty / undefined input
-  console.log("--- edge cases ---");
-  console.log("createMarkdown(null):", JSON.stringify(createMarkdown(null as unknown as JsonDocument)));
-  console.log("readAuthorization(undefined):", JSON.stringify(readAuthorization(undefined)));
-  console.log("readRequest(undefined):", JSON.stringify(readRequest(undefined)));
-  console.log("readResponse(undefined):", JSON.stringify(readResponse(undefined)));
+  // 4. readResponse -- render response table
+  await task("readResponse -- render response codes as Markdown table", () => {
+    const resMarkdown = readResponse([
+      { code: 200, status: "OK", body: '{"result":"success"}' },
+      { code: 400, status: "Bad Request", body: '{"error":"invalid input"}' },
+    ]);
+    if (!resMarkdown) throw new Error("readResponse returned empty string");
+    return resMarkdown;
+  });
 
-  console.log("\nDone.");
+  // 5. Edge cases -- empty / undefined input
+  await task("Edge cases -- empty and undefined inputs return empty strings", () => {
+    const r1 = createMarkdown(null as unknown as JsonDocument);
+    const r2 = readAuthorization(undefined);
+    const r3 = readRequest(undefined);
+    const r4 = readResponse(undefined);
+    if (r1 !== "" || r2 !== "" || r3 !== "" || r4 !== "") {
+      throw new Error("Expected empty strings for undefined inputs");
+    }
+    return true;
+  });
+
+  summary(5);
 }
 
 main();

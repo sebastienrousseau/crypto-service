@@ -7,46 +7,35 @@
  * Run: `npx ts-node examples/kdf.ts`
  */
 
+import { header, task, taskWithOutput, summary } from "./support";
 import { kdfDerive } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — kdf ===\n");
+async function main() {
+  header("crypto-lib -- kdf");
 
   const password = "my-secret-password";
 
-  // scrypt: derive a 256-bit key from a password
-  const scryptResult = kdfDerive({
-    algorithm: "scrypt",
-    password,
-    params: { N: 16384, r: 8, p: 1 },
+  const scryptResult = await taskWithOutput("Derive key with scrypt (RFC 7914)", () => {
+    const r = kdfDerive({ algorithm: "scrypt", password, params: { N: 16384, r: 8, p: 1 } });
+    return [`key: ${r.derivedKey.slice(0, 40)}...`, `salt: ${r.salt}`, `length: ${r.keyLength} bytes`];
   });
-  console.log("scrypt (RFC 7914):");
-  console.log(`  Derived key: ${scryptResult.derivedKey}`);
-  console.log(`  Salt:        ${scryptResult.salt}`);
-  console.log(`  Key length:  ${scryptResult.keyLength} bytes`);
 
-  // HKDF-SHA256: extract and expand keying material
-  const hkdfResult = kdfDerive({
-    algorithm: "hkdf-sha256",
-    password: "input-keying-material",
-    salt: scryptResult.salt,
-    params: { info: "example-context" },
-    keyLength: 32,
+  await taskWithOutput("Derive key with HKDF-SHA256 (RFC 5869)", () => {
+    const r = kdfDerive({
+      algorithm: "hkdf-sha256",
+      password: "input-keying-material",
+      params: { info: "example-context" },
+      keyLength: 32,
+    });
+    return [`key: ${r.derivedKey.slice(0, 40)}...`, `length: ${r.keyLength} bytes`];
   });
-  console.log("\nHKDF-SHA256 (RFC 5869):");
-  console.log(`  Derived key: ${hkdfResult.derivedKey}`);
-  console.log(`  Key length:  ${hkdfResult.keyLength} bytes`);
 
-  // PBKDF2-SHA256: legacy KDF (deprecated, prefer Argon2id or scrypt)
-  const pbkdf2Result = kdfDerive({
-    algorithm: "pbkdf2-sha256",
-    password,
-    params: { iterations: 100000 },
+  await taskWithOutput("Derive key with PBKDF2-SHA256 (RFC 8018)", () => {
+    const r = kdfDerive({ algorithm: "pbkdf2-sha256", password, params: { iterations: 100000 } });
+    return [`key: ${r.derivedKey.slice(0, 40)}...`];
   });
-  console.log("\nPBKDF2-SHA256 (RFC 8018, deprecated):");
-  console.log(`  Derived key: ${pbkdf2Result.derivedKey}`);
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

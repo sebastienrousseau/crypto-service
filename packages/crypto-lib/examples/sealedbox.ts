@@ -9,28 +9,24 @@
  * Run: `npx ts-node examples/sealedbox.ts`
  */
 
+import { header, task, summary } from "./support";
 import { sealedbox, generateX25519KeyPair } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — sealedbox ===\n");
+async function main() {
+  header("crypto-lib -- sealedbox");
 
-  // Recipient generates a long-term X25519 key pair
-  const recipient = generateX25519KeyPair();
-  console.log(`Recipient public key:  ${recipient.publicKey.slice(0, 32)}...`);
+  const recipient = await task("Generate recipient X25519 key pair", () => generateX25519KeyPair());
 
-  // Anonymous sender encrypts to the recipient's public key
   const message = "You will never know who sent this.";
-  const { sealed, algorithm } = sealedbox.seal(recipient.publicKey, message);
-  console.log(`Algorithm:             ${algorithm}`);
-  console.log(`Sealed box:            ${sealed.slice(0, 40)}...`);
 
-  // Recipient decrypts with their private key
-  const opened = sealedbox.open(recipient.privateKey, sealed);
-  const plaintext = Buffer.from(opened).toString("utf8");
-  console.log(`Decrypted:             ${plaintext}`);
-  console.log(`Match:                 ${plaintext === message}`);
+  await task("Seal to recipient public key", () => {
+    const { sealed } = sealedbox.seal(recipient.publicKey, message);
+    const opened = sealedbox.open(recipient.privateKey, sealed);
+    const plaintext = Buffer.from(opened).toString("utf8");
+    if (plaintext !== message) throw new Error("Round-trip failed");
+  });
 
-  console.log("\nDone.");
+  summary(2);
 }
 
 main();

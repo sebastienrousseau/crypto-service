@@ -9,39 +9,27 @@
  * Run: `npx ts-node examples/hybrid.ts`
  */
 
-import {
-  hybridKemKeygen,
-  hybridKemEncapsulate,
-  hybridKemDecapsulate,
-} from "../src";
+import { header, task, summary } from "./support";
+import { hybridKemKeygen, hybridKemEncapsulate, hybridKemDecapsulate } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — hybrid ===\n");
+async function main() {
+  header("crypto-lib -- hybrid");
 
-  // Recipient generates a hybrid key pair (X25519 + ML-KEM-768)
-  const kp = hybridKemKeygen(768);
-  console.log(`Algorithm:          ${kp.algorithm}`);
-  console.log(`X25519 public key:  ${kp.x25519PublicKey}`);
-  console.log(`ML-KEM public key:  ${kp.mlKemPublicKey.slice(0, 40)}... (${kp.mlKemPublicKey.length / 2} bytes)`);
+  const kp = await task("Generate hybrid key pair (X25519 + ML-KEM-768)", () => hybridKemKeygen(768));
 
-  // Sender encapsulates: performs X25519 ECDH + ML-KEM encapsulation
-  const encap = hybridKemEncapsulate(768, kp.x25519PublicKey, kp.mlKemPublicKey);
-  console.log(`\nSender's shared secret:    ${encap.sharedSecret}`);
-  console.log(`X25519 ephemeral public:   ${encap.x25519EphemeralPublic}`);
-  console.log(`ML-KEM ciphertext:         ${encap.mlKemCiphertext.slice(0, 40)}...`);
+  const encap = await task("Encapsulate shared secret", () => {
+    return hybridKemEncapsulate(768, kp.x25519PublicKey, kp.mlKemPublicKey);
+  });
 
-  // Recipient decapsulates: recovers the same shared secret
-  const decap = hybridKemDecapsulate(
-    768,
-    kp.x25519PrivateKey,
-    kp.mlKemSecretKey,
-    encap.x25519EphemeralPublic,
-    encap.mlKemCiphertext,
-  );
-  console.log(`\nRecipient's shared secret: ${decap.sharedSecret}`);
-  console.log(`Secrets match:             ${encap.sharedSecret === decap.sharedSecret}`);
+  await task("Decapsulate and verify shared secret match", () => {
+    const decap = hybridKemDecapsulate(
+      768, kp.x25519PrivateKey, kp.mlKemSecretKey,
+      encap.x25519EphemeralPublic, encap.mlKemCiphertext,
+    );
+    if (encap.sharedSecret !== decap.sharedSecret) throw new Error("Shared secrets do not match");
+  });
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

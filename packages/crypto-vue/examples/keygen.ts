@@ -2,49 +2,55 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file useKeypair composable demo.
+ * Generate Ed25519 and ML-DSA-65 key pairs via the useKeypair composable.
  *
- * Demonstrates reactive key pair generation in a Vue 3 setup context.
+ * Demonstrates calling the composable's generate() function with different
+ * algorithms and inspecting the returned key material.
  *
- * Run (conceptually — this file is meant to be used inside a Vue component):
- *
- *   <script setup lang="ts">
- *   import { useKeypair } from "@sebastienrousseau/crypto-vue";
- *
- *   const { publicKey, privateKey, algorithm, isGenerating, generate } = useKeypair();
- *   </script>
- *
- *   <template>
- *     <button @click="generate('ed25519')" :disabled="isGenerating">
- *       Generate Ed25519 Key Pair
- *     </button>
- *     <p v-if="publicKey">Public: {{ publicKey }}</p>
- *     <p v-if="privateKey">Private: {{ privateKey }}</p>
- *     <p v-if="algorithm">Algorithm: {{ algorithm }}</p>
- *   </template>
+ * Run: `npx ts-node examples/keygen.ts`
  */
 
+import { header, task, summary } from "./support";
 import { useKeypair } from "../src";
 
-async function demo() {
+async function main() {
+  header("crypto-vue -- keygen");
+
   const { publicKey, privateKey, algorithm, isGenerating, generate, error } =
     useKeypair();
 
-  console.log("isGenerating:", isGenerating.value); // false
+  await task("Generate Ed25519 key pair", async () => {
+    await generate("ed25519");
+  });
 
-  // Generate an Ed25519 key pair
-  const kp = await generate("ed25519");
-  console.log("Algorithm:", algorithm.value); // "ed25519"
-  console.log("Public key:", publicKey.value);
-  console.log("Private key:", privateKey.value);
-  console.log("Full result:", kp);
+  await task("Verify Ed25519 key material is present", () => {
+    if (!publicKey.value) throw new Error("Missing public key");
+    if (!privateKey.value) throw new Error("Missing private key");
+    if (algorithm.value !== "ed25519") {
+      throw new Error(`Expected ed25519, got ${algorithm.value}`);
+    }
+  });
 
-  // Generate a post-quantum key pair
-  await generate("ml-dsa-65");
-  console.log("PQ Algorithm:", algorithm.value); // "ml-dsa-65"
-  console.log("PQ Public key length:", publicKey.value?.length);
+  await task("Generate ML-DSA-65 key pair", async () => {
+    await generate("ml-dsa-65");
+  });
 
-  console.log("Error:", error.value); // null
+  await task("Verify ML-DSA-65 key material is present", () => {
+    if (!publicKey.value) throw new Error("Missing public key");
+    if (algorithm.value !== "ml-dsa-65") {
+      throw new Error(`Expected ml-dsa-65, got ${algorithm.value}`);
+    }
+  });
+
+  await task("Confirm isGenerating is false after completion", () => {
+    if (isGenerating.value) throw new Error("Expected isGenerating to be false");
+  });
+
+  await task("Confirm no errors occurred", () => {
+    if (error.value) throw new Error(`Unexpected error: ${error.value.message}`);
+  });
+
+  summary(6);
 }
 
-demo().catch(console.error);
+main();

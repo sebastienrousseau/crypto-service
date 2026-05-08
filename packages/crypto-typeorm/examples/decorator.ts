@@ -4,10 +4,13 @@
 /**
  * Using @EncryptedColumn to transparently encrypt entity fields.
  *
+ * Demonstrates the decorator approach where encryption configuration
+ * lives directly on the entity class via `@EncryptedColumn`.
+ *
  * Run: `npx ts-node examples/decorator.ts`
- * Requires: a running database (SQLite used here for simplicity)
  */
 
+import { header, task, summary } from "./support";
 import "reflect-metadata";
 import { DataSource, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { EncryptedColumn } from "../src";
@@ -32,6 +35,8 @@ class User {
 // ── 2. Create a data source and use it ─────────────────────────────
 
 async function main() {
+  header("crypto-typeorm -- decorator");
+
   const ds = new DataSource({
     type: "sqlite",
     database: ":memory:",
@@ -40,26 +45,37 @@ async function main() {
     logging: false,
   });
 
-  await ds.initialize();
+  await task("Initialise in-memory SQLite data source", async () => {
+    await ds.initialize();
+  });
+
   const repo = ds.getRepository(User);
 
-  // Insert — values are encrypted automatically
-  const user = repo.create({ ssn: "123-45-6789", email: "alice@example.com" });
-  await repo.save(user);
+  const user = await task("Insert user with encrypted SSN and email", async () => {
+    const u = repo.create({ ssn: "123-45-6789", email: "alice@example.com" });
+    await repo.save(u);
+    return u;
+  });
 
-  // Read — values are decrypted automatically
-  const loaded = await repo.findOneByOrFail({ id: user.id });
-  console.log("Decrypted SSN:", loaded.ssn); // 123-45-6789
-  console.log("Decrypted email:", loaded.email); // alice@example.com
+  await task("Load user and verify decrypted values", async () => {
+    const loaded = await repo.findOneByOrFail({ id: user.id });
+    if (loaded.ssn !== "123-45-6789") throw new Error("SSN mismatch");
+    if (loaded.email !== "alice@example.com") throw new Error("Email mismatch");
+  });
 
-  // Verify raw storage is encrypted
-  const raw = await ds.query("SELECT ssn, email FROM user WHERE id = ?", [
-    user.id,
-  ]);
-  console.log("Raw SSN (encrypted):", raw[0].ssn.slice(0, 40) + "...");
-  console.log("Raw email (encrypted):", raw[0].email.slice(0, 40) + "...");
+  await task("Verify raw storage is encrypted (not plaintext)", async () => {
+    const raw = await ds.query("SELECT ssn, email FROM user WHERE id = ?", [
+      user.id,
+    ]);
+    if (raw[0].ssn === "123-45-6789") throw new Error("SSN stored as plaintext");
+    if (raw[0].email === "alice@example.com") throw new Error("Email stored as plaintext");
+  });
 
-  await ds.destroy();
+  await task("Destroy data source", async () => {
+    await ds.destroy();
+  });
+
+  summary(4);
 }
 
-main().catch(console.error);
+main();

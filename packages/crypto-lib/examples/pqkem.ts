@@ -3,37 +3,26 @@
 
 /**
  * ML-KEM-768 (FIPS 203) post-quantum key encapsulation mechanism.
- * Demonstrates key generation, encapsulation, and decapsulation.
  *
  * Run: `npx ts-node examples/pqkem.ts`
  */
 
+import { header, task, summary } from "./support";
 import { mlKemKeygen, mlKemEncapsulate, mlKemDecapsulate } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — pqkem ===\n");
+async function main() {
+  header("crypto-lib -- pqkem");
 
-  // Generate an ML-KEM-768 key pair (NIST Level 3)
-  const kp = mlKemKeygen(768);
-  console.log(`Algorithm:    ${kp.algorithm}`);
-  console.log(`Public key:   ${kp.publicKey.slice(0, 40)}... (${kp.publicKey.length / 2} bytes)`);
-  console.log(`Secret key:   ${kp.secretKey.slice(0, 40)}... (${kp.secretKey.length / 2} bytes)`);
+  const kp = await task("Generate ML-KEM-768 key pair", () => mlKemKeygen(768));
 
-  // Encapsulate: sender produces a shared secret and ciphertext
-  const encap = mlKemEncapsulate(768, kp.publicKey);
-  console.log(`\nEncapsulation:`);
-  console.log(`  Ciphertext:     ${encap.ciphertext.slice(0, 40)}... (${encap.ciphertext.length / 2} bytes)`);
-  console.log(`  Shared secret:  ${encap.sharedSecret}`);
+  const encap = await task("Encapsulate shared secret", () => mlKemEncapsulate(768, kp.publicKey));
 
-  // Decapsulate: recipient recovers the shared secret
-  const decap = mlKemDecapsulate(768, kp.secretKey, encap.ciphertext);
-  console.log(`\nDecapsulation:`);
-  console.log(`  Shared secret:  ${decap.sharedSecret}`);
+  await task("Decapsulate and verify shared secret", () => {
+    const decap = mlKemDecapsulate(768, kp.secretKey, encap.ciphertext);
+    if (encap.sharedSecret !== decap.sharedSecret) throw new Error("Shared secrets do not match");
+  });
 
-  // Verify both sides derived the same secret
-  console.log(`\nSecrets match: ${encap.sharedSecret === decap.sharedSecret}`);
-
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

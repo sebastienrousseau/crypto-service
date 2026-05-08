@@ -9,25 +9,25 @@
  */
 
 import { CryptoClient } from "../src";
+import { header, taskWithOutput, summary } from "./support";
 
 const client = new CryptoClient({
   baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
 });
 
 async function main() {
-  console.log("\n=== crypto-sdk — algorithms ===\n");
+  header("crypto-sdk -- algorithms");
 
-  const { data } = await client.algorithms();
-
-  for (const [category, algos] of Object.entries(data)) {
-    console.log(`${category}:`);
-    for (const algo of algos) {
-      console.log(`  - ${algo}`);
+  await taskWithOutput("Fetch supported algorithms", async () => {
+    const { data } = await client.algorithms();
+    const lines: string[] = [];
+    for (const [category, algos] of Object.entries(data)) {
+      lines.push(`${category}: ${(algos as string[]).join(", ")}`);
     }
-    console.log();
-  }
+    return lines;
+  });
 
-  console.log("Done.");
+  summary(1);
 }
 
 main().catch(console.error);

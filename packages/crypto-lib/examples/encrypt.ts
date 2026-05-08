@@ -7,38 +7,34 @@
  * Run: `npx ts-node examples/encrypt.ts`
  */
 
+import { header, task, summary } from "./support";
 import { aeadEncrypt, aeadDecrypt, crypto } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — encrypt ===\n");
+async function main() {
+  header("crypto-lib -- encrypt");
 
-  // Generate a random 256-bit key (hex-encoded)
-  const key = crypto.randomKey();
-  console.log(`Key:        ${key.slice(0, 16)}...`);
+  const key = await task("Generate random 256-bit key", () => crypto.randomKey());
 
   const plaintext = "Top secret message for your eyes only.";
-  console.log(`Plaintext:  ${plaintext}`);
 
-  // Encrypt with XChaCha20-Poly1305
-  const { ciphertext, algorithm } = aeadEncrypt({ key, plaintext });
-  console.log(`Algorithm:  ${algorithm}`);
-  console.log(`Ciphertext: ${ciphertext.slice(0, 40)}...`);
+  const ct = await task("Encrypt with XChaCha20-Poly1305", () => {
+    return aeadEncrypt({ key, plaintext });
+  });
 
-  // Decrypt
-  const decrypted = aeadDecrypt({ key, ciphertext });
-  const recovered = Buffer.from(decrypted).toString("utf8");
-  console.log(`Decrypted:  ${recovered}`);
+  await task("Decrypt and verify round-trip", () => {
+    const decrypted = aeadDecrypt({ key, ciphertext: ct.ciphertext });
+    const recovered = Buffer.from(decrypted).toString("utf8");
+    if (recovered !== plaintext) throw new Error("Round-trip failed");
+  });
 
-  // Verify round-trip
-  console.log(`\nRound-trip: ${recovered === plaintext ? "PASS" : "FAIL"}`);
+  await task("Encrypt with Additional Authenticated Data", () => {
+    const aad = Buffer.from("context-id:42", "utf8");
+    const { ciphertext } = aeadEncrypt({ key, plaintext, aad });
+    const pt = aeadDecrypt({ key, ciphertext, aad });
+    if (Buffer.from(pt).toString("utf8") !== plaintext) throw new Error("AAD round-trip failed");
+  });
 
-  // Encrypt with AAD (Additional Authenticated Data)
-  const aad = Buffer.from("context-id:42", "utf8");
-  const { ciphertext: ct2 } = aeadEncrypt({ key, plaintext, aad });
-  const pt2 = aeadDecrypt({ key, ciphertext: ct2, aad });
-  console.log(`With AAD:   ${Buffer.from(pt2).toString("utf8") === plaintext ? "PASS" : "FAIL"}`);
-
-  console.log("\nDone.");
+  summary(4);
 }
 
 main();

@@ -2,72 +2,62 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Deterministic encryption for search example.
+ * Deterministic HMAC-SHA-256 encryption for exact-match search.
  *
- * Demonstrates how to configure searchable encrypted fields using
- * HMAC-SHA-256 deterministic encryption. This allows exact-match
- * queries on encrypted fields at the cost of revealing value equality.
+ * Run: `npx ts-node examples/searchable.ts`
  */
 
-// import { PrismaClient } from "@prisma/client";
-// import { createEncryptionMiddleware } from "@sebastienrousseau/crypto-prisma";
+import { header, task, summary } from "./support";
 
-/**
- * Example: Searchable encryption with deterministic fields.
- *
- * By default, encryption is non-deterministic (each write produces a
- * different ciphertext), which prevents searching. For fields that need
- * exact-match lookup, use `deterministicFields` to generate HMAC-based
- * hashes instead.
- *
- * ```ts
- * const prisma = new PrismaClient();
- *
- * prisma.$use(
- *   createEncryptionMiddleware({
- *     key: process.env.FIELD_ENCRYPTION_KEY!,
- *     encryptedFields: [
- *       { model: "User", fields: ["email", "phone", "ssn"] },
- *     ],
- *     // Only email is searchable; phone and ssn use random encryption
- *     deterministicFields: ["email"],
- *   })
- * );
- *
- * // Create a user
- * await prisma.user.create({
- *   data: {
- *     name: "Alice",
- *     email: "alice@example.com",
- *     phone: "+1-555-0100",
- *     ssn: "123-45-6789",
- *   },
- * });
- *
- * // Search by email works because it uses deterministic HMAC
- * const found = await prisma.user.findFirst({
- *   where: { email: "alice@example.com" },
- * });
- * console.log(found?.name); // "Alice"
- *
- * // NOTE: The email column in the database stores a hex HMAC digest,
- * // NOT the original email. Deterministic fields are one-way -- you
- * // cannot decrypt them back to the original value.
- * //
- * // If you need both searchability AND decryption, store the email
- * // in two columns:
- * //   - email_hash (deterministic, for WHERE clauses)
- * //   - email_encrypted (non-deterministic, for reading)
- * //
- * // Example schema:
- * // model User {
- * //   id              Int    @id @default(autoincrement())
- * //   email_hash      String @unique  // deterministic (HMAC)
- * //   email_encrypted String          // non-deterministic (secretbox)
- * //   name            String
- * // }
- *
- * await prisma.$disconnect();
- * ```
- */
-export {};
+async function main() {
+  header("crypto-prisma -- searchable encryption");
+
+  await task("Configure deterministic fields for searchable encryption", () => {
+    // import { PrismaClient } from "@prisma/client";
+    // import { createEncryptionMiddleware } from "@sebastienrousseau/crypto-prisma";
+    //
+    // const prisma = new PrismaClient();
+    // prisma.$use(
+    //   createEncryptionMiddleware({
+    //     key: process.env.FIELD_ENCRYPTION_KEY!,
+    //     encryptedFields: [
+    //       { model: "User", fields: ["email", "phone", "ssn"] },
+    //     ],
+    //     // Only email is searchable; phone and ssn use random encryption
+    //     deterministicFields: ["email"],
+    //   })
+    // );
+  });
+
+  await task("Create a user with mixed encryption modes", () => {
+    // await prisma.user.create({
+    //   data: {
+    //     name: "Alice",
+    //     email: "alice@example.com",   // deterministic HMAC
+    //     phone: "+1-555-0100",          // random secretbox
+    //     ssn: "123-45-6789",            // random secretbox
+    //   },
+    // });
+  });
+
+  await task("Search by deterministic field (exact-match WHERE)", () => {
+    // const found = await prisma.user.findFirst({
+    //   where: { email: "alice@example.com" },
+    // });
+    // console.log(found?.name); // "Alice"
+  });
+
+  await task("Understand the trade-off: deterministic fields reveal equality", () => {
+    // NOTE: The email column stores a hex HMAC-SHA-256 digest, NOT the
+    // original email. Deterministic fields are one-way -- you cannot
+    // decrypt them back to the original value.
+    //
+    // For both searchability AND decryption, use two columns:
+    //   email_hash      String @unique  -- deterministic (HMAC)
+    //   email_encrypted String          -- non-deterministic (secretbox)
+  });
+
+  summary(4);
+}
+
+main();

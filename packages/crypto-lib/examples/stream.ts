@@ -8,39 +8,39 @@
  * Run: `npx ts-node examples/stream.ts`
  */
 
+import { header, task, summary } from "./support";
 import { createHasher, hash } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — stream ===\n");
+async function main() {
+  header("crypto-lib -- stream");
 
-  // Incremental SHA-256 hashing
-  const hasher = createHasher("sha256");
-  hasher.update("Hello, ");
-  hasher.update("streaming ");
-  hasher.update("world!");
-  const digest = hasher.digest();
-  console.log(`Streaming SHA-256:  ${digest}`);
+  await task("Incremental SHA-256 matches one-shot", () => {
+    const hasher = createHasher("sha256");
+    hasher.update("Hello, ");
+    hasher.update("streaming ");
+    hasher.update("world!");
+    const digest = hasher.digest();
+    const oneshot = hash({ algorithm: "sha256", data: "Hello, streaming world!" });
+    if (digest !== oneshot.digest) throw new Error("Mismatch");
+  });
 
-  // Compare with one-shot hash
-  const oneshot = hash({ algorithm: "sha256", data: "Hello, streaming world!" });
-  console.log(`One-shot SHA-256:   ${oneshot.digest}`);
-  console.log(`Match:              ${digest === oneshot.digest}`);
+  await task("Stream BLAKE3 over chunks", () => {
+    const b3 = createHasher("blake3");
+    b3.update("chunk1");
+    b3.update("chunk2");
+    b3.update("chunk3");
+    b3.digest();
+  });
 
-  // Streaming BLAKE3
-  const b3 = createHasher("blake3");
-  b3.update("chunk1");
-  b3.update("chunk2");
-  b3.update("chunk3");
-  console.log(`\nStreaming BLAKE3:    ${b3.digest()}`);
+  await task("Stream SHA3-256 over 100 chunks", () => {
+    const sha3 = createHasher("sha3-256");
+    for (let i = 0; i < 100; i++) {
+      sha3.update(`block-${i}-`);
+    }
+    sha3.digest();
+  });
 
-  // Simulate processing large data in chunks
-  const sha3 = createHasher("sha3-256");
-  for (let i = 0; i < 100; i++) {
-    sha3.update(`block-${i}-`);
-  }
-  console.log(`SHA3-256 (100 chunks): ${sha3.digest().slice(0, 40)}...`);
-
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

@@ -4,14 +4,14 @@
 /**
  * Encrypting existing plaintext columns in a migration.
  *
- * This example shows how to read existing unencrypted rows, encrypt the
- * target columns, and write them back. Run this as a one-time migration
- * script after adding encryption to your schema.
+ * Shows how to read existing unencrypted rows, encrypt the target
+ * columns with `EncryptionTransformer`, and write them back. Run this
+ * as a one-time migration script after adding encryption to your schema.
  *
  * Run: `npx ts-node examples/migration.ts`
- * Requires: a running database (SQLite used here for simplicity)
  */
 
+import { header, task, summary } from "./support";
 import "reflect-metadata";
 import { DataSource, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { EncryptionTransformer } from "../src";
@@ -36,6 +36,8 @@ const ENCRYPTION_KEY =
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 async function main() {
+  header("crypto-typeorm -- migration");
+
   const ds = new DataSource({
     type: "sqlite",
     database: ":memory:",
@@ -44,53 +46,60 @@ async function main() {
     logging: false,
   });
 
-  await ds.initialize();
+  await task("Initialise in-memory SQLite data source", async () => {
+    await ds.initialize();
+  });
+
   const repo = ds.getRepository(Customer);
 
-  // Seed some plaintext rows (simulates existing data)
-  await repo.save([
-    { name: "Alice", taxId: "111-22-3333" },
-    { name: "Bob", taxId: "444-55-6666" },
-    { name: "Carol", taxId: "777-88-9999" },
-  ]);
-
-  console.log("Before migration:");
-  const before = await ds.query("SELECT id, taxId FROM customer");
-  for (const row of before) {
-    console.log(`  id=${row.id} taxId=${row.taxId}`);
-  }
-
-  // ── Encrypt existing rows ──────────────────────────────────────
+  await task("Seed plaintext rows (simulating existing data)", async () => {
+    await repo.save([
+      { name: "Alice", taxId: "111-22-3333" },
+      { name: "Bob", taxId: "444-55-6666" },
+      { name: "Carol", taxId: "777-88-9999" },
+    ]);
+  });
 
   const transformer = new EncryptionTransformer({ key: ENCRYPTION_KEY });
 
-  const rows: { id: number; taxId: string }[] = await ds.query(
-    "SELECT id, taxId FROM customer",
-  );
+  await task("Encrypt existing taxId columns in-place", async () => {
+    const rows: { id: number; taxId: string }[] = await ds.query(
+      "SELECT id, taxId FROM customer",
+    );
+    for (const row of rows) {
+      const encrypted = transformer.to(row.taxId);
+      await ds.query("UPDATE customer SET taxId = ? WHERE id = ?", [
+        encrypted,
+        row.id,
+      ]);
+    }
+  });
 
-  for (const row of rows) {
-    const encrypted = transformer.to(row.taxId);
-    await ds.query("UPDATE customer SET taxId = ? WHERE id = ?", [
-      encrypted,
-      row.id,
-    ]);
-  }
+  await task("Verify raw storage is encrypted", async () => {
+    const rows = await ds.query("SELECT id, taxId FROM customer");
+    for (const row of rows) {
+      if (row.taxId === "111-22-3333" || row.taxId === "444-55-6666" || row.taxId === "777-88-9999") {
+        throw new Error(`Row id=${row.id} still plaintext`);
+      }
+    }
+  });
 
-  console.log("\nAfter migration (raw):");
-  const after = await ds.query("SELECT id, taxId FROM customer");
-  for (const row of after) {
-    console.log(`  id=${row.id} taxId=${row.taxId.slice(0, 40)}...`);
-  }
+  await task("Verify decryption restores original values", async () => {
+    const rows = await ds.query("SELECT id, taxId FROM customer ORDER BY id");
+    const expected = ["111-22-3333", "444-55-6666", "777-88-9999"];
+    for (let i = 0; i < rows.length; i++) {
+      const decrypted = transformer.from(rows[i].taxId);
+      if (decrypted !== expected[i]) {
+        throw new Error(`Row id=${rows[i].id}: expected ${expected[i]}, got ${decrypted}`);
+      }
+    }
+  });
 
-  // ── Verify decryption works ────────────────────────────────────
+  await task("Destroy data source", async () => {
+    await ds.destroy();
+  });
 
-  console.log("\nDecrypted values:");
-  for (const row of after) {
-    const decrypted = transformer.from(row.taxId);
-    console.log(`  id=${row.id} taxId=${decrypted}`);
-  }
-
-  await ds.destroy();
+  summary(5);
 }
 
-main().catch(console.error);
+main();

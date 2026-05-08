@@ -7,44 +7,52 @@
  * Run: `npx ts-node examples/password.ts`
  */
 
+import { header, task, taskWithOutput, summary } from "./support";
 import { hashPassword, verifyPassword, verifyPasswordPhc } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — password ===\n");
+async function main() {
+  header("crypto-lib -- password");
 
   const password = "correct horse battery staple";
 
-  // Hash with Argon2id (default: t=3, m=65536, p=4)
-  const result = hashPassword({ password });
-  console.log(`Algorithm: ${result.algorithm}`);
-  console.log(`Hash:      ${result.hash.slice(0, 40)}...`);
-  console.log(`Salt:      ${result.salt}`);
-  console.log(`PHC:       ${result.phc}`);
-  console.log(`Params:    t=${result.params.t}, m=${result.params.m}, p=${result.params.p}`);
-
-  // Verify with structured parameters
-  const { valid } = verifyPassword({
-    password,
-    hash: result.hash,
-    salt: result.salt,
-    params: result.params,
+  const result = await taskWithOutput("Hash with Argon2id (t=3, m=65536, p=4)", () => {
+    const r = hashPassword({ password });
+    return [
+      `algorithm: ${r.algorithm}`,
+      `hash:      ${r.hash.slice(0, 40)}...`,
+      `salt:      ${r.salt}`,
+      `PHC:       ${r.phc.slice(0, 60)}...`,
+    ];
   });
-  console.log(`\nVerify (correct):  ${valid}`);
 
-  // Verify wrong password
-  const { valid: wrong } = verifyPassword({
-    password: "wrong password",
-    hash: result.hash,
-    salt: result.salt,
-    params: result.params,
+  const hashed = hashPassword({ password });
+
+  await task("Verify correct password", () => {
+    const { valid } = verifyPassword({
+      password,
+      hash: hashed.hash,
+      salt: hashed.salt,
+      params: hashed.params,
+    });
+    if (!valid) throw new Error("Should be valid");
   });
-  console.log(`Verify (wrong):    ${wrong}`);
 
-  // Verify via PHC string (self-contained)
-  const { valid: phcOk } = verifyPasswordPhc({ password, phc: result.phc });
-  console.log(`Verify (PHC):      ${phcOk}`);
+  await task("Reject wrong password", () => {
+    const { valid } = verifyPassword({
+      password: "wrong password",
+      hash: hashed.hash,
+      salt: hashed.salt,
+      params: hashed.params,
+    });
+    if (valid) throw new Error("Should be invalid");
+  });
 
-  console.log("\nDone.");
+  await task("Verify via PHC string", () => {
+    const { valid } = verifyPasswordPhc({ password, phc: hashed.phc });
+    if (!valid) throw new Error("PHC verification failed");
+  });
+
+  summary(4);
 }
 
 main();

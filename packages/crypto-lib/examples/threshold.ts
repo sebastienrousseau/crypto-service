@@ -8,43 +8,36 @@
  * Run: `npx ts-node examples/threshold.ts`
  */
 
+import { header, task, summary } from "./support";
 import { protocols } from "../src";
 
 const { splitSecret, combineShares, splitSecretWithCommitments, verifyFeldmanShare } =
   protocols.threshold;
 
-function main() {
-  console.log("\n=== crypto-lib — threshold ===\n");
+async function main() {
+  header("crypto-lib -- threshold");
 
-  // A 32-byte secret (hex-encoded)
   const secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-  console.log(`Original secret: ${secret.slice(0, 32)}...`);
 
-  // Split into 5 shares with a threshold of 3
-  const { shares, threshold } = splitSecret(secret, 5, 3);
-  console.log(`\nSplit: 5 shares, threshold=${threshold}`);
-  for (const s of shares) {
-    console.log(`  Share ${s.index}: ${s.value.slice(0, 32)}...`);
-  }
+  const shares = await task("Split secret into 5 shares (threshold=3)", () => {
+    return splitSecret(secret, 5, 3);
+  });
 
-  // Reconstruct from any 3 shares
-  const subset = [shares[0], shares[2], shares[4]];
-  const recovered = combineShares(subset);
-  console.log(`\nReconstructed (shares 1,3,5): ${recovered.slice(0, 32)}...`);
-  console.log(`Match: ${recovered === secret}`);
+  await task("Reconstruct from shares 1, 3, 5", () => {
+    const subset = [shares.shares[0], shares.shares[2], shares.shares[4]];
+    const recovered = combineShares(subset);
+    if (recovered !== secret) throw new Error("Reconstruction failed");
+  });
 
-  // Feldman VSS: split with verifiable commitments
-  console.log("\n--- Feldman Verifiable Secret Sharing ---");
-  const vss = splitSecretWithCommitments(secret, 5, 3);
-  console.log(`Commitments: ${vss.commitments.commitments.length} points`);
+  await task("Feldman VSS: split with verifiable commitments", () => {
+    const vss = splitSecretWithCommitments(secret, 5, 3);
+    for (const share of vss.shares) {
+      const valid = verifyFeldmanShare(share, vss.commitments);
+      if (!valid) throw new Error(`Share ${share.index} failed verification`);
+    }
+  });
 
-  // Verify each share against the commitments
-  for (const share of vss.shares) {
-    const valid = verifyFeldmanShare(share, vss.commitments);
-    console.log(`  Share ${share.index} valid: ${valid}`);
-  }
-
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

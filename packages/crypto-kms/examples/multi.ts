@@ -5,59 +5,61 @@
  * Use multiple KMS providers with provider-agnostic code.
  *
  * Demonstrates how the KmsProvider interface enables writing code that
- * works across any backend — cloud or local.
+ * works across any backend -- cloud or local.
  *
  * Run: `npx ts-node examples/multi.ts`
  */
 
 import { LocalKmsProvider } from "../src";
 import type { KmsProvider } from "../src";
+import { header, task, summary } from "./support";
 
 /**
  * Provider-agnostic function that creates a key, encrypts, and decrypts.
  * Works with any KmsProvider implementation.
  */
 async function roundTrip(provider: KmsProvider, label: string): Promise<void> {
-  console.log(`\n--- ${label} (${provider.name}) ---`);
+  const key = await task(`${label} -- create encryption key`, async () => {
+    return provider.createKey("aes-256-gcm", "encrypt");
+  });
 
-  // Create key
-  const key = await provider.createKey("aes-256-gcm", "encrypt");
-  console.log("Key:", key.keyId);
+  const encrypted = await task(`${label} -- encrypt data`, async () => {
+    const plaintext = new TextEncoder().encode(`Hello from ${label}!`);
+    return provider.encrypt(key.keyId, plaintext);
+  });
 
-  // Encrypt
-  const plaintext = new TextEncoder().encode(`Hello from ${label}!`);
-  const encrypted = await provider.encrypt(key.keyId, plaintext);
-  console.log("Encrypted:", encrypted.ciphertext.slice(0, 30) + "...");
-
-  // Decrypt
-  const decrypted = await provider.decrypt(key.keyId, encrypted.ciphertext);
-  console.log("Decrypted:", new TextDecoder().decode(decrypted.plaintext));
-
-  // List keys
-  const keys = await provider.listKeys();
-  console.log("Total keys:", keys.length);
+  await task(`${label} -- decrypt data`, async () => {
+    const decrypted = await provider.decrypt(key.keyId, encrypted.ciphertext);
+    return new TextDecoder().decode(decrypted.plaintext);
+  });
 }
 
 /**
  * Provider-agnostic function for signing operations.
  */
-async function signRoundTrip(provider: KmsProvider, label: string): Promise<void> {
-  console.log(`\n--- ${label} signing (${provider.name}) ---`);
+async function signRoundTrip(
+  provider: KmsProvider,
+  label: string,
+): Promise<void> {
+  const key = await task(`${label} -- create signing key`, async () => {
+    return provider.createKey("ed25519", "sign");
+  });
 
-  const key = await provider.createKey("ed25519", "sign");
-  const message = new TextEncoder().encode("Provider-agnostic signing");
+  const signed = await task(`${label} -- sign message`, async () => {
+    const message = new TextEncoder().encode("Provider-agnostic signing");
+    return provider.sign(key.keyId, message);
+  });
 
-  const signed = await provider.sign(key.keyId, message);
-  console.log("Signature:", signed.signature.slice(0, 30) + "...");
-
-  const valid = await provider.verify(key.keyId, message, signed.signature);
-  console.log("Valid:", valid);
+  await task(`${label} -- verify signature`, async () => {
+    const message = new TextEncoder().encode("Provider-agnostic signing");
+    return provider.verify(key.keyId, message, signed.signature);
+  });
 }
 
 async function main() {
-  console.log("\n=== crypto-kms — multi-provider ===\n");
+  header("crypto-kms -- Multi-Provider");
 
-  // Create multiple providers
+  // Create multiple providers.
   // In production, you might use AwsKmsProvider, GcpKmsProvider, etc.
   const providers: Array<{ provider: KmsProvider; label: string }> = [
     { provider: new LocalKmsProvider(), label: "Local-A" },
@@ -68,30 +70,21 @@ async function main() {
     // { provider: new AzureKmsProvider({ vaultUrl: "https://..." }), label: "Azure" },
   ];
 
-  // Run the same provider-agnostic code against each backend
   for (const { provider, label } of providers) {
     await roundTrip(provider, label);
     await signRoundTrip(provider, label);
   }
 
-  // Demonstrate key lifecycle across providers
-  console.log("\n--- Key lifecycle ---");
-  const kms = new LocalKmsProvider();
-  const key = await kms.createKey("aes-256-gcm", "encrypt");
-  console.log("Created:", key.keyId, "enabled:", key.enabled);
+  await task("Key lifecycle -- create, disable, enable, schedule deletion", async () => {
+    const kms = new LocalKmsProvider();
+    const key = await kms.createKey("aes-256-gcm", "encrypt");
+    await kms.disableKey(key.keyId);
+    await kms.enableKey(key.keyId);
+    await kms.scheduleKeyDeletion(key.keyId, 7);
+    return key.keyId;
+  });
 
-  await kms.disableKey(key.keyId);
-  const disabled = await kms.getKey(key.keyId);
-  console.log("Disabled:", disabled.keyId, "enabled:", disabled.enabled);
-
-  await kms.enableKey(key.keyId);
-  const enabled = await kms.getKey(key.keyId);
-  console.log("Enabled: ", enabled.keyId, "enabled:", enabled.enabled);
-
-  await kms.scheduleKeyDeletion(key.keyId, 7);
-  console.log("Scheduled for deletion (7 days).");
-
-  console.log("\nDone.");
+  summary(13);
 }
 
 main().catch(console.error);

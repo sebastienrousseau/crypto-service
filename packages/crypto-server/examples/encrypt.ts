@@ -10,42 +10,39 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function main() {
-  console.log("\n=== crypto-server — encrypt ===\n");
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+    body: JSON.stringify(body),
+  });
+}
 
-  // 256-bit key (64 hex chars)
+async function main() {
+  header("crypto-server -- encrypt");
+
   const key =
     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
   const plaintext = "Sensitive data to encrypt";
 
-  // Encrypt
-  const encRes = await fetch(`${BASE}/v2/encrypt`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
-    body: JSON.stringify({ key, plaintext }),
+  const ciphertext = await task("Encrypt with XChaCha20-Poly1305", async () => {
+    const res = await post("/v2/encrypt", { key, plaintext });
+    const body = (await res.json()) as { data: string };
+    return body.data;
   });
-  const encData = await encRes.json();
-  console.log("Ciphertext:", encData.data);
 
-  // Decrypt
-  const decRes = await fetch(`${BASE}/v2/decrypt`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
-    body: JSON.stringify({ key, ciphertext: encData.data }),
+  await task("Decrypt ciphertext", async () => {
+    const res = await post("/v2/decrypt", { key, ciphertext });
+    const body = (await res.json()) as { data: { plaintext: string } };
+    if (body.data.plaintext !== plaintext) throw new Error("Mismatch");
   });
-  const decData = await decRes.json();
-  console.log("Decrypted:", decData.data.plaintext);
 
-  console.log("\nDone.");
+  summary(2);
 }
 
 main().catch(console.error);

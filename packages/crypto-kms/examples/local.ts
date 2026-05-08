@@ -2,54 +2,52 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * Use the LocalKmsProvider to create keys, encrypt, and decrypt data.
+ * Use the LocalKmsProvider to create keys, encrypt, decrypt, sign, and verify.
  *
  * Run: `npx ts-node examples/local.ts`
  */
 
 import { LocalKmsProvider } from "../src";
+import { header, task, summary } from "./support";
 
 async function main() {
-  console.log("\n=== crypto-kms — local provider ===\n");
+  header("crypto-kms -- Local Provider");
 
   const kms = new LocalKmsProvider();
 
-  // Create an encryption key
-  const encKey = await kms.createKey("aes-256-gcm", "encrypt");
-  console.log("Created encryption key:", encKey.keyId);
-  console.log("Algorithm:            ", encKey.algorithm);
-  console.log("Usage:                ", encKey.usage);
+  const encKey = await task("Create encryption key", async () => {
+    return kms.createKey("aes-256-gcm", "encrypt");
+  });
 
-  // Encrypt plaintext
-  const plaintext = new TextEncoder().encode("Hello, crypto-kms!");
-  const encrypted = await kms.encrypt(encKey.keyId, plaintext);
-  console.log("\nCiphertext (base64):", encrypted.ciphertext.slice(0, 40) + "...");
+  const encrypted = await task("Encrypt plaintext", async () => {
+    const plaintext = new TextEncoder().encode("Hello, crypto-kms!");
+    return kms.encrypt(encKey.keyId, plaintext);
+  });
 
-  // Decrypt ciphertext
-  const decrypted = await kms.decrypt(encKey.keyId, encrypted.ciphertext);
-  console.log("Decrypted:          ", new TextDecoder().decode(decrypted.plaintext));
+  await task("Decrypt ciphertext", async () => {
+    const decrypted = await kms.decrypt(encKey.keyId, encrypted.ciphertext);
+    return new TextDecoder().decode(decrypted.plaintext);
+  });
 
-  // Create a signing key
-  const signKey = await kms.createKey("ed25519", "sign");
-  console.log("\nCreated signing key:", signKey.keyId);
+  const signKey = await task("Create signing key", async () => {
+    return kms.createKey("ed25519", "sign");
+  });
 
-  // Sign data
-  const message = new TextEncoder().encode("Sign this message");
-  const signed = await kms.sign(signKey.keyId, message);
-  console.log("Signature (base64): ", signed.signature.slice(0, 40) + "...");
+  const signed = await task("Sign data", async () => {
+    const message = new TextEncoder().encode("Sign this message");
+    return kms.sign(signKey.keyId, message);
+  });
 
-  // Verify signature
-  const valid = await kms.verify(signKey.keyId, message, signed.signature);
-  console.log("Signature valid:    ", valid);
+  await task("Verify signature", async () => {
+    const message = new TextEncoder().encode("Sign this message");
+    return kms.verify(signKey.keyId, message, signed.signature);
+  });
 
-  // List all keys
-  const keys = await kms.listKeys();
-  console.log("\nAll keys:", keys.length);
-  for (const k of keys) {
-    console.log(`  - ${k.keyId} (${k.algorithm}, ${k.usage})`);
-  }
+  await task("List all keys", async () => {
+    return kms.listKeys();
+  });
 
-  console.log("\nDone.");
+  summary(7);
 }
 
 main().catch(console.error);

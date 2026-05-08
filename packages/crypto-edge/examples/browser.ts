@@ -1,18 +1,13 @@
-/**
- * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0 OR MIT
- */
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Browser usage example.
+ * Browser usage example for crypto-edge.
  *
- * Demonstrates how to use crypto-edge directly in a web browser.
  * Bundle this file with your bundler (esbuild, Vite, webpack, etc.)
  * and include the output in an HTML page.
  *
- * ```html
- * <script type="module" src="./browser.bundle.js"></script>
- * ```
+ * Run: `npx ts-node examples/browser.ts`
  */
 
 import {
@@ -24,50 +19,45 @@ import {
   generateKey,
   toHex,
 } from "../src";
+import { header, task, taskWithOutput, summary } from "./support";
 
-async function main(): Promise<void> {
-  const output = document.getElementById("output");
-  const log = (msg: string) => {
-    if (output) {
-      output.textContent += msg + "\n";
-    }
-    // eslint-disable-next-line no-console
-    console.log(msg);
-  };
+async function main() {
+  header("crypto-edge -- browser");
 
-  // Runtime detection
-  const runtime = detectRuntime();
-  const caps = getCapabilities();
-  log(`Runtime: ${runtime}`);
-  log(`Web Crypto: ${caps.hasSubtle}`);
-  log(`TextEncoder: ${caps.hasTextEncoder}`);
-  log("");
-
-  // Hashing
-  const digest = await hash("SHA-256", "hello from the browser");
-  log(`SHA-256("hello from the browser"):`);
-  log(`  ${digest}`);
-  log("");
-
-  // Encryption round-trip
-  const key = await generateKey({ algorithm: "AES-GCM", length: 256 });
-  log(`Generated AES-256-GCM key: ${toHex(key).slice(0, 16)}...`);
-
-  const message = "Browser-side encryption works!";
-  const { ciphertext } = await encrypt({
-    key,
-    plaintext: new TextEncoder().encode(message),
+  await taskWithOutput("Detect runtime and capabilities", () => {
+    const runtime = detectRuntime();
+    const caps = getCapabilities();
+    return [
+      `runtime:     ${runtime}`,
+      `Web Crypto:  ${caps.hasSubtle}`,
+      `TextEncoder: ${caps.hasTextEncoder}`,
+    ];
   });
-  log(`Encrypted ${message.length} bytes -> ${ciphertext.length} bytes ciphertext`);
 
-  const plaintext = await decrypt({ key, ciphertext });
-  const decoded = new TextDecoder().decode(plaintext);
-  log(`Decrypted: "${decoded}"`);
-  log(`Round-trip match: ${decoded === message}`);
+  await taskWithOutput("SHA-256 hash", async () => {
+    const digest = await hash("SHA-256", "hello from the browser");
+    return [digest];
+  });
+
+  const key = await task("Generate AES-256-GCM key", async () => {
+    return generateKey({ algorithm: "AES-GCM", length: 256 });
+  });
+
+  await taskWithOutput("Encrypt and decrypt round-trip", async () => {
+    const message = "Browser-side encryption works!";
+    const { ciphertext } = await encrypt({
+      key,
+      plaintext: new TextEncoder().encode(message),
+    });
+    const plaintext = await decrypt({ key, ciphertext });
+    const decoded = new TextDecoder().decode(plaintext);
+    return [
+      `plaintext: "${decoded}"`,
+      `match:     ${decoded === message}`,
+    ];
+  });
+
+  summary(4);
 }
 
-// Auto-run when loaded as a module
-main().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error("crypto-edge browser example failed:", err);
-});
+main();

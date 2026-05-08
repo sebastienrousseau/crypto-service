@@ -2,31 +2,62 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Example: Using deterministic test keys.
+ * Using deterministic test keys.
  *
  * Deterministic keys let you write tests with predictable values
  * instead of generating random keys on every run. This makes test
  * output reproducible and failures easy to debug.
+ *
+ * Run: `npx ts-node examples/keys.ts`
  */
 
 import { TEST_KEYS, TEST_VECTORS } from "@sebastienrousseau/crypto-testing";
+import { header, task, summary } from "./support";
 
-// Access pre-generated Ed25519 key pair
-console.log("Ed25519 public key :", TEST_KEYS.ed25519.publicKey);
-console.log("Ed25519 private key:", TEST_KEYS.ed25519.privateKey);
+async function main() {
+  header("crypto-testing -- deterministic keys");
 
-// Access pre-generated X25519 key pair for key exchange
-console.log("X25519 public key  :", TEST_KEYS.x25519.publicKey);
+  await task("Access Ed25519 key pair", () => {
+    const { publicKey, privateKey } = TEST_KEYS.ed25519;
+    if (!publicKey || !privateKey) throw new Error("Missing Ed25519 keys");
+  });
 
-// Use the symmetric AES-256 key for encryption tests
-console.log("AES-256 key        :", TEST_KEYS.aes256);
+  await task("Access X25519 key-exchange pair", () => {
+    const { publicKey } = TEST_KEYS.x25519;
+    if (!publicKey) throw new Error("Missing X25519 public key");
+  });
 
-// Verify known hash test vectors
-console.log("SHA-256 of test plaintext:", TEST_VECTORS.sha256);
-console.log("SHA3-256 of test plaintext:", TEST_VECTORS.sha3_256);
-console.log("BLAKE3 of test plaintext:", TEST_VECTORS.blake3);
+  await task("Access P-256 ECDSA key pair", () => {
+    const { publicKey, privateKey } = TEST_KEYS.p256;
+    if (!publicKey || !privateKey) throw new Error("Missing P-256 keys");
+  });
 
-// Use in a test assertion (pseudo-code)
-// import { crypto } from "@sebastienrousseau/crypto-lib";
-// const digest = crypto.hash("sha256", TEST_VECTORS.plaintext);
-// assert.strictEqual(digest, TEST_VECTORS.sha256);
+  await task("Access AES-256 symmetric key", () => {
+    const key = TEST_KEYS.aes256;
+    if (key.length !== 64) throw new Error("AES-256 key must be 64 hex chars");
+  });
+
+  await task("Access HMAC key", () => {
+    const key = TEST_KEYS.hmacKey;
+    if (key.length !== 64) throw new Error("HMAC key must be 64 hex chars");
+  });
+
+  await task("Verify SHA-256 test vector", () => {
+    const { plaintext, sha256 } = TEST_VECTORS;
+    if (!plaintext || !sha256) throw new Error("Missing SHA-256 vector");
+  });
+
+  await task("Verify SHA3-256 test vector", () => {
+    const { sha3_256 } = TEST_VECTORS;
+    if (!sha3_256) throw new Error("Missing SHA3-256 vector");
+  });
+
+  await task("Verify BLAKE3 test vector", () => {
+    const { blake3 } = TEST_VECTORS;
+    if (!blake3) throw new Error("Missing BLAKE3 vector");
+  });
+
+  summary(8);
+}
+
+main();

@@ -10,43 +10,35 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+    body: JSON.stringify(body),
+  });
+}
+
 async function main() {
-  console.log("\n=== crypto-server — hash ===\n");
+  header("crypto-server -- hash");
 
-  // SHA-256
-  const sha256Res = await fetch(`${BASE}/v2/hash`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
-    body: JSON.stringify({
-      algorithm: "sha256",
-      data: "Hello, world!",
-    }),
+  await task("Hash with SHA-256", async () => {
+    const res = await post("/v2/hash", { algorithm: "sha256", data: "Hello, world!" });
+    const body = (await res.json()) as { data: string };
+    if (!body.data) throw new Error("No digest returned");
   });
-  const sha256 = await sha256Res.json();
-  console.log("SHA-256:", sha256.data);
 
-  // SHA3-256
-  const sha3Res = await fetch(`${BASE}/v2/hash`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
-    body: JSON.stringify({
-      algorithm: "sha3-256",
-      data: "Hello, world!",
-    }),
+  await task("Hash with SHA3-256", async () => {
+    const res = await post("/v2/hash", { algorithm: "sha3-256", data: "Hello, world!" });
+    const body = (await res.json()) as { data: string };
+    if (!body.data) throw new Error("No digest returned");
   });
-  const sha3 = await sha3Res.json();
-  console.log("SHA3-256:", sha3.data);
 
-  console.log("\nDone.");
+  summary(2);
 }
 
 main().catch(console.error);

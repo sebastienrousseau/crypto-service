@@ -10,31 +10,32 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 
 async function main() {
-  console.log("\n=== crypto-server — probes ===\n");
+  header("crypto-server -- probes");
 
-  // Liveness
-  const liveRes = await fetch(`${BASE}/live`);
-  const live = await liveRes.json();
-  console.log("Liveness:", JSON.stringify(live));
+  await task("Liveness probe (GET /live)", async () => {
+    const res = await fetch(`${BASE}/live`);
+    const body = (await res.json()) as { status: string };
+    if (!body.status) throw new Error("No status returned");
+  });
 
-  // Readiness
-  const readyRes = await fetch(`${BASE}/ready`);
-  const ready = await readyRes.json();
-  console.log("Readiness:", JSON.stringify(ready));
+  await task("Readiness probe (GET /ready)", async () => {
+    const res = await fetch(`${BASE}/ready`);
+    const body = (await res.json()) as { status: string };
+    if (!body.status) throw new Error("No status returned");
+  });
 
-  // Metrics
-  const metricsRes = await fetch(`${BASE}/metrics`);
-  const metrics = await metricsRes.text();
-  console.log("\nMetrics (first 5 lines):");
-  metrics
-    .split("\n")
-    .slice(0, 5)
-    .forEach((line) => console.log(`  ${line}`));
+  await task("Metrics probe (GET /metrics)", async () => {
+    const res = await fetch(`${BASE}/metrics`);
+    const text = await res.text();
+    if (!text) throw new Error("No metrics returned");
+  });
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main().catch(console.error);

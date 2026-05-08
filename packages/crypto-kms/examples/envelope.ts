@@ -14,50 +14,53 @@
 
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { LocalKmsProvider } from "../src";
+import { header, task, summary } from "./support";
 
 async function main() {
-  console.log("\n=== crypto-kms — envelope encryption ===\n");
+  header("crypto-kms -- Envelope Encryption");
 
   const kms = new LocalKmsProvider();
 
-  // Step 1: Create a master key (KEK — key encryption key)
-  const masterKey = await kms.createKey("aes-256-gcm", "encrypt");
-  console.log("Master key (KEK):", masterKey.keyId);
+  const masterKey = await task("Create master key (KEK)", async () => {
+    return kms.createKey("aes-256-gcm", "encrypt");
+  });
 
-  // Step 2: Generate a data encryption key (DEK)
-  const { plaintext: dekPlaintext, ciphertext: wrappedDek } =
-    await kms.generateDataKey(masterKey.keyId);
-  console.log("DEK generated and wrapped.");
-  console.log("Wrapped DEK (base64):", wrappedDek.slice(0, 40) + "...");
+  const dek = await task("Generate data encryption key (DEK)", async () => {
+    return kms.generateDataKey(masterKey.keyId);
+  });
 
-  // Step 3: Encrypt data locally using the plaintext DEK
-  const data = Buffer.from("This is sensitive data encrypted with envelope encryption.");
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", dekPlaintext, iv);
-  const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
-  const tag = cipher.getAuthTag();
+  const envelope = await task("Encrypt data locally with DEK", async () => {
+    const data = Buffer.from(
+      "This is sensitive data encrypted with envelope encryption.",
+    );
+    const iv = randomBytes(12);
+    const cipher = createCipheriv("aes-256-gcm", dek.plaintext, iv);
+    const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    // In production, the plaintext DEK should be zeroed from memory.
+    return { iv, tag, encrypted, wrappedDek: dek.ciphertext };
+  });
 
-  console.log("\nData encrypted locally with DEK.");
-  console.log("Ciphertext length:", encrypted.length, "bytes");
+  await task("Unwrap DEK from master key", async () => {
+    return kms.decrypt(masterKey.keyId, envelope.wrappedDek);
+  });
 
-  // Step 4: Store { iv, tag, encrypted, wrappedDek } — the plaintext DEK is discarded.
-  // In production, the plaintext DEK should be zeroed from memory after encryption.
-  const envelope = { iv, tag, encrypted, wrappedDek };
+  await task("Decrypt data locally with unwrapped DEK", async () => {
+    const unwrapped = await kms.decrypt(masterKey.keyId, envelope.wrappedDek);
+    const decipher = createDecipheriv(
+      "aes-256-gcm",
+      unwrapped.plaintext,
+      envelope.iv,
+    );
+    decipher.setAuthTag(envelope.tag);
+    const decrypted = Buffer.concat([
+      decipher.update(envelope.encrypted),
+      decipher.final(),
+    ]);
+    return decrypted.toString();
+  });
 
-  // --- Later, to decrypt ---
-
-  // Step 5: Unwrap the DEK using the master key
-  const unwrapped = await kms.decrypt(masterKey.keyId, envelope.wrappedDek);
-  console.log("\nDEK unwrapped from master key.");
-
-  // Step 6: Decrypt data locally using the unwrapped DEK
-  const decipher = createDecipheriv("aes-256-gcm", unwrapped.plaintext, envelope.iv);
-  decipher.setAuthTag(envelope.tag);
-  const decrypted = Buffer.concat([decipher.update(envelope.encrypted), decipher.final()]);
-
-  console.log("Decrypted:", decrypted.toString());
-
-  console.log("\nDone.");
+  summary(5);
 }
 
 main().catch(console.error);

@@ -7,57 +7,43 @@
  * Run: `npx ts-node examples/serialize.ts`
  */
 
+import { header, task, summary } from "./support";
 import {
-  generateEd25519KeyPair,
-  encodePem,
-  decodePem,
-  ed25519ToJwk,
-  jwkToHex,
-  jwkThumbprint,
-  hexToBytes,
-  bytesToHex,
-  bytesToBase64,
-  bytesToBase64url,
+  generateEd25519KeyPair, encodePem, decodePem,
+  ed25519ToJwk, jwkToHex, jwkThumbprint,
+  hexToBytes, bytesToHex, bytesToBase64, bytesToBase64url,
 } from "../src";
 
-function main() {
-  console.log("\n=== crypto-lib — serialize ===\n");
+async function main() {
+  header("crypto-lib -- serialize");
 
-  // Generate an Ed25519 key pair
-  const kp = generateEd25519KeyPair();
+  const kp = await task("Generate Ed25519 key pair", () => generateEd25519KeyPair());
 
-  // --- PEM encoding ---
-  const pubBytes = hexToBytes(kp.publicKey);
-  const pem = encodePem("ED25519 PUBLIC KEY", pubBytes);
-  console.log("PEM:");
-  console.log(pem);
+  await task("PEM encode and decode round-trip", () => {
+    const pubBytes = hexToBytes(kp.publicKey);
+    const pem = encodePem("ED25519 PUBLIC KEY", pubBytes);
+    const decoded = decodePem(pem);
+    if (bytesToHex(decoded.data) !== kp.publicKey) throw new Error("PEM round-trip failed");
+  });
 
-  // Decode PEM back to bytes
-  const decoded = decodePem(pem);
-  console.log(`Decoded label: ${decoded.label}`);
-  console.log(`Decoded hex:   ${bytesToHex(decoded.data)}`);
-  console.log(`Round-trip:    ${bytesToHex(decoded.data) === kp.publicKey}`);
+  await task("Convert to JWK and back", () => {
+    const jwk = ed25519ToJwk(kp.publicKey, kp.privateKey);
+    const imported = jwkToHex(jwk);
+    if (imported.publicKey !== kp.publicKey) throw new Error("JWK round-trip failed");
+  });
 
-  // --- JWK conversion ---
-  const jwk = ed25519ToJwk(kp.publicKey, kp.privateKey);
-  console.log("\nJWK:");
-  console.log(JSON.stringify(jwk, null, 2));
+  await task("Compute JWK Thumbprint (RFC 7638)", () => {
+    const jwk = ed25519ToJwk(kp.publicKey, kp.privateKey);
+    jwkThumbprint(jwk);
+  });
 
-  // Compute JWK Thumbprint (RFC 7638)
-  const thumbprint = jwkThumbprint(jwk);
-  console.log(`\nJWK Thumbprint: ${thumbprint}`);
+  await task("Format helpers: hex, base64, base64url", () => {
+    const raw = hexToBytes("deadbeef");
+    bytesToBase64(raw);
+    bytesToBase64url(raw);
+  });
 
-  // Import JWK back to hex
-  const imported = jwkToHex(jwk);
-  console.log(`Imported public key: ${imported.publicKey.slice(0, 32)}...`);
-  console.log(`Match: ${imported.publicKey === kp.publicKey}`);
-
-  // --- Format helpers ---
-  const raw = hexToBytes("deadbeef");
-  console.log(`\nhex -> base64:    ${bytesToBase64(raw)}`);
-  console.log(`hex -> base64url: ${bytesToBase64url(raw)}`);
-
-  console.log("\nDone.");
+  summary(5);
 }
 
 main();

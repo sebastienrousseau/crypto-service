@@ -9,37 +9,40 @@
  */
 
 import { CryptoClient } from "../src";
+import { header, task, summary } from "./support";
 
 const client = new CryptoClient({
   baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
 });
 
 async function main() {
-  console.log("\n=== crypto-sdk — sign ===\n");
+  header("crypto-sdk -- sign");
 
-  // Generate an Ed25519 key pair
-  const keys = await client.generateKeyPair({ algorithm: "ed25519" });
-  console.log("Public key: ", keys.data.publicKey.slice(0, 32) + "...");
-  console.log("Algorithm:  ", keys.data.algorithm);
-  console.log("Key ID:     ", keys.data.kid);
-
-  // Sign a message
   const message = "This message is authentic";
-  const signed = await client.sign({
-    privateKey: keys.data.privateKey,
-    message,
-  });
-  console.log("\nSignature:", signed.data.signature.slice(0, 32) + "...");
 
-  // Verify the signature
-  const verified = await client.verify({
-    publicKey: keys.data.publicKey,
-    message,
-    signature: signed.data.signature,
+  const keys = await task("Generate Ed25519 key pair", async () => {
+    return client.generateKeyPair({ algorithm: "ed25519" });
   });
-  console.log("Valid:    ", verified.data.valid);
 
-  console.log("\nDone.");
+  const signed = await task("Sign message with Ed25519", async () => {
+    return client.sign({
+      privateKey: keys.data.privateKey,
+      message,
+    });
+  });
+
+  await task("Verify Ed25519 signature", async () => {
+    const { data } = await client.verify({
+      publicKey: keys.data.publicKey,
+      message,
+      signature: signed.data.signature,
+    });
+    if (!data.valid) {
+      throw new Error("Signature verification failed");
+    }
+  });
+
+  summary(3);
 }
 
 main().catch(console.error);

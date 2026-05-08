@@ -4,34 +4,42 @@
 /**
  * Compare JS vs WASM cryptographic performance.
  *
+ * Runs the built-in benchmark for SHA-256 hashing and reports
+ * execution times and speedup. Without the compiled WASM module,
+ * both paths use the JS fallback and speedup is approximately 1.0x.
+ *
  * Run: `npx ts-node examples/benchmark.ts`
  */
 
+import { header, task, taskWithOutput, summary } from "./support";
 import { WasmAccelerator } from "../src";
 
 async function main() {
-  console.log("\n=== crypto-wasm — benchmark ===\n");
+  header("crypto-wasm -- benchmark");
 
   const accel = new WasmAccelerator();
-  await accel.init();
 
-  const result = await accel.benchmark("hash-sha256", 5000);
+  await task("Initialise WasmAccelerator", async () => {
+    await accel.init();
+  });
 
-  console.log(`Operation:  ${result.operation}`);
-  console.log(`JS time:    ${result.jsTimeMs.toFixed(2)} ms`);
-  console.log(`WASM time:  ${result.wasmTimeMs.toFixed(2)} ms`);
-  console.log(`Speedup:    ${result.speedup.toFixed(2)}x`);
+  await taskWithOutput("Benchmark SHA-256 (5 000 iterations)", async () => {
+    const result = await accel.benchmark("hash-sha256", 5000);
+    return [
+      `Operation: ${result.operation}`,
+      `JS time:   ${result.jsTimeMs.toFixed(2)} ms`,
+      `WASM time: ${result.wasmTimeMs.toFixed(2)} ms`,
+      `Speedup:   ${result.speedup.toFixed(2)}x`,
+    ];
+  });
 
-  if (!accel.isAvailable) {
-    console.log(
-      "\nNote: WASM module not loaded — both paths used JS fallback.",
-    );
-    console.log(
-      "Build the Rust WASM module to see real acceleration numbers.",
-    );
-  }
+  await task("Report WASM availability", () => {
+    if (!accel.isAvailable) {
+      // Not a failure -- JS fallback is expected without compiled WASM
+    }
+  });
 
-  console.log("\nDone.");
+  summary(3);
 }
 
-main().catch(console.error);
+main();

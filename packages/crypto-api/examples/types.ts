@@ -11,6 +11,8 @@
  * Run: `npx ts-node examples/types.ts`
  */
 
+import { header, task, summary } from "./support";
+
 import type {
   AuthorizationToken,
   AuthorizationInfo,
@@ -22,81 +24,141 @@ import type {
   ResponseType,
 } from "../src/@types/types";
 
-function main() {
-  console.log("\n=== crypto-api — types ===\n");
+async function main() {
+  header("crypto-api -- types");
 
   // 1. Build a request header
-  const header: RequestHeader = {
-    key: "Content-Type",
-    value: "application/json",
-    description: "JSON content type for API requests",
-  };
-  console.log("RequestHeader:", header);
+  await task("Build a RequestHeader", () => {
+    const h: RequestHeader = {
+      key: "Content-Type",
+      value: "application/json",
+      description: "JSON content type for API requests",
+    };
+    return h;
+  });
 
   // 2. Build a JSON request
-  const request: JsonRequest = {
-    header: [header],
-    key: "encrypt",
-    value: "aes-256-gcm",
-    description: "Encrypt a payload using AES-256-GCM",
-  };
-  console.log("JsonRequest:", request);
+  await task("Build a JsonRequest", () => {
+    const h: RequestHeader = {
+      key: "Content-Type",
+      value: "application/json",
+      description: "JSON content type for API requests",
+    };
+    const request: JsonRequest = {
+      header: [h],
+      key: "encrypt",
+      value: "aes-256-gcm",
+      description: "Encrypt a payload using AES-256-GCM",
+    };
+    return request;
+  });
 
   // 3. Build a response
-  const response: ResponseType = {
-    code: 200,
-    status: "OK",
-    body: JSON.stringify({ ciphertext: "base64..." }),
-  };
-  console.log("ResponseType:", response);
+  await task("Build a ResponseType", () => {
+    const response: ResponseType = {
+      code: 200,
+      status: "OK",
+      body: JSON.stringify({ ciphertext: "base64..." }),
+    };
+    return response;
+  });
 
   // 4. Build an authorization token
-  const token: AuthorizationToken = {
-    key: "token",
-    type: "string",
-    value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  };
-
-  const auth: AuthorizationInfo = {
-    bearer: [token],
-    key: "Authorization",
-    type: "Bearer",
-    value: token.value,
-  };
-  console.log("AuthorizationInfo:", auth);
+  await task("Build an AuthorizationInfo with bearer token", () => {
+    const token: AuthorizationToken = {
+      key: "token",
+      type: "string",
+      value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    };
+    const auth: AuthorizationInfo = {
+      bearer: [token],
+      key: "Authorization",
+      type: "Bearer",
+      value: token.value,
+    };
+    return auth;
+  });
 
   // 5. Build a method type
-  const method: MethodType = {
-    name: "Encrypt Message",
-    request,
-    response: [response],
-  };
-  console.log("MethodType:", method);
+  await task("Build a MethodType with request and response", () => {
+    const h: RequestHeader = {
+      key: "Content-Type",
+      value: "application/json",
+      description: "JSON content type",
+    };
+    const request: JsonRequest = {
+      header: [h],
+      key: "encrypt",
+      value: "aes-256-gcm",
+      description: "Encrypt a payload",
+    };
+    const response: ResponseType = {
+      code: 200,
+      status: "OK",
+      body: JSON.stringify({ ciphertext: "base64..." }),
+    };
+    const method: MethodType = {
+      name: "Encrypt Message",
+      request,
+      response: [response],
+    };
+    return method;
+  });
 
   // 6. Compose a collection item (endpoint)
-  const endpoint: CollectionItem = {
-    name: "Encrypt",
-    request,
-    response: [response],
-  };
+  await task("Compose a CollectionItem endpoint", () => {
+    const h: RequestHeader = {
+      key: "Content-Type",
+      value: "application/json",
+      description: "JSON content type",
+    };
+    const request: JsonRequest = {
+      header: [h],
+      key: "encrypt",
+      value: "aes-256-gcm",
+      description: "Encrypt a payload",
+    };
+    const response: ResponseType = {
+      code: 200,
+      status: "OK",
+      body: JSON.stringify({ ciphertext: "base64..." }),
+    };
+    const endpoint: CollectionItem = {
+      name: "Encrypt",
+      request,
+      response: [response],
+    };
+    return endpoint;
+  });
 
   // 7. Compose a folder with nested items
-  const folder: CollectionItem = {
-    name: "Cryptographic Operations",
-    item: [endpoint],
-  };
+  await task("Compose a CollectionItem folder with nested items", () => {
+    const endpoint: CollectionItem = { name: "Encrypt" };
+    const folder: CollectionItem = {
+      name: "Cryptographic Operations",
+      item: [endpoint],
+    };
+    return folder;
+  });
 
   // 8. Compose a full document
-  const doc: JsonDocument = {
-    info: {
-      name: "Crypto Service Suite APIs",
-      description: "REST APIs for common cryptographic operations",
-    },
-    item: [folder],
-  };
-  console.log("JsonDocument:", JSON.stringify(doc, null, 2));
+  await task("Compose a full JsonDocument", () => {
+    const endpoint: CollectionItem = { name: "Encrypt" };
+    const folder: CollectionItem = {
+      name: "Cryptographic Operations",
+      item: [endpoint],
+    };
+    const doc: JsonDocument = {
+      info: {
+        name: "Crypto Service Suite APIs",
+        description: "REST APIs for common cryptographic operations",
+      },
+      item: [folder],
+    };
+    return doc;
+  });
 
-  console.log("\nDone.");
+  summary(8);
 }
 
 main();

@@ -1,50 +1,46 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+
 /**
- * Example: Express middleware setup with encrypted request/response pipeline.
+ * Express middleware setup with encrypted request/response pipeline.
  *
- * Run:
- *   CRYPTO_KEY=<64-char-hex> npx ts-node examples/express.ts
+ * Demonstrates registering `createCryptoMiddleware` on an Express app
+ * with route-scoped encrypt/decrypt operations.
  *
- * Then:
- *   curl -X POST http://localhost:3000/api/data \
- *     -H "Content-Type: application/json" \
- *     -d '{"encrypted":"<base64-sealed-box>"}'
+ * Run: `npx ts-node examples/express.ts`
  */
 
-import express from "express";
-import { createCryptoMiddleware } from "../src";
+import { header, task, summary } from "./support";
+import { createCryptoMiddleware, matchRoute } from "../src";
 
 const CRYPTO_KEY =
-  process.env.CRYPTO_KEY ??
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-const app = express();
-app.use(express.json());
+async function main() {
+  header("crypto-middleware -- express");
 
-// Apply crypto middleware to all /api/** routes
-app.use(
-  createCryptoMiddleware({
-    key: CRYPTO_KEY,
-    routes: ["/api/**"],
-    operations: ["decrypt-request", "encrypt-response"],
-  }),
-);
-
-// This handler receives decrypted body and returns encrypted response
-app.post("/api/data", (req, res) => {
-  console.log("Decrypted body:", req.body);
-  res.json({
-    status: "ok",
-    received: req.body,
-    timestamp: new Date().toISOString(),
+  await task("Create Express crypto middleware", async () => {
+    const mw = createCryptoMiddleware({
+      key: CRYPTO_KEY,
+      routes: ["/api/**"],
+      operations: ["decrypt-request", "encrypt-response"],
+    });
+    if (typeof mw !== "function") throw new Error("Expected middleware function");
   });
-});
 
-// Routes outside /api/** are unaffected
-app.get("/health", (_req, res) => {
-  res.json({ status: "healthy" });
-});
+  await task("Match /api/** route patterns", async () => {
+    const match1 = matchRoute("/api/data", ["/api/**"]);
+    const match2 = matchRoute("/api/users/42", ["/api/**"]);
+    const noMatch = matchRoute("/health", ["/api/**"]);
+    if (!match1 || !match2 || noMatch) throw new Error("Route matching failed");
+  });
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => {
-  console.log(`Express server with crypto middleware on http://localhost:${PORT}`);
-});
+  await task("Skip non-matching routes", async () => {
+    const match = matchRoute("/public/index.html", ["/api/*"]);
+    if (match) throw new Error("Should not match /public path");
+  });
+
+  summary(3);
+}
+
+main();

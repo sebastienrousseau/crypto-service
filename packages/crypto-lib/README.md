@@ -22,16 +22,16 @@
 
 ## Contents
 
-- [Install](#install) -- get started in seconds
-- [Quick Start](#quick-start) -- encrypt and decrypt in ten lines
-- [Why this approach?](#why-this-approach) -- design rationale
-- [Capabilities in 0.0.3](#capabilities-in-003) -- every algorithm at a glance
-- [Two APIs](#two-apis) -- unified namespace vs. low-level modules
-- [Features](#features) -- module-level breakdown
-- [Library Usage](#library-usage) -- hash, sign, encrypt, KEM, passwords, keyrings
-- [Examples](#examples) -- runnable scripts in `examples/`
-- [Security](#security) -- guarantees and threat model
-- [License](#license) -- Apache-2.0 OR MIT
+- [Install](#install) — get started in seconds
+- [Quick Start](#quick-start) — encrypt and decrypt in ten lines
+- [Why this approach?](#why-this-approach) — design rationale
+- [Capabilities in 0.0.3](#capabilities-in-003) — every algorithm at a glance
+- [Two APIs](#two-apis) — unified namespace vs. low-level modules
+- [Features](#features) — module-level breakdown
+- [Library Usage](#library-usage) — hash, sign, encrypt, KEM, passwords, keyrings
+- [Examples](#examples) — runnable scripts in `examples/`
+- [Security](#security) — guarantees and threat model
+- [License](#license) — Apache-2.0 OR MIT
 
 ---
 

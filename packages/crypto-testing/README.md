@@ -1,14 +1,51 @@
-# @sebastienrousseau/crypto-testing
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-Deterministic keys, fast mocks, and test fixtures for crypto-lib -- make your CI/CD pipeline fast and reproducible.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-testing-logo.svg" alt="crypto-testing" width="128" />
+</p>
+
+<h1 align="center">crypto-testing</h1>
+
+<p align="center">
+  Deterministic keys, fast mocks, and test fixtures for crypto-lib -- make your CI/CD pipeline fast and reproducible.
+</p>
+
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-testing"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-testing?style=for-the-badge&logo=npm" alt="npm version" /></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
+</p>
+
+---
+
+## Contents
+
+- [Install](#install) — get started in seconds
+- [Quick Start](#quick-start) — mock, assert, and fixture in ten lines
+- [Features](#features) — what the package provides
+- [Deterministic Keys](#deterministic-keys) — stable key pairs across every run
+- [Mock Functions](#mock-functions) — instant fakes for expensive crypto
+- [Fixtures](#fixtures) — complete test data in one call
+- [Assertion Helpers](#assertion-helpers) — one-liner validations
+- [Examples](#examples) — runnable scripts in `examples/`
+- [Security](#security) — important caveats
+- [License](#license) — Apache-2.0 OR MIT
+
+---
 
 ## Install
 
+**npm / pnpm**
+
 ```bash
+npm install -D @sebastienrousseau/crypto-testing
+# or
 pnpm add -D @sebastienrousseau/crypto-testing
 ```
 
-Or with the workspace protocol in a monorepo:
+**Workspace protocol (monorepo)**
 
 ```jsonc
 {
@@ -17,6 +54,12 @@ Or with the workspace protocol in a monorepo:
   },
 }
 ```
+
+Requires **Node >= 22**.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
 
 ## Quick Start
 
@@ -45,6 +88,24 @@ expectValidHex(publicKey, 32);
 expectSignVerifyRoundTrip("ed25519");
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Features
+
+| Category       | What you get                                                                  |
+| -------------- | ----------------------------------------------------------------------------- |
+| **Keys**       | Pre-generated Ed25519, X25519, P-256, AES-256, and HMAC key pairs/keys        |
+| **Vectors**    | Known plaintext with expected SHA-256, SHA3-256, and BLAKE3 digests           |
+| **Mocks**      | Instant XOR-based fakes for encrypt, decrypt, sign, verify, password hashing  |
+| **Fixtures**   | One-call generators for keyrings, encrypted messages, signed messages, hashes |
+| **Assertions** | Hex, Base64, key-pair, encrypt/decrypt, and sign/verify round-trip helpers    |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Deterministic Keys
 
 `TEST_KEYS` provides well-known key pairs that never change between runs:
@@ -70,6 +131,10 @@ expect(TEST_VECTORS.sha256).to.equal(
   "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592",
 );
 ```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
 
 ## Mock Functions
 
@@ -98,6 +163,10 @@ const pt = Buffer.from(mockDecrypt(TEST_KEYS.aes256, ct)).toString("utf8");
 // pt === "hello"
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Fixtures
 
 Fixture generators produce complete test data structures in one call:
@@ -118,6 +187,10 @@ import {
 const keyring = createTestKeyring();
 const signed = createTestSignedMessage("ed25519", "my message");
 ```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
 
 ## Assertion Helpers
 
@@ -143,15 +216,47 @@ expectValidHex(TEST_KEYS.aes256, 32);
 expectKeyPair(TEST_KEYS.ed25519);
 ```
 
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Examples
 
-See the `examples/` directory for complete, runnable examples:
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
-- **[keys.ts](./examples/keys.ts)** -- Using deterministic test keys
-- **[mocks.ts](./examples/mocks.ts)** -- Mocking crypto operations for speed
-- **[fixtures.ts](./examples/fixtures.ts)** -- Using pre-built test fixtures
-- **[assertions.ts](./examples/assertions.ts)** -- Assertion helpers in tests
+```bash
+npx ts-node examples/<name>.ts
+```
+
+| Category   | Example                                 | Purpose                             |
+| ---------- | --------------------------------------- | ----------------------------------- |
+| Keys       | [keys.ts](examples/keys.ts)             | Using deterministic test keys       |
+| Mocks      | [mocks.ts](examples/mocks.ts)           | Mocking crypto operations for speed |
+| Fixtures   | [fixtures.ts](examples/fixtures.ts)     | Using pre-built test fixtures       |
+| Assertions | [assertions.ts](examples/assertions.ts) | Assertion helpers in tests          |
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Security
+
+**Not for production.** This package is a test utility. The mock functions use XOR -- they provide **zero** cryptographic security. Never use `mockEncrypt`, `mockSign`, or `mockHashPassword` outside of tests.
+
+**Deterministic keys are public.** `TEST_KEYS` values are well-known constants. Do not use them to protect real data.
+
+**Real crypto in assertion helpers.** `expectEncryptDecryptRoundTrip` and `expectSignVerifyRoundTrip` call through to `@sebastienrousseau/crypto-lib` and exercise real cryptographic operations.
+
+**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
 
 ## License
 
-MIT OR Apache-2.0 -- Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
+
+<p align="right"><a href="#contents">Back to Top</a></p>

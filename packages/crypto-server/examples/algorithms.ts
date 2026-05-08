@@ -10,18 +10,24 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, taskWithOutput, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 
 async function main() {
-  console.log("\n=== crypto-server — algorithms ===\n");
+  header("crypto-server -- algorithms");
 
-  const res = await fetch(`${BASE}/v2/algorithms`);
-  const body = await res.json();
+  await taskWithOutput("Fetch supported algorithms", async () => {
+    const res = await fetch(`${BASE}/v2/algorithms`);
+    const body = (await res.json()) as { data: Record<string, string[]> };
+    const lines: string[] = [];
+    for (const [category, algos] of Object.entries(body.data)) {
+      lines.push(`${category}: ${(algos as string[]).join(", ")}`);
+    }
+    return lines;
+  });
 
-  console.log("Supported algorithms:");
-  console.log(JSON.stringify(body.data, null, 2));
-
-  console.log("\nDone.");
+  summary(1);
 }
 
 main().catch(console.error);

@@ -4,9 +4,13 @@
 /**
  * Check WASM availability and capabilities in the current runtime.
  *
+ * Demonstrates the individual detection helpers and the combined
+ * `detectCapabilities()` function.
+ *
  * Run: `npx ts-node examples/detect.ts`
  */
 
+import { header, task, taskWithOutput, summary } from "./support";
 import {
   detectCapabilities,
   isWasmSupported,
@@ -14,31 +18,34 @@ import {
   isSimdSupported,
 } from "../src";
 
-function main() {
-  console.log("\n=== crypto-wasm — detect ===\n");
+async function main() {
+  header("crypto-wasm -- detect");
 
-  console.log("Individual checks:");
-  console.log(`  WebAssembly supported:  ${isWasmSupported()}`);
-  console.log(`  Streaming supported:    ${isStreamingSupported()}`);
-  console.log(`  SIMD supported:         ${isSimdSupported()}`);
+  await taskWithOutput("Check individual WASM capabilities", () => {
+    return [
+      `WebAssembly supported: ${isWasmSupported()}`,
+      `Streaming supported:   ${isStreamingSupported()}`,
+      `SIMD supported:        ${isSimdSupported()}`,
+    ];
+  });
 
-  console.log("\nAll capabilities:");
-  const caps = detectCapabilities();
-  console.log(caps);
+  await taskWithOutput("Detect all capabilities at once", () => {
+    const caps = detectCapabilities();
+    return [
+      `wasmSupported:      ${caps.wasmSupported}`,
+      `streamingSupported: ${caps.streamingSupported}`,
+      `simdSupported:      ${caps.simdSupported}`,
+    ];
+  });
 
-  if (caps.wasmSupported) {
-    console.log(
-      "\nThis runtime supports WebAssembly. Install the compiled",
-    );
-    console.log(
-      "WASM module (wasm/crypto_accel.wasm) for acceleration.",
-    );
-  } else {
-    console.log("\nWebAssembly is NOT supported in this runtime.");
-    console.log("crypto-lib will use the pure-JS fallback.");
-  }
+  await task("Verify detectCapabilities returns an object", () => {
+    const caps = detectCapabilities();
+    if (typeof caps.wasmSupported !== "boolean") {
+      throw new Error("wasmSupported is not a boolean");
+    }
+  });
 
-  console.log("\nDone.");
+  summary(3);
 }
 
 main();

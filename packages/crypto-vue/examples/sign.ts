@@ -2,51 +2,59 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file useSignature composable demo.
+ * Ed25519 sign and verify with tamper detection via useSignature.
  *
- * Demonstrates reactive digital signature creation and verification.
+ * Demonstrates signing a message, verifying the signature, and
+ * confirming that tampered messages are rejected.
  *
- *   <script setup lang="ts">
- *   import { useKeypair, useSignature } from "@sebastienrousseau/crypto-vue";
- *
- *   const { publicKey, privateKey, generate } = useKeypair();
- *   const { sign, verify, signature, isValid } = useSignature();
- *   </script>
- *
- *   <template>
- *     <button @click="generate('ed25519')">Generate Keys</button>
- *     <button @click="sign('ed25519', privateKey!, 'msg')" :disabled="!privateKey">Sign</button>
- *     <button @click="verify('ed25519', publicKey!, 'msg', signature!)" :disabled="!signature">Verify</button>
- *     <p v-if="isValid !== null">Valid: {{ isValid }}</p>
- *   </template>
+ * Run: `npx ts-node examples/sign.ts`
  */
 
+import { header, task, summary } from "./support";
 import { useKeypair, useSignature } from "../src";
 
-async function demo() {
+async function main() {
+  header("crypto-vue -- sign");
+
   const { publicKey, privateKey, generate } = useKeypair();
-  const { sign, verify, signature, isValid, algorithm, error } = useSignature();
+  const { sign, verify, signature, isValid, isProcessing, error } =
+    useSignature();
 
-  // Generate Ed25519 keys
-  await generate("ed25519");
-  console.log("Public key:", publicKey.value);
+  await task("Generate Ed25519 key pair", async () => {
+    await generate("ed25519");
+    if (!publicKey.value || !privateKey.value) {
+      throw new Error("Key pair generation failed");
+    }
+  });
 
-  // Sign a message
-  const message = "Hello, digital signatures!";
-  const sig = await sign("ed25519", privateKey.value!, message);
-  console.log("Signature:", sig);
-  console.log("Algorithm:", algorithm.value);
+  const message = "Sign me!";
 
-  // Verify the signature
-  const valid = await verify("ed25519", publicKey.value!, message, sig);
-  console.log("Valid:", valid); // true
-  console.log("Reactive isValid:", isValid.value); // true
+  await task("Sign message with Ed25519", async () => {
+    await sign("ed25519", privateKey.value!, message);
+    if (!signature.value) throw new Error("Signature not produced");
+  });
 
-  // Verify with wrong message
-  await verify("ed25519", publicKey.value!, "wrong message", sig);
-  console.log("Wrong message valid:", isValid.value); // false
+  await task("Verify signature against original message", async () => {
+    const valid = await verify("ed25519", publicKey.value!, message, signature.value!);
+    if (valid !== true) throw new Error("Signature should be valid");
+  });
 
-  console.log("Error:", error.value); // null
+  await task("Reject signature against tampered message", async () => {
+    await verify("ed25519", publicKey.value!, "tampered message", signature.value!);
+    if (isValid.value !== false) {
+      throw new Error("Tampered message should fail verification");
+    }
+  });
+
+  await task("Confirm isProcessing is false after completion", () => {
+    if (isProcessing.value) throw new Error("Expected isProcessing to be false");
+  });
+
+  await task("Confirm no errors occurred", () => {
+    if (error.value) throw new Error(`Unexpected error: ${error.value.message}`);
+  });
+
+  summary(6);
 }
 
-demo().catch(console.error);
+main();

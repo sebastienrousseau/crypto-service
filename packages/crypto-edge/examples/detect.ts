@@ -1,36 +1,38 @@
-/**
- * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0 OR MIT
- */
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Runtime detection example.
+ * Detect the current JavaScript runtime and inspect its capabilities.
  *
- * Demonstrates how to detect the current JavaScript runtime and
- * inspect its cryptographic capabilities.
- *
- * Run with:
- *   npx ts-node examples/detect.ts
+ * Run: `npx ts-node examples/detect.ts`
  */
 
 import { detectRuntime, getCapabilities, isEdgeCryptoAvailable } from "../src";
+import { header, task, taskWithOutput, summary } from "./support";
 
-// Detect the runtime
-const runtime = detectRuntime();
-console.log(`Detected runtime: ${runtime}`);
+async function main() {
+  header("crypto-edge -- detect");
 
-// Get full capabilities
-const caps = getCapabilities();
-console.log("Runtime capabilities:");
-console.log(`  runtime:       ${caps.runtime}`);
-console.log(`  hasWebCrypto:  ${caps.hasWebCrypto}`);
-console.log(`  hasSubtle:     ${caps.hasSubtle}`);
-console.log(`  hasNodeCrypto: ${caps.hasNodeCrypto}`);
-console.log(`  hasTextEncoder: ${caps.hasTextEncoder}`);
+  const runtime = await task("Detect runtime", () => detectRuntime());
 
-// Quick crypto availability check
-if (isEdgeCryptoAvailable()) {
-  console.log("\nWeb Crypto API is available -- safe to use hash(), encrypt(), etc.");
-} else {
-  console.log("\nWeb Crypto API is NOT available -- consider installing polyfills.");
+  const caps = await task("Get capabilities", () => getCapabilities());
+
+  await taskWithOutput("Print capability matrix", () => [
+    `runtime:        ${caps.runtime}`,
+    `hasWebCrypto:   ${caps.hasWebCrypto}`,
+    `hasSubtle:      ${caps.hasSubtle}`,
+    `hasNodeCrypto:  ${caps.hasNodeCrypto}`,
+    `hasTextEncoder: ${caps.hasTextEncoder}`,
+  ]);
+
+  await taskWithOutput("Check Web Crypto availability", () => {
+    const available = isEdgeCryptoAvailable();
+    return [available
+      ? `Web Crypto API is available on ${runtime}`
+      : "Web Crypto API is NOT available"];
+  });
+
+  summary(4);
 }
+
+main();

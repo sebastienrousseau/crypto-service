@@ -11,6 +11,8 @@
  * Run: `npx ts-node examples/validation.ts`
  */
 
+import { header, task, summary } from "./support";
+
 import type {
   JsonDocument,
   JsonRequest,
@@ -66,58 +68,69 @@ function isJsonDocument(obj: unknown): obj is JsonDocument {
 
 // ---- Main ----
 
-function main() {
-  console.log("\n=== crypto-api — validation ===\n");
+async function main() {
+  header("crypto-api -- validation");
 
-  // Valid payload
-  const validPayload = {
-    info: {
-      name: "Crypto Service Suite APIs",
-      description: "REST APIs for common cryptographic operations",
-    },
-    item: [
-      {
-        name: "Generate Key Pair",
-        request: {
-          header: [
-            { key: "type", value: "ecc", description: "Key algorithm type" },
-          ],
-          key: "generate",
-          value: "ed25519",
-          description: "Generate an Ed25519 key pair",
-        },
-        response: [
-          { code: 200, status: "OK", body: '{"publicKey":"..."}' },
-        ],
+  // 1. Validate a well-formed document
+  await task("Validate a correct JsonDocument", () => {
+    const payload = {
+      info: {
+        name: "Crypto Service Suite APIs",
+        description: "REST APIs for common cryptographic operations",
       },
-    ],
-  };
+      item: [
+        {
+          name: "Generate Key Pair",
+          request: {
+            header: [
+              { key: "type", value: "ecc", description: "Key algorithm type" },
+            ],
+            key: "generate",
+            value: "ed25519",
+            description: "Generate an Ed25519 key pair",
+          },
+          response: [
+            { code: 200, status: "OK", body: '{"publicKey":"..."}' },
+          ],
+        },
+      ],
+    };
+    if (!isJsonDocument(payload)) throw new Error("Expected valid JsonDocument");
+    if (!isJsonRequest(payload.item[0].request)) throw new Error("Expected valid JsonRequest");
+    if (!isResponseType(payload.item[0].response![0])) throw new Error("Expected valid ResponseType");
+    return true;
+  });
 
-  console.log("Validating correct document...");
-  console.log("  isJsonDocument:", isJsonDocument(validPayload));
-  console.log("  isJsonRequest:", isJsonRequest(validPayload.item[0].request));
-  console.log("  isResponseType:", isResponseType(validPayload.item[0].response[0]));
+  // 2. Reject document without info
+  await task("Reject a document missing the info field", () => {
+    const missingInfo = { item: [] };
+    if (isJsonDocument(missingInfo)) throw new Error("Should have rejected missing info");
+    return true;
+  });
 
-  // Invalid payloads
-  const missingInfo = { item: [] };
-  console.log("\nValidating document without info...");
-  console.log("  isJsonDocument:", isJsonDocument(missingInfo));
+  // 3. Reject malformed request
+  await task("Reject a malformed JsonRequest", () => {
+    const badRequest = { header: "not-an-array", key: 42 };
+    if (isJsonRequest(badRequest)) throw new Error("Should have rejected bad request");
+    return true;
+  });
 
-  const badRequest = { header: "not-an-array", key: 42 };
-  console.log("\nValidating malformed request...");
-  console.log("  isJsonRequest:", isJsonRequest(badRequest));
+  // 4. Reject malformed response
+  await task("Reject a malformed ResponseType", () => {
+    const badResponse = { code: "200", status: 404 };
+    if (isResponseType(badResponse)) throw new Error("Should have rejected bad response");
+    return true;
+  });
 
-  const badResponse = { code: "200", status: 404 };
-  console.log("\nValidating malformed response...");
-  console.log("  isResponseType:", isResponseType(badResponse));
+  // 5. Reject null input across all validators
+  await task("Reject null input for all validators", () => {
+    if (isJsonDocument(null)) throw new Error("Should have rejected null");
+    if (isJsonRequest(null)) throw new Error("Should have rejected null");
+    if (isResponseType(null)) throw new Error("Should have rejected null");
+    return true;
+  });
 
-  const nullInput = null;
-  console.log("\nValidating null input...");
-  console.log("  isJsonDocument:", isJsonDocument(nullInput));
-  console.log("  isJsonRequest:", isJsonRequest(nullInput));
-  console.log("  isResponseType:", isResponseType(nullInput));
-
-  console.log("\nDone.");
+  summary(5);
 }
 
 main();

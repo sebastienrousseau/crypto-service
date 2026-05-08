@@ -11,43 +11,52 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
+import { header, task, summary } from "./support";
+
 const BASE = process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000";
 const API_KEY = process.env.CRYPTO_API_KEY ?? "test-key";
 
-async function post(path: string, body: unknown) {
-  const res = await fetch(`${BASE}${path}`, {
+function post(path: string, body: unknown): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify(body),
   });
-  return res.json();
 }
 
 async function main() {
-  console.log("\n=== crypto-server — sign ===\n");
+  header("crypto-server -- sign");
 
-  // Generate an Ed25519 key pair
-  const keyPair = await post("/v2/keys/generate", { algorithm: "ed25519" });
-  const { publicKey, privateKey } = keyPair.data;
-  console.log("Public key:", publicKey);
-
-  // Sign
-  const message = "Hello, crypto!";
-  const signResult = await post("/v2/sign", { privateKey, message });
-  console.log("Signature:", signResult.data);
-
-  // Verify
-  const verifyResult = await post("/v2/verify", {
-    publicKey,
-    message,
-    signature: signResult.data,
+  const keyPair = await task("Generate Ed25519 key pair", async () => {
+    const res = await post("/v2/keys/generate", { algorithm: "ed25519" });
+    const body = (await res.json()) as {
+      data: { publicKey: string; privateKey: string };
+    };
+    return body.data;
   });
-  console.log("Valid:", verifyResult.data);
 
-  console.log("\nDone.");
+  const message = "Hello, crypto!";
+
+  const signature = await task("Sign message with Ed25519", async () => {
+    const res = await post("/v2/sign", {
+      privateKey: keyPair.privateKey,
+      message,
+    });
+    const body = (await res.json()) as { data: string };
+    return body.data;
+  });
+
+  await task("Verify Ed25519 signature", async () => {
+    const res = await post("/v2/verify", {
+      publicKey: keyPair.publicKey,
+      message,
+      signature,
+    });
+    const body = (await res.json()) as { data: boolean };
+    if (!body.data) throw new Error("Verification failed");
+  });
+
+  summary(3);
 }
 
 main().catch(console.error);
