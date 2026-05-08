@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Local in-memory KMS provider backed by crypto-lib.
+ * @remarks Local in-memory KMS provider backed by crypto-lib.
  *
  * Stores keys in a `Map` — suitable for development, testing, and
  * single-process applications that do not need cloud KMS integration.
@@ -277,7 +277,12 @@ export class LocalKmsProvider implements KmsProvider {
   async generateDataKey(
     keyId: string,
     _keySpec?: string,
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }> {
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }> {
     const record = this.store.get(keyId);
     if (!record) throw new Error(`Key not found: ${keyId}`);
     if (!record.metadata.enabled) throw new Error(`Key is disabled: ${keyId}`);

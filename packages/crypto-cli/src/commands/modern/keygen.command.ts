@@ -22,6 +22,14 @@ const ALGORITHMS = [
   "ml-dsa-87",
 ];
 
+/**
+ * Interactively generate modern key pairs (Ed25519, X25519, ML-KEM, ML-DSA, etc.).
+ *
+ * @example
+ * ```ts
+ * await handleModernKeygen();
+ * ```
+ */
 const handleModernKeygen = async () => {
   const response = await prompts([
     {

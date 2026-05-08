@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Streaming AEAD — chunk-based authenticated encryption for large data.
+ * @remarks Streaming AEAD — chunk-based authenticated encryption for large data.
  *
  * Uses the STREAM construction (inspired by libsodium's secretstream):
  * - Data is split into fixed-size chunks (default 64 KiB).

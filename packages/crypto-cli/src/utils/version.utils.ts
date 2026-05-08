@@ -3,6 +3,10 @@ import { join, normalize } from "path";
 
 let version = "";
 
+/**
+ * Read and return the package version string (e.g. "v0.0.3") from package.json.
+ * The result is cached after the first call.
+ */
 export const getVersion = async () => {
   if (version) {
     return version;

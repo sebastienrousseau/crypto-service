@@ -29,6 +29,17 @@ const ALL_OPERATIONS: AcceleratedOperation[] = [
  *
  * Auto-detection: crypto-lib checks for this package at import time.
  * If installed, heavy operations are automatically routed through WASM.
+ *
+ * @example
+ * ```ts
+ * import { WasmAccelerator } from "@aspect/crypto-wasm";
+ *
+ * const accel = new WasmAccelerator();
+ * await accel.init();
+ * console.log(accel.isAvailable); // true if WASM loaded
+ * const digest = await accel.hash("sha256", new Uint8Array([1, 2, 3]));
+ * accel.destroy();
+ * ```
  */
 export class WasmAccelerator {
   private _module: WebAssembly.Module | null = null;

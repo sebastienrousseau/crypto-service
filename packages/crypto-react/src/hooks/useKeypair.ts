@@ -7,6 +7,14 @@ import {
   type KeyAlgorithm,
 } from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
 
+/**
+ * Return type of the {@link useKeypair} hook.
+ *
+ * @example
+ * ```tsx
+ * const { publicKey, privateKey, generate, isGenerating }: UseKeypairResult = useKeypair();
+ * ```
+ */
 export interface UseKeypairResult {
   /** Hex-encoded public key, or null before generation. */
   publicKey: string | null;
@@ -24,6 +32,14 @@ export interface UseKeypairResult {
  * React hook for generating cryptographic key pairs.
  *
  * @param defaultAlgorithm - Algorithm to use when none is passed to `generate()`. Defaults to `"ed25519"`.
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const { publicKey, generate, isGenerating } = useKeypair();
+ *   return <button onClick={() => generate("x25519")}>{publicKey ?? "Generate"}</button>;
+ * }
+ * ```
  */
 export function useKeypair(
   defaultAlgorithm: KeyAlgorithm = "ed25519",

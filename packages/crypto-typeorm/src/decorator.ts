@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Custom TypeORM decorator that marks a column as encrypted.
+ * @remarks Custom TypeORM decorator that marks a column as encrypted.
  *
  * Combines TypeORM's `@Column` with `EncryptionTransformer` so that a
  * single decorator handles both the column definition and transparent
@@ -20,6 +20,14 @@ import type { EncryptionConfig } from "./types";
  *
  * Extends the standard TypeORM `ColumnOptions` with an `encrypt` field
  * that carries the encryption configuration.
+ *
+ * @example
+ * ```ts
+ * const opts: EncryptedColumnOptions = {
+ *   encrypt: { key: process.env.COLUMN_ENCRYPTION_KEY! },
+ *   nullable: true,
+ * };
+ * ```
  */
 export interface EncryptedColumnOptions extends Omit<
   ColumnOptions,

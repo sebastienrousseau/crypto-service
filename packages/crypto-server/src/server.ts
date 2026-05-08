@@ -4,7 +4,7 @@
  */
 
 /**
- * @fileoverview Main server setup for the Crypto Service Suite application.
+ * @remarks Main server setup for the Crypto Service Suite application.
  */
 
 import {

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Secretbox — simple symmetric authenticated encryption.
+ * @remarks Secretbox — simple symmetric authenticated encryption.
  *
  * Wraps XChaCha20-Poly1305 with automatic nonce generation so callers
  * never need to manage nonces.  The sealed output is self-contained:

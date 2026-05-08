@@ -6,6 +6,7 @@
 import type { FastifyInstance } from "fastify";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
+/** Registers v2 sealed-box (anonymous public-key) encryption endpoints. */
 export default (app: FastifyInstance): void => {
   app.post(
     "/v2/sealedbox/seal",

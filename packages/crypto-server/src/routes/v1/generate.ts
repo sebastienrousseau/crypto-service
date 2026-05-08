@@ -4,7 +4,7 @@
  */
 
 /**
- * @file POST `/v1/generate` — generate an OpenPGP key pair.
+ * @remarks POST `/v1/generate` — generate an OpenPGP key pair.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Use POST /v2/keys/generate instead.
@@ -74,6 +74,7 @@ const generateSchema = {
   },
 } as const;
 
+/** @deprecated Registers the v1 PGP key-generation route. Use v2 endpoints instead. */
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyGenerate }>(
     "/v1/generate",

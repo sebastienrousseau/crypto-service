@@ -8,6 +8,14 @@ import {
 } from "@sebastienrousseau/crypto-lib/dist/high-level/secretbox";
 import { useCryptoContext } from "../provider";
 
+/**
+ * Return type of the {@link useEncrypt} hook.
+ *
+ * @example
+ * ```tsx
+ * const { encrypt, decrypt, ciphertext, plaintext }: UseEncryptResult = useEncrypt();
+ * ```
+ */
 export interface UseEncryptResult {
   /** Encrypt plaintext. Returns the base64-encoded sealed box. */
   encrypt: (plaintext: string | Uint8Array, key?: string) => string;
@@ -25,6 +33,15 @@ export interface UseEncryptResult {
  * React hook for symmetric authenticated encryption (XChaCha20-Poly1305 secretbox).
  *
  * Uses the `defaultKey` from `CryptoProvider` when no key argument is given.
+ *
+ * @example
+ * ```tsx
+ * function SecretMessage() {
+ *   const { encrypt, decrypt } = useEncrypt();
+ *   const sealed = encrypt("hello world", myHexKey);
+ *   const opened = decrypt(sealed, myHexKey);
+ * }
+ * ```
  */
 export function useEncrypt(): UseEncryptResult {
   const { defaultKey } = useCryptoContext();

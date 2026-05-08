@@ -4,7 +4,7 @@
  */
 
 /**
- * @file OpenTelemetry instrumentation for the Crypto Server.
+ * @remarks OpenTelemetry instrumentation for the Crypto Server.
  *
  * Provides:
  * - Distributed tracing (HTTP + Fastify auto-instrumentation)

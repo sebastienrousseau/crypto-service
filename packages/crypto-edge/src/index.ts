@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Barrel exports for the `@sebastienrousseau/crypto-edge` package.
+ * @remarks Barrel exports for the `@sebastienrousseau/crypto-edge` package.
  *
  * Edge and serverless runtime adapter for crypto-lib -- runs on
  * Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.

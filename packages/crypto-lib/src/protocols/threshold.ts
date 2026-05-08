@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Threshold Cryptography — Shamir Secret Sharing + Feldman VSS.
+ * @remarks Threshold Cryptography — Shamir Secret Sharing + Feldman VSS.
  *
  * Implements:
  * - Shamir's Secret Sharing over GF(p) where p is the Ed25519 group order

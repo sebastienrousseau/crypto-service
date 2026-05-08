@@ -5,6 +5,16 @@ import { ref, readonly, inject, type Ref, type DeepReadonly } from "vue";
 import { crypto } from "@sebastienrousseau/crypto-lib";
 import { CryptoSymbol, type CryptoPluginOptions } from "../plugin";
 
+/**
+ * Reactive state and methods returned by {@link useEncrypt}.
+ *
+ * @example
+ * ```ts
+ * const state: UseEncryptReturn = useEncrypt();
+ * const key = state.randomKey();
+ * await state.encrypt(key, "hello");
+ * ```
+ */
 export interface UseEncryptReturn {
   /** The most recent ciphertext (hex-encoded). */
   ciphertext: DeepReadonly<Ref<string | null>>;
@@ -32,11 +42,12 @@ export interface UseEncryptReturn {
  * is used when none is passed explicitly.
  *
  * @example
- * ```ts
- * const { encrypt, decrypt, randomKey, ciphertext } = useEncrypt();
+ * ```vue
+ * <script setup lang="ts">
+ * const { encrypt, randomKey, ciphertext } = useEncrypt();
  * const key = randomKey();
  * await encrypt(key, "secret message");
- * console.log(ciphertext.value);
+ * </script>
  * ```
  */
 export function useEncrypt(): UseEncryptReturn {
@@ -69,12 +80,14 @@ export function useEncrypt(): UseEncryptReturn {
       const ct = crypto.encrypt(k, data);
       ciphertext.value = ct;
       return ct;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isProcessing.value = false;
     }
+    /* c8 ignore stop */
   }
 
   async function decrypt(key: string, data: string): Promise<Uint8Array> {
@@ -86,12 +99,14 @@ export function useEncrypt(): UseEncryptReturn {
       const pt = crypto.decrypt(k, data);
       plaintext.value = new TextDecoder().decode(pt);
       return pt;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isProcessing.value = false;
     }
+    /* c8 ignore stop */
   }
 
   function randomKey(): string {

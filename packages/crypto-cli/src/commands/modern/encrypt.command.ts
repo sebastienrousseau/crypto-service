@@ -15,6 +15,14 @@ const ALGORITHMS = [
   "aes-128-gcm-siv",
 ];
 
+/**
+ * Interactively encrypt data using modern AEAD ciphers (XChaCha20-Poly1305, AES-GCM, AES-GCM-SIV).
+ *
+ * @example
+ * ```ts
+ * await handleModernEncrypt();
+ * ```
+ */
 const handleModernEncrypt = async () => {
   const response = await prompts([
     {

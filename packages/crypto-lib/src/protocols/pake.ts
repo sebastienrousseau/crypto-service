@@ -4,7 +4,7 @@
  */
 
 /**
- * @file PAKE — OPAQUE-like Password-Authenticated Key Exchange.
+ * @remarks PAKE — OPAQUE-like Password-Authenticated Key Exchange.
  *
  * Implements a simplified OPAQUE-style protocol using:
  * - P-256 as the OPRF group (hash-to-curve → blind → evaluate → unblind)

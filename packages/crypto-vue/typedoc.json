@@ -1,0 +1,29 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "cleanOutputDir": true,
+  "excludeExternals": true,
+  "excludeReferences": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "githubPages": false,
+  "entryPointStrategy": "Expand",
+  "entryPoints": ["./src"],
+  "logLevel": "Verbose",
+  "name": "Crypto Vue",
+  "out": "docs",
+  "sort": ["source-order"],
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "json5",
+    "yaml",
+    "tsx",
+    "typescript",
+    "vue"
+  ]
+}

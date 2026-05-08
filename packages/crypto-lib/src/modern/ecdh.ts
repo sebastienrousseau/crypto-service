@@ -4,7 +4,7 @@
  */
 
 /**
- * @file X25519 Elliptic-Curve Diffie-Hellman key exchange via @noble/curves.
+ * @remarks X25519 Elliptic-Curve Diffie-Hellman key exchange via @noble/curves.
  *
  * X25519 provides a 128-bit security level shared secret from two parties'
  * ephemeral or static key pairs. The shared secret should be fed into a KDF

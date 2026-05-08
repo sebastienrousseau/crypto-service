@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Registers all API v2 routes — modern cryptographic operations.
+ * @remarks Registers all API v2 routes — modern cryptographic operations.
  */
 
 import type { FastifyInstance } from "fastify";
@@ -25,6 +25,7 @@ import keyWrapRoute from "./key-wrap";
 import keysRoute from "./keys";
 import multiRecipientRoute from "./multi-recipient";
 
+/** Registers all v2 modern cryptographic route handlers. */
 export default (app: FastifyInstance): void => {
   algorithmsRoute(app);
   encryptRoute(app);

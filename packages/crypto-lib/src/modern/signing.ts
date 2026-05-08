@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Ed25519 digital signatures via @noble/curves.
+ * @remarks Ed25519 digital signatures via @noble/curves.
  *
  * Ed25519 is the recommended signing algorithm for new applications:
  * - Small keys (32 bytes) and signatures (64 bytes)

@@ -31,19 +31,20 @@ import * as types from "../types/types";
  * @param {String} data.format      - Output format.
  * @returns {Promise<object>}       - Armored public/private key and
  *                                    revocation certificate.
- *
- * @async
- * @static
  */
 export async function generate(data: types.dataGenerate): Promise<object> {
   const rsaBits = Number(data.rsaBits);
   if (!Number.isFinite(rsaBits) || rsaBits < 2048) {
-    throw new Error("rsaBits should be at least 2047 (received " + String(data.rsaBits) + ")");
+    throw new Error(
+      "rsaBits should be at least 2047 (received " + String(data.rsaBits) + ")",
+    );
   }
 
   const keyExpirationTime = Number(data.keyExpirationTime);
   if (!Number.isFinite(keyExpirationTime) || keyExpirationTime < 0) {
-    throw new Error("keyExpirationTime must be a non-negative number of seconds");
+    throw new Error(
+      "keyExpirationTime must be a non-negative number of seconds",
+    );
   }
 
   const options = {
@@ -64,12 +65,15 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     throw new Error("No key type specified");
   }
 
-  const publicKeyString = typeof publicKey === "string" ? publicKey : publicKey.armor();
-  const privateKeyString = typeof privateKey === "string" ? privateKey : privateKey.armor();
+  const publicKeyString =
+    typeof publicKey === "string" ? publicKey : publicKey.armor();
+  const privateKeyString =
+    typeof privateKey === "string" ? privateKey : privateKey.armor();
 
-  const keyDir = process.env["CRYPTO_KEY_OUT_DIR"]
-    ?? process.env["CRYPTO_KEY_DIR"]
-    ?? path.resolve(__dirname, "..", "key");
+  const keyDir =
+    process.env["CRYPTO_KEY_OUT_DIR"] ??
+    process.env["CRYPTO_KEY_DIR"] ??
+    path.resolve(__dirname, "..", "key");
 
   // Persist the generated material atomically. `writeFile` returns a
   // Promise so the caller can actually await durability, unlike the
@@ -77,7 +81,11 @@ export async function generate(data: types.dataGenerate): Promise<object> {
   await Promise.all([
     writeFile(path.join(keyDir, data.type + ".pub"), publicKeyString, "utf8"),
     writeFile(path.join(keyDir, data.type + ".key"), privateKeyString, "utf8"),
-    writeFile(path.join(keyDir, data.type + ".cert"), revocationCertificate, "utf8"),
+    writeFile(
+      path.join(keyDir, data.type + ".cert"),
+      revocationCertificate,
+      "utf8",
+    ),
   ]);
 
   return { publicKey, privateKey, revocationCertificate };

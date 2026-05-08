@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file WebAssembly performance accelerator for crypto-lib.
+ * @remarks WebAssembly performance accelerator for crypto-lib.
  *
  * Near-native speed for SHA-256, AES-GCM, Argon2, Ed25519, and X25519.
  *

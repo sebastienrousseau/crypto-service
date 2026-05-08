@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** @file Google Cloud KMS adapter. Requires `@google-cloud/kms` as a peer dependency. */
+/** @remarks Google Cloud KMS adapter. Requires `@google-cloud/kms` as a peer dependency. */
 
 import type {
   KmsProvider,
@@ -11,7 +11,18 @@ import type {
   KmsSignResult,
 } from "../types";
 
-/** Configuration for the Google Cloud KMS provider. */
+/**
+ * Configuration for the Google Cloud KMS provider.
+ *
+ * @example
+ * ```ts
+ * const opts: GcpKmsOptions = {
+ *   projectId: "my-project",
+ *   locationId: "us-east1",
+ *   keyRingId: "my-ring",
+ * };
+ * ```
+ */
 export interface GcpKmsOptions {
   /** GCP project ID. */
   projectId: string;
@@ -137,7 +148,12 @@ export class GcpKmsProvider implements KmsProvider {
   async generateDataKey(
     _keyId: string,
     _keySpec?: string,
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }> {
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }> {
     throw new Error("Not implemented: install @google-cloud/kms");
   }
 }

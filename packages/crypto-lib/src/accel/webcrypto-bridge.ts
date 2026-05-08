@@ -4,7 +4,7 @@
  */
 
 /**
- * @file WebCrypto acceleration layer.
+ * @remarks WebCrypto acceleration layer.
  *
  * Provides hardware-accelerated versions of AES-GCM and SHA-2 hashing
  * via the Web Crypto API when available. Falls back transparently to

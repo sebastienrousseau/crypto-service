@@ -1,6 +1,14 @@
 import decrypt from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
 import prompts from "prompts";
 
+/**
+ * Interactively decrypt a PGP-encrypted message via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleDecrypt();
+ * ```
+ */
 const handleDecrypt = async () => {
   const responseDecrypt = await prompts([
     {

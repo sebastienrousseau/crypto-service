@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Lazy async key accessors. The previous implementation issued three
+ * @remarks Lazy async key accessors. The previous implementation issued three
  * `readFileSync` calls at module load, which crashed the CLI whenever the
  * working directory was not the package source root.
  */
@@ -23,12 +23,20 @@ const decode = async (file: string): Promise<string> => {
   return Buffer.from(raw.toString("latin1"), "base64").toString("latin1");
 };
 
+/** Lazily read and decode the RSA private key from disk. */
 export const getPrivateKey = (): Promise<string> => decode("rsa.key");
+/** Lazily read and decode the RSA public key from disk. */
 export const getPublicKey = (): Promise<string> => decode("rsa.pub");
-export const getRevocationCertificate = (): Promise<string> => decode("rsa.cert");
+/** Lazily read and decode the RSA revocation certificate from disk. */
+export const getRevocationCertificate = (): Promise<string> =>
+  decode("rsa.cert");
 
+/** Default export bundling all key accessor functions. */
 export default {
-  getPrivateKey,
-  getPublicKey,
-  getRevocationCertificate,
+  /** Lazily read and decode the RSA private key. */
+  getPrivateKey: getPrivateKey,
+  /** Lazily read and decode the RSA public key. */
+  getPublicKey: getPublicKey,
+  /** Lazily read and decode the RSA revocation certificate. */
+  getRevocationCertificate: getRevocationCertificate,
 };

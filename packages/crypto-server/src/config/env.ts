@@ -4,24 +4,36 @@
  */
 
 /**
- * @file Centralized, validated configuration.
+ * @remarks Centralized, validated configuration.
  *
  * All environment variables are parsed and validated at boot time.
  * If any required value is missing or malformed, the process exits
  * immediately with a clear error message — fail fast, not at runtime.
  */
 
+/** Server configuration loaded from environment variables. */
 export interface Config {
+  /** Hostname the server binds to (default `"localhost"`). */
   readonly host: string;
+  /** TCP port the server listens on (0–65535, default `3000`). */
   readonly port: number;
+  /** HTTP or HTTPS protocol. */
   readonly protocol: "http" | "https";
+  /** Current Node environment. */
   readonly nodeEnv: "development" | "production" | "test";
+  /** Minimum log verbosity level. */
   readonly logLevel: "error" | "warn" | "info" | "debug";
+  /** Optional static API key for service-to-service auth. */
   readonly apiKey: string | undefined;
+  /** Allowed CORS origins, or `false` to disable CORS. */
   readonly corsOrigins: string[] | false;
+  /** Trusted reverse-proxy CIDRs, or `false` to trust none. */
   readonly trustProxy: string[] | false;
+  /** Optional directory path for reading crypto keys. */
   readonly keyDir: string | undefined;
+  /** Optional directory path for writing generated keys. */
   readonly keyOutDir: string | undefined;
+  /** Graceful shutdown timeout in milliseconds. */
   readonly shutdownTimeoutMs: number;
 }
 

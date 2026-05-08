@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Enterprise Key Management Service adapters.
+ * @remarks Enterprise Key Management Service adapters.
  *
  * Provides a unified KmsProvider interface with implementations for
  * AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.

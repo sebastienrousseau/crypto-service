@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Complete ML-KEM (FIPS 203) — all three parameter sets + hybrid key exchange.
+ * @remarks Complete ML-KEM (FIPS 203) — all three parameter sets + hybrid key exchange.
  *
  * Implements ML-KEM-512, ML-KEM-768, and ML-KEM-1024 for quantum-resistant
  * key encapsulation, plus a hybrid scheme combining X25519 + ML-KEM.

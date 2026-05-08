@@ -4,7 +4,7 @@
  */
 
 /**
- * @file In-memory keyring for key storage, lookup, and rotation.
+ * @remarks In-memory keyring for key storage, lookup, and rotation.
  *
  * Provides an in-memory key store with:
  * - Key lookup by ID, algorithm, or purpose

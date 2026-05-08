@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Central algorithm registry with metadata, deprecation, and recommendations.
+ * @remarks Central algorithm registry with metadata, deprecation, and recommendations.
  *
  * Every algorithm in the library has an entry with its security level,
  * category, standard reference, and deprecation status.

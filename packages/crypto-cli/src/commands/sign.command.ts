@@ -1,6 +1,14 @@
 import sign from "@sebastienrousseau/crypto-lib/dist/lib/sign";
 import prompts from "prompts";
 
+/**
+ * Interactively sign a message using PGP via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleSign();
+ * ```
+ */
 const handleSign = async () => {
   const responseSign = await prompts([
     {

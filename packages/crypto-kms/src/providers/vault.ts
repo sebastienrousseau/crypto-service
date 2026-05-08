@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** @file HashiCorp Vault Transit secrets engine adapter. */
+/** @remarks HashiCorp Vault Transit secrets engine adapter. */
 
 import type {
   KmsProvider,
@@ -11,7 +11,18 @@ import type {
   KmsSignResult,
 } from "../types";
 
-/** Configuration for the HashiCorp Vault provider. */
+/**
+ * Configuration for the HashiCorp Vault provider.
+ *
+ * @example
+ * ```ts
+ * const opts: VaultKmsOptions = {
+ *   address: "http://127.0.0.1:8200",
+ *   token: "hvs.XXXXX",
+ *   mountPath: "transit",
+ * };
+ * ```
+ */
 export interface VaultKmsOptions {
   /** Vault server address (e.g. "http://127.0.0.1:8200"). */
   address: string;
@@ -149,7 +160,12 @@ export class VaultKmsProvider implements KmsProvider {
   async generateDataKey(
     _keyId: string,
     _keySpec?: string,
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }> {
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }> {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 }

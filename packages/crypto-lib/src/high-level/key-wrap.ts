@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Key wrapping — AES-KW (RFC 3394), AES-KWP (RFC 5649), and
+ * @remarks Key wrapping — AES-KW (RFC 3394), AES-KWP (RFC 5649), and
  * X25519 + AES-KW for public-key key wrapping.
  *
  * Key wrapping protects symmetric keys during transport or storage.

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Password-based encryption — Argon2id key derivation + XChaCha20-Poly1305.
+ * @remarks Password-based encryption — Argon2id key derivation + XChaCha20-Poly1305.
  *
  * Self-describing format so decryption doesn't need external parameters:
  *

@@ -1,6 +1,14 @@
 import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
 import prompts from "prompts";
 
+/**
+ * Interactively encrypt a message using PGP via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleEncrypt();
+ * ```
+ */
 const handleEncrypt = async () => {
   const responseEncrypt = await prompts([
     {

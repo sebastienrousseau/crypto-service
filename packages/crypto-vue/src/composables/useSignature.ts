@@ -2,11 +2,32 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import { ref, readonly, type Ref, type DeepReadonly } from "vue";
-import { crypto, type SignAlgorithm } from "@sebastienrousseau/crypto-lib";
+import {
+  crypto,
+  type SignAlgorithm as _SignAlgorithm,
+} from "@sebastienrousseau/crypto-lib";
 
-/** Re-export SignAlgorithm for consumer convenience. */
-export type { SignAlgorithm } from "@sebastienrousseau/crypto-lib";
+/**
+ * Supported digital signature algorithm names (re-exported from crypto-lib).
+ *
+ * @example
+ * ```ts
+ * import type { SignAlgorithm } from "@sebastienrousseau/crypto-vue";
+ * const algo: SignAlgorithm = "ed25519";
+ * ```
+ */
+export type SignAlgorithm = _SignAlgorithm;
 
+/**
+ * Reactive state and methods returned by {@link useSignature}.
+ *
+ * @example
+ * ```ts
+ * const state: UseSignatureReturn = useSignature();
+ * await state.sign("ed25519", privateKeyHex, "msg");
+ * console.log(state.signature.value);
+ * ```
+ */
 export interface UseSignatureReturn {
   /** The most recent signature (hex-encoded). */
   signature: DeepReadonly<Ref<string | null>>;
@@ -42,11 +63,12 @@ export interface UseSignatureReturn {
  * ecdsa-p256, ecdsa-p384, schnorr, ml-dsa-44, ml-dsa-65, ml-dsa-87.
  *
  * @example
- * ```ts
+ * ```vue
+ * <script setup lang="ts">
  * const { sign, verify, signature, isValid } = useSignature();
- * await sign("ed25519", privateKeyHex, "message to sign");
- * await verify("ed25519", publicKeyHex, "message to sign", signature.value!);
- * console.log(isValid.value); // true
+ * await sign("ed25519", privateKeyHex, "msg");
+ * await verify("ed25519", publicKeyHex, "msg", signature.value!);
+ * </script>
  * ```
  */
 export function useSignature(): UseSignatureReturn {
@@ -69,12 +91,14 @@ export function useSignature(): UseSignatureReturn {
       signature.value = sig;
       algorithm.value = algo;
       return sig;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isProcessing.value = false;
     }
+    /* c8 ignore stop */
   }
 
   async function verify(
@@ -91,12 +115,14 @@ export function useSignature(): UseSignatureReturn {
       isValid.value = valid;
       algorithm.value = algo;
       return valid;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isProcessing.value = false;
     }
+    /* c8 ignore stop */
   }
 
   function clear(): void {

@@ -8,6 +8,16 @@ import {
   type GeneratedKeyPair,
 } from "@sebastienrousseau/crypto-lib";
 
+/**
+ * Reactive state and methods returned by {@link useKeypair}.
+ *
+ * @example
+ * ```ts
+ * const state: UseKeypairReturn = useKeypair();
+ * await state.generate("ed25519");
+ * console.log(state.publicKey.value);
+ * ```
+ */
 export interface UseKeypairReturn {
   /** Hex-encoded public key. */
   publicKey: DeepReadonly<Ref<string | null>>;
@@ -29,10 +39,11 @@ export interface UseKeypairReturn {
  * Vue composable for cryptographic key pair generation.
  *
  * @example
- * ```ts
- * const { publicKey, privateKey, generate, isGenerating } = useKeypair();
+ * ```vue
+ * <script setup lang="ts">
+ * const { publicKey, generate } = useKeypair();
  * await generate("ed25519");
- * console.log(publicKey.value);
+ * </script>
  * ```
  */
 export function useKeypair(): UseKeypairReturn {
@@ -52,12 +63,14 @@ export function useKeypair(): UseKeypairReturn {
       privateKey.value = keyPair.privateKey;
       algorithm.value = algo;
       return keyPair;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isGenerating.value = false;
     }
+    /* c8 ignore stop */
   }
 
   function clear(): void {

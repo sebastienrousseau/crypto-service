@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** @file Azure Key Vault adapter. Requires `@azure/keyvault-keys` as a peer dependency. */
+/** @remarks Azure Key Vault adapter. Requires `@azure/keyvault-keys` as a peer dependency. */
 
 import type {
   KmsProvider,
@@ -11,7 +11,16 @@ import type {
   KmsSignResult,
 } from "../types";
 
-/** Configuration for the Azure Key Vault provider. */
+/**
+ * Configuration for the Azure Key Vault provider.
+ *
+ * @example
+ * ```ts
+ * const opts: AzureKmsOptions = {
+ *   vaultUrl: "https://my-vault.vault.azure.net",
+ * };
+ * ```
+ */
 export interface AzureKmsOptions {
   /** Azure Key Vault URL (e.g. "https://my-vault.vault.azure.net"). */
   vaultUrl: string;
@@ -130,7 +139,12 @@ export class AzureKmsProvider implements KmsProvider {
   async generateDataKey(
     _keyId: string,
     _keySpec?: string,
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }> {
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }> {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 }

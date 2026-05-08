@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Unified key generation across all supported algorithms.
+ * @remarks Unified key generation across all supported algorithms.
  *
  * Provides a single `generateKeyPair()` entry point that dispatches
  * to the correct primitive based on the requested algorithm.

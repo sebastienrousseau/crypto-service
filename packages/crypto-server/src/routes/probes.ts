@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Kubernetes-style liveness, readiness probes and Prometheus metrics.
+ * @remarks Kubernetes-style liveness, readiness probes and Prometheus metrics.
  *
  * - GET /live    — lightweight liveness check (always 200 if process is alive)
  * - GET /ready   — readiness check (verifies config is loaded)
@@ -15,6 +15,7 @@ import type { FastifyInstance } from "fastify";
 
 const startTime = Date.now();
 
+/** Registers liveness, readiness, and metrics probe endpoints. */
 export default (app: FastifyInstance): void => {
   /**
    * Liveness probe — if this responds, the process is alive.

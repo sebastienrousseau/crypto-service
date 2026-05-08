@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Express middleware adapter.
+ * @remarks Express middleware adapter.
  *
  * Provides `createCryptoMiddleware(config)` which returns standard Express
  * middleware (`(req, res, next) => void`).  Depending on the configured

@@ -10,6 +10,7 @@ import {
 } from "@sebastienrousseau/crypto-lib/dist/modern";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
+/** Registers v2 digital signature (sign/verify) endpoints. */
 export default (app: FastifyInstance): void => {
   // Key generation moved to keys.ts (supports all algorithms)
 

@@ -2,11 +2,32 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import { ref, readonly, type Ref, type DeepReadonly } from "vue";
-import { crypto, type HashAlgorithm } from "@sebastienrousseau/crypto-lib";
+import {
+  crypto,
+  type HashAlgorithm as _HashAlgorithm,
+} from "@sebastienrousseau/crypto-lib";
 
-/** Re-export HashAlgorithm for consumer convenience. */
-export type { HashAlgorithm } from "@sebastienrousseau/crypto-lib";
+/**
+ * Supported hash algorithm names (re-exported from crypto-lib).
+ *
+ * @example
+ * ```ts
+ * import type { HashAlgorithm } from "@sebastienrousseau/crypto-vue";
+ * const algo: HashAlgorithm = "sha3-256";
+ * ```
+ */
+export type HashAlgorithm = _HashAlgorithm;
 
+/**
+ * Reactive state and methods returned by {@link useHash}.
+ *
+ * @example
+ * ```ts
+ * const state: UseHashReturn = useHash();
+ * await state.hash("sha256", "data");
+ * console.log(state.digest.value);
+ * ```
+ */
 export interface UseHashReturn {
   /** The most recent hash digest (hex-encoded). */
   digest: DeepReadonly<Ref<string | null>>;
@@ -29,10 +50,11 @@ export interface UseHashReturn {
  * sha3-256, sha3-512, blake2b, blake3.
  *
  * @example
- * ```ts
- * const { hash, digest, algorithm } = useHash();
+ * ```vue
+ * <script setup lang="ts">
+ * const { hash, digest } = useHash();
  * await hash("sha3-256", "hello world");
- * console.log(digest.value);
+ * </script>
  * ```
  */
 export function useHash(): UseHashReturn {
@@ -53,12 +75,14 @@ export function useHash(): UseHashReturn {
       digest.value = result;
       algorithm.value = algo;
       return result;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err));
       throw error.value;
     } finally {
       isHashing.value = false;
     }
+    /* c8 ignore stop */
   }
 
   function clear(): void {

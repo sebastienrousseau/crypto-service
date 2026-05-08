@@ -15,23 +15,20 @@ import * as types from "../types/types";
  * If signing keys are specified, those will be used to sign the message.
  *
  * @public
- * @param {Object} data           - Data to be encrypted.
- * @param {String} passphrase     - Passphrase used to unlock the signing
- *                                  private key, when one is provided.
- * @param {String} message        - Message to be encrypted.
- * @param {String} publicKey      - Public key (base64-encoded armored
- *                                  block) used to encrypt the message.
- * @param {String} privateKey     - Optional private key (base64-encoded
- *                                  armored block) used for signing.
+ * @param data - Data to be encrypted.
  * @returns {Promise<String>}     - Encrypted message as an armored string.
- *
- * @async
- * @static
  */
 export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
-  const { message, passphrase, publicKey: publicKeyBase64, privateKey: privateKeyBase64 } = data;
+  const {
+    message,
+    passphrase,
+    publicKey: publicKeyBase64,
+    privateKey: privateKeyBase64,
+  } = data;
 
-  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString("latin1");
+  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString(
+    "latin1",
+  );
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
   const pgpMessage = await openpgp.createMessage({ text: message });
@@ -41,8 +38,13 @@ export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
   } as Parameters<typeof openpgp.encrypt>[0];
 
   if (privateKeyBase64) {
-    const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString("latin1");
-    encryptOptions.signingKeys = await unlockPrivateKey(privateKeyArmored, passphrase);
+    const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString(
+      "latin1",
+    );
+    encryptOptions.signingKeys = await unlockPrivateKey(
+      privateKeyArmored,
+      passphrase,
+    );
   }
 
   const encrypted = await openpgp.encrypt(encryptOptions);

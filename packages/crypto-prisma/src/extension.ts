@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Prisma Client Extension for transparent field-level encryption.
+ * @remarks Prisma Client Extension for transparent field-level encryption.
  *
  * Uses the modern `Prisma.defineExtension` API (Prisma 4.16+/5.x/6.x)
  * instead of the deprecated middleware approach. Provides the same
@@ -11,19 +11,9 @@
 
 import { secretbox } from "@sebastienrousseau/crypto-lib";
 import { computeHmac } from "@sebastienrousseau/crypto-lib";
-import type { EncryptionConfig, FieldConfig } from "./types";
+import type { EncryptionConfig } from "./types";
 
 // ── Helpers (shared logic) ───────────────────────────────────────────
-
-function getFieldsForModel(
-  model: string,
-  encryptedFields: FieldConfig[],
-): string[] {
-  const config = encryptedFields.find(
-    (c) => c.model.toLowerCase() === model.toLowerCase(),
-  );
-  return config?.fields ?? [];
-}
 
 function isDeterministic(
   field: string,
@@ -138,9 +128,19 @@ function encryptWhereClause(
  *
  * This is typed broadly because the actual Prisma extension type
  * depends on the user's generated Prisma Client.
+ *
+ * @example
+ * ```ts
+ * const ext: FieldEncryptionExtension = {
+ *   name: "field-encryption",
+ *   query: { user: { create: async ({ args, query }) => query(args) } },
+ * };
+ * ```
  */
 export interface FieldEncryptionExtension {
+  /** Unique extension name used by Prisma for identification. */
   name: string;
+  /** Per-model query handlers that intercept reads and writes. */
   query: Record<string, Record<string, unknown>>;
 }
 

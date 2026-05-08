@@ -4,7 +4,7 @@
  */
 
 /**
- * @file PQXDH — Post-Quantum Extended Triple Diffie-Hellman key agreement.
+ * @remarks PQXDH — Post-Quantum Extended Triple Diffie-Hellman key agreement.
  *
  * Implements Signal's PQXDH protocol which combines X25519 key exchanges
  * with ML-KEM-768 encapsulation to produce a shared secret resilient against

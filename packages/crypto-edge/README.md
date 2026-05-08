@@ -217,7 +217,7 @@ Polyfills provided:
 
 ## Examples
 
-Runnable example scripts are available in the [`examples/`](./examples) directory:
+Runnable example scripts are available in the `examples/` directory:
 
 | File                                           | Description                |
 | ---------------------------------------------- | -------------------------- |

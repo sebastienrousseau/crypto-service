@@ -1,6 +1,14 @@
 import generate from "@sebastienrousseau/crypto-lib/dist/lib/generate";
 import prompts from "prompts";
 
+/**
+ * Interactively generate a new OpenPGP key pair (RSA or ECC) via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleGenerate();
+ * ```
+ */
 const handleGenerate = async () => {
   const responseGenerate = await prompts([
     {

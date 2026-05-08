@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Barrel export for @sebastienrousseau/crypto-vue.
+ * @remarks Barrel export for @sebastienrousseau/crypto-vue.
  *
  * Re-exports the Vue plugin and all composables.
  */

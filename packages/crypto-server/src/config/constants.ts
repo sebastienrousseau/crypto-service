@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Configuration settings and options for the Fastify server and associated plugins.
+ * @remarks Configuration settings and options for the Fastify server and associated plugins.
  * @author The Crypto Service Suite
  */
 
@@ -15,25 +15,25 @@ import type { FastifyHelmetOptions } from "@fastify/helmet";
 import pack from "../../package.json";
 
 /**
- * @constant {string} LIB_VERSION
+ * @remarks {string} LIB_VERSION
  * The current version of the library, extracted from package.json.
  */
 export const LIB_VERSION = JSON.stringify(pack.version);
 
 /**
- * @constant {string} HOST
+ * @remarks {string} HOST
  * The hostname for the server, defaulting to "localhost".
  */
 export const HOST = process.env["HOST"] ?? "localhost";
 
 /**
- * @constant {(string | number)} PORT
+ * @remarks {(string | number)} PORT
  * The port for the server, defaulting to 3000.
  */
 export const PORT = process.env["PORT"] ?? 3000;
 
 /**
- * @constant {string} PROTOCOL
+ * @remarks {string} PROTOCOL
  * The protocol for the server, defaulting to "http".
  */
 export const PROTOCOL = process.env["PROTOCOL"] ?? "http";
@@ -55,7 +55,7 @@ const parseTrustProxy = (): boolean | string[] => {
 };
 
 /**
- * @constant {string[]} consoleOutput
+ * @remarks {string[]} consoleOutput
  * An array of strings, defining the console output for environment details.
  */
 export const consoleOutput = [
@@ -67,7 +67,7 @@ export const consoleOutput = [
 ];
 
 /**
- * @constant {FastifyServerOptions} fastifyOptions
+ * @remarks {FastifyServerOptions} fastifyOptions
  * Fastify server options to configure the Fastify instance.
  */
 export const fastifyOptions: FastifyServerOptions = {
@@ -86,7 +86,7 @@ export const fastifyOptions: FastifyServerOptions = {
 };
 
 /**
- * @constant {FastifyCompressOptions} compressOptions
+ * @remarks {FastifyCompressOptions} compressOptions
  * Compression plugin options. Level 6 delivers ~99% of level 9's size
  * reduction at ~40% of the CPU cost.
  */
@@ -99,7 +99,7 @@ export const compressOptions: FastifyCompressOptions = {
 };
 
 /**
- * @constant {FastifyHelmetOptions} helmetOptions
+ * @remarks {FastifyHelmetOptions} helmetOptions
  * Security headers via @fastify/helmet. ContentSecurityPolicy is relaxed
  * for the JSON-only API surface.
  */
@@ -109,7 +109,7 @@ export const helmetOptions: FastifyHelmetOptions = {
 };
 
 /**
- * @constant {FastifyCorsOptions} corsOptions
+ * @remarks {FastifyCorsOptions} corsOptions
  * Cross-Origin Resource Sharing defaults. Restrict to specific origins
  * in production via the `CORS_ORIGIN` environment variable (comma-separated).
  */
@@ -123,42 +123,60 @@ export const corsOptions: FastifyCorsOptions = {
 };
 
 /**
- * @constant {object} rateLimitOptions
+ * @remarks {object} rateLimitOptions
  * Configuration options for the rate-limit plugin.
  */
 export const rateLimitOptions = {
+  /** Apply rate limiting to all routes. */
   global: true,
+  /** Maximum number of requests per time window. */
   max: 10,
+  /** Duration of the sliding rate-limit window. */
   timeWindow: "1 minute",
+  /** IP addresses exempt from rate limiting. */
   allowList: ["127.0.0.1"],
+  /** Redis/store key prefix for rate-limit counters. */
   nameSpace: "crypto-server-rate-limit-",
+  /** Rate-limit headers to include in responses. */
   addHeaders: {
+    /** Include the `X-RateLimit-Limit` header. */
     "x-ratelimit-limit": true,
+    /** Include the `X-RateLimit-Remaining` header. */
     "x-ratelimit-remaining": true,
+    /** Include the `X-RateLimit-Reset` header. */
     "x-ratelimit-reset": true,
+    /** Include the `Retry-After` header. */
     "retry-after": true,
   },
 
+  /** Builds the JSON body returned when a client is rate-limited. */
   errorResponseBuilder(
     req: { ip: string; log: { warn: (msg: string) => void } },
     context: { max: number; after: string; ttl: number },
   ) {
     req.log.warn(`${req.ip} have been rateLimited`);
     return {
+      /** HTTP status code. */
       code: 429,
+      /** Error name. */
       error: "Too Many Requests",
+      /** Human-readable rate-limit explanation. */
       message: `Only ${context.max} requests are allowed per ${context.after}. Try again soon.`,
+      /** Timestamp when the error occurred (epoch ms). */
       date: Date.now(),
+      /** Milliseconds until the rate-limit window resets. */
       expiresIn: context.ttl,
     };
   },
 };
 
 /**
- * @constant {object} healthCheckOptions
+ * @remarks {object} healthCheckOptions
  * Configuration options for the health check functionality.
  */
 export const healthCheckOptions = {
+  /** URL path for the health check endpoint. */
   healthcheckUrl: "/health",
+  /** Whether to include process uptime in the health response. */
   exposeUptime: true,
 };

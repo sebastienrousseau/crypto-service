@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Backwards-compatible async accessors over the lazy keystore.
+ * @remarks Backwards-compatible async accessors over the lazy keystore.
  *
  * Previously this file issued three `readFileSync` calls at module load
  * time (see git history). That pattern blocked the event loop on every

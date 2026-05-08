@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Web Crypto API wrapper for edge runtimes.
+ * @remarks Web Crypto API wrapper for edge runtimes.
  *
  * Every function in this module uses **only** the standard Web Crypto
  * API (`crypto.subtle`) and global encoding helpers (`TextEncoder`,
@@ -48,6 +48,14 @@ function getSubtle(): SubtleCrypto {
 /**
  * Generate cryptographically secure random bytes.
  * Uses `crypto.getRandomValues` which is available in all target runtimes.
+ *
+ * @example
+ * ```ts
+ * import { randomBytes } from "@aspect/crypto-edge";
+ *
+ * const iv = randomBytes(12);  // 96-bit IV for AES-GCM
+ * const key = randomBytes(32); // 256-bit key
+ * ```
  */
 function randomBytes(length: number): Uint8Array {
   const buf = new Uint8Array(length);
@@ -57,6 +65,14 @@ function randomBytes(length: number): Uint8Array {
 
 /**
  * Encode a UTF-8 string to bytes. Uses the global `TextEncoder`.
+ *
+ * @example
+ * ```ts
+ * import { toBytes } from "@aspect/crypto-edge";
+ *
+ * const bytes = toBytes("hello world");
+ * // Uint8Array of UTF-8 encoded bytes
+ * ```
  */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
@@ -77,6 +93,14 @@ function buf(data: Uint8Array): ArrayBuffer {
 /**
  * Convert a Uint8Array to a lowercase hex string without relying on
  * `Buffer`.
+ *
+ * @example
+ * ```ts
+ * import { toHex } from "@aspect/crypto-edge";
+ *
+ * const hex = toHex(new Uint8Array([0xde, 0xad, 0xbe, 0xef]));
+ * // "deadbeef"
+ * ```
  */
 function toHex(bytes: Uint8Array): string {
   let hex = "";
@@ -88,6 +112,14 @@ function toHex(bytes: Uint8Array): string {
 
 /**
  * Concatenate two Uint8Arrays into one.
+ *
+ * @example
+ * ```ts
+ * import { concat } from "@aspect/crypto-edge";
+ *
+ * const combined = concat(new Uint8Array([1, 2]), new Uint8Array([3, 4]));
+ * // Uint8Array [1, 2, 3, 4]
+ * ```
  */
 function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
   const result = new Uint8Array(a.length + b.length);

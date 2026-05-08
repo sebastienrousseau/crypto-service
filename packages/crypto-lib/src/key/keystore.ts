@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Lazy async keystore + unlocked private-key cache.
+ * @remarks Lazy async keystore + unlocked private-key cache.
  *
  * Replaces the previous module-level `readFileSync` pattern in `./key.ts`
  * which blocked the event loop on every `import` and broke whenever the

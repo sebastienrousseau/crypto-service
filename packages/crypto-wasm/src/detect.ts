@@ -9,6 +9,15 @@
  * Check if WebAssembly is supported in the current environment.
  *
  * @returns `true` when `WebAssembly` global is available and functional.
+ *
+ * @example
+ * ```ts
+ * import { isWasmSupported } from "@aspect/crypto-wasm";
+ *
+ * if (isWasmSupported()) {
+ *   console.log("WebAssembly is available");
+ * }
+ * ```
  */
 export function isWasmSupported(): boolean {
   try {
@@ -44,6 +53,15 @@ export function isWasmSupported(): boolean {
  * startup for large modules.
  *
  * @returns `true` when streaming instantiation is available.
+ *
+ * @example
+ * ```ts
+ * import { isStreamingSupported } from "@aspect/crypto-wasm";
+ *
+ * if (isStreamingSupported()) {
+ *   const { instance } = await WebAssembly.instantiateStreaming(fetch("/mod.wasm"));
+ * }
+ * ```
  */
 export function isStreamingSupported(): boolean {
   return (
@@ -59,6 +77,14 @@ export function isStreamingSupported(): boolean {
  * Detection uses a minimal WASM module that includes a V128 instruction.
  *
  * @returns `true` when SIMD is available.
+ *
+ * @example
+ * ```ts
+ * import { isSimdSupported } from "@aspect/crypto-wasm";
+ *
+ * const useSimd = isSimdSupported();
+ * console.log(`SIMD acceleration: ${useSimd ? "enabled" : "disabled"}`);
+ * ```
  */
 export function isSimdSupported(): boolean {
   try {
@@ -116,10 +142,23 @@ export function isSimdSupported(): boolean {
 
 /**
  * Return a summary of WASM capabilities in the current runtime.
+ *
+ * @example
+ * ```ts
+ * import { detectCapabilities } from "@aspect/crypto-wasm";
+ *
+ * const caps = detectCapabilities();
+ * console.log(caps.wasmSupported);      // true
+ * console.log(caps.simdSupported);      // true or false
+ * console.log(caps.streamingSupported); // true or false
+ * ```
  */
 export function detectCapabilities(): {
+  /** Whether basic WebAssembly instantiation is supported. */
   wasmSupported: boolean;
+  /** Whether `WebAssembly.instantiateStreaming` is available. */
   streamingSupported: boolean;
+  /** Whether WASM SIMD (V128) instructions are supported. */
   simdSupported: boolean;
 } {
   return {

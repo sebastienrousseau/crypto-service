@@ -47,6 +47,7 @@ const decryptSchema = {
   },
 } as const;
 
+/** Registers v2 symmetric encryption/decryption routes. */
 export default (app: FastifyInstance): void => {
   app.post("/v2/encrypt", { schema: encryptSchema }, async (request, reply) => {
     try {

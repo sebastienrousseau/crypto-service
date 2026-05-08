@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Barrel exports for @sebastienrousseau/crypto-typeorm.
+ * @remarks Barrel exports for @sebastienrousseau/crypto-typeorm.
  *
  * TypeORM column-level encryption with a single decorator, powered by
  * crypto-lib's secretbox (XChaCha20-Poly1305).

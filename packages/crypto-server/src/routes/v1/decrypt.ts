@@ -4,7 +4,7 @@
  */
 
 /**
- * @file POST `/v1/decrypt` — decrypt a PGP message.
+ * @remarks POST `/v1/decrypt` — decrypt a PGP message.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Use POST /v2/decrypt or POST /v2/secretbox/open instead.
@@ -45,6 +45,7 @@ const decryptSchema = {
   },
 } as const;
 
+/** @deprecated Registers the v1 PGP decrypt route. Use v2 endpoints instead. */
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyDecrypt }>(
     "/v1/decrypt",

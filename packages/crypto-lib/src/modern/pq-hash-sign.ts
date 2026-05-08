@@ -4,7 +4,7 @@
  */
 
 /**
- * @file SLH-DSA (FIPS 205) — Stateless Hash-Based Digital Signatures.
+ * @remarks SLH-DSA (FIPS 205) — Stateless Hash-Based Digital Signatures.
  *
  * Implements all 12 SLH-DSA variants (SHA2/SHAKE x 128/192/256 x fast/small).
  * SLH-DSA (formerly SPHINCS+) provides post-quantum security based solely on

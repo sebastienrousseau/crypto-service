@@ -4,11 +4,12 @@
  */
 
 /**
- * @file Barrel exports for @sebastienrousseau/crypto-middleware.
+ * @remarks Barrel exports for @sebastienrousseau/crypto-middleware.
  */
 
 // Types
-export { MiddlewareConfig, JwtPayload, CryptoMiddlewareError } from "./types";
+export type { MiddlewareConfig, JwtPayload } from "./types";
+export { CryptoMiddlewareError } from "./types";
 
 // Common crypto operations
 export {

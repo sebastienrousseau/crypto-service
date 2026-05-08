@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Key serialization — hex, base64, base64url, JWK, PEM.
+ * @remarks Key serialization — hex, base64, base64url, JWK, PEM.
  *
  * Provides lossless conversion between key formats commonly used in
  * web applications, infrastructure tools, and standards like JWT/JOSE.

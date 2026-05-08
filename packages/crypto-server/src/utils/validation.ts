@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Input validation utilities for secure parameter handling.
+ * @remarks Input validation utilities for secure parameter handling.
  *
  * Body-based validators (unknown → typed result). The earlier
  * header-array input shape was specific to Fastify's `request.headers`
@@ -18,13 +18,29 @@ import { FastifyReply } from "fastify";
  * Validation error response shape.
  */
 export interface ValidationError {
+  /** Name of the field that failed validation. */
   field: string;
+  /** Human-readable description of the validation failure. */
   message: string;
 }
 
+/**
+ * Discriminated union returned by all validators.
+ * Check `valid` to narrow the type.
+ */
 export type ValidationResult<T> =
-  | { valid: true; value: T }
-  | { valid: false; error: ValidationError };
+  | {
+      /** Indicates the value passed validation. */
+      valid: true;
+      /** The validated and typed value. */
+      value: T;
+    }
+  | {
+      /** Indicates the value failed validation. */
+      valid: false;
+      /** Details about the validation failure. */
+      error: ValidationError;
+    };
 
 /**
  * Validates that a required string field is present and non-empty.

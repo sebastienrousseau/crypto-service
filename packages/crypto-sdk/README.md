@@ -233,7 +233,7 @@ interface ApiError {
 
 ## Examples
 
-Runnable TypeScript examples are provided in the [`examples/`](./examples/) directory. Each requires the crypto-server running on `http://localhost:3000` (override via `CRYPTO_SERVER_URL`).
+Runnable TypeScript examples are provided in the `examples/` directory. Each requires the crypto-server running on `http://localhost:3000` (override via `CRYPTO_SERVER_URL`).
 
 | Example           | File                                        | Description                                           |
 | ----------------- | ------------------------------------------- | ----------------------------------------------------- |

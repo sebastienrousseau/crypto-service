@@ -184,7 +184,7 @@ Non-string values passed to `to()` are JSON-serialised before encryption. `null`
 
 ## Examples
 
-Runnable example scripts live in [`examples/`](./examples/):
+Runnable example scripts live in `examples/`:
 
 | Script                                        | Description                                       |
 | --------------------------------------------- | ------------------------------------------------- |

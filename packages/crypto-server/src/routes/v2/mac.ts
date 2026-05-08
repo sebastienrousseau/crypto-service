@@ -9,6 +9,7 @@ import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/dist/modern/ma
 
 const HMAC_ALGORITHMS = ["sha256", "sha384", "sha512", "sha3-256", "sha3-512"];
 
+/** Registers the v2 HMAC/KMAC message-authentication endpoint. */
 export default (app: FastifyInstance): void => {
   app.post(
     "/v2/hmac",

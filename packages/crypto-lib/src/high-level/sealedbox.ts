@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Sealed box — anonymous public-key authenticated encryption.
+ * @remarks Sealed box — anonymous public-key authenticated encryption.
  *
  * The sender generates an ephemeral X25519 key pair, computes a shared
  * secret with the recipient's public key, derives an encryption key via

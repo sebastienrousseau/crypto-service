@@ -14,8 +14,9 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "clean": "rimraf ./coverage ./dist",
-    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs"
+    "clean": "rimraf ./coverage ./dist ./docs",
+    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc"
   },
   "devDependencies": {
     "@sebastienrousseau/mocha-config": "^0.0.5",
@@ -29,6 +30,7 @@
     "mocha": "^10.8.0",
     "rimraf": "^6.0.0",
     "ts-node": "^10.9.2",
+    "typedoc": "^0.27.0",
     "typescript": "^5.7.0"
   },
   "publishConfig": {

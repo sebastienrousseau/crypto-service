@@ -4,7 +4,7 @@
  */
 
 /**
- * @file EntitySubscriber that automatically encrypts fields before insert/update
+ * @remarks EntitySubscriber that automatically encrypts fields before insert/update
  * and decrypts them after load, driven by an {@link EncryptionConfig}.
  */
 

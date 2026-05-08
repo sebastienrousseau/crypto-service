@@ -7,6 +7,14 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/**
+ * Interactively hash or verify passwords using Argon2 (id/i/d variants).
+ *
+ * @example
+ * ```ts
+ * await handlePasswordHash();
+ * ```
+ */
 const handlePasswordHash = async () => {
   const response = await prompts([
     {

@@ -18,6 +18,15 @@ const ALGORITHMS = [
   "ml-dsa-87",
 ];
 
+/**
+ * Interactively sign or verify messages using modern signature schemes
+ * (Ed25519, Ed448, ECDSA, Schnorr, ML-DSA).
+ *
+ * @example
+ * ```ts
+ * await handleModernSign();
+ * ```
+ */
 const handleModernSign = async () => {
   const response = await prompts([
     {

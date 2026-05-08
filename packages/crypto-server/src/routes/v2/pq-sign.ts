@@ -6,6 +6,7 @@
 import type { FastifyInstance } from "fastify";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
+/** Registers v2 ML-DSA (FIPS 204) post-quantum signature endpoints. */
 export default (app: FastifyInstance): void => {
   // ML-DSA (FIPS 204) — Post-Quantum Digital Signatures
   app.post(

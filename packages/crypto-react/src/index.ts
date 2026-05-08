@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Barrel exports for @sebastienrousseau/crypto-react.
+ * @remarks Barrel exports for @sebastienrousseau/crypto-react.
  *
  * React hooks for client-side cryptography -- key generation, encryption,
  * signing, and hashing in a single import.

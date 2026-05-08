@@ -228,4 +228,22 @@ export const response = async (
   await writeFile(path.join(dir, safeName + ".md"), content, "utf8");
 };
 
-export default { createMarkdown, response };
+/**
+ * Default utility namespace exposing the primary markdown helpers.
+ *
+ * @example
+ * ```ts
+ * import utils from "./utils";
+ *
+ * const md = utils.createMarkdown(collection);
+ * await utils.response(md, "api-docs");
+ * ```
+ */
+const utils: {
+  /** Converts a Postman-shaped JSON document into a markdown string. */
+  createMarkdown: typeof createMarkdown;
+  /** Writes a markdown string to a file in the docs directory. */
+  response: typeof response;
+} = { createMarkdown, response };
+
+export default utils;

@@ -4,10 +4,21 @@
  */
 
 /**
- * @file Shared types for the crypto-middleware package.
+ * @remarks Shared types for the crypto-middleware package.
  */
 
-/** Configuration for the crypto middleware. */
+/**
+ * Configuration for the crypto middleware.
+ *
+ * @example
+ * ```ts
+ * const config: MiddlewareConfig = {
+ *   key: process.env.CRYPTO_KEY,
+ *   routes: ["/api/**"],
+ *   operations: ["decrypt-request", "encrypt-response"],
+ * };
+ * ```
+ */
 export interface MiddlewareConfig {
   /** Hex-encoded key for payload encryption/decryption. */
   key?: string;
@@ -23,7 +34,18 @@ export interface MiddlewareConfig {
   jwtSecret?: string;
 }
 
-/** The result of a JWT verification. */
+/**
+ * The result of a JWT verification.
+ *
+ * @example
+ * ```ts
+ * const payload: JwtPayload = {
+ *   sub: "user-123",
+ *   iss: "auth.example.com",
+ *   exp: Math.floor(Date.now() / 1000) + 3600,
+ * };
+ * ```
+ */
 export interface JwtPayload {
   /** Subject claim. */
   sub?: string;
@@ -43,7 +65,14 @@ export interface JwtPayload {
   [key: string]: unknown;
 }
 
-/** Error thrown by crypto middleware operations. */
+/**
+ * Error thrown by crypto middleware operations.
+ *
+ * @example
+ * ```ts
+ * throw new CryptoMiddlewareError("Invalid token", 401, "INVALID_TOKEN");
+ * ```
+ */
 export class CryptoMiddlewareError extends Error {
   /** HTTP status code to return. */
   public readonly statusCode: number;

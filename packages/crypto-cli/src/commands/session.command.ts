@@ -1,6 +1,14 @@
 import session from "@sebastienrousseau/crypto-lib/dist/lib/session";
 import prompts from "prompts";
 
+/**
+ * Interactively generate an OpenPGP session key via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleSession();
+ * ```
+ */
 const handleSession = async () => {
   const responseSession = await prompts([
     {

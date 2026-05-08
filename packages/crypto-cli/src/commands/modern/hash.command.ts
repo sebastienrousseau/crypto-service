@@ -17,6 +17,14 @@ const ALGORITHMS = [
   "blake3",
 ];
 
+/**
+ * Interactively hash data using modern algorithms (SHA-2, SHA-3, BLAKE2b, BLAKE3).
+ *
+ * @example
+ * ```ts
+ * await handleModernHash();
+ * ```
+ */
 const handleModernHash = async () => {
   const response = await prompts([
     {

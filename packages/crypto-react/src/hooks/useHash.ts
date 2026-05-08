@@ -7,6 +7,14 @@ import {
   type HashAlgorithm,
 } from "@sebastienrousseau/crypto-lib/dist/modern/hash";
 
+/**
+ * Return type of the {@link useHash} hook.
+ *
+ * @example
+ * ```tsx
+ * const { hash, digest, isHashing }: UseHashResult = useHash();
+ * ```
+ */
 export interface UseHashResult {
   /** Compute a cryptographic hash digest. Returns the hex-encoded digest. */
   hash: (data: string | Uint8Array, algorithm?: HashAlgorithm) => string;
@@ -20,6 +28,14 @@ export interface UseHashResult {
  * React hook for computing cryptographic hashes.
  *
  * @param defaultAlgorithm - Algorithm to use when none is passed to `hash()`. Defaults to `"sha256"`.
+ *
+ * @example
+ * ```tsx
+ * function Hasher() {
+ *   const { hash, digest } = useHash("sha512");
+ *   return <button onClick={() => hash("hello")}>{digest ?? "Hash it"}</button>;
+ * }
+ * ```
  */
 export function useHash(
   defaultAlgorithm: HashAlgorithm = "sha256",

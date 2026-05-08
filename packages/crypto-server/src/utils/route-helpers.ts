@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Shared route helpers — auth guard + validation result unwrapping.
+ * @remarks Shared route helpers — auth guard + validation result unwrapping.
  *
  * Every route handler previously duplicated the same API-key check,
  * error-array accumulation, and `as { valid: true; value: T }` casts.

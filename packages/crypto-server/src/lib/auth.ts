@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Authentication and authorization module.
+ * @remarks Authentication and authorization module.
  *
  * Supports two authentication modes:
  * 1. JWT Bearer tokens (preferred) — with scope-based authorization
@@ -34,12 +34,18 @@ export const SCOPES = [
   "crypto:admin",
 ] as const;
 
+/** A single authorization scope string from {@link SCOPES}. */
 export type Scope = (typeof SCOPES)[number];
 
+/** Decoded JWT or synthetic auth payload attached to a request. */
 export interface AuthPayload {
+  /** Subject identifier (user or service name). */
   sub: string;
+  /** Granted authorization scopes. */
   scopes: Scope[];
+  /** JWT "issued at" timestamp (epoch seconds). */
   iat?: number;
+  /** JWT expiration timestamp (epoch seconds). */
   exp?: number;
 }
 

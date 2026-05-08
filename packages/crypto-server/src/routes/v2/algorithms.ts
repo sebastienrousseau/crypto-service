@@ -6,6 +6,7 @@
 import type { FastifyInstance } from "fastify";
 import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/dist/modern";
 
+/** Registers the v2 algorithm-listing endpoint. */
 export default (app: FastifyInstance): void => {
   app.get(
     "/v2/algorithms",

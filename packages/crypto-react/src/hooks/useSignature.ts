@@ -7,6 +7,14 @@ import {
   type SignAlgorithm,
 } from "@sebastienrousseau/crypto-lib/dist/crypto";
 
+/**
+ * Return type of the {@link useSignature} hook.
+ *
+ * @example
+ * ```tsx
+ * const { sign, verify, signature, isValid }: UseSignatureResult = useSignature();
+ * ```
+ */
 export interface UseSignatureResult {
   /** Sign a message. Returns the hex-encoded signature. */
   sign: (
@@ -33,6 +41,15 @@ export interface UseSignatureResult {
  * React hook for digital signatures (sign and verify).
  *
  * @param defaultAlgorithm - Signing algorithm when none is passed. Defaults to `"ed25519"`.
+ *
+ * @example
+ * ```tsx
+ * function Signer() {
+ *   const { sign, verify, isValid } = useSignature();
+ *   const sig = sign(privateKeyHex, "my message");
+ *   const ok = verify(publicKeyHex, "my message", sig);
+ * }
+ * ```
  */
 export function useSignature(
   defaultAlgorithm: SignAlgorithm = "ed25519",

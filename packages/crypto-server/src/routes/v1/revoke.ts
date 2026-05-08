@@ -4,7 +4,7 @@
  */
 
 /**
- * @file POST `/v1/revoke` — revoke the shipped key pair.
+ * @remarks POST `/v1/revoke` — revoke the shipped key pair.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Use the v2 key management API instead.
@@ -51,6 +51,7 @@ const revokeSchema = {
   },
 } as const;
 
+/** @deprecated Registers the v1 PGP key-revocation route. Use v2 endpoints instead. */
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyRevoke }>(
     "/v1/revoke",

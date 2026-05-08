@@ -4,7 +4,7 @@
  */
 
 /**
- * @file ML-DSA (FIPS 204) digital signatures — all three parameter sets + hybrid signing.
+ * @remarks ML-DSA (FIPS 204) digital signatures — all three parameter sets + hybrid signing.
  *
  * Implements ML-DSA-44, ML-DSA-65, and ML-DSA-87 for quantum-resistant digital
  * signatures, plus a hybrid scheme combining Ed25519 (classical) + ML-DSA (post-quantum).

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Cryptographic hash functions via @noble/hashes.
+ * @remarks Cryptographic hash functions via @noble/hashes.
  *
  * Supports: SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b, BLAKE3.
  */

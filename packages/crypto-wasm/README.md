@@ -189,7 +189,7 @@ console.log(`Speedup: ${result.speedup.toFixed(2)}x`);
 
 ## Examples
 
-Runnable TypeScript examples are provided in the [`examples/`](./examples/) directory.
+Runnable TypeScript examples are provided in the `examples/` directory.
 
 | Example    | File                                        | Description                                |
 | ---------- | ------------------------------------------- | ------------------------------------------ |

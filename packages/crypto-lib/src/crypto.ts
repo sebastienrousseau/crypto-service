@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Unified crypto API — single namespace for all operations.
+ * @remarks Unified crypto API — single namespace for all operations.
  *
  * ```ts
  * import { crypto } from '@sebastienrousseau/crypto-lib';

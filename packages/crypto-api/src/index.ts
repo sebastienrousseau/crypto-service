@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview This module initializes a script that parses JSON data to generate
+ * @remarks This module initializes a script that parses JSON data to generate
  * markdown content, validates file existence, reads, and parses the JSON data,
  * then utilizes utility functions to generate and handle the markdown content.
  */

@@ -323,7 +323,7 @@ const jwks = ring.toJwks();
 
 ## Examples
 
-All examples are self-contained TypeScript files in the [`examples/`](examples/) directory. Run any example with:
+All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
 
 ```bash
 npx ts-node examples/<name>.ts

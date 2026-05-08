@@ -4,7 +4,7 @@
  */
 
 /**
- * @file HMAC (Hash-based Message Authentication Code) via @noble/hashes.
+ * @remarks HMAC (Hash-based Message Authentication Code) via @noble/hashes.
  *
  * Supports SHA-256, SHA-384, SHA-512, SHA3-256, and SHA3-512 as underlying
  * hash functions. Uses timing-safe comparison for verification to prevent

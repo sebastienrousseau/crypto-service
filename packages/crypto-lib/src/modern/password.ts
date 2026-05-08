@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Argon2 password hashing via @noble/hashes.
+ * @remarks Argon2 password hashing via @noble/hashes.
  *
  * Argon2id (RFC 9106) is the recommended algorithm for password hashing:
  * - Memory-hard: resists GPU/ASIC brute-force attacks

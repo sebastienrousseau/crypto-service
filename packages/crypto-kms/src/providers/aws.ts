@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** @file AWS KMS adapter. Requires `@aws-sdk/client-kms` as a peer dependency. */
+/** @remarks AWS KMS adapter. Requires `@aws-sdk/client-kms` as a peer dependency. */
 
 import type {
   KmsProvider,
@@ -11,14 +11,27 @@ import type {
   KmsSignResult,
 } from "../types";
 
-/** Configuration for the AWS KMS provider. */
+/**
+ * Configuration for the AWS KMS provider.
+ *
+ * @example
+ * ```ts
+ * const opts: AwsKmsOptions = {
+ *   region: "us-east-1",
+ *   credentials: { accessKeyId: "AKIA...", secretAccessKey: "wJal..." },
+ * };
+ * ```
+ */
 export interface AwsKmsOptions {
   /** AWS region (e.g. "us-east-1"). */
   region: string;
   /** Optional AWS credentials override. */
   credentials?: {
+    /** AWS access key ID. */
     accessKeyId: string;
+    /** AWS secret access key. */
     secretAccessKey: string;
+    /** Optional AWS session token for temporary credentials. */
     sessionToken?: string;
   };
   /** Optional endpoint override (for LocalStack, etc.). */
@@ -69,6 +82,7 @@ export class AwsKmsProvider implements KmsProvider {
           config.endpoint = this.options.endpoint;
         }
         this.client = new mod.KMSClient(config) as unknown as AwsKmsClient;
+        /* c8 ignore next 5 -- peer dep not installed in test env */
       } catch {
         throw new Error(
           "AWS KMS requires @aws-sdk/client-kms. Install it: npm install @aws-sdk/client-kms",
@@ -266,7 +280,12 @@ export class AwsKmsProvider implements KmsProvider {
   async generateDataKey(
     keyId: string,
     keySpec = "AES_256",
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }> {
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }> {
     const client = await this.getClient();
     const { GenerateDataKeyCommand } = await import("@aws-sdk/client-kms");
     const result = await client.send(

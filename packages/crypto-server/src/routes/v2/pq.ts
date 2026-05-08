@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Post-quantum cryptography endpoints.
+ * @remarks Post-quantum cryptography endpoints.
  *
  * Exposes ML-KEM-768 (FIPS 203) and hybrid X25519+ML-KEM key exchange.
  */
@@ -20,6 +20,7 @@ import {
 } from "@sebastienrousseau/crypto-lib/dist/modern";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
+/** Registers v2 post-quantum ML-KEM and hybrid key-exchange endpoints. */
 export default (app: FastifyInstance): void => {
   // --- ML-KEM standalone ---
 

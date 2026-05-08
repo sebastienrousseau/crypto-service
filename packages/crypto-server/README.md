@@ -273,7 +273,7 @@ curl -H "Authorization: Bearer eyJhbGciOi..." ...
 
 ## Examples
 
-Runnable TypeScript examples are provided in the [`examples/`](./examples/) directory. Each file is self-contained and uses `fetch` to call the server.
+Runnable TypeScript examples are provided in the `examples/` directory. Each file is self-contained and uses `fetch` to call the server.
 
 | File                                        | Purpose                                  |
 | ------------------------------------------- | ---------------------------------------- |

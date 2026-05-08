@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Worker thread pool for offloading CPU-intensive cryptographic operations.
+ * @remarks Worker thread pool for offloading CPU-intensive cryptographic operations.
  *
  * Uses Node.js `worker_threads` to parallelize heavy operations (key generation,
  * hashing large data, PQ crypto) across multiple threads. The pool auto-sizes

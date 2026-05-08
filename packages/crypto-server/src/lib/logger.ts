@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Configures and exports a Winston logger for application logging.
+ * @remarks Configures and exports a Winston logger for application logging.
  *
  * Outputs structured JSON in production for machine parsing (ELK, Datadog,
  * etc.) and human-readable coloured text in development.
@@ -31,6 +31,7 @@ const devFormat = format.combine(
   ),
 );
 
+/** Pre-configured Winston logger instance for the crypto-server. */
 const logger = createLogger({
   defaultMeta: { service: "crypto-server", correlationId },
   format: isProduction ? structuredFormat : devFormat,

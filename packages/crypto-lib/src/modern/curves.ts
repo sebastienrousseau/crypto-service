@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Additional elliptic curve operations via @noble/curves.
+ * @remarks Additional elliptic curve operations via @noble/curves.
  *
  * Supports:
  * - P-256 (secp256r1): NIST standard, widely deployed in TLS/WebCrypto

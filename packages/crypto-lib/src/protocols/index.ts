@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Protocol building blocks barrel export.
+ * @remarks Protocol building blocks barrel export.
  *
  * Phase 6 — composable cryptographic protocol primitives:
  * - PQXDH: Post-Quantum Extended Triple Diffie-Hellman (Signal-style)

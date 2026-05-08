@@ -4,7 +4,7 @@
  */
 
 /**
- * @file ValueTransformer that encrypts on write and decrypts on read using
+ * @remarks ValueTransformer that encrypts on write and decrypts on read using
  * crypto-lib's secretbox (XChaCha20-Poly1305).
  */
 

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Key derivation functions via @noble/hashes.
+ * @remarks Key derivation functions via @noble/hashes.
  *
  * Supports: scrypt, HKDF-SHA256, PBKDF2-SHA256.
  * Argon2 is not yet available in @noble/hashes — scrypt is the recommended

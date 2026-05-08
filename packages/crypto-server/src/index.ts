@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Entrypoint for initializing and starting the Crypto Server.
+ * @remarks Entrypoint for initializing and starting the Crypto Server.
  *
  * Handles startup, signal-based graceful shutdown, and force-exit timeout.
  */

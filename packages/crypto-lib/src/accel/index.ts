@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Acceleration layer barrel export.
+ * @remarks Acceleration layer barrel export.
  *
  * Provides WebCrypto hardware acceleration and worker thread offloading
  * for CPU-intensive cryptographic operations.

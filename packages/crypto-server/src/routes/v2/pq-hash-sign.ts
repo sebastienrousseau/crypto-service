@@ -22,6 +22,7 @@ const SLH_DSA_VARIANTS = [
   "shake-256s",
 ];
 
+/** Registers v2 SLH-DSA (FIPS 205) hash-based signature endpoints. */
 export default (app: FastifyInstance): void => {
   // SLH-DSA (FIPS 205) — Hash-Based Post-Quantum Signatures
   app.post(

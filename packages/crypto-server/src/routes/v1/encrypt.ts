@@ -4,7 +4,7 @@
  */
 
 /**
- * @file POST `/v1/encrypt` — encrypt a message with a supplied public key.
+ * @remarks POST `/v1/encrypt` — encrypt a message with a supplied public key.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Use POST /v2/encrypt or POST /v2/secretbox/seal instead.
@@ -48,6 +48,7 @@ const encryptSchema = {
   },
 } as const;
 
+/** @deprecated Registers the v1 PGP encrypt route. Use v2 endpoints instead. */
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyEncrypt }>(
     "/v1/encrypt",

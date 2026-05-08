@@ -1,7 +1,21 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** Metadata associated with a managed key. */
+/**
+ * Metadata associated with a managed key.
+ *
+ * @example
+ * ```ts
+ * const meta: KmsKeyMetadata = {
+ *   keyId: "arn:aws:kms:us-east-1:123456789:key/abc-123",
+ *   algorithm: "aes-256-gcm",
+ *   usage: "encrypt",
+ *   createdAt: "2026-01-15T10:30:00Z",
+ *   enabled: true,
+ *   provider: "aws",
+ * };
+ * ```
+ */
 export interface KmsKeyMetadata {
   /** Provider-specific key identifier (ARN, resource name, key ID). */
   keyId: string;
@@ -17,7 +31,18 @@ export interface KmsKeyMetadata {
   provider: string;
 }
 
-/** Result of a KMS encryption operation. */
+/**
+ * Result of a KMS encryption operation.
+ *
+ * @example
+ * ```ts
+ * const result: KmsEncryptResult = {
+ *   ciphertext: "YmFzZTY0LWVuY29kZWQ=",
+ *   keyId: "key-abc-123",
+ *   context: { purpose: "user-data" },
+ * };
+ * ```
+ */
 export interface KmsEncryptResult {
   /** Base64-encoded ciphertext. */
   ciphertext: string;
@@ -27,7 +52,17 @@ export interface KmsEncryptResult {
   context?: Record<string, string>;
 }
 
-/** Result of a KMS decryption operation. */
+/**
+ * Result of a KMS decryption operation.
+ *
+ * @example
+ * ```ts
+ * const result: KmsDecryptResult = {
+ *   plaintext: new Uint8Array([72, 101, 108, 108, 111]),
+ *   keyId: "key-abc-123",
+ * };
+ * ```
+ */
 export interface KmsDecryptResult {
   /** Decrypted plaintext bytes. */
   plaintext: Uint8Array;
@@ -35,7 +70,18 @@ export interface KmsDecryptResult {
   keyId: string;
 }
 
-/** Result of a KMS signing operation. */
+/**
+ * Result of a KMS signing operation.
+ *
+ * @example
+ * ```ts
+ * const result: KmsSignResult = {
+ *   signature: "c2lnbmF0dXJlLWJ5dGVz",
+ *   keyId: "key-abc-123",
+ *   algorithm: "RSASSA_PSS_SHA_256",
+ * };
+ * ```
+ */
 export interface KmsSignResult {
   /** Base64-encoded signature. */
   signature: string;
@@ -50,6 +96,15 @@ export interface KmsSignResult {
  *
  * Adapts cloud KMS services (AWS, GCP, Azure, Vault) and local key stores
  * to a single API surface, enabling provider-agnostic key operations.
+ *
+ * @example
+ * ```ts
+ * async function encryptData(provider: KmsProvider, keyId: string, data: Uint8Array) {
+ *   const { ciphertext } = await provider.encrypt(keyId, data);
+ *   const { plaintext } = await provider.decrypt(keyId, ciphertext);
+ *   return plaintext;
+ * }
+ * ```
  */
 export interface KmsProvider {
   /** Provider name identifier. */
@@ -116,5 +171,10 @@ export interface KmsProvider {
   generateDataKey(
     keyId: string,
     keySpec?: string,
-  ): Promise<{ plaintext: Uint8Array; ciphertext: string }>;
+  ): Promise<{
+    /** Plaintext data key bytes. */
+    plaintext: Uint8Array;
+    /** Encrypted (wrapped) data key. */
+    ciphertext: string;
+  }>;
 }

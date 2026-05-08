@@ -11,8 +11,6 @@ export default {
    *
    * @enum {String}
    * @readonly
-   * @memberof module:enums
-   * @description Enumeration of supported key hashing algorithms and their respective values.
    * @property {String} md5 - md5 hash algorithm.
    * @property {String} sha1 - sha1 hash algorithm.
    * @property {String} ripemd - ripemd hash algorithm.
@@ -44,8 +42,6 @@ export default {
    *
    * @enum {Number}
    * @readonly
-   * @memberof module:enums
-   * @description Enumeration of supported key sizes and their respective values.
    * @property {Number} keySize512 - The key size of 512 bits.
    * @property {Number} keySize1024 - The key size of 1024 bits.
    * @property {Number} keySize2048 - The key size of 2048 bits.
@@ -87,8 +83,6 @@ export default {
    * @enum {String}
    * @readonly
    * @see {@link https://wiki.gnupg.org/ECC|ECC - GnuPG wiki}
-   * @memberof module:enums
-   * @description Enumeration of supported elliptic curve algorithms and their respective values.
    * @property {String} p256 or P-256 - elliptic curve algorithm.
    * @property {String} p384 or P-384 - elliptic curve algorithm.
    * @property {String} p521 or P-521 - elliptic curve algorithm.
@@ -213,8 +207,6 @@ export default {
    *
    * @enum {String}
    * @readonly
-   * @memberof module:enums
-   * @description Enumeration of supported types and their respective values.
    * @property {String} ecc - elliptic curve cryptography.
    * @property {String} rsa - RSA cryptography.
    *
@@ -233,8 +225,6 @@ export default {
    *
    * @enum {String}
    * @readonly
-   * @memberof module:enums
-   * @description Enumeration of supported formats and their respective values.
    * @property {String} armored - ASCII armored format.
    * @property {String} binary - binary format.
    * @property {String} object - object format.

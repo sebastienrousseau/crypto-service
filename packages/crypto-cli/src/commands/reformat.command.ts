@@ -1,6 +1,14 @@
 import reformat from "@sebastienrousseau/crypto-lib/dist/lib/reformat";
 import prompts from "prompts";
 
+/**
+ * Interactively reformat OpenPGP key signature packets via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleReformat();
+ * ```
+ */
 const handleReformat = async () => {
   const responseReformat = await prompts([
     {

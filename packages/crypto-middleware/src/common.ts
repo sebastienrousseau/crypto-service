@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Common cryptographic operations shared by Express and Fastify adapters.
+ * @remarks Common cryptographic operations shared by Express and Fastify adapters.
  *
  * Uses crypto-lib's secretbox (XChaCha20-Poly1305) for payload encryption,
  * HMAC-SHA256 for webhook signature verification, and a minimal HMAC-based
@@ -25,6 +25,13 @@ import { CryptoMiddlewareError, JwtPayload } from "./types";
  * @param key  Hex-encoded 256-bit key.
  * @param data Plaintext payload (will be JSON-stringified if not a string).
  * @returns    Base64-encoded sealed box.
+ *
+ * @example
+ * ```ts
+ * const key = "a0b1c2..."; // 64-char hex string (256-bit)
+ * const sealed = encryptPayload(key, { userId: 42, role: "admin" });
+ * // sealed is a base64-encoded string ready for transport
+ * ```
  */
 export function encryptPayload(key: string, data: unknown): string {
   const plaintext = typeof data === "string" ? data : JSON.stringify(data);
@@ -39,6 +46,12 @@ export function encryptPayload(key: string, data: unknown): string {
  * @param sealed Base64-encoded sealed box (nonce || ciphertext || tag).
  * @returns      The decrypted, JSON-parsed payload.
  * @throws       {CryptoMiddlewareError} If decryption or parsing fails.
+ *
+ * @example
+ * ```ts
+ * const data = decryptPayload(key, sealed);
+ * console.log(data); // { userId: 42, role: "admin" }
+ * ```
  */
 export function decryptPayload(key: string, sealed: string): unknown {
   try {
@@ -66,6 +79,13 @@ export function decryptPayload(key: string, sealed: string): unknown {
  * @param signature The signature header value.
  * @returns         `true` if the signature is valid.
  * @throws          {CryptoMiddlewareError} If the signature is invalid.
+ *
+ * @example
+ * ```ts
+ * const sig = req.headers["x-hub-signature-256"] as string;
+ * verifyHmacSignature(process.env.HMAC_KEY!, rawBody, sig);
+ * // throws CryptoMiddlewareError if the signature is invalid
+ * ```
  */
 export function verifyHmacSignature(
   hmacKey: string,
@@ -120,6 +140,13 @@ function base64urlDecode(input: string): string {
  * @param token      The raw JWT string (header.payload.signature).
  * @returns          The decoded JWT payload.
  * @throws           {CryptoMiddlewareError} On invalid/expired tokens.
+ *
+ * @example
+ * ```ts
+ * const token = req.headers.authorization?.replace("Bearer ", "") ?? "";
+ * const payload = verifyJwt("my-hs256-secret", token);
+ * console.log(payload.sub); // "user-123"
+ * ```
  */
 export function verifyJwt(jwtSecret: string, token: string): JwtPayload {
   if (!token) {
@@ -235,6 +262,12 @@ export function verifyJwt(jwtSecret: string, token: string): JwtPayload {
  * @param path    The request path.
  * @param routes  Array of route patterns.
  * @returns       `true` if the path matches any pattern.
+ *
+ * @example
+ * ```ts
+ * matchRoute("/api/users/42", ["/api/**"]); // true
+ * matchRoute("/health", ["/api/*"]);        // false
+ * ```
  */
 export function matchRoute(path: string, routes: string[]): boolean {
   if (routes.length === 0) return true; // No routes configured = match all

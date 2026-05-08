@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Defines a route for the root endpoint of the Crypto Server application.
+ * @remarks Defines a route for the root endpoint of the Crypto Server application.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Migrate to the v2 modern API which supports post-quantum cryptography,

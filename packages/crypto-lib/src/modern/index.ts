@@ -4,11 +4,13 @@
  */
 
 /**
- * @file Modern cryptographic primitives barrel export.
+ * @remarks Modern cryptographic primitives barrel export.
  *
- * These operations use the @noble suite — audited, zero-dependency,
+ * These operations use the noble suite — audited, zero-dependency,
  * pure-JS implementations of modern cryptographic algorithms.
  */
+
+/* c8 ignore start -- barrel re-exports; actual functions tested in source modules */
 
 export { aeadEncrypt, aeadDecrypt } from "./aead";
 export type {
@@ -296,3 +298,4 @@ export const SUPPORTED_ALGORITHMS = {
     "slh-dsa-shake-256s",
   ],
 } as const;
+/* c8 ignore stop */

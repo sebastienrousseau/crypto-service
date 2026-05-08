@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Test fixture generators.
+ * @remarks Test fixture generators.
  *
  * Convenience functions that return pre-built test data structures,
  * ready to use in unit and integration tests without calling real
@@ -23,7 +23,17 @@ import {
 // Keyring fixture
 // ---------------------------------------------------------------------------
 
-/** A pre-populated keyring containing deterministic key pairs. */
+/**
+ * A pre-populated keyring containing deterministic key pairs.
+ *
+ * @example
+ * ```ts
+ * import type { TestKeyring } from "@sebastienrousseau/crypto-testing";
+ *
+ * const ring: TestKeyring = createTestKeyring();
+ * console.log(ring.signing.publicKey, ring.symmetric);
+ * ```
+ */
 export interface TestKeyring {
   /** Ed25519 signing key pair. */
   signing: MockKeyPair;
@@ -40,6 +50,14 @@ export interface TestKeyring {
 /**
  * Create a test keyring containing deterministic key pairs for all
  * common algorithms. No real key generation is performed.
+ *
+ * @example
+ * ```ts
+ * import { createTestKeyring } from "@sebastienrousseau/crypto-testing";
+ *
+ * const keyring = createTestKeyring();
+ * console.log(keyring.signing.algorithm); // "ed25519"
+ * ```
  */
 export function createTestKeyring(): TestKeyring {
   return {
@@ -55,7 +73,17 @@ export function createTestKeyring(): TestKeyring {
 // Encrypted message fixture
 // ---------------------------------------------------------------------------
 
-/** A pre-built encrypted message for testing decryption flows. */
+/**
+ * A pre-built encrypted message for testing decryption flows.
+ *
+ * @example
+ * ```ts
+ * import type { TestEncryptedMessage } from "@sebastienrousseau/crypto-testing";
+ *
+ * const msg: TestEncryptedMessage = createTestEncryptedMessage();
+ * console.log(msg.ciphertext, msg.algorithm);
+ * ```
+ */
 export interface TestEncryptedMessage {
   /** The key used for encryption (hex). */
   key: string;
@@ -69,6 +97,14 @@ export interface TestEncryptedMessage {
 
 /**
  * Create a test encrypted message using mock XOR encryption.
+ *
+ * @example
+ * ```ts
+ * import { createTestEncryptedMessage } from "@sebastienrousseau/crypto-testing";
+ *
+ * const msg = createTestEncryptedMessage("secret data");
+ * console.log(msg.ciphertext); // hex-encoded XOR ciphertext
+ * ```
  *
  * @param plaintext - Optional plaintext to encrypt. Defaults to the
  *                    well-known test vector.
@@ -92,7 +128,17 @@ export function createTestEncryptedMessage(
 // Signed message fixture
 // ---------------------------------------------------------------------------
 
-/** A pre-built signed message for testing verification flows. */
+/**
+ * A pre-built signed message for testing verification flows.
+ *
+ * @example
+ * ```ts
+ * import type { TestSignedMessage } from "@sebastienrousseau/crypto-testing";
+ *
+ * const msg: TestSignedMessage = createTestSignedMessage();
+ * console.log(msg.signature, msg.algorithm);
+ * ```
+ */
 export interface TestSignedMessage {
   /** Algorithm used. */
   algorithm: string;
@@ -108,6 +154,14 @@ export interface TestSignedMessage {
 
 /**
  * Create a test signed message using mock signing.
+ *
+ * @example
+ * ```ts
+ * import { createTestSignedMessage } from "@sebastienrousseau/crypto-testing";
+ *
+ * const signed = createTestSignedMessage("p256", "verify me");
+ * console.log(signed.signature, signed.publicKey);
+ * ```
  *
  * @param algorithm - Key algorithm. Defaults to `"ed25519"`.
  * @param message   - Message to sign. Defaults to the well-known test vector.
@@ -134,6 +188,14 @@ export function createTestSignedMessage(
 
 /**
  * Create a test password hash using mock hashing.
+ *
+ * @example
+ * ```ts
+ * import { createTestPasswordHash } from "@sebastienrousseau/crypto-testing";
+ *
+ * const result = createTestPasswordHash("hunter2");
+ * console.log(result.hash, result.phc);
+ * ```
  *
  * @param password - Password to hash. Defaults to `"test-password-123"`.
  */

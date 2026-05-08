@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Registers all API routes (v1 + v2) for the Fastify application.
+ * @remarks Registers all API routes (v1 + v2) for the Fastify application.
  */
 
 import * as fastify from "fastify";
@@ -17,6 +17,7 @@ import verifyRoute from "./v1/verify";
 import v2Routes from "./v2";
 import probeRoutes from "./probes";
 
+/** Registers all API route groups (v1, v2, probes) on the Fastify instance. */
 export default (app: fastify.FastifyInstance): void => {
   // v1: OpenPGP-based operations (deprecated — will be removed in v1.0.0)
   // Add deprecation warning header to all v1 responses

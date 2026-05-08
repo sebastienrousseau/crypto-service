@@ -6,6 +6,7 @@
 import type { FastifyInstance } from "fastify";
 import { rejectUnauthorized } from "../../utils/route-helpers";
 
+/** Registers the v2 key-generation endpoint. */
 export default (app: FastifyInstance): void => {
   app.post(
     "/v2/keys/generate",

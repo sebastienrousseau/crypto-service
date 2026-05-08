@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Fastify plugin adapter.
+ * @remarks Fastify plugin adapter.
  *
  * Provides `cryptoPlugin` — a Fastify plugin registered via `fastify-plugin`
  * that hooks into the request/response lifecycle.  Depending on the configured

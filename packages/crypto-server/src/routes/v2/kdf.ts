@@ -37,6 +37,7 @@ const kdfSchema = {
   },
 } as const;
 
+/** Registers the v2 key-derivation (Argon2/HKDF) endpoint. */
 export default (app: FastifyInstance): void => {
   app.post("/v2/kdf", { schema: kdfSchema }, async (request, reply) => {
     try {

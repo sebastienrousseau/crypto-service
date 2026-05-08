@@ -4,7 +4,7 @@
  */
 
 /**
- * @file POST `/v1/verify` — verify a signed message.
+ * @remarks POST `/v1/verify` — verify a signed message.
  *
  * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
  * Use POST /v2/verify instead.
@@ -52,6 +52,7 @@ const verifySchema = {
   },
 } as const;
 
+/** @deprecated Registers the v1 PGP verify route. Use v2 endpoints instead. */
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyVerify }>(
     "/v1/verify",

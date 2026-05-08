@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Multi-recipient encryption — encrypt once, wrap the symmetric key
+ * @remarks Multi-recipient encryption — encrypt once, wrap the symmetric key
  * for each recipient.
  *
  * Strategy:

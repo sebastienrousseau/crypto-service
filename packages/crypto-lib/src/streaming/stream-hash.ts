@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Streaming hash — incremental hashing for arbitrarily large inputs.
+ * @remarks Streaming hash — incremental hashing for arbitrarily large inputs.
  *
  * Uses the .create() factory from @noble/hashes so data is processed
  * chunk-by-chunk without accumulating the entire input in memory.

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Runtime detection for edge and serverless environments.
+ * @remarks Runtime detection for edge and serverless environments.
  *
  * Detects the current JavaScript runtime by probing well-known globals
  * and environment markers. The detection order is intentional: more
@@ -33,6 +33,14 @@ const g = globalThis as Record<string, any>; // eslint-disable-line
  * 7. **Unknown** -- none of the above matched.
  *
  * @returns The detected {@link EdgeRuntime} identifier.
+ *
+ * @example
+ * ```ts
+ * import { detectRuntime } from "@aspect/crypto-edge";
+ *
+ * const runtime = detectRuntime();
+ * console.log(runtime); // "node", "cloudflare-workers", "deno", etc.
+ * ```
  */
 export function detectRuntime(): EdgeRuntime {
   // Uses module-level `g` reference
@@ -84,6 +92,16 @@ export function detectRuntime(): EdgeRuntime {
  *
  * @returns A {@link RuntimeCapabilities} snapshot describing what is
  * available in the current runtime.
+ *
+ * @example
+ * ```ts
+ * import { getCapabilities } from "@aspect/crypto-edge";
+ *
+ * const caps = getCapabilities();
+ * if (caps.hasSubtle) {
+ *   console.log("Web Crypto subtle API is available");
+ * }
+ * ```
  */
 export function getCapabilities(): RuntimeCapabilities {
   // Uses module-level `g` reference
@@ -127,6 +145,15 @@ export function getCapabilities(): RuntimeCapabilities {
  * Returns `true` when the runtime supports the Web Crypto
  * `crypto.subtle` API, which is required for most edge crypto
  * operations.
+ *
+ * @example
+ * ```ts
+ * import { isEdgeCryptoAvailable } from "@aspect/crypto-edge";
+ *
+ * if (isEdgeCryptoAvailable()) {
+ *   // Safe to use encrypt(), decrypt(), sign(), etc.
+ * }
+ * ```
  */
 export function isEdgeCryptoAvailable(): boolean {
   return getCapabilities().hasSubtle;

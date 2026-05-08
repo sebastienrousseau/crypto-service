@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Post-Quantum Cryptography — ML-KEM (Kyber) + hybrid key exchange.
+ * @remarks Post-Quantum Cryptography — ML-KEM (Kyber) + hybrid key exchange.
  *
  * Implements NIST FIPS 203 ML-KEM-768 for quantum-resistant key encapsulation,
  * and a hybrid scheme combining X25519 (classical) + ML-KEM-768 (post-quantum).

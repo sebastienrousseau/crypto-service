@@ -21,9 +21,6 @@ import * as types from "../types/types";
  * @param {Boolean} data.detached  - If true, produces a detached signature.
  * @returns {Promise<String>}      - Armored signed message or detached
  *                                   signature.
- *
- * @async
- * @static
  */
 export const sign = async (data: types.dataSign): Promise<string> => {
   const { passphrase, message, detached } = data;
@@ -46,13 +43,9 @@ export const sign = async (data: types.dataSign): Promise<string> => {
         signingKeys: privateKey,
       });
 
-  const sigDir = process.env["CRYPTO_DATA_DIR"]
-    ?? path.resolve(__dirname, "..", "data");
-  await writeFile(
-    path.join(sigDir, "signed.sig"),
-    signed as string,
-    "utf8",
-  );
+  const sigDir =
+    process.env["CRYPTO_DATA_DIR"] ?? path.resolve(__dirname, "..", "data");
+  await writeFile(path.join(sigDir, "signed.sig"), signed as string, "utf8");
 
   return signed as string;
 };

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Double Ratchet with PQ upgrades.
+ * @remarks Double Ratchet with PQ upgrades.
  *
  * Implements the Signal Double Ratchet algorithm:
  * - Symmetric ratchet (KDF chain) for deriving per-message keys

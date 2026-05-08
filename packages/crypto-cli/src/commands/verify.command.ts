@@ -1,6 +1,14 @@
 import verify from "@sebastienrousseau/crypto-lib/dist/lib/verify";
 import prompts from "prompts";
 
+/**
+ * Interactively verify a PGP-signed message via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleVerify();
+ * ```
+ */
 const handleVerify = async () => {
   const responseVerify = await prompts([
     {

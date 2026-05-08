@@ -4,7 +4,7 @@
  */
 
 /**
- * @file AEAD encryption/decryption using XChaCha20-Poly1305.
+ * @remarks AEAD encryption/decryption using XChaCha20-Poly1305.
  *
  * XChaCha20-Poly1305 is the recommended AEAD cipher for new applications:
  * - 256-bit key security

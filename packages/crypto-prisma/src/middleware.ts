@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Prisma middleware for transparent field-level encryption/decryption.
+ * @remarks Prisma middleware for transparent field-level encryption/decryption.
  *
  * Intercepts create/update/upsert to encrypt configured fields before they
  * reach the database, and intercepts find* queries to decrypt them on read.
@@ -16,18 +16,56 @@ import { secretbox } from "@sebastienrousseau/crypto-lib";
 import { computeHmac } from "@sebastienrousseau/crypto-lib";
 import type { EncryptionConfig, FieldConfig } from "./types";
 
-/** Prisma middleware callback signature. */
-type MiddlewareParams = {
+/**
+ * Prisma middleware callback parameter shape.
+ *
+ * @example
+ * ```ts
+ * const params: MiddlewareParams = {
+ *   action: "findMany",
+ *   model: "User",
+ *   args: { where: { id: 1 } },
+ *   dataPath: [],
+ *   runInTransaction: false,
+ * };
+ * ```
+ */
+export type MiddlewareParams = {
+  /** The Prisma model name (e.g. "User"). */
   model?: string;
+  /** The Prisma action (e.g. "findMany", "create"). */
   action: string;
+  /** The arguments passed to the Prisma operation. */
   args: Record<string, unknown>;
+  /** Path to nested data in the args. */
   dataPath: string[];
+  /** Whether the operation runs inside a transaction. */
   runInTransaction: boolean;
 };
 
-type MiddlewareNext = (params: MiddlewareParams) => Promise<unknown>;
+/**
+ * Callback to invoke the next middleware or the Prisma engine.
+ *
+ * @example
+ * ```ts
+ * const next: MiddlewareNext = async (params) => {
+ *   return { id: 1, email: "user@example.com" };
+ * };
+ * ```
+ */
+export type MiddlewareNext = (params: MiddlewareParams) => Promise<unknown>;
 
-/** Prisma middleware function type. */
+/**
+ * Prisma middleware function type.
+ *
+ * @example
+ * ```ts
+ * const middleware: PrismaMiddleware = async (params, next) => {
+ *   console.log(`Action: ${params.action} on ${params.model}`);
+ *   return next(params);
+ * };
+ * ```
+ */
 export type PrismaMiddleware = (
   params: MiddlewareParams,
   next: MiddlewareNext,

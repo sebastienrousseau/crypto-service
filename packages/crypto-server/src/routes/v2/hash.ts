@@ -25,6 +25,7 @@ const hashSchema = {
   },
 } as const;
 
+/** Registers the v2 hashing endpoint. */
 export default (app: FastifyInstance): void => {
   app.post("/v2/hash", { schema: hashSchema }, async (request, reply) => {
     try {

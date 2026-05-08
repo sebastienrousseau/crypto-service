@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Polyfills for missing APIs in constrained edge runtimes.
+ * @remarks Polyfills for missing APIs in constrained edge runtimes.
  *
  * Some lightweight edge runtimes (e.g., very minimal WASM-based
  * isolates) may lack `TextEncoder`, `TextDecoder`, `btoa`/`atob`, or
@@ -30,8 +30,12 @@
  * full BMP and supplementary planes (surrogate pairs).
  */
 class TextEncoderPolyfill {
+  /** The encoding used by this encoder, always `"utf-8"`. */
   readonly encoding = "utf-8";
 
+  /**
+   * Encode a string into a UTF-8 `Uint8Array`.
+   */
   encode(input: string): Uint8Array {
     const bytes: number[] = [];
     for (let i = 0; i < input.length; i++) {
@@ -75,8 +79,12 @@ class TextEncoderPolyfill {
  * Decodes a UTF-8 `Uint8Array` back to a JavaScript string.
  */
 class TextDecoderPolyfill {
+  /** The encoding used by this decoder, always `"utf-8"`. */
   readonly encoding = "utf-8";
 
+  /**
+   * Decode a UTF-8 byte buffer into a string.
+   */
   decode(input?: ArrayBufferView | ArrayBuffer): string {
     if (!input) return "";
 
@@ -218,12 +226,25 @@ let _installed = false;
  * Safe to call multiple times -- subsequent calls are no-ops.
  *
  * @returns An object describing which polyfills were installed.
+ *
+ * @example
+ * ```ts
+ * import { installPolyfills } from "@aspect/crypto-edge";
+ *
+ * const installed = installPolyfills();
+ * console.log(installed.textEncoder); // true if polyfill was needed
+ * ```
  */
 export function installPolyfills(): {
+  /** Whether the `TextEncoder` polyfill was installed. */
   textEncoder: boolean;
+  /** Whether the `TextDecoder` polyfill was installed. */
   textDecoder: boolean;
+  /** Whether the `btoa` polyfill was installed. */
   btoa: boolean;
+  /** Whether the `atob` polyfill was installed. */
   atob: boolean;
+  /** Whether the insecure `crypto.getRandomValues` polyfill was installed. */
   getRandomValues: boolean;
 } {
   if (_installed) {
@@ -288,6 +309,14 @@ export function installPolyfills(): {
 /**
  * Reset the internal installation flag. Useful for testing.
  * @internal
+ *
+ * @example
+ * ```ts
+ * import { _resetPolyfillState, installPolyfills } from "@aspect/crypto-edge";
+ *
+ * _resetPolyfillState();
+ * const result = installPolyfills(); // re-runs polyfill detection
+ * ```
  */
 export function _resetPolyfillState(): void {
   _installed = false;

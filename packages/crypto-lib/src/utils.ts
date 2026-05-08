@@ -4,7 +4,7 @@
  */
 
 /**
- * @file Cryptographic utilities — constant-time comparison and SecureBuffer.
+ * @remarks Cryptographic utilities — constant-time comparison and SecureBuffer.
  */
 
 /**

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file AES-GCM encryption/decryption via @noble/ciphers.
+ * @remarks AES-GCM encryption/decryption via @noble/ciphers.
  *
  * AES-GCM is the most widely deployed AEAD cipher:
  * - 128-bit or 256-bit key security

@@ -2,7 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @file Fast mock versions of expensive crypto operations.
+ * @remarks Fast mock versions of expensive crypto operations.
  *
  * These mocks are NOT cryptographically secure. They are designed to be
  * deterministic and fast so that unit tests that depend on crypto-lib
@@ -40,14 +40,31 @@ function hexToBytes(hex: string): Uint8Array {
 // Mock password hashing
 // ---------------------------------------------------------------------------
 
-/** Result from {@link mockHashPassword}. */
+/**
+ * Result from {@link mockHashPassword}.
+ *
+ * @example
+ * ```ts
+ * import type { MockHashPasswordResult } from "@sebastienrousseau/crypto-testing";
+ *
+ * const result: MockHashPasswordResult = mockHashPassword("secret");
+ * console.log(result.hash, result.phc);
+ * ```
+ */
 export interface MockHashPasswordResult {
   /** Hex-encoded hash (deterministic, NOT Argon2). */
   hash: string;
   /** Hex-encoded salt. */
   salt: string;
   /** Dummy params matching the Argon2 shape. */
-  params: { t: number; m: number; p: number };
+  params: {
+    /** Time cost (iterations). */
+    t: number;
+    /** Memory cost (KiB). */
+    m: number;
+    /** Parallelism factor. */
+    p: number;
+  };
   /** Algorithm identifier. */
   algorithm: "mock-argon2id";
   /** PHC-format string. */
@@ -60,6 +77,15 @@ export interface MockHashPasswordResult {
  *
  * The "hash" is simply the SHA-256-style hex of the password XOR'd
  * with a fixed salt, suitable for testing control flow only.
+ *
+ * @example
+ * ```ts
+ * import { mockHashPassword } from "@sebastienrousseau/crypto-testing";
+ *
+ * const result = mockHashPassword("my-password");
+ * console.log(result.hash); // deterministic hex string
+ * console.log(result.phc);  // PHC-format string
+ * ```
  */
 export function mockHashPassword(
   password: string | Uint8Array,
@@ -82,7 +108,17 @@ export function mockHashPassword(
 // Mock key pair generation
 // ---------------------------------------------------------------------------
 
-/** Result from {@link mockGenerateKeyPair}. */
+/**
+ * Result from {@link mockGenerateKeyPair}.
+ *
+ * @example
+ * ```ts
+ * import type { MockKeyPair } from "@sebastienrousseau/crypto-testing";
+ *
+ * const kp: MockKeyPair = mockGenerateKeyPair("ed25519");
+ * console.log(kp.publicKey, kp.kid);
+ * ```
+ */
 export interface MockKeyPair {
   /** Hex-encoded public key. */
   publicKey: string;
@@ -100,6 +136,14 @@ export interface MockKeyPair {
  * For `ed25519`, `x25519`, and `p256` this returns the well-known
  * test vectors from {@link TEST_KEYS}. For any other algorithm a
  * synthetic pair of fixed hex strings is returned.
+ *
+ * @example
+ * ```ts
+ * import { mockGenerateKeyPair } from "@sebastienrousseau/crypto-testing";
+ *
+ * const kp = mockGenerateKeyPair("ed25519");
+ * console.log(kp.publicKey, kp.privateKey);
+ * ```
  */
 export function mockGenerateKeyPair(
   algorithm: string = "ed25519",
@@ -144,6 +188,13 @@ export function mockGenerateKeyPair(
  * XOR-based fast fake encryption. Returns a hex-encoded "ciphertext"
  * that can be round-tripped with {@link mockDecrypt}.
  *
+ * @example
+ * ```ts
+ * import { mockEncrypt, TEST_KEYS } from "@sebastienrousseau/crypto-testing";
+ *
+ * const ct = mockEncrypt(TEST_KEYS.aes256, "hello world");
+ * ```
+ *
  * @param key       - Hex-encoded 256-bit key.
  * @param plaintext - UTF-8 string or bytes to encrypt.
  * @returns Hex-encoded "ciphertext".
@@ -159,6 +210,14 @@ export function mockEncrypt(
 
 /**
  * XOR-based fast fake decryption. Reverses {@link mockEncrypt}.
+ *
+ * @example
+ * ```ts
+ * import { mockEncrypt, mockDecrypt, TEST_KEYS } from "@sebastienrousseau/crypto-testing";
+ *
+ * const ct = mockEncrypt(TEST_KEYS.aes256, "hello");
+ * const pt = mockDecrypt(TEST_KEYS.aes256, ct);
+ * ```
  *
  * @param key        - Hex-encoded 256-bit key.
  * @param ciphertext - Hex-encoded "ciphertext" from mockEncrypt.
@@ -180,6 +239,13 @@ export function mockDecrypt(key: string, ciphertext: string): Uint8Array {
  * The signature is the hex encoding of `message XOR privateKey` —
  * not cryptographically meaningful but deterministic and fast.
  *
+ * @example
+ * ```ts
+ * import { mockSign, TEST_KEYS } from "@sebastienrousseau/crypto-testing";
+ *
+ * const sig = mockSign(TEST_KEYS.ed25519.privateKey, "sign me");
+ * ```
+ *
  * @param privateKey - Hex-encoded private key.
  * @param message    - UTF-8 string or bytes to sign.
  * @returns Hex-encoded mock signature.
@@ -199,7 +265,15 @@ export function mockSign(
  * Re-signs the message with the private key and checks that the
  * result matches the provided signature.
  *
- * @param publicKey  - Hex-encoded public key (unused; included for API parity).
+ * @example
+ * ```ts
+ * import { mockSign, mockVerify, TEST_KEYS } from "@sebastienrousseau/crypto-testing";
+ *
+ * const sig = mockSign(TEST_KEYS.ed25519.privateKey, "msg");
+ * const ok = mockVerify(TEST_KEYS.ed25519.publicKey, "msg", sig, TEST_KEYS.ed25519.privateKey);
+ * ```
+ *
+ * @param _publicKey - Hex-encoded public key (unused; included for API parity).
  * @param message    - UTF-8 string or bytes that were signed.
  * @param signature  - Hex-encoded signature from mockSign.
  * @param privateKey - Hex-encoded private key used to produce the signature.
