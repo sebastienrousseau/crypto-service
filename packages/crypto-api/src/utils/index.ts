@@ -13,43 +13,103 @@ import { mkdir, writeFile } from "fs/promises";
 import * as path from "path";
 
 /**
- * Narrow shapes used by the body/query/method helpers. The upstream payload
- * is a Postman collection export with a loose schema — only the fields we
- * actually render are typed here.
+ * URL object with an optional array of query parameters.
+ *
+ * @example
+ * ```ts
+ * const url: UrlWithQuery = { query: [{ key: "page", value: "1" }] };
+ * ```
  */
-interface UrlWithQuery {
-  query?: Array<{ key: string; value: string }>;
+export interface UrlWithQuery {
+  /** Optional list of query-string key/value pairs. */
+  query?: Array<{
+    /** Parameter name. */
+    key: string;
+    /** Parameter value. */
+    value: string;
+  }>;
 }
 
-interface BodyFormField {
+/**
+ * A single form-data field entry in a request body.
+ *
+ * @example
+ * ```ts
+ * const field: BodyFormField = { key: "file", type: "file", src: "./data.csv" };
+ * ```
+ */
+export interface BodyFormField {
+  /** Field name. */
   key: string;
+  /** Field type, e.g. `"text"` or `"file"`. */
   type: string;
+  /** File source path when `type` is `"file"`. */
   src?: string | undefined;
+  /** Field value when `type` is `"text"`. */
   value?: string | undefined;
 }
 
-interface BodyShape {
+/**
+ * Shape of a request body — either raw JSON or form-data.
+ *
+ * @example
+ * ```ts
+ * const body: BodyShape = { mode: "raw", raw: '{"key":"value"}' };
+ * ```
+ */
+export interface BodyShape {
+  /** Body mode — `"raw"` for JSON, `"formdata"` for multipart. */
   mode?: string;
+  /** Raw body content (used when mode is `"raw"`). */
   raw?: string;
+  /** Form-data fields (used when mode is `"formdata"`). */
   formdata?: BodyFormField[];
 }
 
-interface MethodLike {
+/**
+ * A Postman-style method entry with request/response metadata.
+ *
+ * @example
+ * ```ts
+ * const method: MethodLike = { name: "Get Users", request: { method: "GET" } };
+ * ```
+ */
+export interface MethodLike {
+  /** Display name of the API method. */
   name: string;
+  /** Request details including HTTP method, URL, body, and auth. */
   request?: JsonRequest & {
+    /** HTTP verb (GET, POST, etc.). */
     method?: string;
+    /** Human-readable description of the endpoint. */
     description?: string;
+    /** Request URL, either a string or an object with query params. */
     url?: UrlWithQuery | string;
+    /** Request body definition. */
     body?: BodyShape;
+    /** Authorization configuration. */
     auth?: AuthorizationInfo;
   };
+  /** Array of example responses. */
   response?: ResponseType[];
 }
 
-interface ItemShape {
+/**
+ * Recursive folder/item shape for Postman-style collections.
+ *
+ * @example
+ * ```ts
+ * const item: ItemShape = { name: "Auth", item: [{ name: "Login" }] };
+ * ```
+ */
+export interface ItemShape {
+  /** Display name of the folder or endpoint. */
   name: string;
+  /** Nested child items (sub-folders or endpoints). */
   item?: ItemShape[];
+  /** Request details (present when this is an endpoint, not a folder). */
   request?: MethodLike["request"];
+  /** Example responses (present when this is an endpoint, not a folder). */
   response?: MethodLike["response"];
 }
 

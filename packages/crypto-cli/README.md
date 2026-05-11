@@ -210,6 +210,7 @@ Runnable shell scripts are provided in the [`examples/`](examples/) directory:
 | Signing    | [sign.sh](examples/sign.sh)         | Sign and verify with modern algorithms    |
 | Passwords  | [password.sh](examples/password.sh) | Hash and verify passwords with Argon2     |
 | Legacy     | [legacy.sh](examples/legacy.sh)     | Legacy OpenPGP key generation and signing |
+| Helpers    | [support.ts](examples/support.ts)   | Shared display helpers for example output |
 
 Run any example:
 

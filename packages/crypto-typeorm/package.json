@@ -9,6 +9,13 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/"
   ],
@@ -16,7 +23,10 @@
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
   },
   "dependencies": {
     "@sebastienrousseau/crypto-lib": "workspace:*"

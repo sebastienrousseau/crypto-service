@@ -308,25 +308,26 @@ pnpm --filter @sebastienrousseau/crypto-server start
 npx ts-node examples/<name>.ts
 ```
 
-| Category        | Example                                         | Purpose                                  |
-| --------------- | ----------------------------------------------- | ---------------------------------------- |
-| Algorithms      | [algorithms.ts](examples/algorithms.ts)         | List supported algorithms                |
-| Encryption      | [encrypt.ts](examples/encrypt.ts)               | Encrypt and decrypt via v2 endpoints     |
-| Hashing         | [hash.ts](examples/hash.ts)                     | Hash data via POST /v2/hash              |
-| HMAC            | [hmac.ts](examples/hmac.ts)                     | HMAC compute and verify                  |
-| KDF             | [kdf.ts](examples/kdf.ts)                       | Key derivation                           |
-| Key Generation  | [keygen.ts](examples/keygen.ts)                 | Generate keys via POST /v2/keys/generate |
-| Key Wrap        | [keywrap.ts](examples/keywrap.ts)               | AES key wrapping and unwrapping          |
-| Passwords       | [password.ts](examples/password.ts)             | Password hash and verify                 |
-| PW Encrypt      | [pwencrypt.ts](examples/pwencrypt.ts)           | Password-based encryption and decryption |
-| PQ KEM          | [pqkem.ts](examples/pqkem.ts)                   | Post-quantum KEM operations              |
-| PQ Sign         | [pqsign.ts](examples/pqsign.ts)                 | Post-quantum ML-DSA signing              |
-| PQ Hash Sign    | [pqhashsign.ts](examples/pqhashsign.ts)         | Post-quantum SLH-DSA signing             |
-| Probes          | [probes.ts](examples/probes.ts)                 | Health and readiness checks              |
-| Multi-Recipient | [multirecipient.ts](examples/multirecipient.ts) | Multi-recipient encryption               |
-| Sealed Box      | [sealedbox.ts](examples/sealedbox.ts)           | Sealed box operations                    |
-| Secretbox       | [secretbox.ts](examples/secretbox.ts)           | Secretbox seal and open                  |
-| Signing         | [sign.ts](examples/sign.ts)                     | Sign and verify via v2 endpoints         |
+| Category        | Example                                         | Purpose                                   |
+| --------------- | ----------------------------------------------- | ----------------------------------------- |
+| Algorithms      | [algorithms.ts](examples/algorithms.ts)         | List supported algorithms                 |
+| Encryption      | [encrypt.ts](examples/encrypt.ts)               | Encrypt and decrypt via v2 endpoints      |
+| Hashing         | [hash.ts](examples/hash.ts)                     | Hash data via POST /v2/hash               |
+| HMAC            | [hmac.ts](examples/hmac.ts)                     | HMAC compute and verify                   |
+| KDF             | [kdf.ts](examples/kdf.ts)                       | Key derivation                            |
+| Key Generation  | [keygen.ts](examples/keygen.ts)                 | Generate keys via POST /v2/keys/generate  |
+| Key Wrap        | [keywrap.ts](examples/keywrap.ts)               | AES key wrapping and unwrapping           |
+| Passwords       | [password.ts](examples/password.ts)             | Password hash and verify                  |
+| PW Encrypt      | [pwencrypt.ts](examples/pwencrypt.ts)           | Password-based encryption and decryption  |
+| PQ KEM          | [pqkem.ts](examples/pqkem.ts)                   | Post-quantum KEM operations               |
+| PQ Sign         | [pqsign.ts](examples/pqsign.ts)                 | Post-quantum ML-DSA signing               |
+| PQ Hash Sign    | [pqhashsign.ts](examples/pqhashsign.ts)         | Post-quantum SLH-DSA signing              |
+| Probes          | [probes.ts](examples/probes.ts)                 | Health and readiness checks               |
+| Multi-Recipient | [multirecipient.ts](examples/multirecipient.ts) | Multi-recipient encryption                |
+| Sealed Box      | [sealedbox.ts](examples/sealedbox.ts)           | Sealed box operations                     |
+| Secretbox       | [secretbox.ts](examples/secretbox.ts)           | Secretbox seal and open                   |
+| Signing         | [sign.ts](examples/sign.ts)                     | Sign and verify via v2 endpoints          |
+| Helpers         | [support.ts](examples/support.ts)               | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

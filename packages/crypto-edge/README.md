@@ -229,15 +229,16 @@ All examples are self-contained TypeScript files in the `examples/` directory. R
 npx ts-node examples/<name>.ts
 ```
 
-| Category   | Example                             | Purpose                     |
-| ---------- | ----------------------------------- | --------------------------- |
-| Detection  | [detect.ts](examples/detect.ts)     | Runtime detection           |
-| Hashing    | [hash.ts](examples/hash.ts)         | Edge-compatible hashing     |
-| Encryption | [encrypt.ts](examples/encrypt.ts)   | AES-GCM encrypt and decrypt |
-| Workers    | [workers.ts](examples/workers.ts)   | Cloudflare Workers usage    |
-| Vercel     | [vercel.ts](examples/vercel.ts)     | Vercel Edge Function usage  |
-| Browser    | [browser.ts](examples/browser.ts)   | Browser usage               |
-| Polyfills  | [polyfill.ts](examples/polyfill.ts) | Polyfill installation       |
+| Category   | Example                             | Purpose                                   |
+| ---------- | ----------------------------------- | ----------------------------------------- |
+| Detection  | [detect.ts](examples/detect.ts)     | Runtime detection                         |
+| Hashing    | [hash.ts](examples/hash.ts)         | Edge-compatible hashing                   |
+| Encryption | [encrypt.ts](examples/encrypt.ts)   | AES-GCM encrypt and decrypt               |
+| Workers    | [workers.ts](examples/workers.ts)   | Cloudflare Workers usage                  |
+| Vercel     | [vercel.ts](examples/vercel.ts)     | Vercel Edge Function usage                |
+| Browser    | [browser.ts](examples/browser.ts)   | Browser usage                             |
+| Polyfills  | [polyfill.ts](examples/polyfill.ts) | Polyfill installation                     |
+| Helpers    | [support.ts](examples/support.ts)   | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

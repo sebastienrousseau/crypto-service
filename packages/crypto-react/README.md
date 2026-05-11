@@ -262,6 +262,7 @@ npx ts-node examples/<name>.ts
 | Encryption     | [encrypt.ts](examples/encrypt.ts)   | Secretbox encrypt and decrypt round-trip      |
 | Hashing        | [hash.ts](examples/hash.ts)         | SHA-256, SHA3-256, and BLAKE3 hashing         |
 | Signing        | [sign.ts](examples/sign.ts)         | Ed25519 sign and verify with tamper detection |
+| Helpers        | [support.ts](examples/support.ts)   | Shared display helpers for example output     |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

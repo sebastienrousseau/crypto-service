@@ -28,6 +28,10 @@
       "eslint --fix",
       "prettier --write"
     ],
+    "packages/*/__tests__/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
     "*.{json,md}": [
       "prettier --write"
     ]

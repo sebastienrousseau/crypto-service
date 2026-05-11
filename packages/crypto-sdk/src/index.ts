@@ -558,7 +558,7 @@ export class CryptoClient {
     key: string;
     data: string;
   }): Promise<ApiResponse<MacResult>> {
-    return this.request("POST", "/v2/mac/compute", params);
+    return this.request("POST", "/v2/hmac", params);
   }
 
   /** Verify a message authentication code. */
@@ -573,7 +573,7 @@ export class CryptoClient {
       valid: boolean;
     }>
   > {
-    return this.request("POST", "/v2/mac/verify", params);
+    return this.request("POST", "/v2/hmac/verify", params);
   }
 
   // --- Password Hashing ---

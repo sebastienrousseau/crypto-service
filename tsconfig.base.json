@@ -23,9 +23,22 @@
     "noUnusedParameters": true,
     "outDir": "./dist",
     "paths": {
+      "@sebastienrousseau/crypto-api/*": ["packages/crypto-api/src/*"],
       "@sebastienrousseau/crypto-cli/*": ["packages/crypto-cli/src/*"],
+      "@sebastienrousseau/crypto-edge/*": ["packages/crypto-edge/src/*"],
+      "@sebastienrousseau/crypto-kms/*": ["packages/crypto-kms/src/*"],
       "@sebastienrousseau/crypto-lib/*": ["packages/crypto-lib/src/*"],
-      "@sebastienrousseau/crypto-server/*": ["packages/crypto-server/src/*"]
+      "@sebastienrousseau/crypto-middleware/*": [
+        "packages/crypto-middleware/src/*"
+      ],
+      "@sebastienrousseau/crypto-prisma/*": ["packages/crypto-prisma/src/*"],
+      "@sebastienrousseau/crypto-react/*": ["packages/crypto-react/src/*"],
+      "@sebastienrousseau/crypto-sdk/*": ["packages/crypto-sdk/src/*"],
+      "@sebastienrousseau/crypto-server/*": ["packages/crypto-server/src/*"],
+      "@sebastienrousseau/crypto-testing/*": ["packages/crypto-testing/src/*"],
+      "@sebastienrousseau/crypto-typeorm/*": ["packages/crypto-typeorm/src/*"],
+      "@sebastienrousseau/crypto-vue/*": ["packages/crypto-vue/src/*"],
+      "@sebastienrousseau/crypto-wasm/*": ["packages/crypto-wasm/src/*"]
     },
     "preserveConstEnums": true,
     "removeComments": true,
@@ -39,7 +52,6 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "ES2023",
-    "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
-    "esModuleInterop": true
+    "tsBuildInfoFile": "./tsconfig.tsbuildinfo"
   }
 }

@@ -197,13 +197,14 @@ All examples are self-contained TypeScript files in the `examples/` directory. R
 npx ts-node examples/<name>.ts
 ```
 
-| Category  | Example                               | Purpose                                  |
-| --------- | ------------------------------------- | ---------------------------------------- |
-| Express   | [express.ts](examples/express.ts)     | Full Express setup with encrypt/decrypt  |
-| Fastify   | [fastify.ts](examples/fastify.ts)     | Fastify plugin registration              |
-| Webhook   | [webhook.ts](examples/webhook.ts)     | HMAC signature verification for webhooks |
-| JWT       | [jwt.ts](examples/jwt.ts)             | JWT Bearer token verification            |
-| Encrypted | [encrypted.ts](examples/encrypted.ts) | Full encrypted request/response pipeline |
+| Category  | Example                               | Purpose                                   |
+| --------- | ------------------------------------- | ----------------------------------------- |
+| Express   | [express.ts](examples/express.ts)     | Full Express setup with encrypt/decrypt   |
+| Fastify   | [fastify.ts](examples/fastify.ts)     | Fastify plugin registration               |
+| Webhook   | [webhook.ts](examples/webhook.ts)     | HMAC signature verification for webhooks  |
+| JWT       | [jwt.ts](examples/jwt.ts)             | JWT Bearer token verification             |
+| Encrypted | [encrypted.ts](examples/encrypted.ts) | Full encrypted request/response pipeline  |
+| Helpers   | [support.ts](examples/support.ts)     | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

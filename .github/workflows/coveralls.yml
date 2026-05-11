@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22]
+        node-version: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -67,6 +67,96 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           file: ./packages/crypto-server/coverage/lcov.info
+
+      - name: Coveralls Crypto-Edge
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-edge
+          flag-name: crypto-edge
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-edge/coverage/lcov.info
+
+      - name: Coveralls Crypto-Kms
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-kms
+          flag-name: crypto-kms
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-kms/coverage/lcov.info
+
+      - name: Coveralls Crypto-Middleware
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-middleware
+          flag-name: crypto-middleware
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-middleware/coverage/lcov.info
+
+      - name: Coveralls Crypto-Prisma
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-prisma
+          flag-name: crypto-prisma
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-prisma/coverage/lcov.info
+
+      - name: Coveralls Crypto-React
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-react
+          flag-name: crypto-react
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-react/coverage/lcov.info
+
+      - name: Coveralls Crypto-Sdk
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-sdk
+          flag-name: crypto-sdk
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-sdk/coverage/lcov.info
+
+      - name: Coveralls Crypto-Testing
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-testing
+          flag-name: crypto-testing
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-testing/coverage/lcov.info
+
+      - name: Coveralls Crypto-Typeorm
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-typeorm
+          flag-name: crypto-typeorm
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-typeorm/coverage/lcov.info
+
+      - name: Coveralls Crypto-Vue
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-vue
+          flag-name: crypto-vue
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-vue/coverage/lcov.info
+
+      - name: Coveralls Crypto-Wasm
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: packages/crypto-wasm
+          flag-name: crypto-wasm
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-wasm/coverage/lcov.info
 
   finish:
     needs: build

@@ -42,7 +42,7 @@
     "@types/prompts": "^2.4.5",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
-    "c8": "^8.0.1",
+    "c8": "^10.1.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.1.1",
@@ -61,14 +61,14 @@
     "ts-node": "^10.9.1",
     "typedoc": "^0.25.2",
     "typedoc-plugin-missing-exports": "^2.1.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.7.0"
   },
   "directories": {
     "src": "./src",
     "test": "__tests__"
   },
   "engines": {
-    "node": ">=16.14.0 || >=18.6.0"
+    "node": ">=22.0.0"
   },
   "files": [
     "dist/**/*"
@@ -91,6 +91,13 @@
   "license_URI": "http://www.opensource.org/licenses/mit-license.php",
   "lockfileVersion": 1,
   "main": "./dist/cli.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/cli.js",
+      "import": "./dist/cli.js"
+    }
+  },
   "name": "@sebastienrousseau/crypto-cli",
   "private": false,
   "publishConfig": {
@@ -109,7 +116,8 @@
     "lint:fix": "eslint --cache --fix src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "start": "node dist/cli.js",
-    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs"
+    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc"
   },
   "types": "./dist/index.d.ts",
   "version": "0.0.3"

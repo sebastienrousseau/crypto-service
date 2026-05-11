@@ -136,10 +136,10 @@ Every method returns `Promise<ApiResponse<T>>` where `ApiResponse<T>` is `{ data
 
 ### MAC
 
-| Method            | Endpoint               | Description                |
-| ----------------- | ---------------------- | -------------------------- |
-| `mac(body)`       | `POST /v2/mac/compute` | Compute a MAC (HMAC, KMAC) |
-| `macVerify(body)` | `POST /v2/mac/verify`  | Verify a MAC               |
+| Method            | Endpoint               | Description          |
+| ----------------- | ---------------------- | -------------------- |
+| `mac(body)`       | `POST /v2/hmac`        | Compute a MAC (HMAC) |
+| `macVerify(body)` | `POST /v2/hmac/verify` | Verify a MAC         |
 
 ### Password Hashing
 
@@ -236,6 +236,7 @@ npx ts-node examples/hash.ts
 | Sealed Box   | [sealedbox.ts](examples/sealedbox.ts)   | Anonymous public-key encryption                   |
 | Secretbox    | [secretbox.ts](examples/secretbox.ts)   | Symmetric authenticated encryption                |
 | Signing      | [sign.ts](examples/sign.ts)             | Ed25519 signing and verification                  |
+| Helpers      | [support.ts](examples/support.ts)       | Shared display helpers for example output         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

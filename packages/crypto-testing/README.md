@@ -228,12 +228,13 @@ All examples are self-contained TypeScript files in the `examples/` directory. R
 npx ts-node examples/<name>.ts
 ```
 
-| Category   | Example                                 | Purpose                             |
-| ---------- | --------------------------------------- | ----------------------------------- |
-| Keys       | [keys.ts](examples/keys.ts)             | Using deterministic test keys       |
-| Mocks      | [mocks.ts](examples/mocks.ts)           | Mocking crypto operations for speed |
-| Fixtures   | [fixtures.ts](examples/fixtures.ts)     | Using pre-built test fixtures       |
-| Assertions | [assertions.ts](examples/assertions.ts) | Assertion helpers in tests          |
+| Category   | Example                                 | Purpose                                   |
+| ---------- | --------------------------------------- | ----------------------------------------- |
+| Keys       | [keys.ts](examples/keys.ts)             | Using deterministic test keys             |
+| Mocks      | [mocks.ts](examples/mocks.ts)           | Mocking crypto operations for speed       |
+| Fixtures   | [fixtures.ts](examples/fixtures.ts)     | Using pre-built test fixtures             |
+| Assertions | [assertions.ts](examples/assertions.ts) | Assertion helpers in tests                |
+| Helpers    | [support.ts](examples/support.ts)       | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

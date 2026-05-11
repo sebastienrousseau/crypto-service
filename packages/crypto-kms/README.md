@@ -179,6 +179,7 @@ npx ts-node examples/<name>.ts
 | Envelope | [envelope.ts](examples/envelope.ts) | Envelope encryption with `generateDataKey`               |
 | Rotation | [rotation.ts](examples/rotation.ts) | Key rotation workflow                                    |
 | Multi    | [multi.ts](examples/multi.ts)       | Provider-agnostic code across multiple backends          |
+| Helpers  | [support.ts](examples/support.ts)   | Shared display helpers for example output                |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

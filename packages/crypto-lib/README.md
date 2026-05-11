@@ -351,6 +351,7 @@ npx ts-node examples/<name>.ts
 | Registry       | [registry.ts](examples/registry.ts)   | Query algorithm registry                  |
 | Unified API    | [unified.ts](examples/unified.ts)     | Unified crypto API overview               |
 | Ratchet        | [ratchet.ts](examples/ratchet.ts)     | Double Ratchet protocol demo              |
+| Helpers        | [support.ts](examples/support.ts)     | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

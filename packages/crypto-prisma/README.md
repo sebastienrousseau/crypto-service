@@ -190,6 +190,7 @@ npx ts-node examples/<name>.ts
 | Extension  | [extension.ts](examples/extension.ts)   | Client Extension approach (Prisma 4.16+)               |
 | Searchable | [searchable.ts](examples/searchable.ts) | Deterministic HMAC encryption for exact-match search   |
 | Migration  | [migration.ts](examples/migration.ts)   | Migrate existing plaintext data to encrypted storage   |
+| Helpers    | [support.ts](examples/support.ts)       | Shared display helpers for example output              |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

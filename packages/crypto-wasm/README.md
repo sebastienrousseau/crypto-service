@@ -208,6 +208,7 @@ npx ts-node examples/<name>.ts
 | Benchmark  | [benchmark.ts](examples/benchmark.ts)   | Compare JS vs WASM performance             |
 | Detect     | [detect.ts](examples/detect.ts)         | Check WASM availability and capabilities   |
 | Fallback   | [fallback.ts](examples/fallback.ts)     | Graceful fallback when WASM is unavailable |
+| Helpers    | [support.ts](examples/support.ts)       | Shared display helpers for example output  |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

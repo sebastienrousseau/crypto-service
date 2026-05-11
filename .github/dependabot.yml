@@ -11,13 +11,28 @@ updates:
       fastify:
         patterns:
           - "fastify"
+          - "fastify-*"
           - "@fastify/*"
       opentelemetry:
         patterns:
           - "@opentelemetry/*"
+      types:
+        patterns:
+          - "@types/*"
+      dev-tools:
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - "prettier"
+          - "typescript"
+          - "typedoc*"
+          - "mocha"
+          - "chai*"
+          - "c8"
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5

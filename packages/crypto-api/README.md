@@ -138,11 +138,12 @@ All examples are self-contained TypeScript files in the `examples/` directory. R
 npx ts-node examples/<name>.ts
 ```
 
-| Category   | Example                                 | Purpose                                |
-| ---------- | --------------------------------------- | -------------------------------------- |
-| Types      | [types.ts](examples/types.ts)           | Using API types for type-safe requests |
-| Utilities  | [utilities.ts](examples/utilities.ts)   | Using exported utility functions       |
-| Validation | [validation.ts](examples/validation.ts) | Validating API payloads against types  |
+| Category   | Example                                 | Purpose                                   |
+| ---------- | --------------------------------------- | ----------------------------------------- |
+| Types      | [types.ts](examples/types.ts)           | Using API types for type-safe requests    |
+| Utilities  | [utilities.ts](examples/utilities.ts)   | Using exported utility functions          |
+| Validation | [validation.ts](examples/validation.ts) | Validating API payloads against types     |
+| Helpers    | [support.ts](examples/support.ts)       | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

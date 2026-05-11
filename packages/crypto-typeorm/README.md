@@ -205,6 +205,7 @@ npx ts-node examples/<name>.ts
 | Subscriber  | [subscriber.ts](examples/subscriber.ts)   | Centralised encryption via `EncryptionSubscriber` |
 | Transformer | [transformer.ts](examples/transformer.ts) | Manual `ValueTransformer` on `@Column`            |
 | Migration   | [migration.ts](examples/migration.ts)     | Encrypting existing plaintext columns             |
+| Helpers     | [support.ts](examples/support.ts)         | Shared display helpers for example output         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

@@ -9,6 +9,13 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/",
     "wasm/"
@@ -18,12 +25,19 @@
     "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.7",
+    "@types/chai-as-promised": "^7.1.6",
+    "@types/mocha": "^10.0.2",
     "@types/node": "^22.0.0",
     "c8": "^10.1.0",
     "chai": "^4.5.0",
+    "chai-as-promised": "^7.1.2",
     "mocha": "^10.8.0",
     "rimraf": "^6.0.0",
     "ts-node": "^10.9.2",
