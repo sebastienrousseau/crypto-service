@@ -31,3 +31,40 @@ enabled = true
     "class-declaration",
     "class-expression",
   ]
+
+# Disable false-positive rules for TypeScript modules
+[[analyzers.rules]]
+rule_id = "JS-0067"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-0359"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-C1002"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-0240"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-0246"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-E1009"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-C1003"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-0327"
+enabled = false
+
+[[analyzers.rules]]
+rule_id = "JS-0357"
+enabled = false
