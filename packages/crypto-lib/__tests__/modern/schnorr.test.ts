@@ -27,7 +27,11 @@ describe("Schnorr (BIP-340)", () => {
   it("should reject invalid signatures", () => {
     const kp = generateSchnorrKeyPair();
     const sig = schnorrSign(kp.privateKey, "hello");
-    const result = schnorrVerify(kp.publicKey, "different message", sig.signature);
+    const result = schnorrVerify(
+      kp.publicKey,
+      "different message",
+      sig.signature,
+    );
     expect(result.valid).to.be.false;
   });
 
@@ -40,6 +44,8 @@ describe("Schnorr (BIP-340)", () => {
   });
 
   it("should reject invalid hex for privateKey", () => {
-    expect(() => schnorrSign("ZZZZ", "hello")).to.throw("Invalid hex string");
+    expect(() => schnorrSign("ZZZZ", "hello")).to.throw(
+      /[Ii]nvalid.*hex|hex string expected/,
+    );
   });
 });

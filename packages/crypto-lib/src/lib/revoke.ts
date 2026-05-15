@@ -40,10 +40,9 @@ export const revoke = async (data: types.dataRevoke) => {
   const revokedPubArmored = revoked.publicKey as unknown as string;
   const revokedPrivArmored = revoked.privateKey as unknown as string;
 
+  /* c8 ignore next 3 -- tests always set CRYPTO_KEY_DIR */
   const keyDir =
-    process.env["CRYPTO_KEY_DIR"] ??
-    /* c8 ignore next -- tests always set CRYPTO_KEY_DIR */
-    path.resolve(__dirname, "..", "key");
+    process.env["CRYPTO_KEY_DIR"] ?? path.resolve(__dirname, "..", "key");
   await Promise.all([
     writeFile(path.join(keyDir, "rsa-revoke.pub"), revokedPubArmored, "utf8"),
     writeFile(path.join(keyDir, "rsa-revoke.key"), revokedPrivArmored, "utf8"),

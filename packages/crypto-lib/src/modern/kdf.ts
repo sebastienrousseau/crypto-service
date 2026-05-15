@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -11,11 +11,11 @@
  * alternative for password hashing.
  */
 
-import { scrypt } from "@noble/hashes/scrypt";
-import { hkdf } from "@noble/hashes/hkdf";
-import { pbkdf2 } from "@noble/hashes/pbkdf2";
-import { sha256 } from "@noble/hashes/sha256";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { scrypt } from "@noble/hashes/scrypt.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [

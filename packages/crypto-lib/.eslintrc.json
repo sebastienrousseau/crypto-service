@@ -1,14 +1,8 @@
-// {
-//   "extends": [
-//     "@sebastienrousseau/eslint-config"
-//   ]
-// }
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "parserOptions": { "ecmaVersion": 2023, "sourceType": "module" },
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",

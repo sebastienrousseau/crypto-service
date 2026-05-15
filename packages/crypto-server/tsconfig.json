@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./src",
     "resolveJsonModule": true
   },
   "exclude": ["node_modules", "dist", "__tests__"],
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "package.json"]
+  "include": ["src"]
 }

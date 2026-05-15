@@ -7,6 +7,8 @@ import { expect } from "chai";
 import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 import * as openpgp from "openpgp";
+import * as path from "path";
+import { _resetKeystoreForTests } from "@sebastienrousseau/crypto-lib/dist/key/keystore";
 
 /**
  * Integration tests that exercise the full success path of each route.
@@ -86,7 +88,9 @@ describe("Route success paths", function () {
         encryptionKeys: pubKey,
       });
 
-      const encryptedBase64 = Buffer.from(encrypted as string).toString("base64");
+      const encryptedBase64 = Buffer.from(encrypted as string).toString(
+        "base64",
+      );
 
       const res = await app.inject({
         method: "POST",
@@ -130,7 +134,9 @@ describe("Route success paths", function () {
     it("should verify a signed message", async () => {
       // Create a cleartext signed message
       const privKey = await openpgp.decryptKey({
-        privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
+        privateKey: await openpgp.readPrivateKey({
+          armoredKey: privateKeyArmored,
+        }),
         passphrase,
       });
 
@@ -139,7 +145,8 @@ describe("Route success paths", function () {
         signingKeys: privKey,
       });
 
-      const verificationKeysBase64 = Buffer.from(publicKeyArmored).toString("base64");
+      const verificationKeysBase64 =
+        Buffer.from(publicKeyArmored).toString("base64");
 
       const res = await app.inject({
         method: "POST",
@@ -157,6 +164,31 @@ describe("Route success paths", function () {
   });
 
   describe("POST /v1/revoke (success)", () => {
+    let origKeyDir: string | undefined;
+
+    before(() => {
+      _resetKeystoreForTests();
+      origKeyDir = process.env["CRYPTO_KEY_DIR"];
+      process.env["CRYPTO_KEY_DIR"] = path.resolve(
+        __dirname,
+        "..",
+        "..",
+        "crypto-lib",
+        "__tests__",
+        "fixtures",
+        "keys",
+      );
+    });
+
+    after(() => {
+      if (origKeyDir === undefined) {
+        delete process.env["CRYPTO_KEY_DIR"];
+      } else {
+        process.env["CRYPTO_KEY_DIR"] = origKeyDir;
+      }
+      _resetKeystoreForTests();
+    });
+
     it("should revoke a key pair", async () => {
       const res = await app.inject({
         method: "POST",
@@ -167,9 +199,9 @@ describe("Route success paths", function () {
           reason: "Test revocation for coverage",
         },
       });
-      // Revoke uses the shipped key from the keystore which needs
-      // CRYPTO_KEY_DIR set. It may return 500 if keys aren't available.
-      expect(res.statusCode).to.be.oneOf([200, 500]);
+      expect(res.statusCode).to.equal(200);
+      const body = JSON.parse(res.payload);
+      expect(body).to.have.property("data");
     });
   });
 

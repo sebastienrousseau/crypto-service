@@ -20,8 +20,8 @@
  *   tag = 0x00 for intermediate chunks, 0x01 for the final chunk.
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 const NONCE_LEN = 24;
 const TAG_LEN = 16;

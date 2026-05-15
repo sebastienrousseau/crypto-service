@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -11,11 +11,11 @@
  * timing side-channel attacks.
  */
 
-import { hmac } from "@noble/hashes/hmac";
-import { sha256 } from "@noble/hashes/sha256";
-import { sha384, sha512 } from "@noble/hashes/sha512";
-import { sha3_256, sha3_512 } from "@noble/hashes/sha3";
-import { kmac128, kmac256 } from "@noble/hashes/sha3-addons";
+import { hmac } from "@noble/hashes/hmac.js";
+import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
+import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
+import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
+import { timingSafeEqual } from "../utils";
 
 // --- Types ---
 
@@ -87,20 +87,8 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
-/**
- * Constant-time comparison of two byte arrays.
- * Returns true only when both arrays have the same length and contents.
- */
-function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= (a[i] as number) ^ (b[i] as number);
-  }
-  return result === 0;
-}
-
-type HashFn = typeof sha256;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HashFn = any;
 
 const hashFunctions: Record<HmacAlgorithm, HashFn> = {
   sha256: sha256,

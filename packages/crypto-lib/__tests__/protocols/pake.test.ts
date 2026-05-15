@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import * as pake from "../../src/protocols/pake";
-import { p256 } from "@noble/curves/p256";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { hmac } from "@noble/hashes/hmac";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { p256 } from "@noble/curves/nist.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hmac } from "@noble/hashes/hmac.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 describe("PAKE (OPAQUE-like)", () => {
   it("should register a user", () => {
@@ -46,8 +46,9 @@ describe("PAKE (OPAQUE-like)", () => {
     const serverId = "my-server";
     const password = "correct-password";
     const record = pake.serverRegister(password, serverId);
-    const { request, state: clientState } = pake.clientStartLogin(password);
-    const { response, state: serverState } = pake.serverRespondLogin(request, record);
+    const loginStart = pake.clientStartLogin(password);
+    const loginRespond = pake.serverRespondLogin(loginStart.request, record);
+    const serverState = loginRespond.state;
 
     // The server state should have a session key
     expect(serverState.sessionKey).to.be.a("string");
@@ -74,14 +75,16 @@ describe("PAKE (OPAQUE-like)", () => {
       };
       expect(() =>
         pake.clientFinishLogin(fakeResponse, clientState, "srv"),
-      ).to.throw("Invalid hex string");
+      ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
     });
 
     it("should throw on invalid hex in oprfSalt field", () => {
       const { state: clientState } = pake.clientStartLogin("pw");
       // Use a valid P-256 point for serverEphemeralPublic but invalid hex for oprfSalt
       // Generate a valid point (generator * 1 = generator)
-      const validPoint = Buffer.from(p256.ProjectivePoint.BASE.toRawBytes(false)).toString("hex");
+      const validPoint = Buffer.from(p256.Point.BASE.toBytes(false)).toString(
+        "hex",
+      );
       const fakeResponse: pake.LoginResponse = {
         evaluatedElement: "ab",
         serverEphemeralPublic: validPoint,
@@ -92,7 +95,7 @@ describe("PAKE (OPAQUE-like)", () => {
       };
       expect(() =>
         pake.clientFinishLogin(fakeResponse, clientState, "srv"),
-      ).to.throw("Invalid hex string");
+      ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
     });
 
     it("should throw 'Server authentication failed' due to salt mismatch in normal flow", () => {
@@ -124,11 +127,17 @@ describe("PAKE (OPAQUE-like)", () => {
 
       // Step 2: Manually build the client state using the SAME oprfSalt
       // (simulating what a correct implementation would do)
-      const n = p256.CURVE.n;
+      const n = p256.Point.Fn.ORDER;
 
       // Hash password to scalar using oprfSalt (same as registration)
       const input = Buffer.from(password, "utf8");
-      const expanded = hkdf(sha256, input, oprfSalt, "opaque-p256-oprf-scalar", 48);
+      const expanded = hkdf(
+        sha256,
+        input,
+        oprfSalt,
+        new TextEncoder().encode("opaque-p256-oprf-scalar"),
+        48,
+      );
       let pwScalar = BigInt(0);
       for (let i = 0; i < expanded.length; i++) {
         pwScalar = (pwScalar * BigInt(256) + BigInt(expanded[i])) % n;
@@ -144,9 +153,7 @@ describe("PAKE (OPAQUE-like)", () => {
       if (blind === BigInt(0)) blind = BigInt(1);
 
       // Blinded point = (blind * pwScalar) * G
-      const blindedPoint = p256.ProjectivePoint.BASE.multiply(
-        (blind * pwScalar) % n,
-      );
+      const blindedPoint = p256.Point.BASE.multiply((blind * pwScalar) % n);
 
       // Client ephemeral key pair
       const ephRaw = randomBytes(48);
@@ -155,13 +162,15 @@ describe("PAKE (OPAQUE-like)", () => {
         ephPriv = (ephPriv * BigInt(256) + BigInt(ephRaw[i])) % n;
       }
       if (ephPriv === BigInt(0)) ephPriv = BigInt(1);
-      const ephPub = p256.ProjectivePoint.BASE.multiply(ephPriv);
+      const ephPub = p256.Point.BASE.multiply(ephPriv);
 
       const clientState: pake.ClientLoginState = {
         blind: blind.toString(16).padStart(64, "0"),
         password,
         clientEphemeralPrivate: ephPriv.toString(16).padStart(64, "0"),
-        clientEphemeralPublic: Buffer.from(ephPub.toRawBytes(false)).toString("hex"),
+        clientEphemeralPublic: Buffer.from(ephPub.toBytes(false)).toString(
+          "hex",
+        ),
       };
 
       // Step 3: Simulate server response
@@ -172,18 +181,18 @@ describe("PAKE (OPAQUE-like)", () => {
         sEphPriv = (sEphPriv * BigInt(256) + BigInt(sEphRaw[i])) % n;
       }
       if (sEphPriv === BigInt(0)) sEphPriv = BigInt(1);
-      const sEphPub = p256.ProjectivePoint.BASE.multiply(sEphPriv);
+      const sEphPub = p256.Point.BASE.multiply(sEphPriv);
 
       // ECDH shared secret: serverEphPub * clientEphPriv = clientEphPub * serverEphPriv
       const ecdhShared = ephPub.multiply(sEphPriv);
-      const sharedBytes = ecdhShared.toRawBytes(false);
+      const sharedBytes = ecdhShared.toBytes(false);
 
       // Derive session key and MAC keys
       const derived = hkdf(
         sha256,
         sharedBytes,
         Buffer.from(serverId, "utf8"),
-        "opaque-session",
+        new TextEncoder().encode("opaque-session"),
         96,
       );
       const serverMacKey = derived.subarray(32, 64);
@@ -191,14 +200,18 @@ describe("PAKE (OPAQUE-like)", () => {
       // Server MAC over transcript: blindedPoint || serverEphPub
       // This is the SAME blinded point that clientFinishLogin will reconstruct
       const transcript = Buffer.concat([
-        blindedPoint.toRawBytes(false),
-        sEphPub.toRawBytes(false),
+        blindedPoint.toBytes(false),
+        sEphPub.toBytes(false),
       ]);
       const serverMac = hmac(sha256, serverMacKey, transcript);
 
       const response: pake.LoginResponse = {
-        evaluatedElement: Buffer.from(blindedPoint.toRawBytes(false)).toString("hex"),
-        serverEphemeralPublic: Buffer.from(sEphPub.toRawBytes(false)).toString("hex"),
+        evaluatedElement: Buffer.from(blindedPoint.toBytes(false)).toString(
+          "hex",
+        ),
+        serverEphemeralPublic: Buffer.from(sEphPub.toBytes(false)).toString(
+          "hex",
+        ),
         envelope: record.envelope,
         serverPublicKey: record.serverPublicKey,
         oprfSalt: record.oprfSalt,

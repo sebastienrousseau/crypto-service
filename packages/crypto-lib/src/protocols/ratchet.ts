@@ -15,12 +15,12 @@
  * X25519 DH shared secrets are combined with ML-KEM shared secrets.
  */
 
-import { x25519 } from "@noble/curves/ed25519";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { hmac } from "@noble/hashes/hmac";
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hmac } from "@noble/hashes/hmac.js";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -183,7 +183,13 @@ export class DoubleRatchet {
 
     // Perform initial DH ratchet step
     const dhOut = x25519.getSharedSecret(ratchetPriv, remotePub);
-    const derived = hkdf(sha256, dhOut, sk, "double-ratchet-root", 64);
+    const derived = hkdf(
+      sha256,
+      dhOut,
+      sk,
+      new TextEncoder().encode("double-ratchet-root"),
+      64,
+    );
     const rootKey = derived.subarray(0, 32);
     const sendingChainKey = derived.subarray(32, 64);
 
@@ -362,7 +368,7 @@ export class DoubleRatchet {
       sha256,
       dhRecv,
       rootKey,
-      "double-ratchet-root",
+      new TextEncoder().encode("double-ratchet-root"),
       64,
     );
     const newRootKey = derivedRecv.subarray(0, 32);
@@ -380,7 +386,7 @@ export class DoubleRatchet {
       sha256,
       dhSend,
       newRootKey,
-      "double-ratchet-root",
+      new TextEncoder().encode("double-ratchet-root"),
       64,
     );
     this._state.rootKey = bytesToHex(derivedSend.subarray(0, 32));

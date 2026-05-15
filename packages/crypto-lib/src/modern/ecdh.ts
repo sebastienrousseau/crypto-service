@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -11,8 +11,8 @@
  * (HKDF-SHA256) before use as an encryption key.
  */
 
-import { x25519 } from "@noble/curves/ed25519";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 /** X25519 Diffie-Hellman key pair (128-bit security). */
 export interface X25519KeyPair {

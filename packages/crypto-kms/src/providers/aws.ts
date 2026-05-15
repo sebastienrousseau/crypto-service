@@ -57,7 +57,7 @@ export interface AwsKmsOptions {
  */
 /** Minimal interface for the AWS KMS SDK client (peer dependency). */
 interface AwsKmsClient {
-  send(command: unknown): Promise<Record<string, any>>; // eslint-disable-line
+  send(command: unknown): Promise<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export class AwsKmsProvider implements KmsProvider {

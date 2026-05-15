@@ -257,7 +257,7 @@ export function installPolyfills(): {
     };
   }
 
-  const g = globalThis as Record<string, any>; // eslint-disable-line
+  const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
   const result = {
     textEncoder: false,
     textDecoder: false,

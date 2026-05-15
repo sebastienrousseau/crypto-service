@@ -21,12 +21,12 @@
  * - Pre-computation resistance via per-user salts
  */
 
-import { p256 } from "@noble/curves/p256";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { hmac } from "@noble/hashes/hmac";
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { p256 } from "@noble/curves/nist.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hmac } from "@noble/hashes/hmac.js";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -125,8 +125,14 @@ function bytesToHex(bytes: Uint8Array): string {
 function hashToScalar(password: string, salt: Uint8Array): bigint {
   const input = Buffer.from(password, "utf8");
   // Derive 48 bytes (extra for bias reduction) then reduce mod n
-  const expanded = hkdf(sha256, input, salt, "opaque-p256-oprf-scalar", 48);
-  const n = p256.CURVE.n;
+  const expanded = hkdf(
+    sha256,
+    input,
+    salt,
+    new TextEncoder().encode("opaque-p256-oprf-scalar"),
+    48,
+  );
+  const n = p256.Point.Fn.ORDER;
   let scalar = BigInt(0);
   for (let i = 0; i < expanded.length; i++) {
     scalar = (scalar * BigInt(256) + BigInt(expanded[i])) % n;
@@ -143,9 +149,9 @@ function hashToScalar(password: string, salt: Uint8Array): bigint {
 function hashToPoint(
   password: string,
   salt: Uint8Array,
-): { point: typeof p256.ProjectivePoint.BASE; scalar: bigint } {
+): { point: typeof p256.Point.BASE; scalar: bigint } {
   const scalar = hashToScalar(password, salt);
-  const point = p256.ProjectivePoint.BASE.multiply(scalar);
+  const point = p256.Point.BASE.multiply(scalar);
   return { point, scalar };
 }
 
@@ -153,7 +159,7 @@ function hashToPoint(
  * Generate a random non-zero P-256 scalar.
  */
 function randomScalar(): bigint {
-  const n = p256.CURVE.n;
+  const n = p256.Point.Fn.ORDER;
   // Generate 48 bytes for bias reduction
   const raw = randomBytes(48);
   let scalar = BigInt(0);
@@ -173,13 +179,12 @@ function hexToScalar(hex: string): bigint {
   return BigInt("0x" + hex);
 }
 
-function pointToHex(point: typeof p256.ProjectivePoint.BASE): string {
-  return bytesToHex(point.toRawBytes(false));
+function pointToHex(point: typeof p256.Point.BASE): string {
+  return bytesToHex(point.toBytes(false));
 }
 
-function hexToPoint(hex: string): typeof p256.ProjectivePoint.BASE {
-  const bytes = hexToBytes(hex, "point");
-  return p256.ProjectivePoint.fromHex(bytes);
+function hexToPoint(hex: string): typeof p256.Point.BASE {
+  return p256.Point.fromHex(hex);
 }
 
 // --- Registration ---
@@ -207,20 +212,20 @@ export function serverRegister(
 
   // Generate server's per-user key pair
   const serverPrivScalar = randomScalar();
-  const serverPubPoint = p256.ProjectivePoint.BASE.multiply(serverPrivScalar);
+  const serverPubPoint = p256.Point.BASE.multiply(serverPrivScalar);
   const serverPrivateKey = scalarToHex(serverPrivScalar);
   const serverPublicKey = pointToHex(serverPubPoint);
 
   // Derive the OPRF output (simulated: server evaluates on the password point)
   const evaluated = userPoint.multiply(serverPrivScalar);
-  const oprfOutput = sha256(evaluated.toRawBytes(false));
+  const oprfOutput = sha256(evaluated.toBytes(false));
 
   // Derive credential key from OPRF output
   const credentialKey = hkdf(
     sha256,
     oprfOutput,
     oprfSalt,
-    "opaque-credential-key",
+    new TextEncoder().encode("opaque-credential-key"),
     32,
   );
 
@@ -229,10 +234,10 @@ export function serverRegister(
   const nonce = randomBytes(NONCE_LEN);
   const cipher = xchacha20poly1305(credentialKey, nonce);
   const envelopePlaintext = new Uint8Array(
-    32 + serverPubPoint.toRawBytes(false).length,
+    32 + serverPubPoint.toBytes(false).length,
   );
   envelopePlaintext.set(authKey);
-  envelopePlaintext.set(serverPubPoint.toRawBytes(false), 32);
+  envelopePlaintext.set(serverPubPoint.toBytes(false), 32);
   const envelopeCt = cipher.encrypt(envelopePlaintext);
 
   // Pack envelope: nonce || ciphertext
@@ -275,13 +280,13 @@ export function clientStartLogin(password: string): {
   const { scalar: pwScalar } = hashToPoint(password, tempSalt);
 
   // Blinded element = blind * G (we'll let server evaluate on this)
-  const blindedPoint = p256.ProjectivePoint.BASE.multiply(
-    (blind * pwScalar) % p256.CURVE.n,
+  const blindedPoint = p256.Point.BASE.multiply(
+    (blind * pwScalar) % p256.Point.Fn.ORDER,
   );
 
   // Ephemeral key pair for ECDH
   const ephPriv = randomScalar();
-  const ephPub = p256.ProjectivePoint.BASE.multiply(ephPriv);
+  const ephPub = p256.Point.BASE.multiply(ephPriv);
 
   return {
     request: {
@@ -325,18 +330,18 @@ export function serverRespondLogin(
 
   // Server ephemeral key pair for ECDH
   const serverEphPriv = randomScalar();
-  const serverEphPub = p256.ProjectivePoint.BASE.multiply(serverEphPriv);
+  const serverEphPub = p256.Point.BASE.multiply(serverEphPriv);
 
   // Compute shared secret: ECDH between server ephemeral and client ephemeral
   const ecdhShared = clientEphPub.multiply(serverEphPriv);
-  const sharedBytes = ecdhShared.toRawBytes(false);
+  const sharedBytes = ecdhShared.toBytes(false);
 
   // Derive session key and MAC keys
   const derived = hkdf(
     sha256,
     sharedBytes,
     Buffer.from(record.serverId, "utf8"),
-    "opaque-session",
+    new TextEncoder().encode("opaque-session"),
     96,
   );
   const sessionKey = derived.subarray(0, 32);
@@ -346,13 +351,13 @@ export function serverRespondLogin(
   // Server MAC over transcript
   const transcript = Buffer.concat([
     hexToBytes(request.blindedElement, "blindedElement"),
-    serverEphPub.toRawBytes(false),
+    serverEphPub.toBytes(false),
   ]);
   const serverMac = hmac(sha256, serverMacKey, transcript);
 
   // Expected client MAC
   const clientTranscript = Buffer.concat([
-    serverEphPub.toRawBytes(false),
+    serverEphPub.toBytes(false),
     hexToBytes(request.clientEphemeralPublic, "clientEph"),
   ]);
   const expectedClientMac = hmac(sha256, clientMacKey, clientTranscript);
@@ -393,14 +398,14 @@ export function clientFinishLogin(
 
   // Compute shared secret: ECDH between client ephemeral and server ephemeral
   const ecdhShared = serverEphPub.multiply(clientEphPriv);
-  const sharedBytes = ecdhShared.toRawBytes(false);
+  const sharedBytes = ecdhShared.toBytes(false);
 
   // Derive session key and MAC keys (same derivation as server)
   const derived = hkdf(
     sha256,
     sharedBytes,
     Buffer.from(serverId, "utf8"),
-    "opaque-session",
+    new TextEncoder().encode("opaque-session"),
     96,
   );
   const sessionKey = derived.subarray(0, 32);
@@ -411,13 +416,13 @@ export function clientFinishLogin(
   const blindVal = hexToScalar(clientState.blind);
   const oprfSalt = hexToBytes(response.oprfSalt, "oprfSalt");
   const { scalar: pw } = hashToPoint(clientState.password, oprfSalt);
-  const blindedPoint = p256.ProjectivePoint.BASE.multiply(
-    (blindVal * pw) % p256.CURVE.n,
+  const blindedPoint = p256.Point.BASE.multiply(
+    (blindVal * pw) % p256.Point.Fn.ORDER,
   );
 
   const transcript = Buffer.concat([
-    blindedPoint.toRawBytes(false),
-    serverEphPub.toRawBytes(false),
+    blindedPoint.toBytes(false),
+    serverEphPub.toBytes(false),
   ]);
   const expectedServerMac = hmac(sha256, serverMacKey, transcript);
   const actualServerMac = hexToBytes(response.serverMac, "serverMac");
@@ -432,8 +437,8 @@ export function clientFinishLogin(
 
   // Compute client MAC for mutual auth
   const clientTranscript = Buffer.concat([
-    serverEphPub.toRawBytes(false),
-    hexToPoint(clientState.clientEphemeralPublic).toRawBytes(false),
+    serverEphPub.toBytes(false),
+    hexToPoint(clientState.clientEphemeralPublic).toBytes(false),
   ]);
   const clientMac = hmac(sha256, clientMacKey, clientTranscript);
 

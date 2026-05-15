@@ -61,6 +61,7 @@
     "xchacha20-poly1305",
     "secretbox"
   ],
+  "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-typeorm",
   "publishConfig": {
     "access": "public",
     "registry": "https://npm.pkg.github.com"

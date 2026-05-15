@@ -10,18 +10,17 @@
  * to the correct primitive based on the requested algorithm.
  */
 
-import { ed25519, x25519 } from "@noble/curves/ed25519";
-import { ed448, x448 } from "@noble/curves/ed448";
-import { p256 } from "@noble/curves/p256";
-import { p384 } from "@noble/curves/p384";
+import { ed25519, x25519 } from "@noble/curves/ed25519.js";
+import { ed448, x448 } from "@noble/curves/ed448.js";
+import { p256, p384 } from "@noble/curves/nist.js";
 import {
   ml_kem512,
   ml_kem768,
   ml_kem1024,
 } from "@noble/post-quantum/ml-kem.js";
 import { ml_dsa44, ml_dsa65, ml_dsa87 } from "@noble/post-quantum/ml-dsa.js";
-import { randomBytes } from "@noble/ciphers/webcrypto";
-import { sha256 } from "@noble/hashes/sha256";
+import { randomBytes } from "@noble/ciphers/utils.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToBase64url } from "./serialize";
 
 // --- Types ---
@@ -97,7 +96,7 @@ export function generateKeyPair(
 
   switch (algorithm) {
     case "ed25519": {
-      const priv = ed25519.utils.randomPrivateKey();
+      const priv = ed25519.utils.randomSecretKey();
       const pub = ed25519.getPublicKey(priv);
       privateKey = priv;
       publicKey = pub;
@@ -111,7 +110,7 @@ export function generateKeyPair(
       break;
     }
     case "ed448": {
-      const priv = ed448.utils.randomPrivateKey();
+      const priv = ed448.utils.randomSecretKey();
       const pub = ed448.getPublicKey(priv);
       privateKey = priv;
       publicKey = pub;
@@ -125,14 +124,14 @@ export function generateKeyPair(
       break;
     }
     case "p256": {
-      const priv = p256.utils.randomPrivateKey();
+      const priv = p256.utils.randomSecretKey();
       const pub = p256.getPublicKey(priv);
       privateKey = priv;
       publicKey = pub;
       break;
     }
     case "p384": {
-      const priv = p384.utils.randomPrivateKey();
+      const priv = p384.utils.randomSecretKey();
       const pub = p384.getPublicKey(priv);
       privateKey = priv;
       publicKey = pub;

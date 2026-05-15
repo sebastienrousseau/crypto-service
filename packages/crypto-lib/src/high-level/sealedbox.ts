@@ -16,12 +16,12 @@
  * The sender's identity is not revealed (anonymous encryption).
  */
 
-import { x25519 } from "@noble/curves/ed25519";
+import { x25519 } from "@noble/curves/ed25519.js";
 import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 const EPHEMERAL_LEN = 32;
 const NONCE_LEN = 24;
@@ -76,7 +76,13 @@ export function seal(
   const raw = x25519.getSharedSecret(ephPriv, recipPub);
 
   // Derive encryption key via HKDF
-  const encKey = hkdf(sha256, raw, ephPub, "sealedbox-v1", 32);
+  const encKey = hkdf(
+    sha256,
+    raw,
+    ephPub,
+    new TextEncoder().encode("sealedbox-v1"),
+    32,
+  );
 
   // Encrypt
   const nonce = randomBytes(NONCE_LEN);
@@ -126,7 +132,13 @@ export function open(
 
   // Recompute shared secret
   const shared = x25519.getSharedSecret(secKey, ephPub);
-  const encKey = hkdf(sha256, shared, ephPub, "sealedbox-v1", 32);
+  const encKey = hkdf(
+    sha256,
+    shared,
+    ephPub,
+    new TextEncoder().encode("sealedbox-v1"),
+    32,
+  );
 
   const cipher = xchacha20poly1305(encKey, nonce);
   return cipher.decrypt(ct);
@@ -177,7 +189,13 @@ export function sealPQ(
   combined.set(x25519Shared);
   combined.set(mlKemShared, x25519Shared.length);
 
-  const encKey = hkdf(sha256, combined, ephPub, "pq-sealedbox-v1", 32);
+  const encKey = hkdf(
+    sha256,
+    combined,
+    ephPub,
+    new TextEncoder().encode("pq-sealedbox-v1"),
+    32,
+  );
 
   // Encrypt
   const nonce = randomBytes(NONCE_LEN);
@@ -254,7 +272,13 @@ export function openPQ(
   combined.set(x25519Shared);
   combined.set(mlKemShared, x25519Shared.length);
 
-  const encKey = hkdf(sha256, combined, ephPub, "pq-sealedbox-v1", 32);
+  const encKey = hkdf(
+    sha256,
+    combined,
+    ephPub,
+    new TextEncoder().encode("pq-sealedbox-v1"),
+    32,
+  );
 
   const cipher = xchacha20poly1305(encKey, nonce);
   return cipher.decrypt(ct);

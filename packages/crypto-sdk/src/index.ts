@@ -494,11 +494,14 @@ export class CryptoClient {
     path: string,
     body?: unknown,
   ): Promise<ApiResponse<T>> {
-    const res = await this.fetchFn(`${this.baseUrl}${path}`, {
+    const init: RequestInit = {
       method,
       headers: this.headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    };
+    if (body) {
+      init.body = JSON.stringify(body);
+    }
+    const res = await this.fetchFn(`${this.baseUrl}${path}`, init);
 
     const json = await res.json();
     if (!res.ok) {
@@ -833,7 +836,7 @@ export class CryptoClient {
     statusCode: number;
   }> {
     const res = await this.fetchFn(`${this.baseUrl}/health`);
-    return res.json();
+    return res.json() as Promise<{ statusCode: number }>;
   }
 }
 

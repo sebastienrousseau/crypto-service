@@ -75,7 +75,7 @@ pnpm test
 | :----------: | :--------------------------------------------------------------------------------------------------------------: | :---------------------------------------------: |
 | May 17, 2022 | [0.0.1](https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.1) |                 Initial release                 |
 | May 30, 2022 | [0.0.2](https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.2) |                    Bug fixes                    |
-|     2026     |                                                      0.0.3                                                       | Modern crypto, PQC, 14-package monorepo, v2 API |
+| May 11, 2026 | [0.0.3](https://github.com/sebastienrousseau/crypto-service/releases/tag/sebastienrousseau-crypto-service-0.0.3) | Modern crypto, PQC, 14-package monorepo, v2 API |
 
 ---
 

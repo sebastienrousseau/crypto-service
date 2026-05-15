@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -17,10 +17,10 @@
  */
 
 import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
-import { x25519 } from "@noble/curves/ed25519";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- ML-KEM (Kyber) standalone ---
 
@@ -179,7 +179,7 @@ export function hybridEncapsulate(
     sha256,
     combined,
     undefined,
-    "x25519-ml-kem-768-hybrid",
+    new TextEncoder().encode("x25519-ml-kem-768-hybrid"),
     32,
   );
 
@@ -227,7 +227,7 @@ export function hybridDecapsulate(
     sha256,
     combined,
     undefined,
-    "x25519-ml-kem-768-hybrid",
+    new TextEncoder().encode("x25519-ml-kem-768-hybrid"),
     32,
   );
 

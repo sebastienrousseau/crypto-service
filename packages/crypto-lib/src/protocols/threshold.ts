@@ -17,8 +17,8 @@
  * signature schemes and other protocols using the same group.
  */
 
-import { ed25519 } from "@noble/curves/ed25519";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { ed25519 } from "@noble/curves/ed25519.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -61,13 +61,6 @@ const P = BigInt(
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
 // --- Helpers ---
-
-function hexToBytes(hex: string, label: string): Uint8Array {
-  if (!HEX_RE.test(hex)) {
-    throw new Error(`Invalid hex string for ${label}`);
-  }
-  return Buffer.from(hex, "hex");
-}
 
 function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
@@ -279,8 +272,8 @@ export function generateFeldmanCommitments(
   for (const coeff of coefficients) {
     const scalar = hexToScalar(coeff);
     // Commitment = scalar * G (Ed25519 base point)
-    const point = ed25519.ExtendedPoint.BASE.multiply(mod(scalar));
-    commitments.push(bytesToHex(point.toRawBytes()));
+    const point = ed25519.Point.BASE.multiply(mod(scalar));
+    commitments.push(bytesToHex(point.toBytes()));
   }
 
   return {
@@ -307,17 +300,15 @@ export function verifyFeldmanShare(
   const shareScalar = hexToScalar(value);
 
   // LHS: share_value * G
-  const lhs = ed25519.ExtendedPoint.BASE.multiply(mod(shareScalar));
+  const lhs = ed25519.Point.BASE.multiply(mod(shareScalar));
 
   // RHS: product of C_k^(index^k) for k = 0..t-1
   const x = BigInt(index);
-  let rhs = ed25519.ExtendedPoint.ZERO;
+  let rhs = ed25519.Point.ZERO;
   let power = BigInt(1); // x^k
 
   for (const commitHex of commitments.commitments) {
-    const commitPoint = ed25519.ExtendedPoint.fromHex(
-      hexToBytes(commitHex, "commitment"),
-    );
+    const commitPoint = ed25519.Point.fromHex(commitHex);
     // Add C_k * x^k
     const term = commitPoint.multiply(power);
     rhs = rhs.add(term);

@@ -16,17 +16,17 @@
   "engines": {
     "node": ">=22.0.0"
   },
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "require": "./dist/src/index.js",
-      "import": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
     }
   },
   "bin": {
-    "crypto-server": "dist/src/index.js"
+    "crypto-server": "dist/index.js"
   },
   "files": [
     "dist/"

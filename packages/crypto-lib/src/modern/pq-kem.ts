@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -21,12 +21,12 @@ import {
   ml_kem768,
   ml_kem1024,
 } from "@noble/post-quantum/ml-kem.js";
-import { x25519 } from "@noble/curves/ed25519";
-import { x448 } from "@noble/curves/ed448";
-import { p256 } from "@noble/curves/p256";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { x448 } from "@noble/curves/ed448.js";
+import { p256 } from "@noble/curves/nist.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -243,7 +243,7 @@ export function hybridKemEncapsulate(
   combined.set(x25519Shared);
   combined.set(mlKemShared, x25519Shared.length);
 
-  const info = `x25519-ml-kem-${kemLevel}-hybrid`;
+  const info = new TextEncoder().encode(`x25519-ml-kem-${kemLevel}-hybrid`);
   const derivedSecret = hkdf(sha256, combined, undefined, info, 32);
 
   return {
@@ -290,7 +290,7 @@ export function hybridKemDecapsulate(
   combined.set(x25519Shared);
   combined.set(mlKemShared, x25519Shared.length);
 
-  const info = `x25519-ml-kem-${kemLevel}-hybrid`;
+  const info = new TextEncoder().encode(`x25519-ml-kem-${kemLevel}-hybrid`);
   const derivedSecret = hkdf(sha256, combined, undefined, info, 32);
 
   return {
@@ -339,7 +339,7 @@ export interface P256MlKemDecapsulateResult {
  * Generate a P-256 + ML-KEM-768 hybrid key pair for TLS interoperability.
  */
 export function p256MlKemKeygen(): P256MlKemKeyPair {
-  const p256Priv = p256.utils.randomPrivateKey();
+  const p256Priv = p256.utils.randomSecretKey();
   const p256Pub = p256.getPublicKey(p256Priv, false);
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem768.keygen();
 
@@ -360,7 +360,7 @@ export function p256MlKemEncapsulate(
   theirMlKemPublic: string,
 ): P256MlKemEncapsulateResult {
   // P-256 ECDH: generate ephemeral key pair
-  const ephemeralPriv = p256.utils.randomPrivateKey();
+  const ephemeralPriv = p256.utils.randomSecretKey();
   const ephemeralPub = p256.getPublicKey(ephemeralPriv, false);
   const ecdhShared = p256.getSharedSecret(
     ephemeralPriv,
@@ -380,7 +380,7 @@ export function p256MlKemEncapsulate(
     sha256,
     combined,
     undefined,
-    "p256-ml-kem-768-hybrid",
+    new TextEncoder().encode("p256-ml-kem-768-hybrid"),
     32,
   );
 
@@ -421,7 +421,7 @@ export function p256MlKemDecapsulate(
     sha256,
     combined,
     undefined,
-    "p256-ml-kem-768-hybrid",
+    new TextEncoder().encode("p256-ml-kem-768-hybrid"),
     32,
   );
 
@@ -471,7 +471,7 @@ export interface X448MlKemDecapsulateResult {
  * Generate an X448 + ML-KEM-1024 hybrid key pair (maximum security, NIST Level 5).
  */
 export function x448MlKemKeygen(): X448MlKemKeyPair {
-  const x448Priv = x448.utils.randomPrivateKey();
+  const x448Priv = x448.utils.randomSecretKey();
   const x448Pub = x448.getPublicKey(x448Priv);
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem1024.keygen();
 
@@ -492,7 +492,7 @@ export function x448MlKemEncapsulate(
   theirMlKemPublic: string,
 ): X448MlKemEncapsulateResult {
   // X448: generate ephemeral key pair
-  const ephemeralPriv = x448.utils.randomPrivateKey();
+  const ephemeralPriv = x448.utils.randomSecretKey();
   const ephemeralPub = x448.getPublicKey(ephemeralPriv);
   const x448Shared = x448.getSharedSecret(
     ephemeralPriv,
@@ -512,7 +512,7 @@ export function x448MlKemEncapsulate(
     sha256,
     combined,
     undefined,
-    "x448-ml-kem-1024-hybrid",
+    new TextEncoder().encode("x448-ml-kem-1024-hybrid"),
     32,
   );
 
@@ -553,7 +553,7 @@ export function x448MlKemDecapsulate(
     sha256,
     combined,
     undefined,
-    "x448-ml-kem-1024-hybrid",
+    new TextEncoder().encode("x448-ml-kem-1024-hybrid"),
     32,
   );
 

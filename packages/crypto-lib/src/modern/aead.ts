@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -13,8 +13,8 @@
  * - Faster than AES-GCM on platforms without AES-NI
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 /** Result of an XChaCha20-Poly1305 encryption operation. */
 export interface AeadEncryptResult {

@@ -17,14 +17,14 @@
  * Output: the single ciphertext + per-recipient wrapped DEKs.
  */
 
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { randomBytes } from "@noble/ciphers/utils.js";
 import * as secretbox from "./secretbox";
 import { x25519AesKwWrap, x25519AesKwUnwrap } from "./key-wrap";
-import { x25519 } from "@noble/curves/ed25519";
+import { x25519 } from "@noble/curves/ed25519.js";
 import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
-import { aeskw } from "@noble/ciphers/aes";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
+import { aeskw } from "@noble/ciphers/aes.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
@@ -125,7 +125,13 @@ export function multiEncrypt(
       const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
       combined.set(x25519Shared);
       combined.set(mlKemShared, x25519Shared.length);
-      const kek = hkdf(sha256, combined, ephPub, "multi-recipient-pq-v1", 32);
+      const kek = hkdf(
+        sha256,
+        combined,
+        ephPub,
+        new TextEncoder().encode("multi-recipient-pq-v1"),
+        32,
+      );
 
       // AES-KW wrap the DEK
       const cipher = aeskw(kek);
@@ -205,7 +211,13 @@ export function multiDecryptPQ(
   const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
   combined.set(x25519Shared);
   combined.set(mlKemShared, x25519Shared.length);
-  const kek = hkdf(sha256, combined, ephPub, "multi-recipient-pq-v1", 32);
+  const kek = hkdf(
+    sha256,
+    combined,
+    ephPub,
+    new TextEncoder().encode("multi-recipient-pq-v1"),
+    32,
+  );
 
   // Unwrap DEK
   const wrapped = Buffer.from(wrappedKey.wrappedKey, "base64");

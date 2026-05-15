@@ -17,10 +17,9 @@
  * - Hashes: hex-encoded digest string
  */
 
-import { gcm } from "@noble/ciphers/aes";
-import { randomBytes } from "@noble/ciphers/webcrypto";
-import { sha256 } from "@noble/hashes/sha256";
-import { sha384, sha512 } from "@noble/hashes/sha512";
+import { gcm } from "@noble/ciphers/aes.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
+import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import * as nodeCrypto from "node:crypto";
 
 // --- Types ---

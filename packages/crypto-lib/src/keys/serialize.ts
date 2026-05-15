@@ -10,7 +10,7 @@
  * web applications, infrastructure tools, and standards like JWT/JOSE.
  */
 
-import { sha256 } from "@noble/hashes/sha256";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 // ─── Raw format conversions ────────────────────────────────────────
 

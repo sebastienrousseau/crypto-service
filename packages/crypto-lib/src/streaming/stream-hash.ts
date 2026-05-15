@@ -10,11 +10,10 @@
  * chunk-by-chunk without accumulating the entire input in memory.
  */
 
-import { sha256 } from "@noble/hashes/sha256";
-import { sha384, sha512 } from "@noble/hashes/sha512";
-import { sha3_256, sha3_512 } from "@noble/hashes/sha3";
-import { blake2b } from "@noble/hashes/blake2b";
-import { blake3 } from "@noble/hashes/blake3";
+import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
+import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
+import { blake2b } from "@noble/hashes/blake2.js";
+import { blake3 } from "@noble/hashes/blake3.js";
 
 /** Supported streaming hash algorithm identifiers. */
 export const STREAM_HASH_ALGORITHMS = [

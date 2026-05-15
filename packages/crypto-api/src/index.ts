@@ -10,7 +10,7 @@
  * then utilizes utility functions to generate and handle the markdown content.
  */
 
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 const minimist = require("minimist") as (argv: string[]) => {
   _: string[];
   [k: string]: unknown;

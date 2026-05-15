@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -16,8 +16,8 @@
  * Output format: base64(nonce (12B) || ciphertext || tag (16B))
  */
 
-import { gcm, gcmsiv } from "@noble/ciphers/aes";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { gcm, gcmsiv } from "@noble/ciphers/aes.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 

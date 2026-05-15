@@ -15,9 +15,9 @@
  * Total header overhead: 1 + 16 + 16 + 24 = 57 bytes before ciphertext.
  */
 
-import { argon2id } from "@noble/hashes/argon2";
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { argon2id } from "@noble/hashes/argon2.js";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 const VERSION = 0x01;
 const SALT_LEN = 16;

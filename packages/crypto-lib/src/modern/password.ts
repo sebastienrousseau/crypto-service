@@ -17,8 +17,8 @@
  * These match the OWASP recommendations for server-side password hashing.
  */
 
-import { argon2id, argon2i, argon2d } from "@noble/hashes/argon2";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { argon2id, argon2i, argon2d } from "@noble/hashes/argon2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 import { timingSafeEqual } from "../utils";
 
 // --- Types ---

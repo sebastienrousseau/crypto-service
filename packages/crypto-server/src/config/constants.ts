@@ -12,7 +12,8 @@ import { FastifyServerOptions } from "fastify";
 import { FastifyCompressOptions } from "@fastify/compress";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { FastifyHelmetOptions } from "@fastify/helmet";
-import pack from "../../package.json";
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+const pack = require("../../package.json") as { version: string };
 
 /**
  * @remarks {string} LIB_VERSION

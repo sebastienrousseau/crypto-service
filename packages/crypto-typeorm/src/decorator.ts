@@ -79,10 +79,10 @@ export function EncryptedColumn(
     );
   }
 
-  const config: EncryptionConfig = {
-    key,
-    algorithm: encrypt?.algorithm,
-  };
+  const config: EncryptionConfig = { key };
+  if (encrypt?.algorithm) {
+    config.algorithm = encrypt.algorithm;
+  }
 
   const transformer = new EncryptionTransformer(config);
 

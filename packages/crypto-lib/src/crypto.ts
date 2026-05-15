@@ -47,7 +47,7 @@ import {
   verifyPassword as argon2Verify,
   verifyPasswordPhc as argon2VerifyPhc,
 } from "./modern/password";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { randomBytes } from "@noble/ciphers/utils.js";
 import {
   getAlgorithm,
   isDeprecated,

@@ -19,11 +19,11 @@
  *   SK  = HKDF(DH1 || DH2 || DH3 || DH4 || PQ, salt, info)
  */
 
-import { ed25519, x25519 } from "@noble/curves/ed25519";
+import { ed25519, x25519 } from "@noble/curves/ed25519.js";
 import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -130,7 +130,7 @@ function hexToBytes(hex: string, label: string): Uint8Array {
   return Buffer.from(hex, "hex");
 }
 
-const PQXDH_INFO = "pqxdh-v1";
+const PQXDH_INFO = new TextEncoder().encode("pqxdh-v1");
 
 // --- Key Generation ---
 

@@ -35,9 +35,9 @@
     "docs": "typedoc"
   },
   "dependencies": {
-    "@noble/ciphers": "^1.2.0",
-    "@noble/curves": "^1.8.0",
-    "@noble/hashes": "^1.7.0",
+    "@noble/ciphers": "^2.2.0",
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^2.2.0",
     "@noble/post-quantum": "^0.6.1",
     "@openpgp/web-stream-tools": "^0.3.0",
     "openpgp": "^5.11.0"

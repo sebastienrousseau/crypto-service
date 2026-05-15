@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { SymmetricRatchet, DoubleRatchet } from "../../src/protocols/ratchet";
-import { randomBytes } from "@noble/ciphers/webcrypto";
-import { x25519 } from "@noble/curves/ed25519";
+import { randomBytes } from "@noble/ciphers/utils.js";
+import { x25519 } from "@noble/curves/ed25519.js";
 
 describe("Ratchet Protocol", () => {
   describe("SymmetricRatchet", () => {
@@ -266,7 +266,9 @@ describe("Ratchet Protocol", () => {
     });
 
     it("should throw on invalid hex in SymmetricRatchet constructor", () => {
-      expect(() => new SymmetricRatchet("ZZZZZZ")).to.throw("Invalid hex string");
+      expect(() => new SymmetricRatchet("ZZZZZZ")).to.throw(
+        /[Ii]nvalid.*hex|hex string expected/,
+      );
     });
   });
 });

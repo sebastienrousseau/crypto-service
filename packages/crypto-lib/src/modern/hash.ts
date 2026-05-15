@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -9,11 +9,10 @@
  * Supports: SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b, BLAKE3.
  */
 
-import { sha256 } from "@noble/hashes/sha256";
-import { sha384, sha512 } from "@noble/hashes/sha512";
-import { sha3_256, sha3_512 } from "@noble/hashes/sha3";
-import { blake2b } from "@noble/hashes/blake2b";
-import { blake3 } from "@noble/hashes/blake3";
+import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
+import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
+import { blake2b } from "@noble/hashes/blake2.js";
+import { blake3 } from "@noble/hashes/blake3.js";
 
 /** Supported cryptographic hash algorithms. */
 export const HASH_ALGORITHMS = [

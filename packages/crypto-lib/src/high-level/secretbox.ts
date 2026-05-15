@@ -14,8 +14,8 @@
  * This is the recommended API for symmetric encryption.
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 const NONCE_LEN = 24;
 const KEY_LEN = 32;

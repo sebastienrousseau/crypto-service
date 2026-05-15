@@ -31,7 +31,11 @@ describe("crypto unified API — password methods", () => {
   });
 
   it("should verify a correct password via facade", () => {
-    const result = hashPwLowCost({ password: "test-pw", memoryCost: 1024, timeCost: 1 });
+    const result = hashPwLowCost({
+      password: "test-pw",
+      memoryCost: 1024,
+      timeCost: 1,
+    });
     const verified = crypto.verifyPassword(
       "test-pw",
       result.hash,
@@ -42,7 +46,11 @@ describe("crypto unified API — password methods", () => {
   });
 
   it("should reject a wrong password via facade", () => {
-    const result = hashPwLowCost({ password: "test-pw", memoryCost: 1024, timeCost: 1 });
+    const result = hashPwLowCost({
+      password: "test-pw",
+      memoryCost: 1024,
+      timeCost: 1,
+    });
     const verified = crypto.verifyPassword(
       "wrong-pw",
       result.hash,
@@ -84,7 +92,9 @@ describe("WebCrypto Bridge — noble fallback paths", function () {
     it("should fall back gracefully when subtle throws", async () => {
       // Make subtle getter throw to cover getSubtle catch block (lines 118-119)
       Object.defineProperty(proto, "subtle", {
-        get: () => { throw new Error("no subtle"); },
+        get: () => {
+          throw new Error("no subtle");
+        },
         configurable: true,
       });
       const result = await webCryptoHash({
@@ -174,7 +184,9 @@ describe("WebCrypto Bridge — noble fallback paths", function () {
         });
         expect.fail("Should have thrown");
       } catch (err) {
-        expect((err as Error).message).to.include("Invalid hex string");
+        expect((err as Error).message).to.match(
+          /[Ii]nvalid.*hex|hex string expected/,
+        );
       }
     });
   });
@@ -236,7 +248,7 @@ describe("mac.ts — invalid hex key", () => {
         key: "zzzz-not-hex!", // not valid hex
         data: "test",
       }),
-    ).to.throw("Invalid hex string");
+    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
   });
 
   it("should throw for non-hex key string in verifyHmac", () => {
@@ -247,7 +259,7 @@ describe("mac.ts — invalid hex key", () => {
         data: "test",
         mac: "abcd",
       }),
-    ).to.throw("Invalid hex string");
+    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
   });
 
   it("should throw for non-hex mac string in verifyHmac", () => {
@@ -258,7 +270,7 @@ describe("mac.ts — invalid hex key", () => {
         data: "test",
         mac: "not-hex!!",
       }),
-    ).to.throw("Invalid hex string");
+    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
   });
 });
 
@@ -315,7 +327,7 @@ describe("multi-recipient — missing ML-KEM ciphertext", () => {
         fakeWrappedKey as never,
         "cc".repeat(16),
       ),
-    ).to.throw("Invalid hex string");
+    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
   });
 });
 
@@ -338,7 +350,7 @@ describe("threshold — splitSecret validation", () => {
 
   it("should reject invalid hex in secret", () => {
     expect(() => splitSecret("zz".repeat(32), 3, 2)).to.throw(
-      "Invalid hex string",
+      /[Ii]nvalid.*hex|hex string expected/,
     );
   });
 });
@@ -401,7 +413,7 @@ describe("threshold — hexToBytes invalid hex", () => {
       algorithm: "feldman-vss-ed25519" as const,
     };
     expect(() => verifyFeldmanShare(share, commitments)).to.throw(
-      "Invalid hex string",
+      /[Ii]nvalid.*hex|hex string expected/,
     );
   });
 });
@@ -436,7 +448,7 @@ describe("key-wrap — Uint8Array branches", () => {
 
   it("should reject invalid hex in aesKwWrap", () => {
     expect(() => aesKwWrap("zz-invalid-hex", "aa".repeat(16))).to.throw(
-      "Invalid hex string",
+      /[Ii]nvalid.*hex|hex string expected/,
     );
   });
 });
@@ -469,11 +481,14 @@ describe("pqxdh — invalid hex error paths", () => {
   it("should throw when initiateSession receives invalid hex in identityKeyPair", () => {
     expect(() =>
       initiateSession({
-        identityKeyPair: { publicKey: "aa".repeat(32), privateKey: "zz-not-hex" },
+        identityKeyPair: {
+          publicKey: "aa".repeat(32),
+          privateKey: "zz-not-hex",
+        },
         remoteIdentityPublic: "aa".repeat(32),
         remoteSignedPreKeyPublic: "bb".repeat(32),
         remotePqPreKeyPublic: "dd".repeat(32),
       }),
-    ).to.throw("Invalid hex string");
+    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
   });
 });

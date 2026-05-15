@@ -1,5 +1,5 @@
 /**
- * Copyright © 2022-2024 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -14,11 +14,10 @@
  * - ECDH over P-256 and P-384 (Weierstrass curves)
  */
 
-import { p256 } from "@noble/curves/p256";
-import { p384 } from "@noble/curves/p384";
-import { ed448, x448 } from "@noble/curves/ed448";
-import { schnorr } from "@noble/curves/secp256k1";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { p256, p384 } from "@noble/curves/nist.js";
+import { ed448, x448 } from "@noble/curves/ed448.js";
+import { schnorr } from "@noble/curves/secp256k1.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
 
@@ -182,7 +181,7 @@ function toBytes(input: string | Uint8Array): Uint8Array {
  * Generate a new P-256 key pair.
  */
 export function generateP256KeyPair(): P256KeyPair {
-  const privateKey = p256.utils.randomPrivateKey();
+  const privateKey = p256.utils.randomSecretKey();
   const publicKey = p256.getPublicKey(privateKey, false); // uncompressed
 
   return {
@@ -204,7 +203,7 @@ export function p256Sign(
   const signature = p256.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature.toCompactRawBytes()).toString("hex"),
+    signature: Buffer.from(signature).toString("hex"),
     algorithm: "ecdsa-p256",
   };
 }
@@ -231,7 +230,7 @@ export function p256Verify(
  * Generate a new P-384 key pair.
  */
 export function generateP384KeyPair(): P384KeyPair {
-  const privateKey = p384.utils.randomPrivateKey();
+  const privateKey = p384.utils.randomSecretKey();
   const publicKey = p384.getPublicKey(privateKey, false); // uncompressed
 
   return {
@@ -253,7 +252,7 @@ export function p384Sign(
   const signature = p384.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature.toCompactRawBytes()).toString("hex"),
+    signature: Buffer.from(signature).toString("hex"),
     algorithm: "ecdsa-p384",
   };
 }
@@ -329,7 +328,7 @@ export function ed448Verify(
  * Generate a new X448 key pair for Diffie-Hellman.
  */
 export function generateX448KeyPair(): X448KeyPair {
-  const privateKey = x448.utils.randomPrivateKey();
+  const privateKey = x448.utils.randomSecretKey();
   const publicKey = x448.getPublicKey(privateKey);
 
   return {

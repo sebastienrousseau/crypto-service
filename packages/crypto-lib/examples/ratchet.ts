@@ -9,8 +9,8 @@
 
 import { header, task, summary } from "./support";
 import { protocols } from "../src";
-import { randomBytes } from "@noble/ciphers/webcrypto";
-import { x25519 } from "@noble/curves/ed25519";
+import { randomBytes } from "@noble/ciphers/utils.js";
+import { x25519 } from "@noble/curves/ed25519.js";
 
 const { DoubleRatchet } = protocols.ratchet;
 

@@ -13,11 +13,11 @@
  * - X25519 + AES-KW: derive a wrapping key via ECDH, then AES-KW.
  */
 
-import { aeskw, aeskwp } from "@noble/ciphers/aes";
-import { x25519 } from "@noble/curves/ed25519";
-import { hkdf } from "@noble/hashes/hkdf";
-import { sha256 } from "@noble/hashes/sha256";
-import { randomBytes } from "@noble/ciphers/webcrypto";
+import { aeskw, aeskwp } from "@noble/ciphers/aes.js";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { hkdf } from "@noble/hashes/hkdf.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
@@ -158,7 +158,13 @@ export function x25519AesKwWrap(
   const ephPriv = randomBytes(32);
   const ephPub = x25519.getPublicKey(ephPriv);
   const raw = x25519.getSharedSecret(ephPriv, recipPub);
-  const kek = hkdf(sha256, raw, ephPub, "x25519-aes-kw-v1", 32);
+  const kek = hkdf(
+    sha256,
+    raw,
+    ephPub,
+    new TextEncoder().encode("x25519-aes-kw-v1"),
+    32,
+  );
 
   const cipher = aeskw(kek);
   const wrapped = cipher.encrypt(keyBytes);
@@ -197,7 +203,13 @@ export function x25519AesKwUnwrap(
       : Buffer.from(wrappedKey, "base64");
 
   const raw = x25519.getSharedSecret(secKey, ephPub);
-  const kek = hkdf(sha256, raw, ephPub, "x25519-aes-kw-v1", 32);
+  const kek = hkdf(
+    sha256,
+    raw,
+    ephPub,
+    new TextEncoder().encode("x25519-aes-kw-v1"),
+    32,
+  );
 
   const cipher = aeskw(kek);
   return cipher.decrypt(wrapped);
