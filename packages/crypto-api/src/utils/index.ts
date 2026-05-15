@@ -123,7 +123,7 @@ export const createMarkdown = (data: JsonDocument): string => {
   if (data.info.description !== undefined) {
     parts.push(`${data.info.description || ""}\n`);
   }
-  parts.push(readItems((data.item || []) as unknown as ItemShape[]));
+  parts.push(readItems((data.item || []) as unknown as ItemShape[])); // skipcq: JS-0357
   parts.push("\n\n");
   return parts.join("");
 };

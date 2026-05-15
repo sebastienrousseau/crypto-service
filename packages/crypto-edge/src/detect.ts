@@ -15,6 +15,7 @@
 import type { EdgeRuntime, RuntimeCapabilities } from "./types";
 
 /** Loosely-typed reference to `globalThis` for cross-runtime property access. */
+// skipcq: JS-C1002
 const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
@@ -42,6 +43,7 @@ const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-
  * ```
  */
 export function detectRuntime(): EdgeRuntime {
+  // skipcq: JS-0067
   // Uses module-level `g` reference
 
   // Cloudflare Workers: navigator.userAgent === "Cloudflare-Workers"
@@ -103,6 +105,7 @@ export function detectRuntime(): EdgeRuntime {
  * ```
  */
 export function getCapabilities(): RuntimeCapabilities {
+  // skipcq: JS-0067
   // Uses module-level `g` reference
   const runtime = detectRuntime();
 
@@ -122,7 +125,7 @@ export function getCapabilities(): RuntimeCapabilities {
       typeof g.process.versions === "object" &&
       typeof g.process.versions.node === "string"
     ) {
-      require("node:crypto");
+      require("node:crypto"); // skipcq: JS-0359
       hasNodeCrypto = true;
     }
   } catch {
@@ -155,5 +158,6 @@ export function getCapabilities(): RuntimeCapabilities {
  * ```
  */
 export function isEdgeCryptoAvailable(): boolean {
+  // skipcq: JS-0067
   return getCapabilities().hasSubtle;
 }

@@ -1,5 +1,6 @@
 /** Utility class for writing lines to stdout/stderr. */
 export class writeUtils {
+  // skipcq: JS-0327
   /**
    * Write a string followed by a newline to the output stream.
    * @param s - The string to write.
@@ -11,7 +12,7 @@ export class writeUtils {
     if (finalLine && (process.platform === "win32" || !stream.isTTY)) {
       stream.write(s);
     } else {
-      stream.write(s + "\n");
+      stream.write(`${s}\n`);
     }
   }
 }

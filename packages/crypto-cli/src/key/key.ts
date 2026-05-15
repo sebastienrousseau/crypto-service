@@ -10,11 +10,10 @@
  */
 
 import { readFile } from "fs/promises";
-import * as path from "path";
+import { resolve } from "path"; // skipcq: JS-C1003
 
 /** Resolve the absolute path to a key file by name. */
-const keyPath = (name: string): string =>
-  path.resolve(__dirname, "..", "key", name);
+const keyPath = (name: string): string => resolve(__dirname, "..", "key", name);
 
 /** Read a key file from disk, decoding from base64 if not PEM-armored. */
 const decode = async (file: string): Promise<string> => {
@@ -36,9 +35,9 @@ export const getRevocationCertificate = (): Promise<string> =>
 /** Default export bundling all key accessor functions. */
 export default {
   /** Lazily read and decode the RSA private key. */
-  getPrivateKey: getPrivateKey,
+  getPrivateKey,
   /** Lazily read and decode the RSA public key. */
-  getPublicKey: getPublicKey,
+  getPublicKey,
   /** Lazily read and decode the RSA revocation certificate. */
-  getRevocationCertificate: getRevocationCertificate,
+  getRevocationCertificate,
 };

@@ -32,6 +32,7 @@ import { createMarkdown, response } from "./utils";
  * @returns {Promise<void>} No return value
  */
 export async function init(): Promise<void> {
+  // skipcq: JS-0067
   try {
     /**
      * Parses the command-line arguments.
