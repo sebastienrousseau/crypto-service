@@ -15,10 +15,6 @@ name = "javascript"
 enabled = true
 
   [analyzers.meta]
-  plugins = ["eslint"]
-  environment = ["nodejs"]
+  environment = ["nodejs", "mocha"]
   dialect = "typescript"
-
-[[transformers]]
-name = "prettier"
-enabled = true
+  module_system = "commonjs"
