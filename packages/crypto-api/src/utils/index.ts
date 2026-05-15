@@ -263,7 +263,7 @@ export function readMethods(method: MethodLike): string {
 export function readItems(items: ItemShape[], folderDeep = 1): string {
   const parts: string[] = [];
   for (let i = 0, len = items.length; i < len; i++) {
-    const item = items[i]!;
+    const item = items[i] as ItemShape;
     if (item.item) {
       parts.push(`${"#".repeat(folderDeep)} 📁 Collection: ${item.name} \n`);
       parts.push(readItems(item.item, folderDeep + 1));

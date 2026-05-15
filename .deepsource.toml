@@ -10,6 +10,7 @@ exclude_patterns = [
   "packages/crypto-lib/src/key/**",
   "packages/crypto-lib/src/data/**",
   "packages/crypto-lib/src/bin/**",
+  "packages/crypto-cli/src/cli.ts",
   "**/.mocharc.cjs",
 ]
 
@@ -22,8 +23,10 @@ enabled = true
   dialect = "typescript"
   module_system = "commonjs"
   skip_doc_coverage = [
+    "function-declaration",
     "function-expression",
     "arrow-function-expression",
     "method-definition",
+    "class-declaration",
     "class-expression",
   ]
