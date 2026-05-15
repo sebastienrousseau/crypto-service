@@ -12,3 +12,16 @@ export type {
   StreamEncryptResult,
   StreamDecryptOptions,
 } from "./stream-aead";
+
+export {
+  createEncryptStream,
+  createDecryptStream,
+  createHashStream,
+  WEB_STREAM_HASH_ALGORITHMS,
+} from "./web-streams";
+export type {
+  WebStreamHashAlgorithm,
+  HashStreamResult,
+  EncryptStreamOptions,
+  DecryptStreamOptions,
+} from "./web-streams";

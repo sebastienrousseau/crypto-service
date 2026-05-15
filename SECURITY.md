@@ -62,9 +62,13 @@ with you and credit reporters (unless anonymity is preferred).
 - **Key exchange:** X25519, X448
 - **MAC:** HMAC-SHA256/384/512, HMAC-SHA3-256/512, KMAC
 - **Post-quantum:** ML-KEM-512/768/1024 (FIPS 203), ML-DSA-44/65/87 (FIPS 204),
-  SLH-DSA (FIPS 205), X25519+ML-KEM-768 hybrid
+  SLH-DSA (FIPS 205), FN-DSA-512/1024 (FIPS 206)
+- **Hybrid KEM:** X25519+ML-KEM-768, P-256+ML-KEM-768, X448+ML-KEM-1024
+- **HPKE:** RFC 9180 — DHKEM(X25519)+ChaCha20Poly1305,
+  DHKEM(X25519)+AES-128-GCM, DHKEM(P-256)+AES-128-GCM
 - **High-level:** Secretbox, Sealed Box, password encryption, key wrapping
   (AES-KW/KWP), multi-recipient encryption
+- **Protocols:** PQXDH, Double Ratchet, PAKE (OPAQUE-like), Threshold/Shamir+Feldman VSS
 
 ### Deprecated (v1 API)
 
@@ -88,3 +92,15 @@ major release. Migrate to the v2 API for modern, audited primitives.
   @fastify/helmet.
 - **CORS:** Configurable origin allowlist.
 - **Request tracing:** Unique `x-request-id` on every response.
+
+## Library-Level Security
+
+- **Constant-time comparisons:** All secret data comparisons use
+  `timingSafeEqual` to prevent timing side channels.
+- **SecureBuffer:** Key material is held in `SecureBuffer` instances that
+  zeroize memory when no longer referenced.
+- **Random nonces:** All AEAD operations generate random nonces internally;
+  the API does not accept caller-supplied nonces.
+- **AEAD-only:** No unauthenticated encryption modes are exposed.
+- **Argon2id defaults:** Password hashing uses OWASP 2025 recommended
+  parameters (memoryCost: 65536, timeCost: 3, parallelism: 4).

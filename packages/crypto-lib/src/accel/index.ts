@@ -61,3 +61,21 @@ export type {
   BridgedMlKemKeygenResult,
   BridgedMlKemEncapsulateResult,
 } from "./native-pqc-bridge";
+
+export {
+  detectModernWebCrypto,
+  _resetModernWebCryptoDetection,
+  modernChaCha20Encrypt,
+  modernChaCha20Decrypt,
+  modernSha3Hash,
+} from "./webcrypto-modern";
+export type {
+  WebCryptoModernSupport,
+  ModernSha3Algorithm,
+  ModernChaCha20EncryptOptions,
+  ModernAeadResult,
+  ModernChaCha20DecryptOptions,
+  ModernChaCha20DecryptResult,
+  ModernSha3HashOptions,
+  ModernSha3HashResult,
+} from "./webcrypto-modern";

@@ -17,6 +17,9 @@ export * from "./streaming";
 // Protocol building blocks (PQXDH, ratchet, PAKE, threshold)
 export * as protocols from "./protocols";
 
+// Token utilities (PASETO v4, key rotation)
+export * as tokens from "./tokens";
+
 // WebCrypto acceleration and worker pool
 export * from "./accel";
 
