@@ -31,6 +31,3 @@ enabled = true
     "class-declaration",
     "class-expression",
   ]
-
-[metrics.doc_coverage]
-enabled = false

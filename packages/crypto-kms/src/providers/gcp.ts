@@ -65,90 +65,112 @@ export class GcpKmsProvider implements KmsProvider {
   }
 
   /** List all keys, optionally filtered by usage or enabled state. */
-  async listKeys(_filters?: {
+  listKeys(_filters?: {
     usage?: string;
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
     void this.getParent();
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Retrieve metadata for a specific key by ID. */
-  async getKey(_keyId: string): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+  getKey(_keyId: string): Promise<KmsKeyMetadata> {
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Create a new key with the given algorithm and usage. */
-  async createKey(
+  createKey(
     _algorithm: string,
     _usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Enable a previously disabled key. */
-  async enableKey(_keyId: string): Promise<void> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+  enableKey(_keyId: string): Promise<void> {
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Disable a key so it cannot be used for operations. */
-  async disableKey(_keyId: string): Promise<void> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+  disableKey(_keyId: string): Promise<void> {
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Schedule a key for deletion after a pending window. */
-  async scheduleKeyDeletion(
+  scheduleKeyDeletion(
     _keyId: string,
     _pendingWindowDays?: number,
   ): Promise<void> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Encrypt plaintext using a managed key. */
-  async encrypt(
+  encrypt(
     _keyId: string,
     _plaintext: Uint8Array,
     _context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Decrypt ciphertext using a managed key. */
-  async decrypt(
+  decrypt(
     _keyId: string,
     _ciphertext: string,
     _context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Sign data using a managed signing key. */
-  async sign(
+  sign(
     _keyId: string,
     _data: Uint8Array,
     _algorithm?: string,
   ): Promise<KmsSignResult> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Verify a signature against data. */
-  async verify(
+  verify(
     _keyId: string,
     _data: Uint8Array,
     _signature: string,
     _algorithm?: string,
   ): Promise<boolean> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Rotate a key to a new version. */
-  async rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+  rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 
   /** Generate a data encryption key (DEK) wrapped by the managed key. */
-  async generateDataKey(
+  generateDataKey(
     _keyId: string,
     _keySpec?: string,
   ): Promise<{
@@ -157,6 +179,8 @@ export class GcpKmsProvider implements KmsProvider {
     /** Encrypted (wrapped) data key. */
     ciphertext: string;
   }> {
-    throw new Error("Not implemented: install @google-cloud/kms");
+    return Promise.reject(
+      new Error("Not implemented: install @google-cloud/kms"),
+    );
   }
 }

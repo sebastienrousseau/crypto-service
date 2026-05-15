@@ -80,89 +80,111 @@ export class VaultKmsProvider implements KmsProvider {
   }
 
   /** List all keys, optionally filtered by usage or enabled state. */
-  async listKeys(_filters?: {
+  listKeys(_filters?: {
     usage?: string;
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Retrieve metadata for a specific key by ID. */
-  async getKey(_keyId: string): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+  getKey(_keyId: string): Promise<KmsKeyMetadata> {
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Create a new key with the given algorithm and usage. */
-  async createKey(
+  createKey(
     _algorithm: string,
     _usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Enable a previously disabled key. */
-  async enableKey(_keyId: string): Promise<void> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+  enableKey(_keyId: string): Promise<void> {
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Disable a key so it cannot be used for operations. */
-  async disableKey(_keyId: string): Promise<void> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+  disableKey(_keyId: string): Promise<void> {
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Schedule a key for deletion after a pending window. */
-  async scheduleKeyDeletion(
+  scheduleKeyDeletion(
     _keyId: string,
     _pendingWindowDays?: number,
   ): Promise<void> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Encrypt plaintext using a managed key. */
-  async encrypt(
+  encrypt(
     _keyId: string,
     _plaintext: Uint8Array,
     _context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Decrypt ciphertext using a managed key. */
-  async decrypt(
+  decrypt(
     _keyId: string,
     _ciphertext: string,
     _context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Sign data using a managed signing key. */
-  async sign(
+  sign(
     _keyId: string,
     _data: Uint8Array,
     _algorithm?: string,
   ): Promise<KmsSignResult> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Verify a signature against data. */
-  async verify(
+  verify(
     _keyId: string,
     _data: Uint8Array,
     _signature: string,
     _algorithm?: string,
   ): Promise<boolean> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Rotate a key to a new version. */
-  async rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+  rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 
   /** Generate a data encryption key (DEK) wrapped by the managed key. */
-  async generateDataKey(
+  generateDataKey(
     _keyId: string,
     _keySpec?: string,
   ): Promise<{
@@ -171,6 +193,8 @@ export class VaultKmsProvider implements KmsProvider {
     /** Encrypted (wrapped) data key. */
     ciphertext: string;
   }> {
-    throw new Error("Not implemented: configure HashiCorp Vault connection");
+    return Promise.reject(
+      new Error("Not implemented: configure HashiCorp Vault connection"),
+    );
   }
 }

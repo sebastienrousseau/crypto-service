@@ -150,7 +150,7 @@ export const readAuthorization = (
 /**
  * Generates markdown for displaying request headers.
  */
-export function readRequest(data: JsonRequest | undefined): string {
+export const readRequest = (data: JsonRequest | undefined): string => {
   if (!data || !data.header) return "";
   const parts: string[] = [];
   parts.push("\n### Request Headers\n\n");
@@ -161,14 +161,14 @@ export function readRequest(data: JsonRequest | undefined): string {
     parts.push(`|${header.key}|${header.value}|${header.description}|\n`);
   }
   return parts.join("");
-}
+};
 
 /**
  * Generates markdown for displaying query parameters.
  */
-export function readQueryParams(
+export const readQueryParams = (
   url: UrlWithQuery | string | null | undefined,
-): string {
+): string => {
   if (!url || typeof url === "string" || !url.query) return "";
   const parts: string[] = [];
   parts.push("### Query Params\n\n");
@@ -180,12 +180,14 @@ export function readQueryParams(
   }
   parts.push("\n\n");
   return parts.join("");
-}
+};
 
 /**
  * Read body section of a method definition.
  */
-export function readFormDataBody(body: BodyShape | null | undefined): string {
+export const readFormDataBody = (
+  body: BodyShape | null | undefined,
+): string => {
   if (!body) return "";
   const parts: string[] = [];
   if (body.mode === "raw") {
@@ -211,12 +213,12 @@ export function readFormDataBody(body: BodyShape | null | undefined): string {
     parts.push("\n\n");
   }
   return parts.join("");
-}
+};
 
 /**
  * Read responses for a method.
  */
-export function readResponse(responses: ResponseType[] | undefined): string {
+export const readResponse = (responses: ResponseType[] | undefined): string => {
   if (!responses || responses.length === 0) return "";
   const parts: string[] = [];
   const first = responses[0];
@@ -232,12 +234,12 @@ export function readResponse(responses: ResponseType[] | undefined): string {
   parts.push(`${first.body}\n`);
   parts.push("```\n\n");
   return parts.join("");
-}
+};
 
 /**
  * Read methods of each item.
  */
-export function readMethods(method: MethodLike): string {
+export const readMethods = (method: MethodLike): string => {
   const parts: string[] = ["\n"];
   if (method.request?.description !== undefined) {
     parts.push(`#${method.request.description || ""}\n\n`);
@@ -255,12 +257,12 @@ export function readMethods(method: MethodLike): string {
   parts.push(readResponse(method.response));
   parts.push("\n![divider][divider]\n");
   return parts.join("");
-}
+};
 
 /**
  * Read items of a Postman-shaped collection.
  */
-export function readItems(items: ItemShape[], folderDeep = 1): string {
+export const readItems = (items: ItemShape[], folderDeep = 1): string => {
   const parts: string[] = [];
   for (let i = 0, len = items.length; i < len; i++) {
     const item = items[i] as ItemShape;
@@ -272,7 +274,7 @@ export function readItems(items: ItemShape[], folderDeep = 1): string {
     }
   }
   return parts.join("");
-}
+};
 
 /**
  * Creates a markdown file with specified content.
