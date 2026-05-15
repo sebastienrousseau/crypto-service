@@ -47,6 +47,14 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     );
   }
 
+  // Sanitize key type early to prevent path traversal (CWE-23).
+  if (data.type) {
+    const safeType = path.basename(data.type);
+    if (safeType !== data.type || safeType.includes("..")) {
+      throw new Error("Invalid key type: must not contain path separators");
+    }
+  }
+
   const options = {
     date: new Date(),
     userIDs: [{ name: data.name, email: data.email }],
@@ -75,14 +83,19 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     process.env["CRYPTO_KEY_DIR"] ??
     path.resolve(__dirname, "..", "key");
 
-  // Persist the generated material atomically. `writeFile` returns a
-  // Promise so the caller can actually await durability, unlike the
-  // previous fire-and-forget `createWriteStream` pattern.
   await Promise.all([
-    writeFile(path.join(keyDir, data.type + ".pub"), publicKeyString, "utf8"),
-    writeFile(path.join(keyDir, data.type + ".key"), privateKeyString, "utf8"),
     writeFile(
-      path.join(keyDir, data.type + ".cert"),
+      path.join(keyDir, `${path.basename(data.type)}.pub`),
+      publicKeyString,
+      "utf8",
+    ),
+    writeFile(
+      path.join(keyDir, `${path.basename(data.type)}.key`),
+      privateKeyString,
+      "utf8",
+    ),
+    writeFile(
+      path.join(keyDir, `${path.basename(data.type)}.cert`),
       revocationCertificate,
       "utf8",
     ),
