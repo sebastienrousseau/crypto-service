@@ -68,4 +68,5 @@ const handleModernHash = async () => {
   }
 };
 
+/** Default export of the handleModernHash command handler. */
 export default handleModernHash;

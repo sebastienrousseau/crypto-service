@@ -23,7 +23,9 @@ import * as types from "../types/types";
 export const session = async (
   data: types.dataSessionKey,
 ): Promise<openpgp.SessionKey> => {
-  const publicKeyArmored = Buffer.from(data.publicKey, "base64").toString("latin1");
+  const publicKeyArmored = Buffer.from(data.publicKey, "base64").toString(
+    "latin1",
+  );
   const encryptionKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
   return openpgp.generateSessionKey({
@@ -31,12 +33,13 @@ export const session = async (
     date: new Date(),
     encryptionUserIDs: [{ name: data.name, email: data.email }],
     config: {
-      preferredHashAlgorithm: 8,           // SHA-256
-      preferredSymmetricAlgorithm: 9,      // AES-256
-      preferredCompressionAlgorithm: 1,    // ZIP
+      preferredHashAlgorithm: 8, // SHA-256
+      preferredSymmetricAlgorithm: 9, // AES-256
+      preferredCompressionAlgorithm: 1, // ZIP
       minRSABits: 2048,
     },
   });
 };
 
+/** Default export of the session function. */
 export default session;

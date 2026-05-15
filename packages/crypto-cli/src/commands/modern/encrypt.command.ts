@@ -100,4 +100,5 @@ const handleModernEncrypt = async () => {
   }
 };
 
+/** Default export of the handleModernEncrypt command handler. */
 export default handleModernEncrypt;

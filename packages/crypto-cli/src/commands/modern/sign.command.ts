@@ -156,4 +156,5 @@ const handleModernSign = async () => {
   }
 };
 
+/** Default export of the handleModernSign command handler. */
 export default handleModernSign;

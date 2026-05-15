@@ -23,7 +23,9 @@ import * as types from "../types/types";
 export const verify = async (data: types.dataVerify) => {
   const { message, verificationKeys, date } = data;
 
-  const keyInput = Array.isArray(verificationKeys) ? verificationKeys[0]! : verificationKeys;
+  const keyInput = Array.isArray(verificationKeys)
+    ? verificationKeys[0]!
+    : verificationKeys;
   const publicKey = Buffer.from(keyInput, "base64").toString("latin1");
 
   return openpgp.verify({
@@ -33,4 +35,5 @@ export const verify = async (data: types.dataVerify) => {
   });
 };
 
+/** Default export of the verify function. */
 export default verify;

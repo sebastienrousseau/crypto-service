@@ -13,10 +13,12 @@
  */
 
 export { EncryptedColumn } from "./decorator";
+/** Re-exported decorator options type from the decorator module. */
 export type { EncryptedColumnOptions } from "./decorator";
 
 export { EncryptionSubscriber } from "./subscriber";
 
 export { EncryptionTransformer } from "./transformer";
 
+/** Re-exported encryption configuration type from the types module. */
 export type { EncryptionConfig } from "./types";

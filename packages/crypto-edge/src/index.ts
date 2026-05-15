@@ -26,6 +26,7 @@
  */
 
 // Types
+/** Re-exported edge runtime types and option interfaces. */
 export type {
   EdgeRuntime,
   RuntimeCapabilities,

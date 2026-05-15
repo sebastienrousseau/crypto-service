@@ -60,4 +60,5 @@ export const reformat = async (data: types.dataReformat) => {
   return reformatted;
 };
 
+/** Default export of the reformat function. */
 export default reformat;

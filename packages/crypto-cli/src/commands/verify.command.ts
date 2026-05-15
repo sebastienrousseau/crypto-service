@@ -52,6 +52,7 @@ const handleVerify = async () => {
     await verify(data);
   }
 };
+/** Default export of the handleVerify command handler. */
 export default handleVerify;
 
 // # sourceMappingURL=verify.command.js.map

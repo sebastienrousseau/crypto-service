@@ -49,6 +49,7 @@ const handleSession = async () => {
     await session(data);
   }
 };
+/** Default export of the handleSession command handler. */
 export default handleSession;
 
 // # sourceMappingURL=session.command.js.map

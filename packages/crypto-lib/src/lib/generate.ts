@@ -91,4 +91,5 @@ export async function generate(data: types.dataGenerate): Promise<object> {
   return { publicKey, privateKey, revocationCertificate };
 }
 
+/** Default export of the generate function. */
 export default generate;

@@ -58,6 +58,7 @@ const handleSign = async () => {
     await sign(data);
   }
 };
+/** Default export of the handleSign command handler. */
 export default handleSign;
 
 // # sourceMappingURL=sign.command.js.map

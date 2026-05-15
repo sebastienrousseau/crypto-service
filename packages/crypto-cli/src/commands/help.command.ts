@@ -214,6 +214,7 @@ const handleHelp = async () => {
     }
   }
 };
+/** Default export of the handleHelp command handler. */
 export default handleHelp;
 
 // # sourceMappingURL=verify.command.js.map

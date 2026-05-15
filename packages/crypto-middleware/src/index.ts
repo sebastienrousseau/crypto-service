@@ -8,6 +8,7 @@
  */
 
 // Types
+/** Re-exported middleware configuration and JWT payload types. */
 export type { MiddlewareConfig, JwtPayload } from "./types";
 export { CryptoMiddlewareError } from "./types";
 

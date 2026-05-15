@@ -25,6 +25,7 @@ export {
   isStreamingSupported,
   isWasmSupported,
 } from "./detect";
+/** Re-exported types from the types module. */
 export type {
   AcceleratedOperation,
   BenchmarkResult,

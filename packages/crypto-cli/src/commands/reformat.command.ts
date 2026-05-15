@@ -64,6 +64,7 @@ const handleReformat = async () => {
     await reformat(data);
   }
 };
+/** Default export of the handleReformat command handler. */
 export default handleReformat;
 
 // # sourceMappingURL=reformat.command.js.map

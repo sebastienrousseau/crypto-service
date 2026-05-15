@@ -7,6 +7,7 @@
 
 import CryptoLib from "./bin/cryptolib";
 
+/** Default export of the CryptoLib facade. */
 export default CryptoLib;
 
 // Modern cryptographic primitives (noble-based)
@@ -32,6 +33,7 @@ export * from "./accel";
 
 // Unified crypto API
 export { crypto } from "./crypto";
+/** Re-exported signing algorithm type from the crypto module. */
 export type { SignAlgorithm } from "./crypto";
 
 // Algorithm registry
@@ -41,6 +43,7 @@ export {
   recommended,
   isDeprecated,
 } from "./registry";
+/** Re-exported algorithm registry types. */
 export type {
   AlgorithmInfo,
   AlgorithmCategory,

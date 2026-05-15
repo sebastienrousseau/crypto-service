@@ -91,4 +91,5 @@ const handlePasswordHash = async () => {
   }
 };
 
+/** Default export of the handlePasswordHash command handler. */
 export default handlePasswordHash;

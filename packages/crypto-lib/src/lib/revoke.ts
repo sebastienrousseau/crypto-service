@@ -51,4 +51,5 @@ export const revoke = async (data: types.dataRevoke) => {
   return revoked;
 };
 
+/** Default export of the revoke function. */
 export default revoke;

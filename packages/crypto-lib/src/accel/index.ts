@@ -16,6 +16,7 @@ export {
   webCryptoAesGcmDecrypt,
   webCryptoHash,
 } from "./webcrypto-bridge";
+/** Re-exported WebCrypto bridge option and result types. */
 export type {
   WebCryptoHashAlgorithm,
   WebCryptoAesGcmEncryptOptions,
@@ -27,6 +28,7 @@ export type {
 } from "./webcrypto-bridge";
 
 export { WorkerPool } from "./worker-pool";
+/** Re-exported worker pool option and task types. */
 export type { WorkerPoolOptions, WorkerTask } from "./worker-pool";
 
 export {
@@ -36,6 +38,7 @@ export {
   wasmAeadDecrypt,
   _resetWasmDetection,
 } from "./wasm-bridge";
+/** Re-exported WASM bridge option and result types. */
 export type {
   WasmBackend,
   WasmHashAlgorithm,
@@ -55,6 +58,7 @@ export {
   bridgedMlKemEncapsulate,
   bridgedMlKemDecapsulate,
 } from "./native-pqc-bridge";
+/** Re-exported native PQC bridge types. */
 export type {
   PqcBackend,
   NativeMlKemLevel,
@@ -69,6 +73,7 @@ export {
   modernChaCha20Decrypt,
   modernSha3Hash,
 } from "./webcrypto-modern";
+/** Re-exported modern WebCrypto option and result types. */
 export type {
   WebCryptoModernSupport,
   ModernSha3Algorithm,

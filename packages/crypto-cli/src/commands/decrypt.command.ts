@@ -50,6 +50,7 @@ const handleDecrypt = async () => {
   }
 };
 
+/** Default export of the handleDecrypt command handler. */
 export default handleDecrypt;
 
 // # sourceMappingURL=decrypt.command.js.map

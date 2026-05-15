@@ -13,6 +13,7 @@
 /* c8 ignore start -- barrel re-exports; actual functions tested in source modules */
 
 export { v4local, v4public, pae } from "./paseto";
+/** Re-exported PASETO option and result types. */
 export type {
   PasetoLocalEncryptOptions,
   PasetoLocalDecryptOptions,
@@ -30,6 +31,7 @@ export {
   encryptWithVersion,
   decryptWithVersion,
 } from "./key-rotation";
+/** Re-exported key rotation types. */
 export type { VersionedKey, KeyRing } from "./key-rotation";
 
 /* c8 ignore stop */

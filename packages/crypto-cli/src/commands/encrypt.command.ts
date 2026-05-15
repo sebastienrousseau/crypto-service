@@ -49,6 +49,7 @@ const handleEncrypt = async () => {
     await encrypt(data);
   }
 };
+/** Default export of the handleEncrypt command handler. */
 export default handleEncrypt;
 
 // # sourceMappingURL=encrypt.command.js.map

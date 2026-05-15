@@ -308,4 +308,5 @@ const utils: {
   response: typeof response;
 } = { createMarkdown, response };
 
+/** Default export of the utils object bundling createMarkdown and response. */
 export default utils;

@@ -1,20 +1,21 @@
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-lib-logo.svg" alt="crypto-lib" width="128" />
+  <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-lib-logo.svg" alt="crypto-lib logo" width="128" />
 </p>
 
 <h1 align="center">crypto-lib</h1>
 
 <p align="center">
-  A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.
+  A modern cryptographic library for TypeScript, with post-quantum
+  support, zero unsafe dependencies, and 100% test coverage.
 </p>
 
 <p align="center">
   <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
   <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-lib"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-lib?style=for-the-badge&logo=npm" alt="npm version" /></a>
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge" alt="Coverage 100%" />
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License MIT" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue?style=for-the-badge" alt="License" /></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22-417e38?style=for-the-badge&logo=node.js" alt="Node >= 22" />
 </p>
 
@@ -22,30 +23,36 @@
 
 ## Contents
 
-- [Install](#install) — get started in seconds
-- [Quick Start](#quick-start) — encrypt and decrypt in ten lines
-- [Why this approach?](#why-this-approach) — design rationale
-- [Capabilities in 0.0.3](#capabilities-in-003) — every algorithm at a glance
-- [Two APIs](#two-apis) — unified namespace vs. low-level modules
-- [Features](#features) — module-level breakdown
-- [Library Usage](#library-usage) — hash, sign, encrypt, KEM, passwords, keyrings
-- [Examples](#examples) — runnable scripts in `examples/`
-- [Security](#security) — guarantees and threat model
-- [License](#license) — Apache-2.0 OR MIT
+**Getting started**
+
+- [Install](#install) -- npm, pnpm, source
+- [Quick Start](#quick-start) -- encrypt and decrypt in ten lines
+
+**Library reference**
+
+- [Overview](#overview) -- what crypto-lib does and why
+- [Features](#features) -- module-level capability list
+- [Library Usage](#library-usage) -- hash, sign, encrypt, KEM, passwords, keyrings
+- [Examples](#examples) -- runnable script index
+
+**Operational**
+
+- [Security](#security) -- guarantees and threat model
+- [Documentation](#documentation) -- API reference
+- [Contributing](#contributing) -- how to get involved
+- [License](#license)
 
 ---
 
 ## Install
 
-**npm / pnpm**
-
 ```bash
-npm install @sebastienrousseau/crypto-lib
-# or
 pnpm add @sebastienrousseau/crypto-lib
+# or
+npm install @sebastienrousseau/crypto-lib
 ```
 
-**From source**
+### From source
 
 ```bash
 git clone https://github.com/sebastienrousseau/crypto-service.git
@@ -89,125 +96,22 @@ const ok = crypto.verify("ed25519", kp.publicKey, "message", sig);
 
 ---
 
-## Why this approach?
+## Overview
 
-| Principle                  | Detail                                                                                                                                                                                                                |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Noble primitives only**  | All modern operations use the audited `@noble/hashes`, `@noble/curves`, `@noble/ciphers`, and `@noble/post-quantum` libraries -- pure TypeScript, zero native add-ons, no C bindings.                                 |
-| **Post-quantum ready**     | ML-KEM (FIPS 203), ML-DSA (FIPS 204), and SLH-DSA (FIPS 205) are first-class citizens, not add-ons. Hybrid KEM and hybrid signatures combine classical and PQ primitives so security holds even if one family breaks. |
-| **No native dependencies** | Runs identically on Linux, macOS, Windows, and in WebCrypto-capable runtimes without `node-gyp`, OpenSSL, or platform-specific binaries.                                                                              |
-| **Two-layer API**          | A unified `crypto.*` namespace for common tasks sits atop granular per-module imports for full control. Pick the level of abstraction you need.                                                                       |
-| **100% test coverage**     | Every branch in every module is exercised. Coverage is enforced in CI.                                                                                                                                                |
+crypto-lib is the core cryptographic engine of the Crypto Service
+Suite. It provides a unified TypeScript API over the audited
+`@noble/hashes`, `@noble/curves`, `@noble/ciphers`, and
+`@noble/post-quantum` libraries -- pure TypeScript, zero native
+add-ons, no C bindings. Post-quantum primitives (ML-KEM, ML-DSA,
+SLH-DSA) are first-class citizens, not add-ons, and hybrid
+constructions combine classical and PQ algorithms so security holds
+even if one family breaks.
 
-<p align="right"><a href="#contents">Back to Top</a></p>
-
----
-
-## Capabilities in 0.0.3
-
-### Symmetric Encryption
-
-| Algorithm                         | Standard                | Notes                                    |
-| --------------------------------- | ----------------------- | ---------------------------------------- |
-| XChaCha20-Poly1305                | draft-irtf-cfrg-xchacha | Recommended. 256-bit key, 192-bit nonce. |
-| AES-128-GCM / AES-256-GCM         | NIST SP 800-38D         | WebCrypto-accelerated when available.    |
-| AES-128-GCM-SIV / AES-256-GCM-SIV | RFC 8452                | Nonce-misuse resistant.                  |
-
-### Hash Functions
-
-| Algorithm                 | Standard   |
-| ------------------------- | ---------- |
-| SHA-256, SHA-384, SHA-512 | FIPS 180-4 |
-| SHA3-256, SHA3-512        | FIPS 202   |
-| BLAKE2b                   | RFC 7693   |
-| BLAKE3                    | --         |
-
-### Message Authentication Codes
-
-| Algorithm           | Standard            |
-| ------------------- | ------------------- |
-| HMAC-SHA256/384/512 | RFC 2104            |
-| HMAC-SHA3-256/512   | RFC 2104 + FIPS 202 |
-| KMAC-128, KMAC-256  | NIST SP 800-185     |
-
-### Key Derivation
-
-| Algorithm                    | Standard              |
-| ---------------------------- | --------------------- |
-| Argon2id / Argon2i / Argon2d | RFC 9106              |
-| scrypt                       | RFC 7914              |
-| HKDF-SHA256                  | RFC 5869              |
-| PBKDF2-SHA256                | RFC 8018 (deprecated) |
-
-### Digital Signatures
-
-| Algorithm                         | Standard   | PQ? |
-| --------------------------------- | ---------- | --- |
-| Ed25519                           | RFC 8032   | No  |
-| Ed448                             | RFC 8032   | No  |
-| ECDSA P-256, P-384                | FIPS 186-5 | No  |
-| Schnorr (secp256k1)               | BIP-340    | No  |
-| ML-DSA-44 / 65 / 87               | FIPS 204   | Yes |
-| SLH-DSA (all SHA2/SHAKE variants) | FIPS 205   | Yes |
-| Ed25519 + ML-DSA hybrid           | --         | Yes |
-
-### Key Exchange and KEM
-
-| Algorithm               | Standard                   | PQ? |
-| ----------------------- | -------------------------- | --- |
-| X25519                  | RFC 7748                   | No  |
-| X448                    | RFC 7748                   | No  |
-| ECDH P-256, P-384       | FIPS 186-5                 | No  |
-| ML-KEM-512 / 768 / 1024 | FIPS 203                   | Yes |
-| X25519 + ML-KEM hybrid  | --                         | Yes |
-| P-256 + ML-KEM-768      | draft-ietf-tls-ecdhe-mlkem | Yes |
-| X448 + ML-KEM-1024      | --                         | Yes |
-
-### High-Level APIs
-
-| API              | Purpose                                                              |
-| ---------------- | -------------------------------------------------------------------- |
-| secretbox        | Symmetric authenticated encryption (XChaCha20-Poly1305, auto-nonce)  |
-| sealedbox        | Anonymous public-key encryption (X25519 + HKDF + XChaCha20-Poly1305) |
-| sealedbox PQ     | Post-quantum sealed box (X25519 + ML-KEM-768)                        |
-| password-encrypt | Encrypt data with a password (Argon2id + XChaCha20-Poly1305)         |
-| key-wrap         | AES Key Wrap (RFC 3394) and AES Key Wrap with Padding (RFC 5649)     |
-| multi-recipient  | Encrypt to multiple recipients (classical + PQ)                      |
-
-### Protocols
-
-| Protocol       | Purpose                                                                  |
-| -------------- | ------------------------------------------------------------------------ |
-| PQXDH          | Post-Quantum Extended Triple Diffie-Hellman (Signal-style key agreement) |
-| Double Ratchet | Forward-secret messaging with symmetric + DH ratchets                    |
-| PAKE           | OPAQUE-like password-authenticated key exchange                          |
-| Threshold      | Shamir Secret Sharing + Feldman Verifiable Secret Sharing                |
-
-<p align="right"><a href="#contents">Back to Top</a></p>
-
----
-
-## Two APIs
-
-**Unified namespace** -- for common operations, one import covers everything:
-
-```ts
-import { crypto } from "@sebastienrousseau/crypto-lib";
-
-const h = crypto.hash("blake3", data);
-const s = crypto.sign("ml-dsa-65", secretKey, message);
-const p = crypto.hashPassword(password);
-```
-
-**Low-level modules** -- for full control and tree-shaking:
-
-```ts
-import { aeadEncrypt, aeadDecrypt } from "@sebastienrousseau/crypto-lib";
-import { mlKemKeygen, mlKemEncapsulate } from "@sebastienrousseau/crypto-lib";
-import { Keyring } from "@sebastienrousseau/crypto-lib";
-```
-
-Both layers use the same underlying noble primitives. The unified API is a thin dispatcher; it adds no overhead.
+Two API layers serve different needs: a unified `crypto.*` namespace
+for common tasks, and granular per-module imports for full control
+and tree-shaking. Both layers use the same underlying noble
+primitives; the unified API is a thin dispatcher that adds no
+overhead.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -215,36 +119,36 @@ Both layers use the same underlying noble primitives. The unified API is a thin 
 
 ## Features
 
-| Module                        | Adds                                             | Documented in                         |
-| ----------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `modern/hash`                 | SHA-2, SHA-3, BLAKE2b, BLAKE3                    | [hash.ts](examples/hash.ts)           |
-| `modern/aead`                 | XChaCha20-Poly1305 encrypt/decrypt               | [encrypt.ts](examples/encrypt.ts)     |
-| `modern/aes`                  | AES-GCM, AES-GCM-SIV (128/256)                   | --                                    |
-| `modern/signing`              | Ed25519 key generation, sign, verify             | [sign.ts](examples/sign.ts)           |
-| `modern/curves`               | P-256, P-384, Ed448, X448, Schnorr               | [curves.ts](examples/curves.ts)       |
-| `modern/mac`                  | HMAC (SHA-2, SHA-3), KMAC-128/256                | [hmac.ts](examples/hmac.ts)           |
-| `modern/kdf`                  | scrypt, HKDF-SHA256, PBKDF2-SHA256               | [kdf.ts](examples/kdf.ts)             |
-| `modern/password`             | Argon2id/i/d hash, verify, PHC format            | [password.ts](examples/password.ts)   |
-| `modern/pq-kem`               | ML-KEM-512/768/1024, hybrid KEMs                 | [pqkem.ts](examples/pqkem.ts)         |
-| `modern/pq-sign`              | ML-DSA-44/65/87, hybrid signatures               | [pqsign.ts](examples/pqsign.ts)       |
-| `modern/pq-hash-sign`         | SLH-DSA (FIPS 205)                               | --                                    |
-| `high-level/secretbox`        | Symmetric seal/open                              | [secretbox.ts](examples/secretbox.ts) |
-| `high-level/sealedbox`        | Anonymous public-key encryption                  | [sealedbox.ts](examples/sealedbox.ts) |
-| `high-level/password-encrypt` | Password-based encryption                        | --                                    |
-| `high-level/key-wrap`         | AES-KW, AES-KWP, X25519-AES-KW                   | --                                    |
-| `high-level/multi-recipient`  | Multi-recipient encryption                       | --                                    |
-| `keys/keygen`                 | Unified key generation (12 algorithms)           | [keygen.ts](examples/keygen.ts)       |
-| `keys/serialize`              | Hex, Base64, PEM, JWK, thumbprints               | [serialize.ts](examples/serialize.ts) |
-| `keys/keyring`                | In-memory keyring with rotation and JWKS         | [keyring.ts](examples/keyring.ts)     |
-| `streaming/stream-hash`       | Incremental hashing for large inputs             | [stream.ts](examples/stream.ts)       |
-| `streaming/stream-aead`       | Streaming AEAD encryption                        | --                                    |
-| `protocols/pqxdh`             | Post-Quantum Extended Triple DH                  | --                                    |
-| `protocols/ratchet`           | Double Ratchet (Signal-style)                    | [ratchet.ts](examples/ratchet.ts)     |
-| `protocols/pake`              | OPAQUE-like PAKE                                 | --                                    |
-| `protocols/threshold`         | Shamir SSS + Feldman VSS                         | [threshold.ts](examples/threshold.ts) |
-| `registry`                    | Algorithm metadata, deprecation, recommendations | [registry.ts](examples/registry.ts)   |
-| `crypto`                      | Unified API namespace                            | [unified.ts](examples/unified.ts)     |
-| `utils`                       | `timingSafeEqual`, `SecureBuffer`                | --                                    |
+| Module                        | Adds                                             |
+| :---------------------------- | :----------------------------------------------- |
+| `modern/hash`                 | SHA-2, SHA-3, BLAKE2b, BLAKE3                    |
+| `modern/aead`                 | XChaCha20-Poly1305 encrypt/decrypt               |
+| `modern/aes`                  | AES-GCM, AES-GCM-SIV (128/256)                   |
+| `modern/signing`              | Ed25519 key generation, sign, verify             |
+| `modern/curves`               | P-256, P-384, Ed448, X448, Schnorr (BIP-340)     |
+| `modern/mac`                  | HMAC (SHA-2, SHA-3), KMAC-128/256                |
+| `modern/kdf`                  | scrypt, HKDF-SHA256, PBKDF2-SHA256               |
+| `modern/password`             | Argon2id/i/d hash, verify, PHC format            |
+| `modern/pq-kem`               | ML-KEM-512/768/1024, hybrid KEMs                 |
+| `modern/pq-sign`              | ML-DSA-44/65/87, hybrid signatures               |
+| `modern/pq-hash-sign`         | SLH-DSA (FIPS 205)                               |
+| `high-level/secretbox`        | Symmetric seal/open                              |
+| `high-level/sealedbox`        | Anonymous public-key encryption                  |
+| `high-level/password-encrypt` | Password-based encryption                        |
+| `high-level/key-wrap`         | AES-KW, AES-KWP, X25519-AES-KW                   |
+| `high-level/multi-recipient`  | Multi-recipient encryption                       |
+| `keys/keygen`                 | Unified key generation (12 algorithms)           |
+| `keys/serialize`              | Hex, Base64, PEM, JWK, thumbprints               |
+| `keys/keyring`                | In-memory keyring with rotation and JWKS         |
+| `streaming/stream-hash`       | Incremental hashing for large inputs             |
+| `streaming/stream-aead`       | Streaming AEAD encryption                        |
+| `protocols/pqxdh`             | Post-Quantum Extended Triple DH                  |
+| `protocols/ratchet`           | Double Ratchet (Signal-style)                    |
+| `protocols/pake`              | OPAQUE-like PAKE                                 |
+| `protocols/threshold`         | Shamir SSS + Feldman VSS                         |
+| `registry`                    | Algorithm metadata, deprecation, recommendations |
+| `crypto`                      | Unified API namespace                            |
+| `utils`                       | `timingSafeEqual`, `SecureBuffer`                |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -252,7 +156,8 @@ Both layers use the same underlying noble primitives. The unified API is a thin 
 
 ## Library Usage
 
-### Hashing
+<details>
+<summary><b>Hashing</b></summary>
 
 ```ts
 import { hash } from "@sebastienrousseau/crypto-lib";
@@ -261,7 +166,10 @@ const r = hash({ algorithm: "sha3-256", data: "hello" });
 console.log(r.digest); // hex string
 ```
 
-### Signing
+</details>
+
+<details>
+<summary><b>Signing</b></summary>
 
 ```ts
 import { crypto } from "@sebastienrousseau/crypto-lib";
@@ -271,7 +179,10 @@ const sig = crypto.sign("ed25519", kp.privateKey, "payload");
 const ok = crypto.verify("ed25519", kp.publicKey, "payload", sig);
 ```
 
-### Symmetric Encryption
+</details>
+
+<details>
+<summary><b>Symmetric Encryption</b></summary>
 
 ```ts
 import { aeadEncrypt, aeadDecrypt } from "@sebastienrousseau/crypto-lib";
@@ -281,7 +192,10 @@ const { ciphertext } = aeadEncrypt({ key, plaintext: "secret" });
 const plain = aeadDecrypt({ key, ciphertext });
 ```
 
-### Post-Quantum KEM
+</details>
+
+<details>
+<summary><b>Post-Quantum KEM</b></summary>
 
 ```ts
 import {
@@ -296,7 +210,10 @@ const { sharedSecret: ss2 } = mlKemDecapsulate(768, kp.secretKey, ciphertext);
 // ss1 === ss2
 ```
 
-### Password Hashing
+</details>
+
+<details>
+<summary><b>Password Hashing</b></summary>
 
 ```ts
 import { hashPassword, verifyPasswordPhc } from "@sebastienrousseau/crypto-lib";
@@ -306,7 +223,10 @@ console.log(result.phc); // $argon2id$v=19$m=65536,t=3,p=4$...
 const { valid } = verifyPasswordPhc({ password: "hunter2", phc: result.phc });
 ```
 
-### Keyring
+</details>
+
+<details>
+<summary><b>Keyring</b></summary>
 
 ```ts
 import { Keyring } from "@sebastienrousseau/crypto-lib";
@@ -317,20 +237,23 @@ const rotated = ring.rotate(key.kid);
 const jwks = ring.toJwks();
 ```
 
+</details>
+
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
 
 ## Examples
 
-All examples are self-contained TypeScript files in the `examples/` directory. Run any example with:
+All examples are self-contained TypeScript files in the `examples/`
+directory. Run any example with:
 
 ```bash
 npx ts-node examples/<name>.ts
 ```
 
 | Category       | Example                               | Purpose                                   |
-| -------------- | ------------------------------------- | ----------------------------------------- |
+| :------------- | :------------------------------------ | :---------------------------------------- |
 | Hashing        | [hash.ts](examples/hash.ts)           | SHA-256, SHA-3, BLAKE3                    |
 | Encryption     | [encrypt.ts](examples/encrypt.ts)     | XChaCha20-Poly1305 encrypt/decrypt        |
 | Signing        | [sign.ts](examples/sign.ts)           | Ed25519 sign and verify                   |
@@ -351,7 +274,6 @@ npx ts-node examples/<name>.ts
 | Registry       | [registry.ts](examples/registry.ts)   | Query algorithm registry                  |
 | Unified API    | [unified.ts](examples/unified.ts)     | Unified crypto API overview               |
 | Ratchet        | [ratchet.ts](examples/ratchet.ts)     | Double Ratchet protocol demo              |
-| Helpers        | [support.ts](examples/support.ts)     | Shared display helpers for example output |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -359,17 +281,51 @@ npx ts-node examples/<name>.ts
 
 ## Security
 
-**No native dependencies.** The entire cryptographic stack is pure TypeScript via the `@noble/*` family. There is no C, Rust, or WASM code to audit separately, and no platform-specific build step.
+**No native dependencies.** The entire cryptographic stack is pure
+TypeScript via the `@noble/*` family. There is no C, Rust, or WASM
+code to audit separately, and no platform-specific build step.
 
-**Timing-safe comparisons.** All verification functions (HMAC, password, signature) use constant-time comparison to prevent timing side-channel attacks.
+**Timing-safe comparisons.** All verification functions (HMAC,
+password, signature) use constant-time comparison to prevent timing
+side-channel attacks.
 
-**Zero unsafe code.** No `eval`, no dynamic `require`, no `Function` constructor (except for the optional worker pool, which uses an inline script). No ambient network access.
+**Zero unsafe code.** No `eval`, no dynamic `require`, no `Function`
+constructor (except for the optional worker pool, which uses an
+inline script). No ambient network access.
 
-**Secure defaults.** Nonces are always generated randomly. Argon2id uses OWASP-recommended parameters (t=3, m=64 MB, p=4). Key lengths default to 256 bits.
+**Secure defaults.** Nonces are always generated randomly. Argon2id
+uses OWASP-recommended parameters (t=3, m=64 MB, p=4). Key lengths
+default to 256 bits.
 
-**Post-quantum preparedness.** ML-KEM and ML-DSA are available standalone and in hybrid mode. Hybrid constructions combine classical and post-quantum shared secrets via HKDF so that breaking one family does not compromise the session.
+**Post-quantum preparedness.** ML-KEM and ML-DSA are available
+standalone and in hybrid mode. Hybrid constructions combine
+classical and post-quantum shared secrets via HKDF so that breaking
+one family does not compromise the session.
 
-**Responsible disclosure.** Report vulnerabilities via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+**Responsible disclosure.** Report vulnerabilities via
+[GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories).
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Documentation
+
+API reference documentation is generated with TypeDoc. Build it
+locally with:
+
+```bash
+pnpm --filter @sebastienrousseau/crypto-lib docs
+```
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for development setup,
+coding standards, and pull request guidelines.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -377,8 +333,10 @@ npx ts-node examples/<name>.ts
 
 ## License
 
-Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) or [MIT](https://opensource.org/licenses/MIT), at your option.
+Dual-licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+or [MIT](https://opensource.org/licenses/MIT), at your option.
 
-Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service Suite contributors.
+Copyright (c) 2022-2026 Sebastien Rousseau and The Crypto Service
+Suite contributors.
 
 <p align="right"><a href="#contents">Back to Top</a></p>

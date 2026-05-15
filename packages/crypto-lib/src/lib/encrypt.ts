@@ -51,4 +51,5 @@ export const encrypt = async (data: types.dataEncrypt): Promise<string> => {
   return encrypted as unknown as string;
 };
 
+/** Default export of the encrypt function. */
 export default encrypt;

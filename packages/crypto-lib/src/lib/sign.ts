@@ -50,4 +50,5 @@ export const sign = async (data: types.dataSign): Promise<string> => {
   return signed as string;
 };
 
+/** Default export of the sign function. */
 export default sign;

@@ -46,4 +46,5 @@ const logger = createLogger({
   ],
 });
 
+/** Default export of the pre-configured Winston logger instance. */
 export default logger;

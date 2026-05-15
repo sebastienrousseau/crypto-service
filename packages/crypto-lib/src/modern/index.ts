@@ -13,6 +13,7 @@
 /* c8 ignore start -- barrel re-exports; actual functions tested in source modules */
 
 export { aeadEncrypt, aeadDecrypt } from "./aead";
+/** Re-exported AEAD option and result types. */
 export type {
   AeadEncryptOptions,
   AeadDecryptOptions,
@@ -25,6 +26,7 @@ export {
   aesGcmSivEncrypt,
   aesGcmSivDecrypt,
 } from "./aes";
+/** Re-exported AES-GCM and AES-GCM-SIV option, result, and algorithm types. */
 export type {
   AesGcmEncryptOptions,
   AesGcmEncryptResult,
@@ -37,15 +39,19 @@ export type {
 } from "./aes";
 
 export { hash, HASH_ALGORITHMS } from "./hash";
+/** Re-exported hash option, result, and algorithm types. */
 export type { HashOptions, HashResult, HashAlgorithm } from "./hash";
 
 export { kdfDerive, KDF_ALGORITHMS } from "./kdf";
+/** Re-exported KDF option, result, and algorithm types. */
 export type { KdfDeriveOptions, KdfResult, KdfAlgorithm } from "./kdf";
 
 export { generateEd25519KeyPair, ed25519Sign, ed25519Verify } from "./signing";
+/** Re-exported Ed25519 key pair and signing result types. */
 export type { Ed25519KeyPair, SignResult, VerifyResult } from "./signing";
 
 export { generateX25519KeyPair, x25519Exchange } from "./ecdh";
+/** Re-exported X25519 key pair and key exchange result types. */
 export type { X25519KeyPair, KeyExchangeResult } from "./ecdh";
 
 export {
@@ -56,6 +62,7 @@ export {
   hybridEncapsulate,
   hybridDecapsulate,
 } from "./pq";
+/** Re-exported ML-KEM and hybrid key pair and result types. */
 export type {
   MlKemKeyPair,
   MlKemEncapsulateResult,
@@ -80,6 +87,7 @@ export {
   x448MlKemEncapsulate,
   x448MlKemDecapsulate,
 } from "./pq-kem";
+/** Re-exported ML-KEM parameter set and hybrid KEM types. */
 export type {
   MlKemLevel,
   MlKemAlgorithm,
@@ -106,6 +114,7 @@ export {
   hybridSign,
   hybridVerify,
 } from "./pq-sign";
+/** Re-exported ML-DSA signing key pair and result types. */
 export type {
   MlDsaLevel,
   MlDsaAlgorithm,
@@ -118,6 +127,7 @@ export type {
 
 /** FN-DSA (FALCON / FIPS 206) digital signatures. */
 export { fnDsaKeygen, fnDsaSign, fnDsaVerify } from "./fn-dsa";
+/** Re-exported FN-DSA key pair and result types. */
 export type {
   FnDsaLevel,
   FnDsaAlgorithm,
@@ -128,6 +138,7 @@ export type {
 
 /** SLH-DSA stateless hash-based signatures (FIPS 205). */
 export { slhDsaKeygen, slhDsaSign, slhDsaVerify } from "./pq-hash-sign";
+/** Re-exported SLH-DSA variant, key pair, and result types. */
 export type {
   SlhDsaVariant,
   SlhDsaKeyPairResult,
@@ -144,6 +155,7 @@ export {
   verifyKmac,
   KMAC_ALGORITHMS,
 } from "./mac";
+/** Re-exported HMAC and KMAC option, result, and algorithm types. */
 export type {
   HmacAlgorithm,
   HmacComputeOptions,
@@ -159,6 +171,7 @@ export type {
 
 /** Argon2 password hashing (id, i, d variants). */
 export { hashPassword, verifyPassword, verifyPasswordPhc } from "./password";
+/** Re-exported Argon2 password hashing option and result types. */
 export type {
   Argon2Variant,
   Argon2Params,
@@ -188,6 +201,7 @@ export {
   schnorrSign,
   schnorrVerify,
 } from "./curves";
+/** Re-exported elliptic curve key pair and result types. */
 export type {
   P256KeyPair,
   P256SignResult,
@@ -209,6 +223,7 @@ export type {
 
 /** HPKE (Hybrid Public Key Encryption, RFC 9180). */
 export { hpkeGenerateKeyPair, hpkeSeal, hpkeOpen } from "./hpke";
+/** Re-exported HPKE key pair, suite, and result types. */
 export type {
   HpkeKem,
   HpkeAead,

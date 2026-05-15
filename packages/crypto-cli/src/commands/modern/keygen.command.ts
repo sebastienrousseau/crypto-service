@@ -91,4 +91,5 @@ const handleModernKeygen = async () => {
   }
 };
 
+/** Default export of the handleModernKeygen command handler. */
 export default handleModernKeygen;

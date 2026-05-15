@@ -18,10 +18,13 @@ export {
   jwkThumbprint,
 } from "./serialize";
 
+/** Re-exported PEM label and JWK types from the serialize module. */
 export type { PemLabel, Jwk } from "./serialize";
 
 export { generateKeyPair, KEY_ALGORITHMS } from "./keygen";
+/** Re-exported key generation algorithm, metadata, and result types. */
 export type { KeyAlgorithm, KeyMetadata, GeneratedKeyPair } from "./keygen";
 
 export { Keyring } from "./keyring";
+/** Re-exported keyring entry and JWKS types. */
 export type { KeyEntry, Jwks } from "./keyring";

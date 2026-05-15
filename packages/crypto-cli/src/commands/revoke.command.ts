@@ -46,6 +46,7 @@ const handleRevoke = async () => {
     await revoke(data);
   }
 };
+/** Default export of the handleRevoke command handler. */
 export default handleRevoke;
 
 // # sourceMappingURL=revoke.command.js.map

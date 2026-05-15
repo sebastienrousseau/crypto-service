@@ -72,6 +72,7 @@ const handleGenerate = async () => {
   await generate(data);
 };
 
+/** Default export of the handleGenerate command handler. */
 export default handleGenerate;
 
 // # sourceMappingURL=generate.command.js.map
