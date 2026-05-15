@@ -12,23 +12,23 @@ import { ModernCommand } from "./modern";
 /** Registry of all CLI command handlers (legacy PGP + modern crypto). */
 export const Command = {
   /** Decrypt a PGP-encrypted message. */
-  handleDecrypt: handleDecrypt,
+  handleDecrypt,
   /** Encrypt a message using PGP. */
-  handleEncrypt: handleEncrypt,
+  handleEncrypt,
   /** Generate a new OpenPGP key pair. */
-  handleGenerate: handleGenerate,
+  handleGenerate,
   /** Display interactive help for CLI commands. */
-  handleHelp: handleHelp,
+  handleHelp,
   /** Reformat OpenPGP key signature packets. */
-  handleReformat: handleReformat,
+  handleReformat,
   /** Revoke an OpenPGP key. */
-  handleRevoke: handleRevoke,
+  handleRevoke,
   /** Generate an OpenPGP session key. */
-  handleSession: handleSession,
+  handleSession,
   /** Sign a message using PGP. */
-  handleSign: handleSign,
+  handleSign,
   /** Verify a PGP-signed message. */
-  handleVerify: handleVerify,
+  handleVerify,
   /** Generate modern key pairs (Ed25519, ML-KEM, ML-DSA, etc.). */
   handleModernKeygen: ModernCommand.handleModernKeygen,
   /** Hash data using modern algorithms (SHA-2, SHA-3, BLAKE). */

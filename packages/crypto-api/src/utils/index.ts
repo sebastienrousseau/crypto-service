@@ -10,7 +10,7 @@ import {
   ResponseType,
 } from "../@types/types";
 import { mkdir, writeFile } from "fs/promises";
-import * as path from "path";
+import { basename, join, resolve } from "path";
 
 /**
  * URL object with an optional array of query parameters.
@@ -44,9 +44,9 @@ export interface BodyFormField {
   /** Field type, e.g. `"text"` or `"file"`. */
   type: string;
   /** File source path when `type` is `"file"`. */
-  src?: string | undefined;
+  src?: string;
   /** Field value when `type` is `"text"`. */
-  value?: string | undefined;
+  value?: string;
 }
 
 /**
@@ -281,11 +281,11 @@ export const response = async (
   content: string,
   fileName: string,
 ): Promise<void> => {
-  const dir = path.resolve(__dirname, "../../src/docs");
+  const dir = resolve(__dirname, "../../src/docs");
   await mkdir(dir, { recursive: true });
   // Sanitize fileName to prevent path traversal
-  const safeName = path.basename(fileName);
-  await writeFile(path.join(dir, safeName + ".md"), content, "utf8");
+  const safeName = basename(fileName);
+  await writeFile(join(dir, `${safeName}.md`), content, "utf8");
 };
 
 /**
