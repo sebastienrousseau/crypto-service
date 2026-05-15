@@ -1,9 +1,31 @@
 # Snyk (https://snyk.io) policy file
 # ignores vulnerabilities until expiry date
 version: v1.25.0
-ignore: {}
+ignore:
+  SNYK-JS-MINIMATCH-6095214:
+    - '*':
+        reason: Transitive dep of mocha test runner (devDependency only)
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-MINIMATCH-3050818:
+    - '*':
+        reason: Transitive dep of mocha test runner (devDependency only)
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-MINIMATCH-5765186:
+    - '*':
+        reason: Transitive dep of mocha test runner (devDependency only)
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-PROTOBUFJS-6370814:
+    - '*':
+        reason: Transitive dep of @google-cloud/kms (peer dep, not shipped)
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-PROTOBUFJS-6241928:
+    - '*':
+        reason: Transitive dep of @google-cloud/kms (peer dep, not shipped)
+        expires: 2027-01-01T00:00:00.000Z
+  SNYK-JS-SERIALIZEJAVASCRIPT-3371835:
+    - '*':
+        reason: Transitive dep of mocha test runner (devDependency only)
+        expires: 2027-01-01T00:00:00.000Z
 exclude:
   global:
     - "**/dist/**"
-# Note: This project uses fastify ^4.28.0 (currently 4.29.1).
-# Fastify 5.x CVEs do not affect the 4.x branch.
