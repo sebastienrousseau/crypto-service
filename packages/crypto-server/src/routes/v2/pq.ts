@@ -18,7 +18,10 @@ import {
   hybridEncapsulate,
   hybridDecapsulate,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 post-quantum ML-KEM and hybrid key-exchange endpoints. */
 export default (app: FastifyInstance): void => {
@@ -40,10 +43,9 @@ export default (app: FastifyInstance): void => {
         if (rejectUnauthorized(request, reply)) return;
         const keyPair = mlKemGenerateKeyPair();
         return reply.send({ data: keyPair });
-        /* c8 ignore next 4 -- defensive: mlKemGenerateKeyPair never throws */
+        /* c8 ignore next 3 -- defensive: mlKemGenerateKeyPair never throws */
       } catch (error) {
-        request.log.error(error, "ML-KEM keygen failed");
-        return reply.status(500).send({ error: "Key generation failed" });
+        return classifyCryptoError(error, request, reply, "Key generation");
       }
     },
   );
@@ -73,8 +75,7 @@ export default (app: FastifyInstance): void => {
         const result = mlKemEncapsulate(publicKey);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "ML-KEM encapsulate failed");
-        return reply.status(500).send({ error: "Encapsulation failed" });
+        return classifyCryptoError(error, request, reply, "Encapsulation");
       }
     },
   );
@@ -108,8 +109,7 @@ export default (app: FastifyInstance): void => {
         const result = mlKemDecapsulate(secretKey, ciphertext);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "ML-KEM decapsulate failed");
-        return reply.status(500).send({ error: "Decapsulation failed" });
+        return classifyCryptoError(error, request, reply, "Decapsulation");
       }
     },
   );
@@ -132,10 +132,9 @@ export default (app: FastifyInstance): void => {
         if (rejectUnauthorized(request, reply)) return;
         const keyPair = hybridGenerateKeyPair();
         return reply.send({ data: keyPair });
-        /* c8 ignore next 4 -- defensive: hybridGenerateKeyPair never throws */
+        /* c8 ignore next 3 -- defensive: hybridGenerateKeyPair never throws */
       } catch (error) {
-        request.log.error(error, "Hybrid keygen failed");
-        return reply.status(500).send({ error: "Key generation failed" });
+        return classifyCryptoError(error, request, reply, "Key generation");
       }
     },
   );
@@ -169,8 +168,12 @@ export default (app: FastifyInstance): void => {
         const result = hybridEncapsulate(x25519PublicKey, mlKemPublicKey);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "Hybrid encapsulate failed");
-        return reply.status(500).send({ error: "Hybrid encapsulation failed" });
+        return classifyCryptoError(
+          error,
+          request,
+          reply,
+          "Hybrid encapsulation",
+        );
       }
     },
   );
@@ -222,8 +225,12 @@ export default (app: FastifyInstance): void => {
         );
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "Hybrid decapsulate failed");
-        return reply.status(500).send({ error: "Hybrid decapsulation failed" });
+        return classifyCryptoError(
+          error,
+          request,
+          reply,
+          "Hybrid decapsulation",
+        );
       }
     },
   );

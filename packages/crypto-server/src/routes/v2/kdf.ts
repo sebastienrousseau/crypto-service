@@ -8,7 +8,10 @@ import {
   kdfDerive,
   KDF_ALGORITHMS,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 const kdfSchema = {
   tags: ["Key Derivation"],
@@ -68,8 +71,7 @@ export default (app: FastifyInstance): void => {
       });
       return reply.send({ data: result });
     } catch (error) {
-      request.log.error(error, "v2 KDF failed");
-      return reply.status(500).send({ error: "Key derivation failed" });
+      return classifyCryptoError(error, request, reply, "Key derivation");
     }
   });
 };

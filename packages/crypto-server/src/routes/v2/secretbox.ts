@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 secretbox (symmetric authenticated) encryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -39,8 +42,7 @@ export default (app: FastifyInstance): void => {
         const aadBytes = aad ? Buffer.from(aad, "utf8") : undefined;
         return reply.send({ data: seal(key, plaintext, aadBytes) });
       } catch (error) {
-        request.log.error(error, "Secretbox seal failed");
-        return reply.status(500).send({ error: "Encryption failed" });
+        return classifyCryptoError(error, request, reply, "Encryption");
       }
     },
   );
@@ -79,8 +81,7 @@ export default (app: FastifyInstance): void => {
           data: Buffer.from(plaintext).toString("utf8"),
         });
       } catch (error) {
-        request.log.error(error, "Secretbox open failed");
-        return reply.status(500).send({ error: "Decryption failed" });
+        return classifyCryptoError(error, request, reply, "Decryption");
       }
     },
   );

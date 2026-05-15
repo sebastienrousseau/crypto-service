@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 multi-recipient encryption/decryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -68,8 +71,7 @@ export default (app: FastifyInstance): void => {
 
         return reply.send({ data: multiEncrypt(libRecipients, plaintext) });
       } catch (error) {
-        request.log.error(error, "Multi-recipient encrypt failed");
-        return reply.status(500).send({ error: "Encryption failed" });
+        return classifyCryptoError(error, request, reply, "Encryption");
       }
     },
   );

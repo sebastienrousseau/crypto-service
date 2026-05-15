@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 ML-DSA (FIPS 204) post-quantum signature endpoints. */
 export default (app: FastifyInstance): void => {
@@ -32,10 +35,9 @@ export default (app: FastifyInstance): void => {
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
         const { level } = request.body as { level: 44 | 65 | 87 };
         return reply.send({ data: mlDsaKeygen(level) });
-        /* c8 ignore next 4 -- schema enum validation prevents invalid level values */
+        /* c8 ignore next 3 -- schema enum validation prevents invalid level values */
       } catch (error) {
-        request.log.error(error, "ML-DSA keygen failed");
-        return reply.status(500).send({ error: "Key generation failed" });
+        return classifyCryptoError(error, request, reply, "Key generation");
       }
     },
   );
@@ -72,8 +74,7 @@ export default (app: FastifyInstance): void => {
           data: mlDsaSign(body.level, body.secretKey, body.message),
         });
       } catch (error) {
-        request.log.error(error, "ML-DSA sign failed");
-        return reply.status(500).send({ error: "Signing failed" });
+        return classifyCryptoError(error, request, reply, "Signing");
       }
     },
   );
@@ -117,8 +118,7 @@ export default (app: FastifyInstance): void => {
           ),
         });
       } catch (error) {
-        request.log.error(error, "ML-DSA verify failed");
-        return reply.status(500).send({ error: "Verification failed" });
+        return classifyCryptoError(error, request, reply, "Verification");
       }
     },
   );

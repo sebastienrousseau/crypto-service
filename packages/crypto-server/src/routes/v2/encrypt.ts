@@ -8,7 +8,10 @@ import {
   aeadEncrypt,
   aeadDecrypt,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 const encryptSchema = {
   tags: ["Modern Encryption"],
@@ -59,8 +62,7 @@ export default (app: FastifyInstance): void => {
       const result = aeadEncrypt({ key, plaintext });
       return reply.send({ data: result });
     } catch (error) {
-      request.log.error(error, "v2 encryption failed");
-      return reply.status(500).send({ error: "Encryption failed" });
+      return classifyCryptoError(error, request, reply, "Encryption");
     }
   });
 
@@ -76,8 +78,7 @@ export default (app: FastifyInstance): void => {
         data: { plaintext: Buffer.from(plaintext).toString("utf8") },
       });
     } catch (error) {
-      request.log.error(error, "v2 decryption failed");
-      return reply.status(500).send({ error: "Decryption failed" });
+      return classifyCryptoError(error, request, reply, "Decryption");
     }
   });
 };

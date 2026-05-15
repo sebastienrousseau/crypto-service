@@ -4,13 +4,17 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 password hashing and verification endpoints. */
 export default (app: FastifyInstance): void => {
   app.post(
     "/v2/password/hash",
     {
+      config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
       schema: {
         tags: ["Password"],
         summary: "Hash a password with Argon2id",
@@ -45,10 +49,9 @@ export default (app: FastifyInstance): void => {
           ...(body.parallelism ? { parallelism: body.parallelism } : {}),
         });
         return reply.send({ data: result });
-        /* c8 ignore next 4 -- schema validation prevents params that could cause hashing to fail */
+        /* c8 ignore next 3 -- schema validation prevents params that could cause hashing to fail */
       } catch (error) {
-        request.log.error(error, "Password hashing failed");
-        return reply.status(500).send({ error: "Password hashing failed" });
+        return classifyCryptoError(error, request, reply, "Password hashing");
       }
     },
   );
@@ -56,6 +59,7 @@ export default (app: FastifyInstance): void => {
   app.post(
     "/v2/password/verify",
     {
+      config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
       schema: {
         tags: ["Password"],
         summary: "Verify a password against an Argon2id hash",
@@ -93,10 +97,12 @@ export default (app: FastifyInstance): void => {
         const result = verifyPassword(body);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "Password verification failed");
-        return reply
-          .status(500)
-          .send({ error: "Password verification failed" });
+        return classifyCryptoError(
+          error,
+          request,
+          reply,
+          "Password verification",
+        );
       }
     },
   );

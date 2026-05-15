@@ -28,3 +28,36 @@ export type {
 
 export { WorkerPool } from "./worker-pool";
 export type { WorkerPoolOptions, WorkerTask } from "./worker-pool";
+
+export {
+  detectWasmBackend,
+  wasmHash,
+  wasmAeadEncrypt,
+  wasmAeadDecrypt,
+  _resetWasmDetection,
+} from "./wasm-bridge";
+export type {
+  WasmBackend,
+  WasmHashAlgorithm,
+  WasmHashOptions,
+  WasmHashResult,
+  WasmAeadEncryptOptions,
+  WasmAeadEncryptResult,
+  WasmAeadDecryptResult,
+} from "./wasm-bridge";
+
+export {
+  hasNativePqc,
+  resetNativePqcCache,
+  _forceNativePqcDetected,
+  pqcBackend,
+  bridgedMlKemKeygen,
+  bridgedMlKemEncapsulate,
+  bridgedMlKemDecapsulate,
+} from "./native-pqc-bridge";
+export type {
+  PqcBackend,
+  NativeMlKemLevel,
+  BridgedMlKemKeygenResult,
+  BridgedMlKemEncapsulateResult,
+} from "./native-pqc-bridge";

@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/dist/modern/mac";
 
 const HMAC_ALGORITHMS = ["sha256", "sha384", "sha512", "sha3-256", "sha3-512"];
@@ -46,8 +49,7 @@ export default (app: FastifyInstance): void => {
         });
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "HMAC computation failed");
-        return reply.status(500).send({ error: "HMAC computation failed" });
+        return classifyCryptoError(error, request, reply, "HMAC computation");
       }
     },
   );
@@ -90,8 +92,7 @@ export default (app: FastifyInstance): void => {
         });
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "HMAC verification failed");
-        return reply.status(500).send({ error: "HMAC verification failed" });
+        return classifyCryptoError(error, request, reply, "HMAC verification");
       }
     },
   );

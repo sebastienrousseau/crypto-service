@@ -116,6 +116,16 @@ export type {
   HybridVerifyResult,
 } from "./pq-sign";
 
+/** FN-DSA (FALCON / FIPS 206) digital signatures. */
+export { fnDsaKeygen, fnDsaSign, fnDsaVerify } from "./fn-dsa";
+export type {
+  FnDsaLevel,
+  FnDsaAlgorithm,
+  FnDsaKeyPairResult,
+  FnDsaSignResult,
+  FnDsaVerifyResult,
+} from "./fn-dsa";
+
 /** SLH-DSA stateless hash-based signatures (FIPS 205). */
 export { slhDsaKeygen, slhDsaSign, slhDsaVerify } from "./pq-hash-sign";
 export type {
@@ -197,6 +207,19 @@ export type {
   SchnorrVerifyResult,
 } from "./curves";
 
+/** HPKE (Hybrid Public Key Encryption, RFC 9180). */
+export { hpkeGenerateKeyPair, hpkeSeal, hpkeOpen } from "./hpke";
+export type {
+  HpkeKem,
+  HpkeAead,
+  HpkeMode,
+  HpkeKeyPair,
+  HpkeSealResult,
+  HpkeOpenResult,
+  HpkeSuiteOptions,
+  HpkePskOptions,
+} from "./hpke";
+
 /**
  * List of all supported modern algorithms for the /v2/algorithms endpoint.
  */
@@ -263,6 +286,8 @@ export const SUPPORTED_ALGORITHMS = {
     "ed25519-ml-dsa-44",
     "ed25519-ml-dsa-65",
     "ed25519-ml-dsa-87",
+    "fn-dsa-512",
+    "fn-dsa-1024",
   ],
   /** Supported key exchange algorithms. */
   keyExchange: [
@@ -275,6 +300,9 @@ export const SUPPORTED_ALGORITHMS = {
     "x25519-ml-kem-1024",
     "p256-ml-kem-768",
     "x448-ml-kem-1024",
+    "hpke-x25519-chacha20",
+    "hpke-x25519-aes128gcm",
+    "hpke-p256-aes128gcm",
   ],
   /** Supported post-quantum algorithms. */
   postQuantum: [
@@ -296,6 +324,8 @@ export const SUPPORTED_ALGORITHMS = {
     "slh-dsa-shake-192s",
     "slh-dsa-shake-256f",
     "slh-dsa-shake-256s",
+    "fn-dsa-512",
+    "fn-dsa-1024",
   ],
 } as const;
 /* c8 ignore stop */

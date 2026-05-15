@@ -69,3 +69,36 @@ export function collectValidation<
     [K in keyof T]: T[K] extends ValidationResult<infer V> ? V : never;
   };
 }
+
+/**
+ * Classify a crypto operation error as client (4xx) or server (5xx).
+ * Input validation errors (invalid hex, wrong key length, etc.) return 400.
+ * @example
+ * ```ts
+ * classifyCryptoError(error, request, reply, "Encryption");
+ * ```
+ */
+export function classifyCryptoError(
+  error: unknown,
+  request: { log: { error: (err: unknown, msg: string) => void } },
+  reply: { status: (code: number) => { send: (body: unknown) => unknown } },
+  operation: string,
+): unknown {
+  const msg = error instanceof Error ? error.message : String(error);
+  const isInputError =
+    /invalid hex/i.test(msg) ||
+    /must be \d+ bytes/i.test(msg) ||
+    /too short/i.test(msg) ||
+    /unsupported/i.test(msg) ||
+    /expected.*length/i.test(msg) ||
+    /of length \d+ expected/i.test(msg);
+
+  if (isInputError) {
+    request.log.error(error, `${operation} input error`);
+    return reply
+      .status(400)
+      .send({ error: `${operation} failed: invalid input` });
+  }
+  request.log.error(error, `${operation} failed`);
+  return reply.status(500).send({ error: `${operation} failed` });
+}

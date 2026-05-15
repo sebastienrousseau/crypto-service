@@ -66,15 +66,15 @@ describe("PQ Routes (v2)", function () {
       expect(body.data.algorithm).to.equal("ml-kem-768");
     });
 
-    it("should return 500 for an invalid public key", async () => {
+    it("should return 400 for an invalid public key", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/encapsulate",
         payload: { publicKey: "deadbeef" },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encapsulation failed");
+      expect(body.error).to.equal("Encapsulation failed: invalid input");
     });
   });
 
@@ -94,8 +94,9 @@ describe("PQ Routes (v2)", function () {
         url: "/v2/pq/encapsulate",
         payload: { publicKey },
       });
-      const { ciphertext, sharedSecret: encSecret } =
-        JSON.parse(encRes.payload).data;
+      const { ciphertext, sharedSecret: encSecret } = JSON.parse(
+        encRes.payload,
+      ).data;
 
       // Decapsulate
       const decRes = await app.inject({
@@ -111,15 +112,15 @@ describe("PQ Routes (v2)", function () {
       expect(decBody.data.sharedSecret).to.equal(encSecret);
     });
 
-    it("should return 500 for invalid decapsulate inputs", async () => {
+    it("should return 400 for invalid decapsulate inputs", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/decapsulate",
         payload: { secretKey: "deadbeef", ciphertext: "deadbeef" },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Decapsulation failed");
+      expect(body.error).to.equal("Decapsulation failed: invalid input");
     });
 
     it("should return 400 for missing required fields", async () => {
@@ -163,8 +164,9 @@ describe("PQ Routes (v2)", function () {
         url: "/v2/pq/hybrid/keygen",
         payload: {},
       });
-      const { x25519PublicKey, mlKemPublicKey } =
-        JSON.parse(genRes.payload).data;
+      const { x25519PublicKey, mlKemPublicKey } = JSON.parse(
+        genRes.payload,
+      ).data;
 
       const res = await app.inject({
         method: "POST",
@@ -179,7 +181,7 @@ describe("PQ Routes (v2)", function () {
       expect(body.data.algorithm).to.equal("x25519-ml-kem-768");
     });
 
-    it("should return 500 for invalid keys", async () => {
+    it("should return 400 for invalid keys", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/hybrid/encapsulate",
@@ -188,9 +190,9 @@ describe("PQ Routes (v2)", function () {
           mlKemPublicKey: "deadbeef",
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Hybrid encapsulation failed");
+      expect(body.error).to.equal("Hybrid encapsulation failed: invalid input");
     });
 
     it("should return 400 for missing required fields", async () => {
@@ -211,8 +213,12 @@ describe("PQ Routes (v2)", function () {
         url: "/v2/pq/hybrid/keygen",
         payload: {},
       });
-      const { x25519PrivateKey, x25519PublicKey, mlKemPublicKey, mlKemSecretKey } =
-        JSON.parse(genRes.payload).data;
+      const {
+        x25519PrivateKey,
+        x25519PublicKey,
+        mlKemPublicKey,
+        mlKemSecretKey,
+      } = JSON.parse(genRes.payload).data;
 
       // Encapsulate
       const encRes = await app.inject({
@@ -220,8 +226,11 @@ describe("PQ Routes (v2)", function () {
         url: "/v2/pq/hybrid/encapsulate",
         payload: { x25519PublicKey, mlKemPublicKey },
       });
-      const { x25519EphemeralPublic, mlKemCiphertext, sharedSecret: encSecret } =
-        JSON.parse(encRes.payload).data;
+      const {
+        x25519EphemeralPublic,
+        mlKemCiphertext,
+        sharedSecret: encSecret,
+      } = JSON.parse(encRes.payload).data;
 
       // Decapsulate
       const decRes = await app.inject({
@@ -242,7 +251,7 @@ describe("PQ Routes (v2)", function () {
       expect(decBody.data.sharedSecret).to.equal(encSecret);
     });
 
-    it("should return 500 for invalid decapsulate inputs", async () => {
+    it("should return 400 for invalid decapsulate inputs", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/hybrid/decapsulate",
@@ -253,9 +262,9 @@ describe("PQ Routes (v2)", function () {
           mlKemCiphertext: "deadbeef",
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Hybrid decapsulation failed");
+      expect(body.error).to.equal("Hybrid decapsulation failed: invalid input");
     });
 
     it("should return 400 for missing required fields", async () => {

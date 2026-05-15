@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers the v2 key-generation endpoint. */
 export default (app: FastifyInstance): void => {
@@ -60,10 +63,9 @@ export default (app: FastifyInstance): void => {
         };
         const result = generateKeyPair(algorithm as never, metadata);
         return reply.send({ data: result });
-        /* c8 ignore next 4 -- schema enum validation prevents invalid algorithms */
+        /* c8 ignore next 3 -- schema enum validation prevents invalid algorithms */
       } catch (error) {
-        request.log.error(error, "Key generation failed");
-        return reply.status(500).send({ error: "Key generation failed" });
+        return classifyCryptoError(error, request, reply, "Key generation");
       }
     },
   );

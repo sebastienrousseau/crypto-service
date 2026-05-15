@@ -62,9 +62,9 @@ describe("V2 error paths", function () {
       }
     });
 
-    it("should return 500 when signing fails with invalid hex key", async () => {
+    it("should return 400 when signing fails with invalid hex key", async () => {
       // 'g' is not a valid hex char — Buffer.from("ggg...", "hex") gives
-      // an empty buffer, which ed25519 will reject as too short.
+      // an empty buffer, which ed25519 will reject as wrong length.
       const res = await app.inject({
         method: "POST",
         url: "/v2/sign",
@@ -73,9 +73,9 @@ describe("V2 error paths", function () {
           message: "test",
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Signing failed");
+      expect(body.error).to.equal("Signing failed: invalid input");
     });
   });
 
@@ -100,7 +100,7 @@ describe("V2 error paths", function () {
       }
     });
 
-    it("should return 500 when verify fails with invalid hex inputs", async () => {
+    it("should return 400 when verify fails with invalid hex inputs", async () => {
       // Invalid hex chars produce empty/short buffers, causing noble to throw
       const res = await app.inject({
         method: "POST",
@@ -111,9 +111,9 @@ describe("V2 error paths", function () {
           signature: "g".repeat(128),
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Verification failed");
+      expect(body.error).to.equal("Verification failed: invalid input");
     });
   });
 
@@ -153,7 +153,7 @@ describe("V2 error paths", function () {
       }
     });
 
-    it("should return 500 when encrypt fails with invalid key", async () => {
+    it("should return 400 when encrypt fails with invalid key", async () => {
       // Key is 64 hex chars but 'g' is not valid hex — however schema
       // accepts any string of length 64. The crypto op should throw.
       const res = await app.inject({
@@ -161,9 +161,9 @@ describe("V2 error paths", function () {
         url: "/v2/encrypt",
         payload: { key: "g".repeat(64), plaintext: "hello" },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encryption failed");
+      expect(body.error).to.equal("Encryption failed: invalid input");
     });
   });
 
@@ -225,6 +225,32 @@ describe("V2 error paths", function () {
   });
 
   // ---------------------------------------------------------------
+  // Cache-Control header on v2 routes
+  // ---------------------------------------------------------------
+  describe("Cache-Control headers", () => {
+    it("should include Cache-Control: no-store on v2 responses", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/hash",
+        payload: { algorithm: "sha256", data: "hello" },
+      });
+      expect(res.statusCode).to.equal(200);
+      expect(res.headers["cache-control"]).to.equal(
+        "no-store, no-cache, must-revalidate",
+      );
+      expect(res.headers["pragma"]).to.equal("no-cache");
+    });
+
+    it("should not include Cache-Control: no-store on non-v2 responses", async () => {
+      const res = await app.inject({ method: "GET", url: "/health" });
+      expect(res.statusCode).to.equal(200);
+      expect(res.headers["cache-control"]).to.not.equal(
+        "no-store, no-cache, must-revalidate",
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------
   // Auth success with correct key (confirm routes work with key)
   // ---------------------------------------------------------------
   describe("Authenticated requests with correct key", () => {
@@ -252,7 +278,11 @@ describe("V2 error paths", function () {
       const res = await app.inject({
         method: "POST",
         url: "/v2/kdf",
-        payload: { algorithm: "scrypt", password: "test", params: { N: 1024, r: 8, p: 1 } },
+        payload: {
+          algorithm: "scrypt",
+          password: "test",
+          params: { N: 1024, r: 8, p: 1 },
+        },
         headers: { "x-api-key": testKey },
       });
       expect(res.statusCode).to.equal(200);
@@ -309,7 +339,12 @@ describe("V2 error paths", function () {
       const res = await app.inject({
         method: "POST",
         url: "/v1/decrypt",
-        payload: { passphrase: "x", message: "x", publicKey: "x", privateKey: "x" },
+        payload: {
+          passphrase: "x",
+          message: "x",
+          publicKey: "x",
+          privateKey: "x",
+        },
       });
       expect(res.statusCode).to.equal(401);
     });

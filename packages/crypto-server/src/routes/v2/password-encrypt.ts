@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 password-based encryption/decryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -37,10 +40,9 @@ export default (app: FastifyInstance): void => {
         return reply.send({
           data: passwordEncrypt({ password, plaintext }),
         });
-        /* c8 ignore next 4 -- passwordEncrypt only fails with invalid inputs blocked by schema */
+        /* c8 ignore next 3 -- passwordEncrypt only fails with invalid inputs blocked by schema */
       } catch (error) {
-        request.log.error(error, "Password encrypt failed");
-        return reply.status(500).send({ error: "Encryption failed" });
+        return classifyCryptoError(error, request, reply, "Encryption");
       }
     },
   );
@@ -76,8 +78,7 @@ export default (app: FastifyInstance): void => {
           data: Buffer.from(plaintext).toString("utf8"),
         });
       } catch (error) {
-        request.log.error(error, "Password decrypt failed");
-        return reply.status(500).send({ error: "Decryption failed" });
+        return classifyCryptoError(error, request, reply, "Decryption");
       }
     },
   );

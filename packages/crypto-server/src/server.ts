@@ -53,6 +53,14 @@ async function init(): Promise<fastify.FastifyInstance> {
     reply.header("x-request-id", reqId);
   });
 
+  // Prevent caching of sensitive cryptographic responses.
+  app.addHook("onSend", async (request, reply) => {
+    if (request.url.startsWith("/v2/")) {
+      reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
+      reply.header("Pragma", "no-cache");
+    }
+  });
+
   // OpenAPI documentation — auto-generated from Fastify route schemas.
   await app.register(fastifySwagger, {
     openapi: {

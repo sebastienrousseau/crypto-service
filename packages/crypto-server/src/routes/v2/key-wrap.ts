@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 AES key-wrap and unwrap endpoints. */
 export default (app: FastifyInstance): void => {
@@ -42,8 +45,7 @@ export default (app: FastifyInstance): void => {
             : aesKwWrap(kek, keyToWrap);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "Key wrap failed");
-        return reply.status(500).send({ error: "Key wrapping failed" });
+        return classifyCryptoError(error, request, reply, "Key wrapping");
       }
     },
   );
@@ -84,8 +86,7 @@ export default (app: FastifyInstance): void => {
           data: Buffer.from(result).toString("hex"),
         });
       } catch (error) {
-        request.log.error(error, "Key unwrap failed");
-        return reply.status(500).send({ error: "Key unwrapping failed" });
+        return classifyCryptoError(error, request, reply, "Key unwrapping");
       }
     },
   );

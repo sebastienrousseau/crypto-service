@@ -8,7 +8,10 @@ import {
   ed25519Sign,
   ed25519Verify,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import { rejectUnauthorized } from "../../utils/route-helpers";
+import {
+  rejectUnauthorized,
+  classifyCryptoError,
+} from "../../utils/route-helpers";
 
 /** Registers v2 digital signature (sign/verify) endpoints. */
 export default (app: FastifyInstance): void => {
@@ -46,8 +49,7 @@ export default (app: FastifyInstance): void => {
         const result = ed25519Sign(privateKey, message);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "v2 signing failed");
-        return reply.status(500).send({ error: "Signing failed" });
+        return classifyCryptoError(error, request, reply, "Signing");
       }
     },
   );
@@ -87,8 +89,7 @@ export default (app: FastifyInstance): void => {
         const result = ed25519Verify(publicKey, message, signature);
         return reply.send({ data: result });
       } catch (error) {
-        request.log.error(error, "v2 verification failed");
-        return reply.status(500).send({ error: "Verification failed" });
+        return classifyCryptoError(error, request, reply, "Verification");
       }
     },
   );
