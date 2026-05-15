@@ -3,7 +3,7 @@ engines:
   eslint:
     enabled: true
   markdownlint:
-    enabled: false
+    enabled: true
   stylelint:
     enabled: false
   csslint:
@@ -26,5 +26,8 @@ exclude_paths:
   - "packages/crypto-lib/src/key/**"
   - "packages/crypto-lib/src/data/**"
   - "pnpm-lock.yaml"
-  - "**/*.md"
   - "**/*.json"
+  - "benchmarks/**"
+  - "security-findings.md"
+  - "ROADMAP.md"
+  - "CHANGELOG.md"

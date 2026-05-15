@@ -2,7 +2,7 @@
 
 ## Package Dependency Graph
 
-```
+```text
 crypto-lib (core)
 ├── crypto-server (REST API via Fastify)
 │   └── crypto-sdk (client SDK)

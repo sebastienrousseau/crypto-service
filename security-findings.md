@@ -4,20 +4,21 @@
 
 ## Remediation Summary
 
-| Finding | Severity | Status | Commit |
-|---------|----------|--------|--------|
-| Missing Input Validation | CRITICAL | ✅ FIXED | d518a1f |
-| Unsafe Type Coercion | CRITICAL | ✅ FIXED | d518a1f |
-| Use of Any Types | CRITICAL | ✅ FIXED | d518a1f |
-| Information Disclosure (CLI) | HIGH | ✅ FIXED | d518a1f |
-| Private Key Exposure | HIGH | ✅ FIXED | d518a1f |
-| No Authentication | HIGH | ✅ FIXED | d518a1f |
-| Weak Input Format Validation | MEDIUM | ✅ FIXED | d518a1f |
-| Generic Error Messages | MEDIUM | ✅ FIXED | d518a1f |
+| Finding                      | Severity | Status   | Commit  |
+| ---------------------------- | -------- | -------- | ------- |
+| Missing Input Validation     | CRITICAL | ✅ FIXED | d518a1f |
+| Unsafe Type Coercion         | CRITICAL | ✅ FIXED | d518a1f |
+| Use of Any Types             | CRITICAL | ✅ FIXED | d518a1f |
+| Information Disclosure (CLI) | HIGH     | ✅ FIXED | d518a1f |
+| Private Key Exposure         | HIGH     | ✅ FIXED | d518a1f |
+| No Authentication            | HIGH     | ✅ FIXED | d518a1f |
+| Weak Input Format Validation | MEDIUM   | ✅ FIXED | d518a1f |
+| Generic Error Messages       | MEDIUM   | ✅ FIXED | d518a1f |
 
 ## Attack Surface Summary
 
 The crypto service exposes cryptographic operations through REST API endpoints and CLI commands. Entry points include:
+
 - HTTP routes in `/v1/encrypt`, `/v1/decrypt`, `/v1/generate`, `/v1/revoke`, `/v1/verify`
 - CLI commands for interactive crypto operations
 - Header-based parameter passing for API endpoints
@@ -29,7 +30,7 @@ Trust boundaries exist between HTTP clients and the crypto service, with no auth
 ### [SEV-CRITICAL] Missing Input Validation in All API Routes
 
 - **CVSS:** 9.1 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
-- **Location:** packages/crypto-server/src/routes/v1/*.ts (all route files)
+- **Location:** packages/crypto-server/src/routes/v1/\*.ts (all route files)
 - **Impact:** Attackers can inject malformed data, cause service crashes, and bypass security controls
 - **Remediation:** Implement comprehensive input validation using schema validation libraries (e.g., Joi, Zod) for all header parameters before processing
 - **Detection:** Monitor for HTTP 500 errors and invalid parameter patterns in logs
@@ -72,7 +73,7 @@ Trust boundaries exist between HTTP clients and the crypto service, with no auth
 ### [SEV-HIGH] No Authentication on Cryptographic Operations
 
 - **CVSS:** 7.1 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:N)
-- **Location:** All packages/crypto-server/src/routes/v1/*.ts files
+- **Location:** All packages/crypto-server/src/routes/v1/\*.ts files
 - **Impact:** Anonymous access to encryption, decryption, and key generation enables abuse and resource exhaustion
 - **Remediation:** Implement authentication middleware (API keys, OAuth, etc.) for all crypto endpoints
 - **Detection:** Monitor for unusual usage patterns and high-volume requests from single sources
