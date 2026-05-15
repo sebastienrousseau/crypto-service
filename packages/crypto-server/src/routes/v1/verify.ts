@@ -23,6 +23,7 @@ import {
   collectValidation,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v1 signature-verification endpoint. */
 const verifySchema = {
   tags: ["Signing"],
   summary: "Verify a signed message",

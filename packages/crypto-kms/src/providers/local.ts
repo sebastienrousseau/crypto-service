@@ -56,7 +56,9 @@ interface LocalKeyRecord {
  * ```
  */
 export class LocalKmsProvider implements KmsProvider {
+  /** Provider identifier. */
   readonly name = "local";
+  /** In-memory key store mapping key IDs to records. */
   private readonly store = new Map<string, LocalKeyRecord>();
 
   /** Generate a unique key ID. */
@@ -64,6 +66,7 @@ export class LocalKmsProvider implements KmsProvider {
     return `local-${bytesToHex(randomBytes(16))}`;
   }
 
+  /** List all keys, optionally filtered by usage or enabled state. */
   async listKeys(filters?: {
     usage?: string;
     enabled?: boolean;
@@ -83,12 +86,14 @@ export class LocalKmsProvider implements KmsProvider {
     });
   }
 
+  /** Retrieve metadata for a specific key by ID. */
   async getKey(keyId: string): Promise<KmsKeyMetadata> {
     const record = this.store.get(keyId);
     if (!record) throw new Error(`Key not found: ${keyId}`);
     return { ...record.metadata };
   }
 
+  /** Create a new key with the given algorithm and usage. */
   async createKey(
     algorithm: string,
     usage: "encrypt" | "sign" | "wrap",
@@ -128,18 +133,21 @@ export class LocalKmsProvider implements KmsProvider {
     return { ...metadata };
   }
 
+  /** Enable a previously disabled key. */
   async enableKey(keyId: string): Promise<void> {
     const record = this.store.get(keyId);
     if (!record) throw new Error(`Key not found: ${keyId}`);
     record.metadata.enabled = true;
   }
 
+  /** Disable a key so it cannot be used for operations. */
   async disableKey(keyId: string): Promise<void> {
     const record = this.store.get(keyId);
     if (!record) throw new Error(`Key not found: ${keyId}`);
     record.metadata.enabled = false;
   }
 
+  /** Schedule a key for deletion after a pending window. */
   async scheduleKeyDeletion(
     keyId: string,
     pendingWindowDays = 30,
@@ -153,6 +161,7 @@ export class LocalKmsProvider implements KmsProvider {
     record.deletionDate = deletionDate.toISOString();
   }
 
+  /** Encrypt plaintext with AES-256-GCM using the managed key. */
   async encrypt(
     keyId: string,
     plaintext: Uint8Array,
@@ -185,6 +194,7 @@ export class LocalKmsProvider implements KmsProvider {
     return result;
   }
 
+  /** Decrypt AES-256-GCM ciphertext using the managed key. */
   async decrypt(
     keyId: string,
     ciphertext: string,
@@ -216,6 +226,7 @@ export class LocalKmsProvider implements KmsProvider {
     };
   }
 
+  /** Sign data using the Ed25519 signing key. */
   async sign(
     keyId: string,
     data: Uint8Array,
@@ -236,6 +247,7 @@ export class LocalKmsProvider implements KmsProvider {
     };
   }
 
+  /** Verify an Ed25519 signature against data. */
   async verify(
     keyId: string,
     data: Uint8Array,
@@ -257,6 +269,7 @@ export class LocalKmsProvider implements KmsProvider {
     return result.valid;
   }
 
+  /** Rotate key material while preserving the key ID and metadata. */
   async rotateKey(keyId: string): Promise<KmsKeyMetadata> {
     const record = this.store.get(keyId);
     if (!record) throw new Error(`Key not found: ${keyId}`);
@@ -274,6 +287,7 @@ export class LocalKmsProvider implements KmsProvider {
     return { ...record.metadata };
   }
 
+  /** Generate a data encryption key (DEK) wrapped by the managed key. */
   async generateDataKey(
     keyId: string,
     _keySpec?: string,

@@ -7,6 +7,7 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/** Supported signature algorithms for modern signing and verification. */
 const ALGORITHMS = [
   "ed25519",
   "ed448",

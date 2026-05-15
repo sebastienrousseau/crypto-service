@@ -23,10 +23,15 @@
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
+/** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
+/** Default chunk size for streaming encryption (64 KiB). */
 const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
+/** Chunk tag byte for intermediate (non-final) chunks. */
 const CHUNK_TAG_MESSAGE = 0x00;
+/** Chunk tag byte for the final chunk. */
 const CHUNK_TAG_FINAL = 0x01;
 
 /**
@@ -86,8 +91,10 @@ export interface StreamDecryptOptions {
   chunkSize?: number;
 }
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse and validate a 256-bit key from hex string or Uint8Array. */
 function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== 32) {

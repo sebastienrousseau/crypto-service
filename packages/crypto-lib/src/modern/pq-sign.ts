@@ -71,8 +71,10 @@ export interface HybridVerifyResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -80,11 +82,13 @@ function assertHex(input: string, label: string): Uint8Array {
   return Buffer.from(input, "hex");
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
   return Buffer.from(input, "utf8");
 }
 
+/** Retrieve the ML-DSA implementation for the given security level. */
 function getDsa(level: MlDsaLevel) {
   switch (level) {
     case 44:
@@ -100,6 +104,7 @@ function getDsa(level: MlDsaLevel) {
   }
 }
 
+/** Build the ML-DSA algorithm identifier string from a security level. */
 function algorithmName(level: MlDsaLevel): MlDsaAlgorithm {
   return `ml-dsa-${level}` as MlDsaAlgorithm;
 }

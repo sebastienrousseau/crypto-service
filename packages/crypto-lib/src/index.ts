@@ -1,3 +1,10 @@
+/**
+ * @remarks Main entry point for the Crypto Service Suite library.
+ *
+ * Re-exports all modules: modern primitives, high-level APIs, key management,
+ * streaming, protocols, tokens, acceleration, unified crypto API, and registry.
+ */
+
 import CryptoLib from "./bin/cryptolib";
 
 export default CryptoLib;

@@ -58,10 +58,12 @@ const P = BigInt(
   "7237005577332262213973186563042994240857116359379907606001950938285454250989",
 );
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
 // --- Helpers ---
 
+/** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }
@@ -107,14 +109,17 @@ function mod(a: bigint, m: bigint = P): bigint {
   return ((a % m) + m) % m;
 }
 
+/** Modular addition in GF(p). */
 function modAdd(a: bigint, b: bigint): bigint {
   return mod(a + b);
 }
 
+/** Modular multiplication in GF(p). */
 function modMul(a: bigint, b: bigint): bigint {
   return mod(a * b);
 }
 
+/** Modular subtraction in GF(p). */
 function modSub(a: bigint, b: bigint): bigint {
   return mod(a - b);
 }

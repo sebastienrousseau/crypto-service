@@ -10,6 +10,7 @@ import {
 } from "../../utils/route-helpers";
 import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign";
 
+/** List of SLH-DSA variants accepted by the v2 hash-sign endpoint. */
 const SLH_DSA_VARIANTS = [
   "sha2-128f",
   "sha2-128s",

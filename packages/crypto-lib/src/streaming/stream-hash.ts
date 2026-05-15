@@ -28,11 +28,13 @@ export const STREAM_HASH_ALGORITHMS = [
 /** Union type of supported streaming hash algorithm names. */
 export type StreamHashAlgorithm = (typeof STREAM_HASH_ALGORITHMS)[number];
 
+/** Internal hasher interface with update and digest methods. */
 interface HashLike {
   update(data: Uint8Array): HashLike;
   digest(): Uint8Array;
 }
 
+/** Map of hash algorithm names to their incremental hasher factory functions. */
 const factories: Record<StreamHashAlgorithm, () => HashLike> = {
   sha256: () => sha256.create(),
   sha384: () => sha384.create(),

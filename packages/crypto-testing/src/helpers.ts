@@ -14,6 +14,7 @@ import { crypto, type SignAlgorithm } from "@sebastienrousseau/crypto-lib";
 // Hex validation
 // ---------------------------------------------------------------------------
 
+/** Regular expression matching a hexadecimal string. */
 const HEX_RE = /^[0-9a-fA-F]+$/;
 
 /**
@@ -60,6 +61,7 @@ export function expectValidHex(value: string, length?: number): void {
 // Base64 validation
 // ---------------------------------------------------------------------------
 
+/** Regular expression matching a Base64-encoded string. */
 const BASE64_RE = /^[A-Za-z0-9+/]*={0,2}$/;
 
 /**

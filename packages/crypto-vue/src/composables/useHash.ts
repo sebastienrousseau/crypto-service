@@ -63,6 +63,7 @@ export function useHash(): UseHashReturn {
   const isHashing = ref(false);
   const error = ref<Error | null>(null);
 
+  /** Compute a cryptographic hash digest and update reactive state. */
   async function hash(
     algo: HashAlgorithm,
     data: string | Uint8Array,
@@ -85,6 +86,7 @@ export function useHash(): UseHashReturn {
     /* c8 ignore stop */
   }
 
+  /** Reset all reactive state to initial values. */
   function clear(): void {
     digest.value = null;
     algorithm.value = null;

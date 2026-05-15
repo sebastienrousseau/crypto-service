@@ -19,13 +19,16 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
   return Buffer.from(hex, "hex");
 }
 
+/** Coerce a key from hex string or Uint8Array to bytes. */
 function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) return key;
   return hexToBytes(key);

@@ -46,9 +46,12 @@ import type { EncryptionConfig } from "./types";
  * ```
  */
 export class EncryptionSubscriber implements EntitySubscriberInterface {
+  /** Hex-encoded encryption key. */
   private readonly key: string;
+  /** Map of entity names to encrypted field names. */
   private readonly fields: Map<string, string[]>;
 
+  /** Create a new subscriber with the given encryption configuration. */
   constructor(config: EncryptionConfig) {
     if (!config.key) {
       throw new Error("EncryptionSubscriber: key is required");
@@ -86,17 +89,20 @@ export class EncryptionSubscriber implements EntitySubscriberInterface {
 
   // ── helpers ──────────────────────────────────────────────────────
 
+  /** Extract the constructor name from an entity, or `undefined` for plain objects. */
   private getEntityName(entity: Record<string, unknown>): string | undefined {
     const ctor = entity?.constructor;
     return ctor?.name && ctor.name !== "Object" ? ctor.name : undefined;
   }
 
+  /** Return the list of encrypted field names for the given entity. */
   private getFieldsFor(entity: Record<string, unknown>): string[] {
     const name = this.getEntityName(entity);
     if (!name) return [];
     return this.fields.get(name) ?? [];
   }
 
+  /** Encrypt all configured fields on the entity in place. */
   private encryptFields(entity: Record<string, unknown>): void {
     const fields = this.getFieldsFor(entity);
     for (const field of fields) {
@@ -109,6 +115,7 @@ export class EncryptionSubscriber implements EntitySubscriberInterface {
     }
   }
 
+  /** Decrypt all configured fields on the entity in place. */
   private decryptFields(entity: Record<string, unknown>): void {
     const fields = this.getFieldsFor(entity);
     for (const field of fields) {

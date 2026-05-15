@@ -78,6 +78,7 @@ export function useSignature(): UseSignatureReturn {
   const isProcessing = ref(false);
   const error = ref<Error | null>(null);
 
+  /** Sign a message with the given algorithm and private key, updating reactive state. */
   async function sign(
     algo: SignAlgorithm,
     privateKeyHex: string,
@@ -101,6 +102,7 @@ export function useSignature(): UseSignatureReturn {
     /* c8 ignore stop */
   }
 
+  /** Verify a signature with the given algorithm and public key, updating reactive state. */
   async function verify(
     algo: SignAlgorithm,
     publicKeyHex: string,
@@ -125,6 +127,7 @@ export function useSignature(): UseSignatureReturn {
     /* c8 ignore stop */
   }
 
+  /** Reset all reactive state to initial values. */
   function clear(): void {
     signature.value = null;
     isValid.value = null;

@@ -136,6 +136,7 @@ class TextDecoderPolyfill {
 // btoa / atob polyfill
 // ---------------------------------------------------------------------------
 
+/** Standard Base64 alphabet used by the btoa/atob polyfills. */
 const BASE64_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

@@ -12,9 +12,11 @@
 import { readFile } from "fs/promises";
 import * as path from "path";
 
+/** Resolve the absolute path to a key file by name. */
 const keyPath = (name: string): string =>
   path.resolve(__dirname, "..", "key", name);
 
+/** Read a key file from disk, decoding from base64 if not PEM-armored. */
 const decode = async (file: string): Promise<string> => {
   const raw = await readFile(keyPath(file));
   if (raw.length >= 5 && raw.subarray(0, 5).toString("ascii") === "-----") {

@@ -14,8 +14,7 @@
 
 import type { EdgeRuntime, RuntimeCapabilities } from "./types";
 
-// Runtime globals vary across environments; typed access is not feasible.
-// Uses `any` because globalThis properties differ across Workers/Deno/Bun/Node.
+/** Loosely-typed reference to `globalThis` for cross-runtime property access. */
 const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**

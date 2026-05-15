@@ -22,6 +22,7 @@ import {
   collectValidation,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v1 key-revocation endpoint. */
 const revokeSchema = {
   tags: ["Key Management"],
   summary: "Revoke a key pair",

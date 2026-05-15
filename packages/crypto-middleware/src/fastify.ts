@@ -161,6 +161,7 @@ async function cryptoPluginImpl(
   }
 }
 
+/** Fastify plugin wrapping {@link cryptoPluginImpl} via `fastify-plugin`. */
 export const cryptoPlugin = fp(cryptoPluginImpl, {
   name: "crypto-middleware",
   fastify: "4.x",

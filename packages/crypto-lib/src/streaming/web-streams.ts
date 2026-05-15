@@ -22,9 +22,11 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
+/** Reference to the global TransformStream constructor. */
 const TS = (globalThis as Record<string, unknown>)
   .TransformStream as typeof import("stream/web").TransformStream;
 
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
 
 /** Supported hash algorithms for the hash transform stream. */

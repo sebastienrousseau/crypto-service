@@ -33,12 +33,19 @@ import { blake2b } from "@noble/hashes/blake2.js";
 
 // --- Constants ---
 
+/** PASETO v4.local token prefix. */
 const V4_LOCAL_HEADER = "v4.local.";
+/** PASETO v4.public token prefix. */
 const V4_PUBLIC_HEADER = "v4.public.";
+/** PASETO v4.local nonce length in bytes. */
 const NONCE_LEN = 32;
+/** PASETO v4.local derived encryption key length in bytes. */
 const EK_LEN = 32;
+/** XChaCha20 nonce length in bytes. */
 const N3_LEN = 24;
+/** Ed25519 signature length in bytes. */
 const SIG_LEN = 64;
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
 // --- Types ---

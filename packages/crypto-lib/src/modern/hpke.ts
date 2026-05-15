@@ -148,8 +148,10 @@ export interface HpkePskOptions {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!HEX_RE.test(hex) || hex.length % 2 !== 0) {
     throw new Error("Invalid hex string");
@@ -157,6 +159,7 @@ function hexToBytes(hex: string): Uint8Array {
   return Buffer.from(hex, "hex");
 }
 
+/** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }
@@ -166,6 +169,7 @@ function i2osp2(n: number): Uint8Array {
   return new Uint8Array([(n >> 8) & 0xff, n & 0xff]);
 }
 
+/** Concatenate multiple byte arrays into a single Uint8Array. */
 function concat(...arrays: Uint8Array[]): Uint8Array {
   const len = arrays.reduce((s, a) => s + a.length, 0);
   const result = new Uint8Array(len);
@@ -181,6 +185,7 @@ function concat(...arrays: Uint8Array[]): Uint8Array {
 // Suite parameters
 // ---------------------------------------------------------------------------
 
+/** HPKE cipher suite numeric identifiers and size constants. */
 interface SuiteParams {
   kemId: number;
   kdfId: number;
@@ -197,6 +202,7 @@ interface SuiteParams {
   nSk: number;
 }
 
+/** Resolve numeric identifiers and size constants for a KEM+AEAD pair. */
 function suiteParams(kem: HpkeKem, aead: HpkeAead): SuiteParams {
   const kemId = kem === "x25519" ? KEM_X25519 : KEM_P256;
   const aeadId =
@@ -367,6 +373,7 @@ function dhkemDecap(
 // Key Schedule (RFC 9180 § 5.1)
 // ---------------------------------------------------------------------------
 
+/** Derive the AEAD key and base nonce from the shared secret via the HPKE key schedule. */
 function keySchedule(
   params: SuiteParams,
   sharedSecret: Uint8Array,
@@ -410,6 +417,7 @@ function keySchedule(
 // AEAD helpers
 // ---------------------------------------------------------------------------
 
+/** Encrypt plaintext with the specified AEAD algorithm. */
 function aeadSeal(
   aead: HpkeAead,
   key: Uint8Array,
@@ -423,6 +431,7 @@ function aeadSeal(
   return gcm(key, nonce, aad).encrypt(plaintext);
 }
 
+/** Decrypt ciphertext with the specified AEAD algorithm. */
 function aeadOpen(
   aead: HpkeAead,
   key: Uint8Array,

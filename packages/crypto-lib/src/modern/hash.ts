@@ -46,11 +46,13 @@ export interface HashResult {
   length: number;
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
   return Buffer.from(input, "utf8");
 }
 
+/** Map of hash algorithm names to their implementation functions. */
 const hashFunctions: Record<HashAlgorithm, (data: Uint8Array) => Uint8Array> = {
   sha256: (d) => sha256(d),
   sha384: (d) => sha384(d),

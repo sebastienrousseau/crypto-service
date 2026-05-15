@@ -13,6 +13,7 @@
 
 import type { FastifyInstance } from "fastify";
 
+/** Process start time for uptime calculations. */
 const startTime = Date.now();
 
 /** Registers liveness, readiness, and metrics probe endpoints. */

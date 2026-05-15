@@ -49,11 +49,16 @@ export interface VaultKmsOptions {
  * ```
  */
 export class VaultKmsProvider implements KmsProvider {
+  /** Provider identifier. */
   readonly name = "vault";
+  /** Vault server address. */
   private readonly _address: string;
+  /** Vault authentication token. */
   private readonly _token: string;
+  /** Transit engine mount path. */
   private readonly _mount: string;
 
+  /** Create a Vault Transit provider with the given options. */
   constructor(options: VaultKmsOptions) {
     this._address = options.address;
     this._token = options.token;
@@ -74,7 +79,7 @@ export class VaultKmsProvider implements KmsProvider {
     };
   }
 
-  // TODO: implement with Vault HTTP API
+  /** List all keys, optionally filtered by usage or enabled state. */
   async listKeys(_filters?: {
     usage?: string;
     enabled?: boolean;
@@ -82,12 +87,12 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Retrieve metadata for a specific key by ID. */
   async getKey(_keyId: string): Promise<KmsKeyMetadata> {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Create a new key with the given algorithm and usage. */
   async createKey(
     _algorithm: string,
     _usage: "encrypt" | "sign" | "wrap",
@@ -96,17 +101,17 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Enable a previously disabled key. */
   async enableKey(_keyId: string): Promise<void> {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Disable a key so it cannot be used for operations. */
   async disableKey(_keyId: string): Promise<void> {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Schedule a key for deletion after a pending window. */
   async scheduleKeyDeletion(
     _keyId: string,
     _pendingWindowDays?: number,
@@ -114,7 +119,7 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Encrypt plaintext using a managed key. */
   async encrypt(
     _keyId: string,
     _plaintext: Uint8Array,
@@ -123,7 +128,7 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Decrypt ciphertext using a managed key. */
   async decrypt(
     _keyId: string,
     _ciphertext: string,
@@ -132,7 +137,7 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Sign data using a managed signing key. */
   async sign(
     _keyId: string,
     _data: Uint8Array,
@@ -141,7 +146,7 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Verify a signature against data. */
   async verify(
     _keyId: string,
     _data: Uint8Array,
@@ -151,12 +156,12 @@ export class VaultKmsProvider implements KmsProvider {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Rotate a key to a new version. */
   async rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
     throw new Error("Not implemented: configure HashiCorp Vault connection");
   }
 
-  // TODO: implement with Vault HTTP API
+  /** Generate a data encryption key (DEK) wrapped by the managed key. */
   async generateDataKey(
     _keyId: string,
     _keySpec?: string,

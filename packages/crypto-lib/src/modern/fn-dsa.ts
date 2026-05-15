@@ -87,8 +87,10 @@ export interface FnDsaVerifyResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -96,6 +98,7 @@ function assertHex(input: string, label: string): Uint8Array {
   return Buffer.from(input, "hex");
 }
 
+/** Retrieve the FALCON implementation for the given security level. */
 function getFalcon(level: FnDsaLevel) {
   switch (level) {
     case 512:
@@ -109,6 +112,7 @@ function getFalcon(level: FnDsaLevel) {
   }
 }
 
+/** Build the FN-DSA algorithm identifier string from a security level. */
 function algorithmName(level: FnDsaLevel): FnDsaAlgorithm {
   return `fn-dsa-${level}` as FnDsaAlgorithm;
 }

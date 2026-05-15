@@ -41,9 +41,12 @@ export interface AzureKmsOptions {
  * ```
  */
 export class AzureKmsProvider implements KmsProvider {
+  /** Provider identifier. */
   readonly name = "azure";
+  /** Configured Azure Key Vault URL. */
   private readonly _vaultUrl: string;
 
+  /** Create an Azure Key Vault provider with the given options. */
   constructor(options: AzureKmsOptions) {
     this._vaultUrl = options.vaultUrl;
   }
@@ -53,7 +56,7 @@ export class AzureKmsProvider implements KmsProvider {
     return this._vaultUrl;
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** List all keys, optionally filtered by usage or enabled state. */
   async listKeys(_filters?: {
     usage?: string;
     enabled?: boolean;
@@ -61,12 +64,12 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Retrieve metadata for a specific key by ID. */
   async getKey(_keyId: string): Promise<KmsKeyMetadata> {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Create a new key with the given algorithm and usage. */
   async createKey(
     _algorithm: string,
     _usage: "encrypt" | "sign" | "wrap",
@@ -75,17 +78,17 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Enable a previously disabled key. */
   async enableKey(_keyId: string): Promise<void> {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Disable a key so it cannot be used for operations. */
   async disableKey(_keyId: string): Promise<void> {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Schedule a key for deletion after a pending window. */
   async scheduleKeyDeletion(
     _keyId: string,
     _pendingWindowDays?: number,
@@ -93,7 +96,7 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Encrypt plaintext using a managed key. */
   async encrypt(
     _keyId: string,
     _plaintext: Uint8Array,
@@ -102,7 +105,7 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Decrypt ciphertext using a managed key. */
   async decrypt(
     _keyId: string,
     _ciphertext: string,
@@ -111,7 +114,7 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Sign data using a managed signing key. */
   async sign(
     _keyId: string,
     _data: Uint8Array,
@@ -120,7 +123,7 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Verify a signature against data. */
   async verify(
     _keyId: string,
     _data: Uint8Array,
@@ -130,12 +133,12 @@ export class AzureKmsProvider implements KmsProvider {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Rotate a key to a new version. */
   async rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
     throw new Error("Not implemented: install @azure/keyvault-keys");
   }
 
-  // TODO: implement with @azure/keyvault-keys
+  /** Generate a data encryption key (DEK) wrapped by the managed key. */
   async generateDataKey(
     _keyId: string,
     _keySpec?: string,

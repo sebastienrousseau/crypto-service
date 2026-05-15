@@ -36,8 +36,10 @@ import type { EncryptionConfig } from "./types";
  * ```
  */
 export class EncryptionTransformer implements ValueTransformer {
+  /** Hex-encoded encryption key. */
   private readonly key: string;
 
+  /** Create a new transformer with the given encryption configuration. */
   constructor(config: EncryptionConfig) {
     if (!config.key) {
       throw new Error("EncryptionTransformer: key is required");

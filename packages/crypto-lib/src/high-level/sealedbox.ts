@@ -23,16 +23,22 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
+/** Length of an X25519 ephemeral public key in bytes. */
 const EPHEMERAL_LEN = 32;
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
+/** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
   return Buffer.from(hex, "hex");
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toData(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }
@@ -219,7 +225,7 @@ export function sealPQ(
   };
 }
 
-// ML-KEM-768 ciphertext is 1088 bytes
+/** ML-KEM-768 ciphertext length in bytes. */
 const ML_KEM_768_CT_LEN = 1088;
 
 /**

@@ -7,6 +7,7 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/** Supported AEAD cipher algorithms for modern encryption. */
 const ALGORITHMS = [
   "xchacha20-poly1305",
   "aes-256-gcm",

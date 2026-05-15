@@ -121,8 +121,10 @@ export interface RespondToSessionResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing with a label on invalid input. */
 function hexToBytes(hex: string, label: string): Uint8Array {
   if (!HEX_RE.test(hex)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -130,6 +132,7 @@ function hexToBytes(hex: string, label: string): Uint8Array {
   return Buffer.from(hex, "hex");
 }
 
+/** HKDF info context for PQXDH key derivation. */
 const PQXDH_INFO = new TextEncoder().encode("pqxdh-v1");
 
 // --- Key Generation ---

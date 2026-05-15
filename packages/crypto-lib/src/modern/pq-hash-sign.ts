@@ -77,8 +77,10 @@ export interface SlhDsaVerifyResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -86,11 +88,13 @@ function assertHex(input: string, label: string): Uint8Array {
   return Buffer.from(input, "hex");
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
   return Buffer.from(input, "utf8");
 }
 
+/** Map of SLH-DSA variant names to their implementations. */
 const SLH_DSA_VARIANTS: Record<SlhDsaVariant, typeof slh_dsa_sha2_128f> = {
   "sha2-128f": slh_dsa_sha2_128f,
   "sha2-128s": slh_dsa_sha2_128s,
@@ -106,6 +110,7 @@ const SLH_DSA_VARIANTS: Record<SlhDsaVariant, typeof slh_dsa_sha2_128f> = {
   "shake-256s": slh_dsa_shake_256s,
 };
 
+/** Retrieve the SLH-DSA implementation for the given variant. */
 function getVariant(variant: SlhDsaVariant) {
   const impl = SLH_DSA_VARIANTS[variant];
   if (!impl) {
@@ -116,6 +121,7 @@ function getVariant(variant: SlhDsaVariant) {
   return impl;
 }
 
+/** Build the SLH-DSA algorithm identifier string from a variant. */
 function algorithmName(variant: SlhDsaVariant): string {
   return `slh-dsa-${variant}`;
 }

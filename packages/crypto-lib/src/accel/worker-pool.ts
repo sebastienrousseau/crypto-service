@@ -38,12 +38,14 @@ export interface WorkerTask {
   args: unknown[];
 }
 
+/** Internal representation of a queued task awaiting a free worker. */
 interface PendingTask {
   task: WorkerTask;
   resolve: (value: unknown) => void;
   reject: (reason: unknown) => void;
 }
 
+/** Internal wrapper tracking a Worker instance and its busy state. */
 interface WorkerEntry {
   worker: Worker;
   busy: boolean;

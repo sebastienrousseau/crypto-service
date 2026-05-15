@@ -84,8 +84,10 @@ export interface AesGcmDecryptOptions {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
@@ -100,7 +102,9 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+/** GCM standard 96-bit nonce length in bytes. */
 const NONCE_LENGTH = 12; // GCM standard 96-bit nonce
+/** GCM 128-bit authentication tag length in bytes. */
 const TAG_LENGTH = 16; // GCM 128-bit auth tag
 
 // --- AES-GCM ---

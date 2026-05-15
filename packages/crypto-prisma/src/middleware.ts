@@ -73,6 +73,7 @@ export type PrismaMiddleware = (
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
+/** Return the list of encrypted field names for a given Prisma model. */
 function getFieldsForModel(
   model: string,
   encryptedFields: FieldConfig[],
@@ -83,6 +84,7 @@ function getFieldsForModel(
   return config?.fields ?? [];
 }
 
+/** Check whether a field is configured for deterministic (HMAC) encryption. */
 function isDeterministic(
   field: string,
   deterministicFields?: string[],
@@ -149,6 +151,7 @@ function decryptValue(
 
 // ── Encrypt / decrypt record helpers ─────────────────────────────────
 
+/** Encrypt all configured fields in a data record in-place. */
 function encryptRecord(
   data: Record<string, unknown> | undefined,
   fields: string[],
@@ -163,6 +166,7 @@ function encryptRecord(
   }
 }
 
+/** Decrypt all configured fields in a result record in-place. */
 function decryptRecord(
   record: Record<string, unknown> | undefined | null,
   fields: string[],
@@ -184,6 +188,7 @@ function decryptRecord(
 
 // ── Actions ──────────────────────────────────────────────────────────
 
+/** Prisma actions that write data and require field encryption. */
 const WRITE_ACTIONS = [
   "create",
   "update",
@@ -191,6 +196,7 @@ const WRITE_ACTIONS = [
   "createMany",
   "updateMany",
 ];
+/** Prisma actions that read data and require field decryption. */
 const READ_ACTIONS = ["findUnique", "findFirst", "findMany"];
 
 // ── Factory ──────────────────────────────────────────────────────────

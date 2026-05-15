@@ -19,16 +19,24 @@ import { argon2id } from "@noble/hashes/argon2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
+/** Password-encrypt format version identifier. */
 const VERSION = 0x01;
+/** Random salt length in bytes. */
 const SALT_LEN = 16;
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
+/** Derived key length in bytes (256 bits). */
 const KEY_LEN = 32;
+/** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
+/** Total header length preceding the ciphertext. */
 const HEADER_LEN = 1 + 4 + 4 + 4 + 4 + SALT_LEN + NONCE_LEN; // 57
 
-// OWASP 2026 recommended defaults
+/** Default Argon2id time cost (OWASP recommended). */
 const DEFAULT_TIME = 3;
+/** Default Argon2id memory cost in KiB (64 MiB). */
 const DEFAULT_MEMORY = 65536; // 64 MiB
+/** Default Argon2id parallelism. */
 const DEFAULT_PARALLELISM = 4;
 
 /** Options for password-based encryption (Argon2id + XChaCha20-Poly1305). */
@@ -53,10 +61,12 @@ export interface PasswordEncryptResult {
   algorithm: "argon2id-xchacha20-poly1305";
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }
 
+/** Write a 32-bit unsigned integer in little-endian byte order. */
 function writeU32LE(buf: Uint8Array, value: number, offset: number): void {
   buf[offset] = value & 0xff;
   buf[offset + 1] = (value >>> 8) & 0xff;
@@ -64,6 +74,7 @@ function writeU32LE(buf: Uint8Array, value: number, offset: number): void {
   buf[offset + 3] = (value >>> 24) & 0xff;
 }
 
+/** Read a 32-bit unsigned integer in little-endian byte order. */
 function readU32LE(buf: Uint8Array, offset: number): number {
   return (
     (buf[offset]! |

@@ -44,8 +44,10 @@ export interface AeadDecryptOptions {
   aad?: Uint8Array;
 }
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
@@ -60,6 +62,7 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LENGTH = 24; // XChaCha20 uses 24-byte nonces
 
 /**

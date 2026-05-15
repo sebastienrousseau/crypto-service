@@ -28,7 +28,8 @@ import type {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const IV_LENGTH = 12; // 96-bit IV for AES-GCM
+/** AES-GCM initialization vector length in bytes (96-bit). */
+const IV_LENGTH = 12;
 
 /**
  * Get the `SubtleCrypto` interface or throw if unavailable.

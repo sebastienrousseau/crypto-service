@@ -38,6 +38,12 @@ export interface AwsKmsOptions {
   endpoint?: string;
 }
 
+/** Minimal interface for the AWS KMS SDK client (peer dependency). */
+interface AwsKmsClient {
+  /** Send a command to the AWS KMS service. */
+  send(command: unknown): Promise<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
 /**
  * AWS KMS adapter.
  *
@@ -51,25 +57,21 @@ export interface AwsKmsOptions {
  * const encrypted = await provider.encrypt(key.keyId, plaintext);
  * ```
  */
-/**
- * Minimal interface for the AWS KMS SDK client.
- * Uses `never` to avoid explicit `any` while supporting dynamic peer dep.
- */
-/** Minimal interface for the AWS KMS SDK client (peer dependency). */
-interface AwsKmsClient {
-  send(command: unknown): Promise<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
-}
-
 export class AwsKmsProvider implements KmsProvider {
+  /** Provider identifier. */
   readonly name = "aws";
+  /** AWS KMS configuration options. */
   private readonly options: AwsKmsOptions;
+  /** Lazily-loaded AWS KMS SDK client instance. */
   private client: AwsKmsClient | null;
 
+  /** Create an AWS KMS provider with the given options. */
   constructor(options: AwsKmsOptions) {
     this.options = options;
     this.client = null; // Lazy-loaded from peer dependency
   }
 
+  /** Lazily initialise and return the AWS KMS SDK client. */
   private async getClient(): Promise<AwsKmsClient> {
     if (!this.client) {
       try {
@@ -92,6 +94,7 @@ export class AwsKmsProvider implements KmsProvider {
     return this.client;
   }
 
+  /** List all KMS keys, optionally filtered by usage or enabled state. */
   async listKeys(_filters?: {
     usage?: string;
     enabled?: boolean;
@@ -109,6 +112,7 @@ export class AwsKmsProvider implements KmsProvider {
     }));
   }
 
+  /** Retrieve metadata for a specific KMS key by ID. */
   async getKey(keyId: string): Promise<KmsKeyMetadata> {
     const client = await this.getClient();
     const { DescribeKeyCommand } = await import("@aws-sdk/client-kms");
@@ -124,6 +128,7 @@ export class AwsKmsProvider implements KmsProvider {
     };
   }
 
+  /** Create a new KMS key with the given algorithm and usage. */
   async createKey(
     algorithm: string,
     usage: "encrypt" | "sign" | "wrap",
@@ -158,18 +163,21 @@ export class AwsKmsProvider implements KmsProvider {
     };
   }
 
+  /** Enable a previously disabled KMS key. */
   async enableKey(keyId: string): Promise<void> {
     const client = await this.getClient();
     const { EnableKeyCommand } = await import("@aws-sdk/client-kms");
     await client.send(new EnableKeyCommand({ KeyId: keyId }));
   }
 
+  /** Disable a KMS key so it cannot be used for operations. */
   async disableKey(keyId: string): Promise<void> {
     const client = await this.getClient();
     const { DisableKeyCommand } = await import("@aws-sdk/client-kms");
     await client.send(new DisableKeyCommand({ KeyId: keyId }));
   }
 
+  /** Schedule a KMS key for deletion after a pending window. */
   async scheduleKeyDeletion(
     keyId: string,
     pendingWindowDays = 30,
@@ -184,6 +192,7 @@ export class AwsKmsProvider implements KmsProvider {
     );
   }
 
+  /** Encrypt plaintext using a KMS key, with optional encryption context. */
   async encrypt(
     keyId: string,
     plaintext: Uint8Array,
@@ -208,6 +217,7 @@ export class AwsKmsProvider implements KmsProvider {
     return out;
   }
 
+  /** Decrypt ciphertext using a KMS key, with optional encryption context. */
   async decrypt(
     keyId: string,
     ciphertext: string,
@@ -228,6 +238,7 @@ export class AwsKmsProvider implements KmsProvider {
     };
   }
 
+  /** Sign data using a KMS signing key. */
   async sign(
     keyId: string,
     data: Uint8Array,
@@ -250,6 +261,7 @@ export class AwsKmsProvider implements KmsProvider {
     };
   }
 
+  /** Verify a signature against data using a KMS signing key. */
   async verify(
     keyId: string,
     data: Uint8Array,
@@ -270,6 +282,7 @@ export class AwsKmsProvider implements KmsProvider {
     return result.SignatureValid ?? false;
   }
 
+  /** Enable automatic key rotation and return updated metadata. */
   async rotateKey(keyId: string): Promise<KmsKeyMetadata> {
     const client = await this.getClient();
     const { EnableKeyRotationCommand } = await import("@aws-sdk/client-kms");
@@ -277,6 +290,7 @@ export class AwsKmsProvider implements KmsProvider {
     return this.getKey(keyId);
   }
 
+  /** Generate a data encryption key (DEK) wrapped by the managed key. */
   async generateDataKey(
     keyId: string,
     keySpec = "AES_256",

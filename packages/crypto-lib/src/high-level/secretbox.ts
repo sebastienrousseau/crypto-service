@@ -17,11 +17,16 @@
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
+/** Required key length in bytes (256 bits). */
 const KEY_LEN = 32;
+/** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse and validate a 256-bit key from hex string or Uint8Array. */
 function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== KEY_LEN) {
@@ -39,6 +44,7 @@ function toKey(key: string | Uint8Array): Uint8Array {
   return buf;
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toData(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }

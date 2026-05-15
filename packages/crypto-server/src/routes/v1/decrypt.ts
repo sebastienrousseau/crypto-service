@@ -19,6 +19,7 @@ import {
   collectValidation,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v1 decrypt endpoint. */
 const decryptSchema = {
   tags: ["Encryption"],
   summary: "Decrypt a message",

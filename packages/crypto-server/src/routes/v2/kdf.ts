@@ -13,6 +13,7 @@ import {
   classifyCryptoError,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v2 KDF endpoint. */
 const kdfSchema = {
   tags: ["Key Derivation"],
   summary: "Derive a key from a password",

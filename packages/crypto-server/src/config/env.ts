@@ -37,10 +37,12 @@ export interface Config {
   readonly shutdownTimeoutMs: number;
 }
 
+/** Read an optional environment variable with a fallback default. */
 function optional(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
 }
 
+/** Parse and validate a TCP port number string. */
 function parsePort(val: string): number {
   const port = parseInt(val, 10);
   if (!Number.isFinite(port) || port < 0 || port > 65535) {
@@ -49,6 +51,7 @@ function parsePort(val: string): number {
   return port;
 }
 
+/** Parse a comma-separated string into a trimmed array, or false if empty. */
 function parseCsvList(val: string | undefined): string[] | false {
   if (!val) return false;
   const entries = val

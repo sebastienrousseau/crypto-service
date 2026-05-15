@@ -81,10 +81,14 @@ export interface WebCryptoHashResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
+/** GCM standard 96-bit nonce length in bytes. */
 const NONCE_LENGTH = 12;
+/** GCM 128-bit authentication tag length in bytes. */
 const TAG_LENGTH = 16;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
@@ -99,6 +103,7 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+/** Validate that a key is 16 or 32 bytes for AES-GCM. */
 function validateKey(key: Uint8Array): void {
   if (key.length !== 16 && key.length !== 32) {
     throw new Error(

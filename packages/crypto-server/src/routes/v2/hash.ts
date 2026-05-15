@@ -13,6 +13,7 @@ import {
   classifyCryptoError,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v2 hash endpoint. */
 const hashSchema = {
   tags: ["Hashing"],
   summary: "Compute a cryptographic hash",

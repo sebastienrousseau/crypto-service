@@ -70,10 +70,12 @@ export interface GeneratedKeyPair {
 
 // --- Helpers ---
 
+/** Convert bytes to a hex string. */
 function toHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }
 
+/** Generate a key ID from a SHA-256 thumbprint of the public key. */
 function generateKid(publicKey: Uint8Array): string {
   const digest = sha256(publicKey);
   return bytesToBase64url(digest.subarray(0, 16));

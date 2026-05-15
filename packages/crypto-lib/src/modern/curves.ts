@@ -161,8 +161,10 @@ export interface SchnorrVerifyResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -170,6 +172,7 @@ function assertHex(input: string, label: string): Uint8Array {
   return Buffer.from(input, "hex");
 }
 
+/** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
   return Buffer.from(input, "utf8");

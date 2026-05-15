@@ -15,7 +15,7 @@ import * as fastify from "fastify";
 import { v4 as uuidv4 } from "uuid";
 import { LIB_VERSION } from "../../config/constants";
 
-// Generate a unique identifier for the server instance.
+/** Unique identifier for this server instance. */
 const id = uuidv4();
 
 /**

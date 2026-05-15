@@ -98,8 +98,10 @@ export interface VerifyPhcOptions {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
@@ -114,6 +116,7 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+/** Retrieve the Argon2 function for the given variant. */
 function getArgon2Fn(variant: Argon2Variant) {
   switch (variant) {
     case "argon2id":
@@ -129,6 +132,7 @@ function getArgon2Fn(variant: Argon2Variant) {
   }
 }
 
+/** Encode Argon2 parameters, salt, and hash into a PHC-format string. */
 function toPhcString(
   variant: Argon2Variant,
   params: Argon2Params,
@@ -140,6 +144,7 @@ function toPhcString(
   return `$${variant}$v=19$m=${params.m},t=${params.t},p=${params.p}$${saltB64}$${hashB64}`;
 }
 
+/** Parse a PHC-format string into its variant, params, salt, and hash. */
 function parsePhcString(phc: string): {
   variant: Argon2Variant;
   params: Argon2Params;
@@ -174,10 +179,15 @@ function parsePhcString(phc: string): {
 
 // --- Default parameters ---
 
+/** Default Argon2 time cost (iterations). */
 const DEFAULT_TIME_COST = 3;
+/** Default Argon2 memory cost in KiB (64 MB). */
 const DEFAULT_MEMORY_COST = 65536; // 64 MB
+/** Default Argon2 parallelism (lanes). */
 const DEFAULT_PARALLELISM = 4;
+/** Default Argon2 output hash length in bytes. */
 const DEFAULT_HASH_LENGTH = 32;
+/** Default random salt length in bytes. */
 const DEFAULT_SALT_LENGTH = 16;
 
 // --- Argon2 ---

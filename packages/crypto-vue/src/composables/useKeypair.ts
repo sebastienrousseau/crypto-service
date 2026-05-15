@@ -53,6 +53,7 @@ export function useKeypair(): UseKeypairReturn {
   const isGenerating = ref(false);
   const error = ref<Error | null>(null);
 
+  /** Generate a new key pair and update reactive state. */
   async function generate(algo: KeyAlgorithm): Promise<GeneratedKeyPair> {
     isGenerating.value = true;
     error.value = null;
@@ -73,6 +74,7 @@ export function useKeypair(): UseKeypairReturn {
     /* c8 ignore stop */
   }
 
+  /** Reset all reactive state to initial values. */
   function clear(): void {
     publicKey.value = null;
     privateKey.value = null;

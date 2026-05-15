@@ -13,6 +13,7 @@ import {
   classifyCryptoError,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v2 AEAD encrypt endpoint. */
 const encryptSchema = {
   tags: ["Modern Encryption"],
   summary: "Encrypt with XChaCha20-Poly1305",
@@ -34,6 +35,7 @@ const encryptSchema = {
   },
 } as const;
 
+/** Fastify JSON Schema for the v2 AEAD decrypt endpoint. */
 const decryptSchema = {
   tags: ["Modern Encryption"],
   summary: "Decrypt with XChaCha20-Poly1305",

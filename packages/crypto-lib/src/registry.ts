@@ -10,6 +10,7 @@
  * category, standard reference, and deprecation status.
  */
 
+/** Cryptographic operation category for algorithm classification. */
 export type AlgorithmCategory =
   | "encryption"
   | "hash"
@@ -47,6 +48,7 @@ export interface AlgorithmInfo {
   aliases?: string[] | undefined;
 }
 
+/** Complete list of all registered cryptographic algorithms with metadata. */
 const REGISTRY: AlgorithmInfo[] = [
   // --- Encryption ---
   {
@@ -416,7 +418,9 @@ const REGISTRY: AlgorithmInfo[] = [
   },
 ];
 
+/** Map from algorithm alias to canonical algorithm ID. */
 const aliasMap = new Map<string, string>();
+/** Map from canonical algorithm ID to its metadata entry. */
 const idMap = new Map<string, AlgorithmInfo>();
 
 for (const algo of REGISTRY) {

@@ -13,15 +13,19 @@
 import { createLogger, format, transports } from "winston";
 import { v4 as uuidv4 } from "uuid";
 
+/** Unique correlation ID for the lifetime of this server process. */
 const correlationId = uuidv4();
+/** Whether the server is running in production mode. */
 const isProduction = process.env["NODE_ENV"] === "production";
 
+/** JSON log format for production environments (machine-parseable). */
 const structuredFormat = format.combine(
   format.timestamp({ format: "YYYY-MM-DDTHH:mm:ss.SSSZ" }),
   format.errors({ stack: true }),
   format.json(),
 );
 
+/** Colorized human-readable log format for development. */
 const devFormat = format.combine(
   format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   format.colorize(),

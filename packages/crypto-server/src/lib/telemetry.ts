@@ -28,9 +28,12 @@ import {
 } from "@opentelemetry/semantic-conventions";
 import { trace, metrics, SpanStatusCode } from "@opentelemetry/api";
 
+/** OpenTelemetry service name for spans and metrics. */
 const SERVICE_NAME = "crypto-server";
+/** OpenTelemetry service version for spans and metrics. */
 const SERVICE_VERSION = "0.0.3";
 
+/** Active OpenTelemetry SDK instance (undefined if telemetry is disabled). */
 let sdk: NodeSDK | undefined;
 
 /**
@@ -75,13 +78,17 @@ export async function shutdownTelemetry(): Promise<void> {
 
 // --- Custom crypto operation instrumentation ---
 
+/** OpenTelemetry tracer for crypto operation spans. */
 const tracer = trace.getTracer(SERVICE_NAME, SERVICE_VERSION);
+/** OpenTelemetry meter for crypto operation metrics. */
 const meter = metrics.getMeter(SERVICE_NAME, SERVICE_VERSION);
 
+/** Counter tracking total crypto operations (success/error). */
 const operationCounter = meter.createCounter("crypto.operations.total", {
   description: "Total number of cryptographic operations performed",
 });
 
+/** Histogram tracking crypto operation duration in milliseconds. */
 const operationDuration = meter.createHistogram(
   "crypto.operations.duration_ms",
   {

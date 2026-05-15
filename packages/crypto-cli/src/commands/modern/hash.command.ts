@@ -7,6 +7,7 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/** Supported hash algorithms for modern hashing. */
 const ALGORITHMS = [
   "sha256",
   "sha384",

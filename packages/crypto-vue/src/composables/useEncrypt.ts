@@ -58,6 +58,7 @@ export function useEncrypt(): UseEncryptReturn {
   const isProcessing = ref(false);
   const error = ref<Error | null>(null);
 
+  /** Resolve the encryption key from the argument or plugin defaults. */
   function resolveKey(key?: string): string {
     const resolved = key ?? opts.defaultKey;
     if (!resolved) {
@@ -68,6 +69,7 @@ export function useEncrypt(): UseEncryptReturn {
     return resolved;
   }
 
+  /** Encrypt plaintext using secretbox and update reactive state. */
   async function encrypt(
     key: string,
     data: string | Uint8Array,
@@ -90,6 +92,7 @@ export function useEncrypt(): UseEncryptReturn {
     /* c8 ignore stop */
   }
 
+  /** Decrypt ciphertext using secretbox and update reactive state. */
   async function decrypt(key: string, data: string): Promise<Uint8Array> {
     isProcessing.value = true;
     error.value = null;
@@ -109,10 +112,12 @@ export function useEncrypt(): UseEncryptReturn {
     /* c8 ignore stop */
   }
 
+  /** Generate a random 256-bit encryption key as a hex string. */
   function randomKey(): string {
     return crypto.randomKey();
   }
 
+  /** Reset all reactive state to initial values. */
   function clear(): void {
     ciphertext.value = null;
     plaintext.value = null;

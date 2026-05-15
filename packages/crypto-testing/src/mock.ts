@@ -24,14 +24,17 @@ function xorCipher(data: Uint8Array, key: Uint8Array): Uint8Array {
   return out;
 }
 
+/** Convert a string or Uint8Array to bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
 }
 
+/** Convert a Uint8Array to a lowercase hex string. */
 function toHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }
 
+/** Decode a hex string into a Uint8Array. */
 function hexToBytes(hex: string): Uint8Array {
   return Buffer.from(hex, "hex");
 }

@@ -15,6 +15,7 @@ import type { EncryptionConfig } from "./types";
 
 // ── Helpers (shared logic) ───────────────────────────────────────────
 
+/** Check whether a field is configured for deterministic (HMAC) encryption. */
 function isDeterministic(
   field: string,
   deterministicFields?: string[],
@@ -22,6 +23,7 @@ function isDeterministic(
   return deterministicFields?.includes(field) ?? false;
 }
 
+/** Encrypt a single field value using HMAC (deterministic) or secretbox (random nonce). */
 function encryptValue(
   value: unknown,
   key: string,
@@ -44,6 +46,7 @@ function encryptValue(
   return sealed;
 }
 
+/** Decrypt a single field value; deterministic (HMAC) fields are returned as-is. */
 function decryptValue(
   value: unknown,
   key: string,
@@ -65,6 +68,7 @@ function decryptValue(
   }
 }
 
+/** Encrypt all configured fields in a data record in-place. */
 function encryptRecord(
   data: Record<string, unknown> | undefined,
   fields: string[],
@@ -79,6 +83,7 @@ function encryptRecord(
   }
 }
 
+/** Decrypt all configured fields in a result record in-place. */
 function decryptRecord(
   record: Record<string, unknown> | undefined | null,
   fields: string[],
@@ -98,6 +103,7 @@ function decryptRecord(
   }
 }
 
+/** Encrypt deterministic fields inside a Prisma `where` clause in-place. */
 function encryptWhereClause(
   where: Record<string, unknown> | undefined,
   fields: string[],

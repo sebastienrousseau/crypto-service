@@ -18,6 +18,7 @@ import { config } from "./config/env";
 import { init } from "./server";
 import logger from "./lib/logger";
 
+/** Boot the server and register graceful shutdown handlers. */
 const main = async (): Promise<void> => {
   const server = await init();
   await server.ready();

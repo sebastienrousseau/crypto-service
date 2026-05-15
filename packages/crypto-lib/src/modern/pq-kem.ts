@@ -108,8 +108,10 @@ export interface HybridKemDecapsulateResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -117,6 +119,7 @@ function assertHex(input: string, label: string): Uint8Array {
   return Buffer.from(input, "hex");
 }
 
+/** Retrieve the ML-KEM implementation for the given security level. */
 function getKem(level: MlKemLevel) {
   switch (level) {
     case 512:
@@ -132,10 +135,12 @@ function getKem(level: MlKemLevel) {
   }
 }
 
+/** Build the ML-KEM algorithm identifier string from a security level. */
 function algorithmName(level: MlKemLevel): MlKemAlgorithm {
   return `ml-kem-${level}` as MlKemAlgorithm;
 }
 
+/** Build the hybrid KEM algorithm identifier string from a security level. */
 function hybridAlgorithmName(level: MlKemLevel): HybridKemAlgorithm {
   return `x25519-ml-kem-${level}` as HybridKemAlgorithm;
 }

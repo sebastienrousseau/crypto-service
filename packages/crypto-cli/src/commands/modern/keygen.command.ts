@@ -7,6 +7,7 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/** Supported algorithms for modern key pair generation. */
 const ALGORITHMS = [
   "ed25519",
   "x25519",

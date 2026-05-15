@@ -32,6 +32,7 @@ import {
   collectValidation,
 } from "../../utils/route-helpers";
 
+/** Fastify JSON Schema for the v1 key-generation endpoint. */
 const generateSchema = {
   tags: ["Key Management"],
   summary: "Generate a key pair",

@@ -10,6 +10,7 @@ import {
 } from "../../utils/route-helpers";
 import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/dist/modern/mac";
 
+/** List of HMAC algorithms accepted by the v2 HMAC endpoint. */
 const HMAC_ALGORITHMS = ["sha256", "sha384", "sha512", "sha3-256", "sha3-512"];
 
 /** Registers the v2 HMAC/KMAC message-authentication endpoint. */

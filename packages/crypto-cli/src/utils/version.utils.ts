@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { join, normalize } from "path";
 
+/** Cached package version string, populated on first call to getVersion. */
 let version = "";
 
 /**

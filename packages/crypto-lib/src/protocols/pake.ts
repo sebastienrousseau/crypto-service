@@ -102,11 +102,14 @@ export interface LoginFinishResult {
 
 // --- Constants ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
+/** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
 
 // --- Helpers ---
 
+/** Parse a hex string into bytes, throwing with a label on invalid input. */
 function hexToBytes(hex: string, label: string): Uint8Array {
   if (!HEX_RE.test(hex)) {
     throw new Error(`Invalid hex string for ${label}`);
@@ -114,6 +117,7 @@ function hexToBytes(hex: string, label: string): Uint8Array {
   return Buffer.from(hex, "hex");
 }
 
+/** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
 }

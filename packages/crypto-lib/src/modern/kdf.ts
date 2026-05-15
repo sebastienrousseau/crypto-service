@@ -63,8 +63,10 @@ export interface KdfResult {
   keyLength: number;
 }
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",

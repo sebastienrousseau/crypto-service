@@ -71,8 +71,10 @@ export interface HmacVerifyResult {
 
 // --- Helpers ---
 
+/** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
+/** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
@@ -87,9 +89,11 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+/** Internal hash function type used by the HMAC implementation. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HashFn = any;
 
+/** Map of HMAC algorithm names to their underlying hash implementations. */
 const hashFunctions: Record<HmacAlgorithm, HashFn> = {
   sha256: sha256,
   sha384: sha384,
@@ -98,6 +102,7 @@ const hashFunctions: Record<HmacAlgorithm, HashFn> = {
   "sha3-512": sha3_512,
 };
 
+/** Retrieve the hash function for the given HMAC algorithm. */
 function getHashFn(algorithm: HmacAlgorithm): HashFn {
   const fn = hashFunctions[algorithm];
   if (!fn) {
@@ -198,11 +203,13 @@ export interface KmacVerifyResult {
   algorithm: KmacAlgorithm;
 }
 
+/** Map of KMAC algorithm names to their implementations. */
 const kmacFunctions: Record<KmacAlgorithm, typeof kmac128> = {
   "kmac-128": kmac128,
   "kmac-256": kmac256,
 };
 
+/** Default output lengths for KMAC variants. */
 const kmacDefaultLength: Record<KmacAlgorithm, number> = {
   "kmac-128": 32,
   "kmac-256": 64,

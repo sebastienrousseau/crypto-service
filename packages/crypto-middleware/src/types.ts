@@ -79,6 +79,7 @@ export class CryptoMiddlewareError extends Error {
   /** Machine-readable error code. */
   public readonly code: string;
 
+  /** Create a new CryptoMiddlewareError with the given message, HTTP status code, and error code. */
   constructor(message: string, statusCode: number, code: string) {
     super(message);
     this.name = "CryptoMiddlewareError";

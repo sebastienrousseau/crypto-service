@@ -42,8 +42,11 @@ const ALL_OPERATIONS: AcceleratedOperation[] = [
  * ```
  */
 export class WasmAccelerator {
+  /** The compiled WebAssembly module, or `null` if not yet loaded. */
   private _module: WebAssembly.Module | null = null;
+  /** The instantiated WebAssembly instance, or `null` if not yet loaded. */
   private _instance: WebAssembly.Instance | null = null;
+  /** Whether initialization has been attempted. */
   private _initialized = false;
 
   /** Check if WASM acceleration is available. */
