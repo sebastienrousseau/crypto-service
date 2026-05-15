@@ -12,13 +12,13 @@ import handlePasswordHash from "./password-hash.command";
 /** Registry of modern (non-PGP) CLI command handlers. */
 export const ModernCommand = {
   /** Generate modern key pairs (Ed25519, ML-KEM, ML-DSA, etc.). */
-  handleModernKeygen: handleModernKeygen,
+  handleModernKeygen,
   /** Hash data using modern algorithms (SHA-2, SHA-3, BLAKE). */
-  handleModernHash: handleModernHash,
+  handleModernHash,
   /** Encrypt data using modern AEAD ciphers (XChaCha20, AES-GCM). */
-  handleModernEncrypt: handleModernEncrypt,
+  handleModernEncrypt,
   /** Sign or verify messages with modern signature schemes. */
-  handleModernSign: handleModernSign,
+  handleModernSign,
   /** Hash or verify passwords using Argon2. */
-  handlePasswordHash: handlePasswordHash,
+  handlePasswordHash,
 };

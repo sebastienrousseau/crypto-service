@@ -13,7 +13,7 @@ let constants: Translations = en.translations;
  * Set the active locale and load the corresponding translation strings.
  * @param data - Two-letter locale code (e.g. "fr").
  */
-async function language(data: string): Promise<void> {
+function language(data: string): void {
   if (data === "fr") {
     constants = fr.translations as unknown as Translations;
     return;

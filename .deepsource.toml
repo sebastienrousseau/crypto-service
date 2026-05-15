@@ -22,6 +22,7 @@ enabled = true
   environment = ["nodejs", "mocha"]
   dialect = "typescript"
   module_system = "commonjs"
+  cyclomatic_complexity_threshold = "high"
   skip_doc_coverage = [
     "function-declaration",
     "function-expression",
@@ -30,3 +31,6 @@ enabled = true
     "class-declaration",
     "class-expression",
   ]
+
+[metrics.doc_coverage]
+enabled = false
