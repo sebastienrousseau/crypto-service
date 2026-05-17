@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
   "repository": {
     "directory": "packages/crypto-edge",
@@ -17,6 +17,7 @@
   "module": "./dist/index.js",
   "browser": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

@@ -81,7 +81,7 @@
   "keywords": [
     "crypto-api"
   ],
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "license_URI": "http://www.opensource.org/licenses/mit-license.php",
   "main": "./dist/index.js",
   "exports": {
@@ -113,5 +113,6 @@
     "docs": "typedoc"
   },
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "version": "0.0.3"
 }

@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "Plug-and-play cryptographic middleware for Express and Fastify -- auto-decrypt requests, verify signatures, and encrypt responses.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
   "repository": {
     "directory": "packages/crypto-middleware",
@@ -18,6 +18,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

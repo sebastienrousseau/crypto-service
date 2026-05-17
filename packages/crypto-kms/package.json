@@ -3,12 +3,13 @@
   "version": "0.0.3",
   "description": "Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "engines": {
     "node": ">=22.0.0"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-lib.io",
   "repository": {
     "directory": "packages/crypto-lib",
@@ -18,6 +18,15 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./dist/*": "./dist/*"
+  },
   "bin": {
     "cryptolib": "./dist/index.js"
   },
