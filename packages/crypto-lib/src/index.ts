@@ -34,7 +34,11 @@ export * from "./accel";
 // Unified crypto API
 export { crypto } from "./crypto";
 /** Re-exported signing algorithm type from the crypto module. */
-export type { SignAlgorithm } from "./crypto";
+export type {
+  SignAlgorithm,
+  VerifyPasswordOptions,
+  HmacVerifyOptions,
+} from "./crypto";
 
 // Algorithm registry
 export {
@@ -50,6 +54,9 @@ export type {
   AlgorithmStatus,
   SecurityLevel,
 } from "./registry";
+
+// Branded error class and error codes
+export { CryptoError, CryptoErrorCode } from "./errors";
 
 // Utilities (constant-time comparison, SecureBuffer)
 export { timingSafeEqual, SecureBuffer } from "./utils";

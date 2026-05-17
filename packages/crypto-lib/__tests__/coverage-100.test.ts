@@ -36,12 +36,12 @@ describe("crypto unified API — password methods", () => {
       memoryCost: 1024,
       timeCost: 1,
     });
-    const verified = crypto.verifyPassword(
-      "test-pw",
-      result.hash,
-      result.salt,
-      result.params,
-    );
+    const verified = crypto.verifyPassword({
+      password: "test-pw",
+      hash: result.hash,
+      salt: result.salt,
+      params: result.params,
+    });
     expect(verified.valid).to.be.true;
   });
 
@@ -51,12 +51,12 @@ describe("crypto unified API — password methods", () => {
       memoryCost: 1024,
       timeCost: 1,
     });
-    const verified = crypto.verifyPassword(
-      "wrong-pw",
-      result.hash,
-      result.salt,
-      result.params,
-    );
+    const verified = crypto.verifyPassword({
+      password: "wrong-pw",
+      hash: result.hash,
+      salt: result.salt,
+      params: result.params,
+    });
     expect(verified.valid).to.be.false;
   });
 });
@@ -490,5 +490,106 @@ describe("pqxdh — invalid hex error paths", () => {
         remotePqPreKeyPublic: "dd".repeat(32),
       }),
     ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
+  });
+});
+
+// --- CryptoError and SecureBuffer branded error tests ---
+import { CryptoError, CryptoErrorCode } from "../src/errors";
+import { SecureBuffer } from "../src/utils";
+
+describe("CryptoError — branded error class", () => {
+  it("should be an instance of Error", () => {
+    const err = new CryptoError("test message", "TEST_CODE");
+    expect(err).to.be.instanceOf(Error);
+  });
+
+  it("should be an instance of CryptoError", () => {
+    const err = new CryptoError("test message", "TEST_CODE");
+    expect(err).to.be.instanceOf(CryptoError);
+  });
+
+  it("should have the correct name property", () => {
+    const err = new CryptoError("msg", "CODE");
+    expect(err.name).to.equal("CryptoError");
+  });
+
+  it("should store the code property", () => {
+    const err = new CryptoError("msg", "INVALID_KEY");
+    expect(err.code).to.equal("INVALID_KEY");
+  });
+
+  it("should store the message property", () => {
+    const err = new CryptoError("something went wrong", "ERR");
+    expect(err.message).to.equal("something went wrong");
+  });
+});
+
+describe("CryptoErrorCode — error code constants", () => {
+  it("should have all expected error codes", () => {
+    expect(CryptoErrorCode.INVALID_KEY).to.equal("INVALID_KEY");
+    expect(CryptoErrorCode.UNSUPPORTED_ALGORITHM).to.equal(
+      "UNSUPPORTED_ALGORITHM",
+    );
+    expect(CryptoErrorCode.INVALID_HEX).to.equal("INVALID_HEX");
+    expect(CryptoErrorCode.INVALID_CIPHERTEXT).to.equal("INVALID_CIPHERTEXT");
+    expect(CryptoErrorCode.AUTH_FAILED).to.equal("AUTH_FAILED");
+    expect(CryptoErrorCode.BUFFER_DESTROYED).to.equal("BUFFER_DESTROYED");
+    expect(CryptoErrorCode.INVALID_INPUT).to.equal("INVALID_INPUT");
+  });
+});
+
+describe("SecureBuffer — throws CryptoError on destroyed access", () => {
+  it("should throw CryptoError with BUFFER_DESTROYED code on expose()", () => {
+    const buf = new SecureBuffer(new Uint8Array([1, 2, 3]));
+    buf.destroy();
+    try {
+      buf.expose();
+      expect.fail("Should have thrown");
+    } catch (err) {
+      expect(err).to.be.instanceOf(CryptoError);
+      expect((err as CryptoError).code).to.equal(
+        CryptoErrorCode.BUFFER_DESTROYED,
+      );
+    }
+  });
+
+  it("should throw CryptoError with BUFFER_DESTROYED code on toHex()", () => {
+    const buf = new SecureBuffer(new Uint8Array([1, 2, 3]));
+    buf.destroy();
+    try {
+      buf.toHex();
+      expect.fail("Should have thrown");
+    } catch (err) {
+      expect(err).to.be.instanceOf(CryptoError);
+      expect((err as CryptoError).code).to.equal(
+        CryptoErrorCode.BUFFER_DESTROYED,
+      );
+    }
+  });
+});
+
+describe("crypto.sign/verify — throws CryptoError for unsupported algorithm", () => {
+  it("sign should throw CryptoError with UNSUPPORTED_ALGORITHM", () => {
+    try {
+      crypto.sign("invalid" as never, "aa", "hello");
+      expect.fail("Should have thrown");
+    } catch (err) {
+      expect(err).to.be.instanceOf(CryptoError);
+      expect((err as CryptoError).code).to.equal(
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
+    }
+  });
+
+  it("verify should throw CryptoError with UNSUPPORTED_ALGORITHM", () => {
+    try {
+      crypto.verify("invalid" as never, "aa", "hello", "bb");
+      expect.fail("Should have thrown");
+    } catch (err) {
+      expect(err).to.be.instanceOf(CryptoError);
+      expect((err as CryptoError).code).to.equal(
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
+    }
   });
 });

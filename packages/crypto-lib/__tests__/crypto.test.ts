@@ -70,8 +70,17 @@ describe("Unified Crypto API", () => {
   describe("hashPassword / verifyPassword", () => {
     it("should hash and verify a password", () => {
       // Use lightweight Argon2id via the lower-level API to avoid 64MB default
-      const { hashPassword: hp, verifyPassword: vp } = require("../src/modern/password");
-      const hashed = hp({ password: "mypassword", timeCost: 1, memoryCost: 1024, parallelism: 1 });
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+      const {
+        hashPassword: hp,
+        verifyPassword: vp,
+      } = require("../src/modern/password");
+      const hashed = hp({
+        password: "mypassword",
+        timeCost: 1,
+        memoryCost: 1024,
+        parallelism: 1,
+      });
       expect(hashed.algorithm).to.equal("argon2id");
       const result = vp({
         password: "mypassword",
@@ -87,7 +96,12 @@ describe("Unified Crypto API", () => {
     it("should compute and verify HMAC", () => {
       const key = crypto.randomKey();
       const mac = crypto.hmac("sha256", key, "data");
-      const valid = crypto.hmacVerify("sha256", key, "data", mac);
+      const valid = crypto.hmacVerify({
+        algorithm: "sha256",
+        key,
+        data: "data",
+        mac,
+      });
       expect(valid).to.be.true;
     });
   });

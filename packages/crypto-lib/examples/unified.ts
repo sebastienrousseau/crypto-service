@@ -47,7 +47,12 @@ async function main() {
 
   await task("Compute and verify HMAC-SHA256", () => {
     const mac = crypto.hmac("sha256", key, "authenticate me");
-    const ok = crypto.hmacVerify("sha256", key, "authenticate me", mac);
+    const ok = crypto.hmacVerify({
+      algorithm: "sha256",
+      key,
+      data: "authenticate me",
+      mac,
+    });
     if (!ok) throw new Error("Verification failed");
   });
 
