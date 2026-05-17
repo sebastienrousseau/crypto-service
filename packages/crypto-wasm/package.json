@@ -27,7 +27,7 @@
     "build": "tsc --build tsconfig.json",
     "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",
     "clean": "rimraf ./coverage ./dist ./docs",
-    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint --cache --fix src/**/*.ts",

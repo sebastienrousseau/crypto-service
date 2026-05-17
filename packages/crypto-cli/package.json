@@ -117,7 +117,7 @@
     "lint:fix": "eslint --cache --fix src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "start": "node dist/cli.js",
-    "test": "c8 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
   "types": "./dist/index.d.ts",
