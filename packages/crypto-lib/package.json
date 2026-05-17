@@ -19,14 +19,6 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.js"
-    },
-    "./dist/*": "./dist/*"
-  },
   "bin": {
     "cryptolib": "./dist/index.js"
   },
