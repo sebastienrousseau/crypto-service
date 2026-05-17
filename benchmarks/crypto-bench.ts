@@ -53,18 +53,27 @@ function bench(
     return null;
   }
   const n = opts?.iters ?? iterations;
+  const warmup = Math.max(100, Math.floor(n * 0.1));
 
-  // Warmup
-  for (let i = 0; i < Math.min(10, n); i++) fn();
+  // Warmup (ensure V8 TurboFan optimization)
+  for (let i = 0; i < warmup; i++) fn();
 
-  const start = performance.now();
-  for (let i = 0; i < n; i++) fn();
-  const elapsed = performance.now() - start;
+  // Optional GC between benchmarks
+  if (typeof globalThis.gc === "function") globalThis.gc();
 
-  const avgMs = elapsed / n;
-  const opsPerSec = (n / elapsed) * 1000;
+  // Collect individual timings for statistics
+  const timings: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const t0 = performance.now();
+    fn();
+    timings.push(performance.now() - t0);
+  }
+
+  const total = timings.reduce((a, b) => a + b, 0);
+  const avgMs = total / n;
+  const opsPerSec = (n / total) * 1000;
   const throughputMBps = opts?.dataSize
-    ? (opts.dataSize * n) / elapsed / 1000
+    ? (opts.dataSize * n) / total / 1000
     : undefined;
 
   return { name, opsPerSec, avgMs, throughputMBps, iterations: n };

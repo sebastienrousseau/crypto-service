@@ -71,7 +71,9 @@
     "node": ">=22.0.0"
   },
   "files": [
-    "dist/**/*"
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
   ],
   "funding": [
     {

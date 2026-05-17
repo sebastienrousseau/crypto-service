@@ -30,7 +30,9 @@
     "crypto-server": "dist/index.js"
   },
   "files": [
-    "dist/"
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
   ],
   "scripts": {
     "build": "tsc --build tsconfig.json",

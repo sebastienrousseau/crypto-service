@@ -7,6 +7,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 jobs:
   release:
@@ -21,18 +22,27 @@ jobs:
         with:
           node-version: 22
           cache: "pnpm"
-          registry-url: "https://npm.pkg.github.com"
+          registry-url: "https://registry.npmjs.org"
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm -r run test
+
+      - name: Verify tarball contents
+        run: |
+          for pkg in packages/*/; do
+            echo "=== $(basename $pkg) ==="
+            cd "$pkg"
+            npm pack --dry-run 2>&1 | grep -E "package size|total files"
+            cd ../..
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
 
-      - name: Publish packages
-        run: pnpm -r publish --access public --no-git-checks
+      - name: Publish to npm
+        run: pnpm -r publish --access public --no-git-checks --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
