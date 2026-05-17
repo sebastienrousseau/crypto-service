@@ -261,6 +261,269 @@ function runBenchmarks(): BenchResult[] {
     ),
   );
 
+  // --- FN-DSA (FALCON / FIPS 206) ---
+  try {
+    console.log("\n=== FN-DSA (FALCON / FIPS 206) ===");
+    const fnDsa = require("../packages/crypto-lib/dist/modern/fn-dsa");
+    add(
+      bench("FN-DSA-512 keygen", () => fnDsa.fnDsaKeygen(512), { iters: 20 }),
+    );
+    const fnKP = fnDsa.fnDsaKeygen(512);
+    add(
+      bench(
+        "FN-DSA-512 sign",
+        () => fnDsa.fnDsaSign(512, fnKP.secretKey, msgHex),
+        { iters: 20 },
+      ),
+    );
+    const fnSig = fnDsa.fnDsaSign(512, fnKP.secretKey, msgHex);
+    add(
+      bench(
+        "FN-DSA-512 verify",
+        () =>
+          fnDsa.fnDsaVerify(512, fnKP.publicKey, msgHex, fnSig.signature),
+        { iters: 50 },
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: FN-DSA — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Protocols ---
+  try {
+    console.log("\n=== PROTOCOLS ===");
+    const protocols = require("../packages/crypto-lib/dist/protocols");
+
+    // PAKE
+    const pakeRecord = protocols.pake.serverRegister("bench-password", "server-1");
+    add(
+      bench(
+        "PAKE serverRegister",
+        () => protocols.pake.serverRegister("password", "srv"),
+        { iters: 20 },
+      ),
+    );
+    const loginStart = protocols.pake.clientStartLogin("bench-password");
+    add(
+      bench(
+        "PAKE clientStartLogin",
+        () => protocols.pake.clientStartLogin("password"),
+        { iters: 20 },
+      ),
+    );
+    add(
+      bench(
+        "PAKE serverRespondLogin",
+        () => protocols.pake.serverRespondLogin(loginStart.request, pakeRecord),
+        { iters: 20 },
+      ),
+    );
+
+    // Threshold (Shamir)
+    add(
+      bench(
+        "Shamir split (3-of-5)",
+        () => protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3),
+        { iters: 100 },
+      ),
+    );
+    const shares = protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3);
+    add(
+      bench(
+        "Shamir reconstruct (3-of-5)",
+        () => protocols.threshold.combineShares(shares.shares.slice(0, 3)),
+        { iters: 100 },
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Protocols — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Tokens (PASETO + Key Rotation) ---
+  try {
+    console.log("\n=== TOKENS (PASETO v4) ===");
+    const tokens = require("../packages/crypto-lib/dist/tokens");
+    const pasetoKey = "aa".repeat(32);
+    const payload = { sub: "user-1", iss: "bench", exp: "2099-01-01T00:00:00Z" };
+    add(
+      bench("PASETO v4.local encrypt", () =>
+        tokens.v4local.encrypt({ key: pasetoKey, payload }),
+      ),
+    );
+    const pToken = tokens.v4local.encrypt({ key: pasetoKey, payload });
+    add(
+      bench("PASETO v4.local decrypt", () =>
+        tokens.v4local.decrypt({ key: pasetoKey, token: pToken.token }),
+      ),
+    );
+
+    // Key rotation
+    const ring = tokens.createKeyRing({
+      version: "v1",
+      key: hexKey,
+      activatedAt: new Date(),
+    });
+    add(
+      bench("Key rotation encrypt", () =>
+        tokens.encryptWithVersion(ring, "benchmark data"),
+      ),
+    );
+    const rotEnc = tokens.encryptWithVersion(ring, "benchmark data");
+    add(
+      bench("Key rotation decrypt", () =>
+        tokens.decryptWithVersion(ring, rotEnc.ciphertext, rotEnc.version),
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Tokens — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Streaming ---
+  try {
+    console.log("\n=== STREAMING ===");
+    const streaming = require("../packages/crypto-lib/dist/streaming");
+    const streamData = nodeCrypto.randomBytes(64 * 1024); // 64 KB
+    add(
+      bench(
+        "Stream AEAD encrypt (64 KB)",
+        () => streaming.streamEncrypt({ key: hexKey, plaintext: streamData }),
+        { dataSize: 65536, iters: 50 },
+      ),
+    );
+    const streamEnc = streaming.streamEncrypt({
+      key: hexKey,
+      plaintext: streamData,
+    });
+    add(
+      bench(
+        "Stream AEAD decrypt (64 KB)",
+        () =>
+          streaming.streamDecrypt({
+            key: hexKey,
+            ciphertext: streamEnc.ciphertext,
+          }),
+        { dataSize: 65536, iters: 50 },
+      ),
+    );
+
+    // Streaming hash
+    add(
+      bench(
+        "Stream hash BLAKE3 (64 KB)",
+        () => {
+          const h = streaming.createHasher("blake3");
+          h.update(streamData);
+          h.digest();
+        },
+        { dataSize: 65536, iters: 100 },
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Streaming — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Middleware ---
+  try {
+    console.log("\n=== MIDDLEWARE ===");
+    const middleware = require("../packages/crypto-middleware/dist/common");
+    add(
+      bench("Middleware encryptPayload", () =>
+        middleware.encryptPayload(hexKey, {
+          userId: 42,
+          role: "admin",
+          ts: Date.now(),
+        }),
+      ),
+    );
+    const mwSealed = middleware.encryptPayload(hexKey, {
+      userId: 42,
+      role: "admin",
+    });
+    add(
+      bench("Middleware decryptPayload", () =>
+        middleware.decryptPayload(hexKey, mwSealed),
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Middleware — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- SDK (serialization) ---
+  try {
+    console.log("\n=== SDK (serialization) ===");
+    const sdk = require("../packages/crypto-sdk/dist");
+    add(
+      bench("SDK client instantiation", () =>
+        new sdk.CryptoClient({ baseUrl: "http://localhost:3000" }),
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: SDK — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- KMS (local provider) ---
+  try {
+    console.log("\n=== KMS (local provider) ===");
+    const kms = require("../packages/crypto-kms/dist");
+    const localKms = new kms.LocalKmsProvider();
+    add(
+      bench(
+        "KMS local createKey",
+        () => localKms.createKey("aes-256", "encrypt"),
+        { iters: 200 },
+      ),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: KMS — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Edge (detection) ---
+  try {
+    console.log("\n=== EDGE (runtime detection) ===");
+    const edge = require("../packages/crypto-edge/dist");
+    add(bench("Edge detectRuntime", () => edge.detectRuntime()));
+    add(bench("Edge getCapabilities", () => edge.getCapabilities()));
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Edge — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
+  // --- Acceleration Detection ---
+  try {
+    console.log("\n=== ACCELERATION DETECTION ===");
+    add(
+      bench("WebCrypto modern detect", () => {
+        accel._resetModernWebCryptoDetection();
+        accel.detectModernWebCrypto();
+      }),
+    );
+    add(
+      bench("Native PQC detect", () => {
+        accel.resetNativePqcCache();
+        accel.hasNativePqc();
+      }),
+    );
+  } catch (e: unknown) {
+    console.log(
+      `  SKIPPED: Acceleration — ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+
   return results;
 }
 
