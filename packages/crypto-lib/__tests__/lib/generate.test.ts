@@ -1,36 +1,46 @@
 // import config from '../../src/config/config';
-import { generate } from "../../src/lib/generate"
+import { generate } from "../../src/lib/generate";
 import chai from "chai";
-import chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from "chai-as-promised";
+import * as types from "../../src/types/types";
+import { _resetKeystoreForTests } from "../../src/key/keystore";
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-const data = {
+const data: types.dataGenerate = {
   rsaBits: 2048,
-  curve: '',
-  email: 'jane@doe.com',
-  comment: 'test comment',
+  curve: "p256",
+  email: "jane@doe.com",
   keyExpirationTime: 0,
-  format: 'armored',
-  name: 'Jane Doe',
-  passphrase: '123456789abcdef',
+  format: "armored",
+  name: "Jane Doe",
+  passphrase: "123456789abcdef",
   date: new Date(),
-  type: 'rsa',
-  userIDs: [{ name: 'Jane Doe', email:'jane@doe.com'}],
+  type: "rsa",
+  userIDs: [{ name: "Jane Doe", email: "jane@doe.com" }],
 };
 
-describe('Generate key', function () {
-  it('should generate a key', async function () {
+describe("Generate key", function () {
+  before(() => {
+    _resetKeystoreForTests();
+  });
+  after(() => {
+    _resetKeystoreForTests();
+  });
+
+  it("should generate a key", async function () {
     const test = generate(data);
     await expect(test).to.eventually.be.fulfilled;
   });
 });
 
-describe('generateKey rsaBits', function () {
-  it('should fail for invalid rsaBits (KeyOptions: rsaBits)', async function () {
+describe("generateKey rsaBits", function () {
+  it("should fail for invalid rsaBits (KeyOptions: rsaBits)", async function () {
     const test = generate({ ...data, rsaBits: 0 });
-    await expect(test).to.eventually.be.rejectedWith(/rsaBits should be at least 2047/);
+    await expect(test).to.eventually.be.rejectedWith(
+      /rsaBits should be at least 2047/,
+    );
   });
 });
 
@@ -75,19 +85,32 @@ describe('generateKey rsaBits', function () {
 //   });
 // });
 
-describe('generateKey passphrase', function () {
-  it('should fail for invalid passphrase (KeyOptions: passphrase)', async function () {
-    const passphrase = 'abcdef123456789';
+describe("generateKey passphrase", function () {
+  it("should fail for invalid passphrase (KeyOptions: passphrase)", async function () {
+    const passphrase = "abcdef123456789";
     const test = generate({ ...data, passphrase });
     await expect(test).to.eventually.be.rejectedWith;
   });
 });
 
-describe('generateKey type', function () {
-  it('should fail for invalid type (KeyOptions: type)', async function () {
-    const type = "123456789";
-    const test = generate({ ...data, type });
+describe("generateKey type", function () {
+  it("should fail for invalid type (KeyOptions: type)", async function () {
+    const invalidData = {
+      ...data,
+      type: "123456789" as types.dataGenerate["type"],
+    };
+    const test = generate(invalidData);
     await expect(test).to.eventually.be.rejectedWith;
+  });
+
+  it("should reject path traversal in key type (CWE-23)", async function () {
+    const malicious = {
+      ...data,
+      type: "../../etc/passwd" as types.dataGenerate["type"],
+    };
+    await expect(generate(malicious)).to.eventually.be.rejectedWith(
+      "Invalid key type",
+    );
   });
 });
 
@@ -122,4 +145,3 @@ describe('generateKey type', function () {
 //     });
 //   });
 // });
-

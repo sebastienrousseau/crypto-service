@@ -1,116 +1,64 @@
-import * as fs from "fs";
-import path from "path";
-import { readFileSync } from "fs";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
+import { writeFile } from "fs/promises";
+import * as path from "path";
 import * as openpgp from "openpgp";
+import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
-const args = process.argv.slice(2);
-// console.log(args);
 /**
  * ### reformat
  *
- * Reformats signature packets for a key and rewraps key object.
+ * Reformats signature packets for the shipped key and persists the
+ * reformatted material. The previous implementation called
+ * `.toString()` on a `WriteStream`, writing the literal string
+ * `"[object Object]"` to disk — the actual reformatted key was never
+ * persisted.
+ *
  * @public
- * @param {Object} data              - Data to be reformatted.
- * @param {String} data.email        - Email enumeration.
- * @param {String} data.name         - Name enumeration.
- * @param {String} data.passphrase   - Passphrase enumeration.
- * @param {String} data.publicKey    - Public key enumeration base64 encoded.
- * @returns {Promise<String>}        - Reformatted public key.
- *
- * @async
- * @static
- *
- * @example
- * ```javascript
- * import { reformat } from "crypto-lib";
- *
- * const data = await reformat({
- *    email: "email",
- *    name: "name",
- *    publicKey: "publicKey base64 encoded",
- * });
- * const result = await reformat(data);
- * console.log(result);
- * ```
- *
+ * @param {Object} data              - Reformat parameters.
+ * @param {String} data.email        - New user email.
+ * @param {String} data.name         - New user name.
+ * @param {String} data.passphrase   - Passphrase that unlocks the private key.
+ * @param {Number} data.expiration   - New key expiration time in seconds.
+ * @returns {Promise<unknown>}       - The result of `openpgp.reformatKey`.
  */
+export const reformat = async (data: types.dataReformat) => {
+  const { expiration, passphrase } = data;
 
-export const reformat = async (data: types.dataReformat): Promise<object> => {
-  const expiration = data.expiration;
-  const passphrase = data.passphrase;
+  const { privateKeyArmored } = await loadKeystore();
+  const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
 
-  const privateKeyBase64 = readFileSync(__dirname + "/../key/rsa.key");
-  const privateKeyArmored = Buffer.from(
-    privateKeyBase64.toString(),
-    "base64",
-  ).toString("utf-8");
-
-  const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({
-      armoredKey: privateKeyArmored,
-    }),
-    passphrase,
-  });
-
-  const reformatKeys = await openpgp.reformatKey({
-    privateKey: privateKey,
+  const reformatted = await openpgp.reformatKey({
+    privateKey,
     userIDs: [{ name: data.name, email: data.email }],
-    passphrase: passphrase,
+    passphrase,
     keyExpirationTime: expiration,
     date: new Date(),
     format: "armored",
   });
-  console.log(reformatKeys);
 
-  const reformatPubKey = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/rsa-reformat.pub"),
-    { encoding: "utf8" },
-  );
-  const reformatPubKeyString = reformatPubKey.toString();
-  reformatPubKey.write(Buffer.from(reformatPubKeyString).toString("base64"));
-  reformatPubKey.on("finish", () => {
-    console.log("✅ Wrote reformat public key data to file");
-  });
-  reformatPubKey.end();
+  const pubArmored = reformatted.publicKey as string;
+  const privArmored = reformatted.privateKey as string;
 
-  const reformatPrivKey = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/rsa-reformat.key"),
-    { encoding: "utf8" },
-  );
-  const reformatPrivKeyString = reformatPrivKey.toString();
-  reformatPrivKey.write(Buffer.from(reformatPrivKeyString).toString("base64"));
-  reformatPrivKey.on("finish", () => {
-    console.log("✅ Wrote reformat private key data to file");
-  });
-  reformatPrivKey.end();
+  const keyDir =
+    process.env["CRYPTO_KEY_DIR"] ?? path.resolve(__dirname, "..", "key");
+  await Promise.all([
+    writeFile(path.join(keyDir, "rsa-reformat.pub"), pubArmored, "utf8"),
+    writeFile(path.join(keyDir, "rsa-reformat.key"), privArmored, "utf8"),
+    /* c8 ignore next 5 -- revocationCertificate is always a string from reformatKey */
+    writeFile(
+      path.join(keyDir, "rsa-reformat.cert"),
+      reformatted.revocationCertificate ?? "",
+      "utf8",
+    ),
+  ]);
 
-  const reformatCert = await fs.createWriteStream(
-    path.resolve(__dirname, "../key/rsa-reformat.cert"),
-    { encoding: "utf8" },
-  );
-  const reformatCertString = reformatCert.toString();
-  reformatCert.write(Buffer.from(reformatCertString).toString("base64"));
-  reformatCert.on("finish", () => {
-    console.log("✅ Wrote reformat certificate key data to file");
-  });
-  reformatCert.end();
-
-  return reformatKeys;
+  return reformatted;
 };
-if (args instanceof Array && args.length) {
-  const data = {
-    date: new Date(),
-    email: args[1],
-    expiration: Number(args[3]),
-    name: args[5],
-    passphrase: args[7],
-    publicKey: args[9],
-  };
-  reformat(data);
-}
 
+/** Default export of the reformat function. */
 export default reformat;
-
-//# sourceMappingURL=reformat.js.map
-// Language: typescript

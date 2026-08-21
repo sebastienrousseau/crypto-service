@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "resolveJsonModule": true,
+    "lib": ["ES2023", "DOM"]
+  },
+  "exclude": ["node_modules", "dist", "__tests__"],
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"]
+}

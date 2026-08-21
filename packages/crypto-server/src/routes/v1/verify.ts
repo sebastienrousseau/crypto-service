@@ -4,53 +4,89 @@
  */
 
 /**
- * @file Defines a route for signature verification in the Fastify application.
- * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
+ * @remarks POST `/v1/verify` — verify a signed message.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/verify instead.
  */
 
-import * as fastify from 'fastify';
-import verify from '@sebastienrousseau/crypto-lib/dist/lib/verify';
-import fastifyRateLimit from "@fastify/rate-limit";
-import { IHeadersVerify } from '../../@types/types';
-import { rateLimitOptions } from "../../config/constants";
+import type { FastifyInstance } from "fastify";
+import verify from "@sebastienrousseau/crypto-lib/dist/lib/verify";
+import { IBodyVerify } from "../../@types/types";
+import {
+  validateBase64,
+  validateDateString,
+  validateRequiredString,
+} from "../../utils/validation";
+import {
+  rejectUnauthorized,
+  collectValidation,
+} from "../../utils/route-helpers";
 
-/**
- * Registers a GET route `/v1/verify` for signature verification.
- *
- * The route expects headers containing:
- * - `date`: The date associated with the message.
- * - `message`: The message to verify.
- * - `verification-keys`: The keys to use for verification.
- *
- * @param app {fastify.FastifyInstance} - The Fastify instance to register the route.
- *
- * @example
- * GET /v1/verify
- * Headers:
- *   - date: "2023-10-09T08:07:06Z"
- *   - message: "myMessage"
- *   - verification-keys: "myVerificationKeys"
- *
- * @returns {Object} The verification data.
- */
-export default (app: fastify.FastifyInstance): void => {
+/** Fastify JSON Schema for the v1 signature-verification endpoint. */
+const verifySchema = {
+  tags: ["Signing"],
+  summary: "Verify a signed message",
+  description:
+    "Verifies a cleartext-signed PGP message against the supplied verification keys.",
+  response: {
+    200: {
+      type: "object",
+      additionalProperties: true,
+      properties: { data: {} },
+    },
+    400: {
+      type: "object",
+      properties: { error: { type: "string" }, details: { type: "array" } },
+    },
+    401: { type: "object", properties: { error: { type: "string" } } },
+  },
+  body: {
+    type: "object",
+    required: ["date", "message", "verificationKeys"],
+    additionalProperties: false,
+    properties: {
+      date: { type: "string", minLength: 1, maxLength: 64 },
+      message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
+      verificationKeys: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+    },
+  },
+} as const;
 
-  app
-    .register(fastifyRateLimit, rateLimitOptions) // fastify-rate-limit plugin
-    .get<{
-      Headers: IHeadersVerify;
-    }>("/v1/verify", async (request, reply) => {
+/** @deprecated Registers the v1 PGP verify route. Use v2 endpoints instead. */
+export default (app: FastifyInstance): void => {
+  app.post<{ Body: IBodyVerify }>(
+    "/v1/verify",
+    { schema: verifySchema },
+    async (request, reply) => {
       try {
+        if (rejectUnauthorized(request, reply)) return;
+
+        const body = request.body as IBodyVerify;
+        const v = collectValidation(
+          {
+            date: validateDateString(body.date, "date"),
+            message: validateRequiredString(body.message, "message"),
+            verificationKeys: validateBase64(
+              body.verificationKeys,
+              "verificationKeys",
+            ),
+          },
+          reply,
+        );
+        if (!v) return;
+
         const verifyData = await verify({
-          date: new Date(String(request.headers["date"])),
-          message: String(request.headers["message"]),
-          verificationKeys: String(request.headers["verification-keys"]),
+          date: v.date as Date,
+          message: v.message,
+          verificationKeys: v.verificationKeys,
         });
-        reply.send({ data: verifyData });
+
+        return reply.send({ data: verifyData });
       } catch (error) {
-          reply.status(500).send({ error: 'Verification failed' });
+        request.log.error(error, "Verification operation failed");
+        return reply.status(500).send({ error: "Verification failed" });
       }
-    });
+    },
+  );
 };

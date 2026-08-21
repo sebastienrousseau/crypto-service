@@ -1,0 +1,11 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+# Package manager: pnpm (lockfile: pnpm-lock.yaml)
+language-settings:
+  javascript:
+    package-manager: pnpm
+ignore: {}
+exclude:
+  global:
+    - "**/dist/**"
+    - "**/__tests__/**"

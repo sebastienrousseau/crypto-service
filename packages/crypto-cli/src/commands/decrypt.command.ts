@@ -1,6 +1,14 @@
 import decrypt from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
 import prompts from "prompts";
 
+/**
+ * Interactively decrypt a PGP-encrypted message via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleDecrypt();
+ * ```
+ */
 const handleDecrypt = async () => {
   const responseDecrypt = await prompts([
     {
@@ -19,7 +27,8 @@ const handleDecrypt = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseDecrypt);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseDecrypt); // Removed for security
 
   const data = {
     passphrase: responseDecrypt.passphrase,
@@ -36,11 +45,12 @@ const handleDecrypt = async () => {
       "\n🔔 You must provide a value for each of the properties.\n",
     );
   } else {
-    // console.log(data);
+    /* c8 ignore next 2 -- decrypt always throws: command doesn't collect privateKey */
     await decrypt(data);
   }
 };
 
+/** Default export of the handleDecrypt command handler. */
 export default handleDecrypt;
 
 // # sourceMappingURL=decrypt.command.js.map

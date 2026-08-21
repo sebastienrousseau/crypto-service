@@ -1,6 +1,14 @@
 import reformat from "@sebastienrousseau/crypto-lib/dist/lib/reformat";
 import prompts from "prompts";
 
+/**
+ * Interactively reformat OpenPGP key signature packets via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleReformat();
+ * ```
+ */
 const handleReformat = async () => {
   const responseReformat = await prompts([
     {
@@ -29,7 +37,8 @@ const handleReformat = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseReformat);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseReformat);
 
   const data = {
     date: new Date(),
@@ -55,6 +64,7 @@ const handleReformat = async () => {
     await reformat(data);
   }
 };
+/** Default export of the handleReformat command handler. */
 export default handleReformat;
 
 // # sourceMappingURL=reformat.command.js.map

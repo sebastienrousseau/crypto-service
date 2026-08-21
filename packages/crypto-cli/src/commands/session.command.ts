@@ -1,6 +1,14 @@
 import session from "@sebastienrousseau/crypto-lib/dist/lib/session";
 import prompts from "prompts";
 
+/**
+ * Interactively generate an OpenPGP session key via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleSession();
+ * ```
+ */
 const handleSession = async () => {
   const responseSession = await prompts([
     {
@@ -19,7 +27,8 @@ const handleSession = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseSession);
+  // Security: Do not log user input
+  // console.log(responseSession);
 
   const data = {
     email: responseSession.email,
@@ -40,6 +49,7 @@ const handleSession = async () => {
     await session(data);
   }
 };
+/** Default export of the handleSession command handler. */
 export default handleSession;
 
 // # sourceMappingURL=session.command.js.map

@@ -1,6 +1,14 @@
 import revoke from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
 import prompts from "prompts";
 
+/**
+ * Interactively revoke an OpenPGP key via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleRevoke();
+ * ```
+ */
 const handleRevoke = async () => {
   const responseRevoke = await prompts([
     {
@@ -19,7 +27,8 @@ const handleRevoke = async () => {
       message: "Provide a reason for revocation (optional)",
     },
   ]);
-  console.log(responseRevoke);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseRevoke);
 
   const data = {
     date: new Date(),
@@ -37,6 +46,7 @@ const handleRevoke = async () => {
     await revoke(data);
   }
 };
+/** Default export of the handleRevoke command handler. */
 export default handleRevoke;
 
 // # sourceMappingURL=revoke.command.js.map

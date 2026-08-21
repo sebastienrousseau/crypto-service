@@ -4,84 +4,169 @@
  */
 
 /**
- * @file Definitions of various TypeScript interfaces to type headers and query strings.
- * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
+ * @remarks Request body type definitions for the Crypto Server REST API.
+ *
+ * Routes accept JSON bodies via POST — secrets must not transit in URL
+ * headers because every reverse proxy in the chain logs them.
  */
 
 /**
- * @interface IQuerystring
- * Represents the structure for query strings with username and password.
+ * Allowed key types for generation.
  */
-export interface IQuerystring {
-  username: string;
-  password: string;
-}
+export const KEY_TYPES = ["ecc", "rsa"] as const;
+/** Union of allowed key types: `"ecc"` or `"rsa"`. */
+export type KeyType = (typeof KEY_TYPES)[number];
 
 /**
- * @interface IHeadersGenerate
- * Represents the structure for headers used in key generation.
- *
- * @remarks
- * - `type`, `curve`, and `format` are set to any to accommodate various possible types.
- * - Consider refining the types or using enums if a finite set of values are possible.
- *
- * @todo Consider replacing `any` types with specific types or enums.
+ * Allowed curve types for ECC keys.
  */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-export interface IHeadersGenerate {
-  date: Date;
+export const CURVE_TYPES = [
+  "curve25519",
+  "ed25519",
+  "p256",
+  "p384",
+  "p521",
+  "secp256k1",
+  "brainpoolP256r1",
+  "brainpoolP384r1",
+  "brainpoolP512r1",
+] as const;
+/** Union of allowed ECC curve names (e.g. `"curve25519"`, `"p256"`). */
+export type CurveType = (typeof CURVE_TYPES)[number];
+
+/**
+ * Allowed key formats.
+ */
+export const FORMAT_TYPES = ["armored", "binary", "object"] as const;
+/** Union of allowed key output formats: `"armored"`, `"binary"`, or `"object"`. */
+export type FormatType = (typeof FORMAT_TYPES)[number];
+
+/**
+ * Allowed revocation flags.
+ */
+export const REVOCATION_FLAGS = [0, 1, 2, 3] as const;
+/** Revocation reason code: 0 = no reason, 1 = superseded, 2 = compromised, 3 = retired. */
+export type RevocationFlag = (typeof REVOCATION_FLAGS)[number];
+
+/**
+ * Request body for the key generation endpoint.
+ *
+ * @example
+ * ```json
+ * {
+ *   "name": "Alice",
+ *   "email": "alice@example.com",
+ *   "type": "ecc",
+ *   "passphrase": "s3cret",
+ *   "curve": "curve25519",
+ *   "format": "armored"
+ * }
+ * ```
+ */
+export interface IBodyGenerate {
+  /** Display name embedded in the key's user ID. */
   name: string;
+  /** Email address embedded in the key's user ID. */
   email: string;
-  userIDs: Array<{
-    name: string;
-    email: string;
-  }>;
-  type: any;
+  /** Key algorithm family. */
+  type: KeyType;
+  /** Passphrase used to protect the private key. */
   passphrase: string;
-  rsaBits: number;
-  curve: any;
-  keyExpirationTime: number;
-  format: any;
+  /** RSA modulus size in bits (only used when `type` is `"rsa"`). */
+  rsaBits?: number;
+  /** Elliptic curve name (only used when `type` is `"ecc"`). */
+  curve: CurveType;
+  /** Key expiration time in seconds from creation (0 = never). */
+  keyExpirationTime?: number;
+  /** Output format for the generated key material. */
+  format: FormatType;
 }
 
 /**
- * @interface IHeadersEncrypt
- * Represents the structure for headers used in encryption.
+ * Request body for the encryption endpoint.
+ *
+ * @example
+ * ```json
+ * {
+ *   "passphrase": "s3cret",
+ *   "message": "Hello, world!",
+ *   "publicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----..."
+ * }
+ * ```
  */
-export interface IHeadersEncrypt {
+export interface IBodyEncrypt {
+  /** Passphrase to unlock the signing private key (if provided). */
   passphrase: string;
+  /** Plaintext message to encrypt. */
   message: string;
+  /** Armored PGP public key of the recipient. */
   publicKey: string;
+  /** Optional armored PGP private key for sign-and-encrypt. */
+  privateKey?: string;
 }
 
 /**
- * @interface IHeadersDecrypt
- * Represents the structure for headers used in decryption.
+ * Request body for the decryption endpoint.
+ *
+ * @example
+ * ```json
+ * {
+ *   "passphrase": "s3cret",
+ *   "message": "-----BEGIN PGP MESSAGE-----...",
+ *   "publicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----...",
+ *   "privateKey": "-----BEGIN PGP PRIVATE KEY BLOCK-----..."
+ * }
+ * ```
  */
-export interface IHeadersDecrypt {
+export interface IBodyDecrypt {
+  /** Passphrase to unlock the private key. */
   passphrase: string;
+  /** Armored PGP encrypted message to decrypt. */
   message: string;
+  /** Armored PGP public key of the sender (for signature verification). */
   publicKey: string;
+  /** Armored PGP private key of the recipient. */
+  privateKey: string;
 }
 
 /**
- * @interface IHeadersRevoke
- * Represents the structure for headers used in key revocation.
+ * Request body for the key revocation endpoint.
+ *
+ * @example
+ * ```json
+ * {
+ *   "passphrase": "s3cret",
+ *   "flag": 2,
+ *   "reason": "Key compromised"
+ * }
+ * ```
  */
-export interface IHeadersRevoke {
+export interface IBodyRevoke {
+  /** Passphrase to unlock the private key being revoked. */
   passphrase: string;
+  /** Revocation reason code (0 = no reason, 1 = superseded, 2 = compromised, 3 = retired). */
   flag: number;
+  /** Human-readable revocation reason string. */
   reason: string;
 }
 
 /**
- * @interface IHeadersVerify
- * Represents the structure for headers used in verification.
+ * Request body for the signature verification endpoint.
+ *
+ * @example
+ * ```json
+ * {
+ *   "date": "2026-01-01T00:00:00Z",
+ *   "message": "-----BEGIN PGP SIGNED MESSAGE-----...",
+ *   "verificationKeys": "-----BEGIN PGP PUBLIC KEY BLOCK-----..."
+ * }
+ * ```
  */
-export interface IHeadersVerify {
+export interface IBodyVerify {
+  /** ISO-8601 date string used as the verification reference time. */
   date: string;
+  /** Armored PGP signed message (clear-signed or detached). */
   message: string;
+  /** Armored PGP public key(s) to verify the signature against. */
   verificationKeys: string;
 }

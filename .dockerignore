@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+docs
+.git
+.github
+.husky
+.claude
+*.md
+!README.md
+__tests__
+*.test.ts
+.env*
+*.log

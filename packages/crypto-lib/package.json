@@ -1,143 +1,76 @@
 {
-    "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
-    "autoupdate": {
-        "fileMap": [
-            {
-                "basePath": "dist",
-                "files": [
-                    "**/*"
-                ]
-            }
-        ],
-        "source": "git",
-        "target": "git://github.com/sebastienrousseau/crypto-service.git"
-    },
-    "bin": {
-        "cryptolib": "./dist/index.js"
-    },
-    "bugs": {
-        "url": "https://github.com/sebastienrousseau/crypto-service/issues"
-    },
-    "dependencies": {
-        "@types/openpgp": "^4.4.19",
-        "openpgp": "^5.10.2"
-    },
-    "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
-    "devDependencies": {
-        "@sebastienrousseau/c8-config": "^0.0.3",
-        "@sebastienrousseau/eslint-config": "^0.0.2",
-        "@sebastienrousseau/jsdoc-config": "^0.0.5",
-        "@sebastienrousseau/markdownlint-config": "^0.0.1",
-        "@sebastienrousseau/mocha-config": "^0.0.5",
-        "@sebastienrousseau/prettier-config": "^0.0.4",
-        "@sebastienrousseau/remark-config": "^0.0.3",
-        "@types/chai": "^4.3.7",
-        "@types/chai-as-promised": "^7.1.6",
-        "@types/compression": "^1.7.3",
-        "@types/mocha": "^10.0.2",
-        "@typescript-eslint/eslint-plugin": "^6.7.5",
-        "@typescript-eslint/parser": "^6.7.5",
-        "c8": "^8.0.1",
-        "chai": "^4.3.10",
-        "chai-as-promised": "^7.1.1",
-        "compression": "^1.7.4",
-        "coveralls": "^3.1.1",
-        "eslint": "^8.51.0",
-        "eslint-import-resolver-typescript": "^3.6.1",
-        "eslint-plugin-import": "^2.28.1",
-        "filesizes": "^0.1.2",
-        "mocha": "^10.2.0",
-        "prettier": "^3.0.3",
-        "remark-cli": "^12.0.0",
-        "remark-footnotes": "^4.0.1",
-        "remark-preset-lint-consistent": "^5.1.2",
-        "remark-preset-lint-markdown-style-guide": "^5.1.3",
-        "remark-preset-lint-recommended": "^6.1.3",
-        "rimraf": "^5.0.5",
-        "ts-node": "^10.9.1",
-        "typedoc": "^0.25.2",
-        "typedoc-plugin-missing-exports": "^2.1.0",
-        "typescript": "^5.2.2"
-    },
-    "directories": {
-        "src": "./src",
-        "test": "__tests__"
-    },
-    "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
-    },
-    "files": [
-        "dist/"
-    ],
-    "funding": [
-        {
-            "type": "github",
-            "url": "https://github.com/sponsors/sebastienrousseau"
-        },
-        {
-            "type": "paypal",
-            "url": "https://paypal.me/wwdseb"
-        }
-    ],
-    "homepage": "https://crypto-lib.io",
-    "keywords": [
-        "crypto-api",
-        "crypto-library",
-        "crypto-service",
-        "cryptography",
-        "cryptoservice",
-        "decryption-tool",
-        "decryption",
-        "ecc-cryptography",
-        "ecc-key-encryption",
-        "ecc",
-        "encryption-tool",
-        "encryption",
-        "encryption",
-        "openpgpjs",
-        "rfc4880",
-        "rsa-cryptography",
-        "rsa-decryption",
-        "rsa"
-    ],
-    "license": "MIT",
-    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
-    "main": "./dist/index.js",
-    "name": "@sebastienrousseau/crypto-lib",
-    "private": false,
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://npm.pkg.github.com"
-    },
-    "repository": {
-        "directory": "packages/crypto-lib",
-        "type": "git",
-        "url": "git@github.com:sebastienrousseau/crypto-service.git"
-    },
-    "scripts": {
-        "build": "tsc --build tsconfig.json && yarn run copy:makefile && yarn copy:package && yarn run copy:key && yarn run copy:data && yarn run copy:copyright && yarn run filesize:distribution",
-        "clean": "rimraf ./coverage ./dist ./docs ./node_modules",
-        "copy:copyright": "cp COPYRIGHT dist/",
-        "copy:data": "mkdirp dist/data && cp -fr src/data/*.txt dist/data/ && cp -fr src/data/*.sig dist/data/",
-        "copy:key": "mkdirp dist/key && cp src/key/*.pub dist/key/ && cp src/key/*.key dist/key/ && cp src/key/*.cert dist/key/",
-        "copy:license": "cp LICENSE dist/",
-        "copy:makefile": "mkdirp dist/ && cp Makefile dist/",
-        "copy:package": "cp ./package.json ./dist/",
-        "copy:readme": "cp README.md dist/",
-        "docs": "typedoc",
-        "filesize:distribution": "filesizes dist/ > dist/Report.txt",
-        "lint:fix": "eslint --cache --fix src/**/*.ts",
-        "lint": "eslint src/**/*.ts",
-        "markdown": "yarn remark ./*.md packages/**/*.md --rc-path ./.remarkrc --quiet",
-        "prepack": "yarn build",
-        "format": "prettier --write src/**/*.ts",
-        "release": "yarn release:prepare && yarn release:publish",
-        "release:prepare": "yarn pack",
-        "release:publish": "yarn publish --access public --ignore-scripts --@OWNER:registry='https://registry.npmjs.org' && npm publish",
-        "start": "node dist/index.js",
-        "test": "npx c8 --config=.c8rc --reporter=lcov mocha --config=.mocharc"
-    },
-    "types": "./dist/index.d.ts",
-    "version": "0.0.3"
+  "name": "@sebastienrousseau/crypto-lib",
+  "version": "0.0.3",
+  "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://crypto-lib.io",
+  "repository": {
+    "directory": "packages/crypto-lib",
+    "type": "git",
+    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "bin": {
+    "cryptolib": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "clean": "rimraf ./coverage ./dist ./docs",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "start": "node dist/index.js",
+    "test": "mkdir -p \"${TMPDIR:-/tmp}/crypto-lib-test-out\" && CRYPTO_KEY_DIR=\"$(pwd)/__tests__/fixtures/keys\" CRYPTO_KEY_OUT_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" CRYPTO_DATA_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" c8 --check-coverage --lines 100 --branches 99.5 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc"
+  },
+  "dependencies": {
+    "@noble/ciphers": "^2.2.0",
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^2.2.0",
+    "@noble/post-quantum": "^0.6.1",
+    "@openpgp/web-stream-tools": "^0.3.0",
+    "openpgp": "^5.11.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.7",
+    "@types/chai-as-promised": "^7.1.6",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "chai": "^4.5.0",
+    "chai-as-promised": "^7.1.2",
+    "mocha": "^10.8.0",
+    "prettier": "^3.4.0",
+    "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.27.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "crypto-library",
+    "cryptography",
+    "openpgp",
+    "encryption",
+    "decryption",
+    "ecc",
+    "rsa"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
 }

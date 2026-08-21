@@ -1,6 +1,7 @@
 import { sign } from "../../src/lib/sign"
 import chai from "chai";
 import chaiAsPromised from 'chai-as-promised';
+import { _resetKeystoreForTests } from "../../src/key/keystore";
 
 chai.use(chaiAsPromised);
 
@@ -15,6 +16,9 @@ const data = {
 };
 
 describe('sign', function () {
+  before(() => { _resetKeystoreForTests(); });
+  after(() => { _resetKeystoreForTests(); });
+
   it('should sign a message', async function () {
     const test = sign(data);
     await expect(test).to.eventually.be.fulfilled;

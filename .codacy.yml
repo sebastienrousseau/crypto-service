@@ -1,0 +1,33 @@
+---
+engines:
+  eslint:
+    enabled: true
+  markdownlint:
+    enabled: true
+  stylelint:
+    enabled: false
+  csslint:
+    enabled: false
+  duplication:
+    enabled: true
+    exclude_paths:
+      - "**/dist/**"
+      - "**/__tests__/**"
+      - "**/examples/**"
+      - "packages/crypto-api/src/docs/**"
+      - "packages/crypto-lib/src/key/**"
+      - "packages/crypto-lib/src/data/**"
+exclude_paths:
+  - "**/dist/**"
+  - "**/node_modules/**"
+  - "**/__tests__/**"
+  - "**/examples/**"
+  - "packages/crypto-api/src/docs/**"
+  - "packages/crypto-lib/src/key/**"
+  - "packages/crypto-lib/src/data/**"
+  - "pnpm-lock.yaml"
+  - "**/*.json"
+  - "benchmarks/**"
+  - "security-findings.md"
+  - "ROADMAP.md"
+  - "CHANGELOG.md"

@@ -1,6 +1,14 @@
 import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
 import prompts from "prompts";
 
+/**
+ * Interactively encrypt a message using PGP via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleEncrypt();
+ * ```
+ */
 const handleEncrypt = async () => {
   const responseEncrypt = await prompts([
     {
@@ -19,7 +27,8 @@ const handleEncrypt = async () => {
       message: "Provide a public key in base64 format",
     },
   ]);
-  console.log(responseEncrypt);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseEncrypt); // Removed for security
 
   const data = {
     passphrase: responseEncrypt.passphrase,
@@ -40,6 +49,7 @@ const handleEncrypt = async () => {
     await encrypt(data);
   }
 };
+/** Default export of the handleEncrypt command handler. */
 export default handleEncrypt;
 
 // # sourceMappingURL=encrypt.command.js.map

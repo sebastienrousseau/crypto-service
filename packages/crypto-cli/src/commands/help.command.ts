@@ -4,6 +4,14 @@ import { language, locale, constants } from "../constants/index";
 
 language(locale);
 
+/**
+ * Display interactive help for available CLI commands.
+ *
+ * @example
+ * ```ts
+ * await handleHelp();
+ * ```
+ */
 const handleHelp = async () => {
   const responseHelp = await prompts([
     {
@@ -206,6 +214,7 @@ const handleHelp = async () => {
     }
   }
 };
+/** Default export of the handleHelp command handler. */
 export default handleHelp;
 
 // # sourceMappingURL=verify.command.js.map

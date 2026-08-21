@@ -7,4 +7,5 @@ import * as revoke from "./revoke";
 import * as sign from "./sign";
 import * as verify from "./verify";
 
+/** Re-exported OpenPGP operation modules. */
 export { decrypt, encrypt, generate, reformat, revoke, session, sign, verify };

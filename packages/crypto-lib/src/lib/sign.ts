@@ -1,94 +1,54 @@
-import { writeFile } from "fs/promises";
-import * as key from "../key/key";
-import * as openpgp from "openpgp";
-import * as types from "../types/types";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
 
-const args = process.argv.slice(2);
+import { writeFile } from "fs/promises";
+import * as path from "path";
+import * as openpgp from "openpgp";
+import { loadKeystore, unlockPrivateKey } from "../key/keystore";
+import * as types from "../types/types";
 
 /**
  * ### sign
  *
- * Signs and verifies cleartext messages with a private key.
+ * Signs a cleartext message with the configured private key.
  *
  * @public
  * @param {Object} data            - Data to be signed.
  * @param {String} data.message    - Message to be signed.
- * @param {String} data.passphrase - Array of passwords or a single password to
- *                                   encrypt the message.
- * @param {String} data.detached   - If true the return value should contain a
- *                                   detached signature.
- * @returns {Promise<String>}      - Signed message (string if `armor` was true,
- *                                   the default; Uint8Array if `armor` was
- *                                   false).
- *
- * @async
- * @static
- *
- * @example
- * ```javascript
- * import { sign } from "crypto-lib";
- *
- * const data = {
- *    passphrase: "passphrase",
- *    message: "message",
- *    unsignedMessage: "unsigned message"
- * };
- * sign(data).then(signedMessage => {
- * console.log(signedMessage);
- * }
- * .catch(err => {
- * console.log(err);
- * }
- * ```
- *
+ * @param {String} data.passphrase - Passphrase that unlocks the private key.
+ * @param {Boolean} data.detached  - If true, produces a detached signature.
+ * @returns {Promise<String>}      - Armored signed message or detached
+ *                                   signature.
  */
+export const sign = async (data: types.dataSign): Promise<string> => {
+  const { passphrase, message, detached } = data;
 
-export const sign = async (data: types.dataSign) => {
-  const passphrase = data.passphrase;
-  const message = data.message;
-  const detached = data.detached;
-  const unsignedMessage = await openpgp.createCleartextMessage({
-    text: message,
-  });
+  const { privateKeyArmored } = await loadKeystore();
+  const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
 
-  const privateKeyRead = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({
-      armoredKey: key.PrivateKey,
-    }),
-    passphrase,
-  });
+  // OpenPGP forbids detached signatures over `CleartextMessage`. When the
+  // caller asks for a detached signature, use a binary `Message` container
+  // instead; otherwise the cleartext framing is preferred for
+  // human-readable signed messages.
+  const signed = detached
+    ? await openpgp.sign({
+        message: await openpgp.createMessage({ text: message }),
+        signingKeys: privateKey,
+        detached: true,
+      })
+    : await openpgp.sign({
+        message: await openpgp.createCleartextMessage({ text: message }),
+        signingKeys: privateKey,
+      });
 
-  const signOptions: openpgp.SignOptions = {
-    detached: detached,
-    message: unsignedMessage,
-    signingKeys: privateKeyRead,
-  };
+  const sigDir =
+    process.env["CRYPTO_DATA_DIR"] ?? path.resolve(__dirname, "..", "data");
+  await writeFile(path.join(sigDir, "signed.sig"), signed as string, "utf8");
 
-  const signed = await openpgp.sign(
-    signOptions && {
-      message: unsignedMessage,
-      signingKeys: privateKeyRead,
-    },
-  );
-
-  console.log(signed);
-  const signedMsg = await writeFile(
-    "./src/data/signed.sig",
-    Buffer.from(signed.toString()).toString("base64"),
-  );
-  signedMsg;
-  return signed;
+  return signed as string;
 };
 
-if (args instanceof Array && args.length) {
-  const data = {
-    passphrase: args[1],
-    message: args[3],
-    detached: Boolean(args[5]),
-    publicKey: args[7],
-    privateKey: args[9],
-  };
-  sign(data);
-}
-
+/** Default export of the sign function. */
 export default sign;

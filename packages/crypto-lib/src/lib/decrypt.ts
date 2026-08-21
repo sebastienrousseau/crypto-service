@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import * as fs from "fs";
-import * as openpgp from "openpgp";
-import * as types from "../types/types";
-import path from "path";
+/**
+ * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
 
-const args = process.argv.slice(2);
-// console.log(args);
+import * as openpgp from "openpgp";
+import { unlockPrivateKey } from "../key/keystore";
+import * as types from "../types/types";
 
 /**
  * ### decrypt
@@ -16,98 +16,75 @@ const args = process.argv.slice(2);
  *
  * @public
  * @param {Object} data                     - Data to be decrypted.
- * @param {String} data.cmd                 - Command to be executed.
- * @param {String} data.passphrase          - Passwords to decrypt the message.
- * @param {String} data.message             - The message object with the
- *                                            encrypted data.
- * @param {String} data.publicKey           - Public key enumeration base64
- *                                            encoded. This can be an array of
- *                                            keys or single key, used to
- *                                            decrypt the message.
- * @returns {Promise<String>}               - Decrypted message.
- *
- * @example
- * ```javascript
- * import { decrypt } from "crypto-lib";
- *
- * const data = {
- *  passphrase: "passphrase",
- *  message: "base64 encoded encrypted message",
- *  publicKey: "base64 encoded public key"
- * };
- *
- * decrypt(data).then(message => {
- *  console.log(message);
- * }
- * .catch(err => {
- *  console.log(err);
- * }
- * ```
- *
+ * @param {String} data.passphrase          - Passphrase used to unlock the
+ *                                            private decryption key.
+ * @param {String} data.message             - Encrypted message, base64-
+ *                                            encoded armored block.
+ * @param {String} data.publicKey           - Public key used for signature
+ *                                            verification (base64-encoded
+ *                                            armored block).
+ * @param {String} data.privateKey          - Private key used for
+ *                                            decryption (base64-encoded
+ *                                            armored block).
+ * @returns {Promise<{data, signatureValid}>}  - The decrypted message body
+ *                                                and a boolean indicating
+ *                                                whether the signature (if
+ *                                                any) verified.
  */
+export const decrypt = async (
+  data: types.dataDecrypt,
+): Promise<{
+  /** Decrypted message body. */
+  data: string;
+  /** Whether the signature (if any) verified. */
+  signatureValid: boolean;
+}> => {
+  const {
+    message: encryptedMessage,
+    passphrase,
+    publicKey: publicKeyBase64,
+    privateKey: privateKeyBase64,
+  } = data;
 
-export const decrypt = async (data: types.dataDecrypt): Promise<object> => {
+  if (!privateKeyBase64) {
+    throw new Error("Private key is required for decryption");
+  }
+
   const message = await openpgp.readMessage({
-    armoredMessage: Buffer.from(data.message, "base64").toString("utf-8"),
+    armoredMessage: Buffer.from(encryptedMessage, "base64").toString("latin1"),
   });
 
-  const passphrase = data.passphrase;
-
-  const publicKeyArmored = Buffer.from(
-    data.publicKey.toString(),
-    "base64",
-  ).toString("utf-8");
+  const publicKeyArmored = Buffer.from(publicKeyBase64, "base64").toString(
+    "latin1",
+  );
+  const privateKeyArmored = Buffer.from(privateKeyBase64, "base64").toString(
+    "latin1",
+  );
 
   const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
-
-  const privateKeyBase64 = readFileSync(
-    path.resolve(__dirname, "../key/rsa.key"),
-  );
-  const privateKeyArmored = Buffer.from(
-    privateKeyBase64.toString(),
-    "base64",
-  ).toString("utf-8");
-
-  const privateKey = await openpgp.decryptKey({
-    privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
-    passphrase,
-  });
+  const privateKey = await unlockPrivateKey(privateKeyArmored, passphrase);
 
   const { data: decrypted, signatures } = await openpgp.decrypt({
     message,
     verificationKeys: publicKey,
     decryptionKeys: privateKey,
   });
-  console.log(decrypted); // "Hello Crypto Service Suite APIs!"
 
-  await signatures[0].verified; // throws on invalid signature
-  console.log("Signature is valid");
+  let signatureValid = false;
+  if (signatures.length > 0) {
+    try {
+      await signatures[0]!.verified;
+      signatureValid = true;
+    } catch {
+      signatureValid = false;
+    }
+  }
 
-  const decryptedMsg = await fs.createWriteStream(
-    path.resolve(__dirname, "../data/decrypted.txt"),
-    { encoding: "ascii" },
-  );
-  const decryptedString = decrypted.toString();
-  decryptedMsg.write(Buffer.from(decryptedString).toString("base64"));
-  decryptedMsg.on("finish", () => {
-    console.log("✅ Wrote decrypted message data to file");
-  });
-  decryptedMsg.end();
-
-  return decrypted;
+  return {
+    data: decrypted as string,
+    signatureValid,
+  };
 };
 
-if (args instanceof Array && args.length) {
-  const data = {
-    passphrase: args[1],
-    message: args[3],
-    publicKey: args[5],
-  };
-  // console.log(data);
-  decrypt(data);
-}
-
+/** Default export of the decrypt function. */
 export default decrypt;
-
-//# sourceMappingURL=decrypt.js.map
-// Language: typescript

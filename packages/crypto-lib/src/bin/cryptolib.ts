@@ -11,13 +11,10 @@ import {
 } from "../types/types";
 
 /**
- *
- * @description The decrypt function that is used in the crypto-lib package.
- * @param dataDecrypt - This is the data type that is used to decrypt a message.
- * @public
- * @export **decrypt**
- *
  * Decrypts a message for the given data object.
+ *
+ * @param data - Data used to decrypt a message.
+ * @public
  *
  * @example
  * ```
@@ -35,13 +32,10 @@ export async function decrypt(data: dataDecrypt) {
 }
 
 /**
- *
- * @description The encrypt function that is used in the crypto-lib package.
- * @param dataEncrypt - This is the data type that is used to encrypt a message.
- * @public
- * @export **encrypt**
- *
  * Encrypts a message for the given data object.
+ *
+ * @param data - Data used to encrypt a message.
+ * @public
  *
  * @example
  * ```
@@ -59,13 +53,10 @@ export async function encrypt(data: dataEncrypt) {
 }
 
 /**
- *
- * @description The generate function that is used in the crypto-lib package.
- * @param dataGenerate - This is the data type that is used to generate a key pair.
- * @public
- * @export **generate**
- *
  * Generates a key pair for the given data object.
+ *
+ * @param data - Data used to generate a key pair.
+ * @public
  *
  * @example
  * ```
@@ -88,19 +79,17 @@ export async function generate(data: dataGenerate) {
   return generate;
 }
 
+/** Reformat an existing OpenPGP key with new parameters. */
 export async function reformat(data: dataReformat) {
   const reformat = await key.reformat.default(data);
   return reformat;
 }
 
 /**
- *
- * @description The session function that is used in the crypto-lib package.
- * @param dataSessionKey - This is the data type that is used to generate a session key.
- * @public
- * @export **session**
- *
  * Generates a session key for the given data object.
+ *
+ * @param data - Data used to generate a session key.
+ * @public
  *
  * @example
  * ```
@@ -120,13 +109,10 @@ export async function session(data: dataSessionKey) {
 }
 
 /**
- *
- * @description The revoke function that is used in the crypto-lib package.
- * @param dataRevoke - This is the data type that is used to revoke a key pair.
- * @public
- * @export **revoke**
- *
  * Revokes a key pair for the given data object.
+ *
+ * @param data - Data used to revoke a key pair.
+ * @public
  *
  * @example
  * ```
@@ -142,13 +128,10 @@ export async function revoke(data: dataRevoke) {
 }
 
 /**
- *
- * @description The sign function that is used in the crypto-lib package.
- * @param dataSign - This is the data type that is used to sign a message.
- * @public
- * @export **sign**
- *
  * Signs a message for the given data object.
+ *
+ * @param data - Data used to sign a message.
+ * @public
  *
  * @example
  * ```
@@ -165,13 +148,10 @@ export async function sign(data: dataSign) {
 }
 
 /**
- *
- * @description The verify function that is used in the crypto-lib package.
- * @param dataVerify - This is the data type that is used to verify a message.
- * @public
- * @export **verify**
- *
  * Verifies a message for the given data object.
+ *
+ * @param data - Data used to verify a message.
+ * @public
  *
  * @example
  * ```
@@ -188,20 +168,25 @@ export async function verify(data: dataVerify) {
 }
 
 /**
- * @description The default functions that are used in the crypto-lib package.
+ * Default exported PGP crypto functions.
+ *
  * @public
- * @export **default**
- *
- * Default exported functions.
- *
  */
 export default {
+  /** Decrypt a PGP-encrypted message. */
   decrypt,
+  /** Encrypt a message with PGP. */
   encrypt,
+  /** Generate a new PGP key pair. */
   generate,
+  /** Reformat an existing PGP key. */
   reformat,
+  /** Revoke a PGP key pair. */
   revoke,
+  /** Generate a PGP session key. */
   session,
+  /** Sign a message with PGP. */
   sign,
+  /** Verify a PGP-signed message. */
   verify,
 };

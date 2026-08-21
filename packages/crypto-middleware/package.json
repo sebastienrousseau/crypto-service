@@ -1,0 +1,95 @@
+{
+  "name": "@sebastienrousseau/crypto-middleware",
+  "version": "0.0.3",
+  "description": "Plug-and-play cryptographic middleware for Express and Fastify -- auto-decrypt requests, verify signatures, and encrypt responses.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://crypto-service.co",
+  "repository": {
+    "directory": "packages/crypto-middleware",
+    "type": "git",
+    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "clean": "rimraf ./coverage ./dist ./docs",
+    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "dependencies": {
+    "@sebastienrousseau/crypto-lib": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0",
+    "fastify": "^4.0.0",
+    "fastify-plugin": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "fastify-plugin": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@types/chai": "^4.3.7",
+    "@types/chai-as-promised": "^7.1.6",
+    "@types/express": "^4.17.21",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "chai": "^4.5.0",
+    "chai-as-promised": "^7.1.2",
+    "express": "^4.21.0",
+    "fastify": "^4.28.0",
+    "fastify-plugin": "^4.5.0",
+    "mocha": "^10.8.0",
+    "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.27.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "crypto-middleware",
+    "cryptography",
+    "express",
+    "fastify",
+    "encryption",
+    "hmac",
+    "jwt",
+    "middleware"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
+}

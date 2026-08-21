@@ -5,14 +5,18 @@
  */
 
 /**
- * @fileoverview This module initializes a script that parses JSON data to generate
+ * @remarks This module initializes a script that parses JSON data to generate
  * markdown content, validates file existence, reads, and parses the JSON data,
  * then utilizes utility functions to generate and handle the markdown content.
  */
 
-import minimist from 'minimist';
-import * as fs from 'fs/promises';
-import { createMarkdown, response } from './utils';
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+const minimist = require("minimist") as (argv: string[]) => {
+  _: string[];
+  [k: string]: unknown;
+};
+import * as fs from "fs/promises";
+import { createMarkdown, response } from "./utils";
 
 /**
  * @typedef {Object} ParsedArgs
@@ -28,6 +32,7 @@ import { createMarkdown, response } from './utils';
  * @returns {Promise<void>} No return value
  */
 export async function init(): Promise<void> {
+  // skipcq: JS-0067
   try {
     /**
      * Parses the command-line arguments.
@@ -39,10 +44,10 @@ export async function init(): Promise<void> {
      * Destructures to get the file path and output file name from the arguments.
      * @type {string[]}
      */
-    const [filePath, outputFileName] = args['_'];
+    const [filePath, outputFileName] = args["_"];
 
     if (!filePath) {
-      console.log('Path of JSON file is required.');
+      console.log("Path of JSON file is required.");
       return;
     }
 
@@ -50,12 +55,12 @@ export async function init(): Promise<void> {
 
     try {
       await fs.access(filePath);
-    } catch (error) {
-      console.log('Path is not valid or the file does not exist.');
+    } catch {
+      console.log("Path is not valid or the file does not exist.");
       return;
     }
 
-    console.log('Generating markdown file ...');
+    console.log("Generating markdown file ...");
 
     /**
      * Reads the file and parses its content to JSON.
@@ -74,24 +79,25 @@ export async function init(): Promise<void> {
      * @type {string}
      */
     let markdown = createMarkdown(json);
-    markdown += '[divider]: https://kura.pro/common/images/elements/divider.svg';
+    markdown +=
+      "[divider]: https://kura.pro/common/images/elements/divider.svg";
 
     if (outputFileName) {
       /**
        * Extracts the file name without extension.
        * @type {string}
        */
-      const fileName = outputFileName.split('.')[0];
+      const fileName = outputFileName.split(".")[0];
 
       response(markdown, fileName);
     } else {
-      console.log('Output file name is required.');
+      console.log("Output file name is required.");
     }
   } catch (error) {
     if (error instanceof Error) {
-        console.error('An error occurred:', error.message);
+      console.error("An error occurred:", error.message);
     } else {
-        console.error('An unknown error occurred:', error);
+      console.error("An unknown error occurred:", error);
     }
   }
 }

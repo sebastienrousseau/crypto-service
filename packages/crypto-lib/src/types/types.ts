@@ -1,183 +1,116 @@
-/**
- * ### types/types.dateGenerate
- *
- * Types used in the Generate Keypair function.
- *
- * @module types/types
- * @public
- * @param {Any} curve - Curve enumeration.
- * @param {Date} date - Date enumeration.
- * @param {String} email - Email enumeration.
- * @param {Any} format - Format enumeration.
- * @param {Number} keyExpirationTime - Key expiration time enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} passphrase - Password enumeration.
- * @param {Number} rsaBits - RSA bits enumeration.
- * @param {Any} type - Type enumeration.
- * @param {Any} userIDs - User IDs enumeration.
- *
- */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-export type dataGenerate = {
-  date: Date;
-  name: string;
-  email: string;
-  userIDs: any;
-  type: any;
-  passphrase: string;
-  rsaBits: number;
-  curve: any;
-  keyExpirationTime: number;
-  format: any;
-};
+import enums from "../enums";
 
 /**
- * ### types/types.dataRevoke
- *
- * Types used in the Revoke Key function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {Number} flag - Flag enumeration. Default value is '0' - No reason specified. (optional)
- *
- * Other possible values are:
- *    '1'  when the Key is superseded,
- *    '2'  when the Key material has been compromised,
- *    '3'  when the Key is retired and no longer used
- *    '32' when the User ID information is no longer valid.
- * @param {string} reason - Reason enumeration. (optional)
+ * User ID interface for OpenPGP key generation
  */
-export type dataRevoke = {
+export interface UserID {
+  /** Display name of the user. */
+  name: string;
+  /** Email address of the user. */
+  email: string;
+}
+
+/** Parameters for OpenPGP key pair generation. */
+export type dataGenerate = {
+  /** Creation date of the key pair. */
+  date: Date;
+  /** Display name for the primary user ID. */
+  name: string;
+  /** Email address for the primary user ID. */
+  email: string;
+  /** Array of user IDs to embed in the key. */
+  userIDs: UserID[];
+  /** Key type (e.g. 'ecc' or 'rsa'). */
+  type: keyof typeof enums.type;
+  /** Passphrase used to encrypt the private key. */
   passphrase: string;
+  /** RSA key size in bits (only used when type is 'rsa'). */
+  rsaBits: number;
+  /** Elliptic curve name (only used when type is 'ecc'). */
+  curve: keyof typeof enums.curve;
+  /** Seconds until the key expires (0 for no expiration). */
+  keyExpirationTime: number;
+  /** Output format of the generated key (e.g. 'armored'). */
+  format: keyof typeof enums.format;
+};
+
+/** Parameters for OpenPGP key revocation. */
+export type dataRevoke = {
+  /** Passphrase to unlock the private key for revocation. */
+  passphrase: string;
+  /** Revocation reason flag (0=unspecified, 1=superseded, 2=compromised, 3=retired, 32=uid-invalid). */
   flag: number;
+  /** Human-readable revocation reason string. */
   reason: string;
 };
 
-/**
- * ### types/types.dataEncrypt
- *
- * Types used in the Encrypt function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} message - Message enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
+/** Parameters for OpenPGP message encryption. */
 export type dataEncrypt = {
+  /** Passphrase to unlock the private key for signing during encryption. */
   passphrase: string;
+  /** Plaintext message to encrypt. */
   message: string;
+  /** Armored public key of the recipient. */
   publicKey: string;
+  /** Optional armored private key used to sign the encrypted message. */
+  privateKey?: string;
 };
 
-/**
- * ### types/types.dataDecrypt
- *
- * Types used in the Decrypt function.
- *
- * @module types/types
- * @public
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} message - Encrypted message enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
+/** Parameters for OpenPGP message decryption. */
 export type dataDecrypt = {
+  /** Passphrase to unlock the private key for decryption. */
   passphrase: string;
+  /** Armored encrypted message to decrypt. */
   message: string;
+  /** Armored public key of the sender for signature verification. */
   publicKey: string;
+  /** Optional armored private key used for decryption. */
+  privateKey?: string;
 };
 
-/**
- * ### types/types.dataSign
- *
- * Types used in the Sign function.
- *
- * @module types/types
- * @public
- * @param {String} message             - Message enumeration.
- * @param {Boolean} detached           - If true, the return value should
- *                                       contain a detached signature
- * @param {String} passphrase          - Passphrase enumeration.
- */
+/** Parameters for OpenPGP message signing. */
 export type dataSign = {
+  /** Plaintext message to sign. */
   message: string;
+  /** When true, produce a detached signature instead of a cleartext-signed message. */
   detached: boolean;
+  /** Passphrase to unlock the private signing key. */
   passphrase: string;
 };
 
-/**
- * ### types/types.dataVerify
- *
- * Types used in the Signature Verification function.
- *
- * @module types/types
- * @public
- * @param {String} message            - (required) message to be verified.
- * @param {String} verificationKeys   - (required) array of publicKeys or single
- *                                    key, to verify signatures.
- * @param {Boolean} expectSigned      - (optional) If true, verification throws
- *                                    if the message is not signed with the
- *                                    provided publicKeys.
- * @param {Any} format                - (optional) Whether to return data as a
- *                                    string(Stream) or Uint8Array(Stream). If
- *                                    'utf8' (the default), also normalize
- *                                    newlines.
- * @param {String} signature          - (optional) Detached signature for
- *                                    verification.
- * @param {Date} date                 - (optional) Use the given date for
- *                                    verification instead of the current time.
- * @param {String} config             - (optional) Custom configuration settings
- *                                    to overwrite those in config.
- *
- */
+/** Parameters for OpenPGP signature verification. */
 export type dataVerify = {
+  /** Date to use for signature validity checks instead of the current time. */
   date: Date;
+  /** Signed message (or cleartext message when using a detached signature). */
   message: string;
-  verificationKeys: any;
+  /** Armored public key(s) to verify the signature against. */
+  verificationKeys: string | string[];
 };
 
-/**
- * ### types/types.dataSessionKey
- *
- * Types used in the Session Key function.
- *
- * @module types/types
- * @public
- * @param {String} email - Email enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
+/** Parameters for OpenPGP session key generation. */
 export type dataSessionKey = {
+  /** Email address associated with the session key recipient. */
   email: string;
+  /** Display name associated with the session key recipient. */
   name: string;
+  /** Armored public key of the session key recipient. */
   publicKey: string;
 };
 
-/**
- * ### types/types.dataReformat
- *
- * Types used in the Reformat function.
- *
- * @module types/types
- * @public
- * @param {String} date - Date enumeration.
- * @param {String} email - Email enumeration.
- * @param {String} expiration - Expiration enumeration.
- * @param {String} name - Name enumeration.
- * @param {String} passphrase - Passphrase enumeration.
- * @param {String} publicKey - Public key enumeration.
- *
- */
+/** Parameters for reformatting an existing OpenPGP key. */
 export type dataReformat = {
+  /** Creation date to set on the reformatted key. */
   date: Date;
+  /** New email address for the reformatted key's user ID. */
   email: string;
+  /** Seconds until the reformatted key expires (0 for no expiration). */
   expiration: number;
+  /** New display name for the reformatted key's user ID. */
   name: string;
+  /** Passphrase to unlock (and re-encrypt) the private key. */
   passphrase: string;
+  /** Armored public key to reformat. */
   publicKey: string;
 };
 

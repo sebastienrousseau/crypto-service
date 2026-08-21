@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+
+import { ref, readonly, type Ref, type DeepReadonly } from "vue";
+import {
+  generateKeyPair,
+  type KeyAlgorithm,
+  type GeneratedKeyPair,
+} from "@sebastienrousseau/crypto-lib";
+
+/**
+ * Reactive state and methods returned by {@link useKeypair}.
+ *
+ * @example
+ * ```ts
+ * const state: UseKeypairReturn = useKeypair();
+ * await state.generate("ed25519");
+ * console.log(state.publicKey.value);
+ * ```
+ */
+export interface UseKeypairReturn {
+  /** Hex-encoded public key. */
+  publicKey: DeepReadonly<Ref<string | null>>;
+  /** Hex-encoded private key. */
+  privateKey: DeepReadonly<Ref<string | null>>;
+  /** Algorithm used for the last generation. */
+  algorithm: DeepReadonly<Ref<KeyAlgorithm | null>>;
+  /** Whether a key generation is currently in progress. */
+  isGenerating: DeepReadonly<Ref<boolean>>;
+  /** Error from the last generation attempt, if any. */
+  error: DeepReadonly<Ref<Error | null>>;
+  /** Generate a new key pair for the given algorithm. */
+  generate: (algo: KeyAlgorithm) => Promise<GeneratedKeyPair>;
+  /** Clear all reactive state. */
+  clear: () => void;
+}
+
+/**
+ * Vue composable for cryptographic key pair generation.
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * const { publicKey, generate } = useKeypair();
+ * await generate("ed25519");
+ * </script>
+ * ```
+ */
+export function useKeypair(): UseKeypairReturn {
+  const publicKey = ref<string | null>(null);
+  const privateKey = ref<string | null>(null);
+  const algorithm = ref<KeyAlgorithm | null>(null);
+  const isGenerating = ref(false);
+  const error = ref<Error | null>(null);
+
+  /** Generate a new key pair and update reactive state. */
+  async function generate(algo: KeyAlgorithm): Promise<GeneratedKeyPair> {
+    isGenerating.value = true;
+    error.value = null;
+
+    try {
+      const keyPair = generateKeyPair(algo);
+      publicKey.value = keyPair.publicKey;
+      privateKey.value = keyPair.privateKey;
+      algorithm.value = algo;
+      return keyPair;
+      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err));
+      throw error.value;
+    } finally {
+      isGenerating.value = false;
+    }
+    /* c8 ignore stop */
+  }
+
+  /** Reset all reactive state to initial values. */
+  function clear(): void {
+    publicKey.value = null;
+    privateKey.value = null;
+    algorithm.value = null;
+    error.value = null;
+  }
+
+  return {
+    publicKey: readonly(publicKey),
+    privateKey: readonly(privateKey),
+    algorithm: readonly(algorithm),
+    isGenerating: readonly(isGenerating),
+    error: readonly(error),
+    generate,
+    clear,
+  };
+}

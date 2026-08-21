@@ -1,6 +1,14 @@
 import sign from "@sebastienrousseau/crypto-lib/dist/lib/sign";
 import prompts from "prompts";
 
+/**
+ * Interactively sign a message using PGP via CLI prompts.
+ *
+ * @example
+ * ```ts
+ * await handleSign();
+ * ```
+ */
 const handleSign = async () => {
   const responseSign = await prompts([
     {
@@ -25,7 +33,8 @@ const handleSign = async () => {
     },
   ]);
 
-  console.log(responseSign);
+  // Security: Do not log sensitive data like passphrase
+  // console.log(responseSign);
 
   const data = {
     date: new Date(),
@@ -49,6 +58,7 @@ const handleSign = async () => {
     await sign(data);
   }
 };
+/** Default export of the handleSign command handler. */
 export default handleSign;
 
 // # sourceMappingURL=sign.command.js.map

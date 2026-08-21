@@ -4,48 +4,83 @@
  */
 
 /**
- * @file Defines a route for data encryption in the Fastify application.
- * @author The Crypto Service Suite
- * @copyright 2022-2023 The Crypto Service Suite. All rights reserved.
- * @license Apache-2.0 OR MIT
+ * @remarks POST `/v1/encrypt` — encrypt a message with a supplied public key.
+ *
+ * @deprecated The v1 API (OpenPGP-based) is deprecated and will be removed in v1.0.0.
+ * Use POST /v2/encrypt or POST /v2/secretbox/seal instead.
+ *
+ * Accepts a JSON body (not headers) so secrets do not transit through the
+ * request line or end up in reverse-proxy access logs.
  */
 
-import * as fastify from 'fastify';
-import encrypt from '@sebastienrousseau/crypto-lib/dist/lib/encrypt';
-import { IHeadersEncrypt } from '../../@types/types';
+import type { FastifyInstance } from "fastify";
+import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
+import { IBodyEncrypt } from "../../@types/types";
+import { validateRequiredString, validateBase64 } from "../../utils/validation";
+import {
+  rejectUnauthorized,
+  collectValidation,
+} from "../../utils/route-helpers";
 
-/**
- * Registers a GET route `/v1/encrypt` for data encryption.
- *
- * The route expects headers containing:
- * - `passphrase`: The passphrase for encryption.
- * - `message`: The message to encrypt.
- * - `public-key`: The public key to be used for encryption.
- *
- * @param app {fastify.FastifyInstance} - The Fastify instance to register the route.
- *
- * @example
- * GET /v1/encrypt
- * Headers:
- *   - passphrase: "myPassphrase"
- *   - message: "myMessage"
- *   - public-key: "myPublicKey"
- *
- * @returns {Object} The encrypted data.
- */
-export default (app: fastify.FastifyInstance): void => {
-  app.get<{
-    Headers: IHeadersEncrypt;
-  }>("/v1/encrypt", async (request, reply) => {
-    try {
-      const encryptedData = await encrypt({
-        passphrase: String(request.headers["passphrase"]),
-        message: String(request.headers["message"]),
-        publicKey: String(request.headers["public-key"]),
-      });
-      reply.send({ data: encryptedData });
-    } catch (error) {
-        reply.status(500).send({ error: 'Encryption failed' });
-    }
-  });
+/** Fastify JSON Schema for the v1 encrypt endpoint. */
+const encryptSchema = {
+  tags: ["Encryption"],
+  summary: "Encrypt a message",
+  description:
+    "Encrypts a plaintext message using the supplied PGP public key and passphrase.",
+  response: {
+    200: { type: "object", properties: { data: { type: "string" } } },
+    400: {
+      type: "object",
+      properties: { error: { type: "string" }, details: { type: "array" } },
+    },
+    401: { type: "object", properties: { error: { type: "string" } } },
+  },
+  body: {
+    type: "object",
+    required: ["passphrase", "message", "publicKey"],
+    additionalProperties: false,
+    properties: {
+      passphrase: { type: "string", minLength: 1, maxLength: 1024 },
+      message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
+      publicKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+      privateKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+    },
+  },
+} as const;
+
+/** @deprecated Registers the v1 PGP encrypt route. Use v2 endpoints instead. */
+export default (app: FastifyInstance): void => {
+  app.post<{ Body: IBodyEncrypt }>(
+    "/v1/encrypt",
+    { schema: encryptSchema },
+    async (request, reply) => {
+      try {
+        if (rejectUnauthorized(request, reply)) return;
+
+        const body = request.body as IBodyEncrypt;
+        const v = collectValidation(
+          {
+            passphrase: validateRequiredString(body.passphrase, "passphrase"),
+            message: validateRequiredString(body.message, "message"),
+            publicKey: validateBase64(body.publicKey, "publicKey"),
+          },
+          reply,
+        );
+        if (!v) return;
+
+        const encryptedData = await encrypt({
+          passphrase: v.passphrase,
+          message: v.message,
+          publicKey: v.publicKey,
+          ...(body.privateKey ? { privateKey: body.privateKey } : {}),
+        });
+
+        return reply.send({ data: encryptedData });
+      } catch (error) {
+        request.log.error(error, "Encryption operation failed");
+        return reply.status(500).send({ error: "Encryption failed" });
+      }
+    },
+  );
 };

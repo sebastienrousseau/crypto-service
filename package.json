@@ -1,51 +1,48 @@
 {
-    "dependencies": {
-        "lerna": "^7.3.1"
-    },
-    "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
-    "engines": {
-        "node": ">=16.14.0 || >=18.6.0"
-    },
-    "homepage": "https://crypto-service.co",
-    "license": "MIT",
-    "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-    "lockfileVersion": 1,
-    "name": "@sebastienrousseau/crypto-service",
-    "private": true,
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://npm.pkg.github.com"
-    },
-    "scripts": {
-        "build": "lerna run build --stream",
-        "clean": "lerna run clean --stream",
-        "docs": "lerna run docs --stream",
-        "lint:fix": "lerna run lint:fix --no-bail",
-        "lint": "lerna run lint --stream",
-        "markdown": "lerna exec -- yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel",
-        "format": "lerna run format --stream",
-        "release:cs": "mkdirp ./dist && mkdirp ./dist/crypto-cli && mkdirp ./dist/crypto-lib && mkdirp ./dist/crypto-server && cp -r ./packages/crypto-cli/dist/* && cp -r ./packages/crypto-lib/dist/* ./dist/crypto-lib/ && cp -r ./packages/crypto-server/dist/* ./dist/crypto-server/",
-        "release:prepare": "lerna run release:prepare --stream",
-        "release:publish": "lerna run release:publish --stream",
-        "release": "yarn install && yarn release:prepare && yarn release:publish && yarn clean",
-        "start:crypto-lib": "lerna run start --scope=@sebastienrousseau/crypto-lib",
-        "start:crypto-server": "lerna run start --scope=@sebastienrousseau/crypto-server",
-        "start": "lerna run start --stream",
-        "test": "lerna run test --stream"
-    },
-    "useWorkspaces": true,
-    "version": "0.0.3",
-    "workspaces": [
-        "packages/*"
+  "name": "@sebastienrousseau/crypto-service",
+  "version": "0.0.3",
+  "private": true,
+  "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "homepage": "https://crypto-service.co",
+  "license": "MIT OR Apache-2.0",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "clean": "pnpm -r run clean",
+    "docs": "pnpm -r run docs",
+    "lint": "pnpm -r run lint",
+    "lint:fix": "pnpm -r run lint:fix",
+    "format": "pnpm -r run format",
+    "test": "pnpm -r run test",
+    "start": "pnpm --filter @sebastienrousseau/crypto-server run start",
+    "start:server": "pnpm --filter @sebastienrousseau/crypto-server run start",
+    "start:lib": "pnpm --filter @sebastienrousseau/crypto-lib run start",
+    "release": "pnpm install && pnpm build && pnpm -r run release:prepare",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "packages/*/src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
     ],
-    "devDependencies": {
-        "@commitlint/cli": "^17.7.2",
-        "@commitlint/config-conventional": "^17.7.0",
-        "eslint-plugin-prettier": "^5.0.0",
-        "husky": "^8.0.3",
-        "mkdirp": "^3.0.1",
-        "rimraf": "^5.0.5",
-        "ts-node": "^10.9.1",
-        "typescript": "^5.2.2"
-    }
+    "packages/*/__tests__/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "eslint-plugin-prettier": "^5.2.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.2.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.7.0"
+  }
 }

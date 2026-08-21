@@ -1,5 +1,6 @@
 import enums from "../enums";
 
+/** Default cryptographic configuration (key type, size, curve, format). */
 export default {
   /**
    * ### config.preferredRSABits
@@ -11,13 +12,8 @@ export default {
    *
    * @type {number}
    * @public
-   * @memberof module:config
    * @default enums.size.keySize4096
-   * @description User configurable property, sets the preferred number of bits for RSA keys.
-   * @property {Number} preferredRSABits Default number of bits for RSA keys. {@link module:enums.size}
-   * @see {@link module:enums.size}
-   * @see {@link module:config}
-   * @see {@link module:config.preferredRSABits}
+   * @see enums
    *
    */
 
@@ -33,13 +29,8 @@ export default {
    *
    * @type {string}
    * @public
-   * @memberof module:config
-   * @description User configurable property, sets the preferred curve for ECC keys.
    * @default 'enums.curve.X25519'
-   * @property {String} preferredCurve Default curve algorithm {@link module:enums.curve}
-   * @see {@link module:enums.curve}
-   * @see {@link module:config}
-   * @see {@link module:config.preferredCurve}
+   * @see enums
    *
    */
 
@@ -53,13 +44,8 @@ export default {
    *
    * @type {string}
    * @public
-   * @memberof module:config
-   * @description User configurable property, sets the preferred type for keys.
    * @default 'rsa'
-   * @property {String} preferredType Default type for keys {@link module:enums.type}
-   * @see {@link module:enums.type}
-   * @see {@link module:config}
-   * @see {@link module:config.preferredType}
+   * @see enums
    *
    */
 
@@ -73,13 +59,8 @@ export default {
    *
    * @type {string}
    * @public
-   * @memberof module:config
-   * @description User configurable property, sets the preferred format for keys.
    * @default 'armored'
-   * @property {String} preferredFormat Default format for keys {@link module:enums.format}
-   * @see {@link module:enums.format}
-   * @see {@link module:config}
-   * @see {@link module:config.preferredFormat}
+   * @see enums
    *
    */
 
