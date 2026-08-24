@@ -66,7 +66,7 @@
     "@fastify/jwt": "^10.2.2",
     "fastify": "^5.12.0",
     "fastify-healthcheck": "^5.1.0",
-    "openpgp": "^5.11.0",
+    "openpgp": "^6.3.1",
     "uuid": "^14.0.2",
     "winston": "^3.17.0"
   },
