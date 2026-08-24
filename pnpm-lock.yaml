@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@commitlint/cli':
         specifier: ^19.0.0
-        version: 19.8.1(@types/node@25.5.2)(typescript@5.9.3)
+        version: 19.8.1(@types/node@26.2.0)(typescript@5.9.3)
       '@commitlint/config-conventional':
         specifier: ^19.0.0
         version: 19.8.1
@@ -67,8 +67,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.7.5
         version: 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
@@ -125,7 +125,7 @@ importers:
         version: 5.0.10
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.25.2
         version: 0.25.13(typescript@5.9.3)
@@ -249,7 +249,7 @@ importers:
         version: 5.0.10
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.2(@types/node@25.5.2)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.25.2
         version: 0.25.13(typescript@5.9.3)
@@ -279,8 +279,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -298,7 +298,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -328,8 +328,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -344,7 +344,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -368,7 +368,7 @@ importers:
         version: 0.7.0
       '@openpgp/web-stream-tools':
         specifier: ^0.3.0
-        version: 0.3.0(@types/node@22.19.17)(typescript@5.9.3)
+        version: 0.3.0(@types/node@26.2.0)(typescript@5.9.3)
       openpgp:
         specifier: ^5.11.0
         version: 5.11.3
@@ -383,8 +383,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -405,7 +405,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -435,8 +435,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -463,7 +463,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -481,8 +481,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -497,7 +497,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -524,8 +524,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -549,7 +549,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -572,8 +572,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -591,7 +591,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -687,8 +687,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -712,7 +712,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -739,8 +739,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -758,7 +758,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -785,8 +785,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -804,13 +804,13 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
       typeorm:
         specifier: ^0.3.0
-        version: 0.3.28(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.9.3))
+        version: 0.3.28(ts-node@10.9.2(@types/node@26.2.0)(typescript@5.9.3))
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -834,8 +834,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -853,7 +853,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -876,8 +876,8 @@ importers:
         specifier: ^10.0.2
         version: 10.0.10
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
+        specifier: ^26.2.0
+        version: 26.2.0
       c8:
         specifier: ^10.1.0
         version: 10.1.3
@@ -895,7 +895,7 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
       typedoc:
         specifier: ^0.27.0
         version: 0.27.9(typescript@5.9.3)
@@ -1972,11 +1972,11 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@22.19.17':
-    resolution: {integrity: sha512-wGdMcf+vPYM6jikpS/qhg6WiqSV/OhG+jeeHT/KlVqxYfD40iYJf9/AE1uQxVWFvU7MipKRkRv8NSHiCGgPr8Q==}
+  '@types/node@22.20.1':
+    resolution: {integrity: sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==}
 
-  '@types/node@25.5.2':
-    resolution: {integrity: sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg==}
+  '@types/node@26.2.0':
+    resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
 
   '@types/openpgp@4.4.22':
     resolution: {integrity: sha512-afQsbrWITIcSI3OBBJtTA87H5Av2/bjRn6YBHD+abxqJVpD2HRwjP6DL7drboJcuizwcnwnVKSupXYYdImdIoQ==}
@@ -5349,8 +5349,8 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  undici-types@7.18.2:
-    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+  undici-types@8.3.0:
+    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -6175,11 +6175,11 @@ snapshots:
 
   '@colors/colors@1.6.0': {}
 
-  '@commitlint/cli@19.8.1(@types/node@25.5.2)(typescript@5.9.3)':
+  '@commitlint/cli@19.8.1(@types/node@26.2.0)(typescript@5.9.3)':
     dependencies:
       '@commitlint/format': 19.8.1
       '@commitlint/lint': 19.8.1
-      '@commitlint/load': 19.8.1(@types/node@25.5.2)(typescript@5.9.3)
+      '@commitlint/load': 19.8.1(@types/node@26.2.0)(typescript@5.9.3)
       '@commitlint/read': 19.8.1
       '@commitlint/types': 19.8.1
       tinyexec: 1.1.1
@@ -6226,7 +6226,7 @@ snapshots:
       '@commitlint/rules': 19.8.1
       '@commitlint/types': 19.8.1
 
-  '@commitlint/load@19.8.1(@types/node@25.5.2)(typescript@5.9.3)':
+  '@commitlint/load@19.8.1(@types/node@26.2.0)(typescript@5.9.3)':
     dependencies:
       '@commitlint/config-validator': 19.8.1
       '@commitlint/execute-rule': 19.8.1
@@ -6234,7 +6234,7 @@ snapshots:
       '@commitlint/types': 19.8.1
       chalk: 5.6.2
       cosmiconfig: 9.0.1(typescript@5.9.3)
-      cosmiconfig-typescript-loader: 6.2.0(@types/node@25.5.2)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3)
+      cosmiconfig-typescript-loader: 6.2.0(@types/node@26.2.0)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -6604,9 +6604,9 @@ snapshots:
     dependencies:
       which: 4.0.0
 
-  '@openpgp/web-stream-tools@0.3.0(@types/node@22.19.17)(typescript@5.9.3)':
+  '@openpgp/web-stream-tools@0.3.0(@types/node@26.2.0)(typescript@5.9.3)':
     optionalDependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       typescript: 5.9.3
 
   '@opentelemetry/api-logs@0.57.2':
@@ -7226,12 +7226,12 @@ snapshots:
 
   '@types/bn.js@5.2.0':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/caseless@0.12.5': {}
 
@@ -7243,15 +7243,15 @@ snapshots:
 
   '@types/concat-stream@2.0.3':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/conventional-commits-parser@5.0.2':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/debug@4.1.13':
     dependencies:
@@ -7265,7 +7265,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.8':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       '@types/qs': 6.15.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -7313,13 +7313,13 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@22.19.17':
+  '@types/node@22.20.1':
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@25.5.2':
+  '@types/node@26.2.0':
     dependencies:
-      undici-types: 7.18.2
+      undici-types: 8.3.0
 
   '@types/openpgp@4.4.22':
     dependencies:
@@ -7327,7 +7327,7 @@ snapshots:
 
   '@types/prompts@2.4.9':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       kleur: 3.0.3
 
   '@types/qs@6.15.0': {}
@@ -7341,7 +7341,7 @@ snapshots:
   '@types/request@2.48.13':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.5
 
@@ -7350,16 +7350,16 @@ snapshots:
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
 
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       '@types/send': 0.17.6
 
   '@types/shimmer@1.2.0': {}
@@ -8049,9 +8049,9 @@ snapshots:
 
   core-util-is@1.0.2: {}
 
-  cosmiconfig-typescript-loader@6.2.0(@types/node@25.5.2)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3):
+  cosmiconfig-typescript-loader@6.2.0(@types/node@26.2.0)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
-      '@types/node': 25.5.2
+      '@types/node': 26.2.0
       cosmiconfig: 9.0.1(typescript@5.9.3)
       jiti: 2.6.1
       typescript: 5.9.3
@@ -10247,7 +10247,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.19.17
+      '@types/node': 26.2.0
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -11395,32 +11395,14 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  ts-node@10.9.2(@types/node@22.19.17)(typescript@5.9.3):
+  ts-node@10.9.2(@types/node@26.2.0)(typescript@5.9.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.19.17
-      acorn: 8.16.0
-      acorn-walk: 8.3.5
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.4
-      make-error: 1.3.6
-      typescript: 5.9.3
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-
-  ts-node@10.9.2(@types/node@25.5.2)(typescript@5.9.3):
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.12
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 25.5.2
+      '@types/node': 26.2.0
       acorn: 8.16.0
       acorn-walk: 8.3.5
       arg: 4.1.3
@@ -11517,7 +11499,7 @@ snapshots:
       typescript: 5.9.3
       yaml: 2.8.3
 
-  typeorm@0.3.28(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.9.3)):
+  typeorm@0.3.28(ts-node@10.9.2(@types/node@26.2.0)(typescript@5.9.3)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 4.2.0
@@ -11535,7 +11517,7 @@ snapshots:
       uuid: 11.1.0
       yargs: 17.7.2
     optionalDependencies:
-      ts-node: 10.9.2(@types/node@22.19.17)(typescript@5.9.3)
+      ts-node: 10.9.2(@types/node@26.2.0)(typescript@5.9.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -11553,7 +11535,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici-types@7.18.2: {}
+  undici-types@8.3.0: {}
 
   unicorn-magic@0.1.0: {}
 
@@ -11577,7 +11559,7 @@ snapshots:
       '@types/concat-stream': 2.0.3
       '@types/debug': 4.1.13
       '@types/is-empty': 1.2.3
-      '@types/node': 22.19.17
+      '@types/node': 22.20.1
       '@types/unist': 3.0.3
       concat-stream: 2.0.0
       debug: 4.4.3(supports-color@8.1.1)
