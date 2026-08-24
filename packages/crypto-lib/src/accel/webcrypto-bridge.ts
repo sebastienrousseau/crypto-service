@@ -22,6 +22,21 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import * as nodeCrypto from "node:crypto";
 
+/**
+ * Narrows a `Uint8Array` to one the WebCrypto types accept.
+ *
+ * `@types/node` 26 made `Uint8Array` generic over its backing buffer and
+ * defines `BufferSource` as `NonSharedArrayBufferView | ArrayBuffer`, so a
+ * `Uint8Array<ArrayBufferLike>` — which might be `SharedArrayBuffer`-backed —
+ * no longer satisfies it. Every value passed here comes from `toBytes` or
+ * `randomBytes`, both of which allocate a plain `ArrayBuffer`, so the
+ * narrowing is sound rather than merely convenient.
+ */
+function asBufferSource(view: Uint8Array): Uint8Array<ArrayBuffer> {
+  return view as Uint8Array<ArrayBuffer>;
+}
+
+
 // --- Types ---
 
 /** Supported SHA-2 algorithms for WebCrypto hashing. */
@@ -161,22 +176,22 @@ export async function webCryptoAesGcmEncrypt(
   if (subtle) {
     const cryptoKey = await subtle.importKey(
       "raw",
-      key,
+      asBufferSource(key),
       { name: "AES-GCM" },
       false,
       ["encrypt"],
     );
 
-    const algParams: nodeCrypto.webcrypto.AesGcmParams = {
+    const algParams: nodeCrypto.webcrypto.AeadParams = {
       name: "AES-GCM",
-      iv: nonce,
+      iv: asBufferSource(nonce),
       tagLength: TAG_LENGTH * 8,
     };
     if (options.aad) {
-      algParams.additionalData = options.aad;
+      algParams.additionalData = asBufferSource(options.aad);
     }
 
-    const encrypted = await subtle.encrypt(algParams, cryptoKey, plaintext);
+    const encrypted = await subtle.encrypt(algParams, cryptoKey, asBufferSource(plaintext));
 
     // WebCrypto returns ciphertext || tag in a single ArrayBuffer
     const sealed = new Uint8Array(encrypted);
@@ -229,22 +244,22 @@ export async function webCryptoAesGcmDecrypt(
   if (subtle) {
     const cryptoKey = await subtle.importKey(
       "raw",
-      key,
+      asBufferSource(key),
       { name: "AES-GCM" },
       false,
       ["decrypt"],
     );
 
-    const algParams: nodeCrypto.webcrypto.AesGcmParams = {
+    const algParams: nodeCrypto.webcrypto.AeadParams = {
       name: "AES-GCM",
-      iv: nonce,
+      iv: asBufferSource(nonce),
       tagLength: TAG_LENGTH * 8,
     };
     if (options.aad) {
-      algParams.additionalData = options.aad;
+      algParams.additionalData = asBufferSource(options.aad);
     }
 
-    const decrypted = await subtle.decrypt(algParams, cryptoKey, sealed);
+    const decrypted = await subtle.decrypt(algParams, cryptoKey, asBufferSource(sealed));
 
     return {
       plaintext: new Uint8Array(decrypted),
@@ -276,7 +291,7 @@ export async function webCryptoHash(
 
   const subtle = getSubtle();
   if (subtle) {
-    const digest = await subtle.digest(options.algorithm, data);
+    const digest = await subtle.digest(options.algorithm, asBufferSource(data));
 
     return {
       digest: Buffer.from(digest).toString("hex"),

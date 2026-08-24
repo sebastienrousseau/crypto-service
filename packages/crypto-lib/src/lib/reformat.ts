@@ -10,6 +10,26 @@ import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
 /**
+ * The armoured key material `openpgp.reformatKey` / `revokeKey` return.
+ *
+ * Declared here rather than inferred: openpgp 6 types these as
+ * `SerializedKeyPair<string> & { revocationCertificate: string }`, and
+ * `SerializedKeyPair` is not exported from the package root, so TypeScript
+ * cannot name it in the emitted declarations (TS4023/TS4058). Both calls
+ * pass `format: "armored"`, so every field is a string.
+ */
+export interface ArmoredKeyResult {
+  publicKey: string;
+  privateKey: string;
+  /**
+   * Present for `reformatKey`, absent for `revokeKey` — revoking a key
+   * produces no new certificate, the key itself carries the revocation.
+   */
+  revocationCertificate?: string;
+}
+
+
+/**
  * ### reformat
  *
  * Reformats signature packets for the shipped key and persists the
@@ -26,7 +46,9 @@ import * as types from "../types/types";
  * @param {Number} data.expiration   - New key expiration time in seconds.
  * @returns {Promise<unknown>}       - The result of `openpgp.reformatKey`.
  */
-export const reformat = async (data: types.dataReformat) => {
+export const reformat = async (
+  data: types.dataReformat,
+): Promise<ArmoredKeyResult> => {
   const { expiration, passphrase } = data;
 
   const { privateKeyArmored } = await loadKeystore();
