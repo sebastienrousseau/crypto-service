@@ -42,7 +42,7 @@
     "@noble/curves": "^2.3.0",
     "@noble/hashes": "^2.3.0",
     "@noble/post-quantum": "^0.7.0",
-    "@openpgp/web-stream-tools": "^0.3.0",
+    "@openpgp/web-stream-tools": "^0.3.1",
     "openpgp": "^5.11.0"
   },
   "devDependencies": {
