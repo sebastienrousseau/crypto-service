@@ -21,7 +21,7 @@ import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { FastifyInstrumentation } from "@opentelemetry/instrumentation-fastify";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
@@ -46,7 +46,9 @@ export function initTelemetry(): void {
     return; // Skip in development unless explicitly configured
   }
 
-  const resource = new Resource({
+  // @opentelemetry/resources 2.x replaced the `Resource` class with a
+  // factory; `Resource` is now a type only.
+  const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: SERVICE_NAME,
     [ATTR_SERVICE_VERSION]: SERVICE_VERSION,
   });

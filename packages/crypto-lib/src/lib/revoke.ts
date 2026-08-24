@@ -9,6 +9,9 @@ import * as openpgp from "openpgp";
 import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
+import type { ArmoredKeyResult } from "./reformat.js";
+
+
 /**
  * ### revoke
  *
@@ -24,7 +27,9 @@ import * as types from "../types/types";
  * @param {String} data.reason     - Optional human-readable reason.
  * @returns {Promise<unknown>}     - The result of `openpgp.revokeKey`.
  */
-export const revoke = async (data: types.dataRevoke) => {
+export const revoke = async (
+  data: types.dataRevoke,
+): Promise<ArmoredKeyResult> => {
   const { flag, passphrase, reason } = data;
 
   const { privateKeyArmored } = await loadKeystore();

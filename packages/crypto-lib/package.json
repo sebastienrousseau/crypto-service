@@ -58,7 +58,7 @@
     "rimraf": "^6.0.0",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
-    "typescript": "^7.0.2"
+    "typescript": "^5.7.0"
   },
   "keywords": [
     "crypto-library",

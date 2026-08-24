@@ -21,6 +21,21 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import * as nodeCrypto from "node:crypto";
 
+/**
+ * Narrows a `Uint8Array` to one the WebCrypto types accept.
+ *
+ * `@types/node` 26 made `Uint8Array` generic over its backing buffer and
+ * defines `BufferSource` as `NonSharedArrayBufferView | ArrayBuffer`, so a
+ * `Uint8Array<ArrayBufferLike>` — which might be `SharedArrayBuffer`-backed —
+ * no longer satisfies it. Every value passed here comes from `toBytes` or
+ * `randomBytes`, both of which allocate a plain `ArrayBuffer`, so the
+ * narrowing is sound rather than merely convenient.
+ */
+function asBufferSource(view: Uint8Array): Uint8Array<ArrayBuffer> {
+  return view as Uint8Array<ArrayBuffer>;
+}
+
+
 // --- Types ---
 
 /**
@@ -272,7 +287,7 @@ export async function modernChaCha20Encrypt(
     const subtle = getSubtle()!;
     const cryptoKey = await subtle.importKey(
       "raw",
-      key,
+      asBufferSource(key),
       { name: "ChaCha20-Poly1305" },
       false,
       ["encrypt"],
@@ -280,7 +295,7 @@ export async function modernChaCha20Encrypt(
 
     const algParams: Record<string, unknown> = {
       name: "ChaCha20-Poly1305",
-      iv: nonce,
+      iv: asBufferSource(nonce),
       tagLength: TAG_LENGTH * 8,
     };
     if (options.aad) {
@@ -290,7 +305,7 @@ export async function modernChaCha20Encrypt(
     const encrypted = await subtle.encrypt(
       algParams as unknown as nodeCrypto.webcrypto.AlgorithmIdentifier,
       cryptoKey,
-      plaintext,
+      asBufferSource(plaintext),
     );
     const sealed = new Uint8Array(encrypted);
     const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
@@ -352,7 +367,7 @@ export async function modernChaCha20Decrypt(
     const subtle = getSubtle()!;
     const cryptoKey = await subtle.importKey(
       "raw",
-      key,
+      asBufferSource(key),
       { name: "ChaCha20-Poly1305" },
       false,
       ["decrypt"],
@@ -360,7 +375,7 @@ export async function modernChaCha20Decrypt(
 
     const algParams: Record<string, unknown> = {
       name: "ChaCha20-Poly1305",
-      iv: nonce,
+      iv: asBufferSource(nonce),
       tagLength: TAG_LENGTH * 8,
     };
     if (options.aad) {
@@ -370,7 +385,7 @@ export async function modernChaCha20Decrypt(
     const decrypted = await subtle.decrypt(
       algParams as unknown as nodeCrypto.webcrypto.AlgorithmIdentifier,
       cryptoKey,
-      sealed,
+      asBufferSource(sealed),
     );
 
     return {
@@ -414,7 +429,7 @@ export async function modernSha3Hash(
   const support = detectModernWebCrypto();
   if (support.sha3) {
     const subtle = getSubtle()!;
-    const digest = await subtle.digest(options.algorithm, data);
+    const digest = await subtle.digest(options.algorithm, asBufferSource(data));
 
     return {
       digest: Buffer.from(digest).toString("hex"),
