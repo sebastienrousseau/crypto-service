@@ -31,11 +31,7 @@ const NONCE_LEN = 24;
 
 /** Supported hash algorithms for the hash transform stream. */
 export type WebStreamHashAlgorithm =
-  | "sha256"
-  | "sha512"
-  | "sha3-256"
-  | "sha3-512"
-  | "blake3";
+  "sha256" | "sha512" | "sha3-256" | "sha3-512" | "blake3";
 
 /**
  * Array of all supported web-stream hash algorithm identifiers.

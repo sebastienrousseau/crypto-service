@@ -282,8 +282,7 @@ export function createEncryptionMiddleware(
     // ── Encrypt "where" clauses for deterministic fields ──
     if (params.args && typeof params.args === "object") {
       const where = (params.args as Record<string, unknown>)["where"] as
-        | Record<string, unknown>
-        | undefined;
+        Record<string, unknown> | undefined;
       if (where && deterministicFields) {
         for (const field of fields) {
           if (

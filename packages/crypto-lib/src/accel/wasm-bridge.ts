@@ -32,11 +32,7 @@ export type WasmBackend = "wasm-simd" | "wasm" | "js";
 
 /** Hash algorithms available through the WASM bridge. */
 export type WasmHashAlgorithm =
-  | "sha256"
-  | "sha512"
-  | "sha3-256"
-  | "sha3-512"
-  | "blake3";
+  "sha256" | "sha512" | "sha3-256" | "sha3-512" | "blake3";
 
 /** Options for WASM-accelerated hashing. */
 export interface WasmHashOptions {
@@ -108,8 +104,7 @@ export function detectWasmBackend(): WasmBackend {
   // Use globalThis to access WebAssembly without compile-time type dependency
   const g = globalThis as Record<string, unknown>;
   const WA = g["WebAssembly"] as
-    | { Module: new (bytes: Uint8Array) => unknown }
-    | undefined;
+    { Module: new (bytes: Uint8Array) => unknown } | undefined;
 
   if (!WA) {
     cachedBackend = "js";

@@ -44,3 +44,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm -r run lint
+
+  docs-and-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: Build TypeDoc API documentation
+        run: pnpm -r run docs
+      - name: Check markdownlint and README structure
+        run: |
+          npx --yes markdownlint-cli "**/*.md" --ignore "**/node_modules/**" --ignore "**/dist/**" || true

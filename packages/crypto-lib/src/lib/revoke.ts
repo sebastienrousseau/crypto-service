@@ -11,7 +11,6 @@ import * as types from "../types/types";
 
 import type { ArmoredKeyResult } from "./reformat.js";
 
-
 /**
  * ### revoke
  *

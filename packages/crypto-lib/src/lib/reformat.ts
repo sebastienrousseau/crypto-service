@@ -28,7 +28,6 @@ export interface ArmoredKeyResult {
   revocationCertificate?: string;
 }
 
-
 /**
  * ### reformat
  *
