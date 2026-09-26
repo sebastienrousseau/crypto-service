@@ -13,11 +13,16 @@ describe("writeUtils", () => {
     let originalStdoutWrite: typeof process.stdout.write;
     let originalStderrWrite: typeof process.stderr.write;
 
+    let originalStdoutIsTTY: boolean | undefined;
+    let originalStderrIsTTY: boolean | undefined;
+
     beforeEach(() => {
       stdoutOutput = [];
       stderrOutput = [];
       originalStdoutWrite = process.stdout.write;
       originalStderrWrite = process.stderr.write;
+      originalStdoutIsTTY = process.stdout.isTTY;
+      originalStderrIsTTY = process.stderr.isTTY;
       process.stdout.write = ((chunk: string) => {
         stdoutOutput.push(chunk);
         return true;
@@ -31,6 +36,10 @@ describe("writeUtils", () => {
     afterEach(() => {
       process.stdout.write = originalStdoutWrite;
       process.stderr.write = originalStderrWrite;
+      (process.stdout as unknown as { isTTY?: boolean | undefined }).isTTY =
+        originalStdoutIsTTY;
+      (process.stderr as unknown as { isTTY?: boolean | undefined }).isTTY =
+        originalStderrIsTTY;
     });
 
     it("should write to stdout by default", () => {
@@ -56,14 +65,27 @@ describe("writeUtils", () => {
     });
 
     it("should omit newline on finalLine when stream is not a TTY", () => {
-      // Our mocked stdout has no isTTY so !stream.isTTY is true
+      (process.stdout as unknown as { isTTY?: boolean | undefined }).isTTY =
+        false;
       writeUtils.writeLn("final", true);
       expect(stdoutOutput[0]).to.equal("final");
     });
 
     it("should omit newline on finalLine for stderr", () => {
+      (process.stderr as unknown as { isTTY?: boolean | undefined }).isTTY =
+        false;
       writeUtils.writeLn("err-final", true, true);
       expect(stderrOutput[0]).to.equal("err-final");
+    });
+
+    it("should append newline on finalLine when stream is a TTY and not on Windows", function () {
+      if (process.platform === "win32") {
+        this.skip();
+      }
+      (process.stdout as unknown as { isTTY?: boolean | undefined }).isTTY =
+        true;
+      writeUtils.writeLn("tty-final", true);
+      expect(stdoutOutput[0]).to.equal("tty-final\n");
     });
   });
 });

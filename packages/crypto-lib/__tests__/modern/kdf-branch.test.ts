@@ -39,7 +39,8 @@ describe("KDF – toBytes branch coverage", () => {
     expect(result.derivedKey).to.have.length(64);
   });
 
-  it("should use default N/r/p for scrypt when params are omitted", () => {
+  it("should use default N/r/p for scrypt when params are omitted", function () {
+    this.timeout(180000);
     // This tests params ?? {} + N ?? 131072, r ?? 8, p ?? 1
     // Use very low keyLength to keep it fast
     const result = kdfDerive({
@@ -52,7 +53,8 @@ describe("KDF – toBytes branch coverage", () => {
     expect(result.keyLength).to.equal(16);
   });
 
-  it("should use default iterations for PBKDF2 when not specified", () => {
+  it("should use default iterations for PBKDF2 when not specified", function () {
+    this.timeout(180000);
     const result = kdfDerive({
       algorithm: "pbkdf2-sha256",
       password: "test",

@@ -35,7 +35,6 @@ function asBufferSource(view: Uint8Array): Uint8Array<ArrayBuffer> {
   return view as Uint8Array<ArrayBuffer>;
 }
 
-
 // --- Types ---
 
 /**

@@ -36,7 +36,6 @@ function asBufferSource(view: Uint8Array): Uint8Array<ArrayBuffer> {
   return view as Uint8Array<ArrayBuffer>;
 }
 
-
 // --- Types ---
 
 /** Supported SHA-2 algorithms for WebCrypto hashing. */
@@ -191,7 +190,11 @@ export async function webCryptoAesGcmEncrypt(
       algParams.additionalData = asBufferSource(options.aad);
     }
 
-    const encrypted = await subtle.encrypt(algParams, cryptoKey, asBufferSource(plaintext));
+    const encrypted = await subtle.encrypt(
+      algParams,
+      cryptoKey,
+      asBufferSource(plaintext),
+    );
 
     // WebCrypto returns ciphertext || tag in a single ArrayBuffer
     const sealed = new Uint8Array(encrypted);
@@ -259,7 +262,11 @@ export async function webCryptoAesGcmDecrypt(
       algParams.additionalData = asBufferSource(options.aad);
     }
 
-    const decrypted = await subtle.decrypt(algParams, cryptoKey, asBufferSource(sealed));
+    const decrypted = await subtle.decrypt(
+      algParams,
+      cryptoKey,
+      asBufferSource(sealed),
+    );
 
     return {
       plaintext: new Uint8Array(decrypted),

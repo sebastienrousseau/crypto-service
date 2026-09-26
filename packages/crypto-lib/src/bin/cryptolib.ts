@@ -82,9 +82,7 @@ export async function generate(data: dataGenerate) {
 }
 
 /** Reformat an existing OpenPGP key with new parameters. */
-export async function reformat(
-  data: dataReformat,
-): Promise<ArmoredKeyResult> {
+export async function reformat(data: dataReformat): Promise<ArmoredKeyResult> {
   const reformat = await key.reformat.default(data);
   return reformat;
 }
@@ -126,9 +124,7 @@ export async function session(data: dataSessionKey) {
  * ```
  */
 
-export async function revoke(
-  data: dataRevoke,
-): Promise<ArmoredKeyResult> {
+export async function revoke(data: dataRevoke): Promise<ArmoredKeyResult> {
   const revoke = await key.revoke.default(data);
   return revoke;
 }
