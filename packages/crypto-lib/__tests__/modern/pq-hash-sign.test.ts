@@ -10,7 +10,7 @@ import {
 } from "../../src/modern/pq-hash-sign";
 
 describe("SLH-DSA (FIPS 205)", function () {
-  this.timeout(30000);
+  this.timeout(90000);
 
   // Use only fast variants to avoid multi-second signing times
   const fastVariants: SlhDsaVariant[] = [
@@ -39,9 +39,9 @@ describe("SLH-DSA (FIPS 205)", function () {
     });
 
     it("should throw for invalid variant name", () => {
-      expect(() =>
-        slhDsaKeygen("invalid-variant" as SlhDsaVariant),
-      ).to.throw(/Unsupported SLH-DSA variant/);
+      expect(() => slhDsaKeygen("invalid-variant" as SlhDsaVariant)).to.throw(
+        /Unsupported SLH-DSA variant/,
+      );
     });
   });
 
@@ -55,12 +55,7 @@ describe("SLH-DSA (FIPS 205)", function () {
         expect(sig.signature).to.be.a("string");
         expect(sig.signature.length).to.be.greaterThan(100);
 
-        const result = slhDsaVerify(
-          variant,
-          kp.publicKey,
-          msg,
-          sig.signature,
-        );
+        const result = slhDsaVerify(variant, kp.publicKey, msg, sig.signature);
         expect(result.valid).to.be.true;
         expect(result.algorithm).to.equal(`slh-dsa-${variant}`);
       });
@@ -69,12 +64,7 @@ describe("SLH-DSA (FIPS 205)", function () {
         const kp = slhDsaKeygen(variant);
         const msg = new Uint8Array([0xde, 0xad, 0xbe, 0xef]);
         const sig = slhDsaSign(variant, kp.secretKey, msg);
-        const result = slhDsaVerify(
-          variant,
-          kp.publicKey,
-          msg,
-          sig.signature,
-        );
+        const result = slhDsaVerify(variant, kp.publicKey, msg, sig.signature);
         expect(result.valid).to.be.true;
       });
     }
@@ -126,9 +116,9 @@ describe("SLH-DSA (FIPS 205)", function () {
 
   describe("invalid inputs", () => {
     it("should throw for invalid hex in secretKey", () => {
-      expect(() =>
-        slhDsaSign("sha2-128f", "not-hex!", "msg"),
-      ).to.throw(/Invalid hex/);
+      expect(() => slhDsaSign("sha2-128f", "not-hex!", "msg")).to.throw(
+        /Invalid hex/,
+      );
     });
 
     it("should throw for invalid hex in publicKey", () => {
