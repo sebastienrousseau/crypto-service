@@ -20,7 +20,9 @@ describe("Key Serialization", () => {
   describe("hex <-> bytes", () => {
     it("should roundtrip hex conversion", () => {
       const bytes = new Uint8Array([0, 1, 127, 128, 255]);
-      expect(bytesToHex(hexToBytes(bytesToHex(bytes)))).to.equal(bytesToHex(bytes));
+      expect(bytesToHex(hexToBytes(bytesToHex(bytes)))).to.equal(
+        bytesToHex(bytes),
+      );
     });
 
     it("should reject invalid hex", () => {
@@ -47,7 +49,9 @@ describe("Key Serialization", () => {
       expect(b64url).to.not.include("+");
       expect(b64url).to.not.include("/");
       expect(b64url).to.not.include("=");
-      expect(Array.from(base64urlToBytes(b64url))).to.deep.equal(Array.from(bytes));
+      expect(Array.from(base64urlToBytes(b64url))).to.deep.equal(
+        Array.from(bytes),
+      );
     });
 
     it("should handle no-padding case", () => {
@@ -72,7 +76,9 @@ describe("Key Serialization", () => {
     it("should wrap lines at 64 characters", () => {
       const data = new Uint8Array(100);
       const pem = encodePem("PRIVATE KEY", data);
-      const lines = pem.split("\n").filter(l => !l.startsWith("-----") && l.length > 0);
+      const lines = pem
+        .split("\n")
+        .filter((l) => !l.startsWith("-----") && l.length > 0);
       for (const line of lines.slice(0, -1)) {
         expect(line.length).to.equal(64);
       }
@@ -80,6 +86,18 @@ describe("Key Serialization", () => {
 
     it("should reject invalid PEM", () => {
       expect(() => decodePem("not a pem")).to.throw(/Invalid PEM/);
+      expect(() => decodePem("-----BEGIN KEY without any dashes")).to.throw(
+        /Invalid PEM/,
+      );
+      expect(() =>
+        decodePem("-----BEGIN KEY\ndata\n-----END KEY-----"),
+      ).to.throw(/Invalid PEM/);
+      expect(() =>
+        decodePem("-----BEGIN -----\ndata\n-----END -----"),
+      ).to.throw(/Invalid PEM/);
+      expect(() => decodePem("-----BEGIN KEY-----\ndata")).to.throw(
+        /Invalid PEM/,
+      );
     });
 
     it("should handle different labels", () => {
