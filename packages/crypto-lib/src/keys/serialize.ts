@@ -81,12 +81,22 @@ export function decodePem(pem: string): {
   /** DER-encoded content bytes. */
   data: Uint8Array;
 } {
-  const match = pem.match(
-    /-----BEGIN ([A-Z0-9 ]+)-----\s*([\s\S]+?)\s*-----END \1-----/,
-  );
-  if (!match) throw new Error("Invalid PEM format");
-  const label = match[1]!;
-  const b64 = match[2]!.replace(/\s/g, "");
+  const beginMarker = "-----BEGIN ";
+  const endMarker = "-----END ";
+  const beginIdx = pem.indexOf(beginMarker);
+  if (beginIdx === -1) throw new Error("Invalid PEM format");
+
+  const headerEnd = pem.indexOf("-----", beginIdx + beginMarker.length);
+  if (headerEnd === -1) throw new Error("Invalid PEM format");
+
+  const label = pem.slice(beginIdx + beginMarker.length, headerEnd).trim();
+  if (!label) throw new Error("Invalid PEM format");
+
+  const closeTag = `${endMarker}${label}-----`;
+  const endIdx = pem.indexOf(closeTag, headerEnd + 5);
+  if (endIdx === -1) throw new Error("Invalid PEM format");
+
+  const b64 = pem.slice(headerEnd + 5, endIdx).replace(/\s/g, "");
   return { label, data: Buffer.from(b64, "base64") };
 }
 
