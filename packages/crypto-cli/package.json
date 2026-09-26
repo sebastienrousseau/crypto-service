@@ -19,7 +19,7 @@
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
   },
   "dependencies": {
-    "@types/openpgp": "^4.4.19",
+    "@types/openpgp": "^5.0.0",
     "figlet": "^1.6.0",
     "kleur": "^4.1.5",
     "openpgp": "^6.3.1",
