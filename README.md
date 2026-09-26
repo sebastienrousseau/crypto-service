@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <p align="center">
-  <img src="assets/crypto-service-logo.svg" alt="Crypto Service logo" width="128" />
+  <img src="assets/crypto-service-logo.svg" alt="Crypto Service logo" width="360" />
 </p>
 
 <h1 align="center">Crypto Service</h1>
@@ -11,10 +11,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://github.com/sebastienrousseau/crypto-service/workflows/ci/badge.svg?style=for-the-badge&logo=github" alt="Build" /></a>
-  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-service"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge&color=fc8d62&logo=npm" alt="Registry" /></a>
+  <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main"><img src="https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service?branch=main&style=for-the-badge" alt="Coverage" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-service"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge&color=f14041&logo=npm" alt="Registry" /></a>
   <a href="https://sebastienrousseau.github.io/crypto-service/"><img src="https://img.shields.io/badge/docs-TypeDoc-blue.svg?style=for-the-badge&labelColor=555555&logo=typescript" alt="Docs" /></a>
-  <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/crypto-service"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/crypto-service?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" /></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/crypto-service" title="ossf-scorecard"><img src="https://img.shields.io/badge/OpenSSF-Scorecard-blue?style=for-the-badge&logo=openssf" alt="OpenSSF Scorecard" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg?style=for-the-badge" alt="License: Apache-2.0 OR MIT" /></a>
   <a href="https://github.com/sebastienrousseau/crypto-service/blob/main/docs/POLICIES.md"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-93450a.svg?style=for-the-badge&logo=node.js" alt="Node.js 22 or newer" /></a>
 </p>
