@@ -38,10 +38,10 @@
     "docs": "typedoc"
   },
   "dependencies": {
-    "@noble/ciphers": "^2.3.0",
-    "@noble/curves": "^2.3.0",
-    "@noble/hashes": "^2.3.0",
-    "@noble/post-quantum": "^0.7.0",
+    "@noble/ciphers": "^2.4.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@noble/post-quantum": "^0.7.1",
     "@openpgp/web-stream-tools": "^0.3.1",
     "openpgp": "^6.3.1"
   },
