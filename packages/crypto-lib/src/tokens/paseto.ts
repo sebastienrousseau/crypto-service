@@ -156,11 +156,7 @@ function hexToBytes(hex: string): Uint8Array {
 }
 
 function toBase64url(buf: Uint8Array): string {
-  return Buffer.from(buf)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+  return Buffer.from(buf).toString("base64url");
 }
 
 function fromBase64url(s: string): Uint8Array {

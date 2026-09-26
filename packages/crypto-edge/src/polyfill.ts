@@ -173,7 +173,10 @@ function btoaPolyfill(input: string): string {
  * binary string.
  */
 function atobPolyfill(input: string): string {
-  const str = input.replace(/=+$/, "");
+  let str = input;
+  while (str.endsWith("=")) {
+    str = str.slice(0, -1);
+  }
   let result = "";
 
   for (let i = 0; i < str.length; i += 4) {
