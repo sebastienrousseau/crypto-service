@@ -38,11 +38,7 @@ export function base64ToBytes(b64: string): Uint8Array {
 
 /** Convert a Uint8Array to a URL-safe base64 string (no padding). */
 export function bytesToBase64url(bytes: Uint8Array): string {
-  return Buffer.from(bytes)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  return Buffer.from(bytes).toString("base64url");
 }
 
 /** Convert a URL-safe base64 string to a Uint8Array. */

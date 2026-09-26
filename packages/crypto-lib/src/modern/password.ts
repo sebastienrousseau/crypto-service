@@ -139,8 +139,10 @@ function toPhcString(
   salt: Uint8Array,
   hash: Uint8Array,
 ): string {
-  const saltB64 = Buffer.from(salt).toString("base64").replace(/=+$/, "");
-  const hashB64 = Buffer.from(hash).toString("base64").replace(/=+$/, "");
+  let saltB64 = Buffer.from(salt).toString("base64");
+  while (saltB64.endsWith("=")) saltB64 = saltB64.slice(0, -1);
+  let hashB64 = Buffer.from(hash).toString("base64");
+  while (hashB64.endsWith("=")) hashB64 = hashB64.slice(0, -1);
   return `$${variant}$v=19$m=${params.m},t=${params.t},p=${params.p}$${saltB64}$${hashB64}`;
 }
 

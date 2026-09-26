@@ -37,7 +37,7 @@
   "peerDependencies": {
     "@aws-sdk/client-kms": "^3.0.0",
     "@azure/keyvault-keys": "^4.0.0",
-    "@google-cloud/kms": "^4.0.0"
+    "@google-cloud/kms": "^6.2.0"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-kms": {
