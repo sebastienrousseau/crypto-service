@@ -7,11 +7,26 @@
 # Crypto Service Suite
 # https://crypto-service.co/
 #
-# Copyright (c) Sebastien Rousseau 2022. All rights reserved
-# Licensed under the MIT license
+# Copyright (c) Sebastien Rousseau 2022-2026. All rights reserved
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
 .DEFAULT_GOAL := help
+
+#
+# Container & Development tasks
+#
+
+# @HELP Start interactive tsdev container with 4-pane TMUX IDE
+dev: up
+
+# @HELP Start the tsdev 4-pane TMUX IDE container
+up:
+	@command -v docker >/dev/null 2>&1 && docker run --rm -it -v "$$(pwd):/work" -w /work ghcr.io/sebastienrousseau/tsdev:latest || echo "Docker not available"
+
+# @HELP Start WebTTY on port 7681 for remote/tablet access
+dev-web:
+	@command -v docker >/dev/null 2>&1 && docker run --rm -it -p 7681:7681 -v "$$(pwd):/work" -w /work ghcr.io/sebastienrousseau/tsdev:latest ttyd -p 7681 -t fontSize=15 -t theme='{"background": "#1a1b26"}' tmux-ide --launch || echo "Docker not available"
 
 #
 # Build tasks
@@ -21,7 +36,7 @@
 build:
 	@echo
 	@echo "Concurrently Building All Packages"
-	@npx lerna run build --stream
+	@pnpm -r run build
 
 #
 # Clean up tasks
@@ -31,7 +46,7 @@ build:
 clean:
 	@echo
 	@echo "Concurrently Cleaning All Packages"
-	@npx lerna run clean --stream
+	@pnpm -r run clean
 
 #
 # Documentation tasks
@@ -41,7 +56,7 @@ clean:
 docs:
 	@echo
 	@echo "Concurrently Generating Documentation for All Packages"
-	@npx lerna run docs --stream
+	@pnpm -r run docs
 
 #
 # Maintenance tasks
@@ -51,77 +66,51 @@ docs:
 lint:
 	@echo
 	@echo "Concurrently Linting All Packages"
-	@npx lerna run lint --stream
+	@pnpm -r run lint
 
-# @HELP Fix Lint Issues Across All Packages Without Exiting on Error
+# @HELP Fix Lint Issues Across All Packages
 lint-fix:
 	@echo
-	@echo "Fix Lint Issues Across All Packages Without Exiting on Error"
-	@npx lerna run lint:fix --no-bail
-
-# @HELP Running Remark and Markdown Scripts Across All Packages
-markdown:
-	@echo
-	@echo "Running Remark and Markdown Scripts Across All Packages"
-	@npx lerna exec -- yarn run remark ./*.md --rc-path ./.remarkrc --quiet && lerna exec yarn markdown --parallel
+	@echo "Fix Lint Issues Across All Packages"
+	@pnpm -r run lint --fix
 
 # @HELP Concurrently Formatting All Packages
 format:
 	@echo
 	@echo "Concurrently Formatting All Packages"
-	@npx lerna run format --stream
-
-#
-# Publishing tasks
-#
-
-# @HELP Perform a Yarn Release
-release:
-	@echo
-	@echo "Perform a Yarn Release"
-	@npx yarn release
+	@pnpm -r run format
 
 #
 # Start tasks
 #
 
-# @HELP Run `npm start` in each package.
-start:
-	@echo
-	@echo "Run `npm start` in each package."
-	@npx yarn start
-
-# @HELP Start crypto-lib - Run `npm start` in the crypto-lib package.
-start-crypto-lib:
-	@echo
-	@echo "Start crypto-lib - Run `npm start` in the crypto-lib package."
-	@npx yarn start:crypto-lib
-
-# @HELP Start crypto-server - Run `npm start` in the crypto-server package.
+# @HELP Start crypto-server in development mode
 start-crypto-server:
 	@echo
-	@echo "Start crypto-server - Run `npm start` in the crypto-server package."
-	@npx yarn start:crypto-server
+	@echo "Start crypto-server in development mode"
+	@pnpm --filter @sebastienrousseau/crypto-server run dev
 
 #
 # Test tasks
 #
 
-# @HELP Run `npm test` in each package.
+# @HELP Run test suite across all packages
 test:
 	@echo
-	@echo "Run `npm test` in each package."
-	@npx yarn test
+	@echo "Run test suite across all packages"
+	@pnpm -r run test
 
 #
 # Node Module install tasks
 #
 
-# @HELP Install all packages in the current project.
+# @HELP Install all dependencies across the workspace
+install: node_modules
+
 node_modules: package.json
 	@echo
 	@echo "Install all packages in the current project."
-	@pnpm install
+	@pnpm install --frozen-lockfile
 
 #
 # Run Crypto Service Suite tasks
@@ -209,4 +198,4 @@ help:
 	@ echo ''
 
 
-.PHONY: build, clean, docs, lint, lint-fix, markdown, prettier, release, start, start-crypto-lib, start-crypto-server, test, node_modules, rsa-2048, rsa-4096, curve-25519, curve-p256, curve-p384, curve-p521, curve-secp256k1, curve-brainpoolP256r1, curve-brainpoolP384r1, curve-brainpoolP512r1, help
+.PHONY: dev, up, dev-web, build, clean, docs, lint, lint-fix, format, start-crypto-server, test, install, node_modules, rsa-2048, rsa-4096, curve-25519, curve-p256, curve-p384, curve-p521, curve-secp256k1, curve-brainpoolP256r1, curve-brainpoolP384r1, curve-brainpoolP512r1, help
