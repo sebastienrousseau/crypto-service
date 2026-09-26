@@ -1,13 +1,14 @@
 {
   "name": "Crypto Service Suite",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "image": "ghcr.io/sebastienrousseau/tsdev:latest",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "postCreateCommand": "corepack enable pnpm && pnpm install",
+  "postCreateCommand": "pnpm install --frozen-lockfile",
   "customizations": {
     "vscode": {
       "extensions": [
+        "biomejs.biome",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-azuretools.vscode-docker"
@@ -19,5 +20,5 @@
     }
   },
   "forwardPorts": [3000],
-  "remoteUser": "node"
+  "remoteUser": "dev"
 }
