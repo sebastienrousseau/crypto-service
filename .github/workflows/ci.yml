@@ -55,6 +55,7 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm -r run build
       - name: Build TypeDoc API documentation
         run: pnpm -r run docs
       - name: Check markdownlint and README structure

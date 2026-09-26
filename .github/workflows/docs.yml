@@ -28,6 +28,7 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm -r run build
       - name: Build TypeDoc documentation
         run: pnpm -r run docs
       - name: Setup Pages
