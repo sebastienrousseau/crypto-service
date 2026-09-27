@@ -86,6 +86,10 @@ export {
   x448MlKemKeygen,
   x448MlKemEncapsulate,
   x448MlKemDecapsulate,
+  RFC10024_X25519_MLKEM768,
+  RFC10024_SECP256R1_MLKEM768,
+  RFC10024_CODEPOINTS,
+  normalizeHybridKemAlgorithm,
 } from "./pq-kem";
 /** Re-exported ML-KEM parameter set and hybrid KEM types. */
 export type {

@@ -58,5 +58,5 @@ export type {
 // Branded error class and error codes
 export { CryptoError, CryptoErrorCode } from "./errors";
 
-// Utilities (constant-time comparison, SecureBuffer)
-export { timingSafeEqual, SecureBuffer } from "./utils";
+// Utilities (constant-time comparison, SecureBuffer, memory zeroing)
+export { timingSafeEqual, SecureBuffer, wipeMemory } from "./utils";

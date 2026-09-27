@@ -153,3 +153,22 @@ export class SecureBuffer {
     }
   }
 }
+
+/**
+ * Securely zeros out a Uint8Array in-place to minimize the exposure window
+ * of sensitive cryptographic material in memory.
+ *
+ * @param buffer - The buffer to overwrite with zeros.
+ *
+ * @example
+ * ```ts
+ * import { wipeMemory } from "@sebastienrousseau/crypto-lib";
+ *
+ * const keyBytes = new Uint8Array([1, 2, 3, 4]);
+ * wipeMemory(keyBytes);
+ * // keyBytes is now all zeros: [0, 0, 0, 0]
+ * ```
+ */
+export function wipeMemory(buffer: Uint8Array): void {
+  buffer.fill(0);
+}
