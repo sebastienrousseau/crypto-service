@@ -199,6 +199,112 @@ const WRITE_ACTIONS = [
 /** Prisma actions that read data and require field decryption. */
 const READ_ACTIONS = ["findUnique", "findFirst", "findMany"];
 
+/** Encrypt records for write actions (upsert, createMany, create, update, etc.). */
+function applyWriteEncryption(
+  action: string,
+  args: Record<string, unknown>,
+  fields: string[],
+  key: string,
+  deterministicFields?: string[],
+): void {
+  if (action === "upsert") {
+    encryptRecord(
+      args["create"] as Record<string, unknown> | undefined,
+      fields,
+      key,
+      deterministicFields,
+    );
+    encryptRecord(
+      args["update"] as Record<string, unknown> | undefined,
+      fields,
+      key,
+      deterministicFields,
+    );
+    return;
+  }
+
+  if (action === "createMany") {
+    const data = args["data"];
+    if (Array.isArray(data)) {
+      for (const record of data) {
+        encryptRecord(
+          record as Record<string, unknown>,
+          fields,
+          key,
+          deterministicFields,
+        );
+      }
+    }
+    return;
+  }
+
+  encryptRecord(
+    args["data"] as Record<string, unknown> | undefined,
+    fields,
+    key,
+    deterministicFields,
+  );
+}
+
+/** Encrypt where clauses for deterministic searchable fields. */
+function applyWhereEncryption(
+  args: Record<string, unknown> | undefined,
+  fields: string[],
+  key: string,
+  deterministicFields?: string[],
+): void {
+  if (!args || typeof args !== "object" || !deterministicFields) return;
+  const where = args["where"] as Record<string, unknown> | undefined;
+  if (!where) return;
+
+  for (const field of fields) {
+    if (
+      isDeterministic(field, deterministicFields) &&
+      field in where &&
+      typeof where[field] === "string"
+    ) {
+      where[field] = encryptValue(
+        where[field],
+        key,
+        field,
+        deterministicFields,
+      );
+    }
+  }
+}
+
+/** Decrypt returned records for read actions. */
+function applyReadDecryption(
+  action: string,
+  result: unknown,
+  fields: string[],
+  key: string,
+  deterministicFields?: string[],
+): void {
+  if (!READ_ACTIONS.includes(action) || !result) return;
+
+  if (Array.isArray(result)) {
+    for (const record of result) {
+      decryptRecord(
+        record as Record<string, unknown>,
+        fields,
+        key,
+        deterministicFields,
+      );
+    }
+    return;
+  }
+
+  if (typeof result === "object") {
+    decryptRecord(
+      result as Record<string, unknown>,
+      fields,
+      key,
+      deterministicFields,
+    );
+  }
+}
+
 // ── Factory ──────────────────────────────────────────────────────────
 
 /**
@@ -240,89 +346,32 @@ export function createEncryptionMiddleware(
     const fields = getFieldsForModel(model, encryptedFields);
     if (fields.length === 0) return next(params);
 
-    // ── Encrypt on write ──
     if (WRITE_ACTIONS.includes(params.action)) {
-      const args = params.args as Record<string, unknown>;
-
-      if (params.action === "upsert") {
-        encryptRecord(
-          args["create"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        encryptRecord(
-          args["update"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-      } else if (params.action === "createMany") {
-        const data = args["data"];
-        if (Array.isArray(data)) {
-          for (const record of data) {
-            encryptRecord(
-              record as Record<string, unknown>,
-              fields,
-              key,
-              deterministicFields,
-            );
-          }
-        }
-      } else {
-        encryptRecord(
-          args["data"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-      }
+      applyWriteEncryption(
+        params.action,
+        params.args as Record<string, unknown>,
+        fields,
+        key,
+        deterministicFields,
+      );
     }
 
-    // ── Encrypt "where" clauses for deterministic fields ──
-    if (params.args && typeof params.args === "object") {
-      const where = (params.args as Record<string, unknown>)["where"] as
-        Record<string, unknown> | undefined;
-      if (where && deterministicFields) {
-        for (const field of fields) {
-          if (
-            isDeterministic(field, deterministicFields) &&
-            field in where &&
-            typeof where[field] === "string"
-          ) {
-            where[field] = encryptValue(
-              where[field],
-              key,
-              field,
-              deterministicFields,
-            );
-          }
-        }
-      }
-    }
+    applyWhereEncryption(
+      params.args as Record<string, unknown> | undefined,
+      fields,
+      key,
+      deterministicFields,
+    );
 
     const result = await next(params);
 
-    // ── Decrypt on read ──
-    if (READ_ACTIONS.includes(params.action) && result) {
-      if (Array.isArray(result)) {
-        for (const record of result) {
-          decryptRecord(
-            record as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-      } else if (typeof result === "object") {
-        decryptRecord(
-          result as Record<string, unknown>,
-          fields,
-          key,
-          deterministicFields,
-        );
-      }
-    }
+    applyReadDecryption(
+      params.action,
+      result,
+      fields,
+      key,
+      deterministicFields,
+    );
 
     return result;
   };

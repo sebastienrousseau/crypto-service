@@ -97,7 +97,7 @@
     "rest-api"
   ],
   "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
-  }
+    "access": "public"
+  },
+  "private": false
 }

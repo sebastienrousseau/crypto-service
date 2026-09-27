@@ -24,6 +24,74 @@
 // ---------------------------------------------------------------------------
 
 /**
+ * Encode a single Unicode code point into UTF-8 bytes and push to array.
+ */
+function pushUtf8Bytes(codePoint: number, bytes: number[]): void {
+  if (codePoint < 0x80) {
+    bytes.push(codePoint);
+    return;
+  }
+  if (codePoint < 0x800) {
+    bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
+    return;
+  }
+  if (codePoint < 0x10000) {
+    bytes.push(
+      0xe0 | (codePoint >> 12),
+      0x80 | ((codePoint >> 6) & 0x3f),
+      0x80 | (codePoint & 0x3f),
+    );
+    return;
+  }
+  bytes.push(
+    0xf0 | (codePoint >> 18),
+    0x80 | ((codePoint >> 12) & 0x3f),
+    0x80 | ((codePoint >> 6) & 0x3f),
+    0x80 | (codePoint & 0x3f),
+  );
+}
+
+/**
+ * Decode a single Unicode code point from UTF-8 bytes at index `i`.
+ * Returns a tuple of [codePoint, nextIndex].
+ */
+function readUtf8CodePoint(bytes: Uint8Array, i: number): [number, number] {
+  const b0 = bytes[i];
+  if (b0 < 0x80) {
+    return [b0, i + 1];
+  }
+  if ((b0 & 0xe0) === 0xc0) {
+    return [((b0 & 0x1f) << 6) | (bytes[i + 1] & 0x3f), i + 2];
+  }
+  if ((b0 & 0xf0) === 0xe0) {
+    return [
+      ((b0 & 0x0f) << 12) |
+        ((bytes[i + 1] & 0x3f) << 6) |
+        (bytes[i + 2] & 0x3f),
+      i + 3,
+    ];
+  }
+  return [
+    ((b0 & 0x07) << 18) |
+      ((bytes[i + 1] & 0x3f) << 12) |
+      ((bytes[i + 2] & 0x3f) << 6) |
+      (bytes[i + 3] & 0x3f),
+    i + 4,
+  ];
+}
+
+/**
+ * Convert a Unicode code point to a UTF-16 character or surrogate pair.
+ */
+function codePointToString(codePoint: number): string {
+  if (codePoint <= 0xffff) {
+    return String.fromCharCode(codePoint);
+  }
+  const cp = codePoint - 0x10000;
+  return String.fromCharCode(0xd800 + (cp >> 10), 0xdc00 + (cp & 0x3ff));
+}
+
+/**
  * Minimal UTF-8 `TextEncoder` polyfill.
  *
  * Encodes a JavaScript string into a UTF-8 `Uint8Array`. Handles the
@@ -50,24 +118,7 @@ class TextEncoderPolyfill {
         }
       }
 
-      if (codePoint < 0x80) {
-        bytes.push(codePoint);
-      } else if (codePoint < 0x800) {
-        bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
-      } else if (codePoint < 0x10000) {
-        bytes.push(
-          0xe0 | (codePoint >> 12),
-          0x80 | ((codePoint >> 6) & 0x3f),
-          0x80 | (codePoint & 0x3f),
-        );
-      } else {
-        bytes.push(
-          0xf0 | (codePoint >> 18),
-          0x80 | ((codePoint >> 12) & 0x3f),
-          0x80 | ((codePoint >> 6) & 0x3f),
-          0x80 | (codePoint & 0x3f),
-        );
-      }
+      pushUtf8Bytes(codePoint, bytes);
     }
     return new Uint8Array(bytes);
   }
@@ -97,35 +148,9 @@ class TextDecoderPolyfill {
     let i = 0;
 
     while (i < bytes.length) {
-      let codePoint: number;
-
-      if (bytes[i] < 0x80) {
-        codePoint = bytes[i++];
-      } else if ((bytes[i] & 0xe0) === 0xc0) {
-        codePoint = ((bytes[i++] & 0x1f) << 6) | (bytes[i++] & 0x3f);
-      } else if ((bytes[i] & 0xf0) === 0xe0) {
-        codePoint =
-          ((bytes[i++] & 0x0f) << 12) |
-          ((bytes[i++] & 0x3f) << 6) |
-          (bytes[i++] & 0x3f);
-      } else {
-        codePoint =
-          ((bytes[i++] & 0x07) << 18) |
-          ((bytes[i++] & 0x3f) << 12) |
-          ((bytes[i++] & 0x3f) << 6) |
-          (bytes[i++] & 0x3f);
-      }
-
-      if (codePoint <= 0xffff) {
-        result += String.fromCharCode(codePoint);
-      } else {
-        // Encode as surrogate pair
-        codePoint -= 0x10000;
-        result += String.fromCharCode(
-          0xd800 + (codePoint >> 10),
-          0xdc00 + (codePoint & 0x3ff),
-        );
-      }
+      const [codePoint, nextI] = readUtf8CodePoint(bytes, i);
+      result += codePointToString(codePoint);
+      i = nextI;
     }
 
     return result;
@@ -141,6 +166,19 @@ const BASE64_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /**
+ * Encode a 3-byte chunk (with optional NaN padding) into 4 Base64 characters.
+ */
+function encodeBase64Triplet(a: number, b: number, c: number): string {
+  const idx1 = a >> 2;
+  const idx2 = ((a & 3) << 4) | (isNaN(b) ? 0 : b >> 4);
+  const char3 = isNaN(b)
+    ? "="
+    : BASE64_CHARS[((b & 15) << 2) | (isNaN(c) ? 0 : c >> 6)];
+  const char4 = isNaN(c) ? "=" : BASE64_CHARS[c & 63];
+  return BASE64_CHARS[idx1] + BASE64_CHARS[idx2] + char3 + char4;
+}
+
+/**
  * Pure-JavaScript `btoa` replacement. Encodes a binary string to
  * Base64.
  */
@@ -152,17 +190,7 @@ function btoaPolyfill(input: string): string {
     const a = input.charCodeAt(i++);
     const b = i < input.length ? input.charCodeAt(i++) : NaN;
     const c = i < input.length ? input.charCodeAt(i++) : NaN;
-
-    const idx1 = a >> 2;
-    const idx2 = ((a & 3) << 4) | (isNaN(b) ? 0 : b >> 4);
-    const idx3 = isNaN(b) ? 64 : ((b & 15) << 2) | (isNaN(c) ? 0 : c >> 6);
-    const idx4 = isNaN(c) ? 64 : c & 63;
-
-    result +=
-      BASE64_CHARS[idx1] +
-      BASE64_CHARS[idx2] +
-      (idx3 === 64 ? "=" : BASE64_CHARS[idx3]) +
-      (idx4 === 64 ? "=" : BASE64_CHARS[idx4]);
+    result += encodeBase64Triplet(a, b, c);
   }
 
   return result;
@@ -233,7 +261,7 @@ let _installed = false;
  *
  * @example
  * ```ts
- * import { installPolyfills } from "@aspect/crypto-edge";
+ * import { installPolyfills } from "@sebastienrousseau/crypto-edge";
  *
  * const installed = installPolyfills();
  * console.log(installed.textEncoder); // true if polyfill was needed
