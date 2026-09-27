@@ -56,7 +56,11 @@ jobs:
         run: |
           echo "@sebastienrousseau:registry=https://npm.pkg.github.com" >> "$NPM_CONFIG_USERCONFIG"
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> "$NPM_CONFIG_USERCONFIG"
-          pnpm -r publish --no-git-checks --registry https://npm.pkg.github.com
+          for pkg in packages/*/; do
+            node -e "const fs = require('fs'); const file = '${pkg}package.json'; const p = JSON.parse(fs.readFileSync(file, 'utf8')); p.publishConfig = { access: 'public', registry: 'https://npm.pkg.github.com' }; fs.writeFileSync(file, JSON.stringify(p, null, 2) + '\n');"
+          done
+          pnpm -r publish --no-git-checks
+
 
 
 
