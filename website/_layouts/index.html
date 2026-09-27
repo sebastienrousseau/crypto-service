@@ -1,0 +1,125 @@
+{{#extends "base"}}
+{{#block "main"}}
+<section id="hero" class="hero-section">
+  <div class="container hero-container text-center">
+    <div class="pill-badge">
+      <span class="pill-tag">NEW</span>
+      <span class="pill-text">v0.0.3 Release · Post-Quantum KEM &amp; Signatures · 14 Monorepo Packages</span>
+    </div>
+    <h1 class="hero-title">{{headline}}</h1>
+    <p class="hero-lead">{{lead}}</p>
+    <div class="hero-cta-group">
+      <a class="btn btn-primary btn-lg" href="#packages">Explore 14 Packages</a>
+      <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">Star on GitHub</a>
+    </div>
+
+    <figure class="hero-photo">
+      <img src="{{site_path}}images/light-trace-640.webp" srcset="{{site_path}}images/light-trace-320.webp 320w, {{site_path}}images/light-trace-480.webp 480w, {{site_path}}images/light-trace-640.webp 640w, {{site_path}}images/light-trace-768.webp 768w, {{site_path}}images/light-trace-960.webp 960w, {{site_path}}images/light-trace.webp 1200w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="{{light_trace_alt}}" fetchpriority="high">
+    </figure>
+
+    <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->
+    <figure id="ai-ide" class="terminal-preview-card" aria-label="4-Pane TMUX IDE Grid Preview">
+      <figcaption class="terminal-header">
+        <div class="window-dots">
+          <span class="dot dot-red" aria-hidden="true"></span>
+          <span class="dot dot-yellow" aria-hidden="true"></span>
+          <span class="dot dot-green" aria-hidden="true"></span>
+        </div>
+        <div class="terminal-tab-bar font-mono">
+          <span class="tmux-win-badge">[crypto-service]</span>
+          <span class="tab-item active-tab">0:ide* (4 panes)</span>
+          <span class="tab-item">1:server</span>
+          <span class="tab-item">2:cli</span>
+        </div>
+        <div class="terminal-actions">
+          <span class="badge-status font-mono">● TypeScript 5.8+ · Node.js 22 LTS · FIPS 203/204 (Prefix + i)</span>
+        </div>
+      </figcaption>
+
+      <div class="tmux-grid">
+        <!-- Pane 1: Project Explorer (Left 20%) -->
+        <div class="tmux-pane pane-explorer font-mono">
+          <div class="pane-header">
+            <span class="pane-title">1: Explorer</span>
+            <span class="pane-badge">/crypto-service</span>
+          </div>
+          <div class="pane-content explorer-content">
+<div class="tree-node dir">▼ packages/</div>
+<div class="tree-node file active">▶ crypto-lib/</div>
+<div class="tree-node file">  crypto-wasm/</div>
+<div class="tree-node file">  crypto-server/</div>
+<div class="tree-node file">  crypto-cli/</div>
+<div class="tree-node file">  crypto-sdk/</div>
+<div class="tree-node file">pnpm-workspace.yaml</div>
+<div class="tree-node file">package.json</div>
+          </div>
+        </div>
+
+        <!-- Center Column: Pane 2 (Editor Top) + Pane 3 (Terminal Bottom) -->
+        <div class="tmux-center-col">
+          <!-- Pane 2: Editor (Neovim LSP) -->
+          <div class="tmux-pane pane-editor font-mono">
+            <div class="pane-header">
+              <span class="pane-title">2: Neovim (LSP)</span>
+              <span class="pane-file">packages/crypto-lib/src/modern/pq-kem/index.ts</span>
+            </div>
+            <div class="pane-content editor-content" tabindex="0" role="region" aria-label="Neovim Code Editor">
+              <pre class="editor-code font-mono"><code><span class="code-comment">// FIPS 203 ML-KEM-768 &amp; RFC 10024 Hybrid Key Encapsulation</span>
+<span class="code-kw">import</span> { mlKemKeygen, mlKemEncapsulate, mlKemDecapsulate, wipeMemory } <span class="code-kw">from</span> <span class="code-str">"@sebastienrousseau/crypto-lib"</span>;
+
+<span class="code-kw">export async function</span> <span class="code-fn">establishQuantumSafeKey</span>(): <span class="code-type">Promise</span>&lt;<span class="code-type">Uint8Array</span>&gt; {
+  <span class="code-kw">const</span> alice = <span class="code-fn">mlKemKeygen</span>(768);
+  <span class="code-kw">const</span> { ciphertext, sharedSecret } = <span class="code-fn">mlKemEncapsulate</span>(768, alice.publicKey);
+  <span class="code-kw">const</span> decrypted = <span class="code-fn">mlKemDecapsulate</span>(768, alice.secretKey, ciphertext);
+  <span class="code-fn">wipeMemory</span>(alice.secretKey);
+  <span class="code-kw">return</span> decrypted.sharedSecret;
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- Pane 3: Integrated Shell / Test Runner -->
+          <div class="tmux-pane pane-terminal font-mono">
+            <div class="pane-header">
+              <span class="pane-title">3: Shell / Tests</span>
+              <span class="pane-badge">idle</span>
+            </div>
+            <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
+<div class="cli-line"><span class="mcp-tl-ps">$ </span>pnpm -r run test &amp;&amp; pnpm -r run lint</div>
+<div class="cli-out">   ✓ 14 packages passed (100% statements, branches, functions, lines)</div>
+<div class="cli-out cli-ok">test result: ok. 50+ cryptographic algorithms validated; 0 errors</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane 4: AI Agent / MCP Server (Right 24%) -->
+        <div class="tmux-pane pane-ai font-mono">
+          <div class="pane-header">
+            <span class="pane-title">4: Antigravity MCP</span>
+            <span class="pane-badge ai-badge">MCP Agent</span>
+          </div>
+          <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
+<div class="ai-prompt"><span class="ai-sym">&gt;</span> Antigravity (MCP)</div>
+<div class="ai-tool">⏺ Tool: crypto.verifyFipsVectors()</div>
+<div class="ai-res">✓ NIST ACVP test vectors passed (FIPS 203/204/205/206)</div>
+<div class="ai-tool">⏺ Tool: crypto.auditZeroization()</div>
+<div class="ai-res">✓ Zero memory leakage detected: wipeMemory() active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TMUX Status Bar -->
+      <div class="tmux-status-bar font-mono">
+        <span class="status-left">[crypto-service:ide*] 0:nvim* 1:server 2:cli "crypto-service" 23:30</span>
+        <span class="status-center">workspace: 14 packages (clean) · mcp: stdio (JSON-RPC)</span>
+        <span class="status-right">23:30 27-Sep-26</span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<!-- Content sections rendered from Markdown -->
+<div class="content-sections">
+  {{!content}}
+</div>
+
+{{/block}}

@@ -130,7 +130,12 @@ lib-cov
 Gemfile.lock
 tsconfig.tsbuildinfo
 
-# TypeDoc generated documentation
+# TypeDoc and SSG generated documentation
 packages/*/docs/
 _site/
+public/
+public.build-tmp/
+.ssg/
+.ssg-cache/
+.ssg-plugin-cache.json
 

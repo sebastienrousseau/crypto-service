@@ -1,0 +1,33 @@
+# Typed front-matter contract for Voxt theme.
+[[schemas]]
+name = "page"
+
+[[schemas.fields]]
+name = "title"
+type = "string"
+required = true
+
+[[schemas.fields]]
+name = "description"
+type = "string"
+required = true
+
+[[schemas.fields]]
+name = "layout"
+type = "string"
+required = true
+
+[[schemas.fields]]
+name = "date"
+type = "date"
+required = true
+
+[[schemas.fields]]
+name = "author"
+type = "string"
+required = true
+
+[[schemas.fields]]
+name = "language"
+type = "string"
+required = true

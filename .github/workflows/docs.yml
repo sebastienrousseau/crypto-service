@@ -29,7 +29,13 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
-      - name: Build TypeDoc documentation & assemble portal
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@v1.10.22
+      - name: Install ssg
+        run: |
+          cargo binstall --no-confirm ssg@0.0.63
+          ssg --version
+      - name: Build Voxt documentation portal & package references
         run: node scripts/build-docs.mjs
       - name: Setup Pages
         uses: actions/configure-pages@v5
