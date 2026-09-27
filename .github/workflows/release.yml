@@ -43,12 +43,15 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to npm
+        if: ${{ secrets.NPM_TOKEN != '' }}
         run: pnpm -r publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to GitHub Packages
-        run: pnpm -r publish --access public --no-git-checks --registry https://npm.pkg.github.com
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "@sebastienrousseau:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          pnpm -r publish --access public --no-git-checks --registry https://npm.pkg.github.com
+
 
