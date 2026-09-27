@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
+
 # Migration Guide: v0.0.2 to v0.0.3
 
 ## Breaking Changes

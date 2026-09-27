@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
+
 # Crypto Service Suite — 2026 Roadmap & Implementation Plan
 
 ## 1. Market & Landscape Analysis (April 2026)
