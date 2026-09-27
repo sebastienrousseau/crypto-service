@@ -29,14 +29,15 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
-      - name: Build TypeDoc documentation
-        run: pnpm -r run docs
+      - name: Build TypeDoc documentation & assemble portal
+        run: node scripts/build-docs.mjs
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "packages/crypto-lib/docs"
+          path: "_site"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+

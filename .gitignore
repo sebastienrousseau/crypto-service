@@ -132,3 +132,5 @@ tsconfig.tsbuildinfo
 
 # TypeDoc generated documentation
 packages/*/docs/
+_site/
+
