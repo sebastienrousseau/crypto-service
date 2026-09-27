@@ -43,8 +43,12 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to npm
-        if: ${{ secrets.NPM_TOKEN != '' }}
-        run: pnpm -r publish --access public --no-git-checks --provenance
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            pnpm -r publish --access public --no-git-checks --provenance
+          else
+            echo "NPM_TOKEN secret is not set, skipping npm publish."
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -53,5 +57,6 @@ jobs:
           echo "@sebastienrousseau:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
           pnpm -r publish --access public --no-git-checks --registry https://npm.pkg.github.com
+
 
 
