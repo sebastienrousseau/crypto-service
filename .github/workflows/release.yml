@@ -43,6 +43,27 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to npm
-        run: pnpm -r publish --access public --no-git-checks --provenance
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            pnpm -r publish --access public --no-git-checks --provenance
+          else
+            echo "NPM_TOKEN secret is not set, skipping npm publish."
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        run: |
+          sed -i 's|https://registry.npmjs.org/|https://npm.pkg.github.com/|g' .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> "$NPM_CONFIG_USERCONFIG"
+          for pkg in packages/*/; do
+            node -e "const fs = require('fs'); const file = '${pkg}package.json'; const p = JSON.parse(fs.readFileSync(file, 'utf8')); p.publishConfig = { access: 'public', registry: 'https://npm.pkg.github.com' }; fs.writeFileSync(file, JSON.stringify(p, null, 2) + '\n');"
+          done
+          pnpm -r publish --no-git-checks
+
+
+
+
+
+

@@ -10,6 +10,10 @@ import {
   hybridKemEncapsulate,
   hybridKemDecapsulate,
   MlKemLevel,
+  RFC10024_X25519_MLKEM768,
+  RFC10024_SECP256R1_MLKEM768,
+  RFC10024_CODEPOINTS,
+  normalizeHybridKemAlgorithm,
 } from "../../src/modern/pq-kem";
 
 describe("ML-KEM (FIPS 203)", function () {
@@ -155,15 +159,42 @@ describe("ML-KEM (FIPS 203)", function () {
     });
 
     it("should throw for invalid hex in hybrid encapsulate", () => {
-      expect(() =>
-        hybridKemEncapsulate(768, "not-hex!", "aabb"),
-      ).to.throw(/Invalid hex/);
+      expect(() => hybridKemEncapsulate(768, "not-hex!", "aabb")).to.throw(
+        /Invalid hex/,
+      );
     });
 
     it("should throw for invalid hex in hybrid decapsulate", () => {
       expect(() =>
         hybridKemDecapsulate(768, "not-hex!", "aabb", "ccdd", "eeff"),
       ).to.throw(/Invalid hex/);
+    });
+  });
+
+  describe("RFC 10024 Hybrid KEM Constants and Normalizer", () => {
+    it("should define valid RFC 10024 identifiers and codepoints", () => {
+      expect(RFC10024_X25519_MLKEM768).to.equal("X25519MLKEM768");
+      expect(RFC10024_SECP256R1_MLKEM768).to.equal("SecP256r1MLKEM768");
+      expect(RFC10024_CODEPOINTS[RFC10024_X25519_MLKEM768]).to.equal(0x11ec);
+      expect(RFC10024_CODEPOINTS[RFC10024_SECP256R1_MLKEM768]).to.equal(0x11ed);
+    });
+
+    it("should correctly normalize hybrid KEM algorithm identifiers", () => {
+      expect(normalizeHybridKemAlgorithm(RFC10024_X25519_MLKEM768)).to.equal(
+        "x25519-ml-kem-768",
+      );
+      expect(normalizeHybridKemAlgorithm("x25519-ml-kem-768")).to.equal(
+        "x25519-ml-kem-768",
+      );
+      expect(normalizeHybridKemAlgorithm(RFC10024_SECP256R1_MLKEM768)).to.equal(
+        "p256-ml-kem-768",
+      );
+      expect(normalizeHybridKemAlgorithm("p256-ml-kem-768")).to.equal(
+        "p256-ml-kem-768",
+      );
+      expect(normalizeHybridKemAlgorithm("x448-ml-kem-1024")).to.equal(
+        "x448-ml-kem-1024",
+      );
     });
   });
 });

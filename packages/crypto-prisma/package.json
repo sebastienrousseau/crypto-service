@@ -49,7 +49,7 @@
   },
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-prisma",
   "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
-  }
+    "access": "public"
+  },
+  "private": false
 }

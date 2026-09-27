@@ -161,6 +161,20 @@ function getSubtle(): typeof nodeCrypto.webcrypto.subtle | null {
 /** Cached detection result (undefined = not yet checked). */
 let _modernDetectionCache: WebCryptoModernSupport | undefined;
 
+/** Helper to safely probe SubtleCrypto.supports(). */
+function checkSupport(
+  supports: (...args: unknown[]) => unknown,
+  subtle: unknown,
+  op: string,
+  alg: string,
+): boolean {
+  try {
+    return !!supports.call(subtle, op, alg);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Detect whether modern WebCrypto algorithms are available in the current runtime.
  *
@@ -191,49 +205,17 @@ export function detectModernWebCrypto(): WebCryptoModernSupport {
     // Falls back to false if the method doesn't exist.
     const supports = (subtle as unknown as Record<string, unknown>)["supports"];
     if (typeof supports === "function") {
-      try {
-        result.chacha20poly1305 = !!(
-          supports as (...args: unknown[]) => unknown
-        ).call(subtle, "encrypt", "ChaCha20-Poly1305");
-      } catch {
-        result.chacha20poly1305 = false;
-      }
-      try {
-        result.sha3 = !!(supports as (...args: unknown[]) => unknown).call(
-          subtle,
-          "digest",
-          "SHA3-256",
-        );
-      } catch {
-        result.sha3 = false;
-      }
-      try {
-        result.mlKem = !!(supports as (...args: unknown[]) => unknown).call(
-          subtle,
-          "deriveBits",
-          "ML-KEM-768",
-        );
-      } catch {
-        result.mlKem = false;
-      }
-      try {
-        result.argon2 = !!(supports as (...args: unknown[]) => unknown).call(
-          subtle,
-          "deriveBits",
-          "Argon2id",
-        );
-      } catch {
-        result.argon2 = false;
-      }
-      try {
-        result.kmac = !!(supports as (...args: unknown[]) => unknown).call(
-          subtle,
-          "sign",
-          "KMAC256",
-        );
-      } catch {
-        result.kmac = false;
-      }
+      const fn = supports as (...args: unknown[]) => unknown;
+      result.chacha20poly1305 = checkSupport(
+        fn,
+        subtle,
+        "encrypt",
+        "ChaCha20-Poly1305",
+      );
+      result.sha3 = checkSupport(fn, subtle, "digest", "SHA3-256");
+      result.mlKem = checkSupport(fn, subtle, "deriveBits", "ML-KEM-768");
+      result.argon2 = checkSupport(fn, subtle, "deriveBits", "Argon2id");
+      result.kmac = checkSupport(fn, subtle, "sign", "KMAC256");
     }
   }
 

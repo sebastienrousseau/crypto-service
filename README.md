@@ -171,22 +171,25 @@ crypto-cli encrypt --algorithm aes-256-gcm --input "Secret Data" --key <KEY>
 
 All 14 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
 
-| Component                                                            | Purpose                                                              | Use case                                             |
-| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- |
-| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto engine: classical, modern, post-quantum (50+ algorithms) | Standalone library for Node.js, browsers, and Edge   |
-| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | High-performance Fastify REST API service                            | Cryptography-as-a-service microservice               |
-| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Terminal CLI with JSON/human outputs & shell completions             | DevOps automation, local keygen, and file encryption |
-| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Core API schemas, routes, and OpenTelemetry instrumentation          | Shared HTTP contract and telemetry layer             |
-| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       |
-| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             |
-| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          |
-| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         |
-| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | AWS KMS, Google Cloud KMS, and Azure Key Vault integration           | Enterprise envelope encryption and key rotation      |
-| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Zero-knowledge database field encryption             |
-| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               |
-| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | WebAssembly-accelerated primitives with JS fallback                  | High-throughput hashing and cipher execution         |
-| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service |
+> [!NOTE]
+> **Package Distribution & Registry Availability**: Historically, five packages in the ecosystem were individually published to npm (`@sebastienrousseau/crypto-service`, `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, `@sebastienrousseau/crypto-cli`, and utility tooling). In the coordinated `v0.0.3` lockstep release, all 14 specialized packages are configured with standardized public registry manifests and publish workflows for complete registry availability. All packages can also be consumed immediately from source or via pnpm workspaces.
+
+| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability      |
+| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------- |
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto engine: classical, modern, post-quantum (50+ algorithms) | Standalone library for Node.js, browsers, and Edge   | Published (npm) / v0.0.3   |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | High-performance Fastify REST API service                            | Cryptography-as-a-service microservice               | Published (npm) / v0.0.3   |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Terminal CLI with JSON/human outputs & shell completions             | DevOps automation, local keygen, and file encryption | Published (npm) / v0.0.3   |
+| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Core API schemas, routes, and OpenTelemetry instrumentation          | Shared HTTP contract and telemetry layer             | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | AWS KMS, Google Cloud KMS, and Azure Key Vault integration           | Enterprise envelope encryption and key rotation      | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Zero-knowledge database field encryption             | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | WebAssembly-accelerated primitives with JS fallback                  | High-throughput hashing and cipher execution         | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | v0.0.3 Lockstep / Monorepo |
 
 ---
 

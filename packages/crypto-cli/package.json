@@ -13,7 +13,8 @@
     "target": "git://github.com/sebastienrousseau/crypto-service.git"
   },
   "bin": {
-    "cryptocli": "dist/cli"
+    "crypto-cli": "dist/cli.js",
+    "cryptocli": "dist/cli.js"
   },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -102,8 +103,7 @@
   "name": "@sebastienrousseau/crypto-cli",
   "private": false,
   "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "repository": {
     "directory": "packages/crypto-cli",

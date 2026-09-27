@@ -183,6 +183,16 @@ export const readQueryParams = (
 };
 
 /**
+ * Formats a form-data field value based on its type.
+ */
+function formatFieldValue(form: BodyFormField): string {
+  if (form.type === "file") {
+    return form.src ?? "";
+  }
+  return form.value !== undefined ? form.value.replace(/\\n/g, "") : "";
+}
+
+/**
  * Read body section of a method definition.
  */
 export const readFormDataBody = (
@@ -202,13 +212,7 @@ export const readFormDataBody = (
     parts.push("|---|---|---|\n");
     for (let i = 0, len = body.formdata.length; i < len; i++) {
       const form = body.formdata[i];
-      const value =
-        form.type === "file"
-          ? (form.src ?? "")
-          : form.value !== undefined
-            ? form.value.replace(/\\n/g, "")
-            : "";
-      parts.push(`|${form.key}|${value}|${form.type}|\n`);
+      parts.push(`|${form.key}|${formatFieldValue(form)}|${form.type}|\n`);
     }
     parts.push("\n\n");
   }

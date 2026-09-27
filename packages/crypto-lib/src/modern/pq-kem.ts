@@ -36,13 +36,45 @@ export type MlKemLevel = 512 | 768 | 1024;
 /** ML-KEM algorithm identifier string. */
 export type MlKemAlgorithm = "ml-kem-512" | "ml-kem-768" | "ml-kem-1024";
 
+/** Canonical RFC 10024 / IETF identifier for X25519 + ML-KEM-768 hybrid key exchange. */
+export const RFC10024_X25519_MLKEM768 = "X25519MLKEM768" as const;
+
+/** Canonical RFC 10024 / IETF identifier for SecP256r1 + ML-KEM-768 hybrid key exchange. */
+export const RFC10024_SECP256R1_MLKEM768 = "SecP256r1MLKEM768" as const;
+
+/** RFC 10024 TLS NamedGroup codepoints. */
+export const RFC10024_CODEPOINTS = {
+  [RFC10024_X25519_MLKEM768]: 0x11ec,
+  [RFC10024_SECP256R1_MLKEM768]: 0x11ed,
+} as const;
+
 /** Hybrid KEM algorithm identifier combining classical + post-quantum. */
 export type HybridKemAlgorithm =
   | "x25519-ml-kem-512"
   | "x25519-ml-kem-768"
   | "x25519-ml-kem-1024"
   | "p256-ml-kem-768"
-  | "x448-ml-kem-1024";
+  | "x448-ml-kem-1024"
+  | typeof RFC10024_X25519_MLKEM768
+  | typeof RFC10024_SECP256R1_MLKEM768;
+
+/**
+ * Normalizes an RFC 10024 or legacy hybrid KEM algorithm identifier to its internal name.
+ */
+export function normalizeHybridKemAlgorithm(
+  name: HybridKemAlgorithm | string,
+): string {
+  switch (name) {
+    case RFC10024_X25519_MLKEM768:
+    case "x25519-ml-kem-768":
+      return "x25519-ml-kem-768";
+    case RFC10024_SECP256R1_MLKEM768:
+    case "p256-ml-kem-768":
+      return "p256-ml-kem-768";
+    default:
+      return name;
+  }
+}
 
 /** ML-KEM key pair (encapsulation + decapsulation keys). */
 export interface MlKemKeyPairResult {

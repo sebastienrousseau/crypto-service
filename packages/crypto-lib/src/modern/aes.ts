@@ -107,6 +107,40 @@ const NONCE_LENGTH = 12; // GCM standard 96-bit nonce
 /** GCM 128-bit authentication tag length in bytes. */
 const TAG_LENGTH = 16; // GCM 128-bit auth tag
 
+/** Validate AES key length (must be 128 or 256 bits). */
+function validateAesKey(rawKey: string | Uint8Array): Uint8Array {
+  const key = toBytes(rawKey, "hex");
+  if (key.length !== 16 && key.length !== 32) {
+    throw new Error(
+      `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
+    );
+  }
+  return key;
+}
+
+/** Combine nonce and sealed ciphertext into a Base64-encoded string. */
+function packNonceAndSealed(nonce: Uint8Array, sealed: Uint8Array): string {
+  const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
+  combined.set(nonce);
+  combined.set(sealed, NONCE_LENGTH);
+  return Buffer.from(combined).toString("base64");
+}
+
+/** Unpack Base64-encoded ciphertext into nonce and sealed ciphertext. */
+function unpackNonceAndSealed(ciphertext: string): {
+  nonce: Uint8Array;
+  sealed: Uint8Array;
+} {
+  const combined = Buffer.from(ciphertext, "base64");
+  if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
+    throw new Error("Ciphertext too short — missing nonce or auth tag");
+  }
+  return {
+    nonce: combined.subarray(0, NONCE_LENGTH),
+    sealed: combined.subarray(NONCE_LENGTH),
+  };
+}
+
 // --- AES-GCM ---
 
 /**
@@ -117,29 +151,17 @@ const TAG_LENGTH = 16; // GCM 128-bit auth tag
 export function aesGcmEncrypt(
   options: AesGcmEncryptOptions,
 ): AesGcmEncryptResult {
-  const key = toBytes(options.key, "hex");
-  if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
-      `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
-    );
-  }
-
+  const key = validateAesKey(options.key);
   const plaintext = toBytes(options.plaintext, "utf8");
   const nonce = randomBytes(NONCE_LENGTH);
-
   const cipher = gcm(key, nonce, options.aad);
   const sealed = cipher.encrypt(plaintext);
-
-  // Prepend nonce to ciphertext for self-contained decryption
-  const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
-  combined.set(nonce);
-  combined.set(sealed, NONCE_LENGTH);
 
   const algorithm: AesGcmAlgorithm =
     key.length === 32 ? "aes-256-gcm" : "aes-128-gcm";
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: packNonceAndSealed(nonce, sealed),
     algorithm,
   };
 }
@@ -150,21 +172,8 @@ export function aesGcmEncrypt(
  * Expects the format produced by `aesGcmEncrypt`: base64(`nonce || ciphertext || tag`).
  */
 export function aesGcmDecrypt(options: AesGcmDecryptOptions): Uint8Array {
-  const key = toBytes(options.key, "hex");
-  if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
-      `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
-    );
-  }
-
-  const combined = Buffer.from(options.ciphertext, "base64");
-  if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
-  }
-
-  const nonce = combined.subarray(0, NONCE_LENGTH);
-  const sealed = combined.subarray(NONCE_LENGTH);
-
+  const key = validateAesKey(options.key);
+  const { nonce, sealed } = unpackNonceAndSealed(options.ciphertext);
   const cipher = gcm(key, nonce, options.aad);
   return cipher.decrypt(sealed);
 }
@@ -183,28 +192,17 @@ export function aesGcmDecrypt(options: AesGcmDecryptOptions): Uint8Array {
 export function aesGcmSivEncrypt(
   options: AesGcmSivEncryptOptions,
 ): AesGcmSivEncryptResult {
-  const key = toBytes(options.key, "hex");
-  if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
-      `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
-    );
-  }
-
+  const key = validateAesKey(options.key);
   const plaintext = toBytes(options.plaintext, "utf8");
   const nonce = randomBytes(NONCE_LENGTH);
-
   const cipher = gcmsiv(key, nonce, options.aad);
   const sealed = cipher.encrypt(plaintext);
-
-  const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
-  combined.set(nonce);
-  combined.set(sealed, NONCE_LENGTH);
 
   const algorithm: AesGcmSivAlgorithm =
     key.length === 32 ? "aes-256-gcm-siv" : "aes-128-gcm-siv";
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: packNonceAndSealed(nonce, sealed),
     algorithm,
   };
 }
@@ -215,21 +213,8 @@ export function aesGcmSivEncrypt(
  * Expects the format produced by `aesGcmSivEncrypt`: base64(`nonce || ciphertext || tag`).
  */
 export function aesGcmSivDecrypt(options: AesGcmSivDecryptOptions): Uint8Array {
-  const key = toBytes(options.key, "hex");
-  if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
-      `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
-    );
-  }
-
-  const combined = Buffer.from(options.ciphertext, "base64");
-  if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
-  }
-
-  const nonce = combined.subarray(0, NONCE_LENGTH);
-  const sealed = combined.subarray(NONCE_LENGTH);
-
+  const key = validateAesKey(options.key);
+  const { nonce, sealed } = unpackNonceAndSealed(options.ciphertext);
   const cipher = gcmsiv(key, nonce, options.aad);
   return cipher.decrypt(sealed);
 }

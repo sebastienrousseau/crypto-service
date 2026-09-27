@@ -12,9 +12,6 @@
     "source": "git",
     "target": "git://github.com/sebastienrousseau/crypto-service.git"
   },
-  "bin": {
-    "cryptoapi": "dist/index"
-  },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
   },
@@ -95,8 +92,7 @@
   "name": "@sebastienrousseau/crypto-api",
   "private": false,
   "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "repository": {
     "directory": "packages/crypto-api",

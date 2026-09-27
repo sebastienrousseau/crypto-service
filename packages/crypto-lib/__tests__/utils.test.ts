@@ -1,7 +1,21 @@
 import { expect } from "chai";
-import { timingSafeEqual, SecureBuffer } from "../src/utils";
+import { timingSafeEqual, SecureBuffer, wipeMemory } from "../src/utils";
 
 describe("Utilities", () => {
+  describe("wipeMemory", () => {
+    it("should zero all bytes of a buffer in-place", () => {
+      const buf = new Uint8Array([0xde, 0xad, 0xbe, 0xef]);
+      wipeMemory(buf);
+      expect(Array.from(buf)).to.deep.equal([0, 0, 0, 0]);
+    });
+
+    it("should handle empty buffer safely", () => {
+      const empty = new Uint8Array(0);
+      wipeMemory(empty);
+      expect(empty.length).to.equal(0);
+    });
+  });
+
   describe("timingSafeEqual", () => {
     it("should return true for identical arrays", () => {
       const a = new Uint8Array([1, 2, 3, 4]);
