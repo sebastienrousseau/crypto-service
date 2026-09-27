@@ -13,6 +13,7 @@
     "build": "pnpm -r run build",
     "clean": "pnpm -r run clean",
     "docs": "pnpm -r run docs",
+    "docs:portal": "node scripts/build-docs.mjs",
     "lint": "pnpm -r run lint",
     "lint:fix": "pnpm -r run lint:fix",
     "format": "pnpm -r run format",
