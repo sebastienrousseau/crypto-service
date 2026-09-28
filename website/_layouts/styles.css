@@ -2,96 +2,142 @@
 /* WCAG 2.2 AAA Design System */
 
 :root {
-  --bg: #07090e;
-  --bg-subtle: #0d121c;
-  --bg-card: #121826;
-  --bg-card-hover: #182032;
-  --border: #23353c;
+  --bg: #ffffff;
+  --bg-subtle: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border: #e2e8f0;
   --border-strong: #2ec4b6;
-  --fg: #ffffff;
-  --fg-muted: #cbf3f0;
-  --fg-subtle: #8ea8a6;
-  --primary: #2ec4b6;
-  --primary-hover: #cbf3f0;
-  --primary-ink: #07090e;
-  --primary-glow: rgba(46, 196, 182, 0.28);
+  --fg: #0f172a;
+  --fg-muted: #334155;
+  --fg-subtle: #64748b;
+  --primary: #028074;
+  --primary-mint: #2ec4b6;
+  --primary-hover: #005a52;
+  --primary-ink: #ffffff;
+  --primary-glow: rgba(46, 196, 182, 0.25);
   --secondary: #ff9f1c;
   --secondary-hover: #ffbf69;
-  --secondary-ink: #07090e;
+  --secondary-ink: #0f172a;
   --secondary-glow: rgba(255, 159, 28, 0.25);
   --accent: #ff9f1c;
   --accent-soft: #ffbf69;
   --accent-cool: #2ec4b6;
   --accent-frost: #cbf3f0;
-  --success: #2ec4b6;
+  --banner-bg: #cbf3f0;
+  --footer-bg: #1c2833;
+  --footer-fg: #f8fafc;
+  --footer-muted: #94a3b8;
+  --success: #028074;
   --warning: #ff9f1c;
   --focus: #2ec4b6;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
+  --radius-pill: 999px;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0b101b;
+  --bg-subtle: #111827;
+  --bg-card: #182235;
+  --bg-card-hover: #1f2c42;
+  --border: #24344d;
+  --border-strong: #2ec4b6;
+  --fg: #f8fafc;
+  --fg-muted: #cbf3f0;
+  --fg-subtle: #94a3b8;
+  --primary: #2ec4b6;
+  --primary-mint: #2ec4b6;
+  --primary-hover: #cbf3f0;
+  --primary-ink: #0b101b;
+  --primary-glow: rgba(46, 196, 182, 0.35);
+  --secondary: #ff9f1c;
+  --secondary-hover: #ffbf69;
+  --secondary-ink: #0b101b;
+  --secondary-glow: rgba(255, 159, 28, 0.25);
+  --accent: #ff9f1c;
+  --accent-soft: #ffbf69;
+  --accent-cool: #2ec4b6;
+  --accent-frost: #cbf3f0;
+  --banner-bg: #122830;
+  --footer-bg: #070a10;
+  --footer-fg: #f8fafc;
+  --footer-muted: #94a3b8;
+  --success: #2ec4b6;
+  --warning: #ff9f1c;
+  --focus: #2ec4b6;
   color-scheme: dark;
 }
 
 [data-theme="light"] {
   --bg: #ffffff;
-  --bg-subtle: #f4faf9;
+  --bg-subtle: #f8fafc;
   --bg-card: #ffffff;
-  --bg-card-hover: #edf7f6;
-  --border: #b8dedb;
-  --border-strong: #00756a;
-  --fg: #07090e;
-  --fg-muted: #142a28;
-  --fg-subtle: #3a5553;
-  --primary: #00756a;
+  --bg-card-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #2ec4b6;
+  --fg: #0f172a;
+  --fg-muted: #334155;
+  --fg-subtle: #64748b;
+  --primary: #028074;
+  --primary-mint: #2ec4b6;
   --primary-hover: #005a52;
   --primary-ink: #ffffff;
-  --primary-glow: rgba(0, 117, 106, 0.18);
-  --secondary: #b85d00;
-  --secondary-hover: #994d00;
-  --secondary-ink: #ffffff;
-  --secondary-glow: rgba(184, 93, 0, 0.18);
-  --accent: #b85d00;
-  --accent-soft: #ff9f1c;
-  --accent-cool: #00756a;
-  --accent-frost: #e0f6f4;
-  --success: #00756a;
-  --warning: #b85d00;
-  --focus: #00756a;
+  --primary-glow: rgba(46, 196, 182, 0.25);
+  --secondary: #ff9f1c;
+  --secondary-hover: #ffbf69;
+  --secondary-ink: #0f172a;
+  --secondary-glow: rgba(255, 159, 28, 0.25);
+  --accent: #ff9f1c;
+  --accent-soft: #ffbf69;
+  --accent-cool: #2ec4b6;
+  --accent-frost: #cbf3f0;
+  --banner-bg: #cbf3f0;
+  --footer-bg: #1c2833;
+  --footer-fg: #f8fafc;
+  --footer-muted: #94a3b8;
+  --success: #028074;
+  --warning: #ff9f1c;
+  --focus: #2ec4b6;
   color-scheme: light;
 }
 
-/* ---------------------------------------------------------------------
-   Follow the operating system.
-   --------------------------------------------------------------------- */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #ffffff;
-    --bg-subtle: #f4faf9;
-    --bg-card: #ffffff;
-    --bg-card-hover: #edf7f6;
-    --border: #b8dedb;
-    --border-strong: #00756a;
-    --fg: #07090e;
-    --fg-muted: #142a28;
-    --fg-subtle: #3a5553;
-    --primary: #00756a;
-    --primary-hover: #005a52;
-    --primary-ink: #ffffff;
-    --primary-glow: rgba(0, 117, 106, 0.18);
-    --secondary: #b85d00;
-    --secondary-hover: #994d00;
-    --secondary-ink: #ffffff;
-    --secondary-glow: rgba(184, 93, 0, 0.18);
-    --accent: #b85d00;
-    --accent-soft: #ff9f1c;
-    --accent-cool: #00756a;
-    --accent-frost: #e0f6f4;
-    --success: #00756a;
-    --warning: #b85d00;
-    --focus: #00756a;
-    color-scheme: light;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b101b;
+    --bg-subtle: #111827;
+    --bg-card: #182235;
+    --bg-card-hover: #1f2c42;
+    --border: #24344d;
+    --border-strong: #2ec4b6;
+    --fg: #f8fafc;
+    --fg-muted: #cbf3f0;
+    --fg-subtle: #94a3b8;
+    --primary: #2ec4b6;
+    --primary-mint: #2ec4b6;
+    --primary-hover: #cbf3f0;
+    --primary-ink: #0b101b;
+    --primary-glow: rgba(46, 196, 182, 0.35);
+    --secondary: #ff9f1c;
+    --secondary-hover: #ffbf69;
+    --secondary-ink: #0b101b;
+    --secondary-glow: rgba(255, 159, 28, 0.25);
+    --accent: #ff9f1c;
+    --accent-soft: #ffbf69;
+    --accent-cool: #2ec4b6;
+    --accent-frost: #cbf3f0;
+    --banner-bg: #122830;
+    --footer-bg: #070a10;
+    --footer-fg: #f8fafc;
+    --footer-muted: #94a3b8;
+    --success: #2ec4b6;
+    --warning: #ff9f1c;
+    --focus: #2ec4b6;
+    color-scheme: dark;
   }
 }
 
@@ -2005,4 +2051,1000 @@ h1 {
     background: #f3f4f6;
     color: #090a0f;
   }
+}
+
+/* =====================================================================
+   SWIFT.COM CORPORATE INSTITUTIONAL THEME & TROPICAL SUNRISE STYLING
+   ===================================================================== */
+
+/* Site Header */
+.site-header {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--fg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-symbol {
+  color: var(--primary-mint);
+  font-size: 1.25rem;
+}
+
+.brand-badge {
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.5rem;
+  background: var(--banner-bg);
+  color: var(--primary);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+
+.nav-link {
+  color: var(--fg-muted);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  padding: 0.5rem 0.25rem;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--primary);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary-mint);
+  border-radius: 2px;
+}
+
+/* Institutional Buttons */
+.btn-swift-mint {
+  background: var(--primary-mint);
+  color: #0b1726 !important;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.4rem;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(46, 196, 182, 0.25);
+}
+
+.btn-swift-mint:hover {
+  background: #cbf3f0;
+  color: #0b1726 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(46, 196, 182, 0.35);
+}
+
+.btn-swift-dark {
+  background: #1c2833;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.4rem;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-swift-dark:hover {
+  background: var(--primary-mint);
+  color: #0b1726 !important;
+  transform: translateY(-1px);
+}
+
+.btn-swift-outline {
+  background: transparent;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.4rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-swift-outline:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+}
+
+.btn-swift-ghost {
+  background: transparent;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-swift-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Panoramic Hero Stage */
+.swift-hero-stage {
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  background: #0b1420;
+  overflow: hidden;
+}
+
+.swift-hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.swift-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.swift-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.88) 100%);
+}
+
+.swift-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 5rem 1.5rem;
+  max-width: 1200px;
+}
+
+.swift-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(46, 196, 182, 0.18);
+  border: 1px solid rgba(46, 196, 182, 0.4);
+  border-radius: var(--radius-pill);
+  margin-bottom: 1.5rem;
+}
+
+.swift-hero-badge-text {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #cbf3f0;
+}
+
+.swift-hero-title {
+  color: #ffffff;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  max-width: 860px;
+}
+
+.swift-hero-lead {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 780px;
+  margin-bottom: 2.25rem;
+}
+
+.swift-hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Institutional Telemetry Strip */
+.telemetry-bar {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 1.75rem 0;
+}
+
+.telemetry-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-right: 1px solid var(--border);
+}
+
+.telemetry-item:last-child {
+  border-right: none;
+}
+
+.telemetry-value {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.telemetry-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-subtle);
+}
+
+/* SWIFT Section Common */
+.swift-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.5rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.section-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.swift-section-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.swift-view-all-link {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.swift-view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* SWIFT Latest News & Insights (3-Column Grid) */
+.swift-news-section {
+  padding: 5rem 0;
+  background: var(--bg);
+}
+
+.swift-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.swift-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.swift-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+}
+
+.swift-card-media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.swift-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.swift-card:hover .swift-card-media img {
+  transform: scale(1.03);
+}
+
+.swift-card-body {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.swift-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--fg-subtle);
+  margin-bottom: 0.75rem;
+}
+
+.swift-card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.swift-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 0.75rem;
+}
+
+.swift-card-title a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.swift-card-title a:hover {
+  color: var(--primary);
+}
+
+.swift-card-excerpt {
+  color: var(--fg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.swift-arrow-link {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: gap 0.15s ease;
+}
+
+.swift-arrow-link:hover {
+  gap: 0.5rem;
+  text-decoration: underline;
+}
+
+/* SWIFT Solutions Tabbed Stage */
+.swift-solutions-stage {
+  padding: 5rem 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.swift-solutions-header {
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.swift-tabs-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  scrollbar-width: none;
+}
+
+.swift-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.swift-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.85rem 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.swift-tab-btn:hover {
+  color: var(--fg);
+}
+
+.swift-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary-mint);
+}
+
+.swift-tab-content-panel {
+  display: none;
+}
+
+.swift-tab-content-panel.active {
+  display: block;
+}
+
+.swift-solution-split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .swift-solution-split {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.swift-solution-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.swift-solution-headline {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 1.25rem;
+  color: var(--fg);
+}
+
+.swift-solution-desc {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--fg-muted);
+  margin-bottom: 1.75rem;
+}
+
+.swift-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.swift-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+
+.swift-check-icon {
+  color: var(--primary-mint);
+  font-weight: 800;
+}
+
+.architecture-preview-card {
+  background: #0b121c;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.preview-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: #070a10;
+  border-bottom: 1px solid #1a2736;
+  font-size: 0.75rem;
+}
+
+.preview-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #cbf3f0;
+}
+
+.preview-status-line {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(46, 196, 182, 0.3);
+  color: #2ec4b6;
+  font-weight: 700;
+}
+
+/* SWIFT Full-Width Callout Banner */
+.swift-banner-section {
+  background: linear-gradient(135deg, #cbf3f0 0%, #e2faf8 100%);
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .swift-banner-section {
+  background: linear-gradient(135deg, #0f2b30 0%, #16383e 100%);
+}
+
+.swift-banner-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.swift-banner-title {
+  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+  font-weight: 800;
+  color: #0b1726;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+[data-theme="dark"] .swift-banner-title {
+  color: #ffffff;
+}
+
+.swift-banner-desc {
+  font-size: 1.05rem;
+  color: #1e293b;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .swift-banner-desc {
+  color: #cbf3f0;
+}
+
+/* SWIFT 3-Card Resource Grid */
+.swift-resources-section {
+  padding: 5rem 0;
+  background: var(--bg);
+}
+
+.swift-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.swift-resource-card {
+  padding: 2.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.swift-resource-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.resource-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+  margin-bottom: 1rem;
+}
+
+.resource-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: var(--fg);
+}
+
+.resource-desc {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--fg-muted);
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+/* Institutional Monorepo Packages Section */
+.package-layer-group {
+  margin-bottom: 3.5rem;
+}
+
+.package-layer-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.package-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.package-card-header h4 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.package-card-header h4 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.package-card-header h4 a:hover {
+  color: var(--primary);
+}
+
+/* Subpage Layouts */
+.page-container {
+  padding-bottom: 5rem;
+}
+
+.page-header {
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  padding: 3.5rem 0 3rem;
+  margin-bottom: 3.5rem;
+}
+
+.breadcrumb-nav {
+  font-size: 0.8125rem;
+  color: var(--fg-subtle);
+  margin-bottom: 1.25rem;
+}
+
+.breadcrumb-nav a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.current-crumb {
+  color: var(--fg-muted);
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--fg);
+}
+
+.page-lead {
+  font-size: 1.15rem;
+  color: var(--fg-muted);
+  max-width: 820px;
+  line-height: 1.65;
+}
+
+.section-divider {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 4rem 0;
+}
+
+/* Solutions Page Elements */
+.solutions-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.solution-nav-card {
+  padding: 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.solution-nav-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-mint);
+}
+
+.solution-num {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary-mint);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.solution-nav-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.solution-nav-card h3 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.solution-nav-card p {
+  font-size: 0.875rem;
+  color: var(--fg-subtle);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.solution-detail-section {
+  margin-bottom: 3.5rem;
+}
+
+.solution-header {
+  margin-bottom: 1.5rem;
+}
+
+.solution-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.lead-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--fg-muted);
+  margin-bottom: 2rem;
+}
+
+/* Standards Page Elements */
+.standards-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.standard-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.card-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card-kpi {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--banner-bg);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Research Page Elements */
+.research-toc-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+.research-toc-box h3 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.research-toc-box ol {
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.research-toc-box a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.research-toc-box a:hover {
+  text-decoration: underline;
+}
+
+.table-caption {
+  font-size: 0.8125rem;
+  color: var(--fg-subtle);
+  margin-top: 0.75rem;
+}
+
+.roadmap-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+  position: relative;
+  padding-left: 2rem;
+  border-left: 2px solid var(--primary-mint);
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+/* Contact Page Elements */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 3.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.contact-card {
+  padding: 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.contact-card h3 {
+  font-size: 1.15rem;
+  margin: 0.4rem 0 0.6rem;
+}
+
+.contact-form-card {
+  padding: 2.5rem;
+}
+
+.institutional-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.form-control {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-mint);
+  box-shadow: 0 0 0 3px rgba(46, 196, 182, 0.2);
+}
+
+.btn-block {
+  width: 100%;
 }

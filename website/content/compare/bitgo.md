@@ -4,7 +4,7 @@ description: "Detailed institutional architecture comparison between Crypto Serv
 eyebrow: "Institutional Custody Comparison"
 headline: "Non-Custodial Cryptographic Infrastructure vs. Custodial Intermediaries"
 lead: "Compare sovereign on-premise zero-trust cryptography with BitGo's hosted custody platform. Eliminate basis point asset fees, cloud dependency, and counterparty insolvency risk."
-layout: index
+layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB

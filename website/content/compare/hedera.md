@@ -4,7 +4,7 @@ description: "Architecture comparison of Crypto Service Suite and Hedera Hashgra
 eyebrow: "DLT Infrastructure Analysis"
 headline: "Universal Cryptographic Substrate vs. Public DLT Networks"
 lead: "Understand the fundamental boundary between protocol-level cryptographic operations and public distributed ledger consensus."
-layout: index
+layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB

@@ -88,12 +88,6 @@ if (fs.existsSync(assetsDir)) {
 fs.writeFileSync(path.join(SITE_DIR, "CNAME"), "docs.crypto-service.co\n");
 fs.writeFileSync(path.join(SITE_DIR, ".nojekyll"), "");
 
-// Copy 2027 Research White Paper if present
-const researchHtml = path.join(WEBSITE_DIR, "research.html");
-if (fs.existsSync(researchHtml)) {
-  fs.copyFileSync(researchHtml, path.join(SITE_DIR, "research.html"));
-}
-
 // Copy package documentation into _site/packages/<pkg-name>
 const packages = fs.readdirSync(PACKAGES_DIR).filter((f) => {
   return fs.statSync(path.join(PACKAGES_DIR, f)).isDirectory();

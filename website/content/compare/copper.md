@@ -4,7 +4,7 @@ description: "Institutional comparison of Crypto Service Suite and Copper ClearL
 eyebrow: "Off-Exchange Settlement Analysis"
 headline: "Cryptographic Mathematical Proof vs. Custodial Trust Networks"
 lead: "Evaluate the trade-offs between Copper's ClearLoop closed settlement ring and Crypto Service's self-sovereign, quantum-safe cryptographic engine."
-layout: index
+layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB

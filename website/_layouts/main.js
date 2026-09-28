@@ -95,4 +95,31 @@
       }
     }
   });
+
+  /* SWIFT Interactive Solutions Tab Switching */
+  document.addEventListener("click", function (e) {
+    var tabBtn = e.target.closest(".swift-tab-btn");
+    if (!tabBtn) return;
+    var tabNav = tabBtn.closest(".swift-tabs-nav");
+    if (!tabNav) return;
+    var allTabs = tabNav.querySelectorAll(".swift-tab-btn");
+    allTabs.forEach(function (btn) {
+      btn.classList.remove("active");
+      btn.setAttribute("aria-selected", "false");
+    });
+    tabBtn.classList.add("active");
+    tabBtn.setAttribute("aria-selected", "true");
+
+    var tabKey = tabBtn.getAttribute("data-tab");
+    var stage = tabNav.closest(".swift-solutions-stage");
+    if (!stage) return;
+    var panels = stage.querySelectorAll(".swift-tab-content-panel");
+    panels.forEach(function (panel) {
+      if (panel.id === tabKey) {
+        panel.classList.add("active");
+      } else {
+        panel.classList.remove("active");
+      }
+    });
+  });
 })();

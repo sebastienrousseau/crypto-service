@@ -4,7 +4,7 @@ description: "Comparison of Crypto Service Suite and Fireblocks Treasury Managem
 eyebrow: "Institutional Treasury Comparison"
 headline: "Post-Quantum Cryptography vs. Classical Threshold MPC"
 lead: "Discover why standard Multi-Party Computation (MPC) architectures remain exposed to Store-Now-Decrypt-Later (SNDL) attacks, and how Crypto Service Suite future-proofs treasury operations."
-layout: index
+layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB

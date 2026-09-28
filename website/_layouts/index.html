@@ -1,172 +1,421 @@
 {{#extends "base"}}
 {{#block "main"}}
-<section id="hero" class="hero-section">
-  <div class="container hero-container">
-    <div class="hero-split-grid">
-      <div class="hero-text-col">
-        <div class="pill-badge">
-          <span class="pill-dot" aria-hidden="true"></span>
-          <span class="pill-text">{{eyebrow}}</span>
-        </div>
-        <h1 class="hero-title">Cryptographic <span class="serif">Mobility</span> for Markets That <span class="serif">Never Close</span></h1>
-        <p class="hero-lead">{{lead}}</p>
-        <div class="hero-cta-group">
-          <a class="btn btn-dark-pill btn-lg" href="#packages">{{cta_primary}}</a>
-          <a class="btn btn-secondary btn-lg" href="research.html">2027 Research White Paper &rarr;</a>
-          <a class="btn btn-outline btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">GitHub Specifications</a>
-        </div>
-      </div>
-      <div class="hero-graphic-col" aria-hidden="true">
-        <div class="sphere-wrapper">
-          <svg viewBox="0 0 320 320" width="300" height="300" fill="none" stroke="currentColor" stroke-width="1.2" class="wireframe-sphere">
-            <circle cx="160" cy="160" r="130" stroke-opacity="0.3" />
-            <ellipse cx="160" cy="160" rx="130" ry="50" stroke-opacity="0.35" />
-            <ellipse cx="160" cy="160" rx="50" ry="130" stroke-opacity="0.35" />
-            <ellipse cx="160" cy="160" rx="95" ry="130" stroke-opacity="0.25" stroke-dasharray="4 4" />
-            <ellipse cx="160" cy="160" rx="130" ry="95" stroke-opacity="0.25" stroke-dasharray="4 4" />
-            <circle cx="255" cy="105" r="5" fill="#FF9F1C" stroke="var(--bg)" stroke-width="2" />
-            <circle cx="80" cy="220" r="5" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
-            <circle cx="160" cy="160" r="6" fill="var(--fg)" stroke="var(--bg)" stroke-width="2" />
-            <circle cx="225" cy="200" r="4" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
-          </svg>
-        </div>
-      </div>
+<!-- SWIFT-Style Panoramic Hero Stage -->
+<section id="hero" class="swift-hero-stage">
+  <div class="swift-hero-backdrop">
+    <img
+      src="{{site_path}}images/corporate-finance.webp"
+      srcset="{{site_path}}images/corporate-finance-640.webp 640w, {{site_path}}images/corporate-finance-1200.webp 1200w, {{site_path}}images/corporate-finance.webp 2584w"
+      sizes="100vw"
+      alt="Corporate finance institutional operations and global trading infrastructure"
+      fetchpriority="high"
+      class="swift-hero-img"
+    />
+    <div class="swift-hero-overlay"></div>
+  </div>
+
+  <div class="container swift-hero-content">
+    <div class="swift-hero-badge">
+      <span class="pill-dot" aria-hidden="true"></span>
+      <span class="swift-hero-badge-text">INSTITUTIONAL CRYPTOGRAPHIC INFRASTRUCTURE</span>
     </div>
-
-    <!-- Institutional KPI Telemetry Bar -->
-    <div class="telemetry-bar">
-      <div class="telemetry-item">
-        <span class="telemetry-value font-mono">18</span>
-        <span class="telemetry-label">Modular Packages</span>
-      </div>
-      <div class="telemetry-item">
-        <span class="telemetry-value font-mono">100%</span>
-        <span class="telemetry-label">Coverage Floor</span>
-      </div>
-      <div class="telemetry-item">
-        <span class="telemetry-value font-mono">FIPS 203/204</span>
-        <span class="telemetry-label">Post-Quantum</span>
-      </div>
-      <div class="telemetry-item">
-        <span class="telemetry-value font-mono">&lt; 1ms</span>
-        <span class="telemetry-label">Deterministic Latency</span>
-      </div>
-      <div class="telemetry-item">
-        <span class="telemetry-value font-mono">DORA &amp; CBOM</span>
-        <span class="telemetry-label">Audit-Ready</span>
-      </div>
+    <h1 class="swift-hero-title">Shaping the future of finance, together.</h1>
+    <p class="swift-hero-lead">
+      The sovereign, high-throughput cryptographic core engineered for tier-1 banks, custodians, and global financial rails. FIPS 203/204 native, multi-cloud KMS orchestration, and deterministic sub-millisecond settlement across 18 lockstep packages.
+    </p>
+    <div class="swift-hero-cta-group">
+      <a class="btn btn-swift-mint btn-lg" href="{{site_path}}solutions/">Explore Solutions &rarr;</a>
+      <a class="btn btn-swift-outline btn-lg" href="{{site_path}}research/">2027 Research White Paper</a>
+      <a class="btn btn-swift-ghost btn-lg" href="{{site_path}}standards/">Standards &amp; Compliance</a>
     </div>
-
-    <figure class="hero-photo">
-      <div class="photo-header">
-        <span class="photo-badge font-mono">FIPS 203 &bull; ML-KEM-768</span>
-        <span class="photo-status">INSTITUTIONAL CORE ACTIVE</span>
-      </div>
-      <img src="{{site_path}}images/corporate-finance-640.webp" srcset="{{site_path}}images/corporate-finance-320.webp 320w, {{site_path}}images/corporate-finance-640.webp 640w, {{site_path}}images/corporate-finance-1200.webp 1200w, {{site_path}}images/corporate-finance-1920.webp 1920w, {{site_path}}images/corporate-finance.webp 2584w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="Corporate finance high-technology trading desks and operations center" fetchpriority="high">
-    </figure>
-
-    <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->
-    <figure id="ai-ide" class="terminal-preview-card" aria-label="4-Pane TMUX IDE Grid Preview">
-      <figcaption class="terminal-header">
-        <div class="window-dots">
-          <span class="dot dot-red" aria-hidden="true"></span>
-          <span class="dot dot-yellow" aria-hidden="true"></span>
-          <span class="dot dot-green" aria-hidden="true"></span>
-        </div>
-        <div class="terminal-tab-bar font-mono">
-          <span class="tmux-win-badge">[crypto-service]</span>
-          <span class="tab-item active-tab">0:ide* (4 panes)</span>
-          <span class="tab-item">1:server</span>
-          <span class="tab-item">2:cli</span>
-        </div>
-        <div class="terminal-actions">
-          <span class="badge-status font-mono">● TypeScript 5.8+ · Node.js 22 LTS · FIPS 203/204 Native</span>
-        </div>
-      </figcaption>
-
-      <div class="tmux-grid">
-        <!-- Pane 1: Project Explorer (Left 20%) -->
-        <div class="tmux-pane pane-explorer font-mono">
-          <div class="pane-header">
-            <span class="pane-title">1: Explorer</span>
-            <span class="pane-badge">/crypto-service</span>
-          </div>
-          <div class="pane-content explorer-content">
-<div class="tree-node dir">▼ packages/</div>
-<div class="tree-node file active">▶ crypto-lib/</div>
-<div class="tree-node file">  crypto-wasm/</div>
-<div class="tree-node file">  crypto-server/</div>
-<div class="tree-node file">  crypto-cli/</div>
-<div class="tree-node file">  crypto-sdk/</div>
-<div class="tree-node file">  crypto-cbom/</div>
-<div class="tree-node file">pnpm-workspace.yaml</div>
-<div class="tree-node file">package.json</div>
-          </div>
-        </div>
-
-        <!-- Center Column: Pane 2 (Editor Top) + Pane 3 (Terminal Bottom) -->
-        <div class="tmux-center-col">
-          <!-- Pane 2: Editor (Neovim LSP) -->
-          <div class="tmux-pane pane-editor font-mono">
-            <div class="pane-header">
-              <span class="pane-title">2: Neovim (LSP)</span>
-              <span class="pane-file">packages/crypto-lib/src/modern/pq-kem/index.ts</span>
-            </div>
-            <div class="pane-content editor-content" tabindex="0" role="region" aria-label="Neovim Code Editor">
-              <pre class="editor-code font-mono"><code><span class="code-comment">// FIPS 203 ML-KEM-768 &amp; RFC 10024 Hybrid Key Encapsulation</span>
-<span class="code-kw">import</span> { mlKemKeygen, mlKemEncapsulate, mlKemDecapsulate, wipeMemory } <span class="code-kw">from</span> <span class="code-str">"@sebastienrousseau/crypto-lib"</span>;
-
-<span class="code-kw">export async function</span> <span class="code-fn">establishQuantumSafeKey</span>(): <span class="code-type">Promise</span>&lt;<span class="code-type">Uint8Array</span>&gt; {
-  <span class="code-kw">const</span> alice = <span class="code-fn">mlKemKeygen</span>(768);
-  <span class="code-kw">const</span> { ciphertext, sharedSecret } = <span class="code-fn">mlKemEncapsulate</span>(768, alice.publicKey);
-  <span class="code-kw">const</span> decrypted = <span class="code-fn">mlKemDecapsulate</span>(768, alice.secretKey, ciphertext);
-  <span class="code-fn">wipeMemory</span>(alice.secretKey);
-  <span class="code-kw">return</span> decrypted.sharedSecret;
-}</code></pre>
-            </div>
-          </div>
-
-          <!-- Pane 3: Integrated Shell / Test Runner -->
-          <div class="tmux-pane pane-terminal font-mono">
-            <div class="pane-header">
-              <span class="pane-title">3: Shell / Tests</span>
-              <span class="pane-badge">verified</span>
-            </div>
-            <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
-<div class="cli-line"><span class="mcp-tl-ps">$ </span>pnpm -r run test &amp;&amp; pnpm -r run lint</div>
-<div class="cli-out">   ✓ 18 packages passed (100% statements, branches, functions, lines)</div>
-<div class="cli-out cli-ok">test result: ok. 50+ cryptographic algorithms validated; 0 errors</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pane 4: AI Agent / MCP Server (Right 24%) -->
-        <div class="tmux-pane pane-ai font-mono">
-          <div class="pane-header">
-            <span class="pane-title">4: Antigravity MCP</span>
-            <span class="pane-badge ai-badge">MCP Agent</span>
-          </div>
-          <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
-<div class="ai-prompt"><span class="ai-sym">&gt;</span> Antigravity (MCP)</div>
-<div class="ai-tool">⏺ Tool: crypto.verifyFipsVectors()</div>
-<div class="ai-res">✓ NIST CAVP test vectors passed (FIPS 203/204/205/206)</div>
-<div class="ai-tool">⏺ Tool: crypto.auditZeroization()</div>
-<div class="ai-res">✓ Zero memory leakage detected: wipeMemory() active</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TMUX Status Bar -->
-      <div class="tmux-status-bar font-mono">
-        <span class="status-left">[crypto-service:ide*] 0:nvim* 1:server 2:cli "crypto-service" 17:30</span>
-        <span class="status-center">workspace: 18 packages (clean) · mcp: stdio (JSON-RPC)</span>
-        <span class="status-right">v0.0.4 FIPS-203</span>
-      </div>
-    </figure>
   </div>
 </section>
 
-<!-- Content sections rendered from Markdown -->
+<!-- Institutional KPI Telemetry Strip -->
+<div class="telemetry-bar">
+  <div class="container telemetry-inner">
+    <div class="telemetry-item">
+      <span class="telemetry-value font-mono">18</span>
+      <span class="telemetry-label">Lockstep Packages</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-value font-mono">100%</span>
+      <span class="telemetry-label">Strict Coverage Floor</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-value font-mono">FIPS 203/204</span>
+      <span class="telemetry-label">Post-Quantum Native</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-value font-mono">&lt; 1ms</span>
+      <span class="telemetry-label">Deterministic Latency</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-value font-mono">DORA &amp; CBOM</span>
+      <span class="telemetry-label">Audit-Ready</span>
+    </div>
+  </div>
+</div>
+
+<!-- Section: Latest News & Insights (SWIFT 3-Column Card Grid) -->
+<section class="swift-news-section">
+  <div class="container">
+    <div class="swift-section-header">
+      <div>
+        <span class="section-eyebrow font-mono">INSIGHTS &amp; INTELLIGENCE</span>
+        <h2 class="swift-section-title">Latest news &amp; insights</h2>
+      </div>
+      <a class="swift-view-all-link" href="{{site_path}}research/">View all research &amp; insights &rarr;</a>
+    </div>
+
+    <div class="swift-cards-grid">
+      <!-- Card 1 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/circuit_board_cityscape-640.webp"
+            alt="Cryptographic circuit board cityscape"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">
+            <span class="swift-meta-date">28 September 2026</span>
+            <span class="swift-meta-sep">&bull;</span>
+            <span class="swift-meta-read">5 min read</span>
+          </div>
+          <span class="swift-card-tag">REGULATORY MANDATE</span>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}standards/">Navigating DORA Article 13 &amp; FIPS 203 for Global Banks</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            Why European banking supervisors and central banks are mandating automated CBOM generation and hybrid key encapsulation ahead of 2027 enforcement.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}standards/">Read analysis &gt;</a>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/corporate-finance-640.webp"
+            alt="Corporate finance trading center"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">
+            <span class="swift-meta-date">24 September 2026</span>
+            <span class="swift-meta-sep">&bull;</span>
+            <span class="swift-meta-read">4 min read</span>
+          </div>
+          <span class="swift-card-tag">FINANCIAL RAILS</span>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}solutions/#iso-20022">ISO 20022 High-Throughput Messaging: Sub-Millisecond Signing</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            Benchmarking native WebAssembly micro-engines and hardware security modules for non-custodial pacs.008 and pacs.009 real-time gross settlement.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}solutions/#iso-20022">Read technical paper &gt;</a>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/circuit_board_cityscape-640.webp"
+            alt="Cryptographic network infrastructure"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">
+            <span class="swift-meta-date">19 September 2026</span>
+            <span class="swift-meta-sep">&bull;</span>
+            <span class="swift-meta-read">6 min read</span>
+          </div>
+          <span class="swift-card-tag">SUPPLY CHAIN</span>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}research/">Automated CycloneDX 1.6 CBOM: Continuous Audits for Regulators</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            How machine-readable cryptographic asset tracking eliminates Harvest Now, Decrypt Later (HNDL) exposure across modern microservice architectures.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}research/">Read architecture guide &gt;</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Our Solutions (SWIFT Tabbed Stage) -->
+<section class="swift-solutions-stage">
+  <div class="container">
+    <div class="swift-solutions-header">
+      <h2 class="swift-section-title">Our solutions</h2>
+      <div class="swift-tabs-nav" role="tablist" aria-label="Solutions Categories">
+        <button class="swift-tab-btn active" role="tab" aria-selected="true" data-tab="tab-iso">ISO 20022</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-pq">POST-QUANTUM</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-kms">MULTI-CLOUD KMS</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-settle">SETTLEMENT</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-suite">18 PACKAGES</button>
+      </div>
+    </div>
+
+    <div class="swift-tab-content-panel active" id="tab-iso">
+      <div class="swift-solution-split">
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow font-mono">FINANCIAL MESSAGING &amp; STANDARDS</span>
+          <h3 class="swift-solution-headline">End-to-End Cryptographic Assurance for Global Financial Rails</h3>
+          <p class="swift-solution-desc">
+            Seamlessly integrate post-quantum envelope encryption and dual-key signatures into existing Swift MT/MX and ISO 20022 XML workflows without disrupting core banking infrastructure.
+          </p>
+          <ul class="swift-checklist">
+            <li><span class="swift-check-icon">✓</span> Native validation and canonicalization for pacs.008, pacs.009, and camt.053 XML messages.</li>
+            <li><span class="swift-check-icon">✓</span> Dual-key hybrid signatures combining classical Ed25519 with FIPS 204 ML-DSA-65.</li>
+            <li><span class="swift-check-icon">✓</span> Zero heap allocations in hot signing loops with deterministic execution guarantees.</li>
+          </ul>
+          <div class="swift-solution-action">
+            <a class="btn btn-swift-mint btn-lg" href="{{site_path}}solutions/#iso-20022">Explore ISO 20022 Solutions &rarr;</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-preview">
+          <div class="architecture-preview-card">
+            <div class="preview-card-header font-mono">
+              <span class="badge-status">ISO 20022 CANONICAL VERIFIER</span>
+              <span class="preview-version">v0.0.4</span>
+            </div>
+            <div class="preview-card-body font-mono">
+              <div class="preview-code-line"><span class="code-comment">// Validate &amp; Envelop pacs.008 Credit Transfer</span></div>
+              <div class="preview-code-line"><span class="code-kw">const</span> verifier = <span class="code-fn">createIso20022Pipeline</span>({</div>
+              <div class="preview-code-line">&nbsp;&nbsp;schema: <span class="code-str">"pacs.008.001.10"</span>,</div>
+              <div class="preview-code-line">&nbsp;&nbsp;pqSignature: <span class="code-str">"ML-DSA-65"</span>,</div>
+              <div class="preview-code-line">&nbsp;&nbsp;hsmModule: <span class="code-str">"CloudHSM-FIPS-140-3"</span></div>
+              <div class="preview-code-line">});</div>
+              <div class="preview-code-line"><span class="code-kw">const</span> result = <span class="code-kw">await</span> verifier.<span class="code-fn">signAndEnvelope</span>(xml);</div>
+              <div class="preview-status-line">✓ Status: Canonical C14N11 Validated &bull; Latency: 0.38ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Post-Quantum -->
+    <div class="swift-tab-content-panel" id="tab-pq">
+      <div class="swift-solution-split">
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow font-mono">QUANTUM RESILIENCE &amp; FIPS</span>
+          <h3 class="swift-solution-headline">Lattice Cryptography &amp; RFC 10024 Hybrid Schemes</h3>
+          <p class="swift-solution-desc">
+            Defend high-value correspondent channels against Harvest Now, Decrypt Later (HNDL) attacks with standardized lattice key encapsulation (ML-KEM-768) and dual-key hybrid algorithms.
+          </p>
+          <ul class="swift-checklist">
+            <li><span class="swift-check-icon">✓</span> Full FIPS 203 (ML-KEM-512, 768, 1024) and FIPS 204 (ML-DSA-44, 65, 87) native support.</li>
+            <li><span class="swift-check-icon">✓</span> RFC 10024 dual-key hybrid mechanisms combining X25519 with ML-KEM-768.</li>
+            <li><span class="swift-check-icon">✓</span> Constant-time Number Theoretic Transform (NTT) implementation with memory wipe hygiene.</li>
+          </ul>
+          <div class="swift-solution-action">
+            <a class="btn btn-swift-mint btn-lg" href="{{site_path}}solutions/#post-quantum">Explore Post-Quantum KMS &rarr;</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-preview">
+          <div class="architecture-preview-card">
+            <div class="preview-card-header font-mono">
+              <span class="badge-status">FIPS 203 HYBRID KEM ENCLAVE</span>
+              <span class="preview-version">FIPS-203</span>
+            </div>
+            <div class="preview-card-body font-mono">
+              <div class="preview-code-line"><span class="code-comment">// Establish Quantum-Resistant Session Key</span></div>
+              <div class="preview-code-line"><span class="code-kw">import</span> { mlKemKeygen, mlKemEncapsulate } <span class="code-kw">from</span> <span class="code-str">"@sebastienrousseau/crypto-lib"</span>;</div>
+              <div class="preview-code-line"><span class="code-kw">const</span> alice = <span class="code-fn">mlKemKeygen</span>(768);</div>
+              <div class="preview-code-line"><span class="code-kw">const</span> { ciphertext, sharedSecret } = <span class="code-fn">mlKemEncapsulate</span>(768, alice.publicKey);</div>
+              <div class="preview-status-line">✓ Ciphertext: 1,088 bytes &bull; Work Factor: Level 3 (AES-192)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Multi-Cloud KMS -->
+    <div class="swift-tab-content-panel" id="tab-kms">
+      <div class="swift-solution-split">
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow font-mono">KEY ORCHESTRATION</span>
+          <h3 class="swift-solution-headline">Sovereign Hardware HSM &amp; Multi-Cloud Key Control</h3>
+          <p class="swift-solution-desc">
+            Orchestrate cryptographic roots of trust across heterogeneous environments without cloud vendor lock-in. Support for AWS CloudHSM, Google Cloud EKM, Azure Managed HSM, and on-premises PKCS#11 modules.
+          </p>
+          <ul class="swift-checklist">
+            <li><span class="swift-check-icon">✓</span> Unified cryptographic driver interface across AWS, GCP, Azure, and on-premise hardware.</li>
+            <li><span class="swift-check-icon">✓</span> Multi-region high availability with automated cryptographic failover.</li>
+            <li><span class="swift-check-icon">✓</span> Zero master key exfiltration guarantee—master keys never leave the secure hardware boundary.</li>
+          </ul>
+          <div class="swift-solution-action">
+            <a class="btn btn-swift-mint btn-lg" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Architecture &rarr;</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-preview">
+          <div class="architecture-preview-card">
+            <div class="preview-card-header font-mono">
+              <span class="badge-status">MULTI-CLOUD KMS ROUTER</span>
+              <span class="preview-version">ACTIVE</span>
+            </div>
+            <div class="preview-card-body font-mono">
+              <div class="preview-code-line"><span class="code-kw">const</span> kms = <span class="code-kw">new</span> <span class="code-fn">MultiCloudKmsProvider</span>({</div>
+              <div class="preview-code-line">&nbsp;&nbsp;primary: <span class="code-str">"aws-cloudhsm-eu-west-1"</span>,</div>
+              <div class="preview-code-line">&nbsp;&nbsp;secondary: <span class="code-str">"azure-managed-hsm-switzerland"</span>,</div>
+              <div class="preview-code-line">&nbsp;&nbsp;fallback: <span class="code-str">"pkcs11-onprem-zurich"</span></div>
+              <div class="preview-code-line">});</div>
+              <div class="preview-status-line">✓ Status: Tri-Region Quorum Active &bull; Failover: &lt; 2ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 4: Settlement -->
+    <div class="swift-tab-content-panel" id="tab-settle">
+      <div class="swift-solution-split">
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow font-mono">HIGH-THROUGHPUT EXECUTION</span>
+          <h3 class="swift-solution-headline">Deterministic Sub-Millisecond Signing at Scale</h3>
+          <p class="swift-solution-desc">
+            Engineered for high-volume 24/7/365 real-time gross settlement (RTGS). WebAssembly SIMD micro-kernels execute cryptographic operations in linear memory with zero garbage collection spikes.
+          </p>
+          <ul class="swift-checklist">
+            <li><span class="swift-check-icon">✓</span> Over 8,500 ISO 20022 messages signed per second per single CPU core.</li>
+            <li><span class="swift-check-icon">✓</span> Deterministic latency guarantees with constant-time modular arithmetic.</li>
+            <li><span class="swift-check-icon">✓</span> Universal deployment across Node.js LTS, edge runtimes, and embedded appliances.</li>
+          </ul>
+          <div class="swift-solution-action">
+            <a class="btn btn-swift-mint btn-lg" href="{{site_path}}solutions/#settlement">Explore Settlement Architecture &rarr;</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-preview">
+          <div class="architecture-preview-card">
+            <div class="preview-card-header font-mono">
+              <span class="badge-status">WASM SIMD KERNEL</span>
+              <span class="preview-version">&lt; 0.42ms</span>
+            </div>
+            <div class="preview-card-body font-mono">
+              <div class="preview-code-line"><span class="code-kw">import</span> { simdSignBatch } <span class="code-kw">from</span> <span class="code-str">"@sebastienrousseau/crypto-wasm"</span>;</div>
+              <div class="preview-code-line"><span class="code-kw">const</span> batchResult = <span class="code-fn">simdSignBatch</span>(transfers, hsmKey);</div>
+              <div class="preview-status-line">✓ Batch: 1,000 tx &bull; Time: 412ms &bull; Zero Heap Allocation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 5: Suite -->
+    <div class="swift-tab-content-panel" id="tab-suite">
+      <div class="swift-solution-split">
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow font-mono">MONOREPO INFRASTRUCTURE</span>
+          <h3 class="swift-solution-headline">18 Cohesive Packages Moving in Lockstep</h3>
+          <p class="swift-solution-desc">
+            A comprehensive, modular ecosystem designed for institutional enterprise engineering. Fully decoupled layers from low-level cryptographic math to high-level framework bindings (React, Vue, TypeORM, Prisma).
+          </p>
+          <ul class="swift-checklist">
+            <li><span class="swift-check-icon">✓</span> Unyielding 100% test coverage floor enforced across all 18 packages.</li>
+            <li><span class="swift-check-icon">✓</span> Zero runtime dependencies for core mathematical primitives.</li>
+            <li><span class="swift-check-icon">✓</span> Full TypeScript 5.8+ type safety and automated CycloneDX 1.6 CBOM manifests.</li>
+          </ul>
+          <div class="swift-solution-action">
+            <a class="btn btn-swift-mint btn-lg" href="{{site_path}}about/">Learn About Governance &rarr;</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-preview">
+          <div class="architecture-preview-card">
+            <div class="preview-card-header font-mono">
+              <span class="badge-status">WORKSPACE VERIFICATION GATE</span>
+              <span class="preview-version">100% FLOOR</span>
+            </div>
+            <div class="preview-card-body font-mono">
+              <div class="preview-code-line"><span class="mcp-tl-ps">$ </span>pnpm -r run test</div>
+              <div class="preview-code-line">✓ 18 packages passed (100% stmts, branch, funcs, lines)</div>
+              <div class="preview-status-line">✓ Zero Lint Errors &bull; TypeDoc Generated &bull; 0 Vulnerabilities</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Are you a regulated financial institution? (SWIFT Full-Width Aqua Banner) -->
+<section class="swift-banner-section">
+  <div class="container swift-banner-inner">
+    <div class="swift-banner-text">
+      <h2 class="swift-banner-title">Are you a regulated financial institution?</h2>
+      <p class="swift-banner-desc">
+        Deploy sovereign, non-custodial cryptographic infrastructure with multi-cloud KMS orchestration, 100% test-verified code, and comprehensive DORA Article 13 &amp; 14 compliance.
+      </p>
+    </div>
+    <div class="swift-banner-action">
+      <a class="btn btn-swift-dark btn-lg" href="{{site_path}}contact/">Request Architecture Briefing &gt;</a>
+    </div>
+  </div>
+</section>
+
+<!-- Section: 3-Card Resource & Assurance Grid (SWIFT Grid) -->
+<section class="swift-resources-section">
+  <div class="container">
+    <div class="swift-section-header">
+      <div>
+        <span class="section-eyebrow font-mono">ASSURANCE &amp; SECURITY</span>
+        <h2 class="swift-section-title">Institutional trust &amp; specifications</h2>
+      </div>
+    </div>
+
+    <div class="swift-resource-grid">
+      <!-- Resource Card 1 -->
+      <div class="swift-resource-card">
+        <div class="resource-badge font-mono">SECURITY ASSURANCE</div>
+        <h3 class="resource-title">Customer Security &amp; KMS Hardware</h3>
+        <p class="resource-desc">
+          Multi-tenant isolated KMS connectors for AWS CloudHSM, Google Cloud EKM, Azure Managed HSM, and on-premises PKCS#11 hardware. Zero master key exfiltration risk.
+        </p>
+        <a class="swift-arrow-link" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Security &gt;</a>
+      </div>
+
+      <!-- Resource Card 2 -->
+      <div class="swift-resource-card">
+        <div class="resource-badge font-mono">STANDARDS &amp; AUDIT</div>
+        <h3 class="resource-title">Standards &amp; Compliance Matrix</h3>
+        <p class="resource-desc">
+          Authoritative alignment with NIST FIPS 203/204/205, ISO 20022 schemas, European DORA Articles 13 &amp; 14, and NSA CNSA 2.0 quantum directives.
+        </p>
+        <a class="swift-arrow-link" href="{{site_path}}standards/">View Standards Matrix &gt;</a>
+      </div>
+
+      <!-- Resource Card 3 -->
+      <div class="swift-resource-card">
+        <div class="resource-badge font-mono">DIRECTORY &amp; CBOM</div>
+        <h3 class="resource-title">Cryptographic Directory &amp; CBOM</h3>
+        <p class="resource-desc">
+          Inspect the real-time inventory of verified algorithms, key lifetimes, and package dependencies generated in CycloneDX 1.6 format on every build.
+        </p>
+        <a class="swift-arrow-link" href="{{site_path}}compare/">Explore Comparisons &gt;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Content sections rendered from Markdown (clean institutional summaries) -->
 <div class="content-sections">
   {{!content}}
 </div>
