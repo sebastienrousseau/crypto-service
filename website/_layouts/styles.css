@@ -321,23 +321,21 @@ p, .lead-text, .lead {
   max-width: 64ch;
 }
 
-/* --- 2027 Frosted Spatial Navigation Bar --- */
+/* --- High-Contrast Opaque Navigation Bar --- */
 .swift-site-header {
   position: sticky;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
-  border-bottom: 1px solid var(--glass-border);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="dark"] .swift-site-header {
-  background: var(--glass-bg);
-  border-bottom: 1px solid var(--glass-border);
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -470,26 +468,24 @@ p, .lead-text, .lead {
   color: #2ec4b6;
 }
 
-/* 2027 Apple Spatial Mega Dropdown Panel */
+/* Mega Navigation Dropdown Panel - Solid Opaque High Contrast for Flawless Readability */
 .swift-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
-  border-top: 1px solid var(--glass-border);
-  border-bottom: 2px solid var(--primary-mint);
-  box-shadow: var(--glass-specular), 0 24px 50px -10px rgba(0, 0, 0, 0.15), 0 10px 24px -4px rgba(46, 196, 182, 0.12);
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 2px solid #2ec4b6;
+  box-shadow: 0 24px 48px -6px rgba(0, 0, 0, 0.18), 0 10px 20px -4px rgba(0, 0, 0, 0.08);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-6px);
-  transition: opacity 0.28s var(--spring-smooth),
-              transform 0.28s var(--spring-smooth),
-              visibility 0.28s;
-  z-index: 999;
+  transform: translateY(-4px);
+  transition: opacity 0.22s var(--spring-smooth),
+              transform 0.22s var(--spring-smooth),
+              visibility 0.22s;
+  z-index: 1001;
 }
 
 /* Invisible hover bridge eliminating cursor drop-off gap between header and dropdown */
@@ -505,10 +501,10 @@ p, .lead-text, .lead {
 }
 
 [data-theme="dark"] .swift-dropdown {
-  background: var(--glass-bg);
-  border-top: 1px solid var(--glass-border);
-  border-bottom: 2px solid var(--primary-mint);
-  box-shadow: var(--glass-specular), 0 28px 64px -12px rgba(0, 0, 0, 0.7);
+  background: #0b1322;
+  border-top: 1px solid #1e293b;
+  border-bottom: 2px solid #2ec4b6;
+  box-shadow: 0 28px 60px -8px rgba(0, 0, 0, 0.75);
 }
 
 .swift-nav-item:hover .swift-dropdown,
@@ -543,7 +539,7 @@ p, .lead-text, .lead {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #475569;
   margin-bottom: 0.65rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid #f1f5f9;
@@ -556,7 +552,7 @@ p, .lead-text, .lead {
 
 .swift-dropdown-item {
   display: block;
-  padding: 0.6rem 0.75rem;
+  padding: 0.65rem 0.85rem;
   border-radius: 8px;
   text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
@@ -564,7 +560,7 @@ p, .lead-text, .lead {
 
 .swift-dropdown-item:hover,
 .swift-dropdown-item:focus {
-  background: #f8fafc;
+  background: #f1f5f9;
   transform: translateX(3px);
 }
 
@@ -574,9 +570,9 @@ p, .lead-text, .lead {
 }
 
 .swift-dropdown-item-title {
-  font-size: 0.9rem;
+  font-size: 0.925rem;
   font-weight: 600;
-  color: #1c2833;
+  color: #0f172a;
   margin-bottom: 0.2rem;
   transition: color 0.15s ease;
   line-height: 1.3;
@@ -591,9 +587,9 @@ p, .lead-text, .lead {
 }
 
 .swift-dropdown-item-desc {
-  font-size: 0.775rem;
-  line-height: 1.4;
-  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #475569;
   margin: 0;
 }
 
@@ -603,11 +599,8 @@ p, .lead-text, .lead {
 
 /* Spotlight Card in Dropdown */
 .swift-dropdown-spotlight {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-specular), var(--glass-shadow);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius-md);
   padding: 1.5rem;
   display: flex;
@@ -618,8 +611,8 @@ p, .lead-text, .lead {
 }
 
 [data-theme="dark"] .swift-dropdown-spotlight {
-  background: var(--glass-bg);
-  border-color: var(--glass-border);
+  background: #111e33;
+  border-color: #1e293b;
 }
 
 .swift-spotlight-badge {
@@ -639,7 +632,7 @@ p, .lead-text, .lead {
 .swift-spotlight-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #1c2833;
+  color: #0f172a;
   margin: 0 0 0.5rem;
   line-height: 1.3;
 }
