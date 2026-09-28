@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 /**
  * @fileoverview Monorepo Documentation Hub Builder for docs.crypto-service.co
- * Compiles the Voxt documentation theme using local SSG (Rust static site generator)
+ * Compiles the Crypto Service documentation theme using local SSG (Rust static site generator)
  * and aggregates all 18 packages with their interactive TypeDoc API references.
  */
 
@@ -50,7 +50,7 @@ function findSsgBinary() {
 console.log("==> 1. Building TypeDoc documentation for all workspace packages...");
 execSync("pnpm -r run docs", { cwd: ROOT_DIR, stdio: "inherit" });
 
-console.log("==> 2. Compiling Voxt theme with local SSG...");
+console.log("==> 2. Compiling Crypto Service theme with local SSG...");
 const ssgBin = findSsgBinary();
 console.log(`Using SSG binary: ${ssgBin}`);
 
@@ -136,5 +136,5 @@ if (fs.existsSync(cryptoLibDocs)) {
   }
 }
 
-console.log("==> Unified Voxt documentation portal assembled at _site!");
+console.log("==> Unified Crypto Service documentation portal assembled at _site!");
 console.log(`==> Total workspace packages indexed: ${packageMeta.length}`);

@@ -10,7 +10,7 @@ name: "Crypto Service"
 language: en-GB
 date: "2026-09-28"
 logo_alt: "Crypto Service Suite logo"
-light_trace_alt: "Curved electric teal and amber light trails over a dark obsidian background"
+light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 nav_overview: "Architecture"
 nav_security: "Security"
 nav_faq: "FAQ"
