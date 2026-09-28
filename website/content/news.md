@@ -35,28 +35,28 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <div class="news-cards-grid">
 <article class="news-article-card" id="whitepaper">
 <span class="article-category font-mono">ARCHITECTURE WHITEPAPER</span>
-<h4><a href="{{site_path}}solutions/#caas-server">Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions</a></h4>
+<h4><a href="/solutions/#caas-server">Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions</a></h4>
 <p>How tier-1 banks, fintechs, and asset managers deploy on-premises and private-cloud Cryptography-as-a-Service daemons, retaining sovereign key governance while satisfying EU DORA Articles 13 &amp; 14.</p>
 <div class="article-footer font-mono">11 min read • Architecture White Paper • FIPS 203/204</div>
 </article>
 
 <article class="news-article-card" id="roadmap">
 <span class="article-category font-mono">STRATEGIC WHITEPAPER</span>
-<h4><a href="{{site_path}}research/">The 2027 Post-Quantum Strategic Horizon &amp; Cryptographic Audit</a></h4>
+<h4><a href="/research/">The 2027 Post-Quantum Strategic Horizon &amp; Cryptographic Audit</a></h4>
 <p>An authoritative executive analysis of upcoming compliance milestones from NIST, ANSSI, BSI, and US NSA CNSA 2.0. Why waiting until 2029 introduces existential compliance risks for financial market infrastructures.</p>
 <div class="article-footer font-mono">24 Pages • Strategic White Paper • Global Standards</div>
 </article>
 
 <article class="news-article-card" id="hndl">
 <span class="article-category font-mono">THREAT INTELLIGENCE WHITEPAPER</span>
-<h4><a href="{{site_path}}research/#threat-model">Harvest-Now-Decrypt-Later: Defending Long-Dated Enterprise Assets</a></h4>
+<h4><a href="/research/#threat-model">Harvest-Now-Decrypt-Later: Defending Long-Dated Enterprise Assets</a></h4>
 <p>State adversaries are actively intercepting and storing encrypted database backups, corporate IP, and interbank transaction logs. How hybrid dual-layer cryptography neutralizes retroactive exposure today.</p>
 <div class="article-footer font-mono">9 min read • Technical White Paper • HNDL Threat Model</div>
 </article>
 
 <article class="news-article-card" id="interbank-whitepaper">
 <span class="article-category font-mono">FINTECH WHITEPAPER</span>
-<h4><a href="{{site_path}}research/#interbank">Post-Quantum Migration Architecture &amp; Interbank Rails</a></h4>
+<h4><a href="/research/#interbank">Post-Quantum Migration Architecture &amp; Interbank Rails</a></h4>
 <p>Transitioning wholesale banking settlement engines, ISO 20022 payment payloads, and high-throughput SWIFT/Fedwire rails to quantum-resistant signatures with zero downtime.</p>
 <div class="article-footer font-mono">14 min read • Implementation White Paper • Banking Rails</div>
 </article>
@@ -69,21 +69,21 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <div class="news-cards-grid">
 <article class="news-article-card" id="benchmarks">
 <span class="article-category font-mono">PERFORMANCE BENCHMARK</span>
-<h4><a href="{{site_path}}ecosystem/">Micro-Benchmark Results: Sub-Millisecond PQC Signatures at Scale</a></h4>
+<h4><a href="/ecosystem/">Micro-Benchmark Results: Sub-Millisecond PQC Signatures at Scale</a></h4>
 <p>Benchmarking results demonstrate that ML-DSA-65 operations execute in under 0.85ms on modern server hardware with SIMD acceleration, disproving the myth that post-quantum cryptography introduces prohibitive latency.</p>
 <div class="article-footer font-mono">5 min read • Benchmark Report</div>
 </article>
 
 <article class="news-article-card" id="database-encryption">
 <span class="article-category font-mono">DATA AT REST</span>
-<h4><a href="{{site_path}}solutions/#field-encryption">Transparent Database Field Encryption with Prisma &amp; TypeORM</a></h4>
+<h4><a href="/solutions/#field-encryption">Transparent Database Field Encryption with Prisma &amp; TypeORM</a></h4>
 <p>A comprehensive architectural guide for implementing column-level authenticated encryption and post-quantum hybrid ciphers in enterprise database architectures with zero schema breaking changes.</p>
 <div class="article-footer font-mono">8 min read • Technical Guide</div>
 </article>
 
 <article class="news-article-card" id="cbom-guide">
 <span class="article-category font-mono">DEVSECOPS</span>
-<h4><a href="{{site_path}}standards/#cbom">Automated CBOM Auditing with CycloneDX and Crypto Service Suite</a></h4>
+<h4><a href="/standards/#cbom">Automated CBOM Auditing with CycloneDX and Crypto Service Suite</a></h4>
 <p>Learn how to automatically generate and continuously audit Cryptographic Bills of Materials in your CI/CD pipelines to detect deprecated elliptic curves before auditors flag them.</p>
 <div class="article-footer font-mono">7 min read • Tutorial</div>
 </article>
@@ -103,10 +103,10 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <h4>Global Cybersecurity Summit 2026 (London &amp; Virtual)</h4>
 <p>Keynote presentation by the Crypto Service team: "Post-Quantum Cryptographic Architecture in Modern Production Stacks". Accompanying distribution of our Sovereign CaaS white paper and live ML-KEM/ML-DSA benchmarks.</p>
 <div class="event-links-group" style="margin-top: 0.5rem; display: flex; gap: 1rem; align-items: center;">
-<a href="{{site_path}}research/" style="color: var(--accent-primary); font-size: 0.9rem; font-weight: 500;">Read Summit White Paper →</a>
+<a href="/research/" style="color: var(--accent-primary); font-size: 0.9rem; font-weight: 500;">Read Summit White Paper →</a>
 </div>
 </div>
-<a href="{{site_path}}contact/" class="event-link">Register Interest →</a>
+<a href="/contact/" class="event-link">Register Interest →</a>
 </div>
 
 <div class="event-item" id="ciso-roundtable">
@@ -118,7 +118,7 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <h4>Executive CISO Roundtable: Navigating DORA &amp; PQC Transitions</h4>
 <p>An exclusive virtual roundtable for bank CISOs, Chief Risk Officers, and heads of cryptographic architecture discussing compliance milestones and cryptographic bill of materials auditing.</p>
 </div>
-<a href="{{site_path}}contact/" class="event-link">Request Invitation →</a>
+<a href="/contact/" class="event-link">Request Invitation →</a>
 </div>
 
 <div class="event-item" id="workshops">
@@ -130,7 +130,7 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <h4>Hands-on Migration Workshop: Implementing ML-KEM in Production</h4>
 <p>A technical 3-hour deep-dive lab for software engineers and systems architects migrating to hybrid post-quantum TLS and field-level database encryption.</p>
 </div>
-<a href="{{site_path}}contact/" class="event-link">Join Waiting List →</a>
+<a href="/contact/" class="event-link">Join Waiting List →</a>
 </div>
 </div>
 </div>

@@ -102,7 +102,7 @@ Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack model, state
 
 <div class="visual-anchor" style="margin: 2.5rem 0; text-align: center;">
 <img
-src="{{site_path}}images/news-pqc-lattice.webp"
+src="/images/news-pqc-lattice.webp"
 alt="Luminous quantum lattice chip encapsulated in a floating clear liquid glass droplet"
 width="720"
 height="405"
@@ -221,7 +221,7 @@ Decryption occurs transparently in-memory when queries execute. Even if database
 
 <div class="visual-anchor" style="margin: 2.5rem 0; text-align: center;">
 <img
-src="{{site_path}}images/news-hndl-shield.webp"
+src="/images/news-hndl-shield.webp"
 alt="Organic liquid glass orb protecting encrypted financial data streams"
 width="720"
 height="405"
