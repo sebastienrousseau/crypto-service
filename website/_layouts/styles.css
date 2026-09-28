@@ -208,6 +208,7 @@ html {
   background-color: var(--bg);
   color: var(--fg);
   scroll-behavior: smooth;
+  scroll-padding-top: 90px;
   line-height: 1.6;
 }
 

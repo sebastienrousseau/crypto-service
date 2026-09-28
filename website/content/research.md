@@ -24,6 +24,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <li><a href="#benchmarks">4. Empirical Micro-Benchmarks &amp; Throughput Analysis</a></li>
 <li><a href="#side-channel">5. Side-Channel &amp; Fault-Injection Countermeasures</a></li>
 <li><a href="#roadmap">6. Strategic 2025–2027 Institutional Transition Roadmap</a></li>
+<li><a href="#interbank">7. Post-Quantum Migration Architecture &amp; Interbank Rails</a></li>
 </ol>
 </div>
 
@@ -208,6 +209,32 @@ Institutions must execute a structured, multi-phase migration to avoid operation
 <span class="timeline-badge font-mono">PHASE 3 // 2027</span>
 <h3>Pure Post-Quantum Consensus &amp; CNSA 2.0 Compliance</h3>
 <p>Transition high-value communication and data-at-rest stores to pure FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) primitives ahead of CNSA 2.0 enforcement deadlines.</p>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<section id="interbank" class="research-section">
+<h2>7. Post-Quantum Migration Architecture &amp; Interbank Rails</h2>
+<p class="lead-text">
+Interbank settlement, payment messaging networks, and digital asset custody rails require deterministic, backwards-compatible upgrade paths to post-quantum algorithms without disrupting live transactional SLAs.
+</p>
+<div class="grid-2x2">
+<div class="card">
+<h3>Transport Layer Security (TLS 1.3)</h3>
+<p>Deploy hybrid key encapsulation (X25519 + ML-KEM-768) within interbank gateways. Guarantees that communication sessions remain secure even if one algorithm is compromised.</p>
+</div>
+<div class="card">
+<h3>Data-at-Rest &amp; Field Encryption</h3>
+<p>Transparent database envelope encryption via <code>@sebastienrousseau/crypto-prisma</code> and <code>crypto-typeorm</code> protects customer records and sensitive account numbers prior to persistence.</p>
+</div>
+<div class="card">
+<h3>Transaction Signing &amp; Non-Repudiation</h3>
+<p>High-value transaction payloads are signed using ML-DSA-65 (FIPS 204), delivering post-quantum non-repudiation and deterministic verification across wholesale banking rails.</p>
+</div>
+<div class="card">
+<h3>Hardware HSM Orchestration</h3>
+<p>Abstract multi-cloud hardware security modules (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault) using <code>@sebastienrousseau/crypto-kms</code> to enforce sovereign key isolation.</p>
 </div>
 </div>
 

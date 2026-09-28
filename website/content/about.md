@@ -15,7 +15,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<section class="about-hero-section">
+<section class="about-hero-section" id="mandate">
 <h2>The Sovereign Infrastructure Mandate</h2>
 <p class="lead-text">
 Modern enterprise architectures cannot outsource their foundational cryptographic trust to third-party hosted black-boxes or custodial intermediaries. Custodial dependency introduces counterparty solvency risk, regulatory exposure, and single points of operational failure.
@@ -27,7 +27,7 @@ Crypto Service Suite was architected as a non-custodial, open-source sovereign c
 
 <hr class="section-divider">
 
-<section class="about-architecture-section">
+<section class="about-architecture-section" id="zero-dependency">
 <h2>The Four-Layer Monorepo Architecture</h2>
 <p>
 The suite is divided into 18 specialized, decoupled packages maintained in a strict monorepo moving in lockstep semantic versioning:
@@ -48,7 +48,7 @@ The suite is divided into 18 specialized, decoupled packages maintained in a str
 <code>@sebastienrousseau/crypto-kms</code>, <code>crypto-edge</code>, <code>crypto-prisma</code>, and <code>crypto-typeorm</code> provide unified KMS abstraction (AWS, GCP, Azure, Vault), edge runtimes (Cloudflare, Fastly), and transparent database column encryption.
 </p>
 </div>
-<div class="card">
+<div class="card" id="versioning">
 <span class="solution-badge font-mono">LAYER 3 // PROTOCOLS &amp; CLIENTS</span>
 <h3>Servers, APIs, SDK &amp; UI Integrations</h3>
 <p>
@@ -67,16 +67,17 @@ The suite is divided into 18 specialized, decoupled packages maintained in a str
 
 <hr class="section-divider">
 
-<section class="about-governance-section">
+<section class="about-governance-section" id="coverage">
 <h2>Engineering Discipline &amp; Verification Gates</h2>
 
 <div class="callout-box">
 <h3>Non-Negotiable Quality Gates</h3>
 <ul>
-<li><strong>100% Strict Coverage Floor:</strong> Zero code lands without 100% statement, branch, function, and line coverage verified by automated Vitest / v8 harnesses.</li>
-<li><strong>Deterministic Memory Zeroization:</strong> Ephemeral key buffers and NTT workspace memory are wiped from RAM using <code>wipeMemory()</code> upon scope termination.</li>
-<li><strong>Constant-Time Guarantees:</strong> Mathematical algorithms are formally validated against timing side-channel attacks and cache collision vulnerabilities.</li>
-<li><strong>Cryptographic Provenance:</strong> Dual-licensed under Apache 2.0 and MIT, with cryptographic software bill of materials (CBOM) generated on every build.</li>
+<li id="invariants"><strong>100% Strict Coverage Floor:</strong> Zero code lands without 100% statement, branch, function, and line coverage verified by automated Vitest / v8 harnesses.</li>
+<li id="verification"><strong>Deterministic Memory Zeroization:</strong> Ephemeral key buffers and NTT workspace memory are wiped from RAM using <code>wipeMemory()</code> upon scope termination.</li>
+<li id="disclosure"><strong>Constant-Time Guarantees:</strong> Mathematical algorithms are formally validated against timing side-channel attacks and cache collision vulnerabilities.</li>
+<li id="licensing"><strong>Cryptographic Provenance:</strong> Dual-licensed under Apache 2.0 and MIT, with cryptographic software bill of materials (CBOM) generated on every build.</li>
+<li id="dora"><strong>DORA Compliance Ready:</strong> Designed from inception to exceed EU Regulation (EU) 2022/2554 operational resilience mandates.</li>
 </ul>
 </div>
 </section>

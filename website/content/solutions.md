@@ -90,13 +90,13 @@ Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack model, state
 <h3>Composite Dual-Layer Hybrid Schemes</h3>
 <p>Mitigates implementation risk by combining classical elliptic curves (X25519 / NIST P-256) with lattice-based ML-KEM in an RFC 10024 compliant dual-key construction. An attacker must break <em>both</em> the classical curve and the lattice problem to compromise session keys.</p>
 </div>
-<div class="card">
+<div class="card" id="signatures">
 <h3>FIPS 204 (ML-DSA) Digital Signatures</h3>
 <p>Lattice-based digital signatures guaranteeing non-repudiation for high-value transactions. ML-DSA-65 delivers NIST Security Level 3 security with deterministic verification and resistance against side-channel timing analysis.</p>
 </div>
-<div class="card">
-<h3>Constant-Time Memory Hygiene</h3>
-<p>Strict memory zeroization protocols via <code>wipeMemory()</code> immediately overwrite ephemeral secret key buffers, intermediate lattice NTT coefficients, and decapsulation state upon transaction commitment.</p>
+<div class="card" id="entropy">
+<h3>Constant-Time Memory Hygiene &amp; Entropy</h3>
+<p>Strict memory zeroization protocols via <code>wipeMemory()</code> immediately overwrite ephemeral secret key buffers, intermediate lattice NTT coefficients, and decapsulation state upon transaction commitment, seeded by high-entropy hardware CSPRNG.</p>
 </div>
 </div>
 

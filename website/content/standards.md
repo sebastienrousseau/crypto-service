@@ -43,56 +43,56 @@ Enterprise infrastructure requires rigorous compliance with standardized, final 
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr id="fips203">
 <td><strong>NIST FIPS 203</strong></td>
 <td>NIST (United States)</td>
 <td>Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM)</td>
 <td><code>@sebastienrousseau/crypto-lib</code> (512, 768, 1024)</td>
 <td><span class="badge-status">Standard Compliant</span></td>
 </tr>
-<tr>
+<tr id="fips204">
 <td><strong>NIST FIPS 204</strong></td>
 <td>NIST (United States)</td>
 <td>Module-Lattice-Based Digital Signature Algorithm (ML-DSA)</td>
 <td><code>@sebastienrousseau/crypto-lib</code> (ML-DSA-44, 65, 87)</td>
 <td><span class="badge-status">Standard Compliant</span></td>
 </tr>
-<tr>
+<tr id="fips205">
 <td><strong>NIST FIPS 205</strong></td>
 <td>NIST (United States)</td>
 <td>Stateless Hash-Based Digital Signature Algorithm (SLH-DSA)</td>
 <td><code>@sebastienrousseau/crypto-lib</code> (SHA-2 &amp; SHAKE variants)</td>
 <td><span class="badge-status">Standard Compliant</span></td>
 </tr>
-<tr>
+<tr id="symmetric">
 <td><strong>NIST SP 800-38D &amp; RFC 8439</strong></td>
 <td>NIST &amp; IETF</td>
 <td>Authenticated Symmetric Ciphers (AES-256-GCM, ChaCha20-Poly1305)</td>
 <td><code>@sebastienrousseau/crypto-lib</code>, <code>crypto-prisma</code>, <code>crypto-typeorm</code></td>
 <td><span class="badge-status">Standard Compliant</span></td>
 </tr>
-<tr>
+<tr id="hpke">
 <td><strong>RFC 9180 &amp; RFC 10024</strong></td>
 <td>IETF</td>
 <td>Hybrid Public Key Encryption (HPKE) and dual-layer PQ hybrids</td>
 <td><code>@sebastienrousseau/crypto-lib</code> (X25519 + ML-KEM)</td>
 <td><span class="badge-status">Standard Compliant</span></td>
 </tr>
-<tr>
+<tr id="dora">
 <td><strong>EU DORA (Regulation 2022/2554)</strong></td>
 <td>European Commission (EBA/ESMA)</td>
 <td>Articles 9, 13 &amp; 14: Cryptographic controls, key agility, and ICT auditing</td>
 <td><code>@sebastienrousseau/crypto-cbom</code> &amp; <code>crypto-kms</code></td>
 <td><span class="badge-status">Audit-Ready</span></td>
 </tr>
-<tr>
+<tr id="cnsa">
 <td><strong>NSA CNSA 2.0</strong></td>
 <td>National Security Agency</td>
 <td>Commercial National Security Algorithm Suite requirements (2025–2030)</td>
 <td>Pure PQ &amp; Composite Dual-Layer Schemes</td>
 <td><span class="badge-status">Preemptively Aligned</span></td>
 </tr>
-<tr>
+<tr id="cbom">
 <td><strong>CycloneDX 1.6 &amp; SPDX 3.0</strong></td>
 <td>OWASP Foundation / Linux Foundation</td>
 <td>Cryptographic Bill of Materials (CBOM) machine-readable spec</td>
