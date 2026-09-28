@@ -182,7 +182,7 @@ body {
   min-height: 4.5rem;
   padding: 0.5rem 0;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .brand {
@@ -198,8 +198,8 @@ body {
 
 .nav-menu {
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: center;
 }
 
 .nav-link {
@@ -236,7 +236,7 @@ body {
   min-width: 2.75rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .nav-toggle {
     display: inline-flex;
     align-items: center;
