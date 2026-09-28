@@ -14,7 +14,7 @@ The minimum Node.js floor may only be raised:
 
 ## Monorepo Lockstep Policy
 
-All 14 packages within the Crypto Service workspace move in lockstep at identical version numbers. Every release increments strictly by +0.0.1 on the `v0.0.x` line until reaching `v0.0.999`.
+All 18 packages within the Crypto Service workspace move in lockstep at identical version numbers. Every release increments strictly by +0.0.1 on the `v0.0.x` line until reaching `v0.0.999`.
 
 ## Dependency Management
 

@@ -23,7 +23,7 @@ This report delivers:
 1. **The 2027 Quantum Horizon**: A rigorous assessment of Shor's algorithm qubit scaling, threshold degradation, and regulatory mandates.
 2. **Algorithmic Mechanics**: Comparative trade-offs of lattice-based (ML-KEM, ML-DSA) and hash-based (SLH-DSA) primitives.
 3. **Competitive Landscape**: A 10-dimension evaluation of the `@sebastienrousseau/crypto-service` monorepo against legacy alternatives (`libsodium-wrappers`, `node-forge`, `subtle-crypto`, and `aws-encryption-sdk`).
-4. **Comprehensive Repository Audit**: A rigorous 10-pillar inspection of the 14 packages comprising the `@sebastienrousseau/crypto-service` workspace, highlighting verified invariants, addressed security advisories (e.g. `qs` CVE-2026-82417), and the architectural roadmap toward `v0.0.4`.
+4. **Comprehensive Repository Audit**: A rigorous 10-pillar inspection of the 18 packages comprising the `@sebastienrousseau/crypto-service` workspace, highlighting verified invariants, addressed security advisories (e.g. `qs` CVE-2026-82417), and the architectural roadmap toward `v0.0.4`.
 
 ---
 
@@ -271,6 +271,34 @@ The workspace contains 14 tightly integrated packages managed under pnpm and Typ
 - **Audit Findings**:
   - Ensures no real cryptographic credentials or private keys ever touch test suites or repositories.
 
+#### 15. `@sebastienrousseau/crypto-mcp` (Model Context Protocol Server)
+
+- **Role**: Model Context Protocol (MCP) server providing cryptographic tools, standard resources, and migration prompts to AI coding assistants (Claude, Cursor, Antigravity).
+- **Audit Findings**:
+  - Implements stdio transport isolation with zero network surface.
+  - Strict input validation and automatic zeroization ensures private keys are never cached across MCP requests.
+
+#### 16. `@sebastienrousseau/crypto-lsp` (Language Server Protocol Server)
+
+- **Role**: Language Server Protocol (LSP) daemon delivering real-time AST/regex static analysis, quantum vulnerability linting, PEM validation, and automated quick fixes in IDEs.
+- **Audit Findings**:
+  - Zero-overhead diagnostics with debounce and cancellation support.
+  - Actionable code fixes to modernize legacy ciphers (e.g. DES/3DES/RC4 -> AES-256-GCM / ML-KEM).
+
+#### 17. `@sebastienrousseau/crypto-cbom` (Cryptographic Bill of Materials Generator)
+
+- **Role**: CBOM generation engine producing CycloneDX 1.6 and SPDX 3.0 asset inventories with DORA (Articles 9/13) and CRA (Article 14) compliance audit scoring.
+- **Audit Findings**:
+  - Comprehensive static scanning of source code, configuration files, and key stores.
+  - Automated mathematical compliance scoring and JSON/Markdown export formats.
+
+#### 18. `@sebastienrousseau/crypto-benchmarks` (Comparative Performance Suite)
+
+- **Role**: High-precision benchmarking harness comparing throughput, latency, and memory allocation across classical vs post-quantum algorithms.
+- **Audit Findings**:
+  - Validates cryptographic speedup (Node.js 22 LTS, WebCrypto vs WebAssembly).
+  - Continuous regression prevention for high-throughput microservices.
+
 ---
 
 ## 5. Security Posture & Vulnerability Remediation Audit
@@ -293,7 +321,7 @@ Prior to this audit, Dependabot flagged two medium-severity vulnerabilities in t
 
 ## 6. npmjs Ecosystem Publication Readiness
 
-All 14 packages in the workspace are verified for immediate npm registry publication under the `@sebastienrousseau` scope:
+All 18 packages in the workspace are verified for immediate npm registry publication under the `@sebastienrousseau` scope:
 
 ```
 [Registry Audit: registry.npmjs.org]
@@ -313,6 +341,10 @@ All 14 packages in the workspace are verified for immediate npm registry publica
   @sebastienrousseau/crypto-typeorm         0.0.3        Unpublished      public
   @sebastienrousseau/crypto-wasm            0.0.3        Unpublished      public
   @sebastienrousseau/crypto-testing         0.0.3        Unpublished      public
+  @sebastienrousseau/crypto-mcp             0.0.3        Unpublished      public
+  @sebastienrousseau/crypto-lsp             0.0.3        Unpublished      public
+  @sebastienrousseau/crypto-cbom            0.0.3        Unpublished      public
+  @sebastienrousseau/crypto-benchmarks      0.0.3        Unpublished      public
 ```
 
 ### 6.1 Publication Execution Protocol
@@ -325,7 +357,7 @@ When authorized, the maintainer executes:
 # 1. Authenticate with npm
 npm login
 
-# 2. Dry-run verification across all 14 packages
+# 2. Dry-run verification across all 18 packages
 pnpm -r publish --dry-run --access public
 
 # 3. Canonical workspace release execution

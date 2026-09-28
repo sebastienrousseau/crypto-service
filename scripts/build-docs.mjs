@@ -2,7 +2,7 @@
 /**
  * @fileoverview Monorepo Documentation Hub Builder for docs.crypto-service.co
  * Compiles the Voxt documentation theme using local SSG (Rust static site generator)
- * and aggregates all 14 packages with their interactive TypeDoc API references.
+ * and aggregates all 18 packages with their interactive TypeDoc API references.
  */
 
 import fs from "node:fs";

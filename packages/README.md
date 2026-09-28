@@ -21,7 +21,7 @@
 
 ## Contents
 
-- [Packages](#packages) — all 14 packages at a glance
+- [Packages](#packages) — all 18 packages at a glance
 - [Quick Start](#quick-start) — install, build, test, run
 - [Architecture](#architecture) — dependency graph
 - [Coverage](#coverage) — per-package test metrics
@@ -63,12 +63,16 @@
 | [`crypto-middleware`](crypto-middleware/) | Express and Fastify middleware for payload encryption, signature verification | 0.0.3   |
 | [`crypto-edge`](crypto-edge/)             | Edge runtime adapter for Cloudflare Workers, Vercel Edge, Deno, Bun           | 0.0.3   |
 
-### Developer Experience
+### Developer Experience & Tooling
 
-| Package                             | Description                                                 | Version |
-| :---------------------------------- | :---------------------------------------------------------- | :------ |
-| [`crypto-testing`](crypto-testing/) | Deterministic keys, fast mocks, and test fixtures for CI/CD | 0.0.3   |
-| [`crypto-wasm`](crypto-wasm/)       | WebAssembly accelerator for near-native crypto performance  | 0.0.3   |
+| Package                                   | Description                                                                    | Version |
+| :---------------------------------------- | :----------------------------------------------------------------------------- | :------ |
+| [`crypto-testing`](crypto-testing/)       | Deterministic keys, fast mocks, and test fixtures for CI/CD                    | 0.0.3   |
+| [`crypto-wasm`](crypto-wasm/)             | WebAssembly accelerator for near-native crypto performance                     | 0.0.3   |
+| [`crypto-mcp`](crypto-mcp/)               | Model Context Protocol (MCP) server exposing tools, resources, and prompts     | 0.0.3   |
+| [`crypto-lsp`](crypto-lsp/)               | Language Server Protocol (LSP) server for static analysis, linting, code fixes | 0.0.3   |
+| [`crypto-cbom`](crypto-cbom/)             | Cryptographic Bill of Materials generator (CycloneDX 1.6, SPDX 3.0, DORA/CRA)  | 0.0.3   |
+| [`crypto-benchmarks`](crypto-benchmarks/) | Performance profiling comparing classical vs post-quantum primitives           | 0.0.3   |
 
 ---
 
@@ -109,6 +113,10 @@ crypto-service/
     crypto-edge/          Edge/serverless runtime adapter
     crypto-testing/       Test utilities, mocks, fixtures
     crypto-wasm/          WebAssembly performance accelerator
+    crypto-mcp/           Model Context Protocol server (AI agent tools)
+    crypto-lsp/           Language Server Protocol server (IDE diagnostics)
+    crypto-cbom/          Cryptographic Bill of Materials generator
+    crypto-benchmarks/    Performance benchmarking & profiling suite
 ```
 
 **Dependency graph:**
@@ -121,6 +129,7 @@ crypto-service/
 - `crypto-edge` adapts `crypto-lib` for non-Node runtimes
 - `crypto-testing` provides test utilities for `crypto-lib`
 - `crypto-wasm` accelerates `crypto-lib` with WASM
+- `crypto-mcp`, `crypto-lsp`, `crypto-cbom`, `crypto-benchmarks` depend on `crypto-lib`
 
 ---
 

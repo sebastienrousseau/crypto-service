@@ -22,9 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Server v2 API**: 34+ REST endpoints for all modern crypto operations with JSON schema validation
 - **CLI v2**: modern commands for keygen, hash, encrypt, sign, password hashing
 - **SDK**: type-safe fetch-based client covering all v2 server endpoints
-- **10 new packages**: crypto-edge, crypto-kms, crypto-middleware, crypto-prisma, crypto-react, crypto-sdk, crypto-testing, crypto-typeorm, crypto-vue, crypto-wasm
+- **14 new packages**: crypto-edge, crypto-kms, crypto-middleware, crypto-prisma, crypto-react, crypto-sdk, crypto-testing, crypto-typeorm, crypto-vue, crypto-wasm, crypto-mcp, crypto-lsp, crypto-cbom, crypto-benchmarks
+- **AI & Developer Tooling**: Model Context Protocol (MCP) server for AI assistants (Claude, Cursor, Antigravity), Language Server Protocol (LSP) server with real-time AST/regex linting and quick fixes, Cryptographic Bill of Materials (CBOM) generator (CycloneDX 1.6 / SPDX 3.0) with DORA/CRA compliance scoring, and comparative benchmarking suite
 - **Server security**: JWT + API key auth, scope-based RBAC, rate limiting, CORS, Helmet, OpenTelemetry
-- **100% test coverage** across all 14 packages (~2023 tests)
+- **100% test coverage** across all 18 packages (~2,116+ tests)
 - **100% JSDoc/TypeDoc coverage** with 0 warnings
 
 ### Deprecated
@@ -36,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated from yarn/lerna to pnpm workspaces
 - Upgraded to Node.js >= 22.0.0
 - Switched from OpenPGP-only to @noble/\* primitives for modern crypto
-- Monorepo restructured from 4 packages to 14 packages
+- Monorepo restructured from 4 packages to 18 packages
 
 ## [0.0.2] - 2022-05-30
 

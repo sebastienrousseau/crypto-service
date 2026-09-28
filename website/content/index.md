@@ -7,7 +7,7 @@ eyebrow: "Next-Generation Cryptography"
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 headline: "Quantum-Safe Cryptography for TypeScript & Node.js"
-lead: "Production-grade cryptographic suite with 50+ primitives: FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, FIPS 206 FN-DSA, RFC 10024 hybrid key encapsulation, WebAssembly acceleration, Fastify REST microservice, CLI, and full-stack integrations across 14 packages."
+lead: "Production-grade cryptographic suite with 50+ primitives: FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, FIPS 206 FN-DSA, RFC 10024 hybrid key encapsulation, WebAssembly acceleration, Fastify REST microservice, CLI, and full-stack integrations across 18 packages."
 language: en-GB
 logo_alt: "Crypto Service Suite logo"
 light_trace_alt: "Curved electric blue and violet light trails over a dark obsidian background"
@@ -30,14 +30,14 @@ cta_primary: "Get Started"
 <section id="overview" class="section">
 <div class="container text-center">
 <h2 class="section-title">Engineered for High-Assurance Security &amp; Post-Quantum Resilience</h2>
-<p class="section-desc">Zero external runtime dependencies, 100% test coverage floor across all 14 monorepo packages, constant-time algorithms, and native memory hygiene.</p>
+<p class="section-desc">Zero external runtime dependencies, 100% test coverage floor across all 18 monorepo packages, constant-time algorithms, and native memory hygiene.</p>
 <div class="grid-2x2">
 <div class="card">
 <h3>Post-Quantum Native</h3>
 <p>Complete implementation of NIST standards: FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA), FIPS 206 (FN-DSA), and RFC 10024 hybrid key encapsulation.</p>
 </div>
 <div class="card">
-<h3>14 Monorepo Packages</h3>
+<h3>18 Monorepo Packages</h3>
 <p>From the core cryptographic engine and WebAssembly acceleration to REST APIs, CLI tooling, Edge adapters, Cloud KMS, and frontend React/Vue hooks.</p>
 </div>
 <div class="card">
@@ -54,7 +54,7 @@ cta_primary: "Get Started"
 
 <section id="packages" class="section">
 <div class="container">
-<h2 class="section-title text-center">Workspace Packages (14 Modules)</h2>
+<h2 class="section-title text-center">Workspace Packages (18 Modules)</h2>
 <p class="section-desc text-center">Modular architecture with lockstep releases, zero cyclic dependencies, and interactive TypeDoc API documentation.</p>
 
 <div class="grid-2x2">
@@ -182,6 +182,42 @@ cta_primary: "Get Started"
 </div>
 <p>Comprehensive test harness, synthetic cryptographic vectors, mock KMS providers, and compliance validation suites.</p>
 <p><a href="packages/crypto-testing/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+<h3 style="margin-bottom: 0;"><a href="packages/crypto-mcp/">crypto-mcp</a></h3>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+</div>
+<p>Model Context Protocol (MCP) server providing cryptographic tools, standard resources, and migration prompts to AI coding assistants.</p>
+<p><a href="packages/crypto-mcp/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+<h3 style="margin-bottom: 0;"><a href="packages/crypto-lsp/">crypto-lsp</a></h3>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+</div>
+<p>Language Server Protocol (LSP) server providing real-time AST/regex static analysis, quantum vulnerability linting, and automated IDE quick fixes.</p>
+<p><a href="packages/crypto-lsp/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+<h3 style="margin-bottom: 0;"><a href="packages/crypto-cbom/">crypto-cbom</a></h3>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+</div>
+<p>Cryptographic Bill of Materials generator adhering to CycloneDX 1.6 and SPDX 3.0 with DORA Articles 9/13 and CRA Article 14 audit scoring.</p>
+<p><a href="packages/crypto-cbom/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+<h3 style="margin-bottom: 0;"><a href="packages/crypto-benchmarks/">crypto-benchmarks</a></h3>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+</div>
+<p>High-resolution benchmarking suite measuring operations per second, memory allocations, and latency across classical and post-quantum primitives.</p>
+<p><a href="packages/crypto-benchmarks/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
 </div>
 </div>
 </div>
@@ -371,7 +407,7 @@ console.log("Hybrid key exchange established:", recipientResult.sharedSecret.len
 </div>
 <div class="card" style="margin-bottom: 1rem;">
 <h3>How does the 100% test coverage floor work?</h3>
-<p>Our CI pipeline executes unit, integration, and fuzz testing across all 14 workspace packages. Any PR dropping line, statement, function, or branch coverage below 100% fails the verification gate immediately.</p>
+<p>Our CI pipeline executes unit, integration, and fuzz testing across all 18 workspace packages. Any PR dropping line, statement, function, or branch coverage below 100% fails the verification gate immediately.</p>
 </div>
 </div>
 </section>
