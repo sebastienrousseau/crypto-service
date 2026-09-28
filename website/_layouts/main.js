@@ -122,4 +122,28 @@
       }
     });
   });
+
+  /* SWIFT Interactive Solutions Slider Arrow Buttons */
+  document.addEventListener("click", function (e) {
+    var sliderBtn = e.target.closest(".swift-slider-btn");
+    if (!sliderBtn) return;
+    var stage = sliderBtn.closest(".swift-solutions-stage");
+    if (!stage) return;
+    var tabs = Array.from(stage.querySelectorAll(".swift-tab-btn"));
+    if (!tabs.length) return;
+    var currentIndex = tabs.findIndex(function (btn) {
+      return btn.classList.contains("active");
+    });
+    if (currentIndex === -1) currentIndex = 0;
+
+    var isNext = sliderBtn.classList.contains("swift-slider-next");
+    var nextIndex;
+    if (isNext) {
+      nextIndex = (currentIndex + 1) % tabs.length;
+    } else {
+      nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    }
+
+    tabs[nextIndex].click();
+  });
 })();

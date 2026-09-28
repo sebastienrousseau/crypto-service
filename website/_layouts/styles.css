@@ -230,131 +230,521 @@ body {
   font-weight: 400;
 }
 
-/* --- Header & Navigation (Copper Floating Pill Standard) --- */
-.site-header {
+/* --- SWIFT.COM Edge-to-Edge Navigation Bar --- */
+.swift-site-header {
   position: sticky;
-  top: 1rem;
-  z-index: 100;
-  padding: 0 1rem;
-  margin-bottom: 1.5rem;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.header-inner {
-  max-width: 1140px;
+[data-theme="dark"] .swift-site-header {
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.swift-header-inner {
+  max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0 2.5rem;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 4.25rem;
-  padding: 0.5rem 1.5rem;
-  gap: 1rem;
-  flex-wrap: nowrap;
-  background: rgba(18, 24, 38, 0.88);
-  border: 1px solid var(--border);
-  border-radius: 9999px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-[data-theme="light"] .header-inner {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(0, 117, 106, 0.18);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-}
-
-.brand {
+.swift-header-left {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 2.75rem;
+}
+
+.swift-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   text-decoration: none;
-  color: var(--fg);
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  color: #1c2833;
   flex-shrink: 0;
 }
 
-.brand-symbol {
-  color: var(--primary);
-  font-size: 1.25rem;
-  line-height: 1;
+[data-theme="dark"] .swift-brand {
+  color: #f8fafc;
 }
 
-.brand-badge {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
-  background: rgba(46, 196, 182, 0.12);
-  border: 1px solid rgba(46, 196, 182, 0.3);
-  color: var(--primary);
+.swift-brand-logo {
+  width: 34px;
+  height: 34px;
+  color: #1c2833;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .swift-brand-logo {
+  color: #2ec4b6;
+}
+
+.swift-brand-text {
+  font-size: 1.35rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.025em;
+  color: inherit;
+  white-space: nowrap;
 }
 
-.nav-menu {
+.swift-nav-menu {
   display: flex;
-  gap: 1.25rem;
   align-items: center;
+  gap: 0.25rem;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.nav-link {
-  color: var(--fg-muted);
+.swift-nav-item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  position: static;
+}
+
+.swift-nav-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1c2833;
   text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  padding: 0.5rem 0.5rem;
-  min-height: 2.75rem;
-  min-width: 2.75rem;
+  white-space: nowrap;
+  padding: 0 0.85rem;
+  height: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
+  gap: 0.35rem;
+  position: relative;
+  transition: color 0.15s ease;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  color: var(--primary);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+[data-theme="dark"] .swift-nav-link {
+  color: #e2e8f0;
+}
+
+.swift-nav-item:hover .swift-nav-link,
+.swift-nav-item:focus-within .swift-nav-link,
+.swift-nav-link.active {
+  color: #2ec4b6;
+}
+
+.swift-nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0.85rem;
+  right: 0.85rem;
+  height: 3px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.swift-nav-item:hover .swift-nav-link::after,
+.swift-nav-item:focus-within .swift-nav-link::after,
+.swift-nav-item.is-open .swift-nav-link::after,
+.swift-nav-link.active::after {
+  background: #2ec4b6;
+}
+
+.swift-nav-chevron {
+  font-size: 0.7rem;
+  display: inline-block;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #64748b;
+  margin-top: 1px;
+}
+
+[data-theme="dark"] .swift-nav-chevron {
+  color: #94a3b8;
+}
+
+.swift-nav-item:hover .swift-nav-chevron,
+.swift-nav-item:focus-within .swift-nav-chevron,
+.swift-nav-item.is-open .swift-nav-chevron {
+  transform: rotate(180deg);
+  color: #2ec4b6;
+}
+
+/* Mega Dropdown Panel */
+.swift-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 2px solid #2ec4b6;
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.2s;
+  z-index: 999;
+}
+
+[data-theme="dark"] .swift-dropdown {
+  background: #0b1322;
+  border-top: 1px solid #1e293b;
+  border-bottom: 2px solid #2ec4b6;
+  box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.5);
+}
+
+.swift-nav-item:hover .swift-dropdown,
+.swift-nav-item:focus-within .swift-dropdown,
+.swift-nav-item.is-open .swift-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.swift-dropdown-container {
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.25rem 2.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 290px;
+  gap: 2rem;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.swift-dropdown-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.swift-dropdown-heading {
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+[data-theme="dark"] .swift-dropdown-heading {
+  color: #94a3b8;
+  border-bottom-color: #1e293b;
+}
+
+.swift-dropdown-item {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.swift-dropdown-item:hover,
+.swift-dropdown-item:focus {
+  background: #f8fafc;
+  transform: translateX(3px);
+}
+
+[data-theme="dark"] .swift-dropdown-item:hover,
+[data-theme="dark"] .swift-dropdown-item:focus {
+  background: #152238;
+}
+
+.swift-dropdown-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1c2833;
+  margin-bottom: 0.2rem;
+  transition: color 0.15s ease;
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .swift-dropdown-item-title {
+  color: #f1f5f9;
+}
+
+.swift-dropdown-item:hover .swift-dropdown-item-title {
+  color: #2ec4b6;
+}
+
+.swift-dropdown-item-desc {
+  font-size: 0.775rem;
+  line-height: 1.4;
+  color: #64748b;
+  margin: 0;
+}
+
+[data-theme="dark"] .swift-dropdown-item-desc {
+  color: #94a3b8;
+}
+
+/* Spotlight Card in Dropdown */
+.swift-dropdown-spotlight {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .swift-dropdown-spotlight {
+  background: linear-gradient(135deg, #111e33 0%, #0d1726 100%);
+  border-color: #1e293b;
+}
+
+.swift-spotlight-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: #2ec4b6;
+  color: #0b1726;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+
+.swift-spotlight-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1c2833;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .swift-spotlight-title {
+  color: #ffffff;
+}
+
+.swift-spotlight-text {
+  font-size: 0.825rem;
+  line-height: 1.45;
+  color: #475569;
+  margin: 0 0 1.25rem;
+}
+
+[data-theme="dark"] .swift-spotlight-text {
+  color: #94a3b8;
+}
+
+.swift-spotlight-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0d8a7d;
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+  margin-top: auto;
+}
+
+[data-theme="dark"] .swift-spotlight-link {
+  color: #2ec4b6;
+}
+
+.swift-spotlight-link:hover {
+  color: #ff9f1c;
+  transform: translateX(2px);
+}
+
+.swift-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-shrink: 0;
+}
+
+.swift-contact-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1c2833;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .swift-contact-link {
+  color: #e2e8f0;
+}
+
+.swift-contact-link:hover {
+  color: #2ec4b6;
+}
+
+.swift-lang-select {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .swift-lang-select {
+  color: #94a3b8;
+}
+
+.swift-chevron {
+  font-size: 0.75rem;
+}
+
+.swift-search-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+.swift-btn-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #1c2833;
+  color: #ffffff !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.swift-btn-login:hover {
+  background: #2ec4b6;
+  color: #0b1726 !important;
+  transform: translateY(-1px);
+}
+
+.swift-lock-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .nav-toggle {
   display: none;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #1c2833;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1.25rem;
-  min-height: 2.75rem;
-  min-width: 2.75rem;
+  font-size: 1.15rem;
 }
 
-@media (max-width: 860px) {
+[data-theme="dark"] .nav-toggle {
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+@media (max-width: 1080px) {
   .nav-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
-  .nav-menu {
+  .swift-nav-menu {
     display: none;
-    position: absolute;
-    top: 4.5rem;
+    position: fixed;
+    top: 72px;
     left: 0;
     right: 0;
-    background: var(--bg-card);
-    border-bottom: 2px solid var(--border-strong);
+    bottom: 0;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
     flex-direction: column;
-    padding: 1.5rem;
-    gap: 1rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    align-items: stretch;
+    padding: 1.5rem 2rem;
+    gap: 1.5rem;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
   }
 
-  .nav-menu.is-open {
+  [data-theme="dark"] .swift-nav-menu {
+    background: #0f172a;
+    border-color: #1e293b;
+  }
+
+  .swift-nav-menu.is-open {
     display: flex;
+  }
+
+  .swift-nav-item {
+    display: block;
+    height: auto;
+    position: relative;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+  }
+
+  [data-theme="dark"] .swift-nav-item {
+    border-bottom-color: #1e293b;
+  }
+
+  .swift-nav-link {
+    height: auto;
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    justify-content: space-between;
+  }
+
+  .swift-nav-link::after {
+    display: none;
+  }
+
+  .swift-dropdown {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 0.5rem 0 0;
+  }
+
+  [data-theme="dark"] .swift-dropdown {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .swift-dropdown-container {
+    grid-template-columns: 1fr;
+    padding: 0;
+    gap: 1.25rem;
+  }
+
+  .swift-dropdown-spotlight {
+    min-height: auto;
+  }
+
+  .swift-btn-login {
+    display: none;
   }
 }
 
@@ -2057,157 +2447,10 @@ h1 {
    SWIFT.COM CORPORATE INSTITUTIONAL THEME & TROPICAL SUNRISE STYLING
    ===================================================================== */
 
-/* Site Header */
-.site-header {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  text-decoration: none;
-  color: var(--fg);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.brand-symbol {
-  color: var(--primary-mint);
-  font-size: 1.25rem;
-}
-
-.brand-badge {
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-  padding: 0.2rem 0.5rem;
-  background: var(--banner-bg);
-  color: var(--primary);
-  border-radius: var(--radius-pill);
-  font-weight: 700;
-}
-
-.nav-link {
-  color: var(--fg-muted);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  padding: 0.5rem 0.25rem;
-  position: relative;
-  transition: color 0.15s ease;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: var(--primary);
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--primary-mint);
-  border-radius: 2px;
-}
-
-/* Institutional Buttons */
-.btn-swift-mint {
-  background: var(--primary-mint);
-  color: #0b1726 !important;
-  font-weight: 700;
-  border-radius: var(--radius-pill);
-  padding: 0.65rem 1.4rem;
-  border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 14px rgba(46, 196, 182, 0.25);
-}
-
-.btn-swift-mint:hover {
-  background: #cbf3f0;
-  color: #0b1726 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(46, 196, 182, 0.35);
-}
-
-.btn-swift-dark {
-  background: #1c2833;
-  color: #ffffff !important;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  padding: 0.65rem 1.4rem;
-  border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.btn-swift-dark:hover {
-  background: var(--primary-mint);
-  color: #0b1726 !important;
-  transform: translateY(-1px);
-}
-
-.btn-swift-outline {
-  background: transparent;
-  color: #ffffff !important;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  padding: 0.65rem 1.4rem;
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-swift-outline:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #ffffff;
-}
-
-.btn-swift-ghost {
-  background: transparent;
-  color: #ffffff !important;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  padding: 0.65rem 1.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-swift-ghost:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
 /* Panoramic Hero Stage */
 .swift-hero-stage {
   position: relative;
-  min-height: 520px;
+  min-height: 560px;
   display: flex;
   align-items: center;
   background: #0b1420;
@@ -2227,7 +2470,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center 30%;
 }
 
 .swift-hero-overlay {
@@ -2236,65 +2479,72 @@ h1 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.88) 100%);
+  background: linear-gradient(180deg, rgba(11, 20, 32, 0.55) 0%, rgba(11, 20, 32, 0.75) 100%);
 }
 
 .swift-hero-content {
   position: relative;
   z-index: 2;
-  padding: 5rem 1.5rem;
+  padding: 6rem 1.5rem;
   max-width: 1200px;
-}
-
-.swift-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
-  background: rgba(46, 196, 182, 0.18);
-  border: 1px solid rgba(46, 196, 182, 0.4);
-  border-radius: var(--radius-pill);
-  margin-bottom: 1.5rem;
-}
-
-.swift-hero-badge-text {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #cbf3f0;
 }
 
 .swift-hero-title {
   color: #ffffff;
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  margin-bottom: 1.25rem;
-  max-width: 860px;
+  font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.5rem;
+  max-width: 820px;
 }
 
 .swift-hero-lead {
-  color: rgba(255, 255, 255, 0.9);
+  color: #e2e8f0;
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.6;
-  max-width: 780px;
-  margin-bottom: 2.25rem;
+  max-width: 720px;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
 }
 
 .swift-hero-cta-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   align-items: center;
 }
 
-/* Institutional Telemetry Strip */
+.btn-swift-hero-pill {
+  background: #cbf3f0;
+  color: #0b1726 !important;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 2.25rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-swift-hero-pill:hover {
+  background: #2ec4b6;
+  color: #0b1726 !important;
+  transform: translateY(-1px);
+}
+
+/* Institutional Telemetry Strip (Flat SWIFT Style) */
 .telemetry-bar {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding: 1.75rem 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 2.25rem 0;
+  width: 100%;
+}
+
+[data-theme="dark"] .telemetry-bar {
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
 }
 
 .telemetry-inner {
@@ -2302,13 +2552,19 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem;
   text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .telemetry-item {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid #e5e7eb;
+}
+
+[data-theme="dark"] .telemetry-item {
+  border-color: #1e293b;
 }
 
 .telemetry-item:last-child {
@@ -2318,7 +2574,7 @@ h1 {
 .telemetry-value {
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--primary);
+  color: #2ec4b6;
   letter-spacing: -0.02em;
 }
 
@@ -2327,78 +2583,73 @@ h1 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--fg-subtle);
+  color: #64748b;
 }
 
-/* SWIFT Section Common */
-.swift-section-header {
+/* Latest News (SWIFT Standard) */
+.swift-news-section {
+  padding: 5.5rem 0;
+  background: #ffffff;
+}
+
+[data-theme="dark"] .swift-news-section {
+  background: #090a0f;
+}
+
+.swift-news-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2.5rem;
+  align-items: center;
+  margin-bottom: 3rem;
   gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-.section-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--secondary);
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-  display: block;
-}
-
-.swift-section-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--fg);
+.swift-news-title {
+  font-size: 2.75rem;
+  font-weight: 300;
+  color: #1c2833;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  margin: 0;
 }
 
-.swift-view-all-link {
-  color: var(--primary);
+[data-theme="dark"] .swift-news-title {
+  color: #f8fafc;
+}
+
+.btn-swift-news-pill {
+  background: #cbf3f0;
+  color: #0b1726 !important;
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.9375rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 9999px;
   text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
 }
 
-.swift-view-all-link:hover {
-  text-decoration: underline;
-}
-
-/* SWIFT Latest News & Insights (3-Column Grid) */
-.swift-news-section {
-  padding: 5rem 0;
-  background: var(--bg);
+.btn-swift-news-pill:hover {
+  background: #2ec4b6;
+  transform: translateY(-1px);
 }
 
 .swift-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: 2.25rem;
 }
 
 .swift-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: transparent;
   display: flex;
   flex-direction: column;
-}
-
-.swift-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
 }
 
 .swift-card-media {
   width: 100%;
   aspect-ratio: 16 / 9;
+  border-radius: 10px;
   overflow: hidden;
   background: #0f172a;
 }
@@ -2415,88 +2666,115 @@ h1 {
 }
 
 .swift-card-body {
-  padding: 1.75rem;
+  padding: 1.5rem 0 0;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .swift-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
   font-size: 0.8125rem;
-  color: var(--fg-subtle);
-  margin-bottom: 0.75rem;
-}
-
-.swift-card-tag {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--primary);
-  margin-bottom: 0.5rem;
+  color: #64748b;
+  margin-bottom: 0.65rem;
 }
 
 .swift-card-title {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
-  margin-bottom: 0.75rem;
+  margin: 0 0 0.75rem 0;
 }
 
 .swift-card-title a {
-  color: var(--fg);
+  color: #1c2833;
   text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+[data-theme="dark"] .swift-card-title a {
+  color: #f8fafc;
 }
 
 .swift-card-title a:hover {
-  color: var(--primary);
+  color: #2ec4b6;
 }
 
 .swift-card-excerpt {
-  color: var(--fg-muted);
+  color: #475569;
   font-size: 0.9375rem;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.25rem 0;
   flex-grow: 1;
 }
 
+[data-theme="dark"] .swift-card-excerpt {
+  color: #94a3b8;
+}
+
 .swift-arrow-link {
-  color: var(--primary);
-  font-weight: 700;
+  color: #1c2833;
+  font-weight: 600;
   font-size: 0.9375rem;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  transition: gap 0.15s ease;
+  transition: gap 0.15s ease, color 0.15s ease;
+}
+
+[data-theme="dark"] .swift-arrow-link {
+  color: #2ec4b6;
 }
 
 .swift-arrow-link:hover {
   gap: 0.5rem;
-  text-decoration: underline;
+  color: #2ec4b6;
 }
 
-/* SWIFT Solutions Tabbed Stage */
+/* Our Solutions (SWIFT 5-Tab Showcase) */
 .swift-solutions-stage {
-  padding: 5rem 0;
-  background: var(--bg-subtle);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  padding: 5.5rem 0;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+[data-theme="dark"] .swift-solutions-stage {
+  background: #0b101b;
+  border-color: #1e293b;
 }
 
 .swift-solutions-header {
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 3.5rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .swift-solutions-header {
+  border-color: #1e293b;
+}
+
+.swift-section-title {
+  font-size: 2.75rem;
+  font-weight: 300;
+  color: #1c2833;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+[data-theme="dark"] .swift-section-title {
+  color: #f8fafc;
 }
 
 .swift-tabs-nav {
   display: flex;
-  overflow-x: auto;
   gap: 2rem;
-  margin-top: 1.5rem;
+  overflow-x: auto;
   scrollbar-width: none;
 }
 
@@ -2508,27 +2786,38 @@ h1 {
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  padding: 0.85rem 0.25rem;
-  font-size: 0.875rem;
+  padding: 0.65rem 0.2rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: var(--fg-subtle);
+  color: #64748b;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
 
 .swift-tab-btn:hover {
-  color: var(--fg);
+  color: #1c2833;
+}
+
+[data-theme="dark"] .swift-tab-btn:hover {
+  color: #f8fafc;
 }
 
 .swift-tab-btn.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary-mint);
+  color: #1c2833;
+  border-bottom-color: #1c2833;
+}
+
+[data-theme="dark"] .swift-tab-btn.active {
+  color: #2ec4b6;
+  border-bottom-color: #2ec4b6;
 }
 
 .swift-tab-content-panel {
   display: none;
+  position: relative;
+  padding: 0 1.5rem;
 }
 
 .swift-tab-content-panel.active {
@@ -2536,147 +2825,196 @@ h1 {
 }
 
 .swift-solution-split {
+  position: relative;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 3.5rem;
-  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: visible;
+  min-height: 480px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .swift-solution-split {
+  background: #111c2e;
+  border-color: #1e293b;
 }
 
 @media (max-width: 900px) {
   .swift-solution-split {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
 }
 
+.swift-solution-info {
+  padding: 4.5rem 3.5rem 4.5rem 4.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .swift-solution-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--secondary);
-  margin-bottom: 0.75rem;
-  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.5rem;
 }
 
 .swift-solution-headline {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-weight: 800;
-  line-height: 1.25;
-  margin-bottom: 1.25rem;
-  color: var(--fg);
+  font-size: 2.75rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #1c2833;
+  margin: 0 0 1.25rem 0;
+}
+
+[data-theme="dark"] .swift-solution-headline {
+  color: #f8fafc;
 }
 
 .swift-solution-desc {
   font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--fg-muted);
-  margin-bottom: 1.75rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 2rem 0;
+  max-width: 480px;
 }
 
-.swift-checklist {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
+[data-theme="dark"] .swift-solution-desc {
+  color: #94a3b8;
+}
+
+.btn-swift-readmore {
+  background: #cbf3f0;
+  color: #0b1726 !important;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.65rem 1.85rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-swift-readmore:hover {
+  background: #2ec4b6;
+  transform: translateY(-1px);
+}
+
+.swift-solution-visual {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.swift-checklist li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  font-size: 0.95rem;
-  color: var(--fg);
-}
-
-.swift-check-icon {
-  color: var(--primary-mint);
-  font-weight: 800;
-}
-
-.architecture-preview-card {
-  background: #0b121c;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  align-items: center;
+  justify-content: center;
+  background: #cbf3f0;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
   overflow: hidden;
 }
 
-.preview-card-header {
+.swift-relief-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.swift-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1c2833;
+  font-size: 1.25rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1.25rem;
-  background: #070a10;
-  border-bottom: 1px solid #1a2736;
-  font-size: 0.75rem;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  z-index: 20;
 }
 
-.preview-card-body {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: #cbf3f0;
+.swift-slider-prev {
+  left: -22px;
 }
 
-.preview-status-line {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px dashed rgba(46, 196, 182, 0.3);
-  color: #2ec4b6;
-  font-weight: 700;
+.swift-slider-next {
+  right: -22px;
 }
 
-/* SWIFT Full-Width Callout Banner */
+.swift-slider-btn:hover {
+  background: #cbf3f0;
+  border-color: #2ec4b6;
+}
+
+/* Callout Banner (Soft Aqua) */
 .swift-banner-section {
-  background: linear-gradient(135deg, #cbf3f0 0%, #e2faf8 100%);
-  padding: 4rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-[data-theme="dark"] .swift-banner-section {
-  background: linear-gradient(135deg, #0f2b30 0%, #16383e 100%);
+  padding: 4.5rem 0;
+  background: transparent;
 }
 
 .swift-banner-inner {
+  background: #cbf3f0;
+  border-radius: 12px;
+  padding: 3.5rem 4rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 2.5rem;
   flex-wrap: wrap;
 }
 
 .swift-banner-title {
-  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
-  font-weight: 800;
+  font-size: 2.15rem;
+  font-weight: 400;
   color: #0b1726;
-  line-height: 1.25;
-  margin-bottom: 0.5rem;
-}
-
-[data-theme="dark"] .swift-banner-title {
-  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
 }
 
 .swift-banner-desc {
   font-size: 1.05rem;
   color: #1e293b;
-  max-width: 720px;
-  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.55;
 }
 
-[data-theme="dark"] .swift-banner-desc {
-  color: #cbf3f0;
+.swift-btn-banner-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #1c2833;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-/* SWIFT 3-Card Resource Grid */
+.swift-btn-banner-login:hover {
+  background: #2ec4b6;
+  color: #0b1726 !important;
+  transform: translateY(-1px);
+}
+
+/* 3-Card Resource Grid */
 .swift-resources-section {
-  padding: 5rem 0;
-  background: var(--bg);
+  padding: 2rem 0 5rem;
+  background: transparent;
 }
 
 .swift-resource-grid {
@@ -2686,13 +3024,18 @@ h1 {
 }
 
 .swift-resource-card {
-  padding: 2.25rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  padding: 2.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
+}
+
+[data-theme="dark"] .swift-resource-card {
+  background: #111c2e;
+  border-color: #1e293b;
 }
 
 .swift-resource-card:hover {
@@ -2701,26 +3044,255 @@ h1 {
 }
 
 .resource-badge {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--secondary);
-  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.75rem;
 }
 
 .resource-title {
   font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
-  color: var(--fg);
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: #1c2833;
+}
+
+[data-theme="dark"] .resource-title {
+  color: #f8fafc;
 }
 
 .resource-desc {
   font-size: 0.95rem;
-  line-height: 1.65;
-  color: var(--fg-muted);
-  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 1.5rem 0;
   flex-grow: 1;
+}
+
+[data-theme="dark"] .resource-desc {
+  color: #94a3b8;
+}
+
+.swift-search-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.swift-bic-search-form {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  padding: 0.35rem 0.45rem 0.35rem 1.25rem;
+  margin: 1rem 0 1.5rem 0;
+}
+
+[data-theme="dark"] .swift-bic-search-form {
+  background: #0b121c;
+  border-color: #334155;
+}
+
+.swift-bic-input {
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #1c2833;
+  width: 100%;
+  outline: none;
+}
+
+[data-theme="dark"] .swift-bic-input {
+  color: #f8fafc;
+}
+
+.swift-bic-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #2ec4b6;
+  color: #0b1726;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Stay Connected Newsletter Band */
+.swift-connect-section {
+  background: linear-gradient(135deg, #1c2833 0%, #0f3e3a 55%, #185e57 100%);
+  color: #ffffff;
+  padding: 4.5rem 0;
+}
+
+.swift-connect-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.swift-connect-title {
+  font-size: 2.35rem;
+  font-weight: 300;
+  color: #ffffff;
+  line-height: 1.25;
+  max-width: 480px;
+  margin: 0 0 1.75rem 0;
+}
+
+.btn-swift-signup {
+  display: inline-flex;
+  align-items: center;
+  background: #cbf3f0;
+  color: #0b1726 !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-swift-signup:hover {
+  background: #2ec4b6;
+  transform: translateY(-1px);
+}
+
+.swift-connect-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .swift-connect-right {
+    align-items: flex-start;
+  }
+}
+
+.swift-connect-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.swift-social-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.swift-social-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.swift-social-btn:hover {
+  background: #2ec4b6;
+  color: #0b1726;
+  border-color: #2ec4b6;
+}
+
+/* Institutional Footer */
+.site-footer {
+  background: #1c2833;
+  color: #94a3b8;
+  padding: 5rem 0 2.5rem;
+  border-top: none;
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.swift-footer-logo {
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.footer-brand .brand-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2rem;
+}
+
+.footer-col h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  text-transform: none;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-decoration: none;
+  margin-bottom: 0.65rem;
+  transition: color 0.15s ease;
+}
+
+.footer-col a:hover {
+  color: #2ec4b6;
+}
+
+.footer-desc {
+  max-width: 480px;
+  line-height: 1.6;
+  margin: 0 0 0.5rem 0;
+}
+
+.footer-copy {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+}
+
+.footer-credit {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.footer-credit a {
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+.footer-credit a:hover {
+  color: #2ec4b6;
 }
 
 /* Institutional Monorepo Packages Section */
@@ -3047,4 +3619,201 @@ h1 {
 
 .btn-block {
   width: 100%;
+}
+
+/* Ecosystem & News Styling */
+.ecosystem-intro,
+.news-featured-section {
+  margin-bottom: 3rem;
+}
+
+.ecosystem-category-section,
+.news-grid-section {
+  margin-bottom: 3.5rem;
+}
+
+.category-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.packages-grid,
+.news-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.package-card,
+.news-article-card {
+  padding: 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.package-card:hover,
+.news-article-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-mint);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.package-header {
+  margin-bottom: 0.75rem;
+}
+
+.package-badge,
+.article-category {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary-mint);
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.package-header h4,
+.news-article-card h4 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.package-header h4 a,
+.news-article-card h4 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.package-header h4 a:hover,
+.news-article-card h4 a:hover {
+  color: var(--primary-mint);
+}
+
+.package-card p,
+.news-article-card p {
+  font-size: 0.9rem;
+  color: var(--fg-subtle);
+  line-height: 1.55;
+  margin: 0.5rem 0 1.25rem;
+  flex-grow: 1;
+}
+
+.package-meta,
+.article-footer {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.news-spotlight-card {
+  background: linear-gradient(135deg, rgba(46, 196, 182, 0.08) 0%, rgba(203, 243, 240, 0.15) 100%);
+  border: 1px solid var(--primary-mint);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+[data-theme="dark"] .news-spotlight-card {
+  background: linear-gradient(135deg, rgba(46, 196, 182, 0.1) 0%, rgba(28, 40, 51, 0.5) 100%);
+}
+
+.news-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-mint);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.news-meta {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  margin-top: 1rem;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.event-item:hover {
+  transform: translateX(4px);
+  border-color: var(--primary-mint);
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 58px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.event-month {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary-mint);
+  text-transform: uppercase;
+}
+
+.event-day {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--fg);
+}
+
+.event-info {
+  flex-grow: 1;
+}
+
+.event-info h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.event-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fg-subtle);
+}
+
+.event-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-mint);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.event-link:hover {
+  color: var(--secondary);
 }
