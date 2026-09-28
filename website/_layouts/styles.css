@@ -1,11 +1,26 @@
 /* SPDX-License-Identifier: Apache-2.0 OR MIT */
-/* WCAG 2.2 AAA Design System */
+/* 2027 Apple HIG Spatial Glass Design System & WCAG 2.2 AAA Architecture */
 
 :root {
+  /* Fluid 8-Point Spatial Grid Tokens */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  --space-24: 6rem;    /* 96px */
+
+  /* Palette: Tropical Sunrise Invariants */
   --bg: #ffffff;
   --bg-subtle: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.92);
   --border: #e2e8f0;
   --border-strong: #2ec4b6;
   --fg: #0f172a;
@@ -31,20 +46,35 @@
   --success: #028074;
   --warning: #ff9f1c;
   --focus: #2ec4b6;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-pill: 999px;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  /* 2027 Apple Crystalline Glass System (Light Mode) */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg-hover: rgba(255, 255, 255, 0.90);
+  --glass-border: rgba(46, 196, 182, 0.22);
+  --glass-border-hover: rgba(46, 196, 182, 0.55);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(46, 196, 182, 0.12);
+  --glass-shadow: 0 16px 40px -12px rgba(28, 40, 51, 0.08), 0 4px 16px -2px rgba(46, 196, 182, 0.08);
+  --glass-shadow-hover: inset 0 1px 2px 0 rgba(255, 255, 255, 0.95), 0 24px 54px -12px rgba(28, 40, 51, 0.12), 0 8px 24px -2px rgba(46, 196, 182, 0.18);
+  --glass-filter: blur(28px) saturate(190%) brightness(1.02);
+
+  /* Spring Physics Motion */
+  --spring-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-card: transform 0.4s var(--spring-smooth), box-shadow 0.4s var(--spring-smooth), background 0.25s ease, border-color 0.25s ease;
+
   color-scheme: light;
 }
 
 [data-theme="dark"] {
   --bg: #0b101b;
   --bg-subtle: #111827;
-  --bg-card: #182235;
-  --bg-card-hover: #1f2c42;
+  --bg-card: rgba(15, 23, 42, 0.68);
+  --bg-card-hover: rgba(21, 34, 56, 0.85);
   --border: #24344d;
   --border-strong: #2ec4b6;
   --fg: #f8fafc;
@@ -70,14 +100,25 @@
   --success: #2ec4b6;
   --warning: #ff9f1c;
   --focus: #2ec4b6;
+
+  /* 2027 Apple Crystalline Glass System (Dark Mode) */
+  --glass-bg: rgba(15, 23, 42, 0.68);
+  --glass-bg-hover: rgba(21, 34, 56, 0.85);
+  --glass-border: rgba(46, 196, 182, 0.28);
+  --glass-border-hover: rgba(46, 196, 182, 0.65);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 1px 0 rgba(46, 196, 182, 0.22);
+  --glass-shadow: 0 20px 50px -14px rgba(0, 0, 0, 0.55), 0 6px 20px -2px rgba(46, 196, 182, 0.12);
+  --glass-shadow-hover: inset 0 1px 2px 0 rgba(255, 255, 255, 0.25), 0 28px 64px -16px rgba(0, 0, 0, 0.7), 0 10px 28px -2px rgba(46, 196, 182, 0.25);
+  --glass-filter: blur(28px) saturate(190%) brightness(1.02);
+
   color-scheme: dark;
 }
 
 [data-theme="light"] {
   --bg: #ffffff;
   --bg-subtle: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.90);
   --border: #e2e8f0;
   --border-strong: #2ec4b6;
   --fg: #0f172a;
@@ -103,6 +144,16 @@
   --success: #028074;
   --warning: #ff9f1c;
   --focus: #2ec4b6;
+
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg-hover: rgba(255, 255, 255, 0.90);
+  --glass-border: rgba(46, 196, 182, 0.22);
+  --glass-border-hover: rgba(46, 196, 182, 0.55);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(46, 196, 182, 0.12);
+  --glass-shadow: 0 16px 40px -12px rgba(28, 40, 51, 0.08), 0 4px 16px -2px rgba(46, 196, 182, 0.08);
+  --glass-shadow-hover: inset 0 1px 2px 0 rgba(255, 255, 255, 0.95), 0 24px 54px -12px rgba(28, 40, 51, 0.12), 0 8px 24px -2px rgba(46, 196, 182, 0.18);
+  --glass-filter: blur(28px) saturate(190%) brightness(1.02);
+
   color-scheme: light;
 }
 
@@ -230,21 +281,63 @@ body {
   font-weight: 400;
 }
 
-/* --- SWIFT.COM Edge-to-Edge Navigation Bar --- */
+/* 2027 Apple HIG Typography & Visual Cadence System */
+h1, .swift-hero-title, .page-title {
+  font-family: var(--font-sans);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  font-weight: 700;
+  text-wrap: balance;
+  color: var(--fg);
+}
+
+h2, .section-title, .swift-news-title {
+  font-family: var(--font-sans);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  font-weight: 700;
+  text-wrap: balance;
+  color: var(--fg);
+}
+
+h3, .category-heading {
+  font-family: var(--font-sans);
+  letter-spacing: -0.016em;
+  line-height: 1.3;
+  font-weight: 600;
+  text-wrap: balance;
+  color: var(--fg);
+}
+
+h4 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.012em;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+p, .lead-text, .lead {
+  text-wrap: pretty;
+  max-width: 64ch;
+}
+
+/* --- 2027 Frosted Spatial Navigation Bar --- */
 .swift-site-header {
   position: sticky;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border-bottom: 1px solid var(--glass-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="dark"] .swift-site-header {
-  background: #0f172a;
-  border-bottom: 1px solid #1e293b;
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -377,23 +470,25 @@ body {
   color: #2ec4b6;
 }
 
-/* Mega Dropdown Panel */
+/* 2027 Apple Spatial Mega Dropdown Panel */
 .swift-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 2px solid #2ec4b6;
-  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 2px solid var(--primary-mint);
+  box-shadow: var(--glass-specular), 0 24px 50px -10px rgba(0, 0, 0, 0.15), 0 10px 24px -4px rgba(46, 196, 182, 0.12);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-4px);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.2s;
+  transform: translateY(-6px);
+  transition: opacity 0.28s var(--spring-smooth),
+              transform 0.28s var(--spring-smooth),
+              visibility 0.28s;
   z-index: 999;
 }
 
@@ -410,10 +505,10 @@ body {
 }
 
 [data-theme="dark"] .swift-dropdown {
-  background: #0b1322;
-  border-top: 1px solid #1e293b;
-  border-bottom: 2px solid #2ec4b6;
-  box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.5);
+  background: var(--glass-bg);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 2px solid var(--primary-mint);
+  box-shadow: var(--glass-specular), 0 28px 64px -12px rgba(0, 0, 0, 0.7);
 }
 
 .swift-nav-item:hover .swift-dropdown,
@@ -508,9 +603,12 @@ body {
 
 /* Spotlight Card in Dropdown */
 .swift-dropdown-spotlight {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -520,8 +618,8 @@ body {
 }
 
 [data-theme="dark"] .swift-dropdown-spotlight {
-  background: linear-gradient(135deg, #111e33 0%, #0d1726 100%);
-  border-color: #1e293b;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
 }
 
 .swift-spotlight-badge {
@@ -1742,33 +1840,45 @@ body {
 }
 
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.75rem;
-  transition: transform 0.2s, border-color 0.2s;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  transition: var(--transition-card);
   overflow: hidden;
   max-width: 100%;
 }
 
 .card:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 .card h3 {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: -0.018em;
   margin-bottom: 0.75rem;
   color: var(--fg);
   overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .card p {
   color: var(--fg-muted);
-  font-size: 1rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.6;
   overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 pre {
@@ -2531,26 +2641,32 @@ h1 {
 }
 
 .hero-quickstart-card {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(46, 196, 182, 0.32);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 40px rgba(46, 196, 182, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
   padding: 1.75rem;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--transition-card);
 }
 
 .hero-quickstart-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 48px rgba(46, 196, 182, 0.18), 0 6px 16px rgba(0, 0, 0, 0.06);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.hero-quickstart-card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 [data-theme="dark"] .hero-quickstart-card {
-  background: rgba(17, 24, 39, 0.9);
-  border-color: rgba(46, 196, 182, 0.35);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
 }
 
 .quickstart-header {
@@ -2650,124 +2766,146 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0d8a7d;
-  background: rgba(46, 196, 182, 0.15);
-  border: 1px solid rgba(46, 196, 182, 0.35);
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
+  color: var(--primary);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
   margin-bottom: 1.25rem;
-  backdrop-filter: blur(8px);
+  box-shadow: var(--glass-specular);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
 }
 
 [data-theme="dark"] .hero-badge {
-  color: #2ec4b6;
-  background: rgba(46, 196, 182, 0.12);
-  border-color: rgba(46, 196, 182, 0.25);
+  color: var(--primary-mint);
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
 }
 
 .swift-hero-title {
-  color: #1c2833;
+  color: var(--fg);
   font-size: clamp(2.5rem, 5vw, 3.85rem);
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
   margin-bottom: 1.25rem;
   max-width: 720px;
+  text-wrap: balance;
 }
 
 [data-theme="dark"] .swift-hero-title {
-  color: #ffffff;
+  color: var(--fg);
 }
 
 .swift-hero-lead {
-  color: #475569;
+  color: var(--fg-muted);
   font-size: clamp(1.05rem, 1.8vw, 1.2rem);
-  line-height: 1.65;
-  max-width: 660px;
+  line-height: 1.6;
+  max-width: 620px;
   margin-bottom: 2.25rem;
   font-weight: 400;
+  text-wrap: pretty;
 }
 
 [data-theme="dark"] .swift-hero-lead {
-  color: #cbd5e1;
+  color: var(--fg-muted);
 }
 
 .swift-hero-cta-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
 }
 
 .btn-swift-hero-pill {
-  background: #2ec4b6;
+  background: var(--primary-mint);
   color: #0b1726 !important;
   font-size: 1rem;
   font-weight: 700;
   padding: 0.85rem 2.25rem;
-  border-radius: 9999px;
+  min-height: 48px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  transition: transform 0.35s var(--spring-smooth), box-shadow 0.35s var(--spring-smooth), background 0.2s ease;
   box-shadow: 0 4px 16px rgba(46, 196, 182, 0.35);
 }
 
 .btn-swift-hero-pill:hover {
   background: #ff9f1c;
   color: #0b1726 !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.4);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255, 159, 28, 0.45);
+}
+
+.btn-swift-hero-pill:active {
+  transform: translateY(0) scale(0.985);
 }
 
 .btn-swift-hero-secondary {
-  background: rgba(255, 255, 255, 0.85);
-  color: #1c2833 !important;
+  background: var(--glass-bg);
+  color: var(--fg) !important;
   font-size: 1rem;
   font-weight: 600;
   padding: 0.85rem 1.85rem;
-  border-radius: 9999px;
+  min-height: 48px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  border: 1px solid #cbd5e1;
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s ease, transform 0.15s ease, color 0.15s ease;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  transition: transform 0.35s var(--spring-smooth), border-color 0.2s ease, color 0.15s ease, box-shadow 0.35s var(--spring-smooth);
 }
 
 [data-theme="dark"] .btn-swift-hero-secondary {
   color: #f1f5f9 !important;
-  background: rgba(30, 41, 59, 0.7);
-  border-color: #334155;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
 }
 
 .btn-swift-hero-secondary:hover {
-  border-color: #2ec4b6;
-  color: #0d8a7d !important;
-  transform: translateY(-2px);
+  border-color: var(--primary-mint);
+  color: var(--primary) !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.btn-swift-hero-secondary:active {
+  transform: translateY(0) scale(0.985);
 }
 
 [data-theme="dark"] .btn-swift-hero-secondary:hover {
   color: #2ec4b6 !important;
 }
 
-/* Institutional Telemetry Strip (Flat SWIFT Style) */
+/* 2027 Apple Spatial Telemetry Floating Bar */
 .telemetry-bar {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-specular), 0 12px 32px -8px rgba(0, 0, 0, 0.05);
   padding: 2.25rem 0;
   width: 100%;
 }
 
 [data-theme="dark"] .telemetry-bar {
-  background: #0f172a;
-  border-bottom: 1px solid #1e293b;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-specular), 0 16px 40px -8px rgba(0, 0, 0, 0.4);
 }
 
 .telemetry-inner {
@@ -2782,8 +2920,9 @@ h1 {
 .telemetry-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  border-right: 1px solid #e5e7eb;
+  gap: 0.35rem;
+  border-right: 1px solid var(--glass-border);
+  padding: 0 1rem;
 }
 
 [data-theme="dark"] .telemetry-item {
@@ -2864,15 +3003,34 @@ h1 {
 }
 
 .swift-card {
-  background: transparent;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
+  transition: var(--transition-card);
+  overflow: hidden;
+}
+
+.swift-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.swift-card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 .swift-card-media {
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   background: #0f172a;
 }
@@ -2881,15 +3039,15 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s var(--spring-smooth);
 }
 
 .swift-card:hover .swift-card-media img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .swift-card-body {
-  padding: 1.5rem 0 0;
+  padding: 1.25rem 0.25rem 0.25rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -3673,15 +3831,24 @@ h1 {
 
 .solution-nav-card {
   padding: 1.75rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  transition: var(--transition-card);
 }
 
 .solution-nav-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary-mint);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.solution-nav-card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 .solution-num {
@@ -3696,6 +3863,8 @@ h1 {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
 }
 
 .solution-nav-card h3 a {
@@ -3745,14 +3914,23 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.45rem 0.9rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  padding: 0.35rem 0.85rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-specular);
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--fg);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.standard-pill:hover {
+  border-color: var(--primary-mint);
+  transform: translateY(-1px);
 }
 
 .card-icon-header {
@@ -3773,11 +3951,14 @@ h1 {
 
 /* Research Page Elements */
 .research-toc-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 3.5rem;
+  box-shadow: var(--glass-specular), var(--glass-shadow);
 }
 
 .research-toc-box h3 {
@@ -3849,25 +4030,34 @@ h1 {
 
 .contact-card {
   padding: 1.75rem 2rem;
-  background: var(--bg-card);
-  border: 1px solid rgba(46, 196, 182, 0.22);
-  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  transition: var(--transition-card);
 }
 
 .contact-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary-mint);
-  box-shadow: 0 8px 24px rgba(46, 196, 182, 0.12);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.contact-card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 .contact-card h3 {
   font-size: 1.2rem;
   font-weight: 700;
+  letter-spacing: -0.015em;
   margin: 0.5rem 0 0.5rem;
   color: var(--fg);
+  text-wrap: balance;
 }
 
 .contact-card p {
@@ -3875,6 +4065,7 @@ h1 {
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0 0 0.5rem;
+  text-wrap: pretty;
 }
 
 .contact-card p:last-child {
@@ -3882,14 +4073,14 @@ h1 {
 }
 
 .contact-card a {
-  color: #028074;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.15s ease;
 }
 
 [data-theme="dark"] .contact-card a {
-  color: #2ec4b6;
+  color: var(--primary-mint);
 }
 
 .contact-card a:hover {
@@ -3898,14 +4089,22 @@ h1 {
 
 .contact-form-card {
   padding: 2.5rem;
-  background: var(--bg-card);
-  border: 1px solid rgba(46, 196, 182, 0.25);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 30px rgba(46, 196, 182, 0.07);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
 }
 
 .contact-form-card h3 {
   font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  margin: 0 0 0.5rem;
+  text-wrap: balance;
+}
   font-weight: 800;
   color: var(--fg);
   margin: 0 0 0.5rem;
@@ -4001,20 +4200,29 @@ h1 {
 .package-card,
 .news-article-card {
   padding: 1.75rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--transition-card);
 }
 
 .package-card:hover,
 .news-article-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary-mint);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.004);
+}
+
+.package-card:active,
+.news-article-card:active {
+  transform: translateY(-1px) scale(0.994);
 }
 
 .package-header {
