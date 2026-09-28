@@ -2,25 +2,33 @@
 /* WCAG 2.2 AAA Design System */
 
 :root {
-  --bg: #090a0f;
-  --bg-subtle: #11141f;
-  --bg-card: #151928;
-  --bg-card-hover: #1c2236;
-  --border: #5d6375;
-  --border-strong: #7c8192;
+  --bg: #07090e;
+  --bg-subtle: #0d121c;
+  --bg-card: #121826;
+  --bg-card-hover: #182032;
+  --border: #23353c;
+  --border-strong: #2ec4b6;
   --fg: #ffffff;
-  --fg-muted: #e5e7eb;
-  --fg-subtle: #a6aab6;
-  --primary: #69adff;
-  --primary-hover: #93c5fd;
-  --primary-ink: #090a0f;
-  --primary-glow: rgba(96, 165, 250, 0.25);
-  --accent: #c084fc;
-  --success: #34d399;
-  --focus: #69adff;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --fg-muted: #cbf3f0;
+  --fg-subtle: #8ea8a6;
+  --primary: #2ec4b6;
+  --primary-hover: #cbf3f0;
+  --primary-ink: #07090e;
+  --primary-glow: rgba(46, 196, 182, 0.28);
+  --secondary: #ff9f1c;
+  --secondary-hover: #ffbf69;
+  --secondary-ink: #07090e;
+  --secondary-glow: rgba(255, 159, 28, 0.25);
+  --accent: #ff9f1c;
+  --accent-soft: #ffbf69;
+  --accent-cool: #2ec4b6;
+  --accent-frost: #cbf3f0;
+  --success: #2ec4b6;
+  --warning: #ff9f1c;
+  --focus: #2ec4b6;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color-scheme: dark;
@@ -28,58 +36,62 @@
 
 [data-theme="light"] {
   --bg: #ffffff;
-  --bg-subtle: #f9fafb;
-  --bg-card: #f3f4f6;
-  --bg-card-hover: #e5e7eb;
-  --border: #878d9b;
-  --border-strong: #6a707f;
-  --fg: #090a0f;
-  --fg-muted: #1f2937;
-  --fg-subtle: #484e60;
-  --primary: #1641bd;
-  --primary-hover: #1e40af;
+  --bg-subtle: #f4faf9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #edf7f6;
+  --border: #b8dedb;
+  --border-strong: #00756a;
+  --fg: #07090e;
+  --fg-muted: #142a28;
+  --fg-subtle: #3a5553;
+  --primary: #00756a;
+  --primary-hover: #005a52;
   --primary-ink: #ffffff;
-  --primary-glow: rgba(29, 78, 216, 0.15);
-  --accent: #6b21a8;
-  --success: #065f46;
-  --focus: #1641bd;
+  --primary-glow: rgba(0, 117, 106, 0.18);
+  --secondary: #b85d00;
+  --secondary-hover: #994d00;
+  --secondary-ink: #ffffff;
+  --secondary-glow: rgba(184, 93, 0, 0.18);
+  --accent: #b85d00;
+  --accent-soft: #ff9f1c;
+  --accent-cool: #00756a;
+  --accent-frost: #e0f6f4;
+  --success: #00756a;
+  --warning: #b85d00;
+  --focus: #00756a;
   color-scheme: light;
 }
 
 /* ---------------------------------------------------------------------
    Follow the operating system.
-
-   Voxt is dark-first: the unqualified `:root` above is the dark
-   palette. Until now the only way to get light was to ask for it
-   explicitly, and `theme-init.js` was stamping `data-theme` on every
-   load so it always looked deliberate.
-
-   Now that the script stamps nothing unless a choice was stored, a
-   viewer whose system is set to light needs this block or they get dark
-   regardless — the script change and this one only work as a pair.
-
-   Guarded on `:not([data-theme="dark"])` so an explicit dark choice
-   still wins on a light OS.
    --------------------------------------------------------------------- */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-  --bg: #ffffff;
-  --bg-subtle: #f9fafb;
-  --bg-card: #f3f4f6;
-  --bg-card-hover: #e5e7eb;
-  --border: #878d9b;
-  --border-strong: #6a707f;
-  --fg: #090a0f;
-  --fg-muted: #1f2937;
-  --fg-subtle: #484e60;
-  --primary: #1641bd;
-  --primary-hover: #1e40af;
-  --primary-ink: #ffffff;
-  --primary-glow: rgba(29, 78, 216, 0.15);
-  --accent: #6b21a8;
-  --success: #065f46;
-  --focus: #1641bd;
-  color-scheme: light;
+    --bg: #ffffff;
+    --bg-subtle: #f4faf9;
+    --bg-card: #ffffff;
+    --bg-card-hover: #edf7f6;
+    --border: #b8dedb;
+    --border-strong: #00756a;
+    --fg: #07090e;
+    --fg-muted: #142a28;
+    --fg-subtle: #3a5553;
+    --primary: #00756a;
+    --primary-hover: #005a52;
+    --primary-ink: #ffffff;
+    --primary-glow: rgba(0, 117, 106, 0.18);
+    --secondary: #b85d00;
+    --secondary-hover: #994d00;
+    --secondary-ink: #ffffff;
+    --secondary-glow: rgba(184, 93, 0, 0.18);
+    --accent: #b85d00;
+    --accent-soft: #ff9f1c;
+    --accent-cool: #00756a;
+    --accent-frost: #e0f6f4;
+    --success: #00756a;
+    --warning: #b85d00;
+    --focus: #00756a;
+    color-scheme: light;
   }
 }
 
@@ -188,12 +200,30 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   text-decoration: none;
   color: var(--fg);
-  font-weight: 700;
-  font-size: 1.25rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
   flex-shrink: 0;
+}
+
+.brand-symbol {
+  color: var(--primary);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.brand-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(46, 196, 182, 0.12);
+  border: 1px solid rgba(46, 196, 182, 0.3);
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
 .nav-menu {
@@ -388,21 +418,31 @@ body {
 }
 
 .hero-section {
-  padding: 4rem 0 2.5rem;
+  padding: 4.5rem 0 3rem;
   position: relative;
   overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, rgba(46, 196, 182, 0.12) 0%, rgba(255, 159, 28, 0.04) 40%, transparent 70%);
 }
 
 .pill-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 0.8rem 0.3rem 0.4rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 2rem;
+  gap: 0.5rem;
+  padding: 0.35rem 0.95rem;
+  background: rgba(46, 196, 182, 0.08);
+  border: 1px solid rgba(46, 196, 182, 0.3);
+  border-radius: 9999px;
   margin-bottom: 1.5rem;
   max-width: 100%;
+}
+
+.pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  flex-shrink: 0;
 }
 
 .pill-tag {
@@ -417,16 +457,18 @@ body {
 }
 
 .pill-text {
-  font-size: 0.875rem;
-  color: var(--fg-muted);
-  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   overflow-wrap: break-word;
 }
 
 .hero-title {
   font-size: clamp(2.2rem, 4.5vw, 3.8rem);
   font-weight: 800;
-  line-height: 1.18;
+  line-height: 1.15;
   letter-spacing: -0.03em;
   margin-bottom: 1.25rem;
   color: var(--fg);
@@ -437,8 +479,8 @@ body {
 .hero-lead {
   font-size: 1.15rem;
   color: var(--fg-muted);
-  max-width: 65ch;
-  margin: 0 auto 2rem;
+  max-width: 72ch;
+  margin: 0 auto 2.25rem;
   line-height: 1.7;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -448,8 +490,45 @@ body {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.75rem;
   flex-wrap: wrap;
+}
+
+/* Institutional KPI Telemetry Bar */
+.telemetry-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+  max-width: 1040px;
+  margin: 0 auto 3rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.telemetry-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.telemetry-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
 }
 
 .hero-photo {
@@ -744,19 +823,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.35rem 1rem;
-  background: #0253af;
-  color: #ffffff;
-  font-size: 0.74rem;
+  padding: 0.4rem 1.25rem;
+  background: #07090e;
+  border-top: 1px solid var(--border);
+  color: #cbf3f0;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
+.status-left {
+  color: var(--primary);
+}
+
 .status-center {
-  color: #ffffff;
+  color: #cbf3f0;
   font-weight: 500;
+}
+
+.status-right {
+  color: var(--secondary);
 }
 
 /* --- Section Structure --- */
@@ -872,6 +960,74 @@ th {
 
 td {
   color: var(--fg-muted);
+}
+
+/* Institutional Comparison Table */
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.comparison-table thead th {
+  background: var(--bg-subtle);
+  font-weight: 800;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.comparison-table .col-highlight {
+  background: rgba(46, 196, 182, 0.06);
+  border-left: 1px solid rgba(46, 196, 182, 0.25);
+  border-right: 1px solid rgba(46, 196, 182, 0.25);
+}
+
+.comparison-table thead th.col-highlight {
+  color: var(--primary);
+  background: rgba(46, 196, 182, 0.12);
+}
+
+.comparison-table tbody tr:hover td {
+  background: var(--bg-card-hover);
+}
+
+.comparison-table tbody tr:hover td.col-highlight {
+  background: rgba(46, 196, 182, 0.1);
+}
+
+.comp-badge-ok {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(46, 196, 182, 0.15);
+  border: 1px solid rgba(46, 196, 182, 0.35);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+.comp-badge-warn {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(255, 159, 28, 0.12);
+  border: 1px solid rgba(255, 159, 28, 0.3);
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
 }
 
 .suite-link {

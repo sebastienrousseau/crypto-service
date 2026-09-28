@@ -1,7 +1,9 @@
 <header class="site-header" role="banner">
   <div class="container header-inner">
-    <a class="brand" href="{{locale_path}}#hero" aria-label="{{label_home}}">
+    <a class="brand" href="{{site_path}}#hero" aria-label="{{label_home}}">
+      <span class="brand-symbol" aria-hidden="true">◆</span>
       <span class="brand-text">{{name}}</span>
+      <span class="brand-badge font-mono">INSTITUTIONAL</span>
     </a>
     <button
       class="nav-toggle"
@@ -15,9 +17,12 @@
       <span class="nav-toggle-icon" aria-hidden="true">☰</span>
     </button>
     <nav class="nav-menu" id="navMenu" aria-label="{{label_nav}}">
-      <a class="nav-link" href="{{locale_path}}#packages">Packages</a>
-      <a class="nav-link" href="{{locale_path}}#standards">Standards</a>
-      <a class="nav-link" href="{{locale_path}}#security">{{nav_security}}</a>
+      <a class="nav-link" href="{{site_path}}#architecture">{{nav_overview}}</a>
+      <a class="nav-link" href="{{site_path}}#packages">Packages (18)</a>
+      <a class="nav-link" href="{{site_path}}#standards">Standards</a>
+      <a class="nav-link" href="{{site_path}}#comparisons">Comparisons</a>
+      <a class="nav-link" href="{{site_path}}research.html">2027 Research</a>
+      <a class="nav-link" href="{{site_path}}#security">{{nav_security}}</a>
     </nav>
     <div class="header-actions">
       <span data-ssg-search></span>
@@ -33,7 +38,7 @@
         <span class="theme-icon" aria-hidden="true"></span>
       </button>
       <a class="btn btn-outline btn-sm" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener noreferrer" aria-label="{{label_github}}">GitHub</a>
-      <a class="btn btn-primary btn-sm" href="{{locale_path}}#quickstart">{{cta_primary}}</a>
+      <a class="btn btn-primary btn-sm" href="{{site_path}}#packages">{{cta_primary}}</a>
     </div>
   </div>
 </header>

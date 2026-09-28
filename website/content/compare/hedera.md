@@ -1,8 +1,8 @@
 ---
-title: "Crypto Service vs Hedera: Universal Post-Quantum Cryptography vs Network DLT"
+title: "Crypto Service vs Hedera: Universal Cryptography vs Public DLT Networks"
 description: "Architecture comparison of Crypto Service Suite and Hedera Hashgraph: Infrastructure-agnostic quantum-safe cryptography vs proprietary consensus network tokens."
 eyebrow: "DLT Infrastructure Analysis"
-headline: "Universal Cryptographic Core vs. DLT Consensus Networks"
+headline: "Universal Cryptographic Substrate vs. Public DLT Networks"
 lead: "Understand the fundamental boundary between protocol-level cryptographic operations and public distributed ledger consensus."
 layout: index
 author: "Sebastien Rousseau"
@@ -10,11 +10,11 @@ name: "Crypto Service"
 language: en-GB
 date: "2026-09-28"
 logo_alt: "Crypto Service Suite logo"
-light_trace_alt: "Curved electric blue and violet light trails over a dark obsidian background"
-nav_overview: "Overview"
+light_trace_alt: "Curved electric teal and amber light trails over a dark obsidian background"
+nav_overview: "Architecture"
 nav_security: "Security"
 nav_faq: "FAQ"
-cta_primary: "Get Started"
+cta_primary: "Explore 18 Packages"
 ---
 
 <section class="section">
@@ -22,40 +22,40 @@ cta_primary: "Get Started"
 <h2>Cryptographic Substrate vs. Public DLT Comparison</h2>
 <p>Enterprises frequently confuse public distributed ledgers like Hedera with foundational cryptographic libraries. While Hedera provides decentralized consensus, Crypto Service Suite provides the quantum-safe cryptographic operating system securing applications across any layer (L0, L1, L2, or traditional enterprise cloud).</p>
 
-<div class="table-container" style="overflow-x:auto; margin: 2rem 0;">
-<table style="width:100%; border-collapse: collapse; text-align: left;">
+<div class="table-responsive">
+<table class="comparison-table">
 <thead>
-<tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
-<th style="padding: 1rem;">Layer & Invariant</th>
-<th style="padding: 1rem; color: #60a5fa;">Crypto Service Suite</th>
-<th style="padding: 1rem; color: #9ca3af;">Hedera (Hashgraph)</th>
+<tr>
+<th>Layer &amp; Invariant</th>
+<th class="col-highlight">Crypto Service Suite</th>
+<th>Hedera (Hashgraph)</th>
 </tr>
 </thead>
 <tbody>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Architectural Layer</strong></td>
-<td style="padding: 1rem; color: #34d399;">L0 Sovereign Cryptographic Engine &amp; Service</td>
-<td style="padding: 1rem;">Public Proof-of-Stake Distributed Ledger</td>
+<tr>
+<td><strong>Architectural Layer</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">L0 SOVEREIGN SUBSTRATE</span><br>Sovereign cryptographic engine; zero network dependency</td>
+<td><span class="comp-badge-warn">PUBLIC DLT</span><br>Public proof-of-stake distributed ledger network</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Post-Quantum Key Exchange</strong></td>
-<td style="padding: 1rem; color: #34d399;">FIPS 203 ML-KEM &amp; RFC 10024 Hybrid Dual Encapsulation</td>
-<td style="padding: 1rem;">Pre-Quantum Elliptic Curves (secp256k1 &amp; Ed25519)</td>
+<tr>
+<td><strong>Post-Quantum Key Exchange</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM &amp; RFC 10024 hybrid dual encapsulation</td>
+<td><span class="comp-badge-warn">CLASSICAL ECC</span><br>Pre-quantum elliptic curves (secp256k1 &amp; Ed25519)</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Network Dependency &amp; Gas Fees</strong></td>
-<td style="padding: 1rem; color: #34d399;">Zero Network Required; 100% Offline / Private VPC execution</td>
-<td style="padding: 1rem;">Mandatory Network Connectivity &amp; HBAR Transaction Fees</td>
+<tr>
+<td><strong>Network Dependency &amp; Gas Fees</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">OFFLINE EXECUTION</span><br>Zero network required; runs entirely in-memory / private VPC</td>
+<td><span class="comp-badge-warn">NETWORK REQUIRED</span><br>Mandatory network connectivity &amp; HBAR transaction fees</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Data Privacy &amp; GDPR / HIPAA</strong></td>
-<td style="padding: 1rem; color: #34d399;">Complete In-Memory Isolation; Zero Public Ledger Exposure</td>
-<td style="padding: 1rem;">Public Consensus State Broadcast</td>
+<tr>
+<td><strong>Data Privacy &amp; GDPR / HIPAA</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">LOCAL MEMORY ISOLATION</span><br>Client-side envelope encryption; zero public ledger broadcast</td>
+<td><span class="comp-badge-warn">PUBLIC LEDGER</span><br>Public consensus state broadcast</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Integration Surface</strong></td>
-<td style="padding: 1rem; color: #34d399;">18 Universal TypeScript/Wasm Packages (Node, Edge, React, Vue)</td>
-<td style="padding: 1rem;">Hedera SDKs (Java, JS, Go, Rust)</td>
+<tr>
+<td><strong>Integration Surface</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">18 UNIVERSAL PACKAGES</span><br>Node, Edge, React, Vue, Prisma, TypeORM, MCP, LSP</td>
+<td><span class="comp-badge-warn">HEDERA SDKS</span><br>Dedicated ledger RPC client SDKs</td>
 </tr>
 </tbody>
 </table>

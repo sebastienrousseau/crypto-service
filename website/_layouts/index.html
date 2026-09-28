@@ -3,14 +3,39 @@
 <section id="hero" class="hero-section">
   <div class="container hero-container text-center">
     <div class="pill-badge">
-      <span class="pill-tag">NEW</span>
-      <span class="pill-text">v0.0.3 Release · Post-Quantum KEM &amp; Signatures · 18 Monorepo Packages</span>
+      <span class="pill-dot" aria-hidden="true"></span>
+      <span class="pill-text">{{eyebrow}}</span>
     </div>
     <h1 class="hero-title">{{headline}}</h1>
     <p class="hero-lead">{{lead}}</p>
     <div class="hero-cta-group">
-      <a class="btn btn-primary btn-lg" href="#packages">Explore 18 Packages</a>
-      <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">Star on GitHub</a>
+      <a class="btn btn-primary btn-lg" href="#packages">{{cta_primary}}</a>
+      <a class="btn btn-secondary btn-lg" href="research.html">2027 Research White Paper &rarr;</a>
+      <a class="btn btn-outline btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">GitHub Repository</a>
+    </div>
+
+    <!-- Institutional KPI Telemetry Bar -->
+    <div class="telemetry-bar">
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">18</span>
+        <span class="telemetry-label">Modular Packages</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">100%</span>
+        <span class="telemetry-label">Coverage Floor</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">FIPS 203/204</span>
+        <span class="telemetry-label">Post-Quantum</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">&lt; 1ms</span>
+        <span class="telemetry-label">Deterministic Latency</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">DORA &amp; CBOM</span>
+        <span class="telemetry-label">Audit-Ready</span>
+      </div>
     </div>
 
     <figure class="hero-photo">
@@ -32,7 +57,7 @@
           <span class="tab-item">2:cli</span>
         </div>
         <div class="terminal-actions">
-          <span class="badge-status font-mono">● TypeScript 5.8+ · Node.js 22 LTS · FIPS 203/204 (Prefix + i)</span>
+          <span class="badge-status font-mono">● TypeScript 5.8+ · Node.js 22 LTS · FIPS 203/204 Native</span>
         </div>
       </figcaption>
 
@@ -50,6 +75,7 @@
 <div class="tree-node file">  crypto-server/</div>
 <div class="tree-node file">  crypto-cli/</div>
 <div class="tree-node file">  crypto-sdk/</div>
+<div class="tree-node file">  crypto-cbom/</div>
 <div class="tree-node file">pnpm-workspace.yaml</div>
 <div class="tree-node file">package.json</div>
           </div>
@@ -81,7 +107,7 @@
           <div class="tmux-pane pane-terminal font-mono">
             <div class="pane-header">
               <span class="pane-title">3: Shell / Tests</span>
-              <span class="pane-badge">idle</span>
+              <span class="pane-badge">verified</span>
             </div>
             <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
 <div class="cli-line"><span class="mcp-tl-ps">$ </span>pnpm -r run test &amp;&amp; pnpm -r run lint</div>
@@ -100,7 +126,7 @@
           <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
 <div class="ai-prompt"><span class="ai-sym">&gt;</span> Antigravity (MCP)</div>
 <div class="ai-tool">⏺ Tool: crypto.verifyFipsVectors()</div>
-<div class="ai-res">✓ NIST ACVP test vectors passed (FIPS 203/204/205/206)</div>
+<div class="ai-res">✓ NIST CAVP test vectors passed (FIPS 203/204/205/206)</div>
 <div class="ai-tool">⏺ Tool: crypto.auditZeroization()</div>
 <div class="ai-res">✓ Zero memory leakage detected: wipeMemory() active</div>
           </div>
@@ -109,9 +135,9 @@
 
       <!-- TMUX Status Bar -->
       <div class="tmux-status-bar font-mono">
-        <span class="status-left">[crypto-service:ide*] 0:nvim* 1:server 2:cli "crypto-service" 23:30</span>
+        <span class="status-left">[crypto-service:ide*] 0:nvim* 1:server 2:cli "crypto-service" 17:30</span>
         <span class="status-center">workspace: 18 packages (clean) · mcp: stdio (JSON-RPC)</span>
-        <span class="status-right">23:30 27-Sep-26</span>
+        <span class="status-right">v0.0.4 FIPS-203</span>
       </div>
     </figure>
   </div>

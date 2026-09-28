@@ -1,20 +1,20 @@
 ---
-title: "Crypto Service vs BitGo: Sovereign CaaS vs Custodial Lock-in"
-description: "Detailed institutional architecture comparison between Crypto Service Suite and BitGo Crypto-as-a-Service (CaaS) across custody models, post-quantum readiness, and fees."
-eyebrow: "Institutional CaaS Comparison"
-headline: "Sovereign Post-Quantum CaaS vs. Custodial Intermediaries"
-lead: "Compare on-premise zero-trust sovereign cryptography with BitGo's hosted custody platform. Eliminate basis point asset fees, cloud dependency, and counterparty insolvency risk."
+title: "Crypto Service vs BitGo: Non-Custodial Architecture vs Hosted Intermediaries"
+description: "Detailed institutional architecture comparison between Crypto Service Suite and BitGo across non-custodial execution, post-quantum readiness, and fee structures."
+eyebrow: "Institutional Custody Comparison"
+headline: "Non-Custodial Cryptographic Infrastructure vs. Custodial Intermediaries"
+lead: "Compare sovereign on-premise zero-trust cryptography with BitGo's hosted custody platform. Eliminate basis point asset fees, cloud dependency, and counterparty insolvency risk."
 layout: index
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB
 date: "2026-09-28"
 logo_alt: "Crypto Service Suite logo"
-light_trace_alt: "Curved electric blue and violet light trails over a dark obsidian background"
-nav_overview: "Overview"
+light_trace_alt: "Curved electric teal and amber light trails over a dark obsidian background"
+nav_overview: "Architecture"
 nav_security: "Security"
 nav_faq: "FAQ"
-cta_primary: "Get Started"
+cta_primary: "Explore 18 Packages"
 ---
 
 <section class="section">
@@ -22,45 +22,45 @@ cta_primary: "Get Started"
 <h2>Executive Architecture Comparison</h2>
 <p>Fintechs and financial institutions expanding digital asset and cryptographic infrastructure evaluate two fundamentally divergent paradigms: sovereign on-premise execution or third-party custodial outsourcing.</p>
 
-<div class="table-container" style="overflow-x:auto; margin: 2rem 0;">
-<table style="width:100%; border-collapse: collapse; text-align: left;">
+<div class="table-responsive">
+<table class="comparison-table">
 <thead>
-<tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
-<th style="padding: 1rem;">Feature / Invariant</th>
-<th style="padding: 1rem; color: #60a5fa;">Crypto Service Suite</th>
-<th style="padding: 1rem; color: #9ca3af;">BitGo (CaaS)</th>
+<tr>
+<th>Feature / Invariant</th>
+<th class="col-highlight">Crypto Service Suite</th>
+<th>BitGo</th>
 </tr>
 </thead>
 <tbody>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Custody & Key Control</strong></td>
-<td style="padding: 1rem; color: #34d399;">100% Non-Custodial & Sovereign (Your VPC / HSM)</td>
-<td style="padding: 1rem;">Custodial Trust Company Intermediary</td>
+<tr>
+<td><strong>Custody &amp; Key Control</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">NON-CUSTODIAL &amp; SOVEREIGN</span><br>Keys reside strictly within your sovereign VPC or HSM</td>
+<td><span class="comp-badge-warn">CUSTODIAL TRUST</span><br>Custodial legal title held by trust company intermediary</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Post-Quantum Readiness</strong></td>
-<td style="padding: 1rem; color: #34d399;">FIPS 203 ML-KEM, FIPS 204 ML-DSA, RFC 10024 Hybrid</td>
-<td style="padding: 1rem;">Classical ECDSA / Ed25519 (Legacy)</td>
+<tr>
+<td><strong>Post-Quantum Readiness</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid encapsulation</td>
+<td><span class="comp-badge-warn">CLASSICAL ECC</span><br>ECDSA / Ed25519 vulnerable to quantum cryptanalysis</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Fee Structure</strong></td>
-<td style="padding: 1rem; color: #34d399;">Zero Basis Point Fees (Open-Core + Flat Enterprise)</td>
-<td style="padding: 1rem;">5 to 25 bps on Assets Under Custody + Setup Fees</td>
+<tr>
+<td><strong>Fee Structure</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">0 BPS ASSET FEES</span><br>Zero asset extraction; transparent billing hooks</td>
+<td><span class="comp-badge-warn">5 &ndash; 25 BPS</span><br>Basis points charged on Assets Under Custody</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Regulatory Alignment</strong></td>
-<td style="padding: 1rem; color: #34d399;">DORA Article 9/13 Automated CBOM & CRA Compliance</td>
-<td style="padding: 1rem;">US Trust Bank Charter (Single Jurisdiction)</td>
+<tr>
+<td><strong>Regulatory Alignment</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">DORA ARTICLE 13</span><br>Automated CycloneDX 1.6 &amp; SPDX 3.0 CBOM telemetry</td>
+<td><span class="comp-badge-warn">SOC 2 TYPE II</span><br>Periodic static audits under single jurisdiction</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Deployment Flexibility</strong></td>
-<td style="padding: 1rem; color: #34d399;">Edge Isolates, Browser, Cloud KMS (AWS/GCP/Azure/Vault)</td>
-<td style="padding: 1rem;">Proprietary BitGo Cloud API Gateway</td>
+<tr>
+<td><strong>Deployment Flexibility</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">UNIVERSAL RUNTIME</span><br>Edge isolates, browser Wasm, and multi-cloud KMS adapters</td>
+<td><span class="comp-badge-warn">HOSTED API</span><br>Proprietary BitGo cloud API gateway</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Verification Floor</strong></td>
-<td style="padding: 1rem; color: #34d399;">Strict 100% Test Coverage Across All 18 Packages</td>
-<td style="padding: 1rem;">Proprietary Closed-Source Audits</td>
+<tr>
+<td><strong>Verification Floor</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">100% COVERAGE FLOOR</span><br>Strict coverage across all 18 packages and CAVP vectors</td>
+<td><span class="comp-badge-warn">PROPRIETARY</span><br>Closed-source proprietary implementation</td>
 </tr>
 </tbody>
 </table>

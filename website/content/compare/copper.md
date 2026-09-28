@@ -1,5 +1,5 @@
 ---
-title: "Crypto Service vs Copper: Mathematical Sovereignty vs Off-Exchange Custody"
+title: "Crypto Service vs Copper: Mathematical Sovereignty vs Off-Exchange Settlement"
 description: "Institutional comparison of Crypto Service Suite and Copper ClearLoop: Mathematical zero-trust cryptography vs centralized off-exchange settlement networks."
 eyebrow: "Off-Exchange Settlement Analysis"
 headline: "Cryptographic Mathematical Proof vs. Custodial Trust Networks"
@@ -10,11 +10,11 @@ name: "Crypto Service"
 language: en-GB
 date: "2026-09-28"
 logo_alt: "Crypto Service Suite logo"
-light_trace_alt: "Curved electric blue and violet light trails over a dark obsidian background"
-nav_overview: "Overview"
+light_trace_alt: "Curved electric teal and amber light trails over a dark obsidian background"
+nav_overview: "Architecture"
 nav_security: "Security"
 nav_faq: "FAQ"
-cta_primary: "Get Started"
+cta_primary: "Explore 18 Packages"
 ---
 
 <section class="section">
@@ -22,40 +22,40 @@ cta_primary: "Get Started"
 <h2>Settlement and Cryptographic Sovereignty Comparison</h2>
 <p>Institutional trading firms and market makers often turn to Copper ClearLoop to avoid holding assets on centralized exchanges. However, this introduces dependence on Copper's proprietary custody infrastructure.</p>
 
-<div class="table-container" style="overflow-x:auto; margin: 2rem 0;">
-<table style="width:100%; border-collapse: collapse; text-align: left;">
+<div class="table-responsive">
+<table class="comparison-table">
 <thead>
-<tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
-<th style="padding: 1rem;">Core Capability</th>
-<th style="padding: 1rem; color: #60a5fa;">Crypto Service Suite</th>
-<th style="padding: 1rem; color: #9ca3af;">Copper (ClearLoop)</th>
+<tr>
+<th>Core Capability</th>
+<th class="col-highlight">Crypto Service Suite</th>
+<th>Copper (ClearLoop)</th>
 </tr>
 </thead>
 <tbody>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Trust Paradigm</strong></td>
-<td style="padding: 1rem; color: #34d399;">Pure Zero-Trust Mathematical Verification</td>
-<td style="padding: 1rem;">Contractual & Centralized Network Trust</td>
+<tr>
+<td><strong>Trust Paradigm</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">PURE ZERO-TRUST</span><br>Mathematical verification; client-controlled key lifecycle</td>
+<td><span class="comp-badge-warn">CONTRACTUAL</span><br>Centralized off-exchange clearing network trust</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Post-Quantum Encryption</strong></td>
-<td style="padding: 1rem; color: #34d399;">NIST FIPS 203 ML-KEM & FIPS 204 ML-DSA</td>
-<td style="padding: 1rem;">Legacy Classical MPC / Optical HSM</td>
+<tr>
+<td><strong>Post-Quantum Encryption</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid encapsulation</td>
+<td><span class="comp-badge-warn">CLASSICAL MPC</span><br>Legacy pre-quantum threshold signatures / optical HSM</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Ecosystem Scope</strong></td>
-<td style="padding: 1rem; color: #34d399;">18 Modular Packages (SDK, Edge, KMS, REST, ORM, MCP, LSP)</td>
-<td style="padding: 1rem;">Specialized Exchange Settlement Network</td>
+<tr>
+<td><strong>Ecosystem Scope</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">18 WORKSPACE MODULES</span><br>Lib, Wasm, Server, CLI, SDK, KMS, Edge, ORM, MCP, LSP</td>
+<td><span class="comp-badge-warn">SPECIALIZED</span><br>Dedicated exchange settlement network</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Multi-Cloud KMS Orchestration</strong></td>
-<td style="padding: 1rem; color: #34d399;">AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault</td>
-<td style="padding: 1rem;">Copper-Managed HSM Enclaves</td>
+<tr>
+<td><strong>Multi-Cloud KMS Orchestration</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">NATIVE MULTI-CLOUD</span><br>AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault</td>
+<td><span class="comp-badge-warn">PROPRIETARY</span><br>Copper-managed optical HSM enclaves</td>
 </tr>
-<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-<td style="padding: 1rem;"><strong>Code Availability & Auditability</strong></td>
-<td style="padding: 1rem; color: #34d399;">Open Source (Dual License) + 100% Test Coverage</td>
-<td style="padding: 1rem;">Proprietary Closed Architecture</td>
+<tr>
+<td><strong>Code Availability &amp; Auditability</strong></td>
+<td class="col-highlight"><span class="comp-badge-ok">OPEN ARCHITECTURE</span><br>Dual-licensed core + strict 100% test coverage floor</td>
+<td><span class="comp-badge-warn">CLOSED PROPRIETARY</span><br>Proprietary network protocols and architecture</td>
 </tr>
 </tbody>
 </table>
