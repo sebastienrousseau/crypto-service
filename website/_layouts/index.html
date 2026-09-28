@@ -1,17 +1,36 @@
 {{#extends "base"}}
 {{#block "main"}}
 <section id="hero" class="hero-section">
-  <div class="container hero-container text-center">
-    <div class="pill-badge">
-      <span class="pill-dot" aria-hidden="true"></span>
-      <span class="pill-text">{{eyebrow}}</span>
-    </div>
-    <h1 class="hero-title">{{headline}}</h1>
-    <p class="hero-lead">{{lead}}</p>
-    <div class="hero-cta-group">
-      <a class="btn btn-primary btn-lg" href="#packages">{{cta_primary}}</a>
-      <a class="btn btn-secondary btn-lg" href="research.html">2027 Research White Paper &rarr;</a>
-      <a class="btn btn-outline btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">GitHub Repository</a>
+  <div class="container hero-container">
+    <div class="hero-split-grid">
+      <div class="hero-text-col">
+        <div class="pill-badge">
+          <span class="pill-dot" aria-hidden="true"></span>
+          <span class="pill-text">{{eyebrow}}</span>
+        </div>
+        <h1 class="hero-title">Cryptographic <span class="serif">Mobility</span> for Markets That <span class="serif">Never Close</span></h1>
+        <p class="hero-lead">{{lead}}</p>
+        <div class="hero-cta-group">
+          <a class="btn btn-dark-pill btn-lg" href="#packages">{{cta_primary}}</a>
+          <a class="btn btn-secondary btn-lg" href="research.html">2027 Research White Paper &rarr;</a>
+          <a class="btn btn-outline btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">GitHub Specifications</a>
+        </div>
+      </div>
+      <div class="hero-graphic-col" aria-hidden="true">
+        <div class="sphere-wrapper">
+          <svg viewBox="0 0 320 320" width="300" height="300" fill="none" stroke="currentColor" stroke-width="1.2" class="wireframe-sphere">
+            <circle cx="160" cy="160" r="130" stroke-opacity="0.3" />
+            <ellipse cx="160" cy="160" rx="130" ry="50" stroke-opacity="0.35" />
+            <ellipse cx="160" cy="160" rx="50" ry="130" stroke-opacity="0.35" />
+            <ellipse cx="160" cy="160" rx="95" ry="130" stroke-opacity="0.25" stroke-dasharray="4 4" />
+            <ellipse cx="160" cy="160" rx="130" ry="95" stroke-opacity="0.25" stroke-dasharray="4 4" />
+            <circle cx="255" cy="105" r="5" fill="#FF9F1C" stroke="var(--bg)" stroke-width="2" />
+            <circle cx="80" cy="220" r="5" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
+            <circle cx="160" cy="160" r="6" fill="var(--fg)" stroke="var(--bg)" stroke-width="2" />
+            <circle cx="225" cy="200" r="4" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
     </div>
 
     <!-- Institutional KPI Telemetry Bar -->
@@ -39,7 +58,11 @@
     </div>
 
     <figure class="hero-photo">
-      <img src="{{site_path}}images/light-trace-640.webp" srcset="{{site_path}}images/light-trace-320.webp 320w, {{site_path}}images/light-trace-480.webp 480w, {{site_path}}images/light-trace-640.webp 640w, {{site_path}}images/light-trace-768.webp 768w, {{site_path}}images/light-trace-960.webp 960w, {{site_path}}images/light-trace.webp 1200w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="{{light_trace_alt}}" fetchpriority="high">
+      <div class="photo-header">
+        <span class="photo-badge font-mono">FIPS 203 &bull; ML-KEM-768</span>
+        <span class="photo-status">INSTITUTIONAL CORE ACTIVE</span>
+      </div>
+      <img src="{{site_path}}images/corporate-finance-640.webp" srcset="{{site_path}}images/corporate-finance-320.webp 320w, {{site_path}}images/corporate-finance-640.webp 640w, {{site_path}}images/corporate-finance-1200.webp 1200w, {{site_path}}images/corporate-finance-1920.webp 1920w, {{site_path}}images/corporate-finance.webp 2584w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="Corporate finance high-technology trading desks and operations center" fetchpriority="high">
     </figure>
 
     <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->

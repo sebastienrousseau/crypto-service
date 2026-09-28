@@ -27,6 +27,52 @@ nav_faq: "FAQ"
 cta_primary: "Explore 18 Packages"
 ---
 
+<!-- Institutional Standards Strip (SWIFT / DORA Standards) -->
+<section class="section-standards">
+  <div class="container text-center">
+    <div class="standards-bar">
+      <span class="standard-pill"><span class="pill-dot"></span> ISO 20022 MESSAGING</span>
+      <span class="standard-pill"><span class="pill-dot"></span> DORA ART. 13/14 RESILIENCE</span>
+      <span class="standard-pill"><span class="pill-dot"></span> NIST FIPS 203 / 204</span>
+      <span class="standard-pill"><span class="pill-dot"></span> NSA CNSA 2.0 TIMELINE</span>
+      <span class="standard-pill"><span class="pill-dot"></span> CYCLONEDX 1.6 CBOM</span>
+    </div>
+  </div>
+</section>
+
+<!-- Proven Market Scale (Copper 3-Card Metrics Dock) -->
+<section class="metrics-section">
+  <div class="container">
+    <div class="metrics-header">
+      <h2>Proven <span class="serif">Market Scale</span></h2>
+      <p>Engineered for tier-1 banks, sovereign treasuries, and regulated custodians to eliminate counterparty risk and achieve quantum resilience before the 2027 regulatory deadlines.</p>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-number font-mono">18</span>
+          <span class="metric-icon-badge" aria-hidden="true">◆</span>
+        </div>
+        <p class="metric-desc">Modular packages released in lockstep with zero external runtime dependencies.</p>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-number font-mono">100%</span>
+          <span class="metric-icon-badge" aria-hidden="true">✓</span>
+        </div>
+        <p class="metric-desc">Strict test coverage floor across statements, branches, functions, and lines.</p>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-number font-mono">&lt; 1ms</span>
+          <span class="metric-icon-badge" aria-hidden="true">⚡</span>
+        </div>
+        <p class="metric-desc">Deterministic SIMD WebAssembly execution across edge and serverless runtimes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="architecture" class="section">
 <div class="container text-center">
 <h2 class="section-title">Institutional Architecture &amp; High-Assurance Invariants</h2>
@@ -239,6 +285,94 @@ cta_primary: "Explore 18 Packages"
 </div>
 </div>
 
+</div>
+</section>
+
+<!-- Alternating Feature Section (Copper Zig-Zag Standard) -->
+<section class="zigzag-section">
+  <div class="container">
+    <div class="zigzag-header">
+      <div class="pill-badge">
+        <span class="pill-dot" aria-hidden="true"></span>
+        <span class="pill-text">MOBILITY ACROSS MARKETS</span>
+      </div>
+      <h2 class="section-title">Infrastructure for <span class="serif">Mobility Across Markets</span></h2>
+      <p class="section-desc">Always-on markets need cryptographic infrastructure that can keep up. Crypto Service connects you to a high-assurance network of key management, settlement, and compliance primitives together in one sovereign layer.</p>
+    </div>
+
+    <!-- Feature Row 1: Text Left, Graphic Right -->
+    <div class="feature-row">
+      <div class="feature-content">
+        <h3>Reduce Risk, <span class="serif">Not Reach</span></h3>
+        <p>Key management should do more than keep assets locked in a black box. Crypto Service gives institutions the sovereign foundation to sign, encrypt, and orchestrate cryptographic keys across trading, settlement, and multi-cloud workflows.</p>
+        <a class="btn btn-dark-pill" href="#packages">Explore Sovereign KMS &rarr;</a>
+      </div>
+      <div class="feature-stage" aria-hidden="true">
+        <svg viewBox="0 0 280 280" width="220" height="220" fill="none" stroke="currentColor" stroke-width="1.2" class="wireframe-sphere">
+          <circle cx="140" cy="140" r="110" stroke-opacity="0.3" />
+          <ellipse cx="140" cy="140" rx="110" ry="40" stroke-opacity="0.35" />
+          <ellipse cx="140" cy="140" rx="40" ry="110" stroke-opacity="0.35" />
+          <ellipse cx="140" cy="140" rx="80" ry="110" stroke-opacity="0.25" stroke-dasharray="3 3" />
+          <circle cx="218" cy="95" r="4.5" fill="#FF9F1C" stroke="var(--bg)" stroke-width="2" />
+          <circle cx="70" cy="190" r="4.5" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
+        </svg>
+        <span class="stage-badge lock">🔒 FIPS 203 Native</span>
+        <span class="stage-badge secured">🛡️ Assets Secured</span>
+      </div>
+    </div>
+
+    <!-- Feature Row 2: Graphic Left, Text Right -->
+    <div class="feature-row reverse">
+      <div class="feature-content">
+        <h3>Ready to Settle <span class="serif">When It Matters Most</span></h3>
+        <p>Markets move quickly. Cryptographic settlement should too. Crypto Service helps institutions move digital assets across trading, financing, and cross-border settlement workflows more efficiently through one connected infrastructure layer.</p>
+        <a class="btn btn-dark-pill" href="#network">Explore Settlement Fabric &rarr;</a>
+      </div>
+      <div class="feature-stage" aria-hidden="true">
+        <svg viewBox="0 0 280 280" width="220" height="220" fill="none" stroke="currentColor" stroke-width="1.2" class="wireframe-sphere">
+          <circle cx="140" cy="140" r="110" stroke-opacity="0.3" />
+          <ellipse cx="140" cy="140" rx="110" ry="50" stroke-opacity="0.35" />
+          <ellipse cx="140" cy="140" rx="50" ry="110" stroke-opacity="0.35" />
+          <circle cx="180" cy="110" r="4.5" fill="#2EC4B6" stroke="var(--bg)" stroke-width="2" />
+          <circle cx="100" cy="170" r="4.5" fill="#FF9F1C" stroke="var(--bg)" stroke-width="2" />
+        </svg>
+        <span class="stage-badge btc font-mono">BTC / X25519</span>
+        <span class="stage-badge eth font-mono">ETH / ML-DSA</span>
+      </div>
+    </div>
+
+    <!-- Feature Row 3: Text Left, Graphic Right -->
+    <div class="feature-row">
+      <div class="feature-content">
+        <h3>Built for <span class="serif">Tier-1 Institutions</span></h3>
+        <p>Crypto Service acts as your gateway to the sovereign financial ecosystem, providing the infrastructure, services, and counterparty connectivity institutions need to move assets across markets with mathematical control.</p>
+        <a class="btn btn-dark-pill" href="#architecture">Explore Architecture &rarr;</a>
+      </div>
+      <div class="feature-stage" aria-hidden="true">
+        <svg viewBox="0 0 280 280" width="220" height="220" fill="none" stroke="currentColor" stroke-width="1.2" class="wireframe-sphere">
+          <circle cx="140" cy="140" r="110" stroke-opacity="0.3" />
+          <ellipse cx="140" cy="140" rx="110" ry="40" stroke-opacity="0.35" />
+          <ellipse cx="140" cy="140" rx="40" ry="110" stroke-opacity="0.35" />
+          <circle cx="140" cy="140" r="5" fill="var(--fg)" stroke="var(--bg)" stroke-width="2" />
+        </svg>
+        <span class="stage-badge uptime font-mono">24/7/365 Non-Custodial</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="network" class="section">
+<div class="container text-center">
+<h2 class="section-title">Global Settlement Fabric &amp; Network Interconnect</h2>
+<p class="section-desc">Deterministic cross-border clearing primitives connecting institutional custody, multi-cloud KMS, and regulated banking rails across global financial hubs.</p>
+<figure class="network-photo">
+  <div class="photo-header">
+    <span class="photo-badge font-mono">GLOBAL CLEARING FABRIC</span>
+    <span class="photo-status">LOW-LATENCY MULTI-REGION</span>
+  </div>
+  <img src="{{site_path}}images/circuit_board_cityscape-640.webp" srcset="{{site_path}}images/circuit_board_cityscape-320.webp 320w, {{site_path}}images/circuit_board_cityscape-640.webp 640w, {{site_path}}images/circuit_board_cityscape-1200.webp 1200w, {{site_path}}images/circuit_board_cityscape-1920.webp 1920w, {{site_path}}images/circuit_board_cityscape.webp 2584w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="Global digital circuit board cityscape depicting financial settlement infrastructure" loading="lazy">
+</figure>
 </div>
 </section>
 
@@ -546,4 +680,26 @@ console.log(`Algorithms Cataloged: ${cbom.components.length}`);
 </div>
 </div>
 </div>
+</section>
+
+<!-- Pre-Footer Turquoise Banner (Copper + SWIFT Standard) -->
+<section class="cta-banner-section">
+  <div class="container">
+    <div class="cta-banner">
+      <div class="cta-banner-content">
+        <h2>Access Markets <span class="serif">Through One Connected Operating Core</span></h2>
+        <p>Crypto Service brings you the sovereign, mathematically verified infrastructure for accessing, moving, and managing cryptographic assets across markets with zero counterparty risk.</p>
+        <a class="btn-dark-pill" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">Explore Specifications &rarr;</a>
+      </div>
+      <div class="cta-banner-graphic" aria-hidden="true">
+        <svg viewBox="0 0 240 240" width="200" height="200" fill="none" stroke="#07090e" stroke-width="1.2" stroke-opacity="0.6">
+          <circle cx="120" cy="120" r="95" />
+          <ellipse cx="120" cy="120" rx="95" ry="35" />
+          <ellipse cx="120" cy="120" rx="35" ry="95" />
+          <circle cx="180" cy="85" r="4" fill="#07090e" />
+          <circle cx="65" cy="155" r="4" fill="#07090e" />
+        </svg>
+      </div>
+    </div>
+  </div>
 </section>

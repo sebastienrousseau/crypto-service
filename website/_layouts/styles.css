@@ -178,23 +178,43 @@ body {
   font-family: var(--font-mono);
 }
 
-/* --- Header & Navigation --- */
+.serif, em {
+  font-family: Georgia, "New York", "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* --- Header & Navigation (Copper Floating Pill Standard) --- */
 .site-header {
   position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  top: 1rem;
+  z-index: 100;
+  padding: 0 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .header-inner {
+  max-width: 1140px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 4.5rem;
-  padding: 0.5rem 0;
+  min-height: 4.25rem;
+  padding: 0.5rem 1.5rem;
   gap: 1rem;
   flex-wrap: nowrap;
+  background: rgba(18, 24, 38, 0.88);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .header-inner {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 117, 106, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .brand {
@@ -418,10 +438,77 @@ body {
 }
 
 .hero-section {
-  padding: 4.5rem 0 3rem;
+  padding: 4.5rem 0 3.5rem;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 0%, rgba(46, 196, 182, 0.12) 0%, rgba(255, 159, 28, 0.04) 40%, transparent 70%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 159, 28, 0.14) 0%, rgba(46, 196, 182, 0.08) 45%, transparent 75%);
+}
+
+[data-theme="light"] .hero-section {
+  background: linear-gradient(180deg, #fde8d7 0%, #ffffff 85%);
+}
+
+.hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  align-items: center;
+  gap: 3.5rem;
+  margin-bottom: 3.5rem;
+  text-align: left;
+}
+
+@media (max-width: 860px) {
+  .hero-split-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 2rem;
+  }
+}
+
+.sphere-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wireframe-sphere {
+  max-width: 100%;
+  height: auto;
+  color: var(--primary);
+  animation: floatSphere 8s ease-in-out infinite alternate;
+}
+
+@keyframes floatSphere {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.btn-dark-pill {
+  background: #07090e;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.85rem 2.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.btn-dark-pill:hover {
+  background: #182032;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+[data-theme="light"] .btn-dark-pill {
+  background: #07090e;
+  color: #ffffff;
 }
 
 .pill-badge {
@@ -531,7 +618,8 @@ body {
   color: var(--fg-subtle);
 }
 
-.hero-photo {
+.hero-photo,
+.network-photo {
   max-width: 1080px;
   width: 100%;
   margin: 0 auto 2rem;
@@ -542,7 +630,12 @@ body {
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
 }
 
-.hero-photo img {
+.network-photo {
+  margin: 2.5rem auto 0;
+}
+
+.hero-photo img,
+.network-photo img {
   display: block;
   width: 100%;
   height: auto;
@@ -550,7 +643,325 @@ body {
   object-fit: cover;
 }
 
-/* --- Authentic 4-Pane TMUX IDE Terminal Grid --- */
+.photo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 1.25rem;
+  background: rgba(7, 9, 14, 0.85);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+}
+
+[data-theme="light"] .photo-header {
+  background: rgba(244, 250, 249, 0.95);
+}
+
+.photo-badge {
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.photo-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--fg-subtle);
+  font-weight: 600;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+.photo-status::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary);
+}
+
+/* --- Proven Market Scale (Copper Telemetry 3-Card Dock) --- */
+.metrics-section {
+  padding: 4.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.metrics-header {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 3rem;
+  align-items: baseline;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 860px) {
+  .metrics-header {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.metrics-header h2 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.metrics-header p {
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--fg-muted);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 190px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="light"] .metric-card {
+  background: #ffffff;
+  border-color: #e5ecef;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.metric-number {
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  line-height: 1;
+}
+
+.metric-icon-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: rgba(46, 196, 182, 0.12);
+  border: 1px solid rgba(46, 196, 182, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.metric-desc {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+/* --- Alternating Zig-Zag Feature Section (Copper Standard) --- */
+.zigzag-section {
+  padding: 5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.zigzag-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 5rem;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 5rem;
+  margin-bottom: 6.5rem;
+}
+
+.feature-row:last-child {
+  margin-bottom: 0;
+}
+
+.feature-row.reverse {
+  direction: rtl;
+}
+
+.feature-row.reverse > * {
+  direction: ltr;
+}
+
+@media (max-width: 860px) {
+  .feature-row {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 4rem;
+  }
+  .feature-row.reverse {
+    direction: ltr;
+  }
+}
+
+.feature-content h3 {
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.feature-content p {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--fg-muted);
+  margin-bottom: 2rem;
+}
+
+.feature-stage {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 380px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .feature-stage {
+  background: #ffffff;
+  border-color: #e5ecef;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.stage-badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.stage-badge.secured {
+  bottom: 2rem;
+  right: 2rem;
+  background: #ffffff;
+  color: #07090e;
+  border: 1px solid #e2e8f0;
+}
+
+.stage-badge.eth {
+  bottom: 2rem;
+  left: 2rem;
+  background: #2EC4B6;
+  color: #07090e;
+}
+
+.stage-badge.btc {
+  top: 2rem;
+  right: 2rem;
+  background: #FF9F1C;
+  color: #ffffff;
+}
+
+.stage-badge.uptime {
+  top: 2rem;
+  right: 2rem;
+  background: #ffffff;
+  color: #07090e;
+  border: 1px solid #e2e8f0;
+}
+
+.stage-badge.lock {
+  top: 2rem;
+  right: 2rem;
+  background: #FFBF69;
+  color: #07090e;
+}
+
+[data-theme="dark"] .stage-badge.secured,
+[data-theme="dark"] .stage-badge.uptime {
+  background: #182032;
+  color: #ffffff;
+  border-color: #23353c;
+}
+
+/* --- Pre-Footer Turquoise Banner (Copper + SWIFT Standard) --- */
+.cta-banner-section {
+  padding: 2rem 0 5rem;
+}
+
+.cta-banner {
+  background: linear-gradient(135deg, #2ec4b6 0%, #7df2d5 50%, #cbf3f0 100%);
+  color: #07090e;
+  border-radius: var(--radius-lg);
+  padding: 4.5rem 3.5rem;
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  align-items: center;
+  gap: 3rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(46, 196, 182, 0.28);
+}
+
+@media (max-width: 860px) {
+  .cta-banner {
+    grid-template-columns: 1fr;
+    padding: 2.75rem 2rem;
+  }
+}
+
+.cta-banner h2 {
+  font-size: clamp(2.2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+  color: #07090e;
+}
+
+.cta-banner p {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: #142a28;
+  margin-bottom: 2.25rem;
+  max-width: 520px;
+}
+
+.cta-banner-graphic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .terminal-preview-card {
   max-width: 1080px;
   width: 100%;
