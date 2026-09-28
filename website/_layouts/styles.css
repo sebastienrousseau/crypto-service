@@ -2447,14 +2447,18 @@ h1 {
    SWIFT.COM CORPORATE INSTITUTIONAL THEME & TROPICAL SUNRISE STYLING
    ===================================================================== */
 
-/* Panoramic Hero Stage */
+/* Panoramic Pastel Hero Stage */
 .swift-hero-stage {
   position: relative;
-  min-height: 560px;
+  min-height: 600px;
   display: flex;
   align-items: center;
-  background: #0b1420;
+  background: #f8fafc;
   overflow: hidden;
+}
+
+[data-theme="dark"] .swift-hero-stage {
+  background: #0b1420;
 }
 
 .swift-hero-backdrop {
@@ -2470,68 +2474,142 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: right center;
 }
 
-.swift-hero-overlay {
+.pastel-hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(11, 20, 32, 0.55) 0%, rgba(11, 20, 32, 0.75) 100%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.82) 48%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+[data-theme="dark"] .pastel-hero-overlay {
+  background: linear-gradient(90deg, rgba(11, 20, 32, 0.97) 0%, rgba(11, 20, 32, 0.85) 50%, rgba(11, 20, 32, 0.4) 100%);
 }
 
 .swift-hero-content {
   position: relative;
   z-index: 2;
-  padding: 6rem 1.5rem;
+  padding: 5rem 1.5rem;
   max-width: 1200px;
 }
 
+.hero-glass-card {
+  max-width: 720px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0d8a7d;
+  background: rgba(46, 196, 182, 0.15);
+  border: 1px solid rgba(46, 196, 182, 0.35);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .hero-badge {
+  color: #2ec4b6;
+  background: rgba(46, 196, 182, 0.12);
+  border-color: rgba(46, 196, 182, 0.25);
+}
+
 .swift-hero-title {
+  color: #1c2833;
+  font-size: clamp(2.5rem, 5vw, 3.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  max-width: 720px;
+}
+
+[data-theme="dark"] .swift-hero-title {
   color: #ffffff;
-  font-size: clamp(2.5rem, 5.5vw, 4.2rem);
-  font-weight: 300;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
-  margin-bottom: 1.5rem;
-  max-width: 820px;
 }
 
 .swift-hero-lead {
-  color: #e2e8f0;
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
-  line-height: 1.6;
-  max-width: 720px;
-  margin-bottom: 2.5rem;
+  color: #475569;
+  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  line-height: 1.65;
+  max-width: 660px;
+  margin-bottom: 2.25rem;
   font-weight: 400;
+}
+
+[data-theme="dark"] .swift-hero-lead {
+  color: #cbd5e1;
 }
 
 .swift-hero-cta-group {
   display: flex;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .btn-swift-hero-pill {
-  background: #cbf3f0;
+  background: #2ec4b6;
   color: #0b1726 !important;
   font-size: 1rem;
-  font-weight: 600;
-  padding: 0.8rem 2.25rem;
+  font-weight: 700;
+  padding: 0.85rem 2.25rem;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(46, 196, 182, 0.35);
 }
 
 .btn-swift-hero-pill:hover {
-  background: #2ec4b6;
+  background: #ff9f1c;
   color: #0b1726 !important;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.4);
+}
+
+.btn-swift-hero-secondary {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1c2833 !important;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.85rem 1.85rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid #cbd5e1;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease, transform 0.15s ease, color 0.15s ease;
+}
+
+[data-theme="dark"] .btn-swift-hero-secondary {
+  color: #f1f5f9 !important;
+  background: rgba(30, 41, 59, 0.7);
+  border-color: #334155;
+}
+
+.btn-swift-hero-secondary:hover {
+  border-color: #2ec4b6;
+  color: #0d8a7d !important;
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .btn-swift-hero-secondary:hover {
+  color: #2ec4b6 !important;
 }
 
 /* Institutional Telemetry Strip (Flat SWIFT Style) */
@@ -2827,18 +2905,19 @@ h1 {
 .swift-solution-split {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  grid-template-columns: 1.1fr 1fr;
+  background: linear-gradient(135deg, rgba(203, 243, 240, 0.45) 0%, #ffffff 50%, rgba(255, 191, 105, 0.25) 100%);
+  border: 1px solid rgba(46, 196, 182, 0.25);
+  border-radius: 24px;
   overflow: visible;
   min-height: 480px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 40px -10px rgba(46, 196, 182, 0.15), 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="dark"] .swift-solution-split {
-  background: #111c2e;
+  background: linear-gradient(135deg, #0f172a 0%, #162238 100%);
   border-color: #1e293b;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 900px) {
@@ -2848,7 +2927,7 @@ h1 {
 }
 
 .swift-solution-info {
-  padding: 4.5rem 3.5rem 4.5rem 4.5rem;
+  padding: 4rem 3rem 4rem 4rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2857,17 +2936,24 @@ h1 {
 
 .swift-solution-eyebrow {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #64748b;
+  font-weight: 600;
+  color: #0d8a7d;
   margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .swift-solution-eyebrow {
+  color: #2ec4b6;
 }
 
 .swift-solution-headline {
-  font-size: 2.75rem;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: #1c2833;
   margin: 0 0 1.25rem 0;
+  line-height: 1.15;
 }
 
 [data-theme="dark"] .swift-solution-headline {
@@ -2876,7 +2962,7 @@ h1 {
 
 .swift-solution-desc {
   font-size: 1.05rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: #475569;
   margin: 0 0 2rem 0;
   max-width: 480px;
@@ -2887,21 +2973,24 @@ h1 {
 }
 
 .btn-swift-readmore {
-  background: #cbf3f0;
+  background: #2ec4b6;
   color: #0b1726 !important;
   font-size: 0.9375rem;
-  font-weight: 600;
-  padding: 0.65rem 1.85rem;
+  font-weight: 700;
+  padding: 0.75rem 2rem;
   border-radius: 9999px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(46, 196, 182, 0.3);
 }
 
 .btn-swift-readmore:hover {
-  background: #2ec4b6;
-  transform: translateY(-1px);
+  background: #ff9f1c;
+  color: #0b1726 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 159, 28, 0.35);
 }
 
 .swift-solution-visual {
@@ -2911,17 +3000,25 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #cbf3f0;
-  border-top-right-radius: 16px;
-  border-bottom-right-radius: 16px;
+  background: transparent;
+  border-top-right-radius: 24px;
+  border-bottom-right-radius: 24px;
+  padding: 1.5rem;
   overflow: hidden;
 }
 
 .swift-relief-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  max-height: 440px;
+  object-fit: contain;
   display: block;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08));
+  transition: transform 0.3s ease;
+}
+
+.swift-solution-split:hover .swift-relief-img {
+  transform: scale(1.02);
 }
 
 .swift-slider-btn {
@@ -2957,37 +3054,53 @@ h1 {
   border-color: #2ec4b6;
 }
 
-/* Callout Banner (Soft Aqua) */
+/* Callout Banner (Soft Pastel Tropical Sunrise) */
 .swift-banner-section {
   padding: 4.5rem 0;
   background: transparent;
 }
 
 .swift-banner-inner {
-  background: #cbf3f0;
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(203, 243, 240, 0.8) 0%, rgba(255, 255, 255, 0.9) 40%, rgba(255, 191, 105, 0.45) 100%);
+  border: 1px solid rgba(46, 196, 182, 0.35);
+  border-radius: 20px;
   padding: 3.5rem 4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2.5rem;
   flex-wrap: wrap;
+  box-shadow: 0 12px 32px rgba(46, 196, 182, 0.1);
+}
+
+[data-theme="dark"] .swift-banner-inner {
+  background: linear-gradient(135deg, rgba(46, 196, 182, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-color: #1e293b;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
 .swift-banner-title {
   font-size: 2.15rem;
-  font-weight: 400;
+  font-weight: 700;
   color: #0b1726;
   margin: 0 0 0.5rem 0;
   letter-spacing: -0.02em;
 }
 
+[data-theme="dark"] .swift-banner-title {
+  color: #ffffff;
+}
+
 .swift-banner-desc {
   font-size: 1.05rem;
-  color: #1e293b;
+  color: #334155;
   margin: 0;
   max-width: 640px;
   line-height: 1.55;
+}
+
+[data-theme="dark"] .swift-banner-desc {
+  color: #cbd5e1;
 }
 
 .swift-btn-banner-login {

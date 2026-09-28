@@ -1,26 +1,30 @@
 {{#extends "base"}}
 {{#block "main"}}
-<!-- SWIFT-Style Panoramic Hero Stage -->
-<section id="hero" class="swift-hero-stage">
+<!-- Light Mode Pastel Hero Stage with Morphing Blobs and Giant Glass Droplets -->
+<section id="hero" class="swift-hero-stage pastel-hero-stage">
   <div class="swift-hero-backdrop">
     <img
-      src="{{site_path}}images/corporate-finance.webp"
-      srcset="{{site_path}}images/corporate-finance-640.webp 640w, {{site_path}}images/corporate-finance-1200.webp 1200w, {{site_path}}images/corporate-finance.webp 2584w"
+      src="{{site_path}}images/hero-glass-droplets.webp"
+      srcset="{{site_path}}images/hero-glass-droplets-640.webp 640w, {{site_path}}images/hero-glass-droplets-1200.webp 1200w, {{site_path}}images/hero-glass-droplets.webp 1920w"
       sizes="100vw"
-      alt="Corporate finance institutional operations and global trading infrastructure"
+      alt="Luminous organic glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
       fetchpriority="high"
       class="swift-hero-img"
     />
-    <div class="swift-hero-overlay"></div>
+    <div class="pastel-hero-overlay"></div>
   </div>
 
   <div class="container swift-hero-content">
-    <h1 class="swift-hero-title">Shaping the future of finance, together.</h1>
-    <p class="swift-hero-lead">
-      The sovereign, high-throughput cryptographic core engineered for tier-1 banks, custodians, and global financial rails. FIPS 203/204 native, multi-cloud KMS orchestration, and deterministic sub-millisecond settlement across 18 lockstep packages.
-    </p>
-    <div class="swift-hero-cta-group">
-      <a class="btn-swift-hero-pill" href="{{site_path}}solutions/">Explore solutions</a>
+    <div class="hero-glass-card">
+      <div class="hero-badge font-mono">POST-QUANTUM CRYPTOGRAPHY • FIPS 203 &amp; 204 NATIVE</div>
+      <h1 class="swift-hero-title">Shaping the future of finance, together.</h1>
+      <p class="swift-hero-lead">
+        The sovereign, high-throughput cryptographic core engineered for tier-1 banks, custodians, and global financial rails. FIPS 203/204 native, multi-cloud KMS orchestration, and deterministic sub-millisecond settlement across 18 lockstep packages.
+      </p>
+      <div class="swift-hero-cta-group">
+        <a class="btn-swift-hero-pill" href="{{site_path}}solutions/">Explore solutions</a>
+        <a class="btn-swift-hero-secondary" href="{{site_path}}contact/">Institutional Access &gt;</a>
+      </div>
     </div>
   </div>
 </section>
@@ -38,8 +42,8 @@
       <article class="swift-card">
         <div class="swift-card-media">
           <img
-            src="{{site_path}}images/circuit_board_cityscape-640.webp"
-            alt="Cryptographic circuit board cityscape"
+            src="{{site_path}}images/news-pqc-lattice.webp"
+            alt="Luminous quantum lattice chip encapsulated in a floating clear liquid glass droplet"
             loading="lazy"
             width="640"
             height="360"
@@ -61,8 +65,8 @@
       <article class="swift-card">
         <div class="swift-card-media">
           <img
-            src="{{site_path}}images/corporate-finance-640.webp"
-            alt="Corporate finance trading center"
+            src="{{site_path}}images/news-benchmark-speed.webp"
+            alt="High-speed light pulses refracting through clear liquid glass droplets"
             loading="lazy"
             width="640"
             height="360"
@@ -84,8 +88,8 @@
       <article class="swift-card">
         <div class="swift-card-media">
           <img
-            src="{{site_path}}images/light-trace-640.webp"
-            alt="Cryptographic network infrastructure"
+            src="{{site_path}}images/news-hndl-shield.webp"
+            alt="Organic liquid glass orb protecting encrypted financial data streams"
             loading="lazy"
             width="640"
             height="360"
@@ -137,11 +141,12 @@
 
         <div class="swift-solution-visual">
           <img
-            src="{{site_path}}images/swift-relief.svg"
-            alt="3D abstract geometric relief illustrating post-quantum cryptographic lattice structures"
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
             class="swift-relief-img"
             width="600"
             height="600"
+            loading="lazy"
           />
         </div>
         <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
@@ -165,11 +170,12 @@
 
         <div class="swift-solution-visual">
           <img
-            src="{{site_path}}images/swift-relief.svg"
-            alt="3D abstract geometric relief illustrating high-throughput sovereign CaaS architecture"
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
             class="swift-relief-img"
             width="600"
             height="600"
+            loading="lazy"
           />
         </div>
         <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
@@ -193,11 +199,12 @@
 
         <div class="swift-solution-visual">
           <img
-            src="{{site_path}}images/swift-relief.svg"
-            alt="3D abstract geometric relief illustrating multi-cloud hardware key management"
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
             class="swift-relief-img"
             width="600"
             height="600"
+            loading="lazy"
           />
         </div>
         <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
@@ -221,11 +228,12 @@
 
         <div class="swift-solution-visual">
           <img
-            src="{{site_path}}images/swift-relief.svg"
-            alt="3D abstract geometric relief illustrating ISO 20022 interbank message security"
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
             class="swift-relief-img"
             width="600"
             height="600"
+            loading="lazy"
           />
         </div>
         <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
@@ -249,11 +257,12 @@
 
         <div class="swift-solution-visual">
           <img
-            src="{{site_path}}images/swift-relief.svg"
-            alt="3D abstract geometric relief illustrating zero-trust field encryption"
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
             class="swift-relief-img"
             width="600"
             height="600"
+            loading="lazy"
           />
         </div>
         <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
