@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-mcp",
-  "version": "0.0.3",
-  "description": "Model Context Protocol (MCP) server for the Crypto Service Suite — exposing cryptographic operations, post-quantum primitives, and key management to AI assistants and agentic workflows.",
+  "version": "0.0.4",
+  "description": "Model Context Protocol (MCP) server for the Crypto Service Suite \u2014 exposing cryptographic operations, post-quantum primitives, and key management to AI assistants and agentic workflows.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "engines": {

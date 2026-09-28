@@ -1,13 +1,13 @@
 ---
 form_origin: "https://docs.crypto-service.co"
 layout: index
-title: "Crypto Service Suite — Quantum-Safe Cryptography for TypeScript"
-description: "Official documentation for Crypto Service Suite: 50+ classical, modern, and post-quantum cryptographic primitives, REST microservice, CLI, and full-stack integrations."
-eyebrow: "Next-Generation Cryptography"
+title: "Crypto Service Suite — Sovereign Post-Quantum CaaS for TypeScript"
+description: "Sovereign Crypto-as-a-Service (CaaS) operating core for fintechs, banks, and treasuries: 50+ primitives, FIPS 203 ML-KEM, FIPS 204 ML-DSA, REST microservice, CLI, and universal SDK."
+eyebrow: "Post-Quantum Cryptographic Infrastructure"
 author: "Sebastien Rousseau"
 name: "Crypto Service"
-headline: "Quantum-Safe Cryptography for TypeScript & Node.js"
-lead: "Production-grade cryptographic suite with 50+ primitives: FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, FIPS 206 FN-DSA, RFC 10024 hybrid key encapsulation, WebAssembly acceleration, Fastify REST microservice, CLI, and full-stack integrations across 18 packages."
+headline: "Sovereign Crypto-as-a-Service (CaaS) for Fintechs, Banks & Institutional Treasuries"
+lead: "Zero-trust, non-custodial cryptographic operating system: FIPS 203 ML-KEM, FIPS 204 ML-DSA, Fastify REST microservice, CLI, and universal SDK across 18 lockstep packages. DORA Article 13 & CRA compliant."
 language: en-GB
 logo_alt: "Crypto Service Suite logo"
 light_trace_alt: "Curved electric blue and violet light trails over a dark obsidian background"
@@ -61,7 +61,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-lib/">crypto-lib</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Core cryptographic primitives: ML-KEM, ML-DSA, SLH-DSA, FN-DSA, RFC 10024 hybrid KEMs, AES-GCM-SIV, HPKE, PASETO v4, Double Ratchet, PAKE, and memory zeroing.</p>
 <p><a href="packages/crypto-lib/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -70,7 +70,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-wasm/">crypto-wasm</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>WebAssembly acceleration modules compiled from Rust for compute-intensive post-quantum lattice operations and high-throughput key generation.</p>
 <p><a href="packages/crypto-wasm/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -79,7 +79,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-server/">crypto-server</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Fastify-based REST microservice exposing 34+ cryptographic endpoints, OpenAPI / Swagger schemas, rate limiting, and RBAC.</p>
 <p><a href="packages/crypto-server/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -88,7 +88,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-cli/">crypto-cli</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Command-line interface for key generation, file encryption, digital signatures, password verification, and shell automation.</p>
 <p><a href="packages/crypto-cli/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -97,7 +97,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-sdk/">crypto-sdk</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Universal client SDK for browsers and Node.js with built-in retry policies, error handling, and type-safe server bindings.</p>
 <p><a href="packages/crypto-sdk/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -106,7 +106,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-kms/">crypto-kms</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Key Management Service provider integrating AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault with envelope encryption.</p>
 <p><a href="packages/crypto-kms/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -115,7 +115,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-edge/">crypto-edge</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Zero-dependency Edge runtime adapters optimized for Cloudflare Workers, Vercel Edge, Deno, and WinterCG runtimes.</p>
 <p><a href="packages/crypto-edge/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -124,7 +124,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-prisma/">crypto-prisma</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Transparent field-level encryption middleware for Prisma Client supporting blind indexing and envelope encryption.</p>
 <p><a href="packages/crypto-prisma/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -133,7 +133,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-typeorm/">crypto-typeorm</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>TypeORM column transformers and entity subscriber decorators for automated database encryption at rest.</p>
 <p><a href="packages/crypto-typeorm/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -142,7 +142,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-middleware/">crypto-middleware</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Framework-agnostic HTTP middleware providing request payload decryption, response encryption, and signature validation.</p>
 <p><a href="packages/crypto-middleware/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -151,7 +151,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-react/">crypto-react</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>React hooks library providing <code>useEncrypt</code>, <code>useHash</code>, <code>useKeypair</code>, and <code>useSignature</code> for frontend applications.</p>
 <p><a href="packages/crypto-react/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -160,7 +160,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-vue/">crypto-vue</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Vue 3 composables library offering reactive cryptographic state and asynchronous execution bridges.</p>
 <p><a href="packages/crypto-vue/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -169,7 +169,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-api/">crypto-api</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>High-level formatting, validation, and documentation generation utilities providing standardized schemas and JSON-RPC / REST models.</p>
 <p><a href="packages/crypto-api/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -178,7 +178,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-testing/">crypto-testing</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Comprehensive test harness, synthetic cryptographic vectors, mock KMS providers, and compliance validation suites.</p>
 <p><a href="packages/crypto-testing/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -187,7 +187,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-mcp/">crypto-mcp</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Model Context Protocol (MCP) server providing cryptographic tools, standard resources, and migration prompts to AI coding assistants.</p>
 <p><a href="packages/crypto-mcp/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -196,7 +196,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-lsp/">crypto-lsp</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Language Server Protocol (LSP) server providing real-time AST/regex static analysis, quantum vulnerability linting, and automated IDE quick fixes.</p>
 <p><a href="packages/crypto-lsp/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -205,7 +205,7 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-cbom/">crypto-cbom</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>Cryptographic Bill of Materials generator adhering to CycloneDX 1.6 and SPDX 3.0 with DORA Articles 9/13 and CRA Article 14 audit scoring.</p>
 <p><a href="packages/crypto-cbom/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
@@ -214,11 +214,69 @@ cta_primary: "Get Started"
 <div class="card">
 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
 <h3 style="margin-bottom: 0;"><a href="packages/crypto-benchmarks/">crypto-benchmarks</a></h3>
-<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.3</span>
+<span style="font-family: monospace; font-size: 0.8rem; opacity: 0.7;">v0.0.4</span>
 </div>
 <p>High-resolution benchmarking suite measuring operations per second, memory allocations, and latency across classical and post-quantum primitives.</p>
 <p><a href="packages/crypto-benchmarks/" class="btn btn-outline btn-sm">Explore API Reference &rarr;</a></p>
 </div>
+</div>
+</div>
+</section>
+
+<section id="institutional-comparison" class="section">
+<div class="container">
+<h2 class="section-title text-center">Institutional Architecture Comparison</h2>
+<p class="section-desc text-center">How Sovereign Crypto-as-a-Service compares against hosted custodians, pre-quantum MPC, and settlement rings.</p>
+
+<div class="table-responsive" style="overflow-x:auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; text-align: left;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border);">
+<th style="padding: 0.85rem;">Evaluation Dimension</th>
+<th style="padding: 0.85rem; color: #60a5fa;">Crypto Service Suite</th>
+<th style="padding: 0.85rem;">BitGo (CaaS)</th>
+<th style="padding: 0.85rem;">Fireblocks (MPC)</th>
+<th style="padding: 0.85rem;">Copper (ClearLoop)</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border);">
+<td style="padding: 0.85rem;"><strong>Operating Model</strong></td>
+<td style="padding: 0.85rem; color: #34d399;">Sovereign Non-Custodial Core</td>
+<td style="padding: 0.85rem;">Custodial Trust Gateway</td>
+<td style="padding: 0.85rem;">SaaS MPC Co-Signer</td>
+<td style="padding: 0.85rem;">Off-Exchange Clearing</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border);">
+<td style="padding: 0.85rem;"><strong>Post-Quantum Security</strong></td>
+<td style="padding: 0.85rem; color: #34d399;">FIPS 203/204/205 &amp; RFC 10024 Hybrid</td>
+<td style="padding: 0.85rem;">Classical ECDSA</td>
+<td style="padding: 0.85rem;">Pre-Quantum Elliptic Curves</td>
+<td style="padding: 0.85rem;">Legacy MPC Enclaves</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border);">
+<td style="padding: 0.85rem;"><strong>Compliance &amp; CBOM</strong></td>
+<td style="padding: 0.85rem; color: #34d399;">Automated DORA Article 13 &amp; CycloneDX 1.6</td>
+<td style="padding: 0.85rem;">SOC 2 Type II Audits</td>
+<td style="padding: 0.85rem;">SOC 2 Type II Audits</td>
+<td style="padding: 0.85rem;">SOC 2 Type II Audits</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border);">
+<td style="padding: 0.85rem;"><strong>Asset-Based BPS Fees</strong></td>
+<td style="padding: 0.85rem; color: #34d399;">0 bps (Zero Asset Extraction)</td>
+<td style="padding: 0.85rem;">5 to 25 bps on AUC</td>
+<td style="padding: 0.85rem;">Volume-Based SaaS Pricing</td>
+<td style="padding: 0.85rem;">Settlement Basis Fees</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border);">
+<td style="padding: 0.85rem;"><strong>Detailed Analysis</strong></td>
+<td style="padding: 0.85rem;"><a href="/research.html" class="btn btn-outline btn-sm">2027 White Paper</a></td>
+<td style="padding: 0.85rem;"><a href="/compare/bitgo.html" style="color: #60a5fa;">BitGo Analysis &rarr;</a></td>
+<td style="padding: 0.85rem;"><a href="/compare/fireblocks.html" style="color: #60a5fa;">Fireblocks Analysis &rarr;</a></td>
+<td style="padding: 0.85rem;"><a href="/compare/copper.html" style="color: #60a5fa;">Copper Analysis &rarr;</a></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </section>

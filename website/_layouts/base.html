@@ -47,16 +47,30 @@
         {
           "@type": "SoftwareApplication",
           "@id": "{{site_url}}#software",
-          "name": "{{name}}",
-          "applicationCategory": "DeveloperApplication",
-          "operatingSystem": "Linux, macOS, Windows",
+          "name": "Crypto Service Suite",
+          "applicationCategory": "SecurityApplication, DeveloperApplication",
+          "operatingSystem": "Universal (Node.js >= 22, Edge, WebAssembly, Linux, macOS, Windows)",
           "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
+            "@type": "AggregateOffer",
+            "priceCurrency": "USD",
+            "lowPrice": "0",
+            "offerCount": "2",
+            "offers": [
+              {
+                "@type": "Offer",
+                "name": "Community Sovereign Core (Open Source)",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              {
+                "@type": "Offer",
+                "name": "Enterprise Sovereign CaaS License",
+                "priceCurrency": "USD"
+              }
+            ]
           },
-          "description": "{{description}}",
-          "softwareVersion": "v0.0.4",
+          "description": "Modular Post-Quantum Crypto-as-a-Service (CaaS) operating core for fintechs, banks, and enterprise treasuries. FIPS 203 ML-KEM, FIPS 204 ML-DSA, and DORA Article 13 compliance.",
+          "softwareVersion": "0.0.4",
           "author": {
             "@type": "Person",
             "name": "{{author}}",
