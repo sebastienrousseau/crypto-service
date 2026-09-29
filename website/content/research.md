@@ -238,7 +238,7 @@ Interbank settlement, payment messaging networks, and digital asset custody rail
 </div>
 </div>
 
-<div class="hero-cta-group" style="margin-top: 3rem;">
+<div class="hero-cta-group hero-cta-spaced">
 <a class="btn btn-swift-mint btn-lg" href="/contact/">Schedule an Institutional Architecture Briefing →</a>
 <a class="btn btn-secondary btn-lg" href="/solutions/">Explore Platform Solutions →</a>
 </div>

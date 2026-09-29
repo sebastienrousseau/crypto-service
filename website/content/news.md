@@ -29,7 +29,7 @@ We are proud to announce the general availability of Crypto Service Suite v0.0.4
 <!-- DEDICATED INSTITUTIONAL WHITEPAPERS -->
 <div class="news-grid-section" id="whitepapers">
 <h3 class="category-heading">Institutional White Papers &amp; Technical Publications</h3>
-<p class="section-lead" style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.05rem;">
+<p class="section-lead section-lead-muted">
 Peer-reviewed architectural briefs, threat model analyses, and mathematical benchmark white papers published by the Crypto Service cryptographic research team.
 </p>
 <div class="news-cards-grid">
@@ -90,6 +90,50 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 </div>
 </div>
 
+<!-- INSTITUTIONAL WHITE PAPERS & RESEARCH PUBLICATIONS -->
+<div class="news-grid-section" id="white-papers">
+<h3 class="category-heading">Institutional White Papers &amp; Research Publications</h3>
+<p class="section-lead-muted">Peer-reviewed architectural publications, mathematical proofs, and transition roadmaps published by the Crypto Service cryptographic engineering group.</p>
+
+<div class="whitepaper-grid">
+<article class="whitepaper-card" id="whitepaper-pqc-2027">
+<div>
+<span class="whitepaper-badge">RESEARCH WHITE PAPER</span>
+<h4 class="whitepaper-title">The 2027 Post-Quantum Strategic Horizon</h4>
+<p class="whitepaper-desc">Exhaustive 28-page research treatise analyzing Harvest Now Decrypt Later (HNDL) vectors, FIPS 203 ML-KEM and FIPS 204 ML-DSA lattice micro-benchmarks, and interbank transition frameworks.</p>
+</div>
+<div class="whitepaper-actions">
+<a href="/research/" class="btn btn-primary">Read White Paper →</a>
+<a href="/research/#threat-model" class="btn btn-secondary">HNDL Threat Model</a>
+</div>
+</article>
+
+<article class="whitepaper-card" id="whitepaper-caas">
+<div>
+<span class="whitepaper-badge">ARCHITECTURE BLUEPRINT</span>
+<h4 class="whitepaper-title">Sovereign Crypto-as-a-Service (CaaS)</h4>
+<p class="whitepaper-desc">Architectural specification for deploying sovereign non-custodial cryptography daemons across private VPCs, handling 100k+ ops/sec with sub-millisecond lattice digital signatures.</p>
+</div>
+<div class="whitepaper-actions">
+<a href="/solutions/#post-quantum" class="btn btn-primary">Read Architecture →</a>
+<a href="/solutions/#caas-server" class="btn btn-secondary">CaaS Microservice</a>
+</div>
+</article>
+
+<article class="whitepaper-card" id="whitepaper-dora-cbom">
+<div>
+<span class="whitepaper-badge">REGULATORY AUDIT MANUAL</span>
+<h4 class="whitepaper-title">DORA Article 13 &amp; CBOM Compliance Manual</h4>
+<p class="whitepaper-desc">Step-by-step regulatory guidance for European Union Digital Operational Resilience Act compliance, automated CycloneDX 1.6 CBOM generation, and continuous curve deprecation audits.</p>
+</div>
+<div class="whitepaper-actions">
+<a href="/standards/#dora" class="btn btn-primary">Read Compliance Manual →</a>
+<a href="/standards/#cbom" class="btn btn-secondary">CBOM Standards</a>
+</div>
+</article>
+</div>
+</div>
+
 <!-- UPCOMING EVENTS & WORKSHOPS -->
 <div class="news-grid-section">
 <h3 class="category-heading">Upcoming Events &amp; Workshops</h3>
@@ -102,8 +146,8 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <div class="event-info">
 <h4>Global Cybersecurity Summit 2026 (London &amp; Virtual)</h4>
 <p>Keynote presentation by the Crypto Service team: "Post-Quantum Cryptographic Architecture in Modern Production Stacks". Accompanying distribution of our Sovereign CaaS white paper and live ML-KEM/ML-DSA benchmarks.</p>
-<div class="event-links-group" style="margin-top: 0.5rem; display: flex; gap: 1rem; align-items: center;">
-<a href="/research/" style="color: var(--accent-primary); font-size: 0.9rem; font-weight: 500;">Read Summit White Paper →</a>
+<div class="event-links-group">
+<a href="/research/" class="event-whitepaper-link">Read Summit White Paper (Online / PDF) →</a>
 </div>
 </div>
 <a href="/contact/" class="event-link">Register Interest →</a>

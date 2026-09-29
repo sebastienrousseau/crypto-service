@@ -21,8 +21,8 @@ cta_primary: "Explore 18 Packages"
 <div class="container">
 <h2>When should institutions deploy Crypto Service alongside or instead of Fireblocks?</h2>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--swift-teal-primary); background: rgba(255, 255, 255, 0.7);">
-<p style="margin: 0; font-weight: 500; font-size: 1.05rem; line-height: 1.6;">
+<div class="card institutional-highlight-card">
+<p class="institutional-highlight-text">
 <strong>Direct Institutional Answer:</strong> Institutions choose <strong>Fireblocks</strong> for turnkey multi-party computation (MPC-CMP) SaaS routing across hundreds of retail blockchains. Institutions deploy <strong>Crypto Service Suite</strong> when strict regulatory mandates (such as DORA or FINMA) forbid vendor key-share storage, when sub-millisecond internal signing latency is required, or when migrating to NIST FIPS 203/204 post-quantum standards.
 </p>
 </div>
@@ -77,7 +77,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <div class="card">
 <span class="solution-badge font-mono">FOR CISOs &amp; TREASURY OFFICERS</span>
 <h3>Regulatory Sovereignty &amp; Continuity</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Vendor Outage Resilience:</strong> Unlike SaaS MPC platforms that become unavailable if external cloud connections drop, Crypto Service executes on-premise without external network dependency.</li>
 <li><strong>DORA Article 13 Compliance:</strong> Full CycloneDX 1.6 and SPDX 3.0 Cryptographic Bill of Materials (CBOM) telemetry verifies every algorithm across your software stack.</li>
 <li><strong>Zero Asset Lock-in:</strong> Avoid proprietary key-shard escrow agreements; your cryptographic root keys remain under institutional custody.</li>
@@ -87,7 +87,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <div class="card">
 <span class="solution-badge font-mono">FOR PRINCIPAL CRYPTO ARCHITECTS</span>
 <h3>Mathematical Invariants &amp; Performance</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Sub-Millisecond Signing:</strong> Eliminate multi-round MPC network latency; execute key derivation and signatures directly in-process.</li>
 <li><strong>Post-Quantum Transition:</strong> Instant drop-in support for NIST FIPS 203 ML-KEM and FIPS 204 ML-DSA alongside classical elliptic curves.</li>
 <li><strong>100% Verification Floor:</strong> All 18 monorepo packages maintain 100% branch, line, and function test coverage floors.</li>

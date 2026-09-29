@@ -15,7 +15,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<div class="standards-bar" style="margin-bottom: 3rem;">
+<div class="standards-bar standards-bar-spaced">
 <span class="standard-pill"><span class="pill-dot"></span> NIST FIPS 203 (ML-KEM)</span>
 <span class="standard-pill"><span class="pill-dot"></span> NIST FIPS 204 (ML-DSA)</span>
 <span class="standard-pill"><span class="pill-dot"></span> NIST FIPS 205 (SLH-DSA)</span>

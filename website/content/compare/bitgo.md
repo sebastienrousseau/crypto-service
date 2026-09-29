@@ -21,8 +21,8 @@ cta_primary: "Explore 18 Packages"
 <div class="container">
 <h2>How does Crypto Service compare with and complement BitGo CaaS?</h2>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--swift-teal-primary); background: rgba(255, 255, 255, 0.7);">
-<p style="margin: 0; font-weight: 500; font-size: 1.05rem; line-height: 1.6;">
+<div class="card institutional-highlight-card">
+<p class="institutional-highlight-text">
 <strong>Institutional Summary:</strong> <strong>BitGo</strong> is a regulated qualified custodian providing trust custody, staking, and API-based settlement, while <strong>Crypto Service Suite</strong> is an on-premise, non-custodial cryptographic operating system that institutions deploy inside their private clouds to eliminate basis-point AUC fees, execute post-quantum key derivation, and govern internal policy before federating to cold custody.
 </p>
 </div>
@@ -82,7 +82,7 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 <div class="card">
 <span class="solution-badge font-mono">FOR CFOs &amp; GENERAL COUNSEL</span>
 <h3>Asset Sovereignty &amp; P&amp;L Protection</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Eliminating AUC Rents:</strong> On a $2B portfolio, a 15 bps custodial fee costs $3,000,000 annually. Crypto Service operates as pure infrastructure with zero asset taxation.</li>
 <li><strong>Bankruptcy Remoteness:</strong> Cryptographic root keys remain in the institution's private KMS/HSM, preventing asset freezing during custodian Chapter 11 reorganizations.</li>
 <li><strong>Auditable Cryptographic Lineage:</strong> Generates automated CBOM reports proving FIPS and ISO compliance to banking regulators.</li>
@@ -92,7 +92,7 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 <div class="card">
 <span class="solution-badge font-mono">FOR PRINCIPAL CRYPTO ARCHITECTS</span>
 <h3>Zero-Latency Core &amp; Enclave Control</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>In-Process Execution:</strong> Eliminates external REST API latency, network jitter, and vendor rate-limiting for high-frequency operations.</li>
 <li><strong>Universal Multi-Cloud KMS:</strong> Seamlessly switch key backends across AWS KMS, GCP KMS, Azure Key Vault, and HashiCorp Vault with zero code rewrites.</li>
 <li><strong>Post-Quantum Envelope Encryption:</strong> Native Prisma and TypeORM extensions encrypt database fields before records leave the application tier.</li>

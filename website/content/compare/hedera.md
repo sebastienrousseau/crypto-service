@@ -21,8 +21,8 @@ cta_primary: "Explore 18 Packages"
 <div class="container">
 <h2>How do Crypto Service and Hedera Hashgraph complement each other in enterprise stacks?</h2>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--swift-teal-primary); background: rgba(255, 255, 255, 0.7);">
-<p style="margin: 0; font-weight: 500; font-size: 1.05rem; line-height: 1.6;">
+<div class="card institutional-highlight-card">
+<p class="institutional-highlight-text">
 <strong>Architecture Summary:</strong> <strong>Hedera Hashgraph</strong> is an enterprise public distributed ledger providing high-throughput, asynchronous Byzantine Fault Tolerant (aBFT) consensus, while <strong>Crypto Service Suite</strong> is an infrastructure-agnostic post-quantum cryptographic operating core that secures off-chain data, derives quantum-resistant keys, and anchors deterministic state hashes to Hedera's consensus service.
 </p>
 </div>
@@ -77,7 +77,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 <div class="card">
 <span class="solution-badge font-mono">FOR CHIEF COMPLIANCE &amp; LEGAL OFFICERS</span>
 <h3>Data Sovereignty &amp; Privacy Regulations</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>GDPR "Right to be Forgotten":</strong> Public ledgers cannot delete historical data. Crypto Service executes cryptographic shredding by securely wiping envelope keys, ensuring absolute privacy compliance.</li>
 <li><strong>Zero Token Volatility:</strong> Cryptographic operations incur zero exposure to cryptocurrency price swings, gas fee spikes, or public token governance changes.</li>
 <li><strong>Strict Bank-Grade Secrecy:</strong> Customer transactions and internal records are encrypted before any proof is anchored externally.</li>
@@ -87,7 +87,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 <div class="card">
 <span class="solution-badge font-mono">FOR ENTERPRISE DISTRIBUTED SYSTEMS ARCHITECTS</span>
 <h3>High-Throughput State Anchoring &amp; Verifiable Audits</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Hedera Consensus Service (HCS) Anchoring:</strong> Process 50,000+ local transactions per second in Crypto Service, bundling roots into a single post-quantum ML-DSA hash anchored to Hedera.</li>
 <li><strong>Zero Overhead Edge Processing:</strong> Compile cryptographic routines into WebAssembly SIMD for instant execution in edge workers or mobile nodes.</li>
 <li><strong>Multi-Backend Interoperability:</strong> Write cryptographic payloads once and target Hedera, EVM chains, or relational databases seamlessly.</li>

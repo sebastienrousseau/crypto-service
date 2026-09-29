@@ -23,8 +23,8 @@ cta_primary: "Explore 18 Packages"
 <div class="container">
 <h2>How does Crypto Service orchestrate with Copper ClearLoop for off-exchange settlement?</h2>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--swift-teal-primary); background: rgba(255, 255, 255, 0.7);">
-<p style="margin: 0; font-weight: 500; font-size: 1.05rem; line-height: 1.6;">
+<div class="card institutional-highlight-card">
+<p class="institutional-highlight-text">
 <strong>Architecture Summary:</strong> <strong>Copper ClearLoop</strong> is an institutional off-exchange settlement network that mitigates exchange counterparty credit risk by holding collateral in trust, while <strong>Crypto Service Suite</strong> provides the on-premise post-quantum cryptographic operating core used to sign, verify, and govern ClearLoop trust-account allocation payloads.
 </p>
 </div>
@@ -79,7 +79,7 @@ When trading digital assets across global derivative and spot exchanges, holding
 <div class="card">
 <span class="solution-badge font-mono">FOR CFOs &amp; HEADS OF TRADING</span>
 <h3>Capital Efficiency &amp; Counterparty Shielding</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Instant Collateral Re-allocation:</strong> ClearLoop prevents margin lockup across exchanges; Crypto Service provides the internal programmatic signing core to execute instant multi-venue rebalancing.</li>
 <li><strong>Insolvency Insulation:</strong> In the event of an exchange collapse, collateral remains protected in Copper's trust, while root signing keys remain in the institution's sovereign custody.</li>
 <li><strong>Zero AUC Extraction:</strong> Crypto Service charges no basis-point fees on internal transaction processing or key management.</li>
@@ -89,7 +89,7 @@ When trading digital assets across global derivative and spot exchanges, holding
 <div class="card">
 <span class="solution-badge font-mono">FOR CHIEF SECURITY ARCHITECTS</span>
 <h3>Cryptographic Boundary &amp; Quantum Hardening</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Post-Quantum Audit Trails:</strong> Every ClearLoop allocation order is signed internally with hybrid classical/ML-DSA schemes, preventing Harvest Now, Decrypt Later (HNDL) attacks.</li>
 <li><strong>Zero External Network Calls:</strong> <code>@sebastienrousseau/crypto-lib</code> and <code>@sebastienrousseau/crypto-kms</code> operate entirely within your isolated VPC or on-premise hardware enclaves.</li>
 <li><strong>100% Code Coverage Floor:</strong> Full deterministic guarantee across all 18 packages with zero unverified execution paths.</li>

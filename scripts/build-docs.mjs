@@ -72,15 +72,17 @@ if (fs.existsSync(PUBLIC_DIR)) {
   fs.cpSync(PUBLIC_DIR, SITE_DIR, { recursive: true });
 }
 
-// Copy website/images to _site/images
+// Copy website/images to public/images and _site/images
 const imagesDir = path.join(WEBSITE_DIR, "images");
 if (fs.existsSync(imagesDir)) {
+  fs.cpSync(imagesDir, path.join(PUBLIC_DIR, "images"), { recursive: true });
   fs.cpSync(imagesDir, path.join(SITE_DIR, "images"), { recursive: true });
 }
 
-// Copy website/assets to _site/assets
+// Copy website/assets to public/assets and _site/assets
 const assetsDir = path.join(WEBSITE_DIR, "assets");
 if (fs.existsSync(assetsDir)) {
+  fs.cpSync(assetsDir, path.join(PUBLIC_DIR, "assets"), { recursive: true });
   fs.cpSync(assetsDir, path.join(SITE_DIR, "assets"), { recursive: true });
 }
 

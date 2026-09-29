@@ -48,7 +48,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 </div>
 </div>
 
-<div class="card" style="margin: 2.5rem 0 3rem; padding: 1.5rem 1.75rem; border: 1px solid rgba(46, 196, 182, 0.3);">
+<div class="card card-quickstart">
 <div class="quickstart-header">
 <span class="quickstart-title">Developer Quick-Start Installation</span>
 <span class="quickstart-lang">pnpm / npm / yarn</span>
@@ -100,13 +100,13 @@ Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack model, state
 </div>
 </div>
 
-<div class="visual-anchor" style="margin: 2.5rem 0; text-align: center;">
+<div class="visual-anchor visual-anchor-centered">
 <img
 src="/images/news-pqc-lattice.webp"
 alt="Luminous quantum lattice chip encapsulated in a floating clear liquid glass droplet"
 width="720"
 height="405"
-style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(46, 196, 182, 0.2);"
+class="visual-anchor-img"
 loading="lazy"
 >
 </div>
@@ -219,13 +219,13 @@ Decryption occurs transparently in-memory when queries execute. Even if database
 </div>
 </div>
 
-<div class="visual-anchor" style="margin: 2.5rem 0; text-align: center;">
+<div class="visual-anchor visual-anchor-centered">
 <img
 src="/images/news-hndl-shield.webp"
 alt="Organic liquid glass orb protecting encrypted financial data streams"
 width="720"
 height="405"
-style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(46, 196, 182, 0.2);"
+class="visual-anchor-img"
 loading="lazy"
 >
 </div>
@@ -302,7 +302,7 @@ Developer IDEs and autonomous AI agents receive native cryptographic intelligenc
 </div>
 </div>
 
-<div class="hero-cta-group" style="margin-top: 3rem;">
+<div class="hero-cta-group hero-cta-spaced">
 <a class="btn btn-swift-mint btn-lg" href="/contact/">Request Architecture Briefing →</a>
 <a class="btn btn-secondary btn-lg" href="/standards/">View Standards &amp; Compliance Matrix →</a>
 </div>

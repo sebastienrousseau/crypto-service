@@ -18,8 +18,8 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <section class="compare-hub-section">
 <h2>How does Crypto Service Suite compare to hosted custodial platforms?</h2>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--swift-teal-primary); background: rgba(255, 255, 255, 0.7);">
-<p style="margin: 0; font-weight: 500; font-size: 1.05rem; line-height: 1.6;">
+<div class="card institutional-highlight-card">
+<p class="institutional-highlight-text">
 <strong>Institutional Definition:</strong> <strong>Crypto Service Suite</strong> is an open-source, sovereign cryptographic operating core that executes NIST-standardized post-quantum key encapsulation (FIPS 203 ML-KEM), digital signatures (FIPS 204 ML-DSA), and multi-cloud KMS orchestration directly within an institution's private security perimeter—eliminating third-party counterparty risk, AUC basis-point fees, and vendor lock-in.
 </p>
 </div>
@@ -110,7 +110,7 @@ Unlike multi-tenant SaaS custodians that maintain operational control and charge
 <div class="card">
 <span class="solution-badge font-mono">FOR CFOs, TREASURERS &amp; CISOs</span>
 <h3>Balance-Sheet Risk &amp; Regulatory Sovereignty</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Zero Counterparty Insolvency:</strong> Private keys remain exclusively within your institutional boundary, eliminating catastrophic exchange/custodian freeze risks.</li>
 <li><strong>Predictable OpEx:</strong> Eliminates AUC basis-point taxes (saving $500k–$2.5M annually on $1B+ digital asset balances).</li>
 <li><strong>DORA &amp; CNSA 2.0 Compliance:</strong> Automated CycloneDX 1.6 CBOM telemetry satisfies European Union Digital Operational Resilience Act mandates.</li>
@@ -120,7 +120,7 @@ Unlike multi-tenant SaaS custodians that maintain operational control and charge
 <div class="card">
 <span class="solution-badge font-mono">FOR CHIEF ARCHITECTS &amp; LEAD ENGS</span>
 <h3>Deterministic Systems &amp; Zero Runtime Dependencies</h3>
-<ul style="padding-left: 1.25rem; margin-top: 0.75rem;">
+<ul class="comparison-detail-list">
 <li><strong>Zero Supply-Chain Bloat:</strong> Strict zero external runtime dependencies across all cryptographic execution packages.</li>
 <li><strong>100% Test Coverage Invariant:</strong> Statements, branches, functions, and lines maintain a mandatory 100% verification floor.</li>
 <li><strong>Microsecond Latency:</strong> Constant-time WebAssembly SIMD primitives execute post-quantum key exchanges in sub-millisecond cycles.</li>
