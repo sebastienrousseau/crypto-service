@@ -39,4 +39,6 @@ export const Command = {
   handleModernSign: ModernCommand.handleModernSign,
   /** Hash or verify passwords using Argon2. */
   handlePasswordHash: ModernCommand.handlePasswordHash,
+  /** Generate or audit Cryptographic Bill of Materials (CBOM). */
+  handleModernCbom: ModernCommand.handleModernCbom,
 };

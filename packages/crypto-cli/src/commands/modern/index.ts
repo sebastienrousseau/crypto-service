@@ -8,6 +8,7 @@ import handleModernHash from "./hash.command";
 import handleModernEncrypt from "./encrypt.command";
 import handleModernSign from "./sign.command";
 import handlePasswordHash from "./password-hash.command";
+import handleModernCbom from "./cbom.command";
 
 /** Registry of modern (non-PGP) CLI command handlers. */
 export const ModernCommand = {
@@ -21,4 +22,6 @@ export const ModernCommand = {
   handleModernSign,
   /** Hash or verify passwords using Argon2. */
   handlePasswordHash,
+  /** Generate or audit Cryptographic Bill of Materials (CBOM). */
+  handleModernCbom,
 };
