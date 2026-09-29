@@ -22,8 +22,9 @@ export * from "./keys";
 // Streaming (incremental hash, stream AEAD)
 export * from "./streaming";
 
-// Protocol building blocks (PQXDH, ratchet, PAKE, threshold)
+// Protocol building blocks (PQXDH, ratchet, PAKE, threshold, ISO 20022)
 export * as protocols from "./protocols";
+export * from "./protocols/iso20022";
 
 // Token utilities (PASETO v4, key rotation)
 export * as tokens from "./tokens";

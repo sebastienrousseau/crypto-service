@@ -5,6 +5,9 @@
  * Captures output by stubbing writeUtils.writeLn.
  */
 import { expect } from "chai";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as os from "node:os";
 import prompts from "prompts";
 import { writeUtils } from "../../src/utils/write.utils";
 
@@ -33,7 +36,9 @@ describe("Modern CLI Commands", function () {
   describe("handleModernKeygen", () => {
     let handleModernKeygen: () => Promise<void>;
     before(async () => {
-      handleModernKeygen = (await import("../../src/commands/modern/keygen.command")).default;
+      handleModernKeygen = (
+        await import("../../src/commands/modern/keygen.command")
+      ).default;
     });
 
     it("should generate ed25519 key pair (JSON output)", async () => {
@@ -71,7 +76,9 @@ describe("Modern CLI Commands", function () {
   describe("handleModernHash", () => {
     let handleModernHash: () => Promise<void>;
     before(async () => {
-      handleModernHash = (await import("../../src/commands/modern/hash.command")).default;
+      handleModernHash = (
+        await import("../../src/commands/modern/hash.command")
+      ).default;
     });
 
     it("should hash data with sha256 (JSON output)", async () => {
@@ -117,7 +124,9 @@ describe("Modern CLI Commands", function () {
   describe("handleModernEncrypt", () => {
     let handleModernEncrypt: () => Promise<void>;
     before(async () => {
-      handleModernEncrypt = (await import("../../src/commands/modern/encrypt.command")).default;
+      handleModernEncrypt = (
+        await import("../../src/commands/modern/encrypt.command")
+      ).default;
     });
 
     it("should encrypt with xchacha20-poly1305 (JSON output)", async () => {
@@ -181,7 +190,9 @@ describe("Modern CLI Commands", function () {
   describe("handleModernSign", () => {
     let handleModernSign: () => Promise<void>;
     before(async () => {
-      handleModernSign = (await import("../../src/commands/modern/sign.command")).default;
+      handleModernSign = (
+        await import("../../src/commands/modern/sign.command")
+      ).default;
     });
 
     it("should keygen-sign with ed25519", async () => {
@@ -210,7 +221,8 @@ describe("Modern CLI Commands", function () {
 
     it("should sign with existing key (ed25519)", async () => {
       // First generate a key
-      const { generateKeyPair } = await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+      const { generateKeyPair } =
+        await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
       const kp = generateKeyPair("ed25519");
       prompts.inject(["ed25519", "sign", "test message", kp.privateKey]);
       await handleModernSign();
@@ -218,8 +230,10 @@ describe("Modern CLI Commands", function () {
     });
 
     it("should verify a signature (ed25519)", async () => {
-      const { generateKeyPair } = await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
-      const { crypto } = await import("@sebastienrousseau/crypto-lib/dist/crypto");
+      const { generateKeyPair } =
+        await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+      const { crypto } =
+        await import("@sebastienrousseau/crypto-lib/dist/crypto");
       const kp = generateKeyPair("ed25519");
       const sig = crypto.sign("ed25519", kp.privateKey, "test");
       prompts.inject(["ed25519", "verify", "test", kp.publicKey, sig]);
@@ -258,7 +272,9 @@ describe("Modern CLI Commands", function () {
   describe("handlePasswordHash", () => {
     let handlePasswordHash: () => Promise<void>;
     before(async () => {
-      handlePasswordHash = (await import("../../src/commands/modern/password-hash.command")).default;
+      handlePasswordHash = (
+        await import("../../src/commands/modern/password-hash.command")
+      ).default;
     });
 
     it("should hash a password with argon2id", async () => {
@@ -269,8 +285,13 @@ describe("Modern CLI Commands", function () {
 
     it("should verify a password via PHC", async () => {
       // First hash to get a PHC string
-      const { hashPassword } = await import("@sebastienrousseau/crypto-lib/dist/modern/password");
-      const result = hashPassword({ password: "test123", memoryCost: 1024, timeCost: 1 });
+      const { hashPassword } =
+        await import("@sebastienrousseau/crypto-lib/dist/modern/password");
+      const result = hashPassword({
+        password: "test123",
+        memoryCost: 1024,
+        timeCost: 1,
+      });
       prompts.inject(["verify", "test123", "argon2id", result.phc]);
       await handlePasswordHash();
       expect(captured.join("")).to.include("true");
@@ -298,6 +319,173 @@ describe("Modern CLI Commands", function () {
       prompts.inject(["verify", "test", "argon2id", "invalid-phc"]);
       await handlePasswordHash();
       expect(captured.join("")).to.include("Password hashing failed");
+    });
+  });
+
+  // ================================================================
+  // cbom
+  // ================================================================
+  describe("handleModernCbom", () => {
+    let handleModernCbom: (options?: {
+      action?: "scan" | "audit";
+      directory?: string;
+      format?: "cyclonedx" | "spdx";
+      output?: string;
+      filePath?: string;
+    }) => Promise<void>;
+    const tempDir = path.join(
+      os.tmpdir(),
+      `crypto-cli-cbom-test-${Date.now()}`,
+    );
+
+    before(async () => {
+      fs.mkdirSync(tempDir, { recursive: true });
+      handleModernCbom = (
+        await import("../../src/commands/modern/cbom.command")
+      ).default;
+    });
+
+    after(() => {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    });
+
+    it("should early return when action is cancelled", async () => {
+      prompts.inject([undefined]);
+      await handleModernCbom();
+      expect(captured).to.have.length(0);
+    });
+
+    it("should early return when scan directory prompt is cancelled", async () => {
+      prompts.inject(["scan", undefined]);
+      await handleModernCbom();
+      expect(captured).to.have.length(0);
+    });
+
+    it("should scan directory and output CycloneDX JSON to stdout", async () => {
+      prompts.inject(["scan", ".", "cyclonedx", ""]);
+      await handleModernCbom();
+      expect(captured.length).to.be.greaterThan(0);
+      const output = captured.join("");
+      expect(output).to.include("CycloneDX");
+    });
+
+    it("should scan directory and write SPDX CBOM to output file", async () => {
+      const outFile = path.join(tempDir, "cbom-spdx.json");
+      prompts.inject(["scan", ".", "spdx", outFile]);
+      await handleModernCbom();
+      expect(fs.existsSync(outFile)).to.be.true;
+      const content = fs.readFileSync(outFile, "utf8");
+      expect(content).to.include("SPDX-3.0");
+      expect(captured.join("")).to.include("CBOM written to");
+    });
+
+    it("should handle programmatic scan with empty directory fallback to current dir", async () => {
+      await handleModernCbom({
+        action: "scan",
+        directory: "",
+        format: "cyclonedx",
+      });
+      expect(captured.length).to.be.greaterThan(0);
+      expect(captured.join("")).to.include("CycloneDX");
+    });
+
+    it("should catch and display scan errors when writing output fails", async () => {
+      const invalidOut = "/non-existent-parent-dir/cannot-create-dir/cbom.json";
+      await handleModernCbom({
+        action: "scan",
+        directory: ".",
+        format: "cyclonedx",
+        output: invalidOut,
+      });
+      expect(captured.join("")).to.include("CBOM operation failed");
+    });
+
+    it("should early return when audit file path is cancelled", async () => {
+      prompts.inject(["audit", undefined]);
+      await handleModernCbom();
+      expect(captured).to.have.length(0);
+    });
+
+    it("should display file not found error for missing audit target", async () => {
+      const nonExistentFile = path.join(tempDir, "missing-cbom.json");
+      prompts.inject(["audit", nonExistentFile, ""]);
+      await handleModernCbom();
+      expect(captured.join("")).to.include("File not found");
+    });
+
+    it("should display validation failure for invalid CBOM document", async () => {
+      const invalidCbomFile = path.join(tempDir, "invalid-cbom.json");
+      fs.writeFileSync(
+        invalidCbomFile,
+        JSON.stringify({ invalid: true }),
+        "utf8",
+      );
+      prompts.inject(["audit", invalidCbomFile, ""]);
+      await handleModernCbom();
+      expect(captured.join("")).to.include("Validation failed");
+    });
+
+    it("should audit valid CycloneDX CBOM and output to stdout", async () => {
+      const validCbomFile = path.join(tempDir, "valid-cbom.json");
+      const validCbom = {
+        bomFormat: "CycloneDX",
+        specVersion: "1.6",
+        serialNumber: "urn:uuid:test-cbom",
+        version: 1,
+        components: [
+          {
+            type: "cryptographic-asset",
+            name: "ML-KEM-768",
+            cryptoProperties: {
+              assetType: "algorithm",
+              algorithmProperties: {
+                primitive: "kem",
+                parameterSetIdentifier: "768",
+                cryptoFunctions: ["keygen", "encapsulate", "decapsulate"],
+                nistQuantumSecurityLevel: 3,
+              },
+              oid: "2.16.840.1.101.3.4.4.2",
+            },
+          },
+        ],
+      };
+      fs.writeFileSync(
+        validCbomFile,
+        JSON.stringify(validCbom, null, 2),
+        "utf8",
+      );
+      prompts.inject(["audit", validCbomFile, ""]);
+      await handleModernCbom();
+      expect(captured.join("")).to.include("doraStatus");
+    });
+
+    it("should audit valid CBOM and write audit report to file", async () => {
+      const validCbomFile = path.join(tempDir, "valid-cbom-2.json");
+      const auditOutFile = path.join(tempDir, "audit-report.json");
+      const validCbom = {
+        bomFormat: "CycloneDX",
+        specVersion: "1.6",
+        serialNumber: "urn:uuid:test-cbom-2",
+        version: 1,
+        components: [],
+      };
+      fs.writeFileSync(
+        validCbomFile,
+        JSON.stringify(validCbom, null, 2),
+        "utf8",
+      );
+      prompts.inject(["audit", validCbomFile, auditOutFile]);
+      await handleModernCbom();
+      expect(fs.existsSync(auditOutFile)).to.be.true;
+      expect(captured.join("")).to.include("Audit report written to");
+    });
+
+    it("should catch and display audit errors on malformed JSON file", async () => {
+      const malformedFile = path.join(tempDir, "malformed.json");
+      fs.writeFileSync(malformedFile, "not-valid-json{{{", "utf8");
+      prompts.inject(["audit", malformedFile, ""]);
+      await handleModernCbom();
+      expect(captured.join("")).to.include("CBOM operation failed");
     });
   });
 });

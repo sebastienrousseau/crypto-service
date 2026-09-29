@@ -24,10 +24,14 @@ import passwordEncryptRoute from "./password-encrypt";
 import keyWrapRoute from "./key-wrap";
 import keysRoute from "./keys";
 import multiRecipientRoute from "./multi-recipient";
+import complianceRoute from "./compliance";
+import streamRoute from "./stream";
 
 /** Registers all v2 modern cryptographic route handlers. */
 export default (app: FastifyInstance): void => {
   algorithmsRoute(app);
+  complianceRoute(app);
+  streamRoute(app);
   encryptRoute(app);
   hashRoute(app);
   kdfRoute(app);

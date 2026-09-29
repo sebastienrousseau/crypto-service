@@ -30,6 +30,7 @@ import fastifySwaggerUi from "@fastify/swagger-ui";
 import { randomUUID } from "crypto";
 import logger from "./lib/logger";
 import { registerAuth } from "./lib/auth";
+import { registerMetering } from "./enterprise/metering";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -98,6 +99,9 @@ async function init(): Promise<fastify.FastifyInstance> {
 
   // JWT authentication (registers the jwt decorator if JWT_SECRET is set)
   await registerAuth(app);
+
+  // Multi-tenant Sovereign CaaS metering and rate limiting
+  registerMetering(app);
 
   // Register routes inside an encapsulated plugin so they inherit all
   // the plugins registered above.

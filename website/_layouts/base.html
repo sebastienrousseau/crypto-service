@@ -37,8 +37,10 @@
 
     <link rel="canonical" href="{{permalink}}" />
     <link rel="icon" href="{{site_path}}favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="{{site_path}}images/favicon.svg" />
+    <link rel="apple-touch-icon" href="{{site_path}}images/favicon.svg" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#090a0f" />
+    <meta name="theme-color" content="#ffffff" />
 
     <script type="application/ld+json">
     {
@@ -47,19 +49,56 @@
         {
           "@type": "SoftwareApplication",
           "@id": "{{site_url}}#software",
-          "name": "{{name}}",
-          "applicationCategory": "DeveloperApplication",
-          "operatingSystem": "Linux, macOS, Windows",
+          "name": "Crypto Service Suite",
+          "applicationCategory": "SecurityApplication, DeveloperApplication, FinancialApplication",
+          "operatingSystem": "Universal (Node.js >= 22, Edge, WebAssembly, Linux, macOS, Windows)",
           "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
+            "@type": "AggregateOffer",
+            "priceCurrency": "USD",
+            "lowPrice": "0",
+            "offerCount": "2",
+            "offers": [
+              {
+                "@type": "Offer",
+                "name": "Community Sovereign Core (Open Source)",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              {
+                "@type": "Offer",
+                "name": "Enterprise Sovereign CaaS License",
+                "priceCurrency": "USD"
+              }
+            ]
           },
-          "description": "{{description}}",
-          "softwareVersion": "v0.0.4",
+          "description": "Modular Post-Quantum Crypto-as-a-Service (CaaS) operating core for tier-1 banks, custodians, and enterprise treasuries. FIPS 203 ML-KEM, FIPS 204 ML-DSA, and DORA Article 13 compliance across 18 lockstep packages.",
+          "softwareVersion": "0.0.5",
+          "license": "https://spdx.org/licenses/Apache-2.0.html",
+          "featureList": [
+            "NIST FIPS 203 Post-Quantum Key Encapsulation (ML-KEM-512/768/1024)",
+            "NIST FIPS 204 Post-Quantum Digital Signatures (ML-DSA-44/65/87)",
+            "RFC 10024 Hybrid Dual-Key Classical/Post-Quantum Encapsulation",
+            "Transparent Database Column Encryption for Prisma and TypeORM",
+            "Multi-Cloud KMS Driver Interface (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault)",
+            "Zero External Runtime Dependencies with 100% Test Coverage Floor",
+            "Institutional Rail Interoperability with BitGo CaaS, Copper ClearLoop, Fireblocks, and Hedera"
+          ],
           "author": {
             "@type": "Person",
             "name": "{{author}}",
+            "url": "{{site_url}}"
+          }
+        },
+        {
+          "@type": "FinancialService",
+          "@id": "{{site_url}}#service",
+          "name": "Crypto Service Suite — Sovereign Cryptography as a Service",
+          "description": "Institutional post-quantum cryptographic operating core providing non-custodial key orchestration, off-exchange settlement signing, and automated DORA CBOM compliance.",
+          "url": "{{site_url}}",
+          "serviceType": "Cryptographic Infrastructure & Key Orchestration",
+          "provider": {
+            "@type": "Organization",
+            "name": "Crypto Service Standards Group",
             "url": "{{site_url}}"
           }
         },
@@ -75,9 +114,6 @@
     }
     </script>
 
-    <!-- Skeletonic Stylus core, loaded before the theme's own
-         stylesheet so its @layer skeletonic.* blocks are declared
-         first and the theme wins every overlap. -->
     <link rel="stylesheet" href="{{site_path}}skeletonic.min.css" />
     <link rel="stylesheet" href="{{site_path}}styles.css" />
 

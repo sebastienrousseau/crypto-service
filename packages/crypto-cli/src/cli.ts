@@ -88,6 +88,11 @@ writeUtils.writeLn("");
         value: "Password Hash",
       },
       {
+        title: "CBOM",
+        description: "Generate or audit Cryptographic Bill of Materials",
+        value: "CBOM",
+      },
+      {
         title: constants.CLI_FN_9_TTL,
         description: constants.CLI_FN_9_DES,
         value: constants.CLI_FN_9_TTL,
@@ -173,6 +178,14 @@ writeUtils.writeLn("");
       writeUtils.writeLn("");
       writeUtils.writeLn(format.green("Password Hashing (Argon2)"));
       Command.handlePasswordHash();
+      break;
+    }
+    case "CBOM": {
+      writeUtils.writeLn("");
+      writeUtils.writeLn(
+        format.green("Cryptographic Bill of Materials (CBOM)"),
+      );
+      Command.handleModernCbom();
       break;
     }
     case constants.CLI_FN_9_TTL: {

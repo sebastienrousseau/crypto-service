@@ -14,14 +14,16 @@ automated change is most likely to get wrong.
   Never propose a 0.1.0 or 1.0 jump; to achieve `v0.1.0`, the project must have
   progressed through `v0.0.999`.
 - Work for the next iteration MUST begin on a branch named `feat/v<next-version>`.
-- All 14 packages in this pnpm workspace move in lockstep:
+- All 18 packages in this pnpm workspace move in lockstep:
   `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`,
   `@sebastienrousseau/crypto-cli`, `@sebastienrousseau/crypto-sdk`,
   `@sebastienrousseau/crypto-api`, `@sebastienrousseau/crypto-middleware`,
   `@sebastienrousseau/crypto-react`, `@sebastienrousseau/crypto-vue`,
   `@sebastienrousseau/crypto-edge`, `@sebastienrousseau/crypto-kms`,
   `@sebastienrousseau/crypto-prisma`, `@sebastienrousseau/crypto-typeorm`,
-  `@sebastienrousseau/crypto-wasm`, `@sebastienrousseau/crypto-testing`.
+  `@sebastienrousseau/crypto-wasm`, `@sebastienrousseau/crypto-testing`,
+  `@sebastienrousseau/crypto-mcp`, `@sebastienrousseau/crypto-lsp`,
+  `@sebastienrousseau/crypto-cbom`, `@sebastienrousseau/crypto-benchmarks`.
 - When updating version, all package manifests (`packages/*/package.json`), root
   `package.json`, `CITATION.cff`, and `CHANGELOG.md` move together.
 
@@ -39,7 +41,7 @@ automated change is most likely to get wrong.
 ## Quality gates and Definition of Done
 
 - Verification gates MUST pass before claiming completion:
-  - `pnpm -r run build` (all 14 packages compile with zero errors)
+  - `pnpm -r run build` (all 18 packages compile with zero errors)
   - `pnpm -r run lint` (zero lint warnings/errors)
   - `pnpm -r run format` (zero format discrepancies)
   - `pnpm -r run test` (test suite with **100% statements, branches, functions, and lines** coverage floor across every package)
