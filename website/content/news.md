@@ -27,39 +27,76 @@ We are proud to announce the general availability of Crypto Service Suite v0.0.4
 </section>
 
 <!-- DEDICATED INSTITUTIONAL WHITEPAPERS -->
+<!-- DEDICATED INSTITUTIONAL WHITEPAPERS -->
 <div class="news-grid-section" id="whitepapers">
+<div class="swift-news-header">
+<div>
 <h3 class="category-heading">Institutional White Papers &amp; Technical Publications</h3>
 <p class="section-lead section-lead-muted">
-Peer-reviewed architectural briefs, threat model analyses, and mathematical benchmark white papers published by the Crypto Service cryptographic research team.
+Peer-reviewed architectural briefs, threat model analyses, and mathematical benchmark white papers published by Sebastien Rousseau and the Crypto Service cryptographic engineering group.
 </p>
-<div class="news-cards-grid">
-<article class="news-article-card" id="whitepaper">
-<span class="article-category font-mono">ARCHITECTURE WHITEPAPER</span>
-<h4><a href="/solutions/#caas-server">Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions</a></h4>
-<p>How tier-1 banks, fintechs, and asset managers deploy on-premises and private-cloud Cryptography-as-a-Service daemons, retaining sovereign key governance while satisfying EU DORA Articles 13 &amp; 14.</p>
-<div class="article-footer font-mono">11 min read • Architecture White Paper • FIPS 203/204</div>
+</div>
+<a class="pill primary no-chev" href="/whitepapers/">Browse All White Papers →</a>
+</div>
+
+<div class="books-shelf">
+
+<article class="book book-no-cover" id="epaa-whitepaper">
+<div class="book-body">
+<p class="book-eyebrow">INDUSTRY WHITE PAPER · EPAA</p>
+<h4 class="book-title"><a href="/whitepapers/quantum-safe-payments/">Quantum-Safe Payments: Why the Payments Industry Must Act Now</a></h4>
+<p class="book-meta"><time datetime="2025-09-01">September 2025</time> · Sebastien Rousseau · Emerging Payments Association Asia (EPAA)</p>
+<p class="book-meta book-meta-faint">English · PDF / HTML · 18.9 MB · Free download</p>
+<p class="book-excerpt">Quantum computing threatens the cryptographic foundations of financial services. Payments, from real-time to cross-border settlement, rely on protections that quantum computing will eventually render obsolete, and regulators are already treating harvest-now-decrypt-later as a credible present risk. Outlines the structural threat post-quantum cryptography poses to payment infrastructure across SWIFT, real-time gross settlement (RTGS) rails and instant payment schemes.</p>
+<div class="book-actions">
+<a class="pill primary no-chev" href="/whitepapers/quantum-safe-payments/">Read White Paper →</a>
+<a class="pill ghost no-chev" href="https://emergingpaymentsasia.org/wp-content/uploads/2025/09/Quantum-Safe-Payments-Why-the-Payments-Industry-Must-Act-Now.pdf" rel="external noopener">EPAA PDF (18.9 MB)</a>
+</div>
+</div>
 </article>
 
-<article class="news-article-card" id="roadmap">
-<span class="article-category font-mono">STRATEGIC WHITEPAPER</span>
-<h4><a href="/research/">The 2027 Post-Quantum Strategic Horizon &amp; Cryptographic Audit</a></h4>
-<p>An authoritative executive analysis of upcoming compliance milestones from NIST, ANSSI, BSI, and US NSA CNSA 2.0. Why waiting until 2029 introduces existential compliance risks for financial market infrastructures.</p>
-<div class="article-footer font-mono">24 Pages • Strategic White Paper • Global Standards</div>
+<article class="book book-no-cover" id="sovereign-caas-paper">
+<div class="book-body">
+<p class="book-eyebrow">ARCHITECTURE BLUEPRINT · SOVEREIGN CAAS</p>
+<h4 class="book-title"><a href="/whitepapers/sovereign-caas/">Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions</a></h4>
+<p class="book-meta"><time datetime="2026-09-28">September 2026</time> · Sebastien Rousseau · Architecture Practice</p>
+<p class="book-meta book-meta-faint">English · Technical White Paper · FIPS 203/204 Conformance</p>
+<p class="book-excerpt">How tier-1 banks, fintechs, and asset managers deploy on-premises and private-cloud Cryptography-as-a-Service daemons, retaining sovereign key governance while satisfying EU DORA Articles 13 &amp; 14. Operating at over 100,000 ops/sec with sub-millisecond digital signature latencies over HTTP/2 and gRPC.</p>
+<div class="book-actions">
+<a class="pill primary no-chev" href="/whitepapers/sovereign-caas/">Read White Paper →</a>
+<a class="pill ghost no-chev" href="/solutions/#caas-server">CaaS Daemon Specs</a>
+</div>
+</div>
 </article>
 
-<article class="news-article-card" id="hndl">
-<span class="article-category font-mono">THREAT INTELLIGENCE WHITEPAPER</span>
-<h4><a href="/research/#threat-model">Harvest-Now-Decrypt-Later: Defending Long-Dated Enterprise Assets</a></h4>
-<p>State adversaries are actively intercepting and storing encrypted database backups, corporate IP, and interbank transaction logs. How hybrid dual-layer cryptography neutralizes retroactive exposure today.</p>
-<div class="article-footer font-mono">9 min read • Technical White Paper • HNDL Threat Model</div>
+<article class="book book-no-cover" id="strategic-horizon-paper">
+<div class="book-body">
+<p class="book-eyebrow">STRATEGIC TREATISE · GLOBAL STANDARDS</p>
+<h4 class="book-title"><a href="/whitepapers/strategic-horizon-2027/">The 2027 Post-Quantum Strategic Horizon &amp; Cryptographic Audit</a></h4>
+<p class="book-meta"><time datetime="2026-09-28">September 2026</time> · Sebastien Rousseau · Cryptographic Research Directorate</p>
+<p class="book-meta book-meta-faint">English · Executive Treatise · 28 Pages · Regulatory Timelines &amp; Cryptanalysis</p>
+<p class="book-excerpt">An authoritative executive analysis of upcoming compliance milestones from NIST, ANSSI, BSI, and US NSA CNSA 2.0. Why waiting until 2029 introduces existential compliance risks for financial market infrastructures, the mathematical hardness of Module-LWE lattices, and concrete audit checklists.</p>
+<div class="book-actions">
+<a class="pill primary no-chev" href="/whitepapers/strategic-horizon-2027/">Read Strategic Treatise →</a>
+<a class="pill ghost no-chev" href="/research/">Academic Research</a>
+</div>
+</div>
 </article>
 
-<article class="news-article-card" id="interbank-whitepaper">
-<span class="article-category font-mono">FINTECH WHITEPAPER</span>
-<h4><a href="/research/#interbank">Post-Quantum Migration Architecture &amp; Interbank Rails</a></h4>
-<p>Transitioning wholesale banking settlement engines, ISO 20022 payment payloads, and high-throughput SWIFT/Fedwire rails to quantum-resistant signatures with zero downtime.</p>
-<div class="article-footer font-mono">14 min read • Implementation White Paper • Banking Rails</div>
+<article class="book book-no-cover" id="hndl-paper">
+<div class="book-body">
+<p class="book-eyebrow">THREAT INTELLIGENCE · HNDL VECTOR</p>
+<h4 class="book-title"><a href="/whitepapers/hndl-threat-model/">Harvest-Now-Decrypt-Later: Defending Long-Dated Enterprise Assets</a></h4>
+<p class="book-meta"><time datetime="2026-09-28">September 2026</time> · Sebastien Rousseau · Security Architecture Group</p>
+<p class="book-meta book-meta-faint">English · Threat Intelligence Brief · Threat Vectors &amp; Hybrid Mitigation</p>
+<p class="book-excerpt">State adversaries are actively intercepting and storing encrypted database backups, corporate IP, and interbank transaction logs. How hybrid dual-layer cryptography (X25519 + ML-KEM-768) neutralizes retroactive exposure today across enterprise asset lifespans spanning 10 to 30 years.</p>
+<div class="book-actions">
+<a class="pill primary no-chev" href="/whitepapers/hndl-threat-model/">Read Threat Report →</a>
+<a class="pill ghost no-chev" href="/research/#threat-model">Threat Matrix</a>
+</div>
+</div>
 </article>
+
 </div>
 </div>
 
@@ -69,67 +106,23 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <div class="news-cards-grid">
 <article class="news-article-card" id="benchmarks">
 <span class="article-category font-mono">PERFORMANCE BENCHMARK</span>
-<h4><a href="/ecosystem/">Micro-Benchmark Results: Sub-Millisecond PQC Signatures at Scale</a></h4>
-<p>Benchmarking results demonstrate that ML-DSA-65 operations execute in under 0.85ms on modern server hardware with SIMD acceleration, disproving the myth that post-quantum cryptography introduces prohibitive latency.</p>
-<div class="article-footer font-mono">5 min read • Benchmark Report</div>
+<h4><a href="/whitepapers/sub-millisecond-benchmarks/">Micro-Benchmark Results: Sub-Millisecond PQC Signatures at Scale</a></h4>
+<p>Benchmarking results demonstrate that zero-dependency WebAssembly ML-KEM-768 executes in 34.1 µs and ML-DSA-65 verify in 68.4 µs on modern server hardware, disproving the myth that post-quantum cryptography introduces prohibitive latency.</p>
+<div class="article-footer font-mono">Read Technical Specification →</div>
 </article>
 
 <article class="news-article-card" id="database-encryption">
 <span class="article-category font-mono">DATA AT REST</span>
-<h4><a href="/solutions/#field-encryption">Transparent Database Field Encryption with Prisma &amp; TypeORM</a></h4>
-<p>A comprehensive architectural guide for implementing column-level authenticated encryption and post-quantum hybrid ciphers in enterprise database architectures with zero schema breaking changes.</p>
-<div class="article-footer font-mono">8 min read • Technical Guide</div>
+<h4><a href="/whitepapers/database-encryption/">Transparent Database Field Encryption with Prisma &amp; TypeORM</a></h4>
+<p>A comprehensive architectural guide for implementing column-level authenticated encryption (AES-256-GCM + ML-KEM) in PostgreSQL and MySQL architectures with zero schema breaking changes.</p>
+<div class="article-footer font-mono">Read Implementation Guide →</div>
 </article>
 
 <article class="news-article-card" id="cbom-guide">
 <span class="article-category font-mono">DEVSECOPS</span>
-<h4><a href="/standards/#cbom">Automated CBOM Auditing with CycloneDX and Crypto Service Suite</a></h4>
-<p>Learn how to automatically generate and continuously audit Cryptographic Bills of Materials in your CI/CD pipelines to detect deprecated elliptic curves before auditors flag them.</p>
-<div class="article-footer font-mono">7 min read • Tutorial</div>
-</article>
-</div>
-</div>
-
-<!-- INSTITUTIONAL WHITE PAPERS & RESEARCH PUBLICATIONS -->
-<div class="news-grid-section" id="white-papers">
-<h3 class="category-heading">Institutional White Papers &amp; Research Publications</h3>
-<p class="section-lead-muted">Peer-reviewed architectural publications, mathematical proofs, and transition roadmaps published by the Crypto Service cryptographic engineering group.</p>
-
-<div class="whitepaper-grid">
-<article class="whitepaper-card" id="whitepaper-pqc-2027">
-<div>
-<span class="whitepaper-badge">RESEARCH WHITE PAPER</span>
-<h4 class="whitepaper-title">The 2027 Post-Quantum Strategic Horizon</h4>
-<p class="whitepaper-desc">Exhaustive 28-page research treatise analyzing Harvest Now Decrypt Later (HNDL) vectors, FIPS 203 ML-KEM and FIPS 204 ML-DSA lattice micro-benchmarks, and interbank transition frameworks.</p>
-</div>
-<div class="whitepaper-actions">
-<a href="/research/" class="btn btn-primary">Read White Paper →</a>
-<a href="/research/#threat-model" class="btn btn-secondary">HNDL Threat Model</a>
-</div>
-</article>
-
-<article class="whitepaper-card" id="whitepaper-caas">
-<div>
-<span class="whitepaper-badge">ARCHITECTURE BLUEPRINT</span>
-<h4 class="whitepaper-title">Sovereign Crypto-as-a-Service (CaaS)</h4>
-<p class="whitepaper-desc">Architectural specification for deploying sovereign non-custodial cryptography daemons across private VPCs, handling 100k+ ops/sec with sub-millisecond lattice digital signatures.</p>
-</div>
-<div class="whitepaper-actions">
-<a href="/solutions/#post-quantum" class="btn btn-primary">Read Architecture →</a>
-<a href="/solutions/#caas-server" class="btn btn-secondary">CaaS Microservice</a>
-</div>
-</article>
-
-<article class="whitepaper-card" id="whitepaper-dora-cbom">
-<div>
-<span class="whitepaper-badge">REGULATORY AUDIT MANUAL</span>
-<h4 class="whitepaper-title">DORA Article 13 &amp; CBOM Compliance Manual</h4>
-<p class="whitepaper-desc">Step-by-step regulatory guidance for European Union Digital Operational Resilience Act compliance, automated CycloneDX 1.6 CBOM generation, and continuous curve deprecation audits.</p>
-</div>
-<div class="whitepaper-actions">
-<a href="/standards/#dora" class="btn btn-primary">Read Compliance Manual →</a>
-<a href="/standards/#cbom" class="btn btn-secondary">CBOM Standards</a>
-</div>
+<h4><a href="/whitepapers/dora-cbom-manual/">Automated CBOM Auditing with CycloneDX and Crypto Service Suite</a></h4>
+<p>Step-by-step regulatory guidance for European Union Digital Operational Resilience Act (DORA) compliance, automated CycloneDX 1.6 CBOM generation, and continuous curve deprecation audits in CI/CD.</p>
+<div class="article-footer font-mono">Read Compliance Manual →</div>
 </article>
 </div>
 </div>
