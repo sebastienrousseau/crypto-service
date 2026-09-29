@@ -27,14 +27,14 @@
   --fg-muted: #334155;
   --fg-subtle: #475569;
   --primary: #005950;
-  --primary-mint: #006b60;
+  --primary-mint: #005950;
   --primary-hover: #00403a;
   --primary-ink: #ffffff;
   --primary-glow: rgba(0, 89, 80, 0.2);
-  --secondary: #ff9f1c;
-  --secondary-hover: #ffb03a;
-  --secondary-ink: #070d18;
-  --secondary-glow: rgba(255, 159, 28, 0.25);
+  --secondary: #78350f;
+  --secondary-hover: #92400e;
+  --secondary-ink: #ffffff;
+  --secondary-glow: rgba(120, 53, 15, 0.2);
   --accent: #ff9f1c;
   --accent-soft: #ffbf69;
   --accent-cool: #005950;
@@ -89,8 +89,8 @@
   --primary-hover: #cbf3f0;
   --primary-ink: #070d18;
   --primary-glow: rgba(46, 196, 182, 0.35);
-  --secondary: #ff9f1c;
-  --secondary-hover: #ffbf69;
+  --secondary: #ffb03a;
+  --secondary-hover: #ffc978;
   --secondary-ink: #070d18;
   --secondary-glow: rgba(255, 159, 28, 0.25);
   --accent: #ff9f1c;
@@ -185,8 +185,8 @@
     --primary-hover: #cbf3f0;
     --primary-ink: #070d18;
     --primary-glow: rgba(46, 196, 182, 0.35);
-    --secondary: #ff9f1c;
-    --secondary-hover: #ffbf69;
+    --secondary: #ffb03a;
+    --secondary-hover: #ffc978;
     --secondary-ink: #070d18;
     --secondary-glow: rgba(255, 159, 28, 0.25);
     --accent: #ff9f1c;
@@ -825,6 +825,10 @@ p, .lead-text, .lead {
 }
 
 .swift-contact-link:hover {
+  color: #005950;
+}
+
+[data-theme="dark"] .swift-contact-link:hover {
   color: #2ec4b6;
 }
 
@@ -1565,7 +1569,7 @@ p, .lead-text, .lead {
   top: 2rem;
   right: 2rem;
   background: #FF9F1C;
-  color: #ffffff;
+  color: #07090e;
 }
 
 .stage-badge.uptime {
@@ -2121,12 +2125,18 @@ td {
   display: inline-block;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
-  background: rgba(255, 159, 28, 0.12);
-  border: 1px solid rgba(255, 159, 28, 0.3);
+  background: rgba(120, 53, 15, 0.08);
+  border: 1px solid rgba(120, 53, 15, 0.35);
   color: var(--secondary);
   font-weight: 700;
   font-size: 0.75rem;
   font-family: var(--font-mono);
+}
+
+[data-theme="dark"] .comp-badge-warn {
+  background: rgba(255, 176, 58, 0.15);
+  border-color: rgba(255, 176, 58, 0.4);
+  color: var(--secondary);
 }
 
 .suite-link {
@@ -2894,25 +2904,24 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.6875rem;
+  font-size: 0.725rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--primary);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  padding: 0.25rem 0.75rem;
+  color: #005950;
+  background: #ffffff;
+  border: 1.5px solid #005950;
+  padding: 0.35rem 0.85rem;
   border-radius: var(--radius-pill);
   margin-bottom: 1.25rem;
-  box-shadow: var(--glass-specular);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
+  box-shadow: 0 2px 8px rgba(0, 89, 80, 0.12);
 }
 
 [data-theme="dark"] .hero-badge {
-  color: var(--primary-mint);
-  background: var(--glass-bg);
-  border-color: var(--glass-border);
+  color: #2ec4b6;
+  background: #0f172a;
+  border-color: #2ec4b6;
+  box-shadow: 0 2px 12px rgba(46, 196, 182, 0.2);
 }
 
 .swift-hero-title {
@@ -2952,8 +2961,8 @@ h1 {
 }
 
 .btn-swift-hero-pill {
-  background: var(--primary-mint);
-  color: #0b1726 !important;
+  background: #005950;
+  color: #ffffff !important;
   font-size: 1rem;
   font-weight: 700;
   padding: 0.85rem 2.25rem;
@@ -2964,23 +2973,34 @@ h1 {
   justify-content: center;
   text-decoration: none;
   transition: transform 0.35s var(--spring-smooth), box-shadow 0.35s var(--spring-smooth), background 0.2s ease;
-  box-shadow: 0 4px 16px rgba(46, 196, 182, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 89, 80, 0.25);
 }
 
 .btn-swift-hero-pill:hover {
-  background: #ff9f1c;
-  color: #0b1726 !important;
+  background: #00403a;
+  color: #ffffff !important;
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(255, 159, 28, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 89, 80, 0.35);
 }
 
 .btn-swift-hero-pill:active {
   transform: translateY(0) scale(0.985);
 }
 
+[data-theme="dark"] .btn-swift-hero-pill {
+  background: #2ec4b6;
+  color: #070d18 !important;
+  box-shadow: 0 4px 16px rgba(46, 196, 182, 0.35);
+}
+
+[data-theme="dark"] .btn-swift-hero-pill:hover {
+  background: #ffb03a;
+  color: #070d18 !important;
+}
+
 .btn-swift-hero-secondary {
-  background: var(--glass-bg);
-  color: var(--fg) !important;
+  background: #ffffff;
+  color: #0f172a !important;
   font-size: 1rem;
   font-weight: 600;
   padding: 0.85rem 1.85rem;
@@ -2990,24 +3010,22 @@ h1 {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-specular), var(--glass-shadow);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.35s var(--spring-smooth), border-color 0.2s ease, color 0.15s ease, box-shadow 0.35s var(--spring-smooth);
 }
 
 [data-theme="dark"] .btn-swift-hero-secondary {
   color: #f1f5f9 !important;
-  background: var(--glass-bg);
-  border-color: var(--glass-border);
+  background: #0f172a;
+  border-color: #334155;
 }
 
 .btn-swift-hero-secondary:hover {
-  border-color: var(--primary-mint);
-  color: var(--primary) !important;
+  border-color: #005950;
+  color: #005950 !important;
   transform: translateY(-3px) scale(1.02);
-  box-shadow: var(--glass-shadow-hover);
+  box-shadow: 0 6px 16px rgba(0, 89, 80, 0.12);
 }
 
 .btn-swift-hero-secondary:active {
@@ -3015,6 +3033,7 @@ h1 {
 }
 
 [data-theme="dark"] .btn-swift-hero-secondary:hover {
+  border-color: #2ec4b6;
   color: #2ec4b6 !important;
 }
 
@@ -3064,8 +3083,12 @@ h1 {
 .telemetry-value {
   font-size: 1.85rem;
   font-weight: 800;
-  color: #2ec4b6;
+  color: #005950;
   letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .telemetry-value {
+  color: #2ec4b6;
 }
 
 .telemetry-label {
@@ -3074,6 +3097,10 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #475569;
+}
+
+[data-theme="dark"] .telemetry-label {
+  color: #cbd5e1;
 }
 
 /* Latest News (SWIFT Standard) */
@@ -3108,20 +3135,36 @@ h1 {
 }
 
 .btn-swift-news-pill {
-  background: #cbf3f0;
-  color: #0b1726 !important;
+  background: #ffffff;
+  color: #005950 !important;
+  border: 1.5px solid #005950;
   font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.65rem 1.5rem;
+  font-weight: 700;
+  padding: 0.6rem 1.4rem;
   border-radius: 9999px;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-swift-news-pill:hover {
-  background: #2ec4b6;
+  background: #005950;
+  color: #ffffff !important;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 89, 80, 0.25);
+}
+
+[data-theme="dark"] .btn-swift-news-pill {
+  background: #0f172a;
+  color: #2ec4b6 !important;
+  border: 1.5px solid #2ec4b6;
+}
+
+[data-theme="dark"] .btn-swift-news-pill:hover {
+  background: #2ec4b6;
+  color: #070d18 !important;
 }
 
 .swift-cards-grid {
@@ -3337,6 +3380,10 @@ h1 {
   transition: all 0.2s ease;
 }
 
+[data-theme="dark"] .swift-tab-btn {
+  color: #cbd5e1;
+}
+
 .swift-tab-btn:hover {
   color: #0f172a;
 }
@@ -3370,11 +3417,11 @@ h1 {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   background: linear-gradient(135deg, rgba(203, 243, 240, 0.45) 0%, #ffffff 50%, rgba(255, 191, 105, 0.25) 100%);
-  border: 1px solid rgba(46, 196, 182, 0.25);
+  border: 1px solid rgba(0, 89, 80, 0.25);
   border-radius: 24px;
   overflow: visible;
   min-height: 480px;
-  box-shadow: 0 16px 40px -10px rgba(46, 196, 182, 0.15), 0 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 40px -10px rgba(0, 89, 80, 0.15), 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="dark"] .swift-solution-split {
@@ -3436,8 +3483,8 @@ h1 {
 }
 
 .btn-swift-readmore {
-  background: #2ec4b6;
-  color: #0b1726 !important;
+  background: #005950;
+  color: #ffffff !important;
   font-size: 0.9375rem;
   font-weight: 700;
   padding: 0.75rem 2rem;
@@ -3446,14 +3493,25 @@ h1 {
   display: inline-flex;
   align-items: center;
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 14px rgba(46, 196, 182, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 89, 80, 0.25);
 }
 
 .btn-swift-readmore:hover {
-  background: #ff9f1c;
-  color: #0b1726 !important;
+  background: #00403a;
+  color: #ffffff !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(255, 159, 28, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 89, 80, 0.35);
+}
+
+[data-theme="dark"] .btn-swift-readmore {
+  background: #2ec4b6;
+  color: #070d18 !important;
+  box-shadow: 0 4px 14px rgba(46, 196, 182, 0.3);
+}
+
+[data-theme="dark"] .btn-swift-readmore:hover {
+  background: #ffb03a;
+  color: #070d18 !important;
 }
 
 .swift-solution-visual {
@@ -3492,7 +3550,7 @@ h1 {
   height: 44px;
   border-radius: 50%;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #cbd5e1;
   color: #1c2833;
   font-size: 1.25rem;
   display: flex;
@@ -3513,8 +3571,21 @@ h1 {
 }
 
 .swift-slider-btn:hover {
-  background: #cbf3f0;
+  background: #005950;
+  border-color: #005950;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .swift-slider-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .swift-slider-btn:hover {
+  background: #2ec4b6;
   border-color: #2ec4b6;
+  color: #070d18;
 }
 
 /* Callout Banner (Soft Pastel Tropical Sunrise) */
@@ -3621,9 +3692,15 @@ h1 {
 
 .resource-badge {
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: #475569;
+  font-weight: 700;
+  color: #005950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .resource-badge {
+  color: #2ec4b6;
 }
 
 .resource-title {
@@ -3687,14 +3764,28 @@ h1 {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #2ec4b6;
-  color: #070d18;
+  background: #005950;
+  color: #ffffff;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.swift-bic-btn:hover {
+  background: #00403a;
+}
+
+[data-theme="dark"] .swift-bic-btn {
+  background: #2ec4b6;
+  color: #070d18;
+}
+
+[data-theme="dark"] .swift-bic-btn:hover {
+  background: #ffb03a;
 }
 
 /* Stay Connected Newsletter Band */
@@ -3724,18 +3815,21 @@ h1 {
 .btn-swift-signup {
   display: inline-flex;
   align-items: center;
-  background: #005950;
-  color: #ffffff !important;
+  background: #ffffff;
+  color: #005950 !important;
+  border: 1.5px solid #ffffff;
   font-size: 0.95rem;
   font-weight: 700;
   padding: 0.75rem 2rem;
   border-radius: 9999px;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background 0.2s ease, transform 0.15s ease, color 0.2s ease;
 }
 
 .btn-swift-signup:hover {
-  background: #00403a;
+  background: #2ec4b6;
+  border-color: #2ec4b6;
+  color: #070d18 !important;
   transform: translateY(-1px);
 }
 
@@ -4079,10 +4173,15 @@ h1 {
 .card-kpi {
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--primary);
+  color: #00403a;
   background: var(--banner-bg);
   padding: 0.25rem 0.65rem;
   border-radius: var(--radius-sm);
+}
+
+[data-theme="dark"] .card-kpi {
+  color: #2ec4b6;
+  background: rgba(46, 196, 182, 0.18);
 }
 
 /* Research Page Elements */
@@ -4509,7 +4608,12 @@ h1 {
 }
 
 .event-link:hover {
-  color: var(--secondary);
+  color: #00403a;
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .event-link:hover {
+  color: #ffb03a;
 }
 
 /* --- CSP Compliant Utility Classes (eliminating inline styles) --- */
