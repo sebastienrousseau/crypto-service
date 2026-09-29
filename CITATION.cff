@@ -6,13 +6,15 @@ title: "Crypto Service Suite: A comprehensive TypeScript cryptography toolkit"
 abstract: >-
   A unified TypeScript cryptography toolkit providing 50+ classical, modern,
   and post-quantum algorithms (ML-KEM, ML-DSA, SLH-DSA), REST microservice,
-  CLI, React hooks, Vue composables, ORM adapters, and Edge runtime support.
+  CLI, React hooks, Vue composables, ORM adapters, Edge runtime support,
+  Model Context Protocol (MCP), Language Server Protocol (LSP), CBOM generation,
+  and benchmark suite across 18 lockstep packages.
 authors:
   - family-names: Rousseau
     given-names: Sebastien
     email: sebastian.rousseau@gmail.com
-version: "0.0.3"
-date-released: "2026-09-26"
+version: "0.0.4"
+date-released: "2026-09-28"
 license: "Apache-2.0 OR MIT"
 repository-code: "https://github.com/sebastienrousseau/crypto-service"
 url: "https://crypto-service.co"
@@ -25,3 +27,7 @@ keywords:
   - slh-dsa
   - encryption
   - fastify
+  - mcp
+  - lsp
+  - cbom
+  - cyclonedx

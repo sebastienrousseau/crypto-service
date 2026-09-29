@@ -1,9 +1,23 @@
 {{#extends "base"}}
 {{#block "main"}}
-<section class="section">
-  <div class="container narrow prose">
-    <h1>{{title}}</h1>
-    {{!content}}
+<article class="page-container">
+  <header class="page-header">
+    <div class="container">
+      <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+        <a href="{{site_path}}">Home</a> &gt; <span class="current-crumb">{{title}}</span>
+      </nav>
+      <div class="pill-badge">
+        <span class="pill-dot" aria-hidden="true"></span>
+        <span class="pill-text">{{eyebrow}}</span>
+      </div>
+      <h1 class="page-title">{{title}}</h1>
+      <p class="page-lead">{{lead}}</p>
+    </div>
+  </header>
+  <div class="page-body">
+    <div class="container prose">
+      {{!content}}
+    </div>
   </div>
-</section>
+</article>
 {{/block}}

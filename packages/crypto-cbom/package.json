@@ -1,0 +1,59 @@
+{
+  "name": "@sebastienrousseau/crypto-cbom",
+  "version": "0.0.4",
+  "description": "Cryptographic Bill of Materials (CBOM) generator and auditor compliant with CycloneDX 1.6, SPDX 3.0, EU DORA Articles 9/13, and CRA Article 14.",
+  "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://crypto-service.co",
+  "repository": {
+    "directory": "packages/crypto-cbom",
+    "type": "git",
+    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sebastienrousseau/crypto-service/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "bin": {
+    "crypto-cbom": "./dist/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "clean": "rimraf ./coverage ./dist ./docs",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc"
+  },
+  "dependencies": {
+    "@sebastienrousseau/crypto-lib": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.7",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "^26.4.1",
+    "c8": "^12.0.0",
+    "chai": "^4.5.0",
+    "chai-as-promised": "^7.1.2",
+    "mocha": "^10.8.2",
+    "rimraf": "^6.1.3",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.28.20",
+    "typescript": "~5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

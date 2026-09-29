@@ -24,10 +24,16 @@
     "outDir": "./dist",
     "paths": {
       "@sebastienrousseau/crypto-api/*": ["packages/crypto-api/src/*"],
+      "@sebastienrousseau/crypto-benchmarks/*": [
+        "packages/crypto-benchmarks/src/*"
+      ],
+      "@sebastienrousseau/crypto-cbom/*": ["packages/crypto-cbom/src/*"],
       "@sebastienrousseau/crypto-cli/*": ["packages/crypto-cli/src/*"],
       "@sebastienrousseau/crypto-edge/*": ["packages/crypto-edge/src/*"],
       "@sebastienrousseau/crypto-kms/*": ["packages/crypto-kms/src/*"],
       "@sebastienrousseau/crypto-lib/*": ["packages/crypto-lib/src/*"],
+      "@sebastienrousseau/crypto-lsp/*": ["packages/crypto-lsp/src/*"],
+      "@sebastienrousseau/crypto-mcp/*": ["packages/crypto-mcp/src/*"],
       "@sebastienrousseau/crypto-middleware/*": [
         "packages/crypto-middleware/src/*"
       ],

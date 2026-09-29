@@ -288,7 +288,7 @@ pnpm --filter @sebastienrousseau/crypto-server run lint
 pnpm --filter @sebastienrousseau/crypto-server run format
 ```
 
-All 14 packages in the Crypto Service workspace maintain a **100% coverage floor** across statements, branches, functions, and lines.
+All 18 packages in the Crypto Service workspace maintain a **100% coverage floor** across statements, branches, functions, and lines.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -320,7 +320,7 @@ All cryptographic operations leverage audited primitives, enforce constant-time 
 
 Versions advance strictly one step at a time on the `0.0.x` line (`v0.0.1` → `v0.0.2` → `v0.0.3` ... → `v0.0.999` → `v0.1.0`). Work for every release iteration begins on a dedicated `feat/v<version>` branch.
 
-All 14 packages in the workspace move in lockstep. Public API signatures, cipher output formats, and serialization schemas are strictly versioned. Breaking changes to serialized formats or algorithm defaults are considered major breaking changes. Minimum toolchain upgrades (e.g. Node.js LTS floor) are governed by [POLICIES.md](../../docs/POLICIES.md).
+All 18 packages in the workspace move in lockstep. Public API signatures, cipher output formats, and serialization schemas are strictly versioned. Breaking changes to serialized formats or algorithm defaults are considered major breaking changes. Minimum toolchain upgrades (e.g. Node.js LTS floor) are governed by [POLICIES.md](../../docs/POLICIES.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

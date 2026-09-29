@@ -58,7 +58,11 @@ crypto-service/
 │   ├── crypto-prisma/      # Prisma field encryption
 │   ├── crypto-typeorm/     # TypeORM column transformers
 │   ├── crypto-wasm/        # WebAssembly acceleration
-│   └── crypto-testing/     # Test vectors and test harness
+│   ├── crypto-testing/     # Test vectors and test harness
+│   ├── crypto-mcp/         # Model Context Protocol (MCP) server
+│   ├── crypto-lsp/         # Language Server Protocol (LSP) server
+│   ├── crypto-cbom/        # Cryptographic Bill of Materials generator
+│   └── crypto-benchmarks/  # Benchmark suite and performance profiling
 ├── docs/                   # Documentation root, policies, and ADRs
 └── .github/workflows/      # Automated CI, Docker, Release, and Security workflows
 ```
@@ -67,5 +71,5 @@ crypto-service/
 
 - Versions advance strictly one step at a time (+0.0.1) on the `v0.0.x` line (`v0.0.1` → `v0.0.2` → `v0.0.3` ... → `v0.0.999` → `v0.1.0`).
 - Active work for an upcoming version belongs on a dedicated branch named `feat/v<version>`.
-- All 14 packages move in lockstep.
+- All 18 packages move in lockstep.
 - Commits must follow Conventional Commits, be SSH-signed, and include DCO signoffs (`git commit -s -S`).

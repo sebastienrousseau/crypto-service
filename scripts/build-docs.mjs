@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 /**
  * @fileoverview Monorepo Documentation Hub Builder for docs.crypto-service.co
- * Compiles the Voxt documentation theme using local SSG (Rust static site generator)
- * and aggregates all 14 packages with their interactive TypeDoc API references.
+ * Compiles the Crypto Service documentation theme using local SSG (Rust static site generator)
+ * and aggregates all 18 packages with their interactive TypeDoc API references.
  */
 
 import fs from "node:fs";
@@ -50,7 +50,7 @@ function findSsgBinary() {
 console.log("==> 1. Building TypeDoc documentation for all workspace packages...");
 execSync("pnpm -r run docs", { cwd: ROOT_DIR, stdio: "inherit" });
 
-console.log("==> 2. Compiling Voxt theme with local SSG...");
+console.log("==> 2. Compiling Crypto Service theme with local SSG...");
 const ssgBin = findSsgBinary();
 console.log(`Using SSG binary: ${ssgBin}`);
 
@@ -72,15 +72,17 @@ if (fs.existsSync(PUBLIC_DIR)) {
   fs.cpSync(PUBLIC_DIR, SITE_DIR, { recursive: true });
 }
 
-// Copy website/images to _site/images
+// Copy website/images to public/images and _site/images
 const imagesDir = path.join(WEBSITE_DIR, "images");
 if (fs.existsSync(imagesDir)) {
+  fs.cpSync(imagesDir, path.join(PUBLIC_DIR, "images"), { recursive: true });
   fs.cpSync(imagesDir, path.join(SITE_DIR, "images"), { recursive: true });
 }
 
-// Copy website/assets to _site/assets
+// Copy website/assets to public/assets and _site/assets
 const assetsDir = path.join(WEBSITE_DIR, "assets");
 if (fs.existsSync(assetsDir)) {
+  fs.cpSync(assetsDir, path.join(PUBLIC_DIR, "assets"), { recursive: true });
   fs.cpSync(assetsDir, path.join(SITE_DIR, "assets"), { recursive: true });
 }
 
@@ -102,7 +104,7 @@ for (const pkg of packages) {
   const destDir = path.join(SITE_DIR, "packages", pkg);
 
   let description = "Package documentation and API reference.";
-  let version = "0.0.3";
+  let version = "0.0.4";
   if (fs.existsSync(pkgJsonPath)) {
     try {
       const data = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8"));
@@ -136,5 +138,5 @@ if (fs.existsSync(cryptoLibDocs)) {
   }
 }
 
-console.log("==> Unified Voxt documentation portal assembled at _site!");
+console.log("==> Unified Crypto Service documentation portal assembled at _site!");
 console.log(`==> Total workspace packages indexed: ${packageMeta.length}`);

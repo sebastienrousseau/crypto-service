@@ -32,7 +32,7 @@
 
 **The Crypto Service ecosystem**
 
-- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — 14 specialized packages across library, server, SDK, CLI, and framework adapters
+- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — 18 specialized packages across library, server, SDK, CLI, AI tooling, and framework adapters
 
 **Library reference**
 
@@ -106,6 +106,12 @@ pnpm add @sebastienrousseau/crypto-edge        # Edge/serverless adapter
 pnpm add @sebastienrousseau/crypto-kms         # Cloud KMS integration
 pnpm add @sebastienrousseau/crypto-wasm        # WebAssembly acceleration
 pnpm add @sebastienrousseau/crypto-testing     # Test utilities & mock providers
+
+# AI & Developer Tooling
+pnpm add @sebastienrousseau/crypto-mcp         # Model Context Protocol (MCP) server
+pnpm add @sebastienrousseau/crypto-lsp         # Language Server Protocol (LSP) server
+pnpm add @sebastienrousseau/crypto-cbom        # Cryptographic Bill of Materials (CycloneDX/SPDX)
+pnpm add @sebastienrousseau/crypto-benchmarks  # Performance benchmarking & profiling
 ```
 
 ---
@@ -169,10 +175,10 @@ crypto-cli encrypt --algorithm aes-256-gcm --input "Secret Data" --key <KEY>
 
 ## The Crypto Service ecosystem
 
-All 14 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
+All 18 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
 
 > [!NOTE]
-> **Package Distribution & Registry Availability**: Historically, five packages in the ecosystem were individually published to npm (`@sebastienrousseau/crypto-service`, `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, `@sebastienrousseau/crypto-cli`, and utility tooling). In the coordinated `v0.0.3` lockstep release, all 14 specialized packages are configured with standardized public registry manifests and publish workflows for complete registry availability. All packages can also be consumed immediately from source or via pnpm workspaces.
+> **Package Distribution & Registry Availability**: Historically, five packages in the ecosystem were individually published to npm (`@sebastienrousseau/crypto-service`, `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, `@sebastienrousseau/crypto-cli`, and utility tooling). In the coordinated `v0.0.3` lockstep release, all 18 specialized packages are configured with standardized public registry manifests and publish workflows for complete registry availability. All packages can also be consumed immediately from source or via pnpm workspaces.
 
 | Component                                                            | Purpose                                                              | Use case                                             | Registry Availability      |
 | :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------- |
@@ -190,6 +196,10 @@ All 14 packages follow a coordinated versioning policy with automated CI enforce
 | [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | v0.0.3 Lockstep / Monorepo |
 | [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | WebAssembly-accelerated primitives with JS fallback                  | High-throughput hashing and cipher execution         | v0.0.3 Lockstep / Monorepo |
 | [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | DORA / CRA compliance audit and inventory tracking   | v0.0.3 Lockstep / Monorepo |
+| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | v0.0.3 Lockstep / Monorepo |
 
 ---
 
@@ -346,7 +356,7 @@ pnpm -r run test
 pnpm -r run docs
 ```
 
-The test coverage floor is **100% statements, branches, functions, and lines** across all 14 packages in the workspace.
+The test coverage floor is **100% statements, branches, functions, and lines** across all 18 packages in the workspace.
 Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md](DEVELOPMENT.md) for local gate reproduction and [CONTRIBUTING.md](CONTRIBUTING.md) for commit and PR guidelines.
 
 ---

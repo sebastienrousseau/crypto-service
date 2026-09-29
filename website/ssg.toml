@@ -1,6 +1,6 @@
 site_name = "crypto-service"
-site_title = "Crypto Service Suite — Quantum-Safe Cryptography for TypeScript"
-site_description = "Production-grade TypeScript cryptography toolkit with 50+ classical and post-quantum algorithms (ML-KEM, ML-DSA, SLH-DSA, FN-DSA, HPKE), REST microservice, CLI, and full-stack integrations."
+site_title = "Crypto Service Suite — Post-Quantum Cryptographic Infrastructure for Institutional Finance"
+site_description = "Non-custodial, high-throughput cryptographic operating core for tier-1 banks, institutional custodians, and regulated fintechs. FIPS 203 ML-KEM, FIPS 204 ML-DSA, multi-cloud KMS orchestration, and real-time DORA & CBOM compliance across 18 lockstep packages."
 base_url = "https://docs.crypto-service.co"
 language = "en-GB"
 

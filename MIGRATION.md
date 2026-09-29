@@ -137,5 +137,5 @@ verify, keygen, kdf, pq-kem, pq-sign.
 4. **Adopt high-level APIs** where appropriate. If you are manually combining
    `ecdh` + `aead` for encryption, consider using `sealedbox` instead.
 
-5. **Review new TypeDoc documentation.** All 14 packages now have 100% JSDoc
+5. **Review new TypeDoc documentation.** All 18 packages now have 100% JSDoc
    coverage. Run `pnpm docs` in any package to generate HTML docs.

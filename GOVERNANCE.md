@@ -17,5 +17,5 @@ Crypto Service Suite is currently maintained by Sebastien Rousseau (`@sebastienr
 ## Release Process
 
 - Releases follow the monotonic Semantic Versioning Lifecycle rule (`v0.0.1` → `v0.0.2` → `v0.0.3` ... → `v0.0.999` → `v0.1.0`).
-- All 14 packages in the monorepo publish in coordinated lockstep.
+- All 18 packages in the monorepo publish in coordinated lockstep.
 - Releases and tags are cryptographically signed.

@@ -24,3 +24,4 @@ overrides:
   'mocha>serialize-javascript': '7.0.5'
   'express>qs': '6.16.0'
   '@typescript-eslint/typescript-estree>minimatch': '9.0.9'
+  'ip-address': '>=10.5.1'

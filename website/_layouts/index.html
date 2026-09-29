@@ -1,125 +1,500 @@
 {{#extends "base"}}
 {{#block "main"}}
-<section id="hero" class="hero-section">
-  <div class="container hero-container text-center">
-    <div class="pill-badge">
-      <span class="pill-tag">NEW</span>
-      <span class="pill-text">v0.0.3 Release · Post-Quantum KEM &amp; Signatures · 14 Monorepo Packages</span>
-    </div>
-    <h1 class="hero-title">{{headline}}</h1>
-    <p class="hero-lead">{{lead}}</p>
-    <div class="hero-cta-group">
-      <a class="btn btn-primary btn-lg" href="#packages">Explore 14 Packages</a>
-      <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/crypto-service" target="_blank" rel="noopener">Star on GitHub</a>
-    </div>
+<!-- Light Mode Pastel Hero Stage with Morphing Blobs and Giant Glass Droplets -->
+<section id="hero" class="swift-hero-stage pastel-hero-stage">
+  <div class="swift-hero-backdrop">
+    <img
+      src="{{site_path}}images/hero-glass-droplets.webp"
+      srcset="{{site_path}}images/hero-glass-droplets-640.webp 640w, {{site_path}}images/hero-glass-droplets-1200.webp 1200w, {{site_path}}images/hero-glass-droplets.webp 1920w"
+      sizes="100vw"
+      width="1920"
+      height="1080"
+      alt="Luminous organic glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+      fetchpriority="high"
+      class="swift-hero-img"
+    />
+    <div class="pastel-hero-overlay"></div>
+  </div>
 
-    <figure class="hero-photo">
-      <img src="{{site_path}}images/light-trace-640.webp" srcset="{{site_path}}images/light-trace-320.webp 320w, {{site_path}}images/light-trace-480.webp 480w, {{site_path}}images/light-trace-640.webp 640w, {{site_path}}images/light-trace-768.webp 768w, {{site_path}}images/light-trace-960.webp 960w, {{site_path}}images/light-trace.webp 1200w" sizes="(max-width: 48rem) 100vw, 48rem" width="1200" height="742" alt="{{light_trace_alt}}" fetchpriority="high">
-    </figure>
-
-    <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->
-    <figure id="ai-ide" class="terminal-preview-card" aria-label="4-Pane TMUX IDE Grid Preview">
-      <figcaption class="terminal-header">
-        <div class="window-dots">
-          <span class="dot dot-red" aria-hidden="true"></span>
-          <span class="dot dot-yellow" aria-hidden="true"></span>
-          <span class="dot dot-green" aria-hidden="true"></span>
-        </div>
-        <div class="terminal-tab-bar font-mono">
-          <span class="tmux-win-badge">[crypto-service]</span>
-          <span class="tab-item active-tab">0:ide* (4 panes)</span>
-          <span class="tab-item">1:server</span>
-          <span class="tab-item">2:cli</span>
-        </div>
-        <div class="terminal-actions">
-          <span class="badge-status font-mono">● TypeScript 5.8+ · Node.js 22 LTS · FIPS 203/204 (Prefix + i)</span>
-        </div>
-      </figcaption>
-
-      <div class="tmux-grid">
-        <!-- Pane 1: Project Explorer (Left 20%) -->
-        <div class="tmux-pane pane-explorer font-mono">
-          <div class="pane-header">
-            <span class="pane-title">1: Explorer</span>
-            <span class="pane-badge">/crypto-service</span>
-          </div>
-          <div class="pane-content explorer-content">
-<div class="tree-node dir">▼ packages/</div>
-<div class="tree-node file active">▶ crypto-lib/</div>
-<div class="tree-node file">  crypto-wasm/</div>
-<div class="tree-node file">  crypto-server/</div>
-<div class="tree-node file">  crypto-cli/</div>
-<div class="tree-node file">  crypto-sdk/</div>
-<div class="tree-node file">pnpm-workspace.yaml</div>
-<div class="tree-node file">package.json</div>
-          </div>
-        </div>
-
-        <!-- Center Column: Pane 2 (Editor Top) + Pane 3 (Terminal Bottom) -->
-        <div class="tmux-center-col">
-          <!-- Pane 2: Editor (Neovim LSP) -->
-          <div class="tmux-pane pane-editor font-mono">
-            <div class="pane-header">
-              <span class="pane-title">2: Neovim (LSP)</span>
-              <span class="pane-file">packages/crypto-lib/src/modern/pq-kem/index.ts</span>
-            </div>
-            <div class="pane-content editor-content" tabindex="0" role="region" aria-label="Neovim Code Editor">
-              <pre class="editor-code font-mono"><code><span class="code-comment">// FIPS 203 ML-KEM-768 &amp; RFC 10024 Hybrid Key Encapsulation</span>
-<span class="code-kw">import</span> { mlKemKeygen, mlKemEncapsulate, mlKemDecapsulate, wipeMemory } <span class="code-kw">from</span> <span class="code-str">"@sebastienrousseau/crypto-lib"</span>;
-
-<span class="code-kw">export async function</span> <span class="code-fn">establishQuantumSafeKey</span>(): <span class="code-type">Promise</span>&lt;<span class="code-type">Uint8Array</span>&gt; {
-  <span class="code-kw">const</span> alice = <span class="code-fn">mlKemKeygen</span>(768);
-  <span class="code-kw">const</span> { ciphertext, sharedSecret } = <span class="code-fn">mlKemEncapsulate</span>(768, alice.publicKey);
-  <span class="code-kw">const</span> decrypted = <span class="code-fn">mlKemDecapsulate</span>(768, alice.secretKey, ciphertext);
-  <span class="code-fn">wipeMemory</span>(alice.secretKey);
-  <span class="code-kw">return</span> decrypted.sharedSecret;
-}</code></pre>
-            </div>
-          </div>
-
-          <!-- Pane 3: Integrated Shell / Test Runner -->
-          <div class="tmux-pane pane-terminal font-mono">
-            <div class="pane-header">
-              <span class="pane-title">3: Shell / Tests</span>
-              <span class="pane-badge">idle</span>
-            </div>
-            <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
-<div class="cli-line"><span class="mcp-tl-ps">$ </span>pnpm -r run test &amp;&amp; pnpm -r run lint</div>
-<div class="cli-out">   ✓ 14 packages passed (100% statements, branches, functions, lines)</div>
-<div class="cli-out cli-ok">test result: ok. 50+ cryptographic algorithms validated; 0 errors</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pane 4: AI Agent / MCP Server (Right 24%) -->
-        <div class="tmux-pane pane-ai font-mono">
-          <div class="pane-header">
-            <span class="pane-title">4: Antigravity MCP</span>
-            <span class="pane-badge ai-badge">MCP Agent</span>
-          </div>
-          <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
-<div class="ai-prompt"><span class="ai-sym">&gt;</span> Antigravity (MCP)</div>
-<div class="ai-tool">⏺ Tool: crypto.verifyFipsVectors()</div>
-<div class="ai-res">✓ NIST ACVP test vectors passed (FIPS 203/204/205/206)</div>
-<div class="ai-tool">⏺ Tool: crypto.auditZeroization()</div>
-<div class="ai-res">✓ Zero memory leakage detected: wipeMemory() active</div>
-          </div>
+  <div class="container swift-hero-content">
+    <div class="swift-hero-grid">
+      <div class="hero-glass-card">
+        <div class="hero-badge font-mono">POST-QUANTUM CRYPTOGRAPHY • FIPS 203 &amp; 204 NATIVE</div>
+        <h1 class="swift-hero-title">The Developer-First Crypto as a Service Platform</h1>
+        <p class="swift-hero-lead">
+          Deploy sovereign post-quantum encryption, multi-cloud KMS orchestration, and transparent database field protection across our modular suite of 18 libraries.
+        </p>
+        <div class="swift-hero-cta-group">
+          <a class="btn-swift-hero-pill" href="{{site_path}}solutions/">Explore solutions</a>
+          <a class="btn-swift-hero-secondary" href="{{site_path}}contact/">Institutional Access &gt;</a>
         </div>
       </div>
 
-      <!-- TMUX Status Bar -->
-      <div class="tmux-status-bar font-mono">
-        <span class="status-left">[crypto-service:ide*] 0:nvim* 1:server 2:cli "crypto-service" 23:30</span>
-        <span class="status-center">workspace: 14 packages (clean) · mcp: stdio (JSON-RPC)</span>
-        <span class="status-right">23:30 27-Sep-26</span>
+      <div class="hero-quickstart-card">
+        <div class="quickstart-header">
+          <span class="quickstart-title">Developer Quick-Start</span>
+          <span class="quickstart-lang">TypeScript / ESM</span>
+        </div>
+        <div class="hero-code-block">
+          <pre><code><span class="hero-code-comment"># 1. Install cryptographic primitives &amp; ORM tools</span>
+<span class="hero-code-cmd">pnpm add</span> @sebastienrousseau/crypto-lib
+
+<span class="hero-code-comment">// 2. Post-quantum encapsulation (FIPS 203)</span>
+<span class="hero-code-keyword">import</span> { generateKeyPair, encrypt } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;
+
+<span class="hero-code-keyword">const</span> keyPair = <span class="hero-code-keyword">await</span> generateKeyPair(<span class="hero-code-string">"ML-KEM-768"</span>);
+<span class="hero-code-keyword">const</span> ciphertext = <span class="hero-code-keyword">await</span> encrypt(<span class="hero-code-string">"confidential data"</span>, keyPair.publicKey);</code></pre>
+        </div>
+        <div class="quickstart-footer">
+          <span class="quickstart-stat">18 Packages in Lockstep</span>
+          <a href="{{site_path}}ecosystem/">Browse All 18 Packages &rarr;</a>
+        </div>
       </div>
-    </figure>
+    </div>
   </div>
 </section>
 
-<!-- Content sections rendered from Markdown -->
-<div class="content-sections">
-  {{!content}}
-</div>
+<!-- Trust & Ecosystem Verification Bar -->
+<section class="telemetry-bar" aria-label="Ecosystem Quality & Standards Invariants">
+  <div class="container">
+    <div class="telemetry-inner">
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">100%</span>
+        <span class="telemetry-label">Strict Test Floor</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">FIPS 203/204</span>
+        <span class="telemetry-label">NIST Standard Compliant</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">DORA &amp; CRA</span>
+        <span class="telemetry-label">Audit-Ready CBOM</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">MULTI-KMS</span>
+        <span class="telemetry-label">AWS, GCP, Azure &amp; Vault</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-value font-mono">APACHE / MIT</span>
+        <span class="telemetry-label">Dual Permissive License</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Latest news (SWIFT 3-Column Card Grid) -->
+<section class="swift-news-section">
+  <div class="container">
+    <div class="swift-news-header">
+      <h2 class="swift-news-title">Latest news</h2>
+      <a class="btn-swift-news-pill" href="{{site_path}}news/">See more news &amp; events</a>
+    </div>
+
+    <div class="swift-cards-grid">
+      <!-- Card 1 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/news-pqc-lattice.webp"
+            alt="Luminous quantum lattice chip encapsulated in a floating clear liquid glass droplet"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">28 September 2026 | 5 min read</div>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}news/#release-v004">NIST FIPS 203 &amp; 204 Standard Finalization: What Financial Leaders Must Know</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            NIST has finalized ML-KEM and ML-DSA standards. Discover the concrete architectural steps required to transition payment rails and digital custody before 2027 mandates.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}news/#release-v004">Read more &gt;</a>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/news-benchmark-speed.webp"
+            alt="High-speed light pulses refracting through clear liquid glass droplets"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">24 September 2026 | 4 min read</div>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}news/#benchmarks">Sub-Millisecond PQC Benchmark: High-Throughput Signing at 100k Ops/Sec</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            New benchmark data reveals how Crypto Service's zero-dependency WebAssembly engine delivers sub-millisecond post-quantum signature verification with zero garbage collection pauses.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}news/#benchmarks">Read more &gt;</a>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="swift-card">
+        <div class="swift-card-media">
+          <img
+            src="{{site_path}}images/news-hndl-shield.webp"
+            alt="Organic liquid glass orb protecting encrypted financial data streams"
+            loading="lazy"
+            width="640"
+            height="360"
+          />
+        </div>
+        <div class="swift-card-body">
+          <div class="swift-card-meta">19 September 2026 | 6 min read</div>
+          <h3 class="swift-card-title">
+            <a href="{{site_path}}research/#threat-model">Mitigating Harvest-Now-Decrypt-Later Threats on Enterprise Data Lifespans</a>
+          </h3>
+          <p class="swift-card-excerpt">
+            Adversaries are actively archiving encrypted enterprise records. Discover why hybrid post-quantum key encapsulation must be integrated into cloud and database pipelines today.
+          </p>
+          <a class="swift-arrow-link" href="{{site_path}}research/#threat-model">Read more &gt;</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Our Solutions (SWIFT Tabbed Showcase with 3D Relief) -->
+<section class="swift-solutions-stage">
+  <div class="container">
+    <div class="swift-solutions-header">
+      <h2 class="swift-section-title">Core CaaS Architecture: The 5 Strategic Solutions</h2>
+      <div class="swift-tabs-nav" role="tablist" aria-label="Solutions Categories">
+        <button class="swift-tab-btn active" role="tab" aria-selected="true" data-tab="tab-pqc">POST-QUANTUM (PQC)</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-caas">SOVEREIGN CAAS</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-kms">MULTI-CLOUD KMS</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-field">FIELD ENCRYPTION</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-wasm">EDGE &amp; WASM</button>
+      </div>
+    </div>
+
+    <!-- Tab 1: Post-Quantum (PQC) -->
+    <div class="swift-tab-content-panel active" id="tab-pqc">
+      <div class="swift-solution-split">
+        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow">NIST Standardized Core</span>
+          <h3 class="swift-solution-headline">Post-Quantum Cryptography</h3>
+          <p class="swift-solution-desc">
+            Protect sensitive data, credentials, and API communication channels against Harvest-Now-Decrypt-Later (HNDL) adversaries. Native implementations of NIST FIPS 203 (ML-KEM) key encapsulation and FIPS 204 (ML-DSA) digital signatures, backed by CNSA 2.0 dual-layer hybrid schemes for smooth legacy coexistence.
+          </p>
+          <div class="swift-solution-action">
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#post-quantum">Explore PQC Infrastructure</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-visual">
+          <img
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+            class="swift-relief-img"
+            width="600"
+            height="600"
+            loading="lazy"
+          />
+        </div>
+        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Sovereign CaaS -->
+    <div class="swift-tab-content-panel" id="tab-caas">
+      <div class="swift-solution-split">
+        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow">High-Throughput Microservice</span>
+          <h3 class="swift-solution-headline">Cryptography-as-a-Service Daemon</h3>
+          <p class="swift-solution-desc">
+            A high-performance cryptographic microservice processing over 100,000 ops/sec with sub-millisecond signing latency via HTTP/2 and gRPC. Retain exclusive cryptographic custody within your private cloud or on-premises data centers, eliminating third-party custodial counterparty risks.
+          </p>
+          <div class="swift-solution-action">
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#caas-server">Explore CaaS Daemon</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-visual">
+          <img
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+            class="swift-relief-img"
+            width="600"
+            height="600"
+            loading="lazy"
+          />
+        </div>
+        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
+      </div>
+    </div>
+
+    <!-- Tab 3: Multi-Cloud KMS -->
+    <div class="swift-tab-content-panel" id="tab-kms">
+      <div class="swift-solution-split">
+        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow">Hardware Abstraction</span>
+          <h3 class="swift-solution-headline">Multi-Cloud KMS &amp; Key Broker</h3>
+          <p class="swift-solution-desc">
+            A unified interface orchestrating AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault. Enforce automated key rotation, envelope encryption (DEK/KEK), and multi-cloud resilience with zero proprietary vendor lock-in.
+          </p>
+          <div class="swift-solution-action">
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Broker</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-visual">
+          <img
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+            class="swift-relief-img"
+            width="600"
+            height="600"
+            loading="lazy"
+          />
+        </div>
+        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
+      </div>
+    </div>
+
+    <!-- Tab 4: Field & DB Encryption -->
+    <div class="swift-tab-content-panel" id="tab-field">
+      <div class="swift-solution-split">
+        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow">Database &amp; Middleware Security</span>
+          <h3 class="swift-solution-headline">Zero-Trust Field &amp; Column Encryption</h3>
+          <p class="swift-solution-desc">
+            Transparent, envelope-based column encryption for enterprise databases, Kafka streaming queues, and Redis caches. Native Prisma ORM extensions and TypeORM decorators guarantee sensitive customer records remain ciphertext-at-rest without requiring database schema rewrites.
+          </p>
+          <div class="swift-solution-action">
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#field-encryption">Explore Field Encryption</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-visual">
+          <img
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+            class="swift-relief-img"
+            width="600"
+            height="600"
+            loading="lazy"
+          />
+        </div>
+        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
+      </div>
+    </div>
+
+    <!-- Tab 5: Edge & WASM Core -->
+    <div class="swift-tab-content-panel" id="tab-wasm">
+      <div class="swift-solution-split">
+        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
+        <div class="swift-solution-info">
+          <span class="swift-solution-eyebrow">High-Performance Runtime</span>
+          <h3 class="swift-solution-headline">SIMD WebAssembly &amp; Edge Execution</h3>
+          <p class="swift-solution-desc">
+            Compiled WebAssembly core delivering near-native execution speed for heavy post-quantum lattice mathematics. Zero garbage collection pauses, constant-time operations, and lightweight runtime adapters tailored for Cloudflare Workers, Fastly Compute, Vercel Edge, Deno, and Bun.
+          </p>
+          <div class="swift-solution-action">
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#edge-wasm">Explore Edge &amp; WASM</a>
+          </div>
+        </div>
+
+        <div class="swift-solution-visual">
+          <img
+            src="{{site_path}}images/solution-glass-droplets.webp"
+            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
+            class="swift-relief-img"
+            width="600"
+            height="600"
+            loading="lazy"
+          />
+        </div>
+        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Micro-Benchmark Evidence (Scannable Data Matrix) -->
+<section class="swift-benchmarks-section">
+  <div class="container">
+    <div class="swift-solutions-header">
+      <div>
+        <span class="swift-solution-eyebrow">EMPIRICAL BENCHMARKS // NODE.JS 22 &amp; WASM SIMD</span>
+        <h2 class="swift-section-title">Micro-Benchmark Evidence: Zero-Latency Execution</h2>
+      </div>
+      <a class="btn-swift-news-pill" href="{{site_path}}research/#benchmarks">Explore Full Benchmarks</a>
+    </div>
+
+    <p class="swift-section-lead">
+      Post-quantum cryptography does not imply prohibitive computational latency. Our zero-dependency WebAssembly engine executes ML-KEM-768 key encapsulation in 34.1 µs — over 300x faster than 3072-bit RSA key generation.
+    </p>
+
+    <div class="table-responsive">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th scope="col">Primitive</th>
+            <th scope="col">Mathematical Type</th>
+            <th scope="col">NIST Security Level</th>
+            <th scope="col">Key Generation</th>
+            <th scope="col">Encaps / Sign</th>
+            <th scope="col">Decaps / Verify</th>
+            <th scope="col">Package</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ML-KEM-768</strong></td>
+            <td>Module-LWE Lattice (FIPS 203)</td>
+            <td>Level 3 (AES-192)</td>
+            <td><strong>28.4 µs</strong></td>
+            <td>34.1 µs</td>
+            <td>31.8 µs</td>
+            <td><code>@crypto-lib</code></td>
+          </tr>
+          <tr>
+            <td><strong>ML-DSA-65</strong></td>
+            <td>Module-SIS Lattice (FIPS 204)</td>
+            <td>Level 3 (AES-192)</td>
+            <td><strong>84.2 µs</strong></td>
+            <td>172.6 µs</td>
+            <td>68.4 µs</td>
+            <td><code>@crypto-lib</code></td>
+          </tr>
+          <tr>
+            <td><strong>Composite Hybrid</strong></td>
+            <td>X25519 + ML-KEM-768</td>
+            <td>Dual Quantum + Classical</td>
+            <td><strong>42.6 µs</strong></td>
+            <td>73.0 µs</td>
+            <td>70.7 µs</td>
+            <td><code>@crypto-lib</code></td>
+          </tr>
+          <tr>
+            <td><strong>AES-256-GCM</strong></td>
+            <td>Authenticated Symmetric Cipher</td>
+            <td>FIPS 197 / SP 800-38D</td>
+            <td><strong>4.2 µs</strong></td>
+            <td>12.8 µs / MB</td>
+            <td>11.4 µs / MB</td>
+            <td><code>@crypto-prisma</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Are you a customer? (SWIFT Full-Width Soft Aqua Banner) -->
+<section class="swift-banner-section">
+  <div class="container swift-banner-inner">
+    <div class="swift-banner-text">
+      <h2 class="swift-banner-title">Ready to future-proof your cryptographic architecture?</h2>
+      <p class="swift-banner-desc">
+        Crypto Service Suite is your sovereign post-quantum core to manage cryptographic keys, database field protection, and DORA Article 13 &amp; 14 compliance.
+      </p>
+    </div>
+    <div class="swift-banner-action">
+      <a class="swift-btn-banner-login" href="{{site_path}}contact/">
+        <svg class="swift-lock-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Schedule Institutional Briefing &gt;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Section: 3-Card Resource & Assurance Grid (SWIFT Standard) -->
+<section class="swift-resources-section">
+  <div class="container">
+    <div class="swift-solutions-header swift-solutions-header-spaced">
+      <h2 class="swift-section-title">Cryptographic Architecture &amp; Compliance Resources</h2>
+    </div>
+    <div class="swift-resource-grid">
+      <!-- Resource Card 1 -->
+      <div class="swift-resource-card">
+        <div class="resource-badge">Hardware Security</div>
+        <h3 class="resource-title">Multi-Cloud KMS &amp; HSM Hardware</h3>
+        <p class="resource-desc">
+          Reinforcing enterprise application security with multi-cloud KMS orchestration, PKCS#11 hardware abstraction, and zero master key exfiltration.
+        </p>
+        <a class="swift-arrow-link" href="{{site_path}}solutions/#multi-cloud-kms">Learn more &gt;</a>
+      </div>
+
+      <!-- Resource Card 2 -->
+      <div class="swift-resource-card">
+        <div class="resource-badge">Compliance</div>
+        <h3 class="resource-title">DORA &amp; NIST FIPS Standards</h3>
+        <p class="resource-desc">
+          Continuous compliance verification against NIST FIPS 203/204, US CNSA 2.0 requirements, and EU DORA Article 13 &amp; 14 operational resilience rules.
+        </p>
+        <a class="swift-arrow-link" href="{{site_path}}standards/">Find out more &gt;</a>
+      </div>
+
+      <!-- Resource Card 3 -->
+      <div class="swift-resource-card swift-search-card">
+        <div class="resource-badge">Registry</div>
+        <h3 class="resource-title">Cryptographic Directory (CBOM)</h3>
+        <form class="swift-bic-search-form" action="{{site_path}}compare/" method="get">
+          <label for="primitiveSearch" class="visually-hidden">Search Cryptographic Primitives</label>
+          <input
+            type="search"
+            id="primitiveSearch"
+            name="q"
+            placeholder="Search Primitives (e.g. ML-KEM, ML-DSA)"
+            class="swift-bic-input"
+          />
+          <button type="submit" class="swift-bic-btn" aria-label="Search">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </form>
+        <a class="swift-arrow-link" href="{{site_path}}compare/">Discover our reference data solutions &gt;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: Stay Connected Banner (SWIFT Green/Teal Gradient Standard) -->
+<section class="swift-connect-section">
+  <div class="container swift-connect-inner">
+    <div class="swift-connect-left">
+      <h2 class="swift-connect-title">Get personalised insights straight to your inbox</h2>
+      <a class="btn-swift-signup" href="{{site_path}}contact/">Sign up now</a>
+    </div>
+
+    <div class="swift-connect-right">
+      <span class="swift-connect-label">Stay connected</span>
+      <div class="swift-social-links">
+        <a href="https://github.com/sebastienrousseau/crypto-service" class="swift-social-btn" aria-label="GitHub" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/sebastienrousseau" class="swift-social-btn" aria-label="LinkedIn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+        </a>
+        <a href="https://x.com/sebastienrousseau" class="swift-social-btn" aria-label="X (formerly Twitter)" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="{{site_path}}rss.xml" class="swift-social-btn" aria-label="RSS Feed">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05 0 10.96 4.91 10.96 10.96h4.811c0-8.71-7.06-15.771-15.771-15.771zm0-8.18v4.814c10.565 0 19.138 8.572 19.138 19.138h4.812c0-13.227-10.723-23.952-23.95-23.952z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
 {{/block}}
