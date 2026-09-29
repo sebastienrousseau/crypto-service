@@ -15,14 +15,14 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<section class="news-featured-section" id="release-v004">
+<section class="news-featured-section" id="release-v005">
 <div class="news-spotlight-card">
 <div class="news-tag font-mono">LATEST RELEASE • SEPTEMBER 2026</div>
-<h2>Crypto Service Suite v0.0.4 Released with Production FIPS 203 &amp; 204 Standard Compliance</h2>
+<h2>Crypto Service Suite v0.0.5 Released with HSM PKCS#11, ISO 20022 Dual-Signing &amp; MTU Agility</h2>
 <p class="lead-text">
-We are proud to announce the general availability of Crypto Service Suite v0.0.4 across all 18 monorepo workspace packages. This release brings complete NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) implementation conformance, validated against official NIST Known-Answer Test (KAT) vectors.
+We are proud to announce the general availability of Crypto Service Suite v0.0.5 across all 18 monorepo workspace packages. This milestone introduces hardware token PKCS#11 integration in crypto-kms, post-quantum ISO 20022 dual-signing in crypto-lib, adaptive MTU payload negotiation in crypto-sdk, and high-throughput streaming pipelines in crypto-server.
 </p>
-<div class="news-meta font-mono">Published September 28, 2026 • 6 min read • Core Engineering Team</div>
+<div class="news-meta font-mono">Published September 29, 2026 • 6 min read • Core Engineering Team</div>
 </div>
 </section>
 
