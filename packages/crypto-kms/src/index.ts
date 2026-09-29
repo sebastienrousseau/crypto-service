@@ -29,3 +29,6 @@ export { VaultKmsProvider } from "./providers/vault";
 /** Re-exported Vault KMS configuration options type. */
 export type { VaultKmsOptions } from "./providers/vault";
 export { LocalKmsProvider } from "./providers/local";
+export { Pkcs11HsmProvider } from "./providers/pkcs11";
+/** Re-exported PKCS#11 HSM configuration options and session info types. */
+export type { Pkcs11HsmOptions, HsmSessionInfo } from "./providers/pkcs11";

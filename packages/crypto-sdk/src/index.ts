@@ -413,6 +413,96 @@ export interface KeyGenerateResult {
   kid: string;
 }
 
+/** Automated DORA compliance scorecard result. */
+export interface DoraComplianceScorecard {
+  /** Regulatory standard identifier. */
+  standard: string;
+  /** Specific regulatory articles evaluated. */
+  article: string;
+  /** Overall compliance score (0-100). */
+  complianceScore: number;
+  /** Overall compliance posture status. */
+  status: string;
+  /** Percentage of post-quantum resilient algorithms. */
+  quantumResistanceRatio: number;
+  /** Total count of active cryptographic primitives. */
+  activePrimitivesCount: number;
+  /** Total count of post-quantum primitives. */
+  postQuantumPrimitivesCount: number;
+  /** Deprecation schedule for classical algorithms. */
+  algorithmDeprecationSchedule: Array<{
+    algorithm: string;
+    status: string;
+    sunsetDate: string;
+    recommendedMigration: string;
+  }>;
+  /** Complete cryptographic package inventory. */
+  cryptographicInventory: Array<{
+    package: string;
+    version: string;
+    status: string;
+    fipsCompliance: string;
+  }>;
+  /** Scorecard timestamp. */
+  timestamp: string;
+}
+
+/** Machine-readable CycloneDX Cryptographic Bill of Materials (CBOM) payload. */
+export interface CbomExportPayload {
+  /** BOM format specification. */
+  bomFormat: string;
+  /** Specification version. */
+  specVersion: string;
+  /** Unique serial number URN. */
+  serialNumber: string;
+  /** BOM schema version. */
+  version: number;
+  /** Metadata describing generation environment and root component. */
+  metadata: Record<string, unknown>;
+  /** Complete component manifest. */
+  components: Array<Record<string, unknown>>;
+}
+
+/** Options for dynamic cryptographic algorithm negotiation. */
+export interface AlgorithmNegotiationOptions {
+  /** Maximum single-packet payload bytes (e.g. 1500 for standard Ethernet MTU). */
+  maxPayloadBytes?: number;
+  /** Minimum NIST post-quantum security category required (1, 3, or 5). Defaults to 1. */
+  securityCategoryMin?: 1 | 3 | 5;
+  /** Whether hybrid classical + post-quantum pairing is mandatory (e.g., BSI/ANSSI rules). */
+  requireHybrid?: boolean;
+  /** Client-supported algorithm list filter. */
+  clientSupportedAlgorithms?: string[];
+}
+
+/** Result of dynamic cryptographic algorithm negotiation. */
+export interface AlgorithmNegotiationResult {
+  /** Chosen algorithm identifier. */
+  selectedAlgorithm: string;
+  /** Cipher category. */
+  cipherCategory: "lattice-kem" | "hybrid-kem" | "classical-ecdh";
+  /** Security level (NIST Category 1, 3, or 5). */
+  securityCategory: 1 | 3 | 5;
+  /** Whether chosen algorithm is a composite hybrid. */
+  isHybrid: boolean;
+  /** Public key size in bytes. */
+  publicKeyBytes: number;
+  /** Ciphertext size in bytes. */
+  ciphertextBytes: number;
+  /** Total transport overhead in bytes. */
+  totalPayloadOverhead: number;
+  /** Whether ciphertext fits within maxPayloadBytes without IP fragmentation. */
+  fitsWithinMtu: boolean;
+  /** Ordered list of fallback algorithm candidates evaluated. */
+  fallbackChain: string[];
+  /** Regulatory and DORA Article 13 compliance posture. */
+  compliancePosture: {
+    standard: string;
+    doraArticle13Compliant: boolean;
+    fipsStandard: string;
+  };
+}
+
 /**
  * Result of a MAC computation.
  *
@@ -821,6 +911,144 @@ export class CryptoClient {
     }>
   > {
     return this.request("POST", "/v2/keys/unwrap", params);
+  }
+
+  // --- Compliance & Regulatory Endpoints ---
+
+  /** Fetch automated DORA Article 13 & 9 compliance scorecard. */
+  async getDoraCompliance(): Promise<ApiResponse<DoraComplianceScorecard>> {
+    return this.request("GET", "/v2/compliance/dora");
+  }
+
+  /** Fetch CycloneDX 1.6 Cryptographic Bill of Materials (CBOM). */
+  async getCbom(): Promise<ApiResponse<CbomExportPayload>> {
+    return this.request("GET", "/v2/compliance/cbom");
+  }
+
+  // --- Dynamic Crypto-Agility Engine ---
+
+  /**
+   * Evaluates network constraints, MTU limits, and regulatory security levels
+   * to negotiate the optimal post-quantum or composite hybrid cryptographic algorithm.
+   */
+  negotiateAlgorithm(
+    options: AlgorithmNegotiationOptions = {},
+  ): AlgorithmNegotiationResult {
+    const minCategory = options.securityCategoryMin ?? 1;
+    const requireHybrid = options.requireHybrid ?? false;
+    const maxBytes = options.maxPayloadBytes ?? Infinity;
+    const clientAlgos = options.clientSupportedAlgorithms;
+
+    interface AlgoDef {
+      name: string;
+      category: "lattice-kem" | "hybrid-kem" | "classical-ecdh";
+      level: 1 | 3 | 5;
+      isHybrid: boolean;
+      pk: number;
+      ct: number;
+      fips: string;
+    }
+
+    const catalog: AlgoDef[] = [
+      {
+        name: "x448-mlkem1024",
+        category: "hybrid-kem",
+        level: 5,
+        isHybrid: true,
+        pk: 1624,
+        ct: 1624,
+        fips: "FIPS 203 + RFC 7748",
+      },
+      {
+        name: "ml-kem-1024",
+        category: "lattice-kem",
+        level: 5,
+        isHybrid: false,
+        pk: 1568,
+        ct: 1568,
+        fips: "FIPS 203",
+      },
+      {
+        name: "x25519-mlkem768",
+        category: "hybrid-kem",
+        level: 3,
+        isHybrid: true,
+        pk: 1216,
+        ct: 1120,
+        fips: "FIPS 203 + RFC 10024",
+      },
+      {
+        name: "ml-kem-768",
+        category: "lattice-kem",
+        level: 3,
+        isHybrid: false,
+        pk: 1184,
+        ct: 1088,
+        fips: "FIPS 203",
+      },
+      {
+        name: "x25519-mlkem512",
+        category: "hybrid-kem",
+        level: 1,
+        isHybrid: true,
+        pk: 832,
+        ct: 800,
+        fips: "FIPS 203 + RFC 10024",
+      },
+      {
+        name: "ml-kem-512",
+        category: "lattice-kem",
+        level: 1,
+        isHybrid: false,
+        pk: 800,
+        ct: 768,
+        fips: "FIPS 203",
+      },
+      {
+        name: "x25519",
+        category: "classical-ecdh",
+        level: 1,
+        isHybrid: false,
+        pk: 32,
+        ct: 32,
+        fips: "RFC 7748 (Legacy)",
+      },
+    ];
+
+    const fallbackChain = catalog.map((c) => c.name);
+
+    // Filter candidates
+    const eligible = catalog.filter((candidate) => {
+      if (candidate.level < minCategory) return false;
+      if (requireHybrid && !candidate.isHybrid) return false;
+      if (clientAlgos && !clientAlgos.includes(candidate.name)) return false;
+      return true;
+    });
+
+    // Select first eligible candidate that fits within maxBytes, or first eligible as fallback
+    const selected =
+      eligible.find((c) => c.ct <= maxBytes) ??
+      eligible[0] ??
+      catalog[catalog.length - 1];
+
+    const fitsWithinMtu = selected.ct <= maxBytes;
+
+    return {
+      selectedAlgorithm: selected.name,
+      cipherCategory: selected.category,
+      securityCategory: selected.level,
+      isHybrid: selected.isHybrid,
+      publicKeyBytes: selected.pk,
+      ciphertextBytes: selected.ct,
+      totalPayloadOverhead: selected.pk + selected.ct,
+      fitsWithinMtu,
+      fallbackChain,
+      compliancePosture: {
+        standard: "NIST Post-Quantum Cryptography Standardization",
+        doraArticle13Compliant: selected.level >= 3 || selected.isHybrid,
+        fipsStandard: selected.fips,
+      },
+    };
   }
 
   // --- Utility ---

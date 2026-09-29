@@ -17,3 +17,5 @@ export * as pqxdh from "./pqxdh";
 export * as ratchet from "./ratchet";
 export * as pake from "./pake";
 export * as threshold from "./threshold";
+export * as iso20022 from "./iso20022";
+export * from "./iso20022";

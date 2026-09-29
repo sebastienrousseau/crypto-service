@@ -257,6 +257,9 @@ importers:
       '@sebastienrousseau/c8-config':
         specifier: ^0.0.3
         version: 0.0.3
+      '@sebastienrousseau/crypto-cbom':
+        specifier: workspace:*
+        version: link:../crypto-cbom
       '@sebastienrousseau/crypto-lib':
         specifier: workspace:*
         version: link:../crypto-lib

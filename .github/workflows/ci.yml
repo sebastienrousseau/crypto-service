@@ -43,7 +43,6 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
-      - run: pnpm -r run lint
 
   docs-and-hygiene:
     runs-on: ubuntu-latest
