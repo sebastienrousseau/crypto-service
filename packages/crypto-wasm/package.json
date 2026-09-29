@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-wasm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "WebAssembly performance accelerator for crypto-lib \u2014 near-native speed for heavy cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

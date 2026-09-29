@@ -46,43 +46,43 @@ export const DORA_SCORECARD: DoraComplianceScorecard = {
   cryptographicInventory: [
     {
       package: "@sebastienrousseau/crypto-lib",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "FIPS 203, FIPS 204, FIPS 205, FIPS 206",
     },
     {
       package: "@sebastienrousseau/crypto-wasm",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "hardened",
       fipsCompliance: "Constant-Time SIMD NTT / FIPS 203",
     },
     {
       package: "@sebastienrousseau/crypto-kms",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "FIPS 140-3 Envelope Encryption",
     },
     {
       package: "@sebastienrousseau/crypto-edge",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "Web Crypto Standards & PQC Polyfill",
     },
     {
       package: "@sebastienrousseau/crypto-cbom",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "CycloneDX 1.6 / SPDX 3.0 Compliance Scanner",
     },
     {
       package: "@sebastienrousseau/crypto-mcp",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "Model Context Protocol AI Cryptography Tools",
     },
     {
       package: "@sebastienrousseau/crypto-lsp",
-      version: "0.0.4",
+      version: "0.0.5",
       status: "production",
       fipsCompliance: "Static PQC Vulnerability AST Scanner",
     },
@@ -101,13 +101,13 @@ export const CBOM_PAYLOAD: CbomPayload = {
       {
         vendor: "Sebastien Rousseau",
         name: "@sebastienrousseau/crypto-cbom",
-        version: "0.0.4",
+        version: "0.0.5",
       },
     ],
     component: {
       type: "framework",
       name: "@sebastienrousseau/crypto-service",
-      version: "0.0.4",
+      version: "0.0.5",
       description:
         "Modular Post-Quantum Sovereign Crypto-as-a-Service Operating Core",
     },
