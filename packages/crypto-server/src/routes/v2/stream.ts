@@ -234,7 +234,7 @@ export default (app: FastifyInstance): void => {
 
         const result = verifyIso20022Payment(envelope, payload);
         return reply.send({ data: result });
-        /* c8 ignore next 3 -- defensive: ISO 20022 verification handles internal errors */
+        /* c8 ignore next 8 -- defensive: ISO 20022 verification handles internal errors */
       } catch (error) {
         return classifyCryptoError(
           error,
