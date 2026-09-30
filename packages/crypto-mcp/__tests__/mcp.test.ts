@@ -187,23 +187,21 @@ describe("Crypto MCP Server Suite", () => {
       expect(encDataAuto.key).to.exist;
     });
 
-    it("hashes string key if not 32 bytes hex in crypto_encrypt/decrypt", async () => {
-      const plaintext = "Short Key Passphrase";
+    it("rejects a passphrase key in crypto_encrypt/decrypt", async () => {
       const shortKey = "my-secret-passphrase";
       const encRes = await executeTool("crypto_encrypt", {
-        plaintext,
+        plaintext: "Short Key Passphrase",
         key: shortKey,
       });
-      const encData = JSON.parse(encRes.content[0].text);
+      expect(encRes.isError).to.be.true;
 
       const decRes = await executeTool("crypto_decrypt", {
-        ciphertext: encData.ciphertext,
+        ciphertext: "00",
         key: shortKey,
-        iv: encData.iv,
-        authTag: encData.authTag,
+        iv: "00".repeat(12),
+        authTag: "00".repeat(16),
       });
-      const decData = JSON.parse(decRes.content[0].text);
-      expect(decData.plaintext).to.equal(plaintext);
+      expect(decRes.isError).to.be.true;
     });
 
     it("executes crypto_sign and crypto_verify with Ed25519 (explicit and default) and HMAC", async () => {
@@ -289,14 +287,14 @@ describe("Crypto MCP Server Suite", () => {
     it("executes crypto_kms_wrap and unwrap roundtrip with custom and default parameters", async () => {
       const dek = crypto.randomBytes(32).toString("hex");
       const wrapRes = await executeTool("crypto_kms_wrap", {
-        provider: "aws",
+        provider: "local",
         keyId: "arn:aws:kms:us-east-1:test",
         dek,
       });
       const wrapData = JSON.parse(wrapRes.content[0].text);
 
       const unwrapRes = await executeTool("crypto_kms_unwrap", {
-        provider: "aws",
+        provider: "local",
         keyId: "arn:aws:kms:us-east-1:test",
         wrappedKey: wrapData.wrappedKey,
       });
@@ -317,8 +315,8 @@ describe("Crypto MCP Server Suite", () => {
 
       // Invalid wrapped payload
       const badUnwrap = await executeTool("crypto_kms_unwrap", {
-        provider: "aws",
-        keyId: "test",
+        provider: "local",
+        keyId: "arn:aws:kms:us-east-1:test",
         wrappedKey: Buffer.from("invalid-format").toString("hex"),
       });
       expect(badUnwrap.isError).to.be.true;

@@ -1,15 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+import fs from "node:fs";
+import path from "node:path";
 import readline from "node:readline";
 import { JSONRPCRequest, JSONRPCResponse, MCPInitializeResult } from "./types";
 import { TOOLS, executeTool } from "./tools";
 import { RESOURCES, readResource } from "./resources";
 import { PROMPTS, getPrompt } from "./prompts";
 
+/**
+ * Version of this package, read from its package.json at runtime so the
+ * advertised `serverInfo.version` cannot drift from the release. The file
+ * sits one level above both `src/` (ts-node) and `dist/` (compiled).
+ */
+export const SERVER_VERSION: string = (
+  JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"),
+  ) as { version: string }
+).version;
+
 export class CryptoMcpServer {
   private initialized = false;
   private readonly name = "crypto-service";
-  private readonly version = "0.0.3";
+  private readonly version = SERVER_VERSION;
 
   /**
    * Check if the server has been initialized by an initialize request.
