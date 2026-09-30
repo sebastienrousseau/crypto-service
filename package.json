@@ -50,7 +50,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@grpc/grpc-js": ">=1.14.4",
+      "@grpc/grpc-js": ">=1.14.5",
       "@protobufjs/utf8": ">=1.1.2",
       "@tootallnate/once": ">=2.0.1",
       "body-parser": ">=1.20.8",

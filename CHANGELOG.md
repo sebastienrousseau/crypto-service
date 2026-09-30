@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **`qs`**: Pinned to `>=6.16.0` through workspace overrides.
+- **`@grpc/grpc-js`**: Override raised to `>=1.14.5` (GHSA-m9gg-hp2v-232j, high: `getAuthContext` could report unauthorized certificates as authorized; GHSA-f596-whhp-79r4, low: handler error messages leaked to clients). Reached through crypto-kms (Google Cloud KMS) and crypto-server (OpenTelemetry gRPC exporters).
 - **`markdown-it`**: Pinned to `^14.3.1` through workspace overrides (GHSA-253c-mchw-3w2r, quadratic-time linkify parsing reached through TypeDoc).
 
 ## [0.0.5] - 2026-09-29
