@@ -12,7 +12,7 @@
  *
  * @example
  * ```ts
- * import { isWasmSupported } from "@aspect/crypto-wasm";
+ * import { isWasmSupported } from "@sebastienrousseau/crypto-wasm";
  *
  * if (isWasmSupported()) {
  *   console.log("WebAssembly is available");
@@ -56,7 +56,7 @@ export function isWasmSupported(): boolean {
  *
  * @example
  * ```ts
- * import { isStreamingSupported } from "@aspect/crypto-wasm";
+ * import { isStreamingSupported } from "@sebastienrousseau/crypto-wasm";
  *
  * if (isStreamingSupported()) {
  *   const { instance } = await WebAssembly.instantiateStreaming(fetch("/mod.wasm"));
@@ -80,7 +80,7 @@ export function isStreamingSupported(): boolean {
  *
  * @example
  * ```ts
- * import { isSimdSupported } from "@aspect/crypto-wasm";
+ * import { isSimdSupported } from "@sebastienrousseau/crypto-wasm";
  *
  * const useSimd = isSimdSupported();
  * console.log(`SIMD acceleration: ${useSimd ? "enabled" : "disabled"}`);
@@ -145,7 +145,7 @@ export function isSimdSupported(): boolean {
  *
  * @example
  * ```ts
- * import { detectCapabilities } from "@aspect/crypto-wasm";
+ * import { detectCapabilities } from "@sebastienrousseau/crypto-wasm";
  *
  * const caps = detectCapabilities();
  * console.log(caps.wasmSupported);      // true

@@ -6,6 +6,7 @@ import type {
   BenchmarkResult,
   WasmStatus,
 } from "./types";
+import { VERSION } from "./version";
 
 /** All operations the WASM module can accelerate. */
 const ALL_OPERATIONS: AcceleratedOperation[] = [
@@ -32,7 +33,7 @@ const ALL_OPERATIONS: AcceleratedOperation[] = [
  *
  * @example
  * ```ts
- * import { WasmAccelerator } from "@aspect/crypto-wasm";
+ * import { WasmAccelerator } from "@sebastienrousseau/crypto-wasm";
  *
  * const accel = new WasmAccelerator();
  * await accel.init();
@@ -103,7 +104,7 @@ export class WasmAccelerator {
   status(): WasmStatus {
     return {
       available: this.isAvailable,
-      version: this.isAvailable ? "0.0.3" : null,
+      version: this.isAvailable ? VERSION : null,
       operations: this.isAvailable ? [...ALL_OPERATIONS] : [],
       memoryUsageBytes: this._instance
         ? (this._instance.exports.memory as WebAssembly.Memory).buffer

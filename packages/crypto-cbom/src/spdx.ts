@@ -2,6 +2,7 @@
 
 import crypto from "node:crypto";
 import { CryptoAsset, SpdxCbom, SpdxElement } from "./types";
+import { VERSION } from "./version";
 
 export interface SpdxOptions {
   name?: string;
@@ -36,7 +37,7 @@ export function generateSpdxCbom(
     creationInfo: {
       created,
       creators: [
-        options.creator || "Tool: @sebastienrousseau/crypto-cbom-0.0.3",
+        options.creator || `Tool: @sebastienrousseau/crypto-cbom-${VERSION}`,
       ],
     },
     elements,
