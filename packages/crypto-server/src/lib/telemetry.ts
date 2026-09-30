@@ -22,6 +22,7 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { FastifyInstrumentation } from "@opentelemetry/instrumentation-fastify";
 import { resourceFromAttributes } from "@opentelemetry/resources";
+import { PACKAGE_VERSION } from "./version";
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
@@ -31,7 +32,7 @@ import { trace, metrics, SpanStatusCode } from "@opentelemetry/api";
 /** OpenTelemetry service name for spans and metrics. */
 const SERVICE_NAME = "crypto-server";
 /** OpenTelemetry service version for spans and metrics. */
-const SERVICE_VERSION = "0.0.3";
+const SERVICE_VERSION = PACKAGE_VERSION;
 
 /** Active OpenTelemetry SDK instance (undefined if telemetry is disabled). */
 let sdk: NodeSDK | undefined;
