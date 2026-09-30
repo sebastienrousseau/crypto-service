@@ -1047,8 +1047,8 @@ describe("CryptoClient", () => {
       const mockScorecard = {
         standard: "DORA (EU 2022/2554)",
         article: "Article 9 & Article 13",
-        complianceScore: 100,
-        status: "Compliant",
+        status: "Self-assessment (not a compliance verdict)",
+        disclaimer: "Not a compliance verdict.",
         quantumResistanceRatio: 78.5,
         activePrimitivesCount: 52,
         postQuantumPrimitivesCount: 18,
@@ -1065,8 +1065,10 @@ describe("CryptoClient", () => {
       const res = await client.getDoraCompliance();
       expect(calls[0].url).to.equal("http://localhost:3000/v2/compliance/dora");
       expect(calls[0].init?.method).to.equal("GET");
-      expect(res.data.complianceScore).to.equal(100);
-      expect(res.data.status).to.equal("Compliant");
+      expect(res.data.status).to.equal(
+        "Self-assessment (not a compliance verdict)",
+      );
+      expect(res.data.disclaimer).to.equal("Not a compliance verdict.");
     });
   });
 
