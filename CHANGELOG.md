@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Windows CI**: The Windows job now verifies the build only, instead of running the full suite.
+- **Dependency overrides**: `pnpm.overrides` in `package.json` is now the only override list. The unused npm `overrides` block and the `pnpm-workspace.yaml` list (read only by pnpm 10+, and out of sync) are removed. The lockfile is unchanged.
 - **Lockstep version bump**: All 18 packages, the root manifest and `CITATION.cff` move to 0.0.6.
 
 ### Security
