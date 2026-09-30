@@ -1,9 +1,9 @@
 ---
-title: "DORA Article 13 & CBOM Compliance Manual: Continuous Cryptographic Auditing"
-description: "Compliance implementation white paper providing step-by-step guidance for European Union Digital Operational Resilience Act (DORA) compliance, CycloneDX 1.6 Cryptographic Bill of Materials (CBOM) generation, and continuous CI/CD deprecation audits."
-eyebrow: "Regulatory Audit Manual · DORA & CBOM"
-headline: "DORA Article 13 & CBOM Compliance Manual: Continuous Cryptographic Auditing"
-lead: "Step-by-step regulatory guidance for European Union Digital Operational Resilience Act compliance, automated CycloneDX 1.6 CBOM generation, and continuous curve deprecation audits."
+title: "CBOM Manual: Cryptographic Inventories for DORA Work"
+description: "Implementation guide for generating CycloneDX 1.6 Cryptographic Bills of Materials (CBOM) with crypto-cbom, auditing them for weak algorithms, and using them as inventory input for EU DORA ICT risk work."
+eyebrow: "Implementation Guide · DORA & CBOM"
+headline: "CBOM Manual: Cryptographic Inventories for DORA Work"
+lead: "How to generate CycloneDX 1.6 Cryptographic Bills of Materials with crypto-cbom and use them as inventory input for Digital Operational Resilience Act (DORA) work. A CBOM does not by itself establish compliance."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -16,175 +16,109 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <div class="whitepaper-doc-header">
-<div class="book-meta">Published September 28, 2026 · Sebastien Rousseau · Governance, Risk &amp; Compliance Directorate</div>
+<div class="book-meta">Sebastien Rousseau · Governance, Risk &amp; Compliance</div>
 <div class="whitepaper-doc-meta font-mono">
 <span>Document ID: CSS-COMP-2026-005</span>
-<span>Classification: Regulatory Audit Manual &amp; Implementation Guide</span>
-<span>Regulatory Scope: EU DORA (Regulation 2022/2554) Articles 13 &amp; 14 · EBA RTS on ICT Security</span>
-<span>Standard: CycloneDX v1.6 CBOM Extension · SPDX 3.0</span>
+<span>Classification: Implementation Guide</span>
+<span>Context: EU DORA (Regulation 2022/2554) ICT risk management</span>
+<span>Standard: CycloneDX v1.6 CBOM · SPDX 3.0</span>
 </div>
 </div>
 
 <div class="whitepaper-doc-abstract">
 <h3>Executive Abstract</h3>
 <p>
-The European Union <strong>Digital Operational Resilience Act (DORA)</strong>, legally enforceable across all EU financial entities and critical ICT third-party providers, fundamentally alters how financial institutions govern cryptographic algorithms. Article 13 mandates that institutions enforce documented cryptographic policies, maintain continuous visibility over key management lifecycles, and guarantee the operational resilience of cryptographic coprocessors under stress.
+The EU <strong>Digital Operational Resilience Act (DORA)</strong> requires financial entities to maintain an ICT risk management framework, and its regulatory technical standards include requirements on encryption and cryptographic key management. Knowing which algorithms your systems use is a practical first step.
 </p>
 <p>
-Manual, point-in-time cryptographic spreadsheets are no longer legally defensible before European Supervisory Authorities (ESAs: EBA, ESMA, EIOPA). Financial entities must deploy automated, continuous discovery mechanisms.
-</p>
-<p>
-This implementation manual specifies an automated compliance framework utilizing the <strong>CycloneDX 1.6 Cryptographic Bill of Materials (CBOM)</strong> standard and Crypto Service `@sebastienrousseau/crypto-cbom`. It details automated scanning of source code, container registries, TLS termination points, and database schemas in CI/CD pipelines, establishing an auditable trail that detects deprecated classical algorithms (RSA-1024, 3DES, SHA-1, weak ECC curves) before regulatory auditors issue non-compliance sanctions.
+This guide shows how to produce that inventory as a <strong>CycloneDX 1.6 Cryptographic Bill of Materials (CBOM)</strong> with <code>@sebastienrousseau/crypto-cbom</code>, and how to flag weak algorithms in CI. It is not legal advice. Generating a CBOM does not make a system DORA compliant, and the tool has not been assessed by any supervisor or auditor. An earlier version of this guide attributed specific obligations and penalties to DORA Articles 13 and 14 and described features (SARIF output, evidence bundles, key-rotation proofs) that do not exist; those statements have been withdrawn.
 </p>
 </div>
 
 <div class="research-toc-box">
 <h3>Table of Contents</h3>
 <ol>
-<li><a href="#dora-mandates">1. Regulatory Requirements: Deconstructing DORA Articles 13 &amp; 14</a></li>
-<li><a href="#cbom-anatomy">2. The Anatomy of a CycloneDX 1.6 Cryptographic Bill of Materials (CBOM)</a></li>
-<li><a href="#automated-pipeline">3. Integrating CBOM Auditing into Enterprise CI/CD Pipelines</a></li>
-<li><a href="#deprecation-rules">4. Classical Primitive Deprecation Rules &amp; Vulnerability Scanning</a></li>
-<li><a href="#third-party-risk">5. Managing Critical Third-Party ICT Provider Cryptographic Risks</a></li>
-<li><a href="#evidence-generation">6. Generating Regulatory Compliance Packages for ESA Auditors</a></li>
-<li><a href="#checklist">7. Practical 30-Day DORA Article 13 Readiness Checklist</a></li>
+<li><a href="#dora-mandates">1. Where a Cryptographic Inventory Fits</a></li>
+<li><a href="#cbom-anatomy">2. What a CBOM Contains</a></li>
+<li><a href="#automated-pipeline">3. Generating and Auditing a CBOM in CI</a></li>
+<li><a href="#deprecation-rules">4. Algorithm Classification Used by the Audit</a></li>
+<li><a href="#third-party-risk">5. Third-Party Providers</a></li>
+<li><a href="#evidence-generation">6. What the Tool Produces</a></li>
+<li><a href="#checklist">7. A Practical Starting Checklist</a></li>
 </ol>
 </div>
 
 <hr class="section-divider">
 
 <section id="dora-mandates" class="research-section">
-<h2>1. Regulatory Requirements: Deconstructing DORA Articles 13 &amp; 14</h2>
+<h2>1. Where a Cryptographic Inventory Fits</h2>
 <p class="lead-text">
-DORA represents a paradigm shift from reactive incident reporting to proactive operational resilience:
+DORA's ICT risk management requirements, and the regulatory technical standards made under it, expect financial entities to manage encryption and cryptographic keys deliberately. Check the regulation and the standards themselves, or your legal and compliance teams, for the exact obligations that apply to you.
 </p>
-<ul>
-<li><strong>Article 13(1) (Cryptographic Architecture):</strong> Financial entities must ensure data-in-transit, data-in-use, and data-at-rest are protected by leading-edge cryptographic mechanisms commensurate with classification levels.</li>
-<li><strong>Article 13(2) (Key Lifecycle Governance):</strong> Entities must establish cryptographic key management policies guaranteeing automated generation, secure storage in FIPS 140-3 validated HSMs, documented rotation intervals, and provable destruction.</li>
-<li><strong>Article 14 (Operational Resilience &amp; Continuity):</strong> Systems must sustain zero service degradation during key rotation events, cryptographic migration, or regional cloud failures.</li>
-</ul>
 <p>
-Failure to satisfy Article 13 exposes institutions to administrative penalties of up to 1% of average daily global turnover, alongside compulsory remediation orders.
+Whatever the precise obligations, you cannot manage algorithms you have not inventoried. A CBOM gives a machine-readable list of the algorithms found in your code that you can review, track over time and feed into your own risk processes.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="cbom-anatomy" class="research-section">
-<h2>2. The Anatomy of a CycloneDX 1.6 Cryptographic Bill of Materials (CBOM)</h2>
+<h2>2. What a CBOM Contains</h2>
 <p>
-A <strong>Cryptographic Bill of Materials (CBOM)</strong> is an unambiguous, machine-readable inventory of all cryptographic assets, primitives, certificates, protocols, and algorithms deployed across an enterprise:
+A CycloneDX 1.6 CBOM lists cryptographic assets as components with <code>crypto-properties</code>, such as the primitive, parameter set and the functions used. crypto-cbom builds these entries from the algorithm names it finds when scanning source files. The <code>/v2/compliance/cbom</code> endpoint of crypto-server returns a CBOM of the algorithms that service implements.
 </p>
-<pre><code>{
-  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
-  "bomFormat": "CycloneDX",
-  "specVersion": "1.6",
-  "serialNumber": "urn:uuid:7f2d1968-d01a-45b9-ab28-4fe7ef3ed275",
-  "version": 1,
-  "metadata": {
-    "timestamp": "2026-09-28T09:14:00Z",
-    "component": {
-      "name": "@sebastienrousseau/crypto-server",
-      "version": "0.0.4",
-      "type": "application"
-    }
-  },
-  "cryptoProperties": {
-    "assetType": "algorithm",
-    "algorithmProperties": {
-      "primitive": "kem",
-      "parameterSetIdentifier": "ML-KEM-768",
-      "curve": "Module-LWE",
-      "executionEnvironment": "software-wasm-simd",
-      "implementationPlatform": "x86_64, aarch64",
-      "certificationLevel": "FIPS-203",
-      "cryptoFunctions": ["keygen", "encapsulate", "decapsulate"],
-      "classicalSecurityLevel": 192,
-      "nistQuantumSecurityLevel": 3
-    }
-  }
-}</code></pre>
 </section>
 
 <hr class="section-divider">
 
 <section id="automated-pipeline" class="research-section">
-<h2>3. Integrating CBOM Auditing into Enterprise CI/CD Pipelines</h2>
+<h2>3. Generating and Auditing a CBOM in CI</h2>
 <p class="lead-text">
-Crypto Service provides `@sebastienrousseau/crypto-cbom`, a zero-dependency static analysis and SBOM synthesis tool designed for GitHub Actions, GitLab CI, and Jenkins:
+<code>@sebastienrousseau/crypto-cbom</code> is not published to npm yet; build it from the repository. Its CLI has two commands: <code>scan</code> writes a CycloneDX (or, with <code>--format spdx</code>, SPDX) CBOM, and <code>audit</code> validates a CBOM and prints an audit.
 </p>
-<pre><code># GitHub Actions Workflow: Continuous Cryptographic Audit
-name: DORA Cryptographic Audit
-on: [push, pull_request]
-
-jobs:
-cbom-audit:
-runs-on: ubuntu-latest
-steps: - uses: actions/checkout@v4 - name: Setup Node.js
-uses: actions/setup-node@v4
-with:
-node-version: 22 - name: Run Crypto Service CBOM Scanner
-run: |
-npx @sebastienrousseau/crypto-cbom audit \
---dir src/ \
---fail-on-deprecated \
---output cbom.cdx.json \
---report-format sarif</code></pre>
+<pre><code>crypto-cbom scan src/ --format cyclonedx --output cbom.cdx.json
+crypto-cbom audit cbom.cdx.json</code></pre>
 <p>
-If a pull request introduces deprecated RSA keys, legacy MD5 hashes, or unapproved elliptic curves, the pipeline terminates immediately with SARIF annotations pinpointing the exact line number.
+Because <code>audit</code> exits with status 1 when the inventory fails its checks, you can run it as a CI step to stop a pull request that introduces broken algorithms. It prints JSON; it does not produce SARIF or line-level annotations.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="deprecation-rules" class="research-section">
-<h2>4. Classical Primitive Deprecation Rules &amp; Vulnerability Scanning</h2>
+<h2>4. Algorithm Classification Used by the Audit</h2>
+<p>
+The audit classifies each asset by name. This is a heuristic based on the algorithm name, not a regulatory classification:
+</p>
 <div class="table-responsive">
 <table class="comparison-table">
 <thead>
 <tr>
-<th>Cryptographic Primitive</th>
-<th>Current Regulatory Status</th>
-<th>DORA Compliance Classification</th>
-<th>Mandatory Replacement Standard</th>
+<th>Algorithm names matched</th>
+<th>Audit classification</th>
+<th>Suggested replacement</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>RSA &lt; 2048-bit</strong></td>
-<td>Strictly Forbidden (Compromised)</td>
-<td><span class="comp-badge-crit">NON-COMPLIANT</span></td>
-<td>NIST FIPS 204 (ML-DSA-65)</td>
+<td><strong>MD5, SHA-1, DES/3DES, RC4, ECB</strong></td>
+<td>Broken or deprecated</td>
+<td>SHA-256/SHA-512; AES-256-GCM or ChaCha20-Poly1305</td>
 </tr>
 <tr>
-<td><strong>RSA-2048 / 3072</strong></td>
-<td>Transitional Deprecation</td>
-<td><span class="comp-badge-warn">TRANSITIONAL</span></td>
-<td>Dual-Layer Hybrid (RFC 10024)</td>
+<td><strong>RSA, ECC, ECDSA, Ed25519</strong></td>
+<td>Vulnerable to a future quantum computer</td>
+<td>Hybrid or post-quantum KEMs (ML-KEM) and signatures (ML-DSA)</td>
 </tr>
 <tr>
-<td><strong>ECDSA P-256 (secp256r1)</strong></td>
-<td>Vulnerable to HNDL</td>
-<td><span class="comp-badge-warn">TRANSITIONAL</span></td>
-<td>Hybrid X25519 + ML-KEM-768</td>
+<td><strong>AES-128, CBC mode</strong></td>
+<td>Transitional</td>
+<td>AES-256-GCM or ChaCha20-Poly1305</td>
 </tr>
 <tr>
-<td><strong>3DES / RC4 / DES</strong></td>
-<td>Cryptanalytically Broken</td>
-<td><span class="comp-badge-crit">NON-COMPLIANT</span></td>
-<td>AES-256-GCM Authenticated Encryption</td>
-</tr>
-<tr>
-<td><strong>SHA-1 / MD5</strong></td>
-<td>Collision Resistance Failed</td>
-<td><span class="comp-badge-crit">NON-COMPLIANT</span></td>
-<td>SHA-256 / SHA-512 / SHAKE-256</td>
-</tr>
-<tr>
-<td><strong>ML-KEM-768 / 1024</strong></td>
-<td>NIST Standardized (FIPS 203)</td>
-<td><span class="comp-badge-pass">FULL COMPLIANCE</span></td>
-<td>Primary Post-Quantum Standard</td>
+<td><strong>Other names (for example ML-KEM, ML-DSA)</strong></td>
+<td>Not flagged</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -194,48 +128,39 @@ If a pull request introduces deprecated RSA keys, legacy MD5 hashes, or unapprov
 <hr class="section-divider">
 
 <section id="third-party-risk" class="research-section">
-<h2>5. Managing Critical Third-Party ICT Provider Cryptographic Risks</h2>
+<h2>5. Third-Party Providers</h2>
 <p>
-Under DORA Chapter V (Managing of ICT Third-Party Risk), financial institutions bear strict accountability for the security of outsourced technology providers.
+DORA also covers the management of ICT third-party risk. When you depend on external software or service providers, consider asking them for a CBOM with each major release and for their post-quantum migration plans, so their cryptography can be included in your own inventory.
 </p>
-<p>
-When contracting with payment processors, core banking SaaS platforms, and cloud providers, financial entities must demand:
-</p>
-<ul>
-<li>A valid CycloneDX 1.6 CBOM updated with every major software release.</li>
-<li>Contractual Service Level Agreements (SLAs) specifying post-quantum migration milestones matching the institution's own regulatory commitments.</li>
-<li>Demonstrated ability to rotate Key Encryption Keys (KEKs) across multi-cloud partitions without downtime.</li>
-</ul>
 </section>
 
 <hr class="section-divider">
 
 <section id="evidence-generation" class="research-section">
-<h2>6. Generating Regulatory Compliance Packages for ESA Auditors</h2>
-<p>
-Crypto Service Suite generates an automated **Regulatory Evidence Bundle**:
-</p>
+<h2>6. What the Tool Produces</h2>
 <ul>
-<li>`cbom.cdx.json`: The machine-verifiable CycloneDX 1.6 inventory.</li>
-<li>`audit-report.json`: Cryptographic health score, deprecated primitive counts, and quantum-readiness percentage across all inspected repos.</li>
-<li>`key-rotation-proofs.json`: Cryptographic zero-knowledge proofs confirming that master keys were rotated according to policy without manual engineer intervention.</li>
+<li><code>crypto-cbom scan</code>: a CycloneDX 1.6 or SPDX 3.0 CBOM document.</li>
+<li><code>crypto-cbom audit</code>: a JSON audit result with findings per asset and a summary score.</li>
 </ul>
+<p>
+There is no evidence bundle, key-rotation proof or auditor package. Treat the output as engineering input to be reviewed by people accountable for your compliance.
+</p>
 </section>
 
 <hr class="section-divider">
 
 <section id="checklist" class="research-section">
-<h2>7. Practical 30-Day DORA Article 13 Readiness Checklist</h2>
+<h2>7. A Practical Starting Checklist</h2>
 <ol>
-<li><strong>Day 1–7: Automated Discovery:</strong> Run `@sebastienrousseau/crypto-cbom` across all internal microservice repositories and compile the baseline CBOM catalog.</li>
-<li><strong>Day 8–14: Deprecation Remediation:</strong> Remove all remaining instances of 3DES, MD5, and RSA-1024 from legacy configurations.</li>
-<li><strong>Day 15–21: Sovereign CaaS Evaluation:</strong> Deploy an internal `@sebastienrousseau/crypto-server` daemon in your development VPC to benchmark latency and verify mTLS authentication.</li>
-<li><strong>Day 22–30: Executive Board Reporting:</strong> Present the verified CBOM report and DORA Article 13 readiness roadmap to the Board Risk Committee.</li>
+<li><strong>Discover:</strong> run <code>crypto-cbom scan</code> across your repositories and collect the CBOMs.</li>
+<li><strong>Review:</strong> check the findings by hand; name-based scanning misses indirect uses and can flag false positives.</li>
+<li><strong>Remediate:</strong> remove broken algorithms (DES/3DES, RC4, MD5, SHA-1) from active use.</li>
+<li><strong>Plan:</strong> record where quantum-vulnerable public-key algorithms are used and plan their migration with your risk and compliance teams.</li>
 </ol>
 
 <div class="whitepaper-citation">
 <strong>Preferred Citation:</strong><br>
-Rousseau, S. (2026). <em>DORA Article 13 &amp; CBOM Compliance Manual: Continuous Cryptographic Auditing</em>. Crypto Service Governance Series. Reference: CSS-COMP-2026-005. Canonical URI: https://docs.crypto-service.co/whitepapers/dora-cbom-manual/
+Rousseau, S. (2026). <em>CBOM Manual: Cryptographic Inventories for DORA Work</em>. Crypto Service Governance Series. Reference: CSS-COMP-2026-005. Canonical URI: https://docs.crypto-service.co/whitepapers/dora-cbom-manual/
 </div>
 
 <div class="book-actions">

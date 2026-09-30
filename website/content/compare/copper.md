@@ -45,17 +45,17 @@ When trading digital assets across global derivative and spot exchanges, holding
 <tbody>
 <tr>
 <td><strong>Trust Paradigm</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">PURE ZERO-TRUST</span><br>Mathematical verification; bank-controlled key lifecycle within sovereign HSM</td>
+<td class="col-highlight"><span class="comp-badge-ok">PURE ZERO-TRUST</span><br>Bank-controlled key lifecycle on infrastructure you operate (no HSM integration)</td>
 <td><span class="comp-badge-warn">CONTRACTUAL TRUST</span><br>English law trust network with third-party custodian oversight</td>
 </tr>
 <tr>
 <td><strong>Post-Quantum Resistance</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid dual encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid dual encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL MPC</span><br>Legacy pre-quantum threshold signatures / optical HSMs</td>
 </tr>
 <tr>
 <td><strong>Multi-Cloud Key Governance</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">NATIVE MULTI-CLOUD</span><br>AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault</td>
+<td class="col-highlight"><span class="comp-badge-ok">KMS INTERFACE</span><br>AWS KMS implemented; GCP KMS, Azure Key Vault and HashiCorp Vault are stubs</td>
 <td><span class="comp-badge-warn">PROPRIETARY ENCLAVES</span><br>Hosted optical HSM network within Copper infrastructure</td>
 </tr>
 <tr>
@@ -65,7 +65,7 @@ When trading digital assets across global derivative and spot exchanges, holding
 </tr>
 <tr>
 <td><strong>Source Code Verification</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">OPEN &amp; DETERMINISTIC</span><br>Dual Apache-2.0 / MIT with strict 100% test coverage floor</td>
+<td class="col-highlight"><span class="comp-badge-ok">OPEN &amp; DETERMINISTIC</span><br>Dual Apache-2.0 / MIT with CI coverage gates</td>
 <td><span class="comp-badge-warn">PROPRIETARY NETWORK</span><br>Closed-source protocols and proprietary node firmware</td>
 </tr>
 </tbody>
@@ -91,8 +91,8 @@ When trading digital assets across global derivative and spot exchanges, holding
 <h3>Cryptographic Boundary &amp; Quantum Hardening</h3>
 <ul class="comparison-detail-list">
 <li><strong>Post-Quantum Audit Trails:</strong> Every ClearLoop allocation order is signed internally with hybrid classical/ML-DSA schemes, preventing Harvest Now, Decrypt Later (HNDL) attacks.</li>
-<li><strong>Zero External Network Calls:</strong> <code>@sebastienrousseau/crypto-lib</code> and <code>@sebastienrousseau/crypto-kms</code> operate entirely within your isolated VPC or on-premise hardware enclaves.</li>
-<li><strong>100% Code Coverage Floor:</strong> Full deterministic guarantee across all 18 packages with zero unverified execution paths.</li>
+<li><strong>No External Calls from crypto-lib:</strong> <code>@sebastienrousseau/crypto-lib</code> runs entirely in your process. <code>@sebastienrousseau/crypto-kms</code> calls AWS KMS only if you configure its AWS provider.</li>
+<li><strong>Coverage Gates:</strong> CI enforces 100% line and function coverage in every package (branch coverage 100% except crypto-lib at 99.5%). Coverage is not a correctness guarantee.</li>
 </ul>
 </div>
 </div>

@@ -3,7 +3,7 @@ title: "The 2027 Post-Quantum Strategic Horizon & Cryptographic Audit"
 description: "Authoritative executive treatise examining the 2027 post-quantum transition horizon, NIST FIPS 203/204/205 standards, US NSA CNSA 2.0 timelines, and institutional audit methodologies."
 eyebrow: "Strategic Research Treatise · Global Horizons"
 headline: "The 2027 Post-Quantum Strategic Horizon & Cryptographic Audit"
-lead: "An exhaustive technical analysis of quantum cryptanalysis timelines, lattice-based algorithm performance, DORA Article 13 enforcement, and sovereign cryptographic resilience."
+lead: "An exhaustive technical analysis of quantum cryptanalysis timelines, lattice-based algorithms, DORA ICT risk requirements, and sovereign cryptographic resilience."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -31,7 +31,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 The global financial technology stack is confronting its most urgent cryptographic migration since the retirement of DES in the 1990s. With the official ratification of NIST FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), and FIPS 205 (SLH-DSA), post-quantum cryptography has transitioned from theoretical academic discourse into mandatory regulatory reality.
 </p>
 <p>
-This treatise provides an authoritative synthesis of the 2027 strategic horizon. It details why waiting until 2029 introduces existential compliance risks for financial market infrastructures, evaluates the mathematical foundations of Module-LWE and Module-SIS lattices, establishes empirical micro-benchmarking floors, and presents an institutional cryptographic audit methodology designed to withstand regulatory scrutiny from central banks, the European Banking Authority, and sovereign intelligence oversight bodies.
+This treatise provides an authoritative synthesis of the 2027 strategic horizon. It details why waiting until 2029 introduces existential compliance risks for financial market infrastructures, evaluates the mathematical foundations of Module-LWE and Module-SIS lattices, and presents an institutional cryptographic audit methodology designed to withstand regulatory scrutiny from central banks, the European Banking Authority, and sovereign intelligence oversight bodies.
 </p>
 </div>
 
@@ -133,7 +133,7 @@ Crucially, Shor's quantum period-finding algorithm yields no speedup against lat
 While lattice mathematics are theoretically secure against quantum supercomputers, software implementations can be catastrophically vulnerable to physical side-channel analysis:
 </p>
 <ul>
-<li><strong>Timing Side-Channels in Polynomial Multiplication:</strong> Standard integer divisions and non-constant-time conditional branches leak secret key coefficients. Crypto Service implementations enforce constant-time Number Theoretic Transforms (NTT) with Montgomery multiplication, ensuring execution time is completely invariant to secret inputs.</li>
+<li><strong>Timing Side-Channels in Polynomial Multiplication:</strong> Standard integer divisions and non-constant-time conditional branches leak secret key coefficients. Crypto Service does not implement this arithmetic itself: crypto-lib relies on <code>@noble/post-quantum</code>, which does not guarantee constant-time execution and has not been independently audited.</li>
 <li><strong>Rejection Sampling Leaks in Signatures:</strong> In ML-DSA, secret coefficients are bounded using rejection sampling. If an implementation branches on rejection conditions, electromagnetic or power analysis can reconstruct the signer's private key within 1,000 signature generations.</li>
 <li><strong>Cache-Collision Attacks:</strong> Array lookups indexed by secret polynomial coefficients allow co-located virtual machines in cloud multi-tenant environments to deduce secret state via Flush+Reload techniques.</li>
 </ul>

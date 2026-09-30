@@ -150,9 +150,9 @@ The hybrid scheme executes two concurrent key encapsulations:
 <p>
 The final symmetric key $K_{\text{session}}$ is derived using an extract-and-expand Key Derivation Function (HKDF-SHA256):
 </p>
-$$K_{\text{session}} = \text{HKDF-Extract}(\text{salt}, ss_{\text{classical}} \mathbin{\Vert} ss_{\text{pqc}} \mathbin{\Vert} \text{ContextInfo})$$
+$$K_{\text{session}} = \text{HKDF-SHA256}(\text{IKM} = ss_{\text{classical}} \mathbin{\Vert} ss_{\text{pqc}},\ \text{info} = \texttt{"x25519-ml-kem-768-hybrid"},\ L = 32)$$
 <p>
-<strong>The Invariant Security Guarantee:</strong> An adversary must break <em>both</em> the classical elliptic curve problem AND the post-quantum lattice problem to compromise the session. If quantum computers break X25519, ML-KEM-768 preserves absolute confidentiality. If an unforeseen breakthrough occurs in lattice cryptanalysis, X25519 guarantees classical security.
+<strong>The design goal:</strong> an adversary must break <em>both</em> the classical elliptic-curve problem and the post-quantum lattice problem to recover the session key. If a quantum computer breaks X25519, ML-KEM-768 still protects the key; if lattice cryptanalysis advances unexpectedly, X25519 still provides classical security. This relies on correct implementations of both components; crypto-lib uses <code>@noble/curves</code> and <code>@noble/post-quantum</code>, and the latter is not independently audited and does not guarantee constant-time execution.
 </p>
 </section>
 
@@ -164,12 +164,12 @@ $$K_{\text{session}} = \text{HKDF-Extract}(\text{salt}, ss_{\text{classical}} \m
 HNDL is not restricted to network packets. Offsite database backups, Amazon S3 glacier snapshots, and disaster recovery archives represent prime targets for physical and logical theft.
 </p>
 <p>
-Crypto Service Suite enforces <strong>Envelope Key Re-wrapping</strong>:
+A common mitigation pattern is <strong>envelope key re-wrapping</strong>. Crypto Service Suite does not automate it today; you can build it from crypto-lib primitives:
 </p>
 <ul>
-<li>Existing database columns remain encrypted under their original AES-256-GCM Data Encryption Keys (DEKs).</li>
-<li>The Master Key Encryption Key (KEK) is wrapped using hybrid ML-KEM-768.</li>
-<li>Backup archives carry self-describing cryptographic headers identifying the exact FIPS 203 parameters used, enabling continuous auditing without decrypting customer data.</li>
+<li>Existing data stays encrypted under its original data encryption keys (DEKs).</li>
+<li>The DEKs, or the key encryption key (KEK) that wraps them, are re-wrapped under a key established with a hybrid X25519 + ML-KEM-768 KEM.</li>
+<li>Record in the backup metadata which algorithms and parameters were used, so the inventory can be audited without decrypting customer data.</li>
 </ul>
 </section>
 
@@ -178,20 +178,30 @@ Crypto Service Suite enforces <strong>Envelope Key Re-wrapping</strong>:
 <section id="implementation-patterns" class="research-section">
 <h2>6. Implementation Patterns Using Crypto Service Suite</h2>
 <p>
-Protecting an application communication channel or database field against HNDL takes less than ten lines of code with `@sebastienrousseau/crypto-lib`:
+Establishing a hybrid X25519 + ML-KEM-768 shared secret with `@sebastienrousseau/crypto-lib`:
 </p>
-<pre><code>import { HybridKeyExchange } from "@sebastienrousseau/crypto-lib";
+<pre><code>import {
+  hybridKemKeygen,
+  hybridKemEncapsulate,
+  hybridKemDecapsulate,
+} from "@sebastienrousseau/crypto-lib";
 
-// 1. Generate hybrid post-quantum key pair
-const hybridAlice = await HybridKeyExchange.generateKeyPair();
+// 1. Alice generates an X25519 + ML-KEM-768 key pair
+const alice = hybridKemKeygen(768);
 
-// 2. Encapsulate shared secret against Alice's public key
-const { ciphertext, sharedSecret } = await HybridKeyExchange.encapsulate(hybridAlice.publicKey);
+// 2. Bob encapsulates a shared secret to Alice's public keys
+const sent = hybridKemEncapsulate(768, alice.x25519PublicKey, alice.mlKemPublicKey);
 
-// 3. Alice decapsulates using her hybrid private key
-const decryptedSecret = await HybridKeyExchange.decapsulate(ciphertext, hybridAlice.privateKey);
+// 3. Alice decapsulates with her private keys
+const received = hybridKemDecapsulate(
+768,
+alice.x25519PrivateKey,
+alice.mlKemSecretKey,
+sent.x25519EphemeralPublic,
+sent.mlKemCiphertext,
+);
 
-// Guaranteed: sharedSecret === decryptedSecret (Zero HNDL exposure)</code></pre>
+// received.sharedSecret === sent.sharedSecret</code></pre>
 </section>
 
 <hr class="section-divider">

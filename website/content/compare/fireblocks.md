@@ -23,7 +23,7 @@ cta_primary: "Explore 18 Packages"
 
 <div class="card institutional-highlight-card">
 <p class="institutional-highlight-text">
-<strong>Direct Institutional Answer:</strong> Institutions choose <strong>Fireblocks</strong> for turnkey multi-party computation (MPC-CMP) SaaS routing across hundreds of retail blockchains. Institutions deploy <strong>Crypto Service Suite</strong> when strict regulatory mandates (such as DORA or FINMA) forbid vendor key-share storage, when sub-millisecond internal signing latency is required, or when migrating to NIST FIPS 203/204 post-quantum standards.
+<strong>Direct Institutional Answer:</strong> Institutions choose <strong>Fireblocks</strong> for turnkey multi-party computation (MPC-CMP) SaaS routing across hundreds of retail blockchains. Institutions deploy <strong>Crypto Service Suite</strong> when internal policy forbids storing key shares with a vendor, when in-process signing without network round trips is required, or when migrating to NIST FIPS 203/204 post-quantum standards.
 </p>
 </div>
 
@@ -43,7 +43,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <tbody>
 <tr>
 <td><strong>Cryptographic Primitive</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM-768/1024, ML-DSA-65/87 &amp; RFC 10024 Hybrid</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM-768/1024, ML-DSA-65/87 &amp; RFC 10024 Hybrid</td>
 <td><span class="comp-badge-warn">CLASSICAL MPC</span><br>Threshold ECDSA / Ed25519 (GG20 &amp; CMP algorithms)</td>
 </tr>
 <tr>
@@ -53,7 +53,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 </tr>
 <tr>
 <td><strong>Execution Architecture</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">DETERMINISTIC EMBEDDED</span><br>In-memory TypeScript, WebAssembly SIMD, Edge &amp; HSM</td>
+<td class="col-highlight"><span class="comp-badge-ok">DETERMINISTIC EMBEDDED</span><br>In-memory TypeScript in Node.js, edge runtimes and browsers</td>
 <td><span class="comp-badge-warn">HOSTED SAAS</span><br>Intel SGX enclaves in vendor-controlled multi-tenant cloud</td>
 </tr>
 <tr>
@@ -79,7 +79,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <h3>Regulatory Sovereignty &amp; Continuity</h3>
 <ul class="comparison-detail-list">
 <li><strong>Vendor Outage Resilience:</strong> Unlike SaaS MPC platforms that become unavailable if external cloud connections drop, Crypto Service executes on-premise without external network dependency.</li>
-<li><strong>DORA Article 13 Compliance:</strong> Full CycloneDX 1.6 and SPDX 3.0 Cryptographic Bill of Materials (CBOM) telemetry verifies every algorithm across your software stack.</li>
+<li><strong>Cryptographic Inventory:</strong> CycloneDX 1.6 and SPDX 3.0 Cryptographic Bills of Materials (CBOM) list the algorithms found in your code, as input to DORA work (not a compliance verdict).</li>
 <li><strong>Zero Asset Lock-in:</strong> Avoid proprietary key-shard escrow agreements; your cryptographic root keys remain under institutional custody.</li>
 </ul>
 </div>
@@ -88,9 +88,9 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <span class="solution-badge font-mono">FOR PRINCIPAL CRYPTO ARCHITECTS</span>
 <h3>Mathematical Invariants &amp; Performance</h3>
 <ul class="comparison-detail-list">
-<li><strong>Sub-Millisecond Signing:</strong> Eliminate multi-round MPC network latency; execute key derivation and signatures directly in-process.</li>
+<li><strong>In-Process Signing:</strong> Avoid multi-round MPC network latency; execute key derivation and signatures directly in-process.</li>
 <li><strong>Post-Quantum Transition:</strong> Instant drop-in support for NIST FIPS 203 ML-KEM and FIPS 204 ML-DSA alongside classical elliptic curves.</li>
-<li><strong>100% Verification Floor:</strong> All 18 monorepo packages maintain 100% branch, line, and function test coverage floors.</li>
+<li><strong>Coverage Gates:</strong> All 18 packages enforce 100% line and function coverage in CI, and all but crypto-lib (99.5%) enforce 100% branch coverage.</li>
 </ul>
 </div>
 </div>

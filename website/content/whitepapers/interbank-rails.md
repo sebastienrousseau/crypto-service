@@ -150,15 +150,13 @@ Legacy payment gateways verify the standard classical signature and safely ignor
 <hr class="section-divider">
 
 <section id="batch-verification" class="research-section">
-<h2>5. High-Throughput Batch Verification &amp; Latency SLAs</h2>
+<h2>5. Verification Throughput &amp; Latency SLAs</h2>
 <p>
-Verifying post-quantum digital signatures serially would collapse the throughput of interbank settlement engines. Crypto Service `@sebastienrousseau/crypto-lib` implements vectorized batch verification using WebAssembly SIMD:
+Settlement engines must verify many signatures per second within tight SLAs, so verification cost matters. <code>@sebastienrousseau/crypto-lib</code> verifies ML-DSA signatures one at a time in JavaScript through <code>@noble/post-quantum</code>. It has no batch verification, no WebAssembly or SIMD acceleration, and no published latency figures; earlier figures in this section (a 4.2x SIMD speedup, 68.4 µs per signature) did not come from committed code and have been withdrawn.
 </p>
-<ul>
-<li><strong>Pipelined Verification:</strong> Signature verification operations are grouped into batches of 32 or 64 messages.</li>
-<li><strong>Vectorized Number Theoretic Transforms:</strong> NTT matrix-vector multiplications are executed using 128-bit SIMD registers, achieving a 4.2x throughput speedup over scalar execution.</li>
-<li><strong>Sub-Millisecond Verification Latency:</strong> ML-DSA-65 batch verification executes in <strong>68.4 µs per signature</strong> on standard enterprise x86_64 and ARM64 server hardware.</li>
-</ul>
+<p>
+Before committing to an SLA, benchmark verification on your target hardware (see <code>benchmarks/crypto-bench.ts</code> in the repository) and scale verification horizontally across processes or workers as needed.
+</p>
 </section>
 
 <hr class="section-divider">
@@ -192,13 +190,13 @@ Verifying post-quantum digital signatures serially would collapse the throughput
 <td><strong>CHIPS Settlement</strong></td>
 <td>Proprietary / ISO</td>
 <td>Phase 3 (2027–2028)</td>
-<td>High-speed CaaS coprocessors with constant-time verification</td>
+<td>Dedicated verification services scaled horizontally</td>
 </tr>
 <tr>
 <td><strong>Domestic Instant Payments</strong></td>
 <td>JSON REST / gRPC</td>
 <td>Phase 1 (2025–2026)</td>
-<td>HTTP/2 mTLS with RFC 10024 Hybrid KEM session keys</td>
+<td>mTLS with hybrid (X25519 + ML-KEM) key exchange</td>
 </tr>
 </tbody>
 </table>

@@ -1,9 +1,9 @@
 ---
 title: "Modular Crypto as a Service (CaaS) Solutions — Crypto Service Suite"
-description: "Sovereign Crypto-as-a-Service (CaaS) solutions for fintechs, banks, and enterprise engineering teams: Post-Quantum Primitives, Sovereign CaaS Daemon, Multi-Cloud KMS, Database Field Encryption, Edge WASM, and CycloneDX CBOM."
+description: "Self-hosted Crypto-as-a-Service (CaaS) building blocks for fintechs, banks, and enterprise engineering teams: post-quantum primitives, a REST service, a KMS interface, database field encryption, edge runtime support, and CycloneDX CBOM generation."
 eyebrow: "Institutional Solutions & Architecture"
 headline: "Sovereign Cryptographic Infrastructure for Modern Enterprise Stacks"
-lead: "Crypto Service Suite delivers a sovereign, self-hosted Cryptography-as-a-Service (CaaS) platform across 18 lockstep libraries. You can deploy post-quantum FIPS 203/204 encryption, multi-cloud KMS orchestration, and transparent database field protection directly within your enterprise stack."
+lead: "Crypto Service Suite provides self-hostable Cryptography-as-a-Service (CaaS) building blocks across 18 lockstep libraries: FIPS 203/204 algorithms (via @noble/post-quantum; not a validated cryptographic module), a KMS interface, and transparent database field encryption."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -19,17 +19,17 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <div class="solution-nav-card">
 <span class="solution-num font-mono">01</span>
 <h3><a href="#post-quantum">Post-Quantum Cryptography</a></h3>
-<p>NIST FIPS 203 ML-KEM, FIPS 204 ML-DSA, and CNSA 2.0 hybrid dual-layer schemes for future-proof security.</p>
+<p>NIST FIPS 203 ML-KEM and FIPS 204 ML-DSA algorithms, plus classical + ML-KEM hybrid KEMs.</p>
 </div>
 <div class="solution-nav-card">
 <span class="solution-num font-mono">02</span>
-<h3><a href="#caas-server">Sovereign CaaS Daemon &amp; SDK</a></h3>
-<p>Self-hosted Fastify HTTP/2 microservice, type-safe client SDK, and unified CLI eliminating third-party custody.</p>
+<h3><a href="#caas-server">Self-Hosted CaaS Service &amp; SDK</a></h3>
+<p>Self-hosted Fastify REST service, typed client SDK, and interactive CLI.</p>
 </div>
 <div class="solution-nav-card">
 <span class="solution-num font-mono">03</span>
-<h3><a href="#multi-cloud-kms">Multi-Cloud KMS Orchestration</a></h3>
-<p>Abstracted uniform driver interface over AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.</p>
+<h3><a href="#multi-cloud-kms">KMS Interface</a></h3>
+<p>Uniform provider interface. AWS KMS and a local provider are implemented; GCP, Azure and Vault are stubs.</p>
 </div>
 <div class="solution-nav-card">
 <span class="solution-num font-mono">04</span>
@@ -38,30 +38,32 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 </div>
 <div class="solution-nav-card">
 <span class="solution-num font-mono">05</span>
-<h3><a href="#edge-wasm">SIMD WebAssembly &amp; Edge Core</a></h3>
-<p>Near-native speed and zero GC pauses across Cloudflare Workers, Fastly Compute, Bun, Deno, and Node.js.</p>
+<h3><a href="#edge-wasm">Edge Runtime Support</a></h3>
+<p>Web Crypto adapter for Cloudflare Workers, Vercel Edge, Deno, Bun and browsers.</p>
 </div>
 <div class="solution-nav-card">
 <span class="solution-num font-mono">06</span>
 <h3><a href="#governance-ai">CBOM, LSP &amp; AI Agent Tooling</a></h3>
-<p>CycloneDX 1.6 CBOM generator for DORA compliance, Language Server Protocol, and Model Context Protocol (MCP).</p>
+<p>CycloneDX 1.6 CBOM generator for cryptographic inventories, Language Server Protocol, and Model Context Protocol (MCP).</p>
 </div>
 </div>
 
 <div class="card card-quickstart">
 <div class="quickstart-header">
 <span class="quickstart-title">Developer Quick-Start Installation</span>
-<span class="quickstart-lang">pnpm / npm / yarn</span>
+<span class="quickstart-lang">from source (pnpm workspace)</span>
 </div>
 <div class="hero-code-block">
-<pre><code><span class="hero-code-comment"># 1. Install post-quantum primitives and transparent Prisma database encryption</span>
-<span class="hero-code-cmd">pnpm add</span> @sebastienrousseau/crypto-lib @sebastienrousseau/crypto-prisma
+<pre><code><span class="hero-code-comment"># 1. Build from source (npm has crypto-lib 0.0.3 only; crypto-prisma is not on npm)</span>
+<span class="hero-code-cmd">git clone</span> https://github.com/sebastienrousseau/crypto-service.git
+<span class="hero-code-cmd">cd</span> crypto-service &amp;&amp; <span class="hero-code-cmd">pnpm install</span> &amp;&amp; <span class="hero-code-cmd">pnpm -r run build</span>
 
-<span class="hero-code-comment">// 2. Initialize FIPS 203 Module-Lattice Key Encapsulation (ML-KEM-768)</span>
-<span class="hero-code-keyword">import</span> { generateKeyPair, encrypt } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;
+<span class="hero-code-comment">// 2. ML-KEM-768 key encapsulation (FIPS 203 algorithm)</span>
+<span class="hero-code-keyword">import</span> { mlKemKeygen, mlKemEncap, mlKemDecap } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;
 
-<span class="hero-code-keyword">const</span> keyPair = <span class="hero-code-keyword">await</span> generateKeyPair(<span class="hero-code-string">"ML-KEM-768"</span>);
-<span class="hero-code-keyword">const</span> ciphertext = <span class="hero-code-keyword">await</span> encrypt(<span class="hero-code-string">"sensitive enterprise payload"</span>, keyPair.publicKey);</code></pre>
+<span class="hero-code-keyword">const</span> kem = mlKemKeygen(768);
+<span class="hero-code-keyword">const</span> { ciphertext, sharedSecret } = mlKemEncap(768, kem.publicKey);
+<span class="hero-code-keyword">const</span> received = mlKemDecap(768, kem.secretKey, ciphertext);</code></pre>
 </div>
 </div>
 
@@ -74,29 +76,29 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 </div>
 
 <p class="lead-text">
-Quantum computers running Shor's algorithm will decisively break RSA, Diffie-Hellman, and elliptic curves within the operational lifetime of long-term data. You can protect your sensitive communications immediately using native NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) algorithms.
+A cryptographically relevant quantum computer running Shor's algorithm would break RSA, Diffie-Hellman, and elliptic-curve cryptography. You can start using NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) algorithms today; crypto-lib implements them via <code>@noble/post-quantum</code>, which is not a validated cryptographic module.
 </p>
 
 <p>
-Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack model, state actors record encrypted traffic today for future decryption. Deploying composite hybrid schemes guarantees that an adversary must break both classical and lattice problems to compromise your data.
+Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack model, state actors record encrypted traffic today for future decryption. Hybrid schemes are designed so that an adversary must break both the classical and the lattice component to recover the shared secret.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
-<h3>FIPS 203 (ML-KEM) Native Support</h3>
-<p>Native implementation of Module-Lattice-Based Key-Encapsulation Mechanism across parameter sets 512, 768, and 1024 in <code>@sebastienrousseau/crypto-lib</code>. Parameter set 768 is deployed by default, offering NIST Security Level 3 with ciphertexts under 1,088 bytes.</p>
+<h3>FIPS 203 (ML-KEM) Algorithms</h3>
+<p><code>@sebastienrousseau/crypto-lib</code> exposes ML-KEM-512, ML-KEM-768 and ML-KEM-1024 through <code>@noble/post-quantum</code>. ML-KEM-768 targets NIST security category 3 and has 1,088-byte ciphertexts.</p>
 </div>
 <div class="card">
 <h3>Composite Dual-Layer Hybrid Schemes</h3>
-<p>Mitigates implementation risk by combining classical elliptic curves (X25519 / NIST P-256) with lattice-based ML-KEM in an RFC 10024 compliant dual-key construction. An attacker must break <em>both</em> the classical curve and the lattice problem to compromise session keys.</p>
+<p>Combines a classical curve (X25519, NIST P-256 or X448) with ML-KEM and derives the session key from both shared secrets, so an attacker must break <em>both</em> components to recover it.</p>
 </div>
 <div class="card" id="signatures">
 <h3>FIPS 204 (ML-DSA) Digital Signatures</h3>
-<p>Lattice-based digital signatures guaranteeing non-repudiation for high-value transactions. ML-DSA-65 delivers NIST Security Level 3 security with deterministic verification and resistance against side-channel timing analysis.</p>
+<p>Lattice-based digital signatures (ML-DSA-44/65/87) via <code>@noble/post-quantum</code>. ML-DSA-65 targets NIST security category 3. <code>@noble/post-quantum</code> does not guarantee constant-time execution.</p>
 </div>
 <div class="card" id="entropy">
-<h3>Constant-Time Memory Hygiene &amp; Entropy</h3>
-<p>Strict memory zeroization protocols via <code>wipeMemory()</code> immediately overwrite ephemeral secret key buffers, intermediate lattice NTT coefficients, and decapsulation state upon transaction commitment, seeded by high-entropy hardware CSPRNG.</p>
+<h3>Memory Hygiene &amp; Entropy</h3>
+<p>Randomness comes from the platform CSPRNG. crypto-lib exports <code>wipeMemory()</code> and <code>SecureBuffer</code> for callers, but its own APIs do not zeroize intermediate state, and keys passed as hex strings cannot be wiped.</p>
 </div>
 </div>
 
@@ -121,29 +123,29 @@ loading="lazy"
 </div>
 
 <p class="lead-text">
-Proprietary third-party SaaS custody platforms introduce counterparty bankruptcy risk, vendor lock-in, and unpredictable basis-point fee extraction. Crypto Service Suite empowers you to deploy a self-hosted, sovereign CaaS tier directly in your private cloud or on-premises data centers.
+Third-party hosted platforms introduce counterparty risk and vendor lock-in. Crypto Service Suite lets you run a self-hosted CaaS tier in your private cloud or on-premises data centre.
 </p>
 
 <p>
-Your applications communicate with the CaaS daemon via high-speed HTTP/2 and gRPC endpoints. Master keys remain entirely under your governance, eliminating external API dependencies and data exfiltration vectors.
+Your applications call the service over a REST API. Keys you manage with it stay on infrastructure you control.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
-<h3>Fastify HTTP/2 &amp; REST Microservice</h3>
-<p>Powered by <code>@sebastienrousseau/crypto-server</code>, the CaaS daemon delivers over 100,000 ops/sec with sub-millisecond latency. Encapsulate complex cryptographic primitives behind high-speed, well-defined internal endpoints.</p>
+<h3>Fastify REST Microservice</h3>
+<p><code>@sebastienrousseau/crypto-server</code> exposes crypto-lib operations behind documented REST endpoints, with rate limiting and OpenTelemetry instrumentation. No throughput figures are published yet.</p>
 </div>
 <div class="card">
 <h3>Type-Safe Zero-Dependency SDK</h3>
-<p><code>@sebastienrousseau/crypto-sdk</code> offers a lightweight, zero-dependency fetch-based TypeScript client with automated connection pooling, circuit breakers, and end-to-end type safety.</p>
+<p><code>@sebastienrousseau/crypto-sdk</code> is a zero-dependency, fetch-based TypeScript client with typed request and response bindings.</p>
 </div>
 <div class="card">
-<h3>Unified DevOps CLI Toolchain</h3>
-<p>The <code>@sebastienrousseau/crypto-cli</code> package enables automated key pair generation, data encryption, digital signing, and CBOM generation directly from terminal sessions, shell scripts, and CI/CD pipelines.</p>
+<h3>Interactive CLI</h3>
+<p>The <code>@sebastienrousseau/crypto-cli</code> package offers key pair generation, encryption, signing, hashing and CBOM generation from an interactive terminal menu. It has no non-interactive flags, so it is not suited to scripts or CI pipelines.</p>
 </div>
 <div class="card">
-<h3>Total Cryptographic Sovereignty</h3>
-<p>Keep your cryptographic master keys, operations, and audit trails exclusively inside your private VPC, dedicated hardware, or on-premises infrastructure. Zero external API calls, zero telemetry leak, zero third-party custody.</p>
+<h3>Self-Hosted Deployment</h3>
+<p>Run the service inside your private VPC or on-premises infrastructure. OpenTelemetry export is off unless you set <code>OTEL_EXPORTER_OTLP_ENDPOINT</code>.</p>
 </div>
 </div>
 </section>
@@ -153,33 +155,33 @@ Your applications communicate with the CaaS daemon via high-speed HTTP/2 and gRP
 <section id="multi-cloud-kms" class="solution-detail-section">
 <div class="solution-header">
 <span class="solution-badge font-mono">SOLUTION 03 // KEY MANAGEMENT</span>
-<h2>3. Multi-Cloud KMS &amp; Key Orchestration</h2>
+<h2>3. KMS Interface</h2>
 </div>
 
 <p class="lead-text">
-Enterprise cloud architectures cannot tolerate single-cloud failure domains or proprietary KMS vendor lock-in. You can orchestrate cryptographic keys across AWS, Google Cloud, Microsoft Azure, and HashiCorp Vault using a single, uniform TypeScript API.
+<code>@sebastienrousseau/crypto-kms</code> defines one TypeScript interface for key management backends. Today the AWS KMS and local in-memory providers are implemented. The Google Cloud, Azure and HashiCorp Vault providers are stubs that reject every call with <code>Not implemented</code>.
 </p>
 
 <p>
-Automated envelope encryption separates data encryption keys (DEKs) from key encryption keys (KEKs), enabling rapid local encryption while centralizing access policies in hardware security modules.
+<code>generateDataKey()</code> supports envelope encryption: data encryption keys (DEKs) are wrapped by a key encryption key (KEK) held by the provider.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
-<h3>AWS KMS &amp; CloudHSM</h3>
-<p>Direct integration with AWS Key Management Service and FIPS 140-3 validated CloudHSM clusters. Enforce multi-region envelope encryption replication and role-based key policies.</p>
+<h3>AWS KMS (implemented)</h3>
+<p><code>AwsKmsProvider</code> calls AWS Key Management Service through <code>@aws-sdk/client-kms</code>. There is no direct CloudHSM integration.</p>
 </div>
 <div class="card">
-<h3>Google Cloud KMS &amp; Cloud EKM</h3>
-<p>Native connectors for Google Cloud Key Management and External Key Manager (Cloud EKM), preserving jurisdictional data sovereignty across cross-continental institutional deployments.</p>
+<h3>Google Cloud KMS (stub)</h3>
+<p><code>GcpKmsProvider</code> exists as an interface placeholder; every method rejects with <code>Not implemented</code>.</p>
 </div>
 <div class="card">
-<h3>Azure Key Vault &amp; Managed HSM</h3>
-<p>Enterprise support for Azure Dedicated HSM and Managed HSM pools with automated role-based access control (RBAC) and hardware-enforced cryptographic boundaries.</p>
+<h3>Azure Key Vault (stub)</h3>
+<p><code>AzureKmsProvider</code> exists as an interface placeholder; every method rejects with <code>Not implemented</code>.</p>
 </div>
 <div class="card">
-<h3>HashiCorp Vault &amp; Air-Gapped HSMs</h3>
-<p>Seamless orchestration with HashiCorp Vault transit secrets engines and PKCS#11 hardware appliances (Thales Luna, Utimaco, YubiHSM), enabling sovereign air-gapped deployments.</p>
+<h3>HashiCorp Vault (stub) &amp; PKCS#11 (simulation)</h3>
+<p><code>VaultKmsProvider</code> is a stub. <code>Pkcs11HsmProvider</code> is an in-memory software simulation for tests: it has no PKCS#11 binding, talks to no HSM, and requires <code>simulate: true</code>.</p>
 </div>
 </div>
 </section>
@@ -197,25 +199,25 @@ Securing sensitive customer records, financial ledgers, and authentication crede
 </p>
 
 <p>
-Decryption occurs transparently in-memory when queries execute. Even if database dumps or storage snapshots are compromised, sensitive fields remain encrypted with authenticated AES-256-GCM or post-quantum hybrid ciphers.
+Decryption happens in application memory when queries return. Database dumps and storage snapshots hold only ciphertext for the configured fields.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
 <h3>Prisma ORM Field-Level Encryption</h3>
-<p><code>@sebastienrousseau/crypto-prisma</code> provides transparent extension middleware for Prisma Client. Sensitive fields are encrypted before writing to PostgreSQL, MySQL, or MongoDB and automatically decrypted upon retrieval using authenticated AES-256-GCM or post-quantum hybrid ciphers.</p>
+<p><code>@sebastienrousseau/crypto-prisma</code> provides transparent extension middleware for Prisma Client. Configured fields are encrypted with XChaCha20-Poly1305 before they are written and decrypted on read; fields marked deterministic are stored as HMAC-SHA256 values for equality search.</p>
 </div>
 <div class="card">
 <h3>TypeORM Column Decorators</h3>
-<p><code>@sebastienrousseau/crypto-typeorm</code> introduces intuitive <code>@EncryptedColumn()</code> decorators for TypeORM entities. Enforce cryptographic data masking, automated key rotation, and deterministic search hashing.</p>
+<p><code>@sebastienrousseau/crypto-typeorm</code> provides an <code>@EncryptedColumn()</code> decorator and transformer for TypeORM entities, encrypting column values with XChaCha20-Poly1305.</p>
 </div>
 <div class="card">
 <h3>Express &amp; Fastify Middleware</h3>
-<p><code>@sebastienrousseau/crypto-middleware</code> automatically decrypts inbound request payloads, verifies digital signatures, and encrypts outbound HTTP responses at the edge or ingress gateway.</p>
+<p><code>@sebastienrousseau/crypto-middleware</code> decrypts inbound request payloads, verifies HMAC signatures and HS256 JWTs, and encrypts outbound responses in Express and Fastify.</p>
 </div>
 <div class="card">
 <h3>Client-Side React &amp; Vue Hooks</h3>
-<p>Secure end-to-end data encryption before transmission using <code>@sebastienrousseau/crypto-react</code> (<code>useCrypto</code>, <code>useKeyPair</code>) and <code>@sebastienrousseau/crypto-vue</code> composables with reactive state management.</p>
+<p>Secure end-to-end data encryption before transmission using <code>@sebastienrousseau/crypto-react</code> (<code>useEncrypt</code>, <code>useKeypair</code>, <code>useHash</code>, <code>useSignature</code>) and <code>@sebastienrousseau/crypto-vue</code> composables with reactive state management.</p>
 </div>
 </div>
 
@@ -236,33 +238,25 @@ loading="lazy"
 <section id="edge-wasm" class="solution-detail-section">
 <div class="solution-header">
 <span class="solution-badge font-mono">SOLUTION 05 // HIGH PERFORMANCE</span>
-<h2>5. SIMD WebAssembly &amp; Edge Runtime Core</h2>
+<h2>5. Edge Runtime Support</h2>
 </div>
 
 <p class="lead-text">
-Lattice-based polynomial multiplication and NTT vector calculations demand peak microarchitectural efficiency. You can execute cryptographic operations at near-native speed across Cloudflare Workers, Fastly Compute, Bun, Deno, and Node.js using compiled WebAssembly.
-</p>
-
-<p>
-Pre-allocated linear memory prevents garbage collection pauses during high-throughput transaction bursts. Every mathematical routine is strictly constant-time, preventing timing leaks and cache-collision attacks.
+All cryptography in the suite runs in JavaScript (the <code>@noble/*</code> libraries and OpenPGP.js) or through the platform Web Crypto API. There is no WebAssembly code in the suite today.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
-<h3>WebAssembly SIMD Acceleration</h3>
-<p><code>@sebastienrousseau/crypto-wasm</code> compiles computationally intensive cryptographic routines to optimized WebAssembly. Vectorized SIMD instructions maximize throughput on both x86-64 and ARM64 processor architectures.</p>
+<h3>WebAssembly: not yet implemented</h3>
+<p><code>@sebastienrousseau/crypto-wasm</code> is a placeholder package. It contains no WebAssembly module, so it provides no acceleration.</p>
 </div>
 <div class="card">
-<h3>Zero Garbage Collection Pauses</h3>
-<p>Fixed-size linear memory allocations and deterministic memory reuse completely eliminate Node.js and browser garbage collection spikes during high-concurrency request bursts.</p>
+<h3>Edge Runtimes</h3>
+<p><code>@sebastienrousseau/crypto-edge</code> adapts crypto-lib to Cloudflare Workers, Vercel Edge, Deno, Bun and browsers, with runtime detection and text/base64 fallbacks. Randomness is never polyfilled.</p>
 </div>
 <div class="card">
-<h3>Universal Edge Runtimes</h3>
-<p><code>@sebastienrousseau/crypto-edge</code> runs seamlessly on Cloudflare Workers, Fastly Compute, Vercel Edge, Deno, and Bun, bringing post-quantum cryptography to global points of presence.</p>
-</div>
-<div class="card">
-<h3>Side-Channel &amp; Timing Resistance</h3>
-<p>All core arithmetic operations are strictly constant-time, preventing microarchitectural cache-timing and execution-latency side channels from leaking private key material.</p>
+<h3>No constant-time guarantee</h3>
+<p>The suite has not been verified against timing side channels, and <code>@noble/post-quantum</code> does not guarantee constant-time execution.</p>
 </div>
 </div>
 </section>
@@ -272,38 +266,38 @@ Pre-allocated linear memory prevents garbage collection pauses during high-throu
 <section id="governance-ai" class="solution-detail-section">
 <div class="solution-header">
 <span class="solution-badge font-mono">SOLUTION 06 // GOVERNANCE &amp; AI</span>
-<h2>6. CBOM Compliance, Developer LSP &amp; AI Agent MCP</h2>
+<h2>6. CBOM, Developer LSP &amp; AI Agent MCP</h2>
 </div>
 
 <p class="lead-text">
-Regulatory mandates under EU DORA (Articles 9 &amp; 13) require continuous, automated inventories of all cryptographic assets and third-party dependencies. You can generate machine-readable CycloneDX 1.6 Cryptographic Bills of Materials (CBOM) directly during CI/CD builds.
+A cryptographic inventory is a common input to DORA (EU 2022/2554) ICT risk work. You can generate machine-readable CycloneDX 1.6 Cryptographic Bills of Materials (CBOM) from your source code. Generating a CBOM does not by itself make a system compliant.
 </p>
 
 <p>
-Developer IDEs and autonomous AI agents receive native cryptographic intelligence through the Language Server Protocol (LSP) and Model Context Protocol (MCP), flagging insecure algorithms and generating quantum-safe code automatically.
+Developer IDEs and autonomous AI agents receive native cryptographic intelligence through the Language Server Protocol (LSP) and Model Context Protocol (MCP), flagging weak or quantum-vulnerable algorithm names and offering quick fixes.
 </p>
 
 <div class="grid-2x2">
 <div class="card">
 <h3>CycloneDX 1.6 &amp; SPDX 3.0 CBOM</h3>
-<p><code>@sebastienrousseau/crypto-cbom</code> automatically inspects applications and generates machine-readable Cryptographic Bill of Materials (CBOM) inventories tracking every algorithm, key length, curve, and certificate lifespan on build.</p>
+<p><code>@sebastienrousseau/crypto-cbom</code> scans source code for algorithm usage and generates CycloneDX 1.6 or SPDX 3.0 Cryptographic Bill of Materials (CBOM) documents.</p>
 </div>
 <div class="card">
 <h3>Language Server Protocol (LSP)</h3>
-<p><code>@sebastienrousseau/crypto-lsp</code> delivers real-time static analysis in VS Code and JetBrains IDEs, flagging deprecated algorithms (MD5, SHA-1, DES) and classical quantum-vulnerable keys with automated one-click quick fixes.</p>
+<p><code>@sebastienrousseau/crypto-lsp</code> is a language server that works with any LSP client. Pattern rules flag deprecated algorithms (MD5, SHA-1, DES), short RSA keys and quantum-vulnerable public-key algorithms, with code actions for some findings.</p>
 </div>
 <div class="card">
 <h3>Model Context Protocol (MCP) for AI</h3>
-<p><code>@sebastienrousseau/crypto-mcp</code> exposes verified cryptographic tools, key generation, and PQC analysis directly to LLMs and autonomous coding agents through the open Model Context Protocol standard.</p>
+<p><code>@sebastienrousseau/crypto-mcp</code> exposes crypto-lib operations, key generation and KMS tools to AI assistants through the Model Context Protocol.</p>
 </div>
 <div class="card">
-<h3>Continuous CI/CD FIPS Kat Testing</h3>
-<p><code>@sebastienrousseau/crypto-testing</code> supplies NIST Known Answer Test (KAT) vectors and reproducible fixtures, upholding the monorepo's strict 100% test coverage floor across all 18 packages.</p>
+<h3>Test Fixtures</h3>
+<p><code>@sebastienrousseau/crypto-testing</code> supplies synthetic test keys (including RFC 8032 and RFC 7748 vectors), fixtures and mocks for code that uses crypto-lib.</p>
 </div>
 </div>
 
 <div class="hero-cta-group hero-cta-spaced">
 <a class="btn btn-swift-mint btn-lg" href="/contact/">Request Architecture Briefing →</a>
-<a class="btn btn-secondary btn-lg" href="/standards/">View Standards &amp; Compliance Matrix →</a>
+<a class="btn btn-secondary btn-lg" href="/standards/">View Standards Matrix →</a>
 </div>
 </section>

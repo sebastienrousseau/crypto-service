@@ -3,7 +3,7 @@ title: "2027 Post-Quantum Strategic Horizon & Cryptographic Audit"
 description: "Authoritative research white paper examining the 2027 post-quantum transition horizon, Harvest Now Decrypt Later (HNDL) threats, lattice-based cryptography benchmarks, and architectural defense."
 eyebrow: "White Paper // Academic & Strategic Research"
 headline: "The 2027 Post-Quantum Cryptographic Horizon for Modern Enterprise Stacks"
-lead: "An exhaustive technical white paper analyzing quantum cryptanalysis timelines, lattice-based algorithm performance, DORA Article 13 enforcement, and sovereign cryptographic resilience."
+lead: "An exhaustive technical white paper analyzing quantum cryptanalysis timelines, lattice-based algorithms, DORA ICT risk requirements, and sovereign cryptographic resilience."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -54,7 +54,7 @@ Under the <strong>Harvest Now, Decrypt Later (HNDL)</strong> attack paradigm, ad
 <li>Customer personally identifiable information (PII) subject to GDPR, HIPAA, and financial secrecy mandates.</li>
 </ul>
 <p>
-Consequently, compliance frameworks such as European DORA (Digital Operational Resilience Act) and US National Security Memorandum 10 (NSM-10) demand immediate transition to hybrid or pure post-quantum algorithms for all high-value data-in-transit and data-at-rest.
+Consequently, US National Security Memorandum 10 (NSM-10) directs federal agencies to inventory and migrate quantum-vulnerable cryptography, and the ICT risk management requirements of the EU Digital Operational Resilience Act (DORA) lead many financial institutions to plan a transition to hybrid or post-quantum algorithms for long-lived data.
 </p>
 </section>
 
@@ -73,7 +73,7 @@ NIST's standardized post-quantum algorithms (FIPS 203, FIPS 204, and FIPS 205) a
 </div>
 <div class="card">
 <h3>Number Theoretic Transform (NTT)</h3>
-<p>Polynomial multiplications in $R_q$ are computed in $O(n \log n)$ time using negative wrapped convolution via NTT. Crypto Service implements hand-tuned, constant-time Montgomery reduction avoiding division instructions entirely.</p>
+<p>Polynomial multiplications in $R_q$ are computed in $O(n \log n)$ time using negative wrapped convolution via NTT. Crypto Service does not implement this arithmetic itself: crypto-lib calls <code>@noble/post-quantum</code>, which is not independently audited and does not guarantee constant-time execution.</p>
 </div>
 <div class="card">
 <h3>Module Short Integer Solution (M-SIS)</h3>
@@ -81,7 +81,7 @@ NIST's standardized post-quantum algorithms (FIPS 203, FIPS 204, and FIPS 205) a
 </div>
 <div class="card">
 <h3>Stateless Hash-Based Signatures (SLH-DSA)</h3>
-<p>Standardized in FIPS 205. Rely exclusively on the collision-resistance of cryptographic hash functions (SHAKE-256 and SHA-2). Acts as an unassailable fallback if unexpected structural breakthroughs occur in lattice theory.</p>
+<p>Standardized in FIPS 205. Rely exclusively on the collision-resistance of cryptographic hash functions (SHAKE-256 and SHA-2). Acts as a conservative fallback if unexpected structural breakthroughs occur in lattice theory.</p>
 </div>
 </div>
 </section>
@@ -89,9 +89,9 @@ NIST's standardized post-quantum algorithms (FIPS 203, FIPS 204, and FIPS 205) a
 <hr class="section-divider">
 
 <section id="benchmarks" class="research-section">
-<h2>4. Empirical Micro-Benchmarks &amp; Throughput Analysis</h2>
+<h2>4. Sizes and Benchmarks</h2>
 <p class="lead-text">
-A common misconception is that post-quantum cryptography incurs catastrophic computational overhead. In empirical testing, lattice-based operations (ML-KEM) actually execute <em>significantly faster</em> than classical 3072-bit RSA, exchanging small computational latency for larger key and ciphertext sizes.
+The main cost of moving to lattice-based algorithms is size: ML-KEM ciphertexts and ML-DSA signatures are much larger than their elliptic-curve counterparts. The sizes below are fixed by the standards. Timing figures previously shown here did not come from committed benchmark code and have been withdrawn; run <code>node benchmarks/crypto-bench.ts</code> from the repository to measure on your own hardware.
 </p>
 
 <div class="table-responsive">
@@ -101,9 +101,6 @@ A common misconception is that post-quantum cryptography incurs catastrophic com
 <th>Algorithm</th>
 <th>Type</th>
 <th>NIST Level</th>
-<th>Keygen (µs)</th>
-<th>Encaps / Sign (µs)</th>
-<th>Decaps / Verify (µs)</th>
 <th>Ciphertext / Sig Size</th>
 </tr>
 </thead>
@@ -112,61 +109,43 @@ A common misconception is that post-quantum cryptography incurs catastrophic com
 <td><strong>ML-KEM-768</strong></td>
 <td>PQ Lattice KEM</td>
 <td>Level 3 (AES-192)</td>
-<td>28.4 µs</td>
-<td>34.1 µs</td>
-<td>31.8 µs</td>
 <td>1,088 bytes</td>
 </tr>
 <tr>
 <td><strong>RSA-3072</strong></td>
 <td>Classical Factorization</td>
 <td>Level 3 Equivalent</td>
-<td>11,400.0 µs</td>
-<td>120.5 µs</td>
-<td>2,940.0 µs</td>
 <td>384 bytes</td>
 </tr>
 <tr>
 <td><strong>X25519</strong></td>
 <td>Classical Curve</td>
 <td>Level 1 Equivalent</td>
-<td>14.2 µs</td>
-<td>38.9 µs</td>
-<td>38.9 µs</td>
 <td>32 bytes</td>
 </tr>
 <tr>
 <td><strong>RFC 10024 Hybrid (X25519 + ML-KEM-768)</strong></td>
 <td>Dual-Key Hybrid</td>
 <td>Dual Classical + PQ</td>
-<td>42.6 µs</td>
-<td>73.0 µs</td>
-<td>70.7 µs</td>
 <td>1,120 bytes</td>
 </tr>
 <tr>
 <td><strong>ML-DSA-65</strong></td>
 <td>PQ Lattice Signature</td>
 <td>Level 3 (AES-192)</td>
-<td>84.2 µs</td>
-<td>172.6 µs</td>
-<td>68.4 µs</td>
 <td>3,309 bytes</td>
 </tr>
 <tr>
 <td><strong>Ed25519</strong></td>
 <td>Classical Curve Signature</td>
 <td>Level 1 Equivalent</td>
-<td>18.1 µs</td>
-<td>39.2 µs</td>
-<td>72.5 µs</td>
 <td>64 bytes</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p class="table-caption">
-<em>Benchmarks conducted on Apple M3 Max (ARM64) running Node.js 22 LTS with WebAssembly SIMD acceleration enabled. Averages across 100,000 warm iterations via <code>@sebastienrousseau/crypto-benchmarks</code>.</em>
+<em>Sizes in bytes as specified by FIPS 203, FIPS 204, RFC 7748 and RFC 8032; the hybrid ciphertext is the X25519 public value plus the ML-KEM-768 ciphertext.</em>
 </p>
 </section>
 
@@ -178,11 +157,11 @@ A common misconception is that post-quantum cryptography incurs catastrophic com
 Software implementations of lattice cryptography are particularly susceptible to physical and microarchitectural side-channel attacks, notably cache-timing leaks during polynomial division and power analysis during rejection sampling.
 </p>
 <div class="callout-box">
-<h3>Defensive Guarantees in Crypto Service Suite</h3>
+<h3>What Crypto Service Suite does and does not provide</h3>
 <ul>
-<li><strong>Branch-Free Polynomial Reductions:</strong> Modulo arithmetic utilizes branch-free bitwise arithmetic, eliminating branch predictor speculative execution leaks.</li>
-<li><strong>Masked Secret Polynomial Comparisons:</strong> Constant-time equality checks compare 64-bit word vectors using XOR accumulators rather than early-exit conditionals.</li>
-<li><strong>Immediate Memory Zeroization:</strong> Buffer cleanup via <code>wipeMemory()</code> ensures sensitive private keys cannot be recovered from memory core dumps or suspended execution states.</li>
+<li><strong>No constant-time guarantee:</strong> Lattice arithmetic comes from <code>@noble/post-quantum</code>, which does not guarantee constant-time execution. The suite has not been evaluated against timing, power or fault-injection attacks.</li>
+<li><strong>Secret comparisons:</strong> crypto-lib exports a constant-time <code>timingSafeEqual</code>, but not every internal comparison uses it (for example, the PAKE client's server-MAC check exits at the first mismatch).</li>
+<li><strong>Limited zeroization:</strong> <code>wipeMemory()</code> and <code>SecureBuffer</code> are available to callers, but crypto-lib's own APIs do not call them, and keys handled as hex strings cannot be wiped.</li>
 </ul>
 </div>
 </section>
@@ -198,12 +177,12 @@ Institutions must execute a structured, multi-phase migration to avoid operation
 <div class="timeline-item">
 <span class="timeline-badge font-mono">PHASE 1 // 2025</span>
 <h3>Cryptographic Discovery &amp; Automated CBOM</h3>
-<p>Audit and inventory every algorithmic dependency across your codebases and pipelines. Generate automated CycloneDX 1.6 CBOM artifacts using <code>@sebastienrousseau/crypto-cbom</code> to satisfy DORA Article 13 requirements.</p>
+<p>Audit and inventory every algorithmic dependency across your codebases and pipelines. Generate CycloneDX 1.6 CBOM artifacts using <code>@sebastienrousseau/crypto-cbom</code> as input to DORA ICT risk work.</p>
 </div>
 <div class="timeline-item">
 <span class="timeline-badge font-mono">PHASE 2 // 2026</span>
 <h3>Dual-Key Hybrid Enclaves &amp; Gateway Upgrades</h3>
-<p>Deploy RFC 10024 hybrid key encapsulation (X25519 + ML-KEM-768) alongside existing TLS 1.3 infrastructure. Establish non-custodial KMS connectors for multi-cloud hardware HSMs via <code>@sebastienrousseau/crypto-kms</code>.</p>
+<p>Deploy RFC 10024 hybrid key encapsulation (X25519 + ML-KEM-768) alongside existing TLS 1.3 infrastructure. Manage key-encryption keys through a KMS (crypto-kms implements AWS KMS today).</p>
 </div>
 <div class="timeline-item">
 <span class="timeline-badge font-mono">PHASE 3 // 2027</span>
@@ -222,7 +201,7 @@ Interbank settlement, payment messaging networks, and digital asset custody rail
 <div class="grid-2x2">
 <div class="card">
 <h3>Transport Layer Security (TLS 1.3)</h3>
-<p>Deploy hybrid key encapsulation (X25519 + ML-KEM-768) within interbank gateways. Guarantees that communication sessions remain secure even if one algorithm is compromised.</p>
+<p>Deploy hybrid key encapsulation (X25519 + ML-KEM-768) within interbank gateways. The session key stays secure as long as either component remains unbroken.</p>
 </div>
 <div class="card">
 <h3>Data-at-Rest &amp; Field Encryption</h3>
@@ -233,8 +212,8 @@ Interbank settlement, payment messaging networks, and digital asset custody rail
 <p>High-value transaction payloads are signed using ML-DSA-65 (FIPS 204), delivering post-quantum non-repudiation and deterministic verification across wholesale banking rails.</p>
 </div>
 <div class="card">
-<h3>Hardware HSM Orchestration</h3>
-<p>Abstract multi-cloud hardware security modules (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault) using <code>@sebastienrousseau/crypto-kms</code> to enforce sovereign key isolation.</p>
+<h3>Key Management</h3>
+<p><code>@sebastienrousseau/crypto-kms</code> offers one interface for key management backends. AWS KMS is implemented; GCP, Azure and Vault providers are stubs, and there is no HSM or PKCS#11 integration.</p>
 </div>
 </div>
 
