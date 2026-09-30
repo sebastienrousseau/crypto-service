@@ -16,14 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Windows CI**: The Windows job now verifies the build only, instead of running the full suite.
-- **Dependency overrides**: `pnpm.overrides` in `package.json` is now the only override list. The unused npm `overrides` block and the `pnpm-workspace.yaml` list (read only by pnpm 10+, and out of sync) are removed. The lockfile is unchanged.
+- **Dependency overrides**: `pnpm.overrides` in `package.json` is now the only override list. The unused npm `overrides` block and the `pnpm-workspace.yaml` list (read only by pnpm 10+, and out of sync) are removed. Removing them did not change any resolved version; `ip-address >=10.5.1`, which only the workspace list carried, moves to `pnpm.overrides`.
 - **Lockstep version bump**: All 18 packages, the root manifest and `CITATION.cff` move to 0.0.6.
 
 ### Security
 
-- **`qs`**: Pinned to `>=6.16.0` through workspace overrides.
+- **`qs`**: Pinned to `>=6.16.0` through `pnpm.overrides`.
 - **`@grpc/grpc-js`**: Override raised to `>=1.14.5` (GHSA-m9gg-hp2v-232j, high: `getAuthContext` could report unauthorized certificates as authorized; GHSA-f596-whhp-79r4, low: handler error messages leaked to clients). Reached through crypto-kms (Google Cloud KMS) and crypto-server (OpenTelemetry gRPC exporters).
-- **`markdown-it`**: Pinned to `^14.3.1` through workspace overrides (GHSA-253c-mchw-3w2r, quadratic-time linkify parsing reached through TypeDoc).
+- **`markdown-it`**: Pinned to `^14.3.1` through `pnpm.overrides` (GHSA-253c-mchw-3w2r, quadratic-time linkify parsing reached through TypeDoc).
 
 ## [0.0.5] - 2026-09-29
 
