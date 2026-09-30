@@ -1,6 +1,6 @@
 /**
  * Tests for v2 route error paths — catch blocks (500) and
- * rejectUnauthorized branches (401) in signing.ts, encrypt.ts,
+ * authentication failures (401) for signing.ts, encrypt.ts,
  * hash.ts, and kdf.ts.
  */
 import { expect } from "chai";
@@ -322,7 +322,7 @@ describe("V2 error paths", function () {
   });
 
   // ---------------------------------------------------------------
-  // V1 routes — rejectUnauthorized branches
+  // V1 routes — authentication failures
   // ---------------------------------------------------------------
   describe("V1 auth-required routes", () => {
     const testKey = "v1-auth-test-key";

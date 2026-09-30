@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 ML-DSA (FIPS 204) post-quantum signature endpoints. */
 export default (app: FastifyInstance): void => {
@@ -30,7 +27,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { mlDsaKeygen } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
         const { level } = request.body as { level: 44 | 65 | 87 };
@@ -62,7 +58,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { mlDsaSign } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
         const body = request.body as {
@@ -100,7 +95,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { mlDsaVerify } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
         const body = request.body as {

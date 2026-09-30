@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign";
 
 /** List of SLH-DSA variants accepted by the v2 hash-sign endpoint. */
@@ -47,7 +44,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { slhDsaKeygen } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
         const { variant } = request.body as { variant: string };
@@ -79,7 +75,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { slhDsaSign } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
         const body = request.body as {
@@ -121,7 +116,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { slhDsaVerify } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
         const body = request.body as {

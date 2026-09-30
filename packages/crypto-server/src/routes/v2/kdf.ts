@@ -8,10 +8,7 @@ import {
   kdfDerive,
   KDF_ALGORITHMS,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v2 KDF endpoint. */
 const kdfSchema = {
@@ -27,14 +24,17 @@ const kdfSchema = {
       password: { type: "string", minLength: 1, maxLength: 1024 },
       salt: { type: "string", maxLength: 128 },
       keyLength: { type: "number", minimum: 16, maximum: 64 },
+      // Bounds match crypto-lib's cost limits: larger values would block
+      // the event loop for seconds per request.
       params: {
         type: "object",
+        additionalProperties: false,
         properties: {
-          N: { type: "number" },
-          r: { type: "number" },
-          p: { type: "number" },
-          iterations: { type: "number" },
-          info: { type: "string" },
+          N: { type: "integer", minimum: 2, maximum: 131072 },
+          r: { type: "integer", minimum: 1, maximum: 8 },
+          p: { type: "integer", minimum: 1, maximum: 4 },
+          iterations: { type: "integer", minimum: 1, maximum: 1000000 },
+          info: { type: "string", maxLength: 1024 },
         },
       },
     },
@@ -45,7 +45,6 @@ const kdfSchema = {
 export default (app: FastifyInstance): void => {
   app.post("/v2/kdf", { schema: kdfSchema }, async (request, reply) => {
     try {
-      if (rejectUnauthorized(request, reply)) return;
       const body = request.body as {
         algorithm: string;
         password: string;

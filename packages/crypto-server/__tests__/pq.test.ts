@@ -2,7 +2,7 @@
  * Tests for routes/v2/pq.ts — ML-KEM and hybrid PQ key exchange routes.
  *
  * Covers the full lifecycle of all 6 PQ endpoints plus error paths
- * (catch blocks returning 500) and the rejectUnauthorized guard.
+ * (catch blocks returning 500) and the authentication hook.
  */
 import { expect } from "chai";
 import { init } from "../src/server";
@@ -281,7 +281,7 @@ describe("PQ Routes (v2)", function () {
   });
 
   // ---------------------------------------------------------------
-  // Auth-required paths (rejectUnauthorized)
+  // Auth-required paths (server authentication hook)
   // ---------------------------------------------------------------
   describe("Auth-required paths for PQ routes", () => {
     const origKey = process.env["CRYPTO_API_KEY"];

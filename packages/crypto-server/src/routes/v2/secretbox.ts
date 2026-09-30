@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 secretbox (symmetric authenticated) encryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -31,7 +28,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { seal } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/secretbox");
         const { key, plaintext, aad } = request.body as {
@@ -67,7 +63,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { open } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/secretbox");
         const { key, ciphertext, aad } = request.body as {

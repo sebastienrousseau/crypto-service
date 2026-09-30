@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 password hashing and verification endpoints. */
 export default (app: FastifyInstance): void => {
@@ -24,16 +21,16 @@ export default (app: FastifyInstance): void => {
           additionalProperties: false,
           properties: {
             password: { type: "string", minLength: 1, maxLength: 1024 },
-            timeCost: { type: "number", minimum: 1, maximum: 20 },
-            memoryCost: { type: "number", minimum: 1024, maximum: 1048576 },
-            parallelism: { type: "number", minimum: 1, maximum: 16 },
+            // Bounds match crypto-lib's Argon2 cost limits.
+            timeCost: { type: "integer", minimum: 1, maximum: 10 },
+            memoryCost: { type: "integer", minimum: 1024, maximum: 262144 },
+            parallelism: { type: "integer", minimum: 1, maximum: 8 },
           },
         },
       },
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { hashPassword } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/password");
         const body = request.body as {
@@ -73,10 +70,12 @@ export default (app: FastifyInstance): void => {
             salt: { type: "string", minLength: 1 },
             params: {
               type: "object",
+              required: ["t", "m", "p"],
+              additionalProperties: false,
               properties: {
-                t: { type: "number" },
-                m: { type: "number" },
-                p: { type: "number" },
+                t: { type: "integer", minimum: 1, maximum: 10 },
+                m: { type: "integer", minimum: 8, maximum: 262144 },
+                p: { type: "integer", minimum: 1, maximum: 8 },
               },
             },
           },
@@ -85,7 +84,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { verifyPassword } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/password");
         const body = request.body as {

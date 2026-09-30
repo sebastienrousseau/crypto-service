@@ -27,10 +27,7 @@ import {
   validateEmail,
   validateEnum,
 } from "../../utils/validation";
-import {
-  rejectUnauthorized,
-  collectValidation,
-} from "../../utils/route-helpers";
+import { collectValidation } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v1 key-generation endpoint. */
 const generateSchema = {
@@ -82,8 +79,6 @@ export default (app: FastifyInstance): void => {
     { schema: generateSchema },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
-
         const body = request.body as IBodyGenerate;
         const v = collectValidation(
           {

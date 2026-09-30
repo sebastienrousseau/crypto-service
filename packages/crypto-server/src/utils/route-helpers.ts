@@ -4,38 +4,19 @@
  */
 
 /**
- * @remarks Shared route helpers — auth guard + validation result unwrapping.
+ * @remarks Shared route helpers — validation result unwrapping and error
+ * classification.
  *
- * Every route handler previously duplicated the same API-key check,
- * error-array accumulation, and `as { valid: true; value: T }` casts.
- * This module extracts those patterns into reusable utilities.
+ * Authentication is not done here: a server-wide `onRequest` hook
+ * (server.ts) authenticates every non-public request before any route runs.
  */
 
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyReply } from "fastify";
 import {
-  validateApiKey,
   sendValidationError,
   ValidationError,
   ValidationResult,
 } from "./validation";
-
-/**
- * Returns true (and sends a 401 reply) if the API key is invalid.
- * Callers should `return` immediately when this returns true.
- */
-export function rejectUnauthorized(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): boolean {
-  const apiKeyConfig = process.env["CRYPTO_API_KEY"];
-  if (!validateApiKey(request.headers["x-api-key"], apiKeyConfig)) {
-    reply
-      .status(401)
-      .send({ error: "Unauthorized: Invalid or missing API key" });
-    return true;
-  }
-  return false;
-}
 
 /**
  * Collects validation results and, if all pass, returns the unwrapped

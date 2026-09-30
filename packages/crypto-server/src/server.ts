@@ -29,10 +29,19 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { randomUUID } from "crypto";
 import logger from "./lib/logger";
-import { registerAuth } from "./lib/auth";
+import { authenticate, registerAuth } from "./lib/auth";
 import { registerMetering } from "./enterprise/metering";
 import routes from "./routes";
 import * as fastify from "fastify";
+
+/** Paths served without authentication: probes and the API docs. */
+const PUBLIC_PATHS = new Set(["/health", "/live", "/ready", "/metrics"]);
+
+/** Whether a request URL is a public (unauthenticated) path. */
+function isPublicPath(url: string): boolean {
+  const pathname = url.split("?")[0];
+  return PUBLIC_PATHS.has(pathname) || pathname.startsWith("/docs");
+}
 
 /**
  * Initializes and configures the Fastify application instance.
@@ -99,6 +108,15 @@ async function init(): Promise<fastify.FastifyInstance> {
 
   // JWT authentication (registers the jwt decorator if JWT_SECRET is set)
   await registerAuth(app);
+
+  // Authenticate every request except probes and API docs. Fails closed:
+  // with no credential configured, only ALLOW_ANONYMOUS=1 lets requests in.
+  app.addHook("onRequest", async (request, reply) => {
+    if (isPublicPath(request.url)) return;
+    const auth = await authenticate(request, reply);
+    if (!auth) return reply;
+    (request as { auth?: unknown }).auth = auth;
+  });
 
   // Multi-tenant Sovereign CaaS metering and rate limiting
   registerMetering(app);

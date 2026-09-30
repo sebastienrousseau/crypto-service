@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 multi-recipient encryption/decryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -45,7 +42,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { multiEncrypt } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/multi-recipient");
         const { plaintext, recipients } = request.body as {

@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 password-based encryption/decryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -30,7 +27,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { passwordEncrypt } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
         const { password, plaintext } = request.body as {
@@ -66,7 +62,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { passwordDecrypt } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
         const { password, ciphertext } = request.body as {

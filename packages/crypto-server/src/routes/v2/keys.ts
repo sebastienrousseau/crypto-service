@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers the v2 key-generation endpoint. */
 export default (app: FastifyInstance): void => {
@@ -54,7 +51,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { generateKeyPair } =
           await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
         const { algorithm, metadata } = request.body as {
