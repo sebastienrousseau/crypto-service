@@ -5,8 +5,20 @@ import { expect } from "chai";
 import { Pkcs11HsmProvider } from "../src/index";
 
 describe("Pkcs11HsmProvider", () => {
-  it("initializes with default options", () => {
-    const provider = new Pkcs11HsmProvider();
+  it("refuses to construct without an explicit simulate: true", () => {
+    expect(() => new Pkcs11HsmProvider()).to.throw(
+      /no real PKCS#11 backend.*simulate: true/,
+    );
+    expect(() => new Pkcs11HsmProvider({ simulate: false })).to.throw(
+      /no real PKCS#11 backend/,
+    );
+    expect(
+      () => new Pkcs11HsmProvider({ modulePath: "/usr/lib/libCryptoki2.so" }),
+    ).to.throw(/no real PKCS#11 backend/);
+  });
+
+  it("initializes with default options in simulation mode", () => {
+    const provider = new Pkcs11HsmProvider({ simulate: true });
     expect(provider.name).to.equal("pkcs11");
     expect(provider.hsmModel).to.equal("generic");
     expect(provider.slotIndex).to.equal(0);
@@ -15,11 +27,13 @@ describe("Pkcs11HsmProvider", () => {
     const session = provider.getHsmSessionInfo();
     expect(session.model).to.equal("generic");
     expect(session.authenticated).to.be.false;
-    expect(session.fipsLevel).to.equal("FIPS 140-3 Level 3");
+    expect(session.fipsLevel).to.equal("none (software simulation)");
+    expect(session.simulated).to.be.true;
   });
 
   it("initializes with custom options and PIN authentication", () => {
     const provider = new Pkcs11HsmProvider({
+      simulate: true,
       hsmModel: "thales-luna",
       slotIndex: 2,
       tokenLabel: "LUNA-SLOT-02",
@@ -38,7 +52,10 @@ describe("Pkcs11HsmProvider", () => {
     let provider: Pkcs11HsmProvider;
 
     beforeEach(() => {
-      provider = new Pkcs11HsmProvider({ hsmModel: "aws-cloudhsm" });
+      provider = new Pkcs11HsmProvider({
+        simulate: true,
+        hsmModel: "aws-cloudhsm",
+      });
     });
 
     it("creates, retrieves, and lists encryption and signing keys", async () => {
@@ -138,7 +155,10 @@ describe("Pkcs11HsmProvider", () => {
     let provider: Pkcs11HsmProvider;
 
     beforeEach(() => {
-      provider = new Pkcs11HsmProvider({ hsmModel: "yubihsm2" });
+      provider = new Pkcs11HsmProvider({
+        simulate: true,
+        hsmModel: "yubihsm2",
+      });
     });
 
     it("encrypts and decrypts with and without encryption context", async () => {

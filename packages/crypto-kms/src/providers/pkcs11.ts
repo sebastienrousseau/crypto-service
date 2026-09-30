@@ -2,11 +2,14 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * @remarks PKCS#11 Hardware Security Module (HSM) provider for crypto-kms.
+ * @remarks PKCS#11-shaped provider for crypto-kms: software simulation only.
  *
- * Implements hardware root-of-trust key management conforming to PKCS#11 v2.40/v3.0.
- * Supports physical and cloud-dedicated HSM appliances including Thales Luna,
- * AWS CloudHSM, Utimaco, and YubiHSM2 with zero-export key isolation.
+ * There is no PKCS#11 binding in this package. The provider does not load a
+ * PKCS#11 module, open a slot or talk to any HSM. Keys are generated and held
+ * in process memory, and cryptographic operations run in software (Node.js
+ * `crypto` and crypto-lib). It exists so code written against a PKCS#11-style
+ * provider can be exercised in tests and CI. It provides no hardware key
+ * isolation and no FIPS 140 validation, and must not protect real keys.
  */
 
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
@@ -27,24 +30,30 @@ import type {
   KmsSignResult,
 } from "../types";
 
-/** Configuration options for the PKCS#11 HSM provider. */
+/** Configuration options for the simulated PKCS#11 provider. */
 export interface Pkcs11HsmOptions {
-  /** Path to the PKCS#11 shared library (.so, .dylib, .dll). */
+  /** Path to a PKCS#11 shared library. Recorded only; never loaded. */
   modulePath?: string;
   /** HSM slot index (defaults to 0). */
   slotIndex?: number;
   /** HSM token label. */
   tokenLabel?: string;
-  /** User PIN for slot authentication. */
+  /**
+   * User PIN. The simulation does not verify it: any non-empty PIN marks
+   * the session as authenticated.
+   */
   pin?: string;
-  /** Target HSM appliance model. */
+  /** HSM model label, used only in key identifiers and diagnostics. */
   hsmModel?:
     "thales-luna" | "aws-cloudhsm" | "utimaco" | "yubihsm2" | "generic";
-  /** Whether to run in simulated hardware mode (for CI/CD and non-hardware environments). */
+  /**
+   * Must be `true`. No real PKCS#11 backend exists, so construction throws
+   * unless the caller explicitly opts in to the in-memory simulation.
+   */
   simulate?: boolean;
 }
 
-/** Diagnostic session information returned by the HSM. */
+/** Diagnostic session information reported by the simulated provider. */
 export interface HsmSessionInfo {
   /** Target HSM model identifier. */
   model: string;
@@ -52,9 +61,11 @@ export interface HsmSessionInfo {
   slotIndex: number;
   /** Hardware token label. */
   tokenLabel: string;
-  /** FIPS 140 compliance level. */
+  /** FIPS 140 validation level: always `"none (software simulation)"`. */
   fipsLevel: string;
-  /** Whether hardware session is authenticated. */
+  /** Always `true`: keys live in process memory, not in an HSM. */
+  simulated: boolean;
+  /** Whether a PIN was supplied (the PIN itself is not verified). */
   authenticated: boolean;
   /** Active session state. */
   sessionState: "CKS_RO_USER_FUNCTIONS" | "CKS_RW_USER_FUNCTIONS";
@@ -75,14 +86,16 @@ function generateHsmKeyId(model: string): string {
 }
 
 /**
- * PKCS#11 Hardware Security Module (HSM) KMS Provider.
+ * Simulated PKCS#11 KMS provider.
  *
- * Provides hardware-backed cryptographic operations with physical key isolation
- * conforming to FIPS 140-3 Level 3/4 standards.
+ * An in-memory software simulation of a PKCS#11-style provider for tests
+ * and CI. It has no hardware backing, no key isolation and no FIPS 140
+ * validation. Construction requires `simulate: true` and throws otherwise.
  *
  * @example
  * ```ts
  * const hsm = new Pkcs11HsmProvider({
+ *   simulate: true,
  *   hsmModel: "thales-luna",
  *   tokenLabel: "Institutional-Vault-01",
  *   pin: "123456",
@@ -94,7 +107,7 @@ function generateHsmKeyId(model: string): string {
 export class Pkcs11HsmProvider implements KmsProvider {
   /** Provider identifier. */
   readonly name = "pkcs11";
-  /** Target HSM appliance model. */
+  /** HSM model label (diagnostic only; no device is contacted). */
   readonly hsmModel: string;
   /** Configured slot index. */
   readonly slotIndex: number;
@@ -106,25 +119,33 @@ export class Pkcs11HsmProvider implements KmsProvider {
   private isAuthenticated = false;
 
   constructor(options: Pkcs11HsmOptions = {}) {
+    if (options.simulate !== true) {
+      throw new Error(
+        "Pkcs11HsmProvider: no real PKCS#11 backend is implemented. " +
+          "Pass { simulate: true } to use the in-memory software simulation " +
+          "(tests and CI only; it provides no hardware key isolation).",
+      );
+    }
     this.hsmModel = options.hsmModel ?? "generic";
     this.slotIndex = options.slotIndex ?? 0;
     this.tokenLabel = options.tokenLabel ?? "HSM-DEFAULT-TOKEN";
     this.isAuthenticated = Boolean(options.pin);
   }
 
-  /** Retrieve HSM hardware session diagnostics. */
+  /** Retrieve simulated session diagnostics. */
   getHsmSessionInfo(): HsmSessionInfo {
     return {
       model: this.hsmModel,
       slotIndex: this.slotIndex,
       tokenLabel: this.tokenLabel,
-      fipsLevel: "FIPS 140-3 Level 3",
+      fipsLevel: "none (software simulation)",
+      simulated: true,
       authenticated: this.isAuthenticated,
       sessionState: "CKS_RW_USER_FUNCTIONS",
     };
   }
 
-  /** List all HSM-managed keys matching optional filters. */
+  /** List all simulated keys matching optional filters. */
   listKeys(filters?: {
     usage?: string;
     enabled?: boolean;
@@ -144,7 +165,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     );
   }
 
-  /** Retrieve metadata for a specific HSM key. */
+  /** Retrieve metadata for a specific simulated key. */
   getKey(keyId: string): Promise<KmsKeyMetadata> {
     const record = this.store.get(keyId);
     if (!record) {
@@ -153,7 +174,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     return Promise.resolve({ ...record.metadata });
   }
 
-  /** Create a hardware-isolated managed key within the HSM token. */
+  /** Create a key held in process memory (not hardware-isolated). */
   createKey(
     algorithm: string,
     usage: "encrypt" | "sign" | "wrap",
@@ -215,7 +236,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     return Promise.resolve();
   }
 
-  /** Schedule key deletion in the HSM token. */
+  /** Schedule deletion of a simulated key. */
   scheduleKeyDeletion(keyId: string, pendingWindowDays = 7): Promise<void> {
     const record = this.store.get(keyId);
     if (!record) {
@@ -229,7 +250,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     return Promise.resolve();
   }
 
-  /** Encrypt plaintext using HSM symmetric AES-256-GCM. */
+  /** Encrypt plaintext with AES-256-GCM in software. */
   encrypt(
     keyId: string,
     plaintext: Uint8Array,
@@ -282,7 +303,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     return Promise.resolve(result);
   }
 
-  /** Decrypt ciphertext using HSM symmetric AES-256-GCM. */
+  /** Decrypt ciphertext with AES-256-GCM in software. */
   decrypt(
     keyId: string,
     ciphertext: string,
@@ -326,7 +347,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     }
   }
 
-  /** Sign data inside the HSM token. */
+  /** Sign data with Ed25519 in software. */
   sign(
     keyId: string,
     data: Uint8Array,
@@ -355,7 +376,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     });
   }
 
-  /** Verify signature using the HSM public key. */
+  /** Verify a signature against the simulated key's public key. */
   verify(
     keyId: string,
     data: Uint8Array,
@@ -387,7 +408,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     }
   }
 
-  /** Rotate an HSM key by generating a new hardware object handle. */
+  /** Rotate a simulated key: new key material and a new simulated handle. */
   rotateKey(keyId: string): Promise<KmsKeyMetadata> {
     const record = this.store.get(keyId);
     if (!record) {
@@ -407,7 +428,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     return Promise.resolve({ ...record.metadata });
   }
 
-  /** Generate an ephemeral Data Encryption Key wrapped by the HSM key. */
+  /** Generate a data encryption key wrapped by the simulated key. */
   async generateDataKey(
     keyId: string,
     _keySpec = "AES_256",
