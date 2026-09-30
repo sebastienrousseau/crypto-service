@@ -1,8 +1,5 @@
 import { expect } from "chai";
-import {
-  streamEncrypt,
-  streamDecrypt,
-} from "../../src/streaming/stream-aead";
+import { streamEncrypt, streamDecrypt } from "../../src/streaming/stream-aead";
 
 describe("Streaming AEAD", () => {
   const key = "aa".repeat(32); // 256-bit key
@@ -114,6 +111,19 @@ describe("Streaming AEAD", () => {
     expect(() =>
       streamDecrypt({ key, ciphertext: truncated, chunkSize }),
     ).to.throw();
+  });
+
+  it("should reject ciphertext truncated at a chunk boundary", () => {
+    const chunkSize = 32;
+    const plaintext = new Uint8Array(100).fill(0x42);
+    const encrypted = streamEncrypt({ key, plaintext, chunkSize });
+    // Header (24-byte nonce) + two whole MESSAGE chunks (tag + 32 + 16),
+    // dropping the remaining chunks including the FINAL one.
+    const boundary = 24 + 2 * (1 + chunkSize + 16);
+    const truncated = encrypted.ciphertext.subarray(0, boundary);
+    expect(() =>
+      streamDecrypt({ key, ciphertext: truncated, chunkSize }),
+    ).to.throw(/truncated/i);
   });
 
   it("should reject invalid hex key", () => {
