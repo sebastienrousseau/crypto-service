@@ -187,9 +187,9 @@ import { installPolyfills } from "@sebastienrousseau/crypto-edge";
 const installed = installPolyfills();
 ```
 
-Polyfills provided: `TextEncoder`, `TextDecoder`, `btoa`, `atob`,
-and a `Math.random`-based `crypto.getRandomValues` (testing only --
-**not** cryptographically secure).
+Polyfills provided: `TextEncoder`, `TextDecoder`, `btoa`, and `atob`.
+`crypto.getRandomValues` is never polyfilled: without a native CSPRNG,
+`randomBytes()` throws rather than fall back to predictable output.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 ## Examples

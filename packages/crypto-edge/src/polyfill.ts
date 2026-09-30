@@ -7,16 +7,16 @@
  * @remarks Polyfills for missing APIs in constrained edge runtimes.
  *
  * Some lightweight edge runtimes (e.g., very minimal WASM-based
- * isolates) may lack `TextEncoder`, `TextDecoder`, `btoa`/`atob`, or
- * `crypto.getRandomValues`. This module provides pure-JavaScript
- * fallbacks that are installed **only** when the native API is absent.
+ * isolates) may lack `TextEncoder`, `TextDecoder`, or `btoa`/`atob`.
+ * This module provides pure-JavaScript fallbacks that are installed
+ * **only** when the native API is absent.
  *
  * Call {@link installPolyfills} once at application startup.
  *
- * **Note:** The `crypto.getRandomValues` polyfill uses a non-CSPRNG
- * `Math.random` fallback and should only be used for testing or
- * non-security-critical scenarios. A warning is logged to the console
- * when this fallback is activated.
+ * **Randomness is never polyfilled.** `crypto.getRandomValues` cannot
+ * be emulated securely in JavaScript, so it is left untouched. When a
+ * runtime has no CSPRNG, random-dependent operations (such as
+ * `randomBytes`) throw instead of degrading to predictable output.
  */
 
 // ---------------------------------------------------------------------------
@@ -224,28 +224,6 @@ function atobPolyfill(input: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// crypto.getRandomValues polyfill (INSECURE -- testing only)
-// ---------------------------------------------------------------------------
-
-/**
- * **INSECURE** `Math.random`-based fallback for
- * `crypto.getRandomValues`. This is NOT cryptographically secure and
- * must only be used in environments where no CSPRNG is available (e.g.,
- * unit tests in constrained runtimes).
- */
-function insecureGetRandomValues<T extends ArrayBufferView>(array: T): T {
-  const bytes = new Uint8Array(
-    array.buffer,
-    array.byteOffset,
-    array.byteLength,
-  );
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = Math.floor(Math.random() * 256);
-  }
-  return array;
-}
-
-// ---------------------------------------------------------------------------
 // Installation
 // ---------------------------------------------------------------------------
 
@@ -256,6 +234,10 @@ let _installed = false;
  * Install polyfills for missing global APIs.
  *
  * Safe to call multiple times -- subsequent calls are no-ops.
+ *
+ * Never installs a `crypto.getRandomValues` fallback: a
+ * non-cryptographic generator would silently weaken every library in
+ * the realm that draws randomness from it.
  *
  * @returns An object describing which polyfills were installed.
  *
@@ -276,8 +258,6 @@ export function installPolyfills(): {
   btoa: boolean;
   /** Whether the `atob` polyfill was installed. */
   atob: boolean;
-  /** Whether the insecure `crypto.getRandomValues` polyfill was installed. */
-  getRandomValues: boolean;
 } {
   if (_installed) {
     return {
@@ -285,7 +265,6 @@ export function installPolyfills(): {
       textDecoder: false,
       btoa: false,
       atob: false,
-      getRandomValues: false,
     };
   }
 
@@ -295,7 +274,6 @@ export function installPolyfills(): {
     textDecoder: false,
     btoa: false,
     atob: false,
-    getRandomValues: false,
   };
 
   if (typeof g.TextEncoder !== "function") {
@@ -316,22 +294,6 @@ export function installPolyfills(): {
   if (typeof g.atob !== "function") {
     g.atob = atobPolyfill;
     result.atob = true;
-  }
-
-  if (
-    typeof g.crypto === "undefined" ||
-    typeof g.crypto.getRandomValues !== "function"
-  ) {
-    if (typeof g.crypto === "undefined") {
-      g.crypto = {};
-    }
-    // eslint-disable-next-line no-console
-    console.warn(
-      "[crypto-edge] Installing INSECURE Math.random-based polyfill for " +
-        "crypto.getRandomValues. Do NOT use this in production.",
-    );
-    g.crypto.getRandomValues = insecureGetRandomValues;
-    result.getRandomValues = true;
   }
 
   _installed = true;
@@ -355,10 +317,4 @@ export function _resetPolyfillState(): void {
 }
 
 // Export polyfill classes/functions for direct use if needed.
-export {
-  TextEncoderPolyfill,
-  TextDecoderPolyfill,
-  btoaPolyfill,
-  atobPolyfill,
-  insecureGetRandomValues,
-};
+export { TextEncoderPolyfill, TextDecoderPolyfill, btoaPolyfill, atobPolyfill };

@@ -50,6 +50,9 @@ function getSubtle(): SubtleCrypto {
  * Generate cryptographically secure random bytes.
  * Uses `crypto.getRandomValues` which is available in all target runtimes.
  *
+ * @throws {Error} If the runtime has no `crypto.getRandomValues`. There
+ * is deliberately no non-cryptographic fallback.
+ *
  * @example
  * ```ts
  * import { randomBytes } from "@aspect/crypto-edge";
@@ -59,8 +62,18 @@ function getSubtle(): SubtleCrypto {
  * ```
  */
 function randomBytes(length: number): Uint8Array {
+  const source = globalThis.crypto;
+  if (
+    typeof source === "undefined" ||
+    typeof source.getRandomValues !== "function"
+  ) {
+    throw new Error(
+      "No cryptographically secure random source available: " +
+        "crypto.getRandomValues is missing in this runtime.",
+    );
+  }
   const buf = new Uint8Array(length);
-  globalThis.crypto.getRandomValues(buf);
+  source.getRandomValues(buf);
   return buf;
 }
 

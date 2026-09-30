@@ -25,20 +25,22 @@ async function main() {
       `textDecoder:     ${result.textDecoder}`,
       `btoa:            ${result.btoa}`,
       `atob:            ${result.atob}`,
-      `getRandomValues: ${result.getRandomValues}`,
     ];
   });
 
-  await taskWithOutput("Detect capabilities after polyfill installation", () => {
-    const caps = getCapabilities();
-    return [
-      `runtime:        ${caps.runtime}`,
-      `hasWebCrypto:   ${caps.hasWebCrypto}`,
-      `hasSubtle:      ${caps.hasSubtle}`,
-      `hasNodeCrypto:  ${caps.hasNodeCrypto}`,
-      `hasTextEncoder: ${caps.hasTextEncoder}`,
-    ];
-  });
+  await taskWithOutput(
+    "Detect capabilities after polyfill installation",
+    () => {
+      const caps = getCapabilities();
+      return [
+        `runtime:        ${caps.runtime}`,
+        `hasWebCrypto:   ${caps.hasWebCrypto}`,
+        `hasSubtle:      ${caps.hasSubtle}`,
+        `hasNodeCrypto:  ${caps.hasNodeCrypto}`,
+        `hasTextEncoder: ${caps.hasTextEncoder}`,
+      ];
+    },
+  );
 
   summary(3);
 }

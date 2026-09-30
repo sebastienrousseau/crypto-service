@@ -5,6 +5,7 @@
 
 import { expect, use } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { Module } from "node:module";
 
 use(chaiAsPromised);
 
@@ -22,7 +23,6 @@ import {
   TextDecoderPolyfill,
   btoaPolyfill,
   atobPolyfill,
-  insecureGetRandomValues,
 } from "../src/polyfill";
 
 import {
@@ -41,7 +41,7 @@ import {
 // Barrel re-export coverage
 import * as barrel from "../src/index";
 
-const g = globalThis as Record<string, any>;
+const g = globalThis as Record<string, unknown>;
 
 // =========================================================================
 // Barrel re-exports (index.ts)
@@ -74,7 +74,10 @@ describe("index barrel exports", () => {
     expect(barrel.TextDecoderPolyfill).to.be.a("function");
     expect(barrel.btoaPolyfill).to.be.a("function");
     expect(barrel.atobPolyfill).to.be.a("function");
-    expect(barrel.insecureGetRandomValues).to.be.a("function");
+  });
+
+  it("should not export any non-cryptographic random fallback", () => {
+    expect(barrel).to.not.have.property("insecureGetRandomValues");
   });
 });
 
@@ -359,7 +362,6 @@ describe("detect", () => {
       // To exercise the catch branch in getCapabilities(), we need
       // require("node:crypto") to throw. We patch Module.prototype.require
       // which is the instance method called by all module-scoped require() calls.
-      const Module = require("module");
       const origRequire = Module.prototype.require;
 
       Module.prototype.require = function (id: string) {
@@ -541,7 +543,10 @@ describe("polyfill", () => {
       for (const s of testStrings) {
         const encoded = encoder.encode(s);
         const decoded = decoder.decode(encoded);
-        expect(decoded).to.equal(s, `roundtrip failed for: ${JSON.stringify(s)}`);
+        expect(decoded).to.equal(
+          s,
+          `roundtrip failed for: ${JSON.stringify(s)}`,
+        );
       }
     });
   });
@@ -570,7 +575,16 @@ describe("polyfill", () => {
     });
 
     it("should match native btoa output", () => {
-      const cases = ["hello", "world", "foo bar", "test123", "Man", "Ma", "M", ""];
+      const cases = [
+        "hello",
+        "world",
+        "foo bar",
+        "test123",
+        "Man",
+        "Ma",
+        "M",
+        "",
+      ];
       for (const input of cases) {
         expect(btoaPolyfill(input)).to.equal(
           btoa(input),
@@ -635,37 +649,6 @@ describe("polyfill", () => {
     });
   });
 
-  describe("insecureGetRandomValues", () => {
-    it("should fill a Uint8Array with random values", () => {
-      const arr = new Uint8Array(32);
-      const result = insecureGetRandomValues(arr);
-      expect(result).to.equal(arr);
-      // Very unlikely all 32 bytes are zero
-      const hasNonZero = arr.some((b) => b !== 0);
-      expect(hasNonZero).to.be.true;
-    });
-
-    it("should handle typed array views with offset", () => {
-      const buffer = new ArrayBuffer(16);
-      const view = new Uint8Array(buffer, 4, 8);
-      const result = insecureGetRandomValues(view);
-      expect(result).to.equal(view);
-      expect(result.byteLength).to.equal(8);
-    });
-
-    it("should return the same reference", () => {
-      const arr = new Uint8Array(8);
-      expect(insecureGetRandomValues(arr)).to.equal(arr);
-    });
-
-    it("should handle zero-length array", () => {
-      const arr = new Uint8Array(0);
-      const result = insecureGetRandomValues(arr);
-      expect(result).to.equal(arr);
-      expect(result.length).to.equal(0);
-    });
-  });
-
   describe("installPolyfills()", () => {
     afterEach(() => {
       _resetPolyfillState();
@@ -674,13 +657,12 @@ describe("polyfill", () => {
     it("should return all false on first call in Node (everything already exists)", () => {
       _resetPolyfillState();
       const result = installPolyfills();
-      // In Node.js, TextEncoder, TextDecoder, btoa, atob, and crypto.getRandomValues
+      // In Node.js, TextEncoder, TextDecoder, btoa, and atob
       // all exist natively, so nothing should be installed.
       expect(result.textEncoder).to.be.false;
       expect(result.textDecoder).to.be.false;
       expect(result.btoa).to.be.false;
       expect(result.atob).to.be.false;
-      expect(result.getRandomValues).to.be.false;
     });
 
     it("should return all false on second call (idempotent)", () => {
@@ -691,7 +673,6 @@ describe("polyfill", () => {
       expect(result.textDecoder).to.be.false;
       expect(result.btoa).to.be.false;
       expect(result.atob).to.be.false;
-      expect(result.getRandomValues).to.be.false;
     });
 
     it("should install TextEncoder polyfill when missing", () => {
@@ -744,28 +725,26 @@ describe("polyfill", () => {
       }
     });
 
-    it("should install getRandomValues polyfill when crypto is undefined", () => {
+    it("should never install a getRandomValues fallback when crypto is undefined", () => {
       _resetPolyfillState();
       const origCrypto = g.crypto;
       delete g.crypto;
       try {
         const result = installPolyfills();
-        expect(result.getRandomValues).to.be.true;
-        expect(g.crypto).to.be.an("object");
-        expect(g.crypto.getRandomValues).to.be.a("function");
+        expect(result).to.not.have.property("getRandomValues");
+        expect(g.crypto).to.be.undefined;
       } finally {
         g.crypto = origCrypto;
       }
     });
 
-    it("should install getRandomValues polyfill when crypto exists but getRandomValues is missing", () => {
+    it("should never install a getRandomValues fallback when crypto lacks it", () => {
       _resetPolyfillState();
-      const origCrypto = g.crypto;
+      const origCrypto = g.crypto as Crypto;
       g.crypto = { subtle: origCrypto.subtle };
       try {
-        const result = installPolyfills();
-        expect(result.getRandomValues).to.be.true;
-        expect(g.crypto.getRandomValues).to.be.a("function");
+        installPolyfills();
+        expect((g.crypto as Partial<Crypto>).getRandomValues).to.be.undefined;
       } finally {
         g.crypto = origCrypto;
       }
@@ -816,6 +795,30 @@ describe("webcrypto", () => {
     it("should handle zero-length request", () => {
       const bytes = randomBytes(0);
       expect(bytes.length).to.equal(0);
+    });
+
+    it("should throw when crypto is undefined", () => {
+      const origCrypto = g.crypto;
+      delete g.crypto;
+      try {
+        expect(() => randomBytes(16)).to.throw(
+          "No cryptographically secure random source available",
+        );
+      } finally {
+        g.crypto = origCrypto;
+      }
+    });
+
+    it("should throw when crypto.getRandomValues is missing", () => {
+      const origCrypto = g.crypto as Crypto;
+      g.crypto = { subtle: origCrypto.subtle };
+      try {
+        expect(() => randomBytes(16)).to.throw(
+          "No cryptographically secure random source available",
+        );
+      } finally {
+        g.crypto = origCrypto;
+      }
     });
   });
 
@@ -1156,7 +1159,11 @@ describe("webcrypto", () => {
 
     it("should throw for unsupported algorithm", async () => {
       await expect(
-        generateKey({ algorithm: "INVALID" as any }),
+        generateKey({
+          algorithm: "INVALID" as unknown as Parameters<
+            typeof generateKey
+          >[0]["algorithm"],
+        }),
       ).to.be.rejectedWith("Unsupported key generation algorithm: INVALID");
     });
 
@@ -1165,7 +1172,9 @@ describe("webcrypto", () => {
       const plaintext = new TextEncoder().encode("generated key test");
       const { ciphertext } = await encrypt({ key, plaintext });
       const decrypted = await decrypt({ key, ciphertext });
-      expect(new TextDecoder().decode(decrypted)).to.equal("generated key test");
+      expect(new TextDecoder().decode(decrypted)).to.equal(
+        "generated key test",
+      );
     });
   });
 
@@ -1195,9 +1204,7 @@ describe("webcrypto", () => {
             key: new Uint8Array(32),
             plaintext: new Uint8Array(1),
           }),
-        ).to.be.rejectedWith(
-          "Web Crypto API (crypto.subtle) is not available",
-        );
+        ).to.be.rejectedWith("Web Crypto API (crypto.subtle) is not available");
       } finally {
         g.crypto = origCrypto;
       }
