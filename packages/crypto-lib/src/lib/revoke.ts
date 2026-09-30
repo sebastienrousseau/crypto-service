@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import { writeFile } from "fs/promises";
-import * as path from "path";
 import * as openpgp from "openpgp";
+import { writeKeyOutputs } from "./key-output";
 import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
@@ -44,12 +43,9 @@ export const revoke = async (
   const revokedPubArmored = revoked.publicKey as unknown as string;
   const revokedPrivArmored = revoked.privateKey as unknown as string;
 
-  /* c8 ignore next 3 -- tests always set CRYPTO_KEY_DIR */
-  const keyDir =
-    process.env["CRYPTO_KEY_DIR"] ?? path.resolve(__dirname, "..", "key");
-  await Promise.all([
-    writeFile(path.join(keyDir, "rsa-revoke.pub"), revokedPubArmored, "utf8"),
-    writeFile(path.join(keyDir, "rsa-revoke.key"), revokedPrivArmored, "utf8"),
+  await writeKeyOutputs([
+    { name: "rsa-revoke.pub", content: revokedPubArmored, secret: false },
+    { name: "rsa-revoke.key", content: revokedPrivArmored, secret: true },
   ]);
 
   return revoked;
