@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2026-09-30
+
+### Added
+
+- **2027 post-quantum trends and audit report**: New research document, `docs/research/2027-post-quantum-trends-and-repository-analysis.md`.
+
+### Changed
+
+- **Windows CI**: The Windows job now verifies the build only, instead of running the full suite.
+- **Lockstep version bump**: All 18 packages, the root manifest and `CITATION.cff` move to 0.0.6.
+
+### Security
+
+- **`qs`**: Pinned to `>=6.16.0` through workspace overrides.
+- **`markdown-it`**: Pinned to `^14.3.1` through workspace overrides (GHSA-253c-mchw-3w2r, quadratic-time linkify parsing reached through TypeDoc).
+
 ## [0.0.5] - 2026-09-29
 
 ### Added
@@ -88,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.6]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.2...v0.0.3

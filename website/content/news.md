@@ -15,14 +15,14 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<section class="news-featured-section" id="release-v005">
+<section class="news-featured-section" id="release-v006">
 <div class="news-spotlight-card">
 <div class="news-tag font-mono">LATEST RELEASE • SEPTEMBER 2026</div>
-<h2>Crypto Service Suite v0.0.5 Released with HSM PKCS#11, ISO 20022 Dual-Signing &amp; MTU Agility</h2>
+<h2>Crypto Service Suite v0.0.6 Released with Unified Release Pipeline &amp; Cross-Platform Fixes</h2>
 <p class="lead-text">
-We are proud to announce the general availability of Crypto Service Suite v0.0.5 across all 18 monorepo workspace packages. This milestone introduces hardware token PKCS#11 integration in crypto-kms, post-quantum ISO 20022 dual-signing in crypto-lib, adaptive MTU payload negotiation in crypto-sdk, and high-throughput streaming pipelines in crypto-server.
+We are proud to announce the general availability of Crypto Service Suite v0.0.6 across all 18 monorepo workspace packages. This iteration unifies dependency security overrides across all downstream packages, streamlines cross-platform build pipelines for Windows runners, and establishes a single-funnel release pipeline.
 </p>
-<div class="news-meta font-mono">Published September 29, 2026 • 6 min read • Core Engineering Team</div>
+<div class="news-meta font-mono">Published September 29, 2026 • 5 min read • Core Engineering Team</div>
 </div>
 </section>
 

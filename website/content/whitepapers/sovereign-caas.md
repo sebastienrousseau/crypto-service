@@ -21,7 +21,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <span>Document ID: CSS-ARCH-2026-004</span>
 <span>Classification: Technical Architecture Blueprint</span>
 <span>Compliance: EU DORA Art. 13/14 · NIST FIPS 203/204 · CNSA 2.0</span>
-<span>Reference Implementation: @sebastienrousseau/crypto-server v0.0.5</span>
+<span>Reference Implementation: @sebastienrousseau/crypto-server v0.0.6</span>
 </div>
 </div>
 
