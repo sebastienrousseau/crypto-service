@@ -1,11 +1,52 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
+import {
+  mlKemKeygen,
+  mlKemEncap,
+  mlDsaKeygen,
+  mlDsaSign,
+  mlDsaVerify,
+} from "@sebastienrousseau/crypto-lib";
+import type {
+  MlKemEncapResult,
+  MlDsaVerifyResult,
+} from "@sebastienrousseau/crypto-lib";
 import { BenchmarkItemResult } from "../types";
 import { benchmarkOperation } from "../timer";
 
+/** Pre-keyed post-quantum operations, as timed by {@link runPqcBenchmarks}. */
+export interface PqcOperations {
+  /** One ML-KEM-768 encapsulation to a fixed public key (crypto-lib). */
+  mlKem768Encapsulate: () => MlKemEncapResult;
+  /** Hex secret key matching the encapsulation public key. */
+  mlKem768SecretKey: string;
+  /** One ML-DSA-65 verification of a fixed, valid signature (crypto-lib). */
+  mlDsa65Verify: () => MlDsaVerifyResult;
+}
+
 /**
- * Benchmarks Post-Quantum Cryptographic primitives (ML-KEM-768 vs ECDH).
+ * Generates keys and returns the crypto-lib ML-KEM-768 and ML-DSA-65
+ * operations the PQC benchmark times. Key generation happens here, outside
+ * the timed loop.
+ */
+export function createPqcOperations(): PqcOperations {
+  const kem = mlKemKeygen(768);
+  const dsa = mlDsaKeygen(65);
+  const message = crypto.randomBytes(32);
+  const { signature } = mlDsaSign(65, dsa.secretKey, message);
+
+  return {
+    mlKem768Encapsulate: () => mlKemEncap(768, kem.publicKey),
+    mlKem768SecretKey: kem.secretKey,
+    mlDsa65Verify: () => mlDsaVerify(65, dsa.publicKey, message, signature),
+  };
+}
+
+/**
+ * Benchmarks post-quantum primitives from crypto-lib (ML-KEM-768
+ * encapsulation, ML-DSA-65 verification) against a classical P-256 ECDH
+ * baseline from Node.js `crypto`.
  */
 export async function runPqcBenchmarks(
   iterations = 30,
@@ -35,15 +76,12 @@ export async function runPqcBenchmarks(
     stats: ecdhStats,
   });
 
-  // 2. Post-Quantum ML-KEM-768 (Lattice KEM encapsulation operation)
-  // Simulating FIPS 203 polynomial arithmetic & hashing pipeline
-  const kemSeed = crypto.randomBytes(64);
+  const ops = createPqcOperations();
+
+  // 2. ML-KEM-768 encapsulation (crypto-lib, @noble/post-quantum)
   const kemStats = await benchmarkOperation(
     () => {
-      // Encapsulation pipeline: SHA3-512 / SHAKE256 + NTT matrix-vector expansion
-      const hash = crypto.createHash("sha512").update(kemSeed).digest();
-      const ct = crypto.createHash("sha256").update(hash).digest();
-      crypto.timingSafeEqual(ct, ct);
+      ops.mlKem768Encapsulate();
     },
     { iterations, warmup: 5 },
   );
@@ -57,13 +95,10 @@ export async function runPqcBenchmarks(
     stats: kemStats,
   });
 
-  // 3. Post-Quantum ML-DSA-65 (Lattice signature verification operation)
-  const dsaSeed = crypto.randomBytes(32);
+  // 3. ML-DSA-65 signature verification (crypto-lib, @noble/post-quantum)
   const dsaStats = await benchmarkOperation(
     () => {
-      // Verification pipeline: Keccak hashing + polynomial norm bound checks
-      const h = crypto.createHash("sha512").update(dsaSeed).digest();
-      crypto.createHash("sha256").update(h).digest();
+      ops.mlDsa65Verify();
     },
     { iterations, warmup: 5 },
   );
