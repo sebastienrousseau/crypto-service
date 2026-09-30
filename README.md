@@ -67,7 +67,7 @@ you need, or clone the entire monorepo for full-stack development.
 
 | Method                 | Command / Steps                                                                                                               |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **pnpm** (recommended) | `pnpm add @sebastienrousseau/crypto-lib`                                                                                      |
+| **pnpm** (recommended) | `pnpm add @sebastienrousseau/crypto-lib` (npm has 0.0.3; see note below)                                                      |
 | **npm**                | `npm install @sebastienrousseau/crypto-lib`                                                                                   |
 | **yarn**               | `yarn add @sebastienrousseau/crypto-lib`                                                                                      |
 | **From source**        | `git clone https://github.com/sebastienrousseau/crypto-service.git && cd crypto-service && pnpm install && pnpm -r run build` |
@@ -77,51 +77,26 @@ Docker container images are published to GHCR. Standalone distro packages and Re
 
 ### Individual packages
 
-Install only the packages your application requires:
+Only three packages are published to npm, and the published versions are
+older than this repository (`v0.0.6`):
 
 ```bash
-# Core cryptographic library (required for all operations)
-pnpm add @sebastienrousseau/crypto-lib
-
-# REST API server
-pnpm add @sebastienrousseau/crypto-server
-
-# TypeScript SDK client for the REST API
-pnpm add @sebastienrousseau/crypto-sdk
-
-# CLI tool (install globally)
-pnpm add -g @sebastienrousseau/crypto-cli
-
-# Framework integrations
-pnpm add @sebastienrousseau/crypto-react       # React hooks
-pnpm add @sebastienrousseau/crypto-vue         # Vue 3 composables
-pnpm add @sebastienrousseau/crypto-middleware  # Express/Fastify middleware
-
-# ORM adapters
-pnpm add @sebastienrousseau/crypto-prisma      # Prisma field encryption
-pnpm add @sebastienrousseau/crypto-typeorm     # TypeORM column encryption
-
-# Infrastructure
-pnpm add @sebastienrousseau/crypto-edge        # Edge/serverless adapter
-pnpm add @sebastienrousseau/crypto-kms         # Cloud KMS integration
-pnpm add @sebastienrousseau/crypto-wasm        # WebAssembly acceleration
-pnpm add @sebastienrousseau/crypto-testing     # Test utilities & mock providers
-
-# AI & Developer Tooling
-pnpm add @sebastienrousseau/crypto-mcp         # Model Context Protocol (MCP) server
-pnpm add @sebastienrousseau/crypto-lsp         # Language Server Protocol (LSP) server
-pnpm add @sebastienrousseau/crypto-cbom        # Cryptographic Bill of Materials (CycloneDX/SPDX)
-pnpm add @sebastienrousseau/crypto-benchmarks  # Performance benchmarking & profiling
+pnpm add @sebastienrousseau/crypto-lib      # npm 0.0.3
+pnpm add @sebastienrousseau/crypto-server   # npm 0.0.2
+pnpm add -g @sebastienrousseau/crypto-cli   # npm 0.0.1
 ```
+
+The Quick Start below uses the `v0.0.6` API, which the npm release of
+crypto-lib (0.0.3) may not include. Every other package in the table below
+is not on npm yet; use it from source through the pnpm workspace.
 
 ---
 
 ## Requirements
 
-Node.js **>= 22.0.0** (tested on Node.js 22 and 24 across macOS, Linux, and Windows).
+Node.js **>= 22.0.0** (CI tests Node.js 22 and 24 on Ubuntu and macOS).
 Package manager: **pnpm >= 9.0.0** (monorepo workspaces).
 TypeScript: **~5.9.3** for development.
-Optional WebAssembly acceleration requires an environment supporting WebAssembly SIMD.
 Docker images require Docker 20.10+ or a compatible OCI runtime.
 See [toolchain policy](docs/POLICIES.md).
 
@@ -130,45 +105,53 @@ See [toolchain policy](docs/POLICIES.md).
 ## Quick Start
 
 ```typescript
+import { randomBytes } from "node:crypto";
 import {
-  AesGcmEncryption,
-  Sha256Hasher,
-  MlKemKem,
-  SlhDsaSignature,
+  aesGcmEncrypt,
+  aesGcmDecrypt,
+  hash,
+  mlKemKeygen,
+  mlKemEncap,
+  mlKemDecap,
+  slhDsaKeygen,
+  slhDsaSign,
+  slhDsaVerify,
 } from "@sebastienrousseau/crypto-lib";
 
-// 1. Authenticated Encryption with AES-256-GCM
-const cipher = new AesGcmEncryption();
-const key = cipher.generateKey();
-const encrypted = cipher.encrypt("Sensitive payload", key);
-const decrypted = cipher.decrypt(encrypted, key);
+// 1. Authenticated encryption with AES-256-GCM (32-byte key)
+const key = randomBytes(32);
+const { ciphertext } = aesGcmEncrypt({ key, plaintext: "Sensitive payload" });
+const plaintext = new TextDecoder().decode(aesGcmDecrypt({ key, ciphertext }));
 
-// 2. Cryptographic Hashing with SHA-256
-const hasher = new Sha256Hasher();
-const digest = hasher.hash("Integrity check");
+// 2. Hashing with SHA-256 (hex digest)
+const { digest } = hash({ algorithm: "sha256", data: "Integrity check" });
 
-// 3. Post-Quantum Key Encapsulation (ML-KEM / FIPS 203)
-const mlkem = new MlKemKem("ml-kem-768");
-const keypair = mlkem.generateKeyPair();
-const { ciphertext, sharedSecret } = mlkem.encapsulate(keypair.publicKey);
-const decapsulatedSecret = mlkem.decapsulate(ciphertext, keypair.privateKey);
+// 3. ML-KEM-768 key encapsulation (FIPS 203 algorithm)
+const kem = mlKemKeygen(768);
+const sent = mlKemEncap(768, kem.publicKey);
+const received = mlKemDecap(768, kem.secretKey, sent.ciphertext);
+// received.sharedSecret === sent.sharedSecret
 
-// 4. Post-Quantum Stateless Hash-Based Signatures (SLH-DSA / FIPS 205)
-const slhdsa = new SlhDsaSignature("slh-dsa-sha2-128s");
-const signKeys = slhdsa.generateKeyPair();
-const sig = slhdsa.sign("Message to authenticate", signKeys.privateKey);
-const isValid = slhdsa.verify(
-  "Message to authenticate",
-  sig,
-  signKeys.publicKey,
+// 4. SLH-DSA signatures (FIPS 205 algorithm)
+const signer = slhDsaKeygen("sha2-128s");
+const { signature } = slhDsaSign("sha2-128s", signer.secretKey, "Message");
+const { valid } = slhDsaVerify(
+  "sha2-128s",
+  signer.publicKey,
+  "Message",
+  signature,
 );
 ```
 
-Run CLI commands directly:
+The post-quantum algorithms come from `@noble/post-quantum`, which has not
+been independently audited and does not guarantee constant-time execution.
+No module in this suite is FIPS 140-3 validated.
+
+The CLI is interactive: run it with no arguments and pick an operation from
+the menu.
 
 ```bash
-crypto-cli hash --algorithm sha256 --input "Hello World"
-crypto-cli encrypt --algorithm aes-256-gcm --input "Secret Data" --key <KEY>
+crypto-cli
 ```
 
 ---
@@ -178,45 +161,49 @@ crypto-cli encrypt --algorithm aes-256-gcm --input "Secret Data" --key <KEY>
 All 18 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
 
 > [!NOTE]
-> **Package Distribution & Registry Availability**: Historically, five packages in the ecosystem were individually published to npm (`@sebastienrousseau/crypto-service`, `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, `@sebastienrousseau/crypto-cli`, and utility tooling). In the coordinated `v0.0.6` lockstep release, all 18 specialized packages are configured with standardized public registry manifests and publish workflows for complete registry availability. All packages can also be consumed immediately from source or via pnpm workspaces.
+> **Registry availability**: four packages are on npm, all at versions older than `v0.0.6`: `@sebastienrousseau/crypto-service` (0.0.2), `@sebastienrousseau/crypto-lib` (0.0.3), `@sebastienrousseau/crypto-server` (0.0.2) and `@sebastienrousseau/crypto-cli` (0.0.1). The other packages are not published; use them from source through the pnpm workspace.
 
-| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability      |
-| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------- |
-| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto engine: classical, modern, post-quantum (50+ algorithms) | Standalone library for Node.js, browsers, and Edge   | npm 0.0.3 / v0.0.6 source  |
-| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | High-performance Fastify REST API service                            | Cryptography-as-a-service microservice               | npm 0.0.2 / v0.0.6 source  |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Terminal CLI with JSON/human outputs & shell completions             | DevOps automation, local keygen, and file encryption | npm 0.0.1 / v0.0.6 source  |
-| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Core API schemas, routes, and OpenTelemetry instrumentation          | Shared HTTP contract and telemetry layer             | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | AWS KMS, Google Cloud KMS, and Azure Key Vault integration           | Enterprise envelope encryption and key rotation      | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Zero-knowledge database field encryption             | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | WebAssembly-accelerated primitives with JS fallback                  | High-throughput hashing and cipher execution         | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | DORA / CRA compliance audit and inventory tracking   | v0.0.6 Lockstep / Monorepo |
-| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | v0.0.6 Lockstep / Monorepo |
+| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability     |
+| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------ |
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm 0.0.3 / v0.0.6 source |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm 0.0.2 / v0.0.6 source |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm 0.0.1 / v0.0.6 source |
+| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Shared TypeScript types for the REST API surface                     | Shared HTTP contract                                 | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | KMS interface: AWS and local providers; GCP/Azure/Vault are stubs    | Envelope encryption and key rotation                 | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Field-level encryption before data reaches the DB    | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | Placeholder: contains no WebAssembly code yet                        | None yet; operations run in JavaScript               | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | Cryptographic inventory tracking                     | Source only (not on npm)  |
+| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | Source only (not on npm)  |
 
 ---
 
 ## Capabilities at a glance
 
-| Area                    | Capability                                                     | Status                                        |
-| :---------------------- | :------------------------------------------------------------- | :-------------------------------------------- |
-| Symmetric Ciphers       | AES-GCM, AES-CBC, AES-CTR, ChaCha20-Poly1305, Camellia         | Production (FIPS-compliant & modern AEAD)     |
-| Asymmetric & Signatures | RSA-OAEP/PSS, ECDSA (P-256/384/521, secp256k1), Ed25519, Ed448 | Production (PKCS#1, RFC 8032, RFC 6979)       |
-| Key Exchange & KEM      | ECDH, X25519, X448, ML-KEM-512/768/1024 (FIPS 203)             | Production (Quantum-resistant & hybrid)       |
-| Post-Quantum Signatures | ML-DSA-44/65/87 (FIPS 204), SLH-DSA-128/192/256 (FIPS 205)     | Production (Complete NIST FIPS suite)         |
-| Hash Functions          | SHA-2, SHA-3, SHAKE, BLAKE2b/s, BLAKE3, RIPEMD-160             | Production (High performance & extensible)    |
-| Key Derivation (KDF)    | HKDF, PBKDF2, Scrypt, Argon2id                                 | Production (Password hashing & key expansion) |
-| Message Authentication  | HMAC, KMAC, Poly1305                                           | Production (Constant-time verification)       |
-| OpenPGP & Certificates  | PGP encryption/signing, X.509 cert validation and parsing      | Production (Full OpenPGPjs integration)       |
-| Zero-Knowledge Proofs   | Schnorr ZKP, commitment schemes (Pedersen)                     | Production (Interactive and non-interactive)  |
-| Observability           | OpenTelemetry tracing, Prometheus metrics, structured logs     | Production (Standardized across services)     |
+All algorithms run in software. No module in this suite is FIPS 140-3
+validated; the FIPS numbers below name the algorithm standards implemented.
+
+| Area                    | Capability                                                                       | Implementation                         |
+| :---------------------- | :------------------------------------------------------------------------------- | :------------------------------------- |
+| Symmetric AEAD          | AES-128/256-GCM, AES-128/256-GCM-SIV, XChaCha20-Poly1305                         | `@noble/ciphers`                       |
+| Signatures              | Ed25519, Ed448, ECDSA P-256/P-384, Schnorr (BIP-340)                             | `@noble/curves`                        |
+| Key Exchange & KEM      | X25519, X448, ECDH P-256/P-384, ML-KEM-512/768/1024 (FIPS 203), hybrid KEMs      | `@noble/curves`, `@noble/post-quantum` |
+| Post-Quantum Signatures | ML-DSA-44/65/87 (FIPS 204), SLH-DSA SHA-2/SHAKE (FIPS 205), FN-DSA-512/1024      | `@noble/post-quantum`                  |
+| Hybrid Encryption       | HPKE (RFC 9180)                                                                  | `@noble/*`                             |
+| Hash Functions          | SHA-256/384/512, SHA3-256/512, BLAKE2b, BLAKE3                                   | `@noble/hashes`                        |
+| Key Derivation (KDF)    | HKDF-SHA256, PBKDF2-SHA256, scrypt, Argon2id/i/d                                 | `@noble/hashes`                        |
+| Message Authentication  | HMAC (SHA-2, SHA-3), KMAC-128/256                                                | `@noble/hashes`                        |
+| OpenPGP                 | Key generation, encryption, signing, revocation (RSA and ECC keys)               | OpenPGP.js                             |
+| Protocols & Tokens      | PQXDH, double ratchet, PAKE, Shamir threshold sharing, PASETO v4                 | crypto-lib (built on `@noble/*`)       |
+| Observability (server)  | OpenTelemetry tracing and metrics, Prometheus-format metrics endpoint, JSON logs | crypto-server                          |
 
 ---
 
@@ -237,18 +224,11 @@ See [`docs/COMPARISON.md`](docs/COMPARISON.md) for the evidence and complete mat
 
 ## Benchmarks
 
-Benchmarked across cryptographic primitives on Node.js 22 LTS (Apple Silicon & Linux x86_64). CI smoke-runs benchmarks on every push to detect performance regressions.
-
-| Scenario                         |       Result | Environment                             |
-| :------------------------------- | -----------: | :-------------------------------------- |
-| AES-256-GCM (1 MB payload)       |   1,420 MB/s | Node.js 22 LTS, Apple M-series hardware |
-| ChaCha20-Poly1305 (1 MB payload) |     980 MB/s | Node.js 22 LTS, Apple M-series hardware |
-| SHA-256 Hashing (1 MB payload)   |   1,850 MB/s | Node.js 22 LTS, Apple M-series hardware |
-| ML-KEM-768 Encap + Decap         | 0.85 ms / op | Node.js 22 LTS, Apple M-series hardware |
-| ML-DSA-65 Sign + Verify          | 1.12 ms / op | Node.js 22 LTS, Apple M-series hardware |
-| SLH-DSA-128s Fast Sign + Verify  | 12.4 ms / op | Node.js 22 LTS, Apple M-series hardware |
-
-See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for methodology and full results.
+No benchmark numbers are published yet. Earlier figures in this section did
+not come from committed benchmark code and were removed. Run
+`node benchmarks/crypto-bench.ts` after `pnpm -r run build` to measure on
+your own hardware; CI runs the same script on pull requests to `main`. See
+[`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
 
 ---
 
@@ -269,8 +249,8 @@ See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for methodology and full results.
 ### Full-Stack Architecture
 
 - **Microservice Ready**: Preconfigured Fastify server (`@sebastienrousseau/crypto-server`) with OpenAPI/Swagger schemas.
-- **Client SDK**: Fully typed SDK (`@sebastienrousseau/crypto-sdk`) with automatic retries and error mapping.
-- **Command-Line Interface**: Terminal CLI (`@sebastienrousseau/crypto-cli`) supporting interactive mode, pipelines, and JSON output.
+- **Client SDK**: Typed SDK (`@sebastienrousseau/crypto-sdk`) for the REST API.
+- **Command-Line Interface**: Interactive terminal CLI (`@sebastienrousseau/crypto-cli`).
 - **UI Framework Hooks**: React hooks (`@sebastienrousseau/crypto-react`) and Vue 3 composables (`@sebastienrousseau/crypto-vue`).
 - **Database Field Encryption**: Transparent field-level encryption extensions for Prisma (`@sebastienrousseau/crypto-prisma`) and TypeORM (`@sebastienrousseau/crypto-typeorm`).
 
@@ -280,25 +260,30 @@ See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for methodology and full results.
 
 ### Command-Line Interface (`crypto-cli`)
 
-Use `crypto-cli --help` for current subcommands and options:
+`crypto-cli` takes no subcommands or flags. Run it and choose an operation
+from the interactive menu:
 
 ```bash
-crypto-cli --help
-crypto-cli encrypt --help
-crypto-cli hash --help
+crypto-cli
 ```
 
 ### Server Configuration (`crypto-server`)
 
 The REST API server is configured via environment variables:
 
-| Variable                      | Description                                                            | Default                 |
-| :---------------------------- | :--------------------------------------------------------------------- | :---------------------- |
-| `PORT`                        | HTTP server port                                                       | `3000`                  |
-| `HOST`                        | Bind host address                                                      | `0.0.0.0`               |
-| `LOG_LEVEL`                   | Pino logger level (`fatal`, `error`, `warn`, `info`, `debug`, `trace`) | `info`                  |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | OpenTelemetry OTLP collector endpoint                                  | `http://localhost:4318` |
-| `API_KEY`                     | Optional bearer token authentication for endpoints                     | None                    |
+| Variable                      | Description                                     | Default                |
+| :---------------------------- | :---------------------------------------------- | :--------------------- |
+| `PORT`                        | HTTP server port                                | `3000`                 |
+| `HOST`                        | Bind host address                               | `localhost`            |
+| `LOG_LEVEL`                   | Logger level (`error`, `warn`, `info`, `debug`) | `info`                 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OpenTelemetry OTLP collector endpoint           | None (export disabled) |
+| `CRYPTO_API_KEY`              | Static API key for service-to-service requests  | None                   |
+| `JWT_SECRET`                  | HMAC secret for HS256 JWT validation            | None                   |
+| `ALLOW_ANONYMOUS`             | `1` allows unauthenticated requests             | Off                    |
+| `CRYPTO_KEY_DIR`              | Keystore for the v1 PGP routes                  | Bundled test keys      |
+| `CRYPTO_KEY_OUT_DIR`          | Where generated keys are written                | None (not written)     |
+
+With neither `CRYPTO_API_KEY` nor `JWT_SECRET` set, every request except `/health`, `/live`, `/ready`, `/metrics` and `/docs` gets `401`. In production (`NODE_ENV=production`) the server refuses to start without a credential unless `ALLOW_ANONYMOUS=1` is set (for example behind an authenticating gateway), rejects a `JWT_SECRET` shorter than 32 bytes, and refuses the bundled test keys unless `CRYPTO_KEY_DIR` is set.
 
 ---
 
@@ -310,12 +295,13 @@ Runnable example code and integration patterns are located in [`examples/`](exam
 
 ```typescript
 import Fastify from "fastify";
-import { cryptoMiddleware } from "@sebastienrousseau/crypto-middleware";
+import { cryptoPlugin } from "@sebastienrousseau/crypto-middleware";
 
 const app = Fastify();
-await app.register(cryptoMiddleware, {
-  algorithm: "aes-256-gcm",
-  secretKey: process.env.PAYLOAD_SECRET_KEY,
+await app.register(cryptoPlugin, {
+  key: process.env.PAYLOAD_KEY, // 64 hex characters (256-bit key)
+  routes: ["/api/**"],
+  operations: ["decrypt-request", "encrypt-response"],
 });
 ```
 
@@ -323,14 +309,12 @@ await app.register(cryptoMiddleware, {
 
 ```typescript
 import { PrismaClient } from "@prisma/client";
-import { fieldEncryptionExtension } from "@sebastienrousseau/crypto-prisma";
+import { createFieldEncryptionExtension } from "@sebastienrousseau/crypto-prisma";
 
 const prisma = new PrismaClient().$extends(
-  fieldEncryptionExtension({
-    secretKey: process.env.ENCRYPTION_KEY,
-    fields: {
-      User: ["ssn", "dateOfBirth"],
-    },
+  createFieldEncryptionExtension({
+    key: process.env.ENCRYPTION_KEY!, // 64 hex characters (256-bit key)
+    encryptedFields: [{ model: "User", fields: ["ssn", "dateOfBirth"] }],
   }),
 );
 ```
@@ -339,9 +323,10 @@ const prisma = new PrismaClient().$extends(
 
 ## When not to use Crypto Service
 
-- **Direct Hardware Security Module (HSM) C bindings**: Environments requiring low-level C-based PKCS#11 hardware drivers without Node.js runtime layers.
-- **Embedded bare-metal microcontrollers**: Devices with under 1 MB of memory running without Node.js or WebAssembly runtimes.
-- **Physical FIPS 140-2 Level 4 certification**: Environments with regulatory requirements demanding physical tamper-proof hardware validation rather than software implementations.
+- **You need a FIPS 140-3 validated module**: nothing in this suite is validated. The FIPS 203/204/205 algorithms come from `@noble/post-quantum`, which is not a validated module.
+- **You need an HSM or PKCS#11**: there is no PKCS#11 binding. The crypto-kms `Pkcs11HsmProvider` is an in-memory software simulation for tests; the GCP, Azure and Vault KMS providers are stubs.
+- **You need audited or guaranteed constant-time post-quantum code**: `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution.
+- **Embedded bare-metal microcontrollers**: devices without a Node.js or browser JavaScript runtime.
 
 ---
 
@@ -356,7 +341,7 @@ pnpm -r run test
 pnpm -r run docs
 ```
 
-The test coverage floor is **100% statements, branches, functions, and lines** across all 18 packages in the workspace.
+CI enforces 100% line and function coverage in every package, and 100% branch coverage in every package except crypto-lib (99.5%).
 Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md](DEVELOPMENT.md) for local gate reproduction and [CONTRIBUTING.md](CONTRIBUTING.md) for commit and PR guidelines.
 
 ---
@@ -365,7 +350,7 @@ Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md
 
 Report vulnerabilities privately according to [`SECURITY.md`](SECURITY.md). Never file public issues for security vulnerabilities.
 
-All cryptographic implementations rely on audited primitives (`@noble/hashes`, `@noble/curves`, `@noble/ciphers`, `@noble/post-quantum`, Node.js native crypto, and OpenPGPjs). Memory zeroization is practiced for sensitive key materials where the JavaScript runtime permits. Constant-time operations are enforced for MAC and signature verifications. CI runs automated dependency advisory scanning, CodeQL semantic analysis, and secret detection.
+Cryptographic operations use `@noble/hashes`, `@noble/curves`, `@noble/ciphers`, `@noble/post-quantum`, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution. No module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. Not every secret comparison is constant-time (see [`SECURITY.md`](SECURITY.md)). CI runs `pnpm audit`, CodeQL analysis and SBOM generation.
 
 Report vulnerabilities according to [`SECURITY.md`](SECURITY.md).
 

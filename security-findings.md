@@ -1,19 +1,27 @@
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
+
 # Security Review: Crypto Service Suite
 
-> **Status: REMEDIATED** - All critical and high severity issues have been addressed in commit d518a1f.
+> **Status: historical, partly superseded.** This review predates the
+> `v0.0.6` iteration. An earlier version of this page marked every finding
+> fixed in commit d518a1f. That was not accurate for two HIGH findings:
+> "Private Key Exposure" and "No Authentication" were not resolved by
+> d518a1f and are being fixed on the `feat/v0.0.6` branch. The other
+> findings are recorded as fixed in d518a1f; they have not been re-verified
+> for this update. See [`SECURITY.md`](SECURITY.md) for the current policy.
 
 ## Remediation Summary
 
-| Finding                      | Severity | Status   | Commit  |
-| ---------------------------- | -------- | -------- | ------- |
-| Missing Input Validation     | CRITICAL | ✅ FIXED | d518a1f |
-| Unsafe Type Coercion         | CRITICAL | ✅ FIXED | d518a1f |
-| Use of Any Types             | CRITICAL | ✅ FIXED | d518a1f |
-| Information Disclosure (CLI) | HIGH     | ✅ FIXED | d518a1f |
-| Private Key Exposure         | HIGH     | ✅ FIXED | d518a1f |
-| No Authentication            | HIGH     | ✅ FIXED | d518a1f |
-| Weak Input Format Validation | MEDIUM   | ✅ FIXED | d518a1f |
-| Generic Error Messages       | MEDIUM   | ✅ FIXED | d518a1f |
+| Finding                      | Severity | Status                                               | Commit  |
+| ---------------------------- | -------- | ---------------------------------------------------- | ------- |
+| Missing Input Validation     | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
+| Unsafe Type Coercion         | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
+| Use of Any Types             | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
+| Information Disclosure (CLI) | HIGH     | Recorded fixed (not re-verified)                     | d518a1f |
+| Private Key Exposure         | HIGH     | Not fixed by d518a1f; fix in progress on feat/v0.0.6 | -       |
+| No Authentication            | HIGH     | Not fixed by d518a1f; fix in progress on feat/v0.0.6 | -       |
+| Weak Input Format Validation | MEDIUM   | Recorded fixed (not re-verified)                     | d518a1f |
+| Generic Error Messages       | MEDIUM   | Recorded fixed (not re-verified)                     | d518a1f |
 
 ## Attack Surface Summary
 
@@ -23,7 +31,7 @@ The crypto service exposes cryptographic operations through REST API endpoints a
 - CLI commands for interactive crypto operations
 - Header-based parameter passing for API endpoints
 
-Trust boundaries exist between HTTP clients and the crypto service, with no authentication layer protecting sensitive operations.
+At the time of this review, trust boundaries existed between HTTP clients and the crypto service with no authentication layer protecting sensitive operations.
 
 ## Findings
 
