@@ -59,8 +59,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       '@sebastienrousseau/eslint-config':
-        specifier: ^0.0.2
-        version: 0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)
+        specifier: ^0.0.7
+        version: 0.0.7(eslint@8.57.1)
       '@sebastienrousseau/jsdoc-config':
         specifier: ^0.0.5
         version: 0.0.5
@@ -260,8 +260,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       '@sebastienrousseau/eslint-config':
-        specifier: ^0.0.2
-        version: 0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)
+        specifier: ^0.0.7
+        version: 0.0.7(eslint@8.57.1)
       '@sebastienrousseau/jsdoc-config':
         specifier: ^0.0.5
         version: 0.0.5
@@ -1562,6 +1562,7 @@ packages:
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1569,6 +1570,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
@@ -1794,6 +1796,7 @@ packages:
   '@opentelemetry/instrumentation-fastify@0.57.0':
     resolution: {integrity: sha512-D+rwRtbiOediYocpKGvY/RQTpuLsLdCVwaOREyqWViwItJGibWI7O/wgd9xIV63pMP0D9IdSy27wnARfUaotKg==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Deprecated in favor of @fastify/otel, maintained by the Fastify authors.
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
@@ -1947,8 +1950,11 @@ packages:
   '@sebastienrousseau/c8-config@0.0.3':
     resolution: {integrity: sha512-34hCzwW4z9ARYDbN2iwI/9SvtWvCLgIAjx5dzmMU0pZI2gW6I6U/k95vEhOhacImCxCW1Ui1LuZ2UuKKSnSMfA==}
 
-  '@sebastienrousseau/eslint-config@0.0.2':
-    resolution: {integrity: sha512-IsT6c3TBv3u0TekGPeHwS0GLpI1pNJTJHKRzRpkvR6Mp+xLnZZaCU8GW6CMVh38jmUEda/3/no91Gw1Q8047mw==}
+  '@sebastienrousseau/eslint-config@0.0.7':
+    resolution: {integrity: sha512-uiFabFWSv1mw88i6F1oTdm3T7m+iEuwdwR2MM1HThw1rDSr17O1SIzVauHgwd/dFh7QRN3t201T3hIwiQaYF3A==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      eslint: '>=9.0.0'
 
   '@sebastienrousseau/jsdoc-config@0.0.5':
     resolution: {integrity: sha512-Z0ylYKlyjvFlgsL64PSwg1GkDQZiCJ6dEfagyqA9wvkxUGt8QA19EtvQRpukvmlutF401VAywnqPi4Qt6QlgOA==}
@@ -2296,6 +2302,7 @@ packages:
 
   '@types/uuid@11.0.0':
     resolution: {integrity: sha512-HVyk8nj2m+jcFRNazzqyVKiZezyhDKrGUA3jlEcg/nZ6Ms+qHwocba1Y/AaVaznJTAM9xpdFSh+ptbNrhOGvZA==}
+    deprecated: This is a stub types definition. uuid provides its own type definitions, so you do not need this installed.
 
   '@typescript-eslint/eslint-plugin@6.21.0':
     resolution: {integrity: sha512-oy9+hTPCUFpngkEZUSzbf9MxI65wbKFoQYsgPdILTfbUldp5ovUuphZVe4i30emU9M/kP+T64Di0mxl7dSw3MA==}
@@ -2365,6 +2372,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.12.2':
     resolution: {integrity: sha512-g5T90pqg1bo/7mytQx6F4iBNC0Wsh9cu+z9veDbFjc7HjpesJFWD7QMS0NGStXM075+7dJPPVvBbpZlnrdpi/w==}
@@ -3228,6 +3236,7 @@ packages:
   eslint@8.57.1:
     resolution: {integrity: sha512-ypowyDxpVSYpkXr9WPv2PAZCtNip1Mv5KTW0SCurXv/9iOpcrH9PaqUElksqEB6pChqHGDRCFTyrZlGhnLNGiA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@11.2.0:
@@ -4349,6 +4358,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-exports-info@1.6.0:
     resolution: {integrity: sha512-pyFS63ptit/P5WqUkt+UUfe+4oevH+bFeIiPPdfb0pFeYEu/1ELnJu5l+5EcTKYL5M7zaAa7S8ddywgXypqKCw==}
@@ -4714,6 +4724,7 @@ packages:
 
   remark-footnotes@5.0.0:
     resolution: {integrity: sha512-bmRA8Xel4YZA5PphUOdamG3Cf3BshoGZQlwVqF+bv0Ei1/b9ETOSyoKtpVAk8zIRJ2dAwio2HFnbC9wjLmy02A==}
+    deprecated: 'Deprecated: use `remark-gfm`'
 
   remark-lint-blockquote-indentation@3.1.2:
     resolution: {integrity: sha512-5DOrFsZd5dXqA4p/VZvWSrqIWNFbBXjX7IV/FkVkxlNhNF/0FMf/4v8x1I2W3mzaZ7yDsWS/egpZnmligq1ckQ==}
@@ -7077,15 +7088,9 @@ snapshots:
 
   '@sebastienrousseau/c8-config@0.0.3': {}
 
-  '@sebastienrousseau/eslint-config@0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)':
+  '@sebastienrousseau/eslint-config@0.0.7(eslint@8.57.1)':
     dependencies:
       eslint: 8.57.1
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
-    transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
 
   '@sebastienrousseau/jsdoc-config@0.0.5': {}
 
