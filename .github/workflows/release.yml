@@ -5,20 +5,22 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: write
-  packages: write
-  id-token: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the GitHub release
+      packages: write # publish to GitHub Packages
+      id-token: write # npm --provenance attestation
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: "pnpm"
@@ -31,14 +33,14 @@ jobs:
       - name: Verify tarball contents
         run: |
           for pkg in packages/*/; do
-            echo "=== $(basename $pkg) ==="
+            echo "=== $(basename "$pkg") ==="
             cd "$pkg"
             npm pack --dry-run 2>&1 | grep -E "package size|total files"
             cd ../..
           done
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           generate_release_notes: true
 
@@ -61,9 +63,3 @@ jobs:
             node -e "const fs = require('fs'); const file = '${pkg}package.json'; const p = JSON.parse(fs.readFileSync(file, 'utf8')); p.publishConfig = { access: 'public', registry: 'https://npm.pkg.github.com' }; fs.writeFileSync(file, JSON.stringify(p, null, 2) + '\n');"
           done
           pnpm -r publish --no-git-checks
-
-
-
-
-
-

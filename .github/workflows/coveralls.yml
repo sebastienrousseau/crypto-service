@@ -1,12 +1,13 @@
 name: "Crypto Service Suite CI"
 
 on:
-  pull_request:
-    branches:
-      - "*"
   push:
-    branches:
-      - "*"
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -15,10 +16,10 @@ jobs:
       matrix:
         node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - name: Build on Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
@@ -33,7 +34,7 @@ jobs:
         run: pnpm -r run test
 
       - name: Coveralls Crypto-Api
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-api
           flag-name: crypto-api
@@ -42,7 +43,7 @@ jobs:
           file: ./packages/crypto-api/coverage/lcov.info
 
       - name: Coveralls Crypto-Cli
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-cli
           flag-name: crypto-cli
@@ -51,7 +52,7 @@ jobs:
           file: ./packages/crypto-cli/coverage/lcov.info
 
       - name: Coveralls Crypto-Lib
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-lib
           flag-name: crypto-lib
@@ -60,7 +61,7 @@ jobs:
           file: ./packages/crypto-lib/coverage/lcov.info
 
       - name: Coveralls Crypto-Server
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-server
           flag-name: crypto-server
@@ -69,7 +70,7 @@ jobs:
           file: ./packages/crypto-server/coverage/lcov.info
 
       - name: Coveralls Crypto-Edge
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-edge
           flag-name: crypto-edge
@@ -78,7 +79,7 @@ jobs:
           file: ./packages/crypto-edge/coverage/lcov.info
 
       - name: Coveralls Crypto-Kms
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-kms
           flag-name: crypto-kms
@@ -87,7 +88,7 @@ jobs:
           file: ./packages/crypto-kms/coverage/lcov.info
 
       - name: Coveralls Crypto-Middleware
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-middleware
           flag-name: crypto-middleware
@@ -96,7 +97,7 @@ jobs:
           file: ./packages/crypto-middleware/coverage/lcov.info
 
       - name: Coveralls Crypto-Prisma
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-prisma
           flag-name: crypto-prisma
@@ -105,7 +106,7 @@ jobs:
           file: ./packages/crypto-prisma/coverage/lcov.info
 
       - name: Coveralls Crypto-React
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-react
           flag-name: crypto-react
@@ -114,7 +115,7 @@ jobs:
           file: ./packages/crypto-react/coverage/lcov.info
 
       - name: Coveralls Crypto-Sdk
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-sdk
           flag-name: crypto-sdk
@@ -123,7 +124,7 @@ jobs:
           file: ./packages/crypto-sdk/coverage/lcov.info
 
       - name: Coveralls Crypto-Testing
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-testing
           flag-name: crypto-testing
@@ -132,7 +133,7 @@ jobs:
           file: ./packages/crypto-testing/coverage/lcov.info
 
       - name: Coveralls Crypto-Typeorm
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-typeorm
           flag-name: crypto-typeorm
@@ -141,7 +142,7 @@ jobs:
           file: ./packages/crypto-typeorm/coverage/lcov.info
 
       - name: Coveralls Crypto-Vue
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-vue
           flag-name: crypto-vue
@@ -150,7 +151,7 @@ jobs:
           file: ./packages/crypto-vue/coverage/lcov.info
 
       - name: Coveralls Crypto-Wasm
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           base-path: packages/crypto-wasm
           flag-name: crypto-wasm
@@ -163,7 +164,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
