@@ -33,7 +33,6 @@
   "packages/crypto-middleware/src/express.ts :: max-lines-per-function :: cryptoMiddleware": 83,
   "packages/crypto-middleware/src/fastify.ts :: complexity :: anonymous #1": 13,
   "packages/crypto-middleware/src/fastify.ts :: max-lines-per-function :: cryptoPluginImpl": 106,
-  "packages/crypto-prisma/src/extension.ts :: max-lines-per-function :: createFieldEncryptionExtension": 187,
   "packages/crypto-server/src/lib/auth.ts :: complexity :: authenticate": 12,
   "packages/crypto-server/src/routes/v1/generate.ts :: max-lines-per-function :: default export": 64,
   "packages/crypto-server/src/routes/v2/key-wrap.ts :: max-lines-per-function :: default export": 78,
@@ -47,7 +46,6 @@
   "packages/crypto-server/src/routes/v2/sealedbox.ts :: max-lines-per-function :: default export": 139,
   "packages/crypto-server/src/routes/v2/secretbox.ts :: max-lines-per-function :: default export": 73,
   "packages/crypto-server/src/routes/v2/signing.ts :: max-lines-per-function :: default export": 75,
-  "packages/crypto-server/src/routes/v2/stream.ts :: max-lines-per-function :: default export": 204,
   "packages/crypto-vue/src/composables/useEncrypt.ts :: max-lines-per-function :: useEncrypt": 67,
   "packages/crypto-vue/src/composables/useSignature.ts :: max-lines-per-function :: useSignature": 62
 }
