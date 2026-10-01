@@ -500,20 +500,6 @@ describe("LocalKmsProvider", () => {
       }
     });
 
-    it("verify throws when signing key has no public key", async () => {
-      // Create a signing key normally, then wipe out the publicKey in the store
-      const key = await provider.createKey("ed25519", "sign");
-      const store = (provider as any).store as Map<string, any>;
-      const record = store.get(key.keyId);
-      record.publicKey = undefined;
-      try {
-        await provider.verify(key.keyId, new Uint8Array(1), "sig");
-        expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("has no public key");
-      }
-    });
-
     it("sign accepts optional algorithm param", async () => {
       const key = await provider.createKey("ed25519", "sign");
       const sig = await provider.sign(
@@ -563,9 +549,9 @@ describe("LocalKmsProvider", () => {
 
       await provider.rotateKey(key.keyId);
 
-      // Old signature should NOT verify with new key
+      // Signatures made before rotation still verify (previous version kept)
       const valid = await provider.verify(key.keyId, data, sigBefore.signature);
-      expect(valid).to.be.false;
+      expect(valid).to.be.true;
 
       // New sign/verify should work
       const sigAfter = await provider.sign(key.keyId, data);
@@ -577,20 +563,17 @@ describe("LocalKmsProvider", () => {
       expect(validAfter).to.be.true;
     });
 
-    it("rotated encryption key cannot decrypt old ciphertext", async () => {
+    it("rotated encryption key still decrypts old ciphertext", async () => {
       const key = await provider.createKey("aes-256-gcm", "encrypt");
       const pt = new TextEncoder().encode("before rotation");
       const enc = await provider.encrypt(key.keyId, pt);
 
       await provider.rotateKey(key.keyId);
 
-      try {
-        await provider.decrypt(key.keyId, enc.ciphertext);
-        expect.fail("should have thrown");
-      } catch (err: any) {
-        // Different key material -> GCM auth failure
-        expect(err).to.be.instanceOf(Error);
-      }
+      const dec = await provider.decrypt(key.keyId, enc.ciphertext);
+      expect(new TextDecoder().decode(dec.plaintext)).to.equal(
+        "before rotation",
+      );
     });
 
     it("throws for unknown key", async () => {

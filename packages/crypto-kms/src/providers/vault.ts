@@ -10,6 +10,7 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import { KmsError } from "../errors";
 
 /**
  * Configuration for the HashiCorp Vault provider.
@@ -85,14 +86,20 @@ export class VaultKmsProvider implements KmsProvider {
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
   /** Retrieve metadata for a specific key by ID. */
   getKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -103,21 +110,30 @@ export class VaultKmsProvider implements KmsProvider {
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
   /** Enable a previously disabled key. */
   enableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
   /** Disable a key so it cannot be used for operations. */
   disableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -127,7 +143,10 @@ export class VaultKmsProvider implements KmsProvider {
     _pendingWindowDays?: number,
   ): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -138,7 +157,10 @@ export class VaultKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -149,7 +171,10 @@ export class VaultKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -160,7 +185,10 @@ export class VaultKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<KmsSignResult> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -172,14 +200,20 @@ export class VaultKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
   /** Rotate a key to a new version. */
   rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 
@@ -194,7 +228,10 @@ export class VaultKmsProvider implements KmsProvider {
     ciphertext: string;
   }> {
     return Promise.reject(
-      new Error("Not implemented: configure HashiCorp Vault connection"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: configure HashiCorp Vault connection",
+      ),
     );
   }
 }

@@ -4,13 +4,14 @@
 /**
  * Key rotation workflow.
  *
- * Demonstrates creating a key, encrypting data, rotating the key, and
- * re-encrypting data with the new key material.
+ * Demonstrates creating a key, encrypting data, rotating the key,
+ * decrypting data encrypted before the rotation, encrypting with the new
+ * key version, and finally destroying the retired version.
  *
  * Run: `npx ts-node examples/rotation.ts`
  */
 
-import { LocalKmsProvider } from "../src";
+import { LocalKmsProvider, KmsError } from "../src";
 import { header, task, summary } from "./support";
 
 async function main() {
@@ -36,11 +37,24 @@ async function main() {
     return kms.rotateKey(key.keyId);
   });
 
-  await task("Re-encrypt and decrypt with rotated key", async () => {
+  await task("Decrypt pre-rotation ciphertext (version 1)", async () => {
+    const decrypted = await kms.decrypt(key.keyId, encrypted.ciphertext);
+    return new TextDecoder().decode(decrypted.plaintext);
+  });
+
+  await task("Encrypt and decrypt with the new version", async () => {
     const newPlaintext = new TextEncoder().encode("Data after rotation");
     const newEncrypted = await kms.encrypt(key.keyId, newPlaintext);
     const newDecrypted = await kms.decrypt(key.keyId, newEncrypted.ciphertext);
-    return new TextDecoder().decode(newDecrypted.plaintext);
+    return `v${newEncrypted.keyVersion}: ${new TextDecoder().decode(newDecrypted.plaintext)}`;
+  });
+
+  await task("Destroy retired version 1", async () => {
+    await kms.destroyKeyVersion(key.keyId, 1);
+    return kms.decrypt(key.keyId, encrypted.ciphertext).then(
+      () => "unexpectedly decrypted",
+      (err: KmsError) => err.code,
+    );
   });
 
   const signKey = await task("Create signing key", async () => {
@@ -63,7 +77,7 @@ async function main() {
     return kms.verify(signKey.keyId, msg, sig.signature);
   });
 
-  summary(9);
+  summary(11);
 }
 
 main().catch(console.error);

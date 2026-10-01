@@ -16,6 +16,9 @@ export type {
   KmsDecryptResult,
   KmsSignResult,
 } from "./types";
+export { KmsError } from "./errors";
+/** Re-exported machine-readable error code type. */
+export type { KmsErrorCode } from "./errors";
 export { AwsKmsProvider } from "./providers/aws";
 /** Re-exported AWS KMS configuration options type. */
 export type { AwsKmsOptions } from "./providers/aws";

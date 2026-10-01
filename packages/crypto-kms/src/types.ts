@@ -29,6 +29,12 @@ export interface KmsKeyMetadata {
   enabled: boolean;
   /** Provider name (e.g. "aws", "gcp", "azure", "vault", "local"). */
   provider: string;
+  /**
+   * Current key version (1-based), for providers that track versions.
+   * Rotation increments it; earlier versions stay usable for decryption
+   * and verification until destroyed.
+   */
+  currentVersion?: number;
 }
 
 /**
@@ -50,6 +56,8 @@ export interface KmsEncryptResult {
   keyId: string;
   /** Provider-specific encryption context. */
   context?: Record<string, string>;
+  /** Key version that produced the ciphertext, when the provider tracks versions. */
+  keyVersion?: number;
 }
 
 /**
@@ -68,6 +76,8 @@ export interface KmsDecryptResult {
   plaintext: Uint8Array;
   /** Key ID used for decryption. */
   keyId: string;
+  /** Key version the ciphertext named, when the provider tracks versions. */
+  keyVersion?: number;
 }
 
 /**
@@ -164,8 +174,18 @@ export interface KmsProvider {
     algorithm?: string,
   ): Promise<boolean>;
 
-  /** Rotate a key (create a new version, mark old as deprecated). */
+  /**
+   * Rotate a key: create a new current version. Earlier versions remain
+   * usable for decryption and verification until destroyed.
+   */
   rotateKey(keyId: string): Promise<KmsKeyMetadata>;
+
+  /**
+   * Destroy the material of a non-current key version, so ciphertext and
+   * signatures produced under it can no longer be used. Optional: only
+   * providers that track key versions implement it.
+   */
+  destroyKeyVersion?(keyId: string, version: number): Promise<void>;
 
   /** Generate a data encryption key (DEK) wrapped by the managed key. */
   generateDataKey(
