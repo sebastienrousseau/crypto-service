@@ -18,17 +18,17 @@ export async function runSuite(
   const iterations = config.iterations || 30;
   const results: BenchmarkItemResult[] = [];
 
-  if (suite === "all" || suite === "symmetric") {
-    results.push(...(await runSymmetricBenchmarks(iterations)));
-  }
-  if (suite === "all" || suite === "asymmetric") {
-    results.push(...(await runAsymmetricBenchmarks(iterations)));
-  }
-  if (suite === "all" || suite === "pqc") {
-    results.push(...(await runPqcBenchmarks(iterations)));
-  }
-  if (suite === "all" || suite === "hash") {
-    results.push(...(await runHashBenchmarks(iterations)));
+  // In report order; "all" runs every suite.
+  const suites = {
+    symmetric: runSymmetricBenchmarks,
+    asymmetric: runAsymmetricBenchmarks,
+    pqc: runPqcBenchmarks,
+    hash: runHashBenchmarks,
+  };
+  for (const [name, run] of Object.entries(suites)) {
+    if (suite === "all" || suite === name) {
+      results.push(...(await run(iterations)));
+    }
   }
 
   const timestamp = new Date().toISOString();

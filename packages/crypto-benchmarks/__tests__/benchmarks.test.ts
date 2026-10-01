@@ -239,6 +239,14 @@ describe("Crypto Benchmarks Suite", () => {
         output = "";
         const defCode = await run(["--iterations", "2"]);
         expect(defCode).to.equal(0);
+
+        // 5. A missing or non-positive --iterations falls back to 30
+        for (const extra of [[], ["--iterations", "0"]]) {
+          output = "";
+          await run(["--suite", "hash", "--format", "json", ...extra]);
+          const report = JSON.parse(output);
+          expect(report.results[0].stats.iterations).to.equal(30);
+        }
       } finally {
         process.stdout.write = origWrite;
       }

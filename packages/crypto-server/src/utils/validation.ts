@@ -82,6 +82,7 @@ export function validateRequiredNumber(
     };
   }
   const numValue = typeof value === "number" ? value : Number(value);
+  const { min, max } = options ?? {};
   if (!Number.isFinite(numValue)) {
     return {
       valid: false,
@@ -91,21 +92,21 @@ export function validateRequiredNumber(
       },
     };
   }
-  if (options?.min !== undefined && numValue < options.min) {
+  if (min !== undefined && numValue < min) {
     return {
       valid: false,
       error: {
         field: fieldName,
-        message: `${fieldName} must be at least ${options.min}`,
+        message: `${fieldName} must be at least ${min}`,
       },
     };
   }
-  if (options?.max !== undefined && numValue > options.max) {
+  if (max !== undefined && numValue > max) {
     return {
       valid: false,
       error: {
         field: fieldName,
-        message: `${fieldName} must be at most ${options.max}`,
+        message: `${fieldName} must be at most ${max}`,
       },
     };
   }

@@ -83,6 +83,37 @@ function generateKid(publicKey: Uint8Array): string {
 
 // --- Key generation ---
 
+type RawKeyPair = { publicKey: Uint8Array; privateKey: Uint8Array };
+
+/** A raw key pair from a secret key and its public-key derivation. */
+const fromSecret = (
+  privateKey: Uint8Array,
+  derive: (priv: Uint8Array) => Uint8Array,
+): RawKeyPair => ({ publicKey: derive(privateKey), privateKey });
+
+/** A raw key pair from a post-quantum `keygen()` result. */
+const fromPq = (kp: {
+  publicKey: Uint8Array;
+  secretKey: Uint8Array;
+}): RawKeyPair => ({ publicKey: kp.publicKey, privateKey: kp.secretKey });
+
+/** Key generation per algorithm. */
+const KEYGEN: Record<KeyAlgorithm, () => RawKeyPair> = {
+  ed25519: () =>
+    fromSecret(ed25519.utils.randomSecretKey(), ed25519.getPublicKey),
+  x25519: () => fromSecret(randomBytes(32), x25519.getPublicKey),
+  ed448: () => fromSecret(ed448.utils.randomSecretKey(), ed448.getPublicKey),
+  x448: () => fromSecret(randomBytes(56), x448.getPublicKey),
+  p256: () => fromSecret(p256.utils.randomSecretKey(), p256.getPublicKey),
+  p384: () => fromSecret(p384.utils.randomSecretKey(), p384.getPublicKey),
+  "ml-kem-512": () => fromPq(ml_kem512.keygen()),
+  "ml-kem-768": () => fromPq(ml_kem768.keygen()),
+  "ml-kem-1024": () => fromPq(ml_kem1024.keygen()),
+  "ml-dsa-44": () => fromPq(ml_dsa44.keygen()),
+  "ml-dsa-65": () => fromPq(ml_dsa65.keygen()),
+  "ml-dsa-87": () => fromPq(ml_dsa87.keygen()),
+};
+
 /**
  * Generate a key pair for any supported algorithm.
  *
@@ -93,93 +124,12 @@ export function generateKeyPair(
   algorithm: KeyAlgorithm,
   metadata: KeyMetadata = {},
 ): GeneratedKeyPair {
-  let publicKey: Uint8Array;
-  let privateKey: Uint8Array;
-
-  switch (algorithm) {
-    case "ed25519": {
-      const priv = ed25519.utils.randomSecretKey();
-      const pub = ed25519.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "x25519": {
-      const priv = randomBytes(32);
-      const pub = x25519.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "ed448": {
-      const priv = ed448.utils.randomSecretKey();
-      const pub = ed448.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "x448": {
-      const priv = randomBytes(56);
-      const pub = x448.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "p256": {
-      const priv = p256.utils.randomSecretKey();
-      const pub = p256.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "p384": {
-      const priv = p384.utils.randomSecretKey();
-      const pub = p384.getPublicKey(priv);
-      privateKey = priv;
-      publicKey = pub;
-      break;
-    }
-    case "ml-kem-512": {
-      const kp = ml_kem512.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    case "ml-kem-768": {
-      const kp = ml_kem768.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    case "ml-kem-1024": {
-      const kp = ml_kem1024.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    case "ml-dsa-44": {
-      const kp = ml_dsa44.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    case "ml-dsa-65": {
-      const kp = ml_dsa65.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    case "ml-dsa-87": {
-      const kp = ml_dsa87.keygen();
-      publicKey = kp.publicKey;
-      privateKey = kp.secretKey;
-      break;
-    }
-    default:
-      throw new Error(
-        `Unsupported algorithm: ${algorithm}. Supported: ${KEY_ALGORITHMS.join(", ")}`,
-      );
+  if (!Object.hasOwn(KEYGEN, algorithm)) {
+    throw new Error(
+      `Unsupported algorithm: ${algorithm}. Supported: ${KEY_ALGORITHMS.join(", ")}`,
+    );
   }
+  const { publicKey, privateKey } = KEYGEN[algorithm]();
 
   const kid = metadata.kid ?? generateKid(publicKey);
 

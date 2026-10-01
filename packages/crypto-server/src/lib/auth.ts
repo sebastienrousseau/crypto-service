@@ -68,6 +68,33 @@ export async function registerAuth(app: FastifyInstance): Promise<void> {
 }
 
 /**
+ * Check the `x-api-key` header against the configured key in constant
+ * time. Sends the 401 and returns null when it is missing or wrong.
+ */
+function checkApiKey(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  apiKey: string,
+): AuthPayload | null {
+  const providedKey = request.headers["x-api-key"];
+  if (!providedKey || typeof providedKey !== "string") {
+    reply
+      .status(401)
+      .send({ error: "Unauthorized: Missing API key or Bearer token" });
+    return null;
+  }
+
+  const a = Buffer.from(providedKey);
+  const b = Buffer.from(apiKey);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    reply.status(401).send({ error: "Unauthorized: Invalid API key" });
+    return null;
+  }
+
+  return { sub: "api-key", scopes: ["crypto:admin"] };
+}
+
+/**
  * Authenticate a request. Checks (in order):
  * 1. Bearer JWT token in Authorization header
  * 2. API key in x-api-key header
@@ -109,22 +136,7 @@ export async function authenticate(
 
   // Fallback to API key
   if (apiKey) {
-    const providedKey = request.headers["x-api-key"];
-    if (!providedKey || typeof providedKey !== "string") {
-      reply
-        .status(401)
-        .send({ error: "Unauthorized: Missing API key or Bearer token" });
-      return null;
-    }
-
-    const a = Buffer.from(providedKey);
-    const b = Buffer.from(apiKey);
-    if (a.length !== b.length || !timingSafeEqual(a, b)) {
-      reply.status(401).send({ error: "Unauthorized: Invalid API key" });
-      return null;
-    }
-
-    return { sub: "api-key", scopes: ["crypto:admin"] };
+    return checkApiKey(request, reply, apiKey);
   }
 
   reply

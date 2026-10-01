@@ -260,20 +260,20 @@ export const readResponse = (responses: ResponseType[] | undefined): string => {
  * Read methods of each item.
  */
 export const readMethods = (method: MethodLike): string => {
+  const req: Partial<NonNullable<MethodLike["request"]>> = method.request ?? {};
   const parts: string[] = ["\n"];
-  if (method.request?.description !== undefined) {
-    parts.push(`#${method.request.description || ""}\n\n`);
+  if (req.description !== undefined) {
+    parts.push(`#${req.description || ""}\n\n`);
   }
-  parts.push(`### ${method.request?.method ?? ""} ${method.name}\n\n`);
+  parts.push(`### ${req.method ?? ""} ${method.name}\n\n`);
   parts.push(">```\n");
-  const urlString =
-    typeof method.request?.url === "string" ? method.request.url : "";
+  const urlString = typeof req.url === "string" ? req.url : "";
   parts.push(`>${urlString}\n`);
   parts.push(">```\n\n");
   parts.push(readRequest(method.request));
-  parts.push(readFormDataBody(method.request?.body));
-  parts.push(readQueryParams(method.request?.url));
-  parts.push(readAuthorization(method.request?.auth));
+  parts.push(readFormDataBody(req.body));
+  parts.push(readQueryParams(req.url));
+  parts.push(readAuthorization(req.auth));
   parts.push(readResponse(method.response));
   parts.push("![divider][divider]\n");
   return parts.join("");

@@ -233,6 +233,18 @@ function localEncrypt(opts: PasetoLocalEncryptOptions): PasetoToken {
   return { token };
 }
 
+/** Throw unless the token's footer (base64url, may be empty) equals `footer`. */
+function assertFooter(footerB64: string, footer: string): void {
+  if (footerB64) {
+    const tokenFooter = fromBase64url(footerB64);
+    if (Buffer.from(tokenFooter).toString("utf8") !== footer) {
+      throw new Error("Footer mismatch");
+    }
+  } else if (footer) {
+    throw new Error("Footer mismatch");
+  }
+}
+
 /**
  * Decrypt a PASETO v4.local token.
  *
@@ -262,16 +274,8 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
   const bodyB64 = parts[0]!;
   const footerB64 = parts[1] ?? "";
 
-  // Validate footer match
+  assertFooter(footerB64, footer);
   const footerBytes = encoder.encode(footer);
-  if (footerB64) {
-    const tokenFooter = fromBase64url(footerB64);
-    if (Buffer.from(tokenFooter).toString("utf8") !== footer) {
-      throw new Error("Footer mismatch");
-    }
-  } else if (footer) {
-    throw new Error("Footer mismatch");
-  }
 
   const body = fromBase64url(bodyB64);
   if (body.length < NONCE_LEN + 16) {
@@ -383,16 +387,8 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
   const bodyB64 = parts[0]!;
   const footerB64 = parts[1] ?? "";
 
-  // Validate footer match
+  assertFooter(footerB64, footer);
   const footerBytes = encoder.encode(footer);
-  if (footerB64) {
-    const tokenFooter = fromBase64url(footerB64);
-    if (Buffer.from(tokenFooter).toString("utf8") !== footer) {
-      throw new Error("Footer mismatch");
-    }
-  } else if (footer) {
-    throw new Error("Footer mismatch");
-  }
 
   const body = fromBase64url(bodyB64);
   if (body.length < SIG_LEN) {
