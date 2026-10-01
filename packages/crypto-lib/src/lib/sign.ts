@@ -12,7 +12,9 @@ import * as types from "../types/types";
 /**
  * ### sign
  *
- * Signs a cleartext message with the configured private key.
+ * Signs a cleartext message with the configured private key. When
+ * `CRYPTO_DATA_DIR` is set, the signature is also written there as
+ * `signed.sig`; otherwise nothing is written to disk.
  *
  * @public
  * @param {Object} data            - Data to be signed.
@@ -43,9 +45,12 @@ export const sign = async (data: types.dataSign): Promise<string> => {
         signingKeys: privateKey,
       });
 
-  const sigDir =
-    process.env["CRYPTO_DATA_DIR"] ?? path.resolve(__dirname, "..", "data");
-  await writeFile(path.join(sigDir, "signed.sig"), signed as string, "utf8");
+  // Persist only when the caller asked for it: a library call must not
+  // write into its own package directory.
+  const sigDir = process.env["CRYPTO_DATA_DIR"];
+  if (sigDir) {
+    await writeFile(path.join(sigDir, "signed.sig"), signed as string, "utf8");
+  }
 
   return signed as string;
 };

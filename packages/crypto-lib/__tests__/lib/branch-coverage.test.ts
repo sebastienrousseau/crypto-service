@@ -18,7 +18,6 @@ import { sign } from "../../src/lib/sign";
 import { revoke } from "../../src/lib/revoke";
 import { reformat } from "../../src/lib/reformat";
 import { _resetKeystoreForTests, loadKeystore } from "../../src/key/keystore";
-import * as openpgp from "openpgp";
 
 const FIXTURE_PASSPHRASE = "123456789abcdef";
 
@@ -173,7 +172,9 @@ describe("Lib Branch Coverage", function () {
     before(async () => {
       const fixtureKeyDir = process.env["CRYPTO_KEY_DIR"]!;
       // Fixture key files are stored as base64-encoded armored keys
-      publicKeyBase64 = fs.readFileSync(path.join(fixtureKeyDir, "rsa.pub"), "utf8").trim();
+      publicKeyBase64 = fs
+        .readFileSync(path.join(fixtureKeyDir, "rsa.pub"), "utf8")
+        .trim();
     });
 
     it("should accept verificationKeys as a single string (not array)", async () => {
@@ -201,11 +202,11 @@ describe("Lib Branch Coverage", function () {
   });
 
   // -----------------------------------------------------------------
-  // sign.ts:50 — CRYPTO_DATA_DIR env fallback
-  // When CRYPTO_DATA_DIR is unset, sign.ts falls back to
-  // path.resolve(__dirname, "..", "data")
+  // sign.ts — no write when CRYPTO_DATA_DIR is unset
+  // A library call must not write into its own package directory; it
+  // used to fall back to <package>/data and overwrite signed.sig there.
   // -----------------------------------------------------------------
-  describe("sign – CRYPTO_DATA_DIR fallback", () => {
+  describe("sign – without CRYPTO_DATA_DIR", () => {
     let savedDataDir: string | undefined;
 
     before(() => {
@@ -221,19 +222,17 @@ describe("Lib Branch Coverage", function () {
       }
     });
 
-    it("should use fallback data directory when env var is unset", async () => {
-      // This will attempt to write to the fallback directory. It may or
-      // may not succeed depending on permissions, but the important thing
-      // is the branch on line 50 is exercised.
-      try {
-        await sign({
-          message: "fallback dir test",
-          detached: true,
-          passphrase: FIXTURE_PASSPHRASE,
-        });
-      } catch {
-        // May fail if fallback dir doesn't exist - that's OK, branch covered
-      }
+    it("returns the signature without writing to the package directory", async () => {
+      const packaged = path.resolve(__dirname, "..", "..", "src", "data");
+      const sigPath = path.join(packaged, "signed.sig");
+      const before = fs.readFileSync(sigPath, "utf8");
+      const signed = await sign({
+        message: "no write test",
+        detached: true,
+        passphrase: FIXTURE_PASSPHRASE,
+      });
+      expect(signed).to.include("BEGIN PGP SIGNATURE");
+      expect(fs.readFileSync(sigPath, "utf8")).to.equal(before);
     });
   });
 
