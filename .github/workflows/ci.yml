@@ -46,6 +46,8 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
+      - run: pnpm -r run lint
+      - run: pnpm -r run test
 
   docs-and-hygiene:
     runs-on: ubuntu-latest
@@ -64,9 +66,5 @@ jobs:
       # catching runtime imports missing from "dependencies".
       - name: Pack and install smoke test
         run: ./scripts/pack-smoke.sh
-      # Non-blocking until the existing backlog is cleared (280 findings in
-      # 33 files at v0.0.7). continue-on-error keeps the failure visible in
-      # the run summary instead of hiding it behind `|| true`.
       - name: Check markdownlint
-        continue-on-error: true
         run: npx --yes markdownlint-cli "**/*.md" --ignore "**/node_modules/**" --ignore "**/dist/**"

@@ -101,7 +101,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                        | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                        | Core Library     | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)          | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                    | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                        | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                  | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -123,6 +123,7 @@ polyfills for minimal environments. All functions use only the
 standard Web Crypto API -- no Node.js built-ins are imported.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Supported Runtimes
 
 | Runtime            | Identifier           | Web Crypto | Notes                            |
@@ -136,6 +137,7 @@ standard Web Crypto API -- no Node.js built-ins are imported.
 | Unknown            | `unknown`            |   Varies   | Use `getCapabilities()` to check |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Features
 
 ### Runtime Detection
@@ -192,6 +194,7 @@ Polyfills provided: `TextEncoder`, `TextDecoder`, `btoa`, and `atob`.
 `randomBytes()` throws rather than fall back to predictable output.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
