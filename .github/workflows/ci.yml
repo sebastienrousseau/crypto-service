@@ -64,10 +64,14 @@ jobs:
         run: pnpm -r run docs
       - name: Type-check crypto-lib examples
         run: pnpm --filter @sebastienrousseau/crypto-lib run examples:check
-      # Installs the packed tarballs as a user would and boots the server,
-      # catching runtime imports missing from "dependencies".
       - name: Check publishable manifests
         run: node scripts/check-manifests.mjs
+      # publint on each manifest, attw on each packed tarball.
+      - name: Check package exports and types
+        run: pnpm run check:packages
+      # Installs the packed tarballs as a user would, requires and imports
+      # every exported entry point and boots the server, catching runtime
+      # imports missing from "dependencies".
       - name: Pack and install smoke test
         run: ./scripts/pack-smoke.sh
       - name: Check markdownlint

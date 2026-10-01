@@ -6,8 +6,8 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 AES key-wrap and unwrap endpoints. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/keys/wrap. */
+function registerKeysWrap(app: FastifyInstance): void {
   app.post(
     "/v2/keys/wrap",
     {
@@ -29,7 +29,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { aesKwWrap, aesKwpWrap } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/key-wrap");
+          await import("@sebastienrousseau/crypto-lib/high-level");
         const { kek, keyToWrap, algorithm } = request.body as {
           kek: string;
           keyToWrap: string;
@@ -45,7 +45,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/keys/unwrap. */
+function registerKeysUnwrap(app: FastifyInstance): void {
   app.post(
     "/v2/keys/unwrap",
     {
@@ -67,7 +70,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { aesKwUnwrap, aesKwpUnwrap } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/key-wrap");
+          await import("@sebastienrousseau/crypto-lib/high-level");
         const { kek, wrappedKey, algorithm } = request.body as {
           kek: string;
           wrappedKey: string;
@@ -85,4 +88,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 AES key-wrap and unwrap endpoints. */
+export default (app: FastifyInstance): void => {
+  registerKeysWrap(app);
+  registerKeysUnwrap(app);
 };

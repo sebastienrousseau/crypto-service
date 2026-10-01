@@ -1,4 +1,4 @@
-import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
+import { encrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

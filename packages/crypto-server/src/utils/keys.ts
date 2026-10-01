@@ -10,7 +10,7 @@
  */
 
 import type { FastifyRequest } from "fastify";
-import { loadKeystore } from "@sebastienrousseau/crypto-lib/dist/key/keystore";
+import { loadKeystore } from "@sebastienrousseau/crypto-lib/pgp";
 import {
   KEY_ID_PATTERN,
   type KeyParts,

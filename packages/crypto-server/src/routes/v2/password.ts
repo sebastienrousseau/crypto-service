@@ -7,7 +7,7 @@ import type { FastifyInstance } from "fastify";
 import type {
   HashPasswordResult,
   VerifyPasswordResult,
-} from "@sebastienrousseau/crypto-lib/dist/modern/password";
+} from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
 /**
@@ -62,7 +62,7 @@ function registerHash(app: FastifyInstance): void {
       };
       // The schema bounds every cost, so hashing cannot fail on input.
       const result = await request.server.kdf.run<HashPasswordResult>(
-        "password",
+        "modern",
         "hashPassword",
         body,
       );
@@ -107,7 +107,7 @@ function registerVerify(app: FastifyInstance): void {
     async (request, reply) => {
       try {
         const result = await request.server.kdf.run<VerifyPasswordResult>(
-          "password",
+          "modern",
           "verifyPassword",
           request.body,
         );

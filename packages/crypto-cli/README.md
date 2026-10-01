@@ -75,7 +75,15 @@ yarn add @sebastienrousseau/crypto-cli
 
 ## Quick Start
 
-Launch the interactive menu:
+Run a subcommand, for scripts and CI:
+
+```bash
+crypto-cli hash --json < file.txt
+crypto-cli hash --algorithm blake3 file.txt
+crypto-cli cbom scan src --output cbom.json
+```
+
+Run it with no arguments in a terminal for the interactive menu:
 
 ```bash
 cryptocli
@@ -134,8 +142,9 @@ crypto-cli is the command-line interface for the Crypto Service
 Suite. It offers both legacy OpenPGP commands (key generation,
 encryption, decryption, signing, verification, revocation) and
 modern v2 commands using `@noble/*` primitives with post-quantum
-algorithm support. All operations run interactively via a guided
-prompt menu.
+algorithm support. Hashing, key generation and CBOM scan and audit
+also run as non-interactive subcommands with JSON output; every
+operation is available from the interactive menu.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -163,6 +172,134 @@ prompt menu.
 | `Modern Encrypt` | Encrypt/decrypt with 5 AEAD ciphers                         |
 | `Modern Sign`    | Sign and verify with 8 algorithms including ML-DSA          |
 | `Password Hash`  | Hash and verify passwords with 3 Argon2 variants            |
+
+### Non-interactive commands
+
+With arguments, `crypto-cli` runs a subcommand instead of the menu:
+
+- `--json` prints the result as one line of JSON on stdout, and
+  nothing else goes to stdout.
+- A command that takes a file reads standard input when the file is
+  omitted or `-`.
+- Errors, usage and notes go to stderr.
+- Exit codes: `0` success, `1` the operation failed (unreadable input,
+  a cryptographic error, an invalid CBOM, a CBOM audit with status
+  `FAIL`), `2` usage error (unknown command or option, missing or
+  invalid argument).
+- With no arguments, the interactive menu starts only when stdin and
+  stdout are both terminals; otherwise usage goes to stderr and the
+  exit code is `2`.
+
+The reference below is generated from the command definitions
+(`pnpm run readme:usage`); a test fails when it is out of date.
+
+<!-- cli-usage:start (generated: pnpm run readme:usage) -->
+
+#### `crypto-cli`
+
+```text
+Usage: crypto-cli [options] [command]
+
+Cryptographic operations from the command line. Run without arguments in a
+terminal for the interactive menu.
+
+Options:
+  -V, --version          print the version
+  -h, --help             print help
+
+Commands:
+  hash [options] [file]  Hash a file, or standard input when no file is given
+  keygen [options]       Generate a key pair (the private key is printed to
+                         stdout)
+  cbom                   Generate or audit a Cryptographic Bill of Materials
+```
+
+#### `crypto-cli hash`
+
+```text
+Usage: crypto-cli hash [options] [file]
+
+Hash a file, or standard input when no file is given
+
+Arguments:
+  file                    file to hash; '-' or omitted reads standard input
+
+Options:
+  -a, --algorithm <name>  hash algorithm (choices: "sha256", "sha384", "sha512",
+                          "sha3-256", "sha3-512", "blake2b", "blake3", default:
+                          "sha256")
+  --json                  print the result as one line of JSON
+  -h, --help              print help
+```
+
+#### `crypto-cli keygen`
+
+```text
+Usage: crypto-cli keygen [options]
+
+Generate a key pair (the private key is printed to stdout)
+
+Options:
+  -a, --algorithm <name>  key algorithm (choices: "ed25519", "x25519", "ed448",
+                          "x448", "p256", "p384", "ml-kem-512", "ml-kem-768",
+                          "ml-kem-1024", "ml-dsa-44", "ml-dsa-65", "ml-dsa-87")
+  --kid <id>              key ID (default: thumbprint of the public key)
+  --use <use>             intended key usage (choices: "sig", "enc")
+  --json                  print the key pair as one line of JSON
+  -h, --help              print help
+```
+
+#### `crypto-cli cbom`
+
+```text
+Usage: crypto-cli cbom [options] [command]
+
+Generate or audit a Cryptographic Bill of Materials
+
+Options:
+  -h, --help                  print help
+
+Commands:
+  scan [options] [directory]  Scan source code and print its CBOM
+  audit [options] [file]      Validate and audit a CBOM; exits 1 when the audit
+                              status is FAIL
+```
+
+#### `crypto-cli cbom scan`
+
+```text
+Usage: crypto-cli cbom scan [options] [directory]
+
+Scan source code and print its CBOM
+
+Arguments:
+  directory              directory or file to scan (default: ".")
+
+Options:
+  -f, --format <format>  CBOM standard (choices: "cyclonedx", "spdx", default:
+                         "cyclonedx")
+  -o, --output <file>    write the CBOM to a file, not stdout
+  --json                 print the CBOM as one line of JSON
+  -h, --help             print help
+```
+
+#### `crypto-cli cbom audit`
+
+```text
+Usage: crypto-cli cbom audit [options] [file]
+
+Validate and audit a CBOM; exits 1 when the audit status is FAIL
+
+Arguments:
+  file                 CBOM JSON file; '-' or omitted reads standard input
+
+Options:
+  -o, --output <file>  write the audit report to a file, not stdout
+  --json               print the audit report as one line of JSON
+  -h, --help           print help
+```
+
+<!-- cli-usage:end -->
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

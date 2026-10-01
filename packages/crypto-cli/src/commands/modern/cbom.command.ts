@@ -7,12 +7,13 @@ import fs from "node:fs";
 import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
+import { auditCbomJson, buildCbom, type CbomFormat } from "./cbom.core";
 
 /** Options for programmatic CBOM execution. */
 export interface ModernCbomOptions {
   action?: "scan" | "audit";
   directory?: string;
-  format?: "cyclonedx" | "spdx";
+  format?: CbomFormat;
   output?: string;
   filePath?: string;
 }
@@ -87,15 +88,7 @@ const runScan = async (
   }
 
   try {
-    const { scanDirectory, generateCycloneDxCbom, generateSpdxCbom } =
-      await import("@sebastienrousseau/crypto-cbom");
-
-    const targetDir = directory && directory.trim() ? directory.trim() : ".";
-    const assets = scanDirectory(targetDir);
-    const cbom =
-      cbomFormat === "spdx"
-        ? generateSpdxCbom(assets)
-        : generateCycloneDxCbom(assets);
+    const cbom = await buildCbom(directory, cbomFormat);
     emit(JSON.stringify(cbom, null, 2), output, "CBOM");
   } catch (err) {
     fail(err);
@@ -133,20 +126,7 @@ const runAudit = async (
       return;
     }
 
-    const { validateCbom, auditCbom } =
-      await import("@sebastienrousseau/crypto-cbom");
-
-    const raw = fs.readFileSync(pathStr, "utf8");
-    const parsed = JSON.parse(raw);
-    const val = validateCbom(parsed);
-    if (!val.valid) {
-      writeUtils.writeLn(
-        format.red(`Validation failed: ${val.errors.join(", ")}`),
-      );
-      return;
-    }
-
-    const result = auditCbom(parsed);
+    const result = await auditCbomJson(fs.readFileSync(pathStr, "utf8"));
     emit(JSON.stringify(result, null, 2), output, "Audit report");
   } catch (err) {
     fail(err);

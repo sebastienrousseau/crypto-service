@@ -7,7 +7,7 @@ import type { FastifyInstance } from "fastify";
 import {
   ed25519Sign,
   ed25519Verify,
-} from "@sebastienrousseau/crypto-lib/dist/modern";
+} from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
 

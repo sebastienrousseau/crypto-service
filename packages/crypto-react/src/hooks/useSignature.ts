@@ -2,10 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import { useState, useCallback } from "react";
-import {
-  crypto,
-  type SignAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/crypto";
+import { crypto, type SignAlgorithm } from "@sebastienrousseau/crypto-lib";
 
 /**
  * Return type of the {@link useSignature} hook.

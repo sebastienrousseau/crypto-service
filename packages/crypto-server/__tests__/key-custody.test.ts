@@ -14,7 +14,7 @@ import * as path from "path";
 import {
   ed25519Sign,
   ed25519Verify,
-} from "@sebastienrousseau/crypto-lib/dist/modern";
+} from "@sebastienrousseau/crypto-lib/modern";
 import routes from "../src/routes";
 import { init } from "../src/server";
 import { hasScope } from "../src/lib/auth";

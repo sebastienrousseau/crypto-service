@@ -1,4 +1,4 @@
-import revoke from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
+import { revoke } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

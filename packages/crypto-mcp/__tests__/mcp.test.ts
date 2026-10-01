@@ -13,6 +13,7 @@ import {
   getPrompt,
   run,
 } from "../src";
+import { call, callError, newKey } from "./helpers";
 
 describe("Crypto MCP Server Suite", () => {
   let server: CryptoMcpServer;
@@ -80,193 +81,205 @@ describe("Crypto MCP Server Suite", () => {
       expect(tools.length).to.equal(TOOLS.length);
     });
 
-    it("executes crypto_generate_key for ed25519, rsa, ecc, ml-kem-768", async () => {
-      const edRes = await executeTool("crypto_generate_key", {
-        type: "ed25519",
-      });
-      expect(edRes.isError).to.be.undefined;
-      expect(edRes.content[0].text).to.include("ed25519");
+    it("executes crypto_generate_key for every key type, returning handles", async () => {
+      const ed = await newKey("ed25519");
+      expect(ed.type).to.equal("ed25519");
+      expect(ed.keyHandle).to.match(/^kh_[0-9a-f]{32}$/);
+      expect(ed.publicKey).to.include("BEGIN PUBLIC KEY");
 
-      const rsaRes = await executeTool("crypto_generate_key", {
-        type: "rsa",
-        modulusLength: 2048,
-      });
-      expect(rsaRes.isError).to.be.undefined;
-      expect(rsaRes.content[0].text).to.include("rsa");
+      expect((await newKey("rsa", { modulusLength: 2048 })).bits).to.equal(
+        2048,
+      );
+      expect((await newKey("rsa")).bits).to.equal(2048);
+      const ecc = await newKey("ecc", { curve: "prime256v1" });
+      expect(ecc.curve).to.equal("prime256v1");
+      expect((await newKey("ecc")).curve).to.equal("prime256v1");
 
-      const rsaDefRes = await executeTool("crypto_generate_key", {
-        type: "rsa",
-      });
-      expect(rsaDefRes.content[0].text).to.include("2048");
+      const pqc = await newKey("ml-kem-768");
+      expect(pqc.type).to.equal("ml-kem-768");
+      expect(pqc.publicKey).to.match(/^[0-9a-f]{2368}$/);
 
-      const eccRes = await executeTool("crypto_generate_key", {
-        type: "ecc",
-        curve: "prime256v1",
-      });
-      expect(eccRes.isError).to.be.undefined;
-      expect(eccRes.content[0].text).to.include("prime256v1");
+      const sym = await newKey("symmetric-256");
+      expect(sym).to.include({ type: "symmetric-256", bits: 256 });
+      expect(sym.source).to.equal("generated");
+      const mac = await newKey("hmac-sha256");
+      expect(mac).to.include({ type: "hmac-sha256", bits: 256 });
 
-      const eccDefRes = await executeTool("crypto_generate_key", {
-        type: "ecc",
-      });
-      expect(eccDefRes.content[0].text).to.include("prime256v1");
-
-      const pqcRes = await executeTool("crypto_generate_key", {
-        type: "ml-kem-768",
-      });
-      expect(pqcRes.isError).to.be.undefined;
-      expect(pqcRes.content[0].text).to.include("ml-kem-768");
-
-      const unsupp = await executeTool("crypto_generate_key", {
-        type: "unsupported-alg",
-      });
-      expect(unsupp.isError).to.be.true;
+      for (const key of [ed, ecc, pqc, sym, mac]) {
+        expect(key).to.not.have.property("privateKey");
+        expect(key).to.not.have.property("secret");
+      }
     });
 
-    it("executes default crypto_generate_key when type is not provided", async () => {
-      const defRes = await executeTool("crypto_generate_key", {});
-      expect(defRes.content[0].text).to.include("ed25519");
+    it("rejects crypto_generate_key without the required type", async () => {
+      expect(await callError("crypto_generate_key", {})).to.include(
+        'missing required property "type"',
+      );
     });
 
-    it("executes crypto_encrypt and crypto_decrypt roundtrip (AES-256-GCM) with default and explicit algorithm", async () => {
+    it("round-trips crypto_encrypt and crypto_decrypt with a generated key handle", async () => {
       const plaintext = "Post-Quantum Realism 2027";
-      // Default algorithm (omit algorithm) and auto-generated key
-      const encRes = await executeTool("crypto_encrypt", { plaintext });
-      const encData = JSON.parse(encRes.content[0].text);
-      expect(encData.algorithm).to.equal("aes-256-gcm");
-      expect(encData.key).to.exist;
+      const enc = await call("crypto_encrypt", { plaintext });
+      expect(enc.algorithm).to.equal("aes-256-gcm");
+      expect(enc.generatedKey).to.be.true;
+      expect(enc.keyHandle).to.match(/^kh_/);
+      expect(enc).to.not.have.property("key");
 
-      // Decrypt with default algorithm
-      const decRes = await executeTool("crypto_decrypt", {
-        ciphertext: encData.ciphertext,
-        key: encData.key,
-        iv: encData.iv,
-        authTag: encData.authTag,
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: enc.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
       });
-      const decData = JSON.parse(decRes.content[0].text);
-      expect(decData.plaintext).to.equal(plaintext);
+      expect(dec.plaintext).to.equal(plaintext);
 
-      // Explicit algorithm and explicit key
-      const explicitKey = crypto.randomBytes(32).toString("hex");
-      const encRes2 = await executeTool("crypto_encrypt", {
-        plaintext,
-        algorithm: "aes-256-gcm",
-        key: explicitKey,
-      });
-      const encData2 = JSON.parse(encRes2.content[0].text);
-      expect(encData2.key).to.be.undefined;
-    });
-
-    it("executes crypto_encrypt and crypto_decrypt with custom key and ChaCha20-Poly1305, plus auto key", async () => {
-      const plaintext = "ChaCha20 Zero-Latency";
-      const customKey = crypto.randomBytes(32).toString("hex");
-      const encRes = await executeTool("crypto_encrypt", {
-        plaintext,
-        algorithm: "chacha20-poly1305",
-        key: customKey,
-      });
-      const encData = JSON.parse(encRes.content[0].text);
-      expect(encData.key).to.be.undefined;
-
-      const decRes = await executeTool("crypto_decrypt", {
-        ciphertext: encData.ciphertext,
-        key: customKey,
-        iv: encData.iv,
-        authTag: encData.authTag,
-        algorithm: "chacha20-poly1305",
-      });
-      const decData = JSON.parse(decRes.content[0].text);
-      expect(decData.plaintext).to.equal(plaintext);
-
-      // ChaCha20 with auto-generated key
-      const encResAuto = await executeTool("crypto_encrypt", {
-        plaintext,
-        algorithm: "chacha20-poly1305",
-      });
-      const encDataAuto = JSON.parse(encResAuto.content[0].text);
-      expect(encDataAuto.key).to.exist;
-    });
-
-    it("rejects a passphrase key in crypto_encrypt/decrypt", async () => {
-      const shortKey = "my-secret-passphrase";
-      const encRes = await executeTool("crypto_encrypt", {
-        plaintext: "Short Key Passphrase",
-        key: shortKey,
-      });
-      expect(encRes.isError).to.be.true;
-
-      const decRes = await executeTool("crypto_decrypt", {
-        ciphertext: "00",
-        key: shortKey,
-        iv: "00".repeat(12),
+      const tampered = await callError("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: enc.keyHandle,
+        iv: enc.iv,
         authTag: "00".repeat(16),
       });
-      expect(decRes.isError).to.be.true;
+      expect(tampered).to.include("Tool error (crypto_decrypt)");
     });
 
-    it("executes crypto_sign and crypto_verify with Ed25519 (explicit and default) and HMAC", async () => {
-      const message = "ISO 20022 Financial Transaction Payload";
-      const { publicKey, privateKey } = crypto.generateKeyPairSync("ed25519", {
-        publicKeyEncoding: { type: "spki", format: "pem" },
+    it("round-trips ChaCha20-Poly1305 with an explicit key handle", async () => {
+      const plaintext = "ChaCha20 Zero-Latency";
+      const { keyHandle } = await newKey("symmetric-256");
+      const enc = await call("crypto_encrypt", {
+        plaintext,
+        algorithm: "chacha20-poly1305",
+        keyHandle,
+      });
+      expect(enc.keyHandle).to.equal(keyHandle);
+      expect(enc.generatedKey).to.be.false;
+
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+        algorithm: "chacha20-poly1305",
+      });
+      expect(dec.plaintext).to.equal(plaintext);
+    });
+
+    it("refuses a key handle of the wrong kind or an unknown handle", async () => {
+      const mac = await newKey("hmac-sha256");
+      expect(
+        await callError("crypto_encrypt", {
+          plaintext: "p",
+          keyHandle: mac.keyHandle,
+        }),
+      ).to.include("refers to a hmac-sha256 key");
+      expect(
+        await callError("crypto_encrypt", {
+          plaintext: "p",
+          keyHandle: `kh_${"0".repeat(32)}`,
+        }),
+      ).to.include("Unknown key handle");
+    });
+
+    it("signs and verifies with Ed25519, RSA-PSS, ECDSA and HMAC handles", async () => {
+      const data = "ISO 20022 Financial Transaction Payload";
+      const cases: Array<[string, object, string]> = [
+        ["ed25519", {}, "ed25519"],
+        ["rsa", {}, "rsa-pss"],
+        ["ecc", { curve: "prime256v1" }, "ecdsa-sha256"],
+        ["ecc", { curve: "secp256k1" }, "ecdsa-sha256"],
+        ["ecc", { curve: "secp384r1" }, "ecdsa-sha384"],
+        ["hmac-sha256", {}, "hmac-sha256"],
+      ];
+      for (const [type, extra, algorithm] of cases) {
+        const key = await newKey(type, extra);
+        const signed = await call("crypto_sign", {
+          data,
+          keyHandle: key.keyHandle,
+        });
+        expect(signed.algorithm, type).to.equal(algorithm);
+        const byHandle = await call("crypto_verify", {
+          data,
+          signature: signed.signature,
+          keyHandle: key.keyHandle,
+        });
+        expect(byHandle, type).to.deep.equal({ algorithm, valid: true });
+        const tampered = await call("crypto_verify", {
+          data: `${data}!`,
+          signature: signed.signature,
+          keyHandle: key.keyHandle,
+        });
+        expect(tampered.valid, type).to.be.false;
+        if (key.publicKey) {
+          const byPem = await call("crypto_verify", {
+            data,
+            signature: signed.signature,
+            publicKey: key.publicKey,
+          });
+          expect(byPem, type).to.deep.equal({ algorithm, valid: true });
+        }
+      }
+    });
+
+    it("rejects an HMAC signature of the wrong length as invalid", async () => {
+      const { keyHandle } = await newKey("hmac-sha256");
+      const res = await call("crypto_verify", {
+        data: "d",
+        signature: "00".repeat(16),
+        keyHandle,
+      });
+      expect(res.valid).to.be.false;
+    });
+
+    it("refuses to sign with an ML-KEM or symmetric key handle", async () => {
+      for (const type of ["ml-kem-768", "symmetric-256"]) {
+        const { keyHandle } = await newKey(type);
+        expect(
+          await callError("crypto_sign", { data: "d", keyHandle }),
+          type,
+        ).to.include(`refers to a ${type} key`);
+      }
+    });
+
+    it("crypto_verify takes exactly one public key or handle, never a private key", async () => {
+      const ed = await newKey("ed25519");
+      const signed = await call("crypto_sign", {
+        data: "d",
+        keyHandle: ed.keyHandle,
+      });
+      const base = { data: "d", signature: signed.signature };
+      expect(await callError("crypto_verify", base)).to.include(
+        "exactly one of publicKey or keyHandle",
+      );
+      expect(
+        await callError("crypto_verify", {
+          ...base,
+          publicKey: ed.publicKey,
+          keyHandle: ed.keyHandle,
+        }),
+      ).to.include("exactly one of publicKey or keyHandle");
+      const { privateKey } = crypto.generateKeyPairSync("ed25519", {
         privateKeyEncoding: { type: "pkcs8", format: "pem" },
+        publicKeyEncoding: { type: "spki", format: "pem" },
       });
+      expect(
+        await callError("crypto_verify", { ...base, publicKey: privateKey }),
+      ).to.include("not a private key");
+    });
 
-      // Default algorithm
-      const signDef = await executeTool("crypto_sign", {
-        data: message,
-        privateKey,
-      });
-      const signDefData = JSON.parse(signDef.content[0].text);
-      expect(signDefData.algorithm).to.equal("ed25519");
-
-      const verifyDef = await executeTool("crypto_verify", {
-        data: message,
-        signature: signDefData.signature,
-        publicKey,
-      });
-      expect(JSON.parse(verifyDef.content[0].text).valid).to.be.true;
-
-      const signRes = await executeTool("crypto_sign", {
-        data: message,
-        algorithm: "ed25519",
-        privateKey,
-      });
-      const signData = JSON.parse(signRes.content[0].text);
-
-      const verifyRes = await executeTool("crypto_verify", {
-        data: message,
-        signature: signData.signature,
-        algorithm: "ed25519",
-        publicKey,
-      });
-      const verifyData = JSON.parse(verifyRes.content[0].text);
-      expect(verifyData.valid).to.be.true;
-
-      // HMAC test
-      const hmacKey = "super-secret-hmac-key";
-      const hmacSign = await executeTool("crypto_sign", {
-        data: message,
-        algorithm: "hmac-sha256",
-        privateKey: hmacKey,
-      });
-      const hmacSigData = JSON.parse(hmacSign.content[0].text);
-
-      const hmacVerify = await executeTool("crypto_verify", {
-        data: message,
-        signature: hmacSigData.signature,
-        algorithm: "hmac-sha256",
-        publicKey: hmacKey,
-      });
-      expect(JSON.parse(hmacVerify.content[0].text).valid).to.be.true;
-
-      // Bad signature HMAC
-      const badHmacVerify = await executeTool("crypto_verify", {
-        data: message,
-        signature: "00".repeat(32),
-        algorithm: "hmac-sha256",
-        publicKey: hmacKey,
-      });
-      expect(JSON.parse(badHmacVerify.content[0].text).valid).to.be.false;
+    it("crypto_verify refuses public keys of unsupported types and curves", async () => {
+      const pem = { type: "spki", format: "pem" } as const;
+      const x25519 = crypto
+        .generateKeyPairSync("x25519")
+        .publicKey.export(pem) as string;
+      const p521 = crypto
+        .generateKeyPairSync("ec", { namedCurve: "secp521r1" })
+        .publicKey.export(pem) as string;
+      const base = { data: "d", signature: "00" };
+      expect(
+        await callError("crypto_verify", { ...base, publicKey: x25519 }),
+      ).to.include("Unsupported key type: x25519");
+      expect(
+        await callError("crypto_verify", { ...base, publicKey: p521 }),
+      ).to.include("Unsupported EC curve: secp521r1");
     });
 
     it("executes crypto_hash across algorithms and default sha256", async () => {
@@ -284,42 +297,96 @@ describe("Crypto MCP Server Suite", () => {
       expect(parsedDef.digest).to.equal(parsed.digest);
     });
 
-    it("executes crypto_kms_wrap and unwrap roundtrip with custom and default parameters", async () => {
-      const dek = crypto.randomBytes(32).toString("hex");
-      const wrapRes = await executeTool("crypto_kms_wrap", {
+    it("wraps a DEK handle with crypto_kms_wrap and unwraps it to a new handle", async () => {
+      const dek = await newKey("symmetric-256");
+      const keyId = "arn:aws:kms:us-east-1:test";
+      const wrap = await call("crypto_kms_wrap", {
         provider: "local",
-        keyId: "arn:aws:kms:us-east-1:test",
-        dek,
+        keyId,
+        keyHandle: dek.keyHandle,
       });
-      const wrapData = JSON.parse(wrapRes.content[0].text);
-
-      const unwrapRes = await executeTool("crypto_kms_unwrap", {
+      expect(wrap.wrappedKey).to.match(/^[0-9a-f]+$/);
+      const unwrap = await call("crypto_kms_unwrap", {
         provider: "local",
-        keyId: "arn:aws:kms:us-east-1:test",
-        wrappedKey: wrapData.wrappedKey,
+        keyId,
+        wrappedKey: wrap.wrappedKey,
       });
-      const unwrapData = JSON.parse(unwrapRes.content[0].text);
-      expect(unwrapData.dek).to.equal(dek);
+      expect(unwrap).to.not.have.property("dek");
+      expect(unwrap.keyHandle).to.not.equal(dek.keyHandle);
 
-      // Default KMS wrap/unwrap parameters
-      const wrapDef = await executeTool("crypto_kms_wrap", { dek });
-      const wrapDefData = JSON.parse(wrapDef.content[0].text);
-      expect(wrapDefData.provider).to.equal("local");
-      expect(wrapDefData.keyId).to.equal("kms-key-default");
-
-      const unwrapDef = await executeTool("crypto_kms_unwrap", {
-        wrappedKey: wrapDefData.wrappedKey,
+      // The unwrapped handle decrypts what the original encrypted.
+      const enc = await call("crypto_encrypt", {
+        plaintext: "envelope",
+        keyHandle: dek.keyHandle,
       });
-      const unwrapDefData = JSON.parse(unwrapDef.content[0].text);
-      expect(unwrapDefData.dek).to.equal(dek);
-
-      // Invalid wrapped payload
-      const badUnwrap = await executeTool("crypto_kms_unwrap", {
-        provider: "local",
-        keyId: "arn:aws:kms:us-east-1:test",
-        wrappedKey: Buffer.from("invalid-format").toString("hex"),
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: unwrap.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
       });
-      expect(badUnwrap.isError).to.be.true;
+      expect(dec.plaintext).to.equal("envelope");
+
+      // provider and keyId are required
+      expect(
+        await callError("crypto_kms_wrap", { keyHandle: dek.keyHandle }),
+      ).to.include("missing required property");
+      expect(
+        await callError("crypto_kms_unwrap", {
+          provider: "local",
+          keyId,
+          wrappedKey: Buffer.from("invalid-format").toString("hex"),
+        }),
+      ).to.include("Tool error (crypto_kms_unwrap)");
+    });
+
+    it("establishes a shared key with crypto_kem_encapsulate and crypto_kem_decapsulate", async () => {
+      const recipient = await newKey("ml-kem-768");
+      const sender = await call("crypto_kem_encapsulate", {
+        publicKey: recipient.publicKey,
+      });
+      expect(sender.algorithm).to.equal("ml-kem-768");
+      expect(sender).to.not.have.property("sharedSecret");
+      const received = await call("crypto_kem_decapsulate", {
+        keyHandle: recipient.keyHandle,
+        ciphertext: sender.ciphertext,
+      });
+      const enc = await call("crypto_encrypt", {
+        plaintext: "pq hello",
+        keyHandle: sender.keyHandle,
+      });
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: received.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+      });
+      expect(dec.plaintext).to.equal("pq hello");
+    });
+
+    it("lists and destroys key handles", async () => {
+      const key = await newKey("ed25519");
+      const listed = await call("crypto_key_list", {});
+      expect(listed.capacity).to.equal(64);
+      const entry = listed.keys.find(
+        (k: { keyHandle: string }) => k.keyHandle === key.keyHandle,
+      );
+      expect(entry).to.include({ type: "ed25519", publicKey: key.publicKey });
+      expect(entry.createdAt).to.be.a("string");
+
+      const destroyed = await call("crypto_key_destroy", {
+        keyHandle: key.keyHandle,
+      });
+      expect(destroyed).to.deep.equal({
+        keyHandle: key.keyHandle,
+        destroyed: true,
+      });
+      expect(
+        await callError("crypto_key_destroy", { keyHandle: key.keyHandle }),
+      ).to.include("Unknown key handle");
+      expect(
+        await callError("crypto_sign", { data: "d", keyHandle: key.keyHandle }),
+      ).to.include("Unknown key handle");
     });
 
     it("executes crypto_inspect_key for PEM, OpenPGP, and raw keys", async () => {
@@ -375,7 +442,9 @@ describe("Crypto MCP Server Suite", () => {
       });
       expect(JSON.parse(inspectRaw.content[0].text).format).to.equal("Raw");
 
-      const inspectEmpty = await executeTool("crypto_inspect_key", {});
+      const inspectEmpty = await executeTool("crypto_inspect_key", {
+        keyData: "",
+      });
       expect(JSON.parse(inspectEmpty.content[0].text).type).to.equal("unknown");
     });
 
@@ -389,7 +458,9 @@ describe("Crypto MCP Server Suite", () => {
       expect(data.quantumSafeCount).to.equal(1);
       expect(data.vulnerableCount).to.equal(4);
 
-      const emptyAudit = await executeTool("crypto_audit_cbom", {});
+      const emptyAudit = await executeTool("crypto_audit_cbom", {
+        algorithms: "",
+      });
       expect(JSON.parse(emptyAudit.content[0].text).totalAudited).to.equal(0);
     });
 
@@ -615,29 +686,6 @@ describe("Crypto MCP Server Suite", () => {
         method: "initialize",
       });
       expect(server.isInitialized()).to.be.true;
-    });
-
-    it("signs and verifies data with RSA", async () => {
-      const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-        modulusLength: 2048,
-        publicKeyEncoding: { type: "spki", format: "pem" },
-        privateKeyEncoding: { type: "pkcs8", format: "pem" },
-      });
-      const data = "Sensitive RSA Payload";
-      const signRes = await executeTool("crypto_sign", {
-        data,
-        algorithm: "rsa-pss",
-        privateKey,
-      });
-      const signData = JSON.parse(signRes.content[0].text);
-
-      const verifyRes = await executeTool("crypto_verify", {
-        data,
-        signature: signData.signature,
-        algorithm: "rsa-pss",
-        publicKey,
-      });
-      expect(JSON.parse(verifyRes.content[0].text).valid).to.be.true;
     });
 
     it("exports runnable cli function without crashing", () => {

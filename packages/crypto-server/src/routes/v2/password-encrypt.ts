@@ -34,7 +34,7 @@ function registerEncrypt(app: FastifyInstance): void {
       };
       // Non-empty strings always encrypt; anything else is a server error.
       const result = await request.server.kdf.run<unknown>(
-        "passwordEncrypt",
+        "highLevel",
         "passwordEncrypt",
         { password, plaintext },
       );
@@ -71,7 +71,7 @@ function registerDecrypt(app: FastifyInstance): void {
           ciphertext: string;
         };
         const plaintext = await request.server.kdf.run<Uint8Array>(
-          "passwordEncrypt",
+          "highLevel",
           "passwordDecrypt",
           password,
           ciphertext,

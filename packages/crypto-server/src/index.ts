@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT

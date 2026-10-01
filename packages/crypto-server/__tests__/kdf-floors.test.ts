@@ -10,7 +10,7 @@
 import { expect } from "chai";
 import { monitorEventLoopDelay } from "perf_hooks";
 import type { FastifyInstance } from "fastify";
-import { hashPassword } from "@sebastienrousseau/crypto-lib/dist/modern/password";
+import { hashPassword } from "@sebastienrousseau/crypto-lib/modern";
 import { init } from "../src/server";
 import { KdfRunner } from "../src/lib/kdf-runner";
 import { KDF_FLOORS } from "../src/routes/v2/kdf";
@@ -136,10 +136,14 @@ describe("KDF floors and off-loop work (F14, F15)", function () {
     it("starts no threads until used, and closes cleanly either way", async () => {
       const runner = new KdfRunner();
       await runner.close();
-      const out = await runner.run<{ algorithm: string }>("kdf", "kdfDerive", {
-        algorithm: "hkdf-sha256",
-        password: "x",
-      });
+      const out = await runner.run<{ algorithm: string }>(
+        "modern",
+        "kdfDerive",
+        {
+          algorithm: "hkdf-sha256",
+          password: "x",
+        },
+      );
       expect(out.algorithm).to.equal("hkdf-sha256");
       await runner.close();
     });
@@ -148,7 +152,7 @@ describe("KDF floors and off-loop work (F14, F15)", function () {
       const runner = new KdfRunner();
       try {
         const err = await runner
-          .run("kdf", "kdfDerive", {
+          .run("modern", "kdfDerive", {
             algorithm: "hkdf-sha256",
             password: "x",
             salt: "zz",

@@ -8,11 +8,20 @@ import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 import * as openpgp from "openpgp";
 import * as path from "path";
-import {
-  _resetKeystoreForTests,
-  decodeArmor,
-} from "@sebastienrousseau/crypto-lib/dist/key/keystore";
+import { createRequire } from "module";
 import { readFileSync } from "fs";
+
+// The keystore cache is internal to crypto-lib and not part of its
+// package exports. Load the module by file path next to the package
+// entry, which is the same module instance the server uses, so the
+// tests can clear the cache after changing CRYPTO_KEY_DIR.
+const { _resetKeystoreForTests } = createRequire(__filename)(
+  path.join(
+    path.dirname(require.resolve("@sebastienrousseau/crypto-lib")),
+    "key",
+    "keystore.js",
+  ),
+) as { _resetKeystoreForTests: () => void };
 
 /** The crypto-lib test keystore (passphrase "123456789abcdef"). */
 const FIXTURE_KEYS = path.resolve(
@@ -25,6 +34,13 @@ const FIXTURE_KEYS = path.resolve(
   "keys",
 );
 const FIXTURE_PASSPHRASE = "123456789abcdef";
+
+/** The fixture public key: a base64-wrapped armored key on disk. */
+const fixturePublicKey = (): string =>
+  Buffer.from(
+    readFileSync(path.join(FIXTURE_KEYS, "rsa.pub"), "latin1"),
+    "base64",
+  ).toString("latin1");
 
 /** Point the server's keystore at the fixtures for one describe block. */
 function useFixtureKeystore(): void {
@@ -109,9 +125,7 @@ describe("Route success paths", function () {
       expect(res.statusCode).to.equal(200);
       // The recipient decrypts it and checks the server's signature.
       const serverPub = await openpgp.readKey({
-        armoredKey: decodeArmor(
-          readFileSync(path.join(FIXTURE_KEYS, "rsa.pub")),
-        ),
+        armoredKey: fixturePublicKey(),
       });
       const recipient = await openpgp.decryptKey({
         privateKey: await openpgp.readPrivateKey({
@@ -137,9 +151,7 @@ describe("Route success paths", function () {
     it("decrypts a message sent to the server's key pair", async () => {
       // Encrypt to the server's public key
       const pubKey = await openpgp.readKey({
-        armoredKey: decodeArmor(
-          readFileSync(path.join(FIXTURE_KEYS, "rsa.pub")),
-        ),
+        armoredKey: fixturePublicKey(),
       });
       const encrypted = await openpgp.encrypt({
         message: await openpgp.createMessage({ text: "Secret message" }),

@@ -37,7 +37,7 @@ function registerKeygen(app: FastifyInstance): void {
     },
     async (request, reply) => {
       const { mlDsaKeygen } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+        await import("@sebastienrousseau/crypto-lib/modern");
       const { level } = request.body as { level: 44 | 65 | 87 };
       const { publicKey, secretKey, algorithm } = mlDsaKeygen(level);
       const stored = await storeKey(
@@ -74,7 +74,7 @@ function registerSign(app: FastifyInstance): void {
     },
     async (request, reply) => {
       const { mlDsaSign } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+        await import("@sebastienrousseau/crypto-lib/modern");
       const body = request.body as { keyId: string; message: string };
       const key = await resolveKey(request, body.keyId, ML_DSA_ALGORITHMS);
       const level = Number(key.algorithm.slice("ml-dsa-".length)) as
@@ -111,7 +111,7 @@ function registerVerify(app: FastifyInstance): void {
     async (request, reply) => {
       try {
         const { mlDsaVerify } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           level: 44 | 65 | 87;
           publicKey: string;

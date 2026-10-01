@@ -5,7 +5,7 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
-import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign";
+import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/modern";
 import {
   KEY_ID_SCHEMA,
   publicView,
@@ -54,7 +54,7 @@ function registerKeygen(app: FastifyInstance): void {
     },
     async (request, reply) => {
       const { slhDsaKeygen } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+        await import("@sebastienrousseau/crypto-lib/modern");
       const { variant } = request.body as { variant: SlhDsaVariant };
       const { publicKey, secretKey, algorithm } = slhDsaKeygen(variant);
       const stored = await storeKey(
@@ -91,7 +91,7 @@ function registerSign(app: FastifyInstance): void {
     },
     async (request, reply) => {
       const { slhDsaSign } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+        await import("@sebastienrousseau/crypto-lib/modern");
       const body = request.body as { keyId: string; message: string };
       const key = await resolveKey(request, body.keyId, SLH_DSA_ALGORITHMS);
       const variant = key.algorithm.slice("slh-dsa-".length) as SlhDsaVariant;
@@ -127,7 +127,7 @@ function registerVerify(app: FastifyInstance): void {
     async (request, reply) => {
       try {
         const { slhDsaVerify } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           variant: string;
           publicKey: string;

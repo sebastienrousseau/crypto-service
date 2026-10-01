@@ -14,7 +14,7 @@
  * and error messages are unchanged.
  */
 
-import { WorkerPool } from "@sebastienrousseau/crypto-lib/dist/accel/worker-pool";
+import { WorkerPool } from "@sebastienrousseau/crypto-lib/accel";
 
 /**
  * Worker threads for KDF work. Each Argon2 or scrypt call can hold up to
@@ -22,13 +22,15 @@ import { WorkerPool } from "@sebastienrousseau/crypto-lib/dist/accel/worker-pool
  */
 export const KDF_WORKER_THREADS = 2;
 
-/** The crypto-lib modules whose functions the runner may call. */
+/**
+ * The crypto-lib entry points whose functions the runner may call,
+ * resolved to files through the package's exports map: `modern` has
+ * `kdfDerive`, `hashPassword` and `verifyPassword`; `highLevel` has
+ * `passwordEncrypt` and `passwordDecrypt`.
+ */
 const MODULES = {
-  kdf: require.resolve("@sebastienrousseau/crypto-lib/dist/modern/kdf"),
-  password:
-    require.resolve("@sebastienrousseau/crypto-lib/dist/modern/password"),
-  passwordEncrypt:
-    require.resolve("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt"),
+  modern: require.resolve("@sebastienrousseau/crypto-lib/modern"),
+  highLevel: require.resolve("@sebastienrousseau/crypto-lib/high-level"),
 } as const;
 
 /** A crypto-lib module the runner can call into. */

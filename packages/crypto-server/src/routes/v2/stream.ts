@@ -6,7 +6,7 @@ import { ed25519Sign, ed25519Verify } from "@sebastienrousseau/crypto-lib";
 import {
   verifyIso20022Payment,
   type Iso20022DualSignatureEnvelope,
-} from "@sebastienrousseau/crypto-lib/dist/protocols/iso20022";
+} from "@sebastienrousseau/crypto-lib/protocols";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
 import type { StoredKey } from "../../lib/key-store";

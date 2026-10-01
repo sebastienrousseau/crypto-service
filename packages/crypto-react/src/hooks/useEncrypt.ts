@@ -2,10 +2,7 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import { useState, useCallback } from "react";
-import {
-  seal,
-  open,
-} from "@sebastienrousseau/crypto-lib/dist/high-level/secretbox";
+import { secretbox } from "@sebastienrousseau/crypto-lib/high-level";
 import { useCryptoContext } from "../provider";
 
 /**
@@ -59,7 +56,7 @@ export function useEncrypt(): UseEncryptResult {
       }
       setIsProcessing(true);
       try {
-        const result = seal(k, pt);
+        const result = secretbox.seal(k, pt);
         setCiphertext(result.sealed);
         return result.sealed;
       } finally {
@@ -79,7 +76,7 @@ export function useEncrypt(): UseEncryptResult {
       }
       setIsProcessing(true);
       try {
-        const raw = open(k, ct);
+        const raw = secretbox.open(k, ct);
         const text = Buffer.from(raw).toString("utf8");
         setPlaintext(text);
         return text;

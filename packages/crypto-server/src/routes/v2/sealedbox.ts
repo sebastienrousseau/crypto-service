@@ -7,6 +7,10 @@ import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
 
+/** crypto-lib sealed-box API, loaded on first use. */
+const loadSealedbox = async () =>
+  (await import("@sebastienrousseau/crypto-lib/high-level")).sealedbox;
+
 /** `POST /v2/sealedbox/seal`: anonymous encryption to an X25519 public key. */
 function registerSeal(app: FastifyInstance): void {
   app.post(
@@ -28,8 +32,7 @@ function registerSeal(app: FastifyInstance): void {
     },
     async (request, reply) => {
       try {
-        const { seal } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { seal } = await loadSealedbox();
         const { recipientPublicKey, plaintext } = request.body as {
           recipientPublicKey: string;
           plaintext: string;
@@ -70,8 +73,7 @@ function registerOpen(app: FastifyInstance): void {
       };
       const key = await resolveKey(request, keyId, ["x25519"]);
       try {
-        const { open } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { open } = await loadSealedbox();
         const plaintext = open(key.privateParts["privateKey"], sealed);
         return reply.send({
           data: Buffer.from(plaintext).toString("utf8"),
@@ -106,8 +108,7 @@ function registerSealPq(app: FastifyInstance): void {
     },
     async (request, reply) => {
       try {
-        const { sealPQ } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { sealPQ } = await loadSealedbox();
         const { x25519PublicKey, mlKemPublicKey, plaintext } = request.body as {
           x25519PublicKey: string;
           mlKemPublicKey: string;
@@ -151,8 +152,7 @@ function registerOpenPq(app: FastifyInstance): void {
       };
       const key = await resolveKey(request, keyId, ["x25519-ml-kem-768"]);
       try {
-        const { openPQ } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { openPQ } = await loadSealedbox();
         const { x25519PrivateKey, mlKemSecretKey } = key.privateParts;
         const plaintext = openPQ(x25519PrivateKey, mlKemSecretKey, sealed);
         return reply.send({

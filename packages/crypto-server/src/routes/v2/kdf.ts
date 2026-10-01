@@ -8,8 +8,7 @@ import {
   KDF_ALGORITHMS,
   type KdfDeriveOptions,
   type KdfResult,
-} from "@sebastienrousseau/crypto-lib/dist/modern";
-import { MAX_SCRYPT_N } from "@sebastienrousseau/crypto-lib/dist/modern/cost-limits";
+} from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
 /**
@@ -47,7 +46,8 @@ const kdfSchema = {
           N: {
             type: "integer",
             minimum: KDF_FLOORS.scryptN,
-            maximum: MAX_SCRYPT_N,
+            // crypto-lib caps N at 2^17 (MAX_SCRYPT_N), the floor itself.
+            maximum: KDF_FLOORS.scryptN,
           },
           r: {
             type: "integer",
@@ -80,7 +80,7 @@ export default (app: FastifyInstance): void => {
         ...(body.params ? { params: body.params } : {}),
       };
       const result = await request.server.kdf.run<KdfResult>(
-        "kdf",
+        "modern",
         "kdfDerive",
         options,
       );

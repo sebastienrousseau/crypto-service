@@ -9,7 +9,7 @@
 import { expect } from "chai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/dist/modern";
+import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/modern";
 import { init } from "../src/server";
 import { readPackageVersion } from "../src/routes/v2/compliance";
 import type { FastifyInstance } from "fastify";

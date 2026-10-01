@@ -16,6 +16,47 @@ const ALGORITHMS = [
   "aes-128-gcm-siv",
 ];
 
+/** The questions handleModernEncrypt asks, in order. */
+const QUESTIONS: prompts.PromptObject[] = [
+  {
+    type: "select",
+    name: "algorithm",
+    message: "Select encryption algorithm",
+    choices: ALGORITHMS.map((a) => ({ title: a, value: a })),
+  },
+  {
+    type: "password",
+    name: "key",
+    message: "Encryption key (hex, 32 bytes / 64 hex chars)",
+  },
+  {
+    type: "text",
+    name: "plaintext",
+    message: "Plaintext to encrypt",
+  },
+  {
+    type: "select",
+    name: "outputFormat",
+    message: "Output format",
+    choices: [
+      { title: "JSON", value: "json" },
+      { title: "Hex ciphertext only", value: "hex" },
+    ],
+  },
+];
+
+/** Encrypt with the selected AEAD cipher. */
+async function encryptWith(algorithm: string, key: string, plaintext: string) {
+  const lib = await import("@sebastienrousseau/crypto-lib/modern");
+  if (algorithm === "xchacha20-poly1305") {
+    return lib.aeadEncrypt({ key, plaintext });
+  }
+  if (algorithm.includes("siv")) {
+    return lib.aesGcmSivEncrypt({ key, plaintext });
+  }
+  return lib.aesGcmEncrypt({ key, plaintext });
+}
+
 /**
  * Interactively encrypt data using modern AEAD ciphers (XChaCha20-Poly1305, AES-GCM, AES-GCM-SIV).
  *
@@ -25,73 +66,20 @@ const ALGORITHMS = [
  * ```
  */
 const handleModernEncrypt = async () => {
-  const response = await prompts([
-    {
-      type: "select",
-      name: "algorithm",
-      message: "Select encryption algorithm",
-      choices: ALGORITHMS.map((a) => ({ title: a, value: a })),
-    },
-    {
-      type: "password",
-      name: "key",
-      message: "Encryption key (hex, 32 bytes / 64 hex chars)",
-    },
-    {
-      type: "text",
-      name: "plaintext",
-      message: "Plaintext to encrypt",
-    },
-    {
-      type: "select",
-      name: "outputFormat",
-      message: "Output format",
-      choices: [
-        { title: "JSON", value: "json" },
-        { title: "Hex ciphertext only", value: "hex" },
-      ],
-    },
-  ]);
+  const response = await prompts(QUESTIONS);
 
   if (!response.algorithm || !response.key || !response.plaintext) return;
 
   try {
-    if (response.algorithm === "xchacha20-poly1305") {
-      const { aeadEncrypt } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/aead");
-      const result = aeadEncrypt({
-        key: response.key,
-        plaintext: response.plaintext,
-      });
-      if (response.outputFormat === "json") {
-        writeUtils.writeLn(format.green(JSON.stringify(result, null, 2)));
-      } else {
-        writeUtils.writeLn(format.green(result.ciphertext));
-      }
-    } else if (response.algorithm.includes("siv")) {
-      const { aesGcmSivEncrypt } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/aes");
-      const result = aesGcmSivEncrypt({
-        key: response.key,
-        plaintext: response.plaintext,
-      });
-      if (response.outputFormat === "json") {
-        writeUtils.writeLn(format.green(JSON.stringify(result, null, 2)));
-      } else {
-        writeUtils.writeLn(format.green(result.ciphertext));
-      }
+    const result = await encryptWith(
+      response.algorithm,
+      response.key,
+      response.plaintext,
+    );
+    if (response.outputFormat === "json") {
+      writeUtils.writeLn(format.green(JSON.stringify(result, null, 2)));
     } else {
-      const { aesGcmEncrypt } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/aes");
-      const result = aesGcmEncrypt({
-        key: response.key,
-        plaintext: response.plaintext,
-      });
-      if (response.outputFormat === "json") {
-        writeUtils.writeLn(format.green(JSON.stringify(result, null, 2)));
-      } else {
-        writeUtils.writeLn(format.green(result.ciphertext));
-      }
+      writeUtils.writeLn(format.green(result.ciphertext));
     }
   } catch (err) {
     writeUtils.writeLn(

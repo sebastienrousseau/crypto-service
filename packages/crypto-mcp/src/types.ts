@@ -24,17 +24,34 @@ export interface JSONRPCError {
   data?: unknown;
 }
 
+/** JSON types a tool parameter may declare. */
+export type MCPToolParameterType = "string" | "integer" | "number" | "boolean";
+
+/**
+ * One tool parameter: the subset of JSON Schema that `validateArguments`
+ * enforces before a tool runs.
+ */
 export interface MCPToolParameterProperty {
-  type: string;
+  type: MCPToolParameterType;
   description: string;
-  enum?: string[];
+  enum?: Array<string | number>;
   default?: unknown;
+  /** Minimum string length, in UTF-16 code units. */
+  minLength?: number;
+  /** Maximum string length, in UTF-16 code units. */
+  maxLength?: number;
+  /** Regular expression (Unicode mode) a string must match. */
+  pattern?: string;
+  minimum?: number;
+  maximum?: number;
 }
 
 export interface MCPToolInputSchema {
   type: "object";
   properties: Record<string, MCPToolParameterProperty>;
   required?: string[];
+  /** Always `false`: unknown arguments are rejected. */
+  additionalProperties: false;
 }
 
 export interface MCPTool {

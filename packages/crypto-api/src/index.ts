@@ -18,6 +18,18 @@ const minimist = require("minimist") as (argv: string[]) => {
 import * as fs from "fs/promises";
 import { createMarkdown, response } from "./utils";
 
+/** Collection and request types, importable from the package root. */
+export type {
+  AuthorizationToken,
+  AuthorizationInfo,
+  CollectionItem,
+  JsonDocument,
+  MethodType,
+  JsonRequest,
+  RequestHeader,
+  ResponseType,
+} from "./@types/types";
+
 /**
  * @typedef {Object} ParsedArgs
  * @property {string[]} _ - Positional arguments (unnamed arguments)
