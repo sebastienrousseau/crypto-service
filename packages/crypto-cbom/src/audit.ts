@@ -2,144 +2,166 @@
 
 import {
   AuditFinding,
+  CbomAuditResult,
   CryptoAsset,
   CycloneDxCbom,
-  DoraAuditResult,
   QuantumResistanceLevel,
 } from "./types";
 
-/**
- * Audits a Cryptographic Bill of Materials for EU DORA (Articles 9/13) and CRA (Article 14) compliance.
- */
-export function auditCbom(
-  input: CycloneDxCbom | CryptoAsset[],
-): DoraAuditResult {
-  const assets: Array<{
-    name: string;
-    resistanceLevel: QuantumResistanceLevel;
-  }> = Array.isArray(input)
-    ? input
-    : input.components.map((c) => {
-        const primitive =
-          c["crypto-properties"]?.algorithmProperties?.primitive || c.name;
-        let resistanceLevel: QuantumResistanceLevel = "QUANTUM_SAFE";
-        const upper = primitive.toUpperCase();
-        if (
-          upper.includes("MD5") ||
-          upper.includes("SHA-1") ||
-          upper.includes("DES") ||
-          upper.includes("RC4") ||
-          upper.includes("ECB")
-        ) {
-          resistanceLevel = "DEPRECATED_BROKEN";
-        } else if (
-          upper.includes("RSA") ||
-          upper.includes("ECC") ||
-          upper.includes("ECDSA") ||
-          upper.includes("ED25519")
-        ) {
-          resistanceLevel = "VULNERABLE_CRQC";
-        } else if (upper.includes("AES-128") || upper.includes("CBC")) {
-          resistanceLevel = "TRANSITIONAL_HYBRID";
-        }
-        return { name: c.name, resistanceLevel };
-      });
+/** Stated on every result: the score is a heuristic, not a legal verdict. */
+export const AUDIT_DISCLAIMER =
+  "Heuristic cryptographic posture score derived from algorithm names; it is not a DORA or CRA compliance assessment.";
 
-  const findings: AuditFinding[] = [];
-  let deductions = 0;
-  let quantumSafeCount = 0;
-  let vulnerableCount = 0;
-  let deprecatedCount = 0;
+/** An asset reduced to what the audit needs. */
+interface AuditedAsset {
+  name: string;
+  resistanceLevel: QuantumResistanceLevel;
+}
 
-  for (const asset of assets) {
-    if (asset.resistanceLevel === "DEPRECATED_BROKEN") {
-      deprecatedCount++;
-      deductions += 25;
-      findings.push({
+/** Name fragments that mark a broken or disallowed primitive. */
+const BROKEN_MARKERS = ["MD5", "SHA-1", "DES", "RC4", "ECB"];
+/** Name fragments that mark a primitive breakable by a quantum computer. */
+const QUANTUM_VULNERABLE_MARKERS = ["RSA", "ECC", "ECDSA", "ED25519"];
+/** Name fragments that mark a reduced quantum security margin. */
+const TRANSITIONAL_MARKERS = ["AES-128", "CBC"];
+
+/** Classify a primitive by name. */
+export function classifyPrimitive(primitive: string): QuantumResistanceLevel {
+  const upper = primitive.toUpperCase();
+  const has = (markers: string[]) => markers.some((m) => upper.includes(m));
+  if (has(BROKEN_MARKERS)) return "DEPRECATED_BROKEN";
+  if (has(QUANTUM_VULNERABLE_MARKERS)) return "VULNERABLE_CRQC";
+  if (has(TRANSITIONAL_MARKERS)) return "TRANSITIONAL_HYBRID";
+  return "QUANTUM_SAFE";
+}
+
+/** Normalise either input shape into audited assets. */
+function toAssets(input: CycloneDxCbom | CryptoAsset[]): AuditedAsset[] {
+  if (Array.isArray(input)) return input;
+  return input.components.map((c) => ({
+    name: c.name,
+    resistanceLevel: classifyPrimitive(
+      c["crypto-properties"]?.algorithmProperties?.primitive || c.name,
+    ),
+  }));
+}
+
+/** Score deduction per resistance level. */
+const DEDUCTIONS: Record<QuantumResistanceLevel, number> = {
+  DEPRECATED_BROKEN: 25,
+  VULNERABLE_CRQC: 10,
+  TRANSITIONAL_HYBRID: 5,
+  QUANTUM_SAFE: 0,
+};
+
+/** The finding for an asset, or undefined when it is quantum-safe. */
+function findingFor(asset: AuditedAsset): AuditFinding | undefined {
+  switch (asset.resistanceLevel) {
+    case "DEPRECATED_BROKEN":
+      return {
         severity: "CRITICAL",
         asset: asset.name,
         rule: "DEPRECATED_BROKEN_PRIMITIVE",
-        regulation: "DORA_ART_9",
-        description: `Use of broken primitive ${asset.name} violates DORA Article 9 resilience requirements.`,
-        remediation:
-          "Immediately deprecate and replace with approved FIPS 140-3 primitives (SHA-256 / AES-256-GCM).",
-      });
-    } else if (asset.resistanceLevel === "VULNERABLE_CRQC") {
-      vulnerableCount++;
-      deductions += 10;
-      findings.push({
+        reference: "NIST_SP_800_131A",
+        description: `${asset.name} is broken or disallowed for new use (NIST SP 800-131A).`,
+        remediation: "Replace with SHA-256 or AES-256-GCM.",
+      };
+    case "VULNERABLE_CRQC":
+      return {
         severity: "HIGH",
         asset: asset.name,
         rule: "CRQC_HNDL_EXPOSURE",
-        regulation: "CRA_ART_14",
-        description: `Asset ${asset.name} is subject to Harvest-Now-Decrypt-Later (HNDL) attacks by quantum adversaries.`,
+        reference: "NIST_IR_8547",
+        description: `${asset.name} can be broken by a cryptographically relevant quantum computer, so data protected today is exposed to harvest-now-decrypt-later (NIST IR 8547 draft: deprecated after 2030, disallowed after 2035).`,
         remediation:
           "Deploy hybrid classical/post-quantum KEM (ML-KEM-768) and signatures (ML-DSA-65).",
-      });
-    } else if (asset.resistanceLevel === "TRANSITIONAL_HYBRID") {
-      deductions += 5;
-      findings.push({
+      };
+    case "TRANSITIONAL_HYBRID":
+      return {
         severity: "MEDIUM",
         asset: asset.name,
         rule: "TRANSITIONAL_CRYPTOGRAPHY",
-        regulation: "DORA_ART_13",
-        description: `Asset ${asset.name} provides legacy symmetric margin.`,
+        reference: "CNSA_2_0",
+        description: `${asset.name} has a reduced security margin against quantum search; CNSA 2.0 requires AES-256.`,
         remediation: "Upgrade to AES-256-GCM or ChaCha20-Poly1305.",
-      });
-    } else {
-      quantumSafeCount++;
-    }
+      };
+    default:
+      return undefined;
   }
+}
 
-  const totalAssets = assets.length;
-  const score =
-    totalAssets === 0 ? 100 : Math.max(0, Math.min(100, 100 - deductions));
-  const quantumSafeRatio =
-    totalAssets === 0 ? 1 : Number((quantumSafeCount / totalAssets).toFixed(2));
+/** Overall posture from the score and the worst classes present. */
+function postureStatus(
+  score: number,
+  deprecatedCount: number,
+  vulnerableCount: number,
+): CbomAuditResult["status"] {
+  if (deprecatedCount > 0 || score < 50) return "FAIL";
+  if (vulnerableCount > 0 || score < 85) return "REVIEW";
+  return "PASS";
+}
 
-  let doraStatus: "COMPLIANT" | "CONDITIONAL" | "NON_COMPLIANT" =
-    "NON_COMPLIANT";
-  if (deprecatedCount === 0 && score >= 85) {
-    doraStatus = "COMPLIANT";
-  } else if (deprecatedCount === 0 && score >= 50) {
-    doraStatus = "CONDITIONAL";
-  }
-
-  const craStatus: "COMPLIANT" | "NON_COMPLIANT" =
-    deprecatedCount === 0 && vulnerableCount === 0
-      ? "COMPLIANT"
-      : "NON_COMPLIANT";
-
-  const migrationRoadmap: string[] = [];
+/** Ordered migration steps for the classes present. */
+function migrationRoadmap(
+  deprecatedCount: number,
+  vulnerableCount: number,
+): string[] {
+  const steps: string[] = [];
   if (deprecatedCount > 0) {
-    migrationRoadmap.push(
-      "Phase 1 (Immediate / 30 Days): Eliminate all deprecated ciphers and broken hash functions (DORA Art. 9).",
+    steps.push(
+      "Phase 1 (Immediate / 30 Days): Eliminate all deprecated ciphers and broken hash functions.",
     );
   }
   if (vulnerableCount > 0) {
-    migrationRoadmap.push(
-      "Phase 2 (Near-Term / 90 Days): Implement hybrid post-quantum key encapsulation ML-KEM-768 (CRA Art. 14).",
-    );
-    migrationRoadmap.push(
+    steps.push(
+      "Phase 2 (Near-Term / 90 Days): Implement hybrid post-quantum key encapsulation ML-KEM-768.",
       "Phase 3 (Mid-Term / 180 Days): Transition authentication and code signing to ML-DSA-65 / SLH-DSA.",
     );
   }
-  if (migrationRoadmap.length === 0) {
-    migrationRoadmap.push(
+  if (steps.length === 0) {
+    steps.push(
       "Continuous Monitoring: Maintain automated CBOM tracking across CI/CD supply chain pipelines.",
     );
   }
+  return steps;
+}
+
+/**
+ * Audit a Cryptographic Bill of Materials and score its cryptographic
+ * posture. The result is a heuristic over algorithm names, not a DORA or
+ * CRA compliance assessment; see {@link AUDIT_DISCLAIMER}.
+ */
+export function auditCbom(
+  input: CycloneDxCbom | CryptoAsset[],
+): CbomAuditResult {
+  const assets = toAssets(input);
+  const count = (level: QuantumResistanceLevel) =>
+    assets.filter((a) => a.resistanceLevel === level).length;
+  const deprecatedCount = count("DEPRECATED_BROKEN");
+  const vulnerableCount = count("VULNERABLE_CRQC");
+  const quantumSafeCount = count("QUANTUM_SAFE");
+  const deductions = assets.reduce(
+    (sum, a) => sum + DEDUCTIONS[a.resistanceLevel],
+    0,
+  );
+  const score = Math.max(0, 100 - deductions);
+  const totalAssets = assets.length;
 
   return {
     score,
-    doraStatus,
-    craStatus,
+    status: postureStatus(score, deprecatedCount, vulnerableCount),
+    disclaimer: AUDIT_DISCLAIMER,
     totalAssets,
     quantumSafeCount,
     vulnerableCount,
     deprecatedCount,
-    quantumSafeRatio,
-    findings,
-    migrationRoadmap,
+    quantumSafeRatio:
+      totalAssets === 0
+        ? 1
+        : Number((quantumSafeCount / totalAssets).toFixed(2)),
+    findings: assets
+      .map(findingFor)
+      .filter((f): f is AuditFinding => f !== undefined),
+    migrationRoadmap: migrationRoadmap(deprecatedCount, vulnerableCount),
   };
 }

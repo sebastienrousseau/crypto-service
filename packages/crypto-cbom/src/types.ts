@@ -101,15 +101,19 @@ export interface AuditFinding {
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
   asset: string;
   rule: string;
-  regulation: "DORA_ART_9" | "DORA_ART_13" | "CRA_ART_14" | "NIST_SP_800_131A";
+  /** Standard or guidance the finding draws on (not a legal verdict). */
+  reference: "NIST_SP_800_131A" | "NIST_IR_8547" | "CNSA_2_0";
   description: string;
   remediation: string;
 }
 
-export interface DoraAuditResult {
+/** Result of {@link auditCbom}: a heuristic posture score, not a compliance verdict. */
+export interface CbomAuditResult {
   score: number; // 0 - 100
-  doraStatus: "COMPLIANT" | "CONDITIONAL" | "NON_COMPLIANT";
-  craStatus: "COMPLIANT" | "NON_COMPLIANT";
+  /** FAIL: broken primitives or score < 50; REVIEW: quantum-vulnerable assets or score < 85. */
+  status: "PASS" | "REVIEW" | "FAIL";
+  /** States that the result is not a DORA or CRA compliance assessment. */
+  disclaimer: string;
   totalAssets: number;
   quantumSafeCount: number;
   vulnerableCount: number;
@@ -118,3 +122,6 @@ export interface DoraAuditResult {
   findings: AuditFinding[];
   migrationRoadmap: string[];
 }
+
+/** @deprecated Use {@link CbomAuditResult}. */
+export type DoraAuditResult = CbomAuditResult;
