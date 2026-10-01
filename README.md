@@ -77,8 +77,10 @@ Docker container images are published to GHCR. Standalone distro packages and Re
 
 ### Individual packages
 
-From 0.0.8, every tagged release publishes all 18 packages to npm (with
-provenance) and to GitHub Packages from CI:
+From 0.0.8, every tagged release publishes all 18 packages to npm and
+to GitHub Packages from CI. From 0.0.9, the npm versions carry a
+provenance attestation, and the release fails if any of them does not
+(0.0.8 was published without one):
 
 ```bash
 pnpm add @sebastienrousseau/crypto-lib

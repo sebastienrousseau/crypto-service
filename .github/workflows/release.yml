@@ -58,9 +58,17 @@ jobs:
             echo "::error::NPM_TOKEN secret is not set; cannot publish to npm."
             exit 1
           fi
-          pnpm -r publish --access public --no-git-checks --provenance
+          pnpm -r publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # pnpm -r publish does not forward --provenance to npm (0.0.8
+          # shipped without attestations); npm reads it from the env.
+          NPM_CONFIG_PROVENANCE: "true"
+
+      # Read every published version back and fail if npm has no
+      # provenance attestation for it.
+      - name: Verify npm provenance
+        run: node scripts/check-provenance.mjs "${GITHUB_REF_NAME#v}"
 
       - name: Publish to GitHub Packages
         run: |
