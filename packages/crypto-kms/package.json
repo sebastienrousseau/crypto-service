@@ -64,6 +64,11 @@
     "typescript": "~5.9.3"
   },
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-kms"
+  },
   "publishConfig": {
     "access": "public"
   },

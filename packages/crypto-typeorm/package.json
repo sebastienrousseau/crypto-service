@@ -66,6 +66,11 @@
     "secretbox"
   ],
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-typeorm",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-typeorm"
+  },
   "publishConfig": {
     "access": "public"
   },

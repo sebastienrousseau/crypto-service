@@ -48,6 +48,11 @@
     "typescript": "~5.9.3"
   },
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-sdk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-sdk"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -6,9 +6,9 @@
   "license": "MIT OR Apache-2.0",
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-testing",
   "repository": {
-    "directory": "packages/crypto-testing",
     "type": "git",
-    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-testing"
   },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"

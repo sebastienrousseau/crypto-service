@@ -76,6 +76,11 @@
     }
   ],
   "homepage": "https://crypto-api.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-api"
+  },
   "keywords": [
     "crypto-api"
   ],
@@ -93,11 +98,6 @@
   "private": false,
   "publishConfig": {
     "access": "public"
-  },
-  "repository": {
-    "directory": "packages/crypto-api",
-    "type": "git",
-    "url": "git@github.com:sebastienrousseau/crypto-service.git"
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",

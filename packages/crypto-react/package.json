@@ -6,9 +6,9 @@
   "license": "MIT OR Apache-2.0",
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-react",
   "repository": {
-    "directory": "packages/crypto-react",
     "type": "git",
-    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-react"
   },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
