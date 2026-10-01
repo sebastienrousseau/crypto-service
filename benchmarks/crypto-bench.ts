@@ -297,43 +297,52 @@ function runBenchmarks(): BenchResult[] {
     console.log("\n=== PROTOCOLS ===");
     const protocols = require("../packages/crypto-lib/dist/protocols");
 
-    // PAKE
-    const pakeRecord = protocols.pake.serverRegister(
+    // PAKE (RFC 9807 OPAQUE-3DH, P256-SHA256). The default scrypt KSF
+    // dominates client-side cost; the server steps exclude it.
+    const pake = protocols.pake;
+    const pakeSetup = pake.createServerSetup();
+    const pakeReg = pake.createRegistrationRequest("bench-password");
+    const pakeRecord = pake.finalizeRegistrationRequest(
       "bench-password",
-      "server-1",
-    );
-    add(
-      bench(
-        "PAKE serverRegister",
-        () => protocols.pake.serverRegister("password", "srv"),
-        { iters: 20 },
+      pakeReg.blind,
+      pake.createRegistrationResponse(
+        pakeReg.request,
+        pakeSetup.serverPublicKey,
+        "bench-user",
+        pakeSetup.oprfSeed,
       ),
-    );
-    const loginStart = protocols.pake.clientStartLogin("bench-password");
+    ).record;
+    const pakeKe1 = pake.generateKE1("bench-password");
     add(
-      bench(
-        "PAKE clientStartLogin",
-        () => protocols.pake.clientStartLogin("password"),
-        { iters: 20 },
-      ),
+      bench("PAKE generateKE1 (client)", () => pake.generateKE1("password"), {
+        iters: 20,
+      }),
     );
     add(
       bench(
-        "PAKE serverRespondLogin",
-        () => protocols.pake.serverRespondLogin(loginStart.request, pakeRecord),
+        "PAKE generateKE2 (server)",
+        () =>
+          pake.generateKE2({
+            ...pakeSetup,
+            record: pakeRecord,
+            credentialIdentifier: "bench-user",
+            ke1: pakeKe1.ke1,
+          }),
         { iters: 20 },
       ),
     );
 
-    // Threshold (Shamir)
+    // Threshold (Shamir). The secret must be below the Ed25519 group
+    // order (about 2^252), so the top nibble is 0.
+    const shamirSecret = "0e" + "ad".repeat(31);
     add(
       bench(
         "Shamir split (3-of-5)",
-        () => protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3),
+        () => protocols.threshold.splitSecret(shamirSecret, 5, 3),
         { iters: 100 },
       ),
     );
-    const shares = protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3);
+    const shares = protocols.threshold.splitSecret(shamirSecret, 5, 3);
     add(
       bench(
         "Shamir reconstruct (3-of-5)",
