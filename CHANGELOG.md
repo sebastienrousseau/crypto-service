@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **crypto-server email validation (ReDoS)**: `validateEmail` used `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`, which backtracks polynomially (about 0.9 s for a 40 KB crafted string, flagged by CodeQL). It now checks the same strings in linear time.
 - **crypto-middleware on Fastify 5**: the Fastify plugin declared `fastify: "4.x"` to fastify-plugin, so registering it on Fastify 5 (the version crypto-server uses) threw "expected '4.x' fastify version". It now accepts 4.x and 5.x, and the peer dependency is `^4.0.0 || ^5.0.0`.
 - **crypto-cli closed pipes**: piping output into a reader that stops early (`crypto-cli cbom scan . --json | head`) crashed with an unhandled `EPIPE` stack trace and exit code 1. The CLI now stops quietly with exit code 0, as Unix tools do.
 - **`/v1/decrypt` lost the plaintext**: every successful decryption answered `{ "data": "[object Object]" }`, because the response schema declared `data` a string while the handler sent `{ data, signatureValid }`. The response is now `{ "data": { "data": "<plaintext>", "signatureValid": <boolean> } }`.

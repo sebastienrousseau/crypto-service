@@ -154,6 +154,21 @@ export function validateBase64(
 }
 
 /**
+ * True for `local@domain` with no whitespace, exactly one `@`, a
+ * non-empty local part and a dot inside the domain (not first or last).
+ * The same strings as /^[^\s@]+@[^\s@]+\.[^\s@]+$/, checked in linear
+ * time: that regex backtracks polynomially on input such as
+ * "a@" + "!.".repeat(n).
+ */
+export function isEmailShaped(value: string): boolean {
+  const at = value.indexOf("@");
+  if (at < 1 || value.indexOf("@", at + 1) !== -1 || /\s/.test(value)) {
+    return false;
+  }
+  return value.slice(at + 2, -1).includes(".");
+}
+
+/**
  * Validates email format.
  */
 export function validateEmail(
@@ -163,8 +178,7 @@ export function validateEmail(
   const stringResult = validateRequiredString(value, fieldName);
   if (!stringResult.valid) return stringResult;
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(stringResult.value)) {
+  if (!isEmailShaped(stringResult.value)) {
     return {
       valid: false,
       error: {

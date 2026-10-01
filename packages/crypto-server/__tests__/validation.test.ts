@@ -10,6 +10,7 @@ import {
   validateOptionalNumber,
   validateBase64,
   validateEmail,
+  isEmailShaped,
   validateEnum,
   validateDateString,
   validateApiKey,
@@ -155,6 +156,36 @@ describe("Validation utilities", () => {
   });
 
   describe("validateEmail", () => {
+    it("accepts and rejects the same strings as the old email regex", () => {
+      const legacy = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const samples = [
+        "a@b.c",
+        "a@.b.c",
+        "a@b.",
+        "a@b",
+        ".@b.c",
+        "a@b..",
+        "a@@b.c",
+        "@b.c",
+        "a b@c.d",
+        "a@b.c.d",
+        "a@b\t.c",
+        "x@y.z ",
+        "a@.b",
+      ];
+      for (const s of samples) {
+        expect(isEmailShaped(s), s).to.equal(legacy.test(s));
+      }
+    });
+
+    it("checks adversarial input in linear time (no ReDoS)", () => {
+      const evil = "!@!." + "!.".repeat(50000) + " ";
+      const start = process.hrtime.bigint();
+      expect(validateEmail(evil, "email").valid).to.equal(false);
+      const ms = Number(process.hrtime.bigint() - start) / 1e6;
+      expect(ms).to.be.lessThan(50);
+    });
+
     it("should accept valid email", () => {
       const result = validateEmail("test@example.com", "email");
       expect(result.valid).to.be.true;
