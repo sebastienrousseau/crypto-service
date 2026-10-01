@@ -36,7 +36,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "peerDependencies": {
-    "typeorm": "^1.1.0"
+    "typeorm": "^1.1.1"
   },
   "devDependencies": {
     "@sebastienrousseau/mocha-config": "^0.0.5",
@@ -51,7 +51,7 @@
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
-    "typeorm": "^1.1.0",
+    "typeorm": "^1.1.1",
     "typescript": "~5.9.3"
   },
   "keywords": [
