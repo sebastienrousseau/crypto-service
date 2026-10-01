@@ -144,7 +144,7 @@ While lattice mathematics are theoretically secure against quantum supercomputer
 <section id="audit-framework" class="research-section">
 <h2>4. The Four-Tier Institutional Cryptographic Audit Framework</h2>
 <p>
-To evaluate institutional readiness, the Crypto Service advisory practice conducts audits across four exhaustive pillars:
+An institutional readiness assessment can be structured around four pillars:
 </p>
 <ol>
 <li><strong>Pillar 1: Automated Asset Discovery &amp; CBOM Generation</strong> — Ingestion of source code repositories, container images, and TLS gateway configurations into an automated CycloneDX 1.6 Cryptographic Bill of Materials.</li>
