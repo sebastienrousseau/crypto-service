@@ -8,7 +8,7 @@
  *
  * PASETO is a modern, type-safe alternative to JWT that eliminates
  * algorithm confusion attacks by design. v4 uses:
- * - v4.local: XChaCha20-Poly1305 symmetric encryption
+ * - v4.local: XChaCha20 encryption with a BLAKE2b MAC (encrypt-then-MAC)
  * - v4.public: Ed25519 digital signatures
  *
  * @example
@@ -26,8 +26,8 @@
  * ```
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
-import { randomBytes } from "@noble/ciphers/utils.js";
+import { xchacha20 } from "@noble/ciphers/chacha.js";
+import { equalBytes, randomBytes } from "@noble/ciphers/utils.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 
@@ -41,10 +41,14 @@ const V4_PUBLIC_HEADER = "v4.public.";
 const NONCE_LEN = 32;
 /** PASETO v4.local derived encryption key length in bytes. */
 const EK_LEN = 32;
-/** XChaCha20 nonce length in bytes. */
-const N3_LEN = 24;
+/** XChaCha20 nonce (n2) length in bytes. */
+const N2_LEN = 24;
+/** PASETO v4.local authentication tag length in bytes. */
+const TAG_LEN = 32;
 /** Ed25519 signature length in bytes. */
 const SIG_LEN = 64;
+/** Regex matching unpadded base64url. */
+const BASE64URL_RE = /^[A-Za-z0-9_-]*$/;
 /** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
@@ -159,21 +163,127 @@ function toBase64url(buf: Uint8Array): string {
   return Buffer.from(buf).toString("base64url");
 }
 
+/**
+ * Decode unpadded base64url strictly, as PASETO requires: padding, other
+ * alphabets and non-canonical encodings (unused trailing bits set) are
+ * rejected rather than silently accepted.
+ */
 function fromBase64url(s: string): Uint8Array {
-  // Restore standard base64 padding
-  const padded = s.replace(/-/g, "+").replace(/_/g, "/");
-  return Buffer.from(padded, "base64");
+  const bytes = Buffer.from(s, "base64url");
+  if (!BASE64URL_RE.test(s) || bytes.toString("base64url") !== s) {
+    throw new Error("Invalid base64url encoding");
+  }
+  return bytes;
 }
 
 const encoder = new TextEncoder();
 
 // --- v4.local ---
 
+/** Throw unless `key` is a 32-byte hex key. */
+function localKey(key: string): Uint8Array {
+  const keyBytes = hexToBytes(key);
+  if (keyBytes.length !== 32) {
+    throw new Error(`Key must be 32 bytes, got ${keyBytes.length}`);
+  }
+  return keyBytes;
+}
+
+/** BLAKE2b keyed with `key` over `info || nonce`. */
+function deriveFromNonce(
+  key: Uint8Array,
+  info: string,
+  nonce: Uint8Array,
+  dkLen: number,
+): Uint8Array {
+  const label = encoder.encode(info);
+  const msg = new Uint8Array(label.length + nonce.length);
+  msg.set(label);
+  msg.set(nonce, label.length);
+  return blake2b(msg, { key, dkLen });
+}
+
 /**
- * Encrypt a payload into a PASETO v4.local token.
+ * The v4.local subkeys for one nonce: Ek and n2 from
+ * BLAKE2b-448("paseto-encryption-key" || n), Ak from
+ * BLAKE2b-256("paseto-auth-key-for-aead" || n), both keyed with the key.
+ */
+function localSubkeys(key: Uint8Array, nonce: Uint8Array) {
+  const tmp = deriveFromNonce(
+    key,
+    "paseto-encryption-key",
+    nonce,
+    EK_LEN + N2_LEN,
+  );
+  return {
+    ek: tmp.subarray(0, EK_LEN),
+    n2: tmp.subarray(EK_LEN),
+    ak: deriveFromNonce(key, "paseto-auth-key-for-aead", nonce, TAG_LEN),
+  };
+}
+
+/** The v4.local tag: BLAKE2b-256 keyed with Ak over PAE(h, n, c, f, i). */
+function localTag(
+  ak: Uint8Array,
+  nonce: Uint8Array,
+  ciphertext: Uint8Array,
+  footer: Uint8Array,
+  implicit: Uint8Array,
+): Uint8Array {
+  const preAuth = pae(
+    encoder.encode(V4_LOCAL_HEADER),
+    nonce,
+    ciphertext,
+    footer,
+    implicit,
+  );
+  return blake2b(preAuth, { key: ak, dkLen: TAG_LEN });
+}
+
+/**
+ * Encrypt with a caller-supplied 32-byte nonce. Exposed only so the
+ * PASETO test vectors can be reproduced; use {@link v4local.encrypt},
+ * which draws the nonce from the CSPRNG.
  *
- * Uses BLAKE2b for nonce derivation and key splitting, then
- * XChaCha20-Poly1305 for authenticated encryption.
+ * @internal
+ */
+export function localEncryptWithNonce(
+  opts: PasetoLocalEncryptOptions,
+  nonce: Uint8Array,
+): PasetoToken {
+  const { key, payload, footer = "", implicit = "" } = opts;
+  const keyBytes = localKey(key);
+  if (nonce.length !== NONCE_LEN) {
+    throw new Error(`Nonce must be ${NONCE_LEN} bytes, got ${nonce.length}`);
+  }
+  const footerBytes = encoder.encode(footer);
+  const { ek, n2, ak } = localSubkeys(keyBytes, nonce);
+  const ciphertext = xchacha20(ek, n2, encoder.encode(JSON.stringify(payload)));
+  const tag = localTag(
+    ak,
+    nonce,
+    ciphertext,
+    footerBytes,
+    encoder.encode(implicit),
+  );
+
+  const body = new Uint8Array(NONCE_LEN + ciphertext.length + TAG_LEN);
+  body.set(nonce);
+  body.set(ciphertext, NONCE_LEN);
+  body.set(tag, NONCE_LEN + ciphertext.length);
+
+  let token = V4_LOCAL_HEADER + toBase64url(body);
+  if (footer) {
+    token += "." + toBase64url(footerBytes);
+  }
+  return { token };
+}
+
+/**
+ * Encrypt a payload into a PASETO v4.local token, as specified in the
+ * PASETO v4 protocol: XChaCha20 encryption with a BLAKE2b-MAC over
+ * PAE(header, nonce, ciphertext, footer, implicit), subkeys derived
+ * from a random 32-byte nonce.
  *
  * @example
  * ```ts
@@ -185,130 +295,68 @@ const encoder = new TextEncoder();
  * @returns The sealed PASETO v4.local token.
  */
 function localEncrypt(opts: PasetoLocalEncryptOptions): PasetoToken {
-  const { key, payload, footer = "", implicit = "" } = opts;
-  const keyBytes = hexToBytes(key);
-  if (keyBytes.length !== 32) {
-    throw new Error(`Key must be 32 bytes, got ${keyBytes.length}`);
-  }
-
-  const header = encoder.encode(V4_LOCAL_HEADER);
-  const message = encoder.encode(JSON.stringify(payload));
-  const footerBytes = encoder.encode(footer);
-  const implicitBytes = encoder.encode(implicit);
-
-  // Step 1: Random nonce material
-  const randomN = randomBytes(NONCE_LEN);
-
-  // Step 2: Derive nonce via BLAKE2b(message, key=randomN) → 32 bytes
-  const nonce = blake2b(message, { key: randomN, dkLen: NONCE_LEN });
-
-  // Step 3: Split — derive Ek (32 bytes) and n3 (24 bytes) from key || nonce_first_16
-  const ekInput = new Uint8Array(keyBytes.length + 16);
-  ekInput.set(keyBytes);
-  ekInput.set(nonce.subarray(0, 16), keyBytes.length);
-  const derived = blake2b(encoder.encode("paseto-encryption-key"), {
-    key: ekInput,
-    dkLen: EK_LEN + N3_LEN,
-  });
-  const ek = derived.subarray(0, EK_LEN);
-  const n3 = derived.subarray(EK_LEN, EK_LEN + N3_LEN);
-
-  // Step 4: AAD = PAE(header, nonce, footer, implicit)
-  const aad = pae(header, nonce, footerBytes, implicitBytes);
-
-  // Step 5: Encrypt with XChaCha20-Poly1305
-  const cipher = xchacha20poly1305(ek, n3, aad);
-  const ciphertext = cipher.encrypt(message);
-
-  // Step 6: Assemble token = header + base64url(nonce || ciphertext) [+ "." + base64url(footer)]
-  const body = new Uint8Array(NONCE_LEN + ciphertext.length);
-  body.set(nonce);
-  body.set(ciphertext, NONCE_LEN);
-
-  let token = V4_LOCAL_HEADER + toBase64url(body);
-  if (footer) {
-    token += "." + toBase64url(footerBytes);
-  }
-
-  return { token };
+  return localEncryptWithNonce(opts, randomBytes(NONCE_LEN));
 }
 
-/** Throw unless the token's footer (base64url, may be empty) equals `footer`. */
+/**
+ * Throw unless the token's footer (base64url, may be empty) equals
+ * `footer`, compared in constant time.
+ */
 function assertFooter(footerB64: string, footer: string): void {
-  if (footerB64) {
-    const tokenFooter = fromBase64url(footerB64);
-    if (Buffer.from(tokenFooter).toString("utf8") !== footer) {
-      throw new Error("Footer mismatch");
-    }
-  } else if (footer) {
+  const expected = encoder.encode(footer);
+  if (!equalBytes(fromBase64url(footerB64), expected)) {
     throw new Error("Footer mismatch");
   }
 }
 
 /**
- * Decrypt a PASETO v4.local token.
+ * Decrypt a PASETO v4.local token. The tag is checked, in constant
+ * time, before anything is decrypted.
  *
  * @example
  * ```ts
- * const key = "aa".repeat(32);
  * const { payload } = decrypt({ key, token });
  * ```
  *
  * @param opts - Decryption options.
- * @returns The decoded payload and optional footer.
- * @throws If the token is invalid, tampered, or the key is wrong.
+ * @returns The decrypted payload and footer.
  */
 function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
   const { key, token, footer = "", implicit = "" } = opts;
-  const keyBytes = hexToBytes(key);
-  if (keyBytes.length !== 32) {
-    throw new Error(`Key must be 32 bytes, got ${keyBytes.length}`);
-  }
+  const keyBytes = localKey(key);
 
   if (!token.startsWith(V4_LOCAL_HEADER)) {
     throw new Error(`Invalid token header: expected "${V4_LOCAL_HEADER}"`);
   }
 
-  const withoutHeader = token.slice(V4_LOCAL_HEADER.length);
-  const parts = withoutHeader.split(".");
-  const bodyB64 = parts[0]!;
-  const footerB64 = parts[1] ?? "";
+  const parts = token.slice(V4_LOCAL_HEADER.length).split(".");
+  assertFooter(parts[1] ?? "", footer);
 
-  assertFooter(footerB64, footer);
-  const footerBytes = encoder.encode(footer);
-
-  const body = fromBase64url(bodyB64);
-  if (body.length < NONCE_LEN + 16) {
+  const body = fromBase64url(parts[0]!);
+  if (body.length < NONCE_LEN + TAG_LEN) {
     throw new Error("Token body too short");
   }
-
-  const header = encoder.encode(V4_LOCAL_HEADER);
-  const implicitBytes = encoder.encode(implicit);
-
   const nonce = body.subarray(0, NONCE_LEN);
-  const ciphertext = body.subarray(NONCE_LEN);
+  const ciphertext = body.subarray(NONCE_LEN, body.length - TAG_LEN);
+  const tag = body.subarray(body.length - TAG_LEN);
 
-  // Derive Ek and n3 (same as encryption)
-  const ekInput = new Uint8Array(keyBytes.length + 16);
-  ekInput.set(keyBytes);
-  ekInput.set(nonce.subarray(0, 16), keyBytes.length);
-  const derived = blake2b(encoder.encode("paseto-encryption-key"), {
-    key: ekInput,
-    dkLen: EK_LEN + N3_LEN,
-  });
-  const ek = derived.subarray(0, EK_LEN);
-  const n3 = derived.subarray(EK_LEN, EK_LEN + N3_LEN);
+  const { ek, n2, ak } = localSubkeys(keyBytes, nonce);
+  const expected = localTag(
+    ak,
+    nonce,
+    ciphertext,
+    encoder.encode(footer),
+    encoder.encode(implicit),
+  );
+  if (!equalBytes(tag, expected)) {
+    throw new Error("Invalid token: authentication failed");
+  }
 
-  // AAD = PAE(header, nonce, footer, implicit)
-  const aad = pae(header, nonce, footerBytes, implicitBytes);
-
-  // Decrypt
-  const cipher = xchacha20poly1305(ek, n3, aad);
-  const plaintext = cipher.decrypt(ciphertext);
-
-  const payloadStr = Buffer.from(plaintext).toString("utf8");
-  const payload = JSON.parse(payloadStr) as Record<string, unknown>;
-
+  const plaintext = xchacha20(ek, n2, ciphertext);
+  const payload = JSON.parse(Buffer.from(plaintext).toString("utf8")) as Record<
+    string,
+    unknown
+  >;
   return { payload, ...(footer ? { footer } : {}) };
 }
 
