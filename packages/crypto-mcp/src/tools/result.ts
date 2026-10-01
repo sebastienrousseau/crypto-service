@@ -19,18 +19,3 @@ export function jsonResult(value: unknown): MCPCallToolResult {
 export function errorResult(text: string): MCPCallToolResult {
   return { isError: true, content: [{ type: "text", text }] };
 }
-
-/**
- * Parse a hex-encoded 256-bit key. Anything that is not exactly 64 hex
- * characters is rejected: a passphrase must go through a real password
- * KDF, never a silent single hash.
- */
-export function parseKey256(value: unknown, label = "key"): Buffer {
-  const hex = String(value ?? "");
-  if (!/^[0-9a-fA-F]{64}$/.test(hex)) {
-    throw new Error(
-      `${label} must be a 256-bit key encoded as 64 hex characters`,
-    );
-  }
-  return Buffer.from(hex, "hex");
-}

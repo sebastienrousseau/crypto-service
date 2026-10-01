@@ -20,12 +20,13 @@ Instead of relying on fragile shell scripts or unverified LLM math, agents invok
 
 ## Features
 
-- **Standard MCP Protocol**: Full compliance with the Model Context Protocol JSON-RPC 2.0 specification via stdio transport.
-- **Post-Quantum Cryptography (PQC)**: Tools for NIST FIPS 203 (ML-KEM / Kyber), FIPS 204 (ML-DSA), and hybrid X25519 + ML-KEM key encapsulation.
-- **Classical Primitives**: RSA-2048/4096, ECC (P-256, P-384, P-521, secp256k1), Ed25519, OpenPGP (RFC 4880/9580), and AES-256-GCM / ChaCha20-Poly1305.
-- **Envelope Encryption**: Direct orchestration of multi-cloud Key Management Systems (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault).
-- **Cryptographic Bill of Materials (CBOM)**: Automated discovery and inventory of cryptographic assets for DORA Articles 9/13 and CRA compliance.
-- **Zero Runtime Dependencies**: Lightweight, secure stdio architecture operating with strict input schema validation.
+- **Standard MCP Protocol**: JSON-RPC 2.0 over stdio, with tools, resources and prompts.
+- **Key handles, not key material**: keys are generated, unwrapped or derived inside the server process. Tools return an opaque `keyHandle` (`kh_` followed by 32 hex characters) plus public metadata; no tool returns a private key, a symmetric key or a DEK, and no tool accepts one.
+- **Post-Quantum Cryptography (PQC)**: ML-KEM-768 (NIST FIPS 203) key generation, encapsulation and decapsulation.
+- **Classical Primitives**: RSA-2048/3072/4096 (RSASSA-PSS), ECDSA on P-256, P-384 and secp256k1, Ed25519, HMAC-SHA256, and AES-256-GCM / ChaCha20-Poly1305.
+- **Envelope Encryption**: wrap and unwrap DEKs under a key-encryption key. Only the `local` provider (random, in-process keys that do not survive a restart) is configured; `aws`, `gcp`, `azure` and `vault` return an error.
+- **Cryptographic Bill of Materials (CBOM)**: classify algorithm names into a CycloneDX 1.6 CBOM inventory.
+- **Validated input**: every tool call is checked against the tool's declared JSON schema before it runs.
 
 ---
 
@@ -62,18 +63,34 @@ Add the server to your `claude_desktop_config.json` or `.cursor/mcp.json`:
 
 ## Tools Exposed
 
-| Tool Name             | Description                                                   | Key Parameters                                        |
-| --------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
-| `crypto_generate_key` | Generate classical or post-quantum keypairs                   | `type` (rsa, ecc, ed25519, ml-kem-768), `passphrase`  |
-| `crypto_encrypt`      | Encrypt data with symmetric, asymmetric, or hybrid algorithms | `data`, `key`, `algorithm`, `armor`                   |
-| `crypto_decrypt`      | Decrypt encrypted ciphertexts or armored blocks               | `ciphertext`, `key`, `passphrase`                     |
-| `crypto_sign`         | Create cryptographic signatures (clearsign, detached, raw)    | `data`, `privateKey`, `passphrase`, `detached`        |
-| `crypto_verify`       | Verify digital signatures against public keys                 | `data`, `signature`, `publicKey`                      |
-| `crypto_hash`         | Compute cryptographic hashes or post-quantum signatures       | `data`, `algorithm` (sha256, sha512, blake2b, blake3) |
-| `crypto_kms_wrap`     | Wrap a local data encryption key using cloud KMS              | `provider` (aws, gcp, azure, vault), `keyId`, `dek`   |
-| `crypto_kms_unwrap`   | Unwrap a wrapped data encryption key using cloud KMS          | `provider`, `keyId`, `wrappedKey`                     |
-| `crypto_inspect_key`  | Parse armored OpenPGP keys or PEM certificates                | `keyData`                                             |
-| `crypto_audit_cbom`   | Audit a directory for cryptographic assets and produce CBOM   | `targetPath`, `format` (cyclonedx, spdx, summary)     |
+| Tool Name                | Description                                                      | Key Parameters                                                                               |
+| ------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `crypto_generate_key`    | Generate a key in the server; returns its handle and public key  | `type` (rsa, ecc, ed25519, ml-kem-768, symmetric-256, hmac-sha256), `modulusLength`, `curve` |
+| `crypto_key_list`        | List held key handles with type and public metadata              | none                                                                                         |
+| `crypto_key_destroy`     | Wipe a key and invalidate its handle                             | `keyHandle`                                                                                  |
+| `crypto_encrypt`         | AEAD-encrypt under a key handle (a new key if none is given)     | `plaintext`, `keyHandle`, `algorithm` (aes-256-gcm, chacha20-poly1305)                       |
+| `crypto_decrypt`         | Authenticate and decrypt an AEAD ciphertext                      | `ciphertext`, `keyHandle`, `iv`, `authTag`, `algorithm`                                      |
+| `crypto_sign`            | Sign with a key handle; the algorithm follows the key            | `data`, `keyHandle`                                                                          |
+| `crypto_verify`          | Verify against a public key PEM or a key handle                  | `data`, `signature`, `publicKey` or `keyHandle`                                              |
+| `crypto_hash`            | Compute a digest                                                 | `data`, `algorithm` (sha256, sha384, sha512, sha3-256, blake2b512)                           |
+| `crypto_kem_encapsulate` | ML-KEM-768 encapsulation; the shared secret becomes a key handle | `publicKey`                                                                                  |
+| `crypto_kem_decapsulate` | ML-KEM-768 decapsulation with a key handle                       | `keyHandle`, `ciphertext`                                                                    |
+| `crypto_kms_wrap`        | Wrap the DEK behind a key handle under a KMS-held KEK            | `provider`, `keyId`, `keyHandle`                                                             |
+| `crypto_kms_unwrap`      | Unwrap a DEK into a new key handle                               | `provider`, `keyId`, `wrappedKey`                                                            |
+| `crypto_inspect_key`     | Classify a PEM or OpenPGP armored key and fingerprint it         | `keyData`                                                                                    |
+| `crypto_audit_cbom`      | Classify algorithm names into a CBOM                             | `algorithms`                                                                                 |
+
+Signature algorithms by key type: `ed25519` signs Ed25519, `rsa` signs RSASSA-PSS (SHA-256, MGF1-SHA-256, 32-byte salt), `ecc` signs ECDSA with SHA-256 (SHA-384 on P-384, DER-encoded), and `hmac-sha256` computes HMAC-SHA256.
+
+### Key handles
+
+A key handle is a capability: whoever can call the server with it can use the key, but cannot read it. Handles live only as long as the server process. The store holds at most 64 keys; adding one more destroys the least recently used key, so a client that needs a key for long should keep using it or expect to generate a new one. `crypto_key_destroy` removes a key at once.
+
+A typical session:
+
+1. `crypto_generate_key` with `type: "ed25519"` returns `keyHandle` and `publicKey`.
+2. `crypto_sign` with `data` and that `keyHandle` returns `algorithm: "ed25519"` and `signature`.
+3. Anyone can check the signature with `crypto_verify` and the `publicKey`.
 
 ---
 
@@ -93,10 +110,9 @@ Add the server to your `claude_desktop_config.json` or `.cursor/mcp.json`:
 
 ## Security & Memory Hygiene
 
-`@sebastienrousseau/crypto-mcp` enforces strict separation of concerns:
-
-- **No Private Key Retention**: Private keys and sensitive plaintext inputs are processed in-memory and never cached across MCP requests.
-- **Input Validation**: Strict JSON schema bounds on all inputs prevent buffer overflow and injection attacks.
+- **No secret material in the conversation**: private keys, symmetric keys, DEKs and KEM shared secrets stay in the server process behind key handles. `crypto_verify` refuses a private key PEM instead of deriving its public half.
+- **Bounded key store**: at most 64 keys, least recently used evicted first. Raw secret bytes (symmetric, HMAC and ML-KEM secret keys) are overwritten with zeros when a key is evicted or destroyed. Asymmetric private keys are Node.js `KeyObject`s, which JavaScript cannot wipe; they are released for garbage collection. Transient copies (for example the hex strings `@sebastienrousseau/crypto-lib` uses for ML-KEM) are not wiped either.
+- **Input Validation**: every `tools/call` is checked against the tool's `inputSchema`: unknown properties, missing required properties, wrong types, values outside an enum and strings outside their declared length or format are rejected before the tool runs. Error messages name the property but never echo its value.
 - **Stdio Transport Isolation**: The server communicates over standard input/output with zero open network ports.
 
 ---
