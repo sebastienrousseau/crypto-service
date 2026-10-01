@@ -3,7 +3,6 @@
   "packages/crypto-benchmarks/src/benchmarks/symmetric.ts :: max-lines-per-function :: runSymmetricBenchmarks": 63,
   "packages/crypto-benchmarks/src/runner.ts :: max-lines-per-function :: runSuite": 63,
   "packages/crypto-cbom/src/validator.ts :: complexity :: validateCbom": 18,
-  "packages/crypto-cli/src/cli.ts :: complexity :: anonymous #1": 16,
   "packages/crypto-cli/src/commands/help.command.ts :: max-lines-per-function :: handleHelp": 193,
   "packages/crypto-cli/src/commands/modern/encrypt.command.ts :: max-lines-per-function :: handleModernEncrypt": 73,
   "packages/crypto-cli/src/commands/modern/password-hash.command.ts :: max-lines-per-function :: handlePasswordHash": 72,
