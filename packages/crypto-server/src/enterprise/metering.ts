@@ -8,12 +8,21 @@
  */
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { isProbePath } from "../config/constants";
 import type {
   LicenseTier,
   MeteringCheckResult,
   TenantQuota,
   TenantUsage,
 } from "./types";
+
+/** The fields of the authenticated principal that metering reads. */
+interface MeteredPrincipal {
+  /** Tenant identifier: the authenticated subject. */
+  sub?: string;
+  /** License tier claim from a verified credential (e.g. a signed JWT). */
+  tier?: unknown;
+}
 
 /** Predefined quotas for each license tier. */
 export const TIER_QUOTAS: Record<LicenseTier, TenantQuota> = {
@@ -40,22 +49,43 @@ export const TIER_QUOTAS: Record<LicenseTier, TenantQuota> = {
   },
 };
 
-/** In-memory tenant store using a sliding-window token bucket algorithm. */
+/** Default upper bound on the number of tenants tracked in memory. */
+export const DEFAULT_MAX_TENANTS = 10_000;
+
+/** Tenant key used when a request carries no authenticated principal. */
+const ANONYMOUS_TENANT = "anonymous";
+
+/**
+ * In-memory tenant store using a sliding-window token bucket algorithm.
+ *
+ * The store is bounded: once it holds `maxTenants` entries, the least
+ * recently used tenant is evicted. An evicted tenant starts again with a
+ * full bucket, so the bound trades a little precision for fixed memory.
+ */
 export class MeteringEngine {
   private readonly tenants = new Map<string, TenantUsage>();
 
-  /** Resolves the license tier based on API key prefix or environment. */
-  public resolveTier(apiKey?: string): LicenseTier {
-    if (!apiKey) {
-      return "community";
-    }
-    if (apiKey.startsWith("sk_sovereign_")) {
-      return "sovereign";
-    }
-    if (apiKey.startsWith("sk_enterprise_")) {
-      return "enterprise";
-    }
-    return "community";
+  /** Creates an engine that tracks at most `maxTenants` tenants. */
+  public constructor(
+    private readonly maxTenants: number = DEFAULT_MAX_TENANTS,
+  ) {}
+
+  /** Number of tenants currently tracked. */
+  public get size(): number {
+    return this.tenants.size;
+  }
+
+  /**
+   * Resolves the license tier from a claim of the authenticated principal.
+   *
+   * Only a value that came from a verified credential may be passed here,
+   * such as the `tier` claim of a signed JWT. Anything that is not a known
+   * tier, including a missing claim, resolves to the community tier.
+   */
+  public resolveTier(claim?: unknown): LicenseTier {
+    return typeof claim === "string" && Object.hasOwn(TIER_QUOTAS, claim)
+      ? (claim as LicenseTier)
+      : "community";
   }
 
   /** Gets tenant usage record, initializing if not present. */
@@ -65,18 +95,28 @@ export class MeteringEngine {
     nowMs: number,
   ): TenantUsage {
     let usage = this.tenants.get(tenantKey);
-    if (!usage) {
-      const quota = TIER_QUOTAS[tier];
+    if (usage) {
+      // Re-insert to mark the tenant as most recently used.
+      this.tenants.delete(tenantKey);
+    } else {
+      this.evictIfFull();
       usage = {
-        tokens: quota.maxRequestsPerMinute,
+        tokens: TIER_QUOTAS[tier].maxRequestsPerMinute,
         lastRefillMs: nowMs,
         totalRequests: 0,
         totalBytes: 0,
         tier,
       };
-      this.tenants.set(tenantKey, usage);
     }
+    this.tenants.set(tenantKey, usage);
     return usage;
+  }
+
+  /** Drops the least recently used tenant when the store is full. */
+  private evictIfFull(): void {
+    if (this.tenants.size < this.maxTenants) return;
+    const oldest = this.tenants.keys().next().value as string;
+    this.tenants.delete(oldest);
   }
 
   /** Refills tokens based on elapsed time (1-minute sliding window). */
@@ -97,19 +137,19 @@ export class MeteringEngine {
     usage.lastRefillMs = nowMs;
   }
 
-  /** Evaluates whether an incoming request satisfies quota constraints. */
+  /**
+   * Evaluates whether a request from `tenantKey` satisfies the quota of
+   * `tier`. Both must come from the authenticated principal.
+   */
   public checkRequest(
-    apiKey?: string,
+    tenantKey: string,
+    tier: LicenseTier,
     contentLength?: number,
     nowMs: number = Date.now(),
   ): MeteringCheckResult {
-    const tier = this.resolveTier(apiKey);
     const quota = TIER_QUOTAS[tier];
-    const tenantKey = apiKey ?? "anonymous_community";
-
     const usage = this.getUsage(tenantKey, tier, nowMs);
     this.refillTokens(usage, quota, nowMs);
-
     // Payload size validation
     if (
       contentLength !== undefined &&
@@ -174,8 +214,32 @@ export class MeteringEngine {
 /** Global default metering engine instance. */
 export const defaultMeteringEngine = new MeteringEngine();
 
+/** Paths never metered: probes, API documentation and the favicon. */
+const isUnmeteredPath = (url: string): boolean => {
+  const pathname = url.split("?")[0];
+  return (
+    isProbePath(pathname) ||
+    pathname.startsWith("/docs") ||
+    pathname === "/favicon.ico"
+  );
+};
+
+/** Parses the Content-Length header, ignoring malformed values. */
+const parseContentLength = (raw?: string): number | undefined =>
+  raw !== undefined && !Number.isNaN(Number(raw)) ? Number(raw) : undefined;
+
 /**
  * Registers the multi-tenant CaaS metering preHandler hook on Fastify.
+ *
+ * The hook runs at `preHandler`, after every `onRequest` hook, so it sees
+ * the principal the authentication hook stored on `request.auth`. The
+ * tenant is `auth.sub`; the tier comes only from `auth.tier`, which is
+ * present when the principal is a verified JWT carrying a `tier` claim.
+ * API keys and anonymous access carry no tier and are metered at the
+ * community tier. A client-supplied header never selects the tier.
+ *
+ * Tenant quotas are reported in `X-Tenant-RateLimit-*` headers so they do
+ * not overwrite the global limiter's `X-RateLimit-*` headers.
  */
 export const registerMetering = (
   app: FastifyInstance,
@@ -184,38 +248,23 @@ export const registerMetering = (
   app.addHook(
     "preHandler",
     async (request: FastifyRequest, reply: FastifyReply) => {
-      // Skip probes (/live, /ready, /metrics) and OpenAPI documentation (/docs)
-      const url = request.url;
-      if (
-        url === "/live" ||
-        url === "/ready" ||
-        url === "/metrics" ||
-        url.startsWith("/docs") ||
-        url === "/favicon.ico"
-      ) {
-        return;
-      }
+      if (isUnmeteredPath(request.url)) return;
 
-      const apiKeyHeader = request.headers["x-api-key"];
-      const apiKey =
-        typeof apiKeyHeader === "string" ? apiKeyHeader : undefined;
+      const auth = (request as { auth?: MeteredPrincipal }).auth;
+      const result = engine.checkRequest(
+        auth?.sub ?? ANONYMOUS_TENANT,
+        engine.resolveTier(auth?.tier),
+        parseContentLength(request.headers["content-length"]),
+      );
 
-      const rawLength = request.headers["content-length"];
-      const contentLength =
-        rawLength !== undefined && !Number.isNaN(Number(rawLength))
-          ? Number(rawLength)
-          : undefined;
-
-      const result = engine.checkRequest(apiKey, contentLength);
-
-      // Apply standard rate-limit and tier telemetry response headers
-      reply.header("X-RateLimit-Limit", result.limit);
-      reply.header("X-RateLimit-Remaining", result.remaining);
-      reply.header("X-RateLimit-Reset", result.resetSeconds);
+      reply.header("X-Tenant-RateLimit-Limit", result.limit);
+      reply.header("X-Tenant-RateLimit-Remaining", result.remaining);
+      reply.header("X-Tenant-RateLimit-Reset", result.resetSeconds);
       reply.header("X-License-Tier", result.tier);
 
       if (!result.allowed) {
         const code = result.statusCode as number;
+        if (code === 429) reply.header("Retry-After", result.resetSeconds);
         return reply.code(code).send({
           statusCode: code,
           error: code === 413 ? "Payload Too Large" : "Too Many Requests",

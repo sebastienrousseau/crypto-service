@@ -27,7 +27,10 @@ describe("Constants coverage", () => {
       const modPath = require.resolve("../src/config/constants");
       delete require.cache[modPath];
       const { fastifyOptions } = require("../src/config/constants");
-      expect(fastifyOptions.trustProxy).to.deep.equal(["10.0.0.0/8", "172.16.0.0/12"]);
+      expect(fastifyOptions.trustProxy).to.deep.equal([
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+      ]);
     });
 
     it("should filter empty entries from CIDRS", () => {
@@ -57,7 +60,10 @@ describe("Constants coverage", () => {
       const modPath = require.resolve("../src/config/constants");
       delete require.cache[modPath];
       const { corsOptions } = require("../src/config/constants");
-      expect(corsOptions.origin).to.deep.equal(["https://example.com", "https://other.com"]);
+      expect(corsOptions.origin).to.deep.equal([
+        "https://example.com",
+        "https://other.com",
+      ]);
     });
   });
 
