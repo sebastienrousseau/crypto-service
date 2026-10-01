@@ -142,19 +142,15 @@ const {
 import {
   generateKeyPair,
   type KeyAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
-import {
-  seal,
-  open,
-} from "@sebastienrousseau/crypto-lib/dist/high-level/secretbox";
+} from "@sebastienrousseau/crypto-lib/keys";
+import { secretbox } from "@sebastienrousseau/crypto-lib/high-level";
 import {
   hash as computeHash,
   type HashAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/modern/hash";
-import {
-  crypto,
-  type SignAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/crypto";
+} from "@sebastienrousseau/crypto-lib/modern";
+import { crypto, type SignAlgorithm } from "@sebastienrousseau/crypto-lib";
+
+const { seal, open } = secretbox;
 
 // ── Tests ──
 

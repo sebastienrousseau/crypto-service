@@ -14,7 +14,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
+import { encrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyEncrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";

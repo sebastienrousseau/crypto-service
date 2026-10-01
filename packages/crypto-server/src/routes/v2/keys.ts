@@ -52,7 +52,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { generateKeyPair } =
-          await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+          await import("@sebastienrousseau/crypto-lib/keys");
         const { algorithm, metadata } = request.body as {
           algorithm: string;
           metadata?: { kid?: string; use?: "sig" | "enc"; exp?: string };

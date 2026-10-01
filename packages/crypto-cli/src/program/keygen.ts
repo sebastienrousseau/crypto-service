@@ -10,7 +10,7 @@ import {
   type GeneratedKeyPair,
   type KeyAlgorithm,
   type KeyMetadata,
-} from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
+} from "@sebastienrousseau/crypto-lib/keys";
 import { emit, type RunContext } from "./io";
 
 /** Options of `crypto-cli keygen`. */

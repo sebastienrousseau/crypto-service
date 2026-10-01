@@ -17,7 +17,7 @@ import {
   hybridGenerateKeyPair,
   hybridEncapsulate,
   hybridDecapsulate,
-} from "@sebastienrousseau/crypto-lib/dist/modern";
+} from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 post-quantum ML-KEM and hybrid key-exchange endpoints. */

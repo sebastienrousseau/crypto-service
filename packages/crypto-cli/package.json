@@ -12,9 +12,13 @@
     "source": "git",
     "target": "git://github.com/sebastienrousseau/crypto-service.git"
   },
+  "type": "commonjs",
   "bin": {
     "crypto-cli": "dist/cli.js",
     "cryptocli": "dist/cli.js"
+  },
+  "exports": {
+    "./package.json": "./package.json"
   },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -92,14 +96,6 @@
   ],
   "license": "MIT OR Apache-2.0",
   "license_URI": "http://www.opensource.org/licenses/mit-license.php",
-  "main": "./dist/cli.js",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/cli.js",
-      "import": "./dist/cli.js"
-    }
-  },
   "name": "@sebastienrousseau/crypto-cli",
   "private": false,
   "publishConfig": {
@@ -117,7 +113,6 @@
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
-  "types": "./dist/index.d.ts",
   "sideEffects": false,
   "version": "0.0.8"
 }

@@ -5,13 +5,13 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
-import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/dist/modern/mac";
+import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/modern";
 
 /** List of HMAC algorithms accepted by the v2 HMAC endpoint. */
 const HMAC_ALGORITHMS = ["sha256", "sha384", "sha512", "sha3-256", "sha3-512"];
 
-/** Registers the v2 HMAC/KMAC message-authentication endpoint. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/hmac. */
+function registerHmac(app: FastifyInstance): void {
   app.post(
     "/v2/hmac",
     {
@@ -33,7 +33,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { computeHmac } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/mac");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           algorithm: string;
           key: string;
@@ -50,7 +50,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/hmac/verify. */
+function registerHmacVerify(app: FastifyInstance): void {
   app.post(
     "/v2/hmac/verify",
     {
@@ -73,7 +76,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { verifyHmac } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/mac");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           algorithm: string;
           key: string;
@@ -92,4 +95,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers the v2 HMAC/KMAC message-authentication endpoint. */
+export default (app: FastifyInstance): void => {
+  registerHmac(app);
+  registerHmacVerify(app);
 };

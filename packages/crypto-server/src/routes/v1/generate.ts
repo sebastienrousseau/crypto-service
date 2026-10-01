@@ -11,7 +11,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import generate from "@sebastienrousseau/crypto-lib/dist/lib/generate";
+import { generate } from "@sebastienrousseau/crypto-lib/pgp";
 import {
   IBodyGenerate,
   KEY_TYPES,

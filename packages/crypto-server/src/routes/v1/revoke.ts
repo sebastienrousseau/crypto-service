@@ -11,7 +11,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import revoke from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
+import { revoke } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyRevoke, REVOCATION_FLAGS } from "../../@types/types";
 import {
   validateRequiredString,

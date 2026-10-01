@@ -16,8 +16,17 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "bin": {
     "crypto-benchmarks": "./dist/cli.js"

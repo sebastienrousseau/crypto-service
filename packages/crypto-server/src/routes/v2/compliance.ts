@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { FastifyInstance } from "fastify";
-import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/dist/modern";
+import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/modern";
 import type { CbomPayload } from "../../enterprise/types";
 
 /**

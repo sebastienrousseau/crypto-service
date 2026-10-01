@@ -8,7 +8,7 @@ import {
   hash,
   HASH_ALGORITHMS,
   type HashAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/modern/hash";
+} from "@sebastienrousseau/crypto-lib/modern";
 import { emit, readInput, type RunContext } from "./io";
 
 /** Options of `crypto-cli hash`. */

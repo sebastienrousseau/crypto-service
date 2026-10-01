@@ -10,6 +10,8 @@
  */
 
 import { expect } from "chai";
+import { createRequire } from "module";
+import path from "path";
 import * as vue from "vue";
 
 // ── Mock inject so composables that call it work outside a component ──
@@ -64,11 +66,16 @@ import {
 
 // Underlying keygen module ref for mocking non-Error throws in useKeypair.
 // The barrel export uses a getter, so mutating keygen.generateKeyPair is
-// visible to all code that accesses it through the barrel.
-import * as keygenModule from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
-const keygen: {
-  -readonly [K in keyof typeof keygenModule]: (typeof keygenModule)[K];
-} = keygenModule;
+// visible to all code that accesses it through the barrel. The module is
+// internal to crypto-lib and not part of its package exports, so it is
+// loaded by file path next to the package entry (the same instance).
+const keygen = createRequire(__filename)(
+  path.join(
+    path.dirname(require.resolve("@sebastienrousseau/crypto-lib")),
+    "keys",
+    "keygen.js",
+  ),
+) as { generateKeyPair: typeof generateKeyPair };
 
 // ── Tests ──
 

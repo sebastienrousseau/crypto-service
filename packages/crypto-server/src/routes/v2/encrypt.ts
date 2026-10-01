@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  aeadEncrypt,
-  aeadDecrypt,
-} from "@sebastienrousseau/crypto-lib/dist/modern";
+import { aeadEncrypt, aeadDecrypt } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v2 AEAD encrypt endpoint. */

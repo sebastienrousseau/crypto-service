@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import {
   generateKeyPair,
   type KeyAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
+} from "@sebastienrousseau/crypto-lib/keys";
 
 /**
  * Return type of the {@link useKeypair} hook.

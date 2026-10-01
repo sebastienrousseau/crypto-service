@@ -6,8 +6,8 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 ML-DSA (FIPS 204) post-quantum signature endpoints. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/pq/dsa/keygen. */
+function registerPqDsaKeygen(app: FastifyInstance): void {
   // ML-DSA (FIPS 204) — Post-Quantum Digital Signatures
   app.post(
     "/v2/pq/dsa/keygen",
@@ -28,7 +28,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { mlDsaKeygen } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const { level } = request.body as { level: 44 | 65 | 87 };
         return reply.send({ data: mlDsaKeygen(level) });
         /* c8 ignore next 3 -- schema enum validation prevents invalid level values */
@@ -37,7 +37,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/pq/dsa/sign. */
+function registerPqDsaSign(app: FastifyInstance): void {
   app.post(
     "/v2/pq/dsa/sign",
     {
@@ -59,7 +62,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { mlDsaSign } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           level: 44 | 65 | 87;
           secretKey: string;
@@ -73,7 +76,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/pq/dsa/verify. */
+function registerPqDsaVerify(app: FastifyInstance): void {
   app.post(
     "/v2/pq/dsa/verify",
     {
@@ -96,7 +102,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { mlDsaVerify } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           level: 44 | 65 | 87;
           publicKey: string;
@@ -116,4 +122,11 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 ML-DSA (FIPS 204) post-quantum signature endpoints. */
+export default (app: FastifyInstance): void => {
+  registerPqDsaKeygen(app);
+  registerPqDsaSign(app);
+  registerPqDsaVerify(app);
 };

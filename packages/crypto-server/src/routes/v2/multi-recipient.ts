@@ -6,6 +6,25 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
+/** A recipient as the route accepts it. */
+interface RouteRecipient {
+  type: "classical" | "pq";
+  publicKey: string;
+  mlKemPublicKey?: string;
+}
+
+/** Map a route recipient to the crypto-lib recipient type. */
+function toLibRecipient(r: RouteRecipient) {
+  if (r.type === "classical") {
+    return { type: "x25519" as const, publicKey: r.publicKey };
+  }
+  return {
+    type: "x25519-ml-kem-768" as const,
+    x25519PublicKey: r.publicKey,
+    mlKemPublicKey: r.mlKemPublicKey!,
+  };
+}
+
 /** Registers v2 multi-recipient encryption/decryption endpoints. */
 export default (app: FastifyInstance): void => {
   app.post(
@@ -43,28 +62,13 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { multiEncrypt } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/multi-recipient");
+          await import("@sebastienrousseau/crypto-lib/high-level");
         const { plaintext, recipients } = request.body as {
           plaintext: string;
-          recipients: Array<{
-            type: "classical" | "pq";
-            publicKey: string;
-            mlKemPublicKey?: string;
-          }>;
+          recipients: RouteRecipient[];
         };
-
         // Map route types to library types
-        const libRecipients = recipients.map((r) => {
-          if (r.type === "classical") {
-            return { type: "x25519" as const, publicKey: r.publicKey };
-          }
-          return {
-            type: "x25519-ml-kem-768" as const,
-            x25519PublicKey: r.publicKey,
-            mlKemPublicKey: r.mlKemPublicKey!,
-          };
-        });
-
+        const libRecipients = recipients.map(toLibRecipient);
         return reply.send({ data: multiEncrypt(libRecipients, plaintext) });
       } catch (error) {
         return classifyCryptoError(error, request, reply, "Encryption");

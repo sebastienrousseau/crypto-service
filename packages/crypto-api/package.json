@@ -81,14 +81,8 @@
   ],
   "license": "MIT OR Apache-2.0",
   "license_URI": "http://www.opensource.org/licenses/mit-license.php",
+  "type": "commonjs",
   "main": "./dist/index.js",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.js"
-    }
-  },
   "name": "@sebastienrousseau/crypto-api",
   "private": false,
   "publishConfig": {
@@ -106,6 +100,14 @@
     "docs": "typedoc"
   },
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "version": "0.0.8"
 }
