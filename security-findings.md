@@ -6,22 +6,22 @@
 > `v0.0.6` iteration. An earlier version of this page marked every finding
 > fixed in commit d518a1f. That was not accurate for two HIGH findings:
 > "Private Key Exposure" and "No Authentication" were not resolved by
-> d518a1f and are being fixed on the `feat/v0.0.6` branch. The other
+> d518a1f; they were fixed in v0.0.6 (merge commit ff844db). The other
 > findings are recorded as fixed in d518a1f; they have not been re-verified
 > for this update. See [`SECURITY.md`](SECURITY.md) for the current policy.
 
 ## Remediation Summary
 
-| Finding                      | Severity | Status                                               | Commit  |
-| ---------------------------- | -------- | ---------------------------------------------------- | ------- |
-| Missing Input Validation     | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
-| Unsafe Type Coercion         | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
-| Use of Any Types             | CRITICAL | Recorded fixed (not re-verified)                     | d518a1f |
-| Information Disclosure (CLI) | HIGH     | Recorded fixed (not re-verified)                     | d518a1f |
-| Private Key Exposure         | HIGH     | Not fixed by d518a1f; fix in progress on feat/v0.0.6 | -       |
-| No Authentication            | HIGH     | Not fixed by d518a1f; fix in progress on feat/v0.0.6 | -       |
-| Weak Input Format Validation | MEDIUM   | Recorded fixed (not re-verified)                     | d518a1f |
-| Generic Error Messages       | MEDIUM   | Recorded fixed (not re-verified)                     | d518a1f |
+| Finding                      | Severity | Status                                          | Commit  |
+| ---------------------------- | -------- | ----------------------------------------------- | ------- |
+| Missing Input Validation     | CRITICAL | Recorded fixed (not re-verified)                | d518a1f |
+| Unsafe Type Coercion         | CRITICAL | Recorded fixed (not re-verified)                | d518a1f |
+| Use of Any Types             | CRITICAL | Recorded fixed (not re-verified)                | d518a1f |
+| Information Disclosure (CLI) | HIGH     | Recorded fixed (not re-verified)                | d518a1f |
+| Private Key Exposure         | HIGH     | Not fixed by d518a1f; fixed in v0.0.6 (ff844db) | ff844db |
+| No Authentication            | HIGH     | Not fixed by d518a1f; fixed in v0.0.6 (ff844db) | ff844db |
+| Weak Input Format Validation | MEDIUM   | Recorded fixed (not re-verified)                | d518a1f |
+| Generic Error Messages       | MEDIUM   | Recorded fixed (not re-verified)                | d518a1f |
 
 ## Attack Surface Summary
 

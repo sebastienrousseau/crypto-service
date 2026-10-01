@@ -7,6 +7,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - Unreleased
+
+### Security
+
+- **Rate limiting**: limited requests now get `429` with `Retry-After` instead of `500`. `/health`, `/live`, `/ready` and `/metrics` are exempt, and the blanket `127.0.0.1` exemption (which disabled limiting behind a local proxy) is removed. `RATE_LIMIT_MAX` sets the per-client limit (default 10 per minute).
+- **Metering**: the tenant is the authenticated subject and the tier comes only from a verified JWT `tier` claim; the `x-api-key` prefix no longer selects a tier. The tenant table is bounded (LRU, 10,000 entries). Metering headers are now `X-Tenant-RateLimit-*`, so `X-RateLimit-*` comes only from the global limiter.
+- **No key files in source trees**: the unused PGP keys and sample data under `crypto-server/src/{key,data}` and `crypto-cli/src/{key,data}` are removed, with the dead `crypto-cli` key module. crypto-lib `sign` writes `signed.sig` only when `CRYPTO_DATA_DIR` is set.
+- **Supply chain**: every GitHub Action is pinned by commit SHA; workflows default to read-only permissions with write scopes per job; `pnpm audit` in CI can fail the build; a weekly OpenSSF Scorecard workflow uploads results to code scanning; Dependabot also tracks the Docker base image.
+
+### Fixed
+
+- **Installable packages**: crypto-server and crypto-cli now declare `@sebastienrousseau/crypto-lib` (and crypto-cbom for the CLI) as runtime dependencies; unused `openpgp` and `@types/openpgp` runtime dependencies are dropped. `scripts/pack-smoke.sh` packs the packages, installs each with only its declared dependencies, and boots the server; it runs in CI.
+- **Docker**: the image runs `dist/index.js` (the old `dist/src/index.js` did not exist), installs production dependencies only via `pnpm deploy --prod`, pins `node:22-alpine` by digest, runs under tini as a non-root user, and health-checks `/ready`. The Docker workflow smoke-tests the image before pushing and attaches provenance and an SBOM. `pnpm start` uses the same corrected path.
+- **Makefile**: `start-crypto-server` and the key-generation targets called scripts that did not exist; `.PHONY` listed comma-separated names.
+
+### Changed
+
+- **crypto-cbom audit**: `auditCbom` returns a heuristic `status` (`PASS` / `REVIEW` / `FAIL`) with a `disclaimer`, instead of `doraStatus` / `craStatus` compliance verdicts. Findings carry a `reference` (`NIST_SP_800_131A`, `NIST_IR_8547`, `CNSA_2_0`) instead of DORA/CRA article codes that did not match those articles. `DoraAuditResult` remains as a deprecated alias of `CbomAuditResult`.
+- **Quality gates**: lint now covers test files with quoted globs (the old unquoted globs skipped files), with the 54 test lint errors fixed and no suppressions; every package has `format:check`, run in CI; a complexity gate (`scripts/complexity-check.mjs`, cyclomatic <= 10, <= 60 lines per function, <= 500 per file) fails on new offenders against `complexity-baseline.json`, which records the 51 existing ones. `make check` runs every gate.
+- **Docs**: package READMEs state that `@noble/post-quantum` is not independently audited and no module is FIPS 140-3 validated; the benchmark script no longer reports a WebAssembly backend that does not exist.
+- **Lockstep version bump**: all 18 packages, the root manifest and `CITATION.cff` move to 0.0.7.
+
 ## [0.0.6] - 2026-09-30
 
 ### Added
@@ -116,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.7]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.3...v0.0.4
