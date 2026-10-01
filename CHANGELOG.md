@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Per-route scopes (breaking for under-scoped tokens)**: crypto-server now enforces authorization scopes. Before, scopes were never checked, so any authenticated principal could call any route. One table (`ROUTE_SCOPES` in `src/config/auth-policy.ts`) maps every route to a scope (`crypto:encrypt`, `crypto:decrypt`, `crypto:sign`, `crypto:verify`, `crypto:hash`, `crypto:kdf`, `crypto:keys`, or `crypto:admin` for `/v1/revoke`); a principal without it gets `403`, a route without an entry answers `403`, and the server refuses to start if a registered route is missing from the table. `crypto:admin` (held by API-key and anonymous principals) satisfies every scope. A JWT without a `scopes` array holds no scope.
+
 ### Changed
 
 - **Toolchain** (from Dependabot #170): ESLint 10 with typescript-eslint 8, chai 6, chai-as-promised 8, mocha 12 and prettier 3.9.9 across all 18 packages. The 20 `.eslintrc` files and `.eslintignore` are replaced by one root `eslint.config.mjs` with the same rule set; chai assertions in tests are checked by `eslint-plugin-chai-friendly`. `eslint-plugin-import` and its resolver, configured nowhere, are removed. TypeScript stays on 5.9: typescript-eslint (`<6.1.0`), TypeDoc (`<=6.0`) and ts-node do not support TypeScript 7 yet.

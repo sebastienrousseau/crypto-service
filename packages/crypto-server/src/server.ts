@@ -14,7 +14,6 @@ import {
   fastifyOptions,
   healthCheckOptions,
   helmetOptions,
-  isProbePath,
   rateLimitOptions,
   resolveRateLimitMax,
   LIB_VERSION,
@@ -31,15 +30,15 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { randomUUID } from "crypto";
 import logger from "./lib/logger";
-import { authenticate, registerAuth } from "./lib/auth";
+import { authenticate, authorizeRoute, registerAuth } from "./lib/auth";
+import {
+  assertRoutesCovered,
+  isPublicRoute,
+  type RegisteredRoute,
+} from "./config/auth-policy";
 import { registerMetering } from "./enterprise/metering";
 import routes from "./routes";
 import * as fastify from "fastify";
-
-/** Whether a request URL is a public (unauthenticated) path: probes and the API docs. */
-function isPublicPath(url: string): boolean {
-  return isProbePath(url) || url.startsWith("/docs");
-}
 
 /** Registers the OpenAPI spec and the Swagger UI served at `/docs`. */
 async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
@@ -81,6 +80,13 @@ async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
 async function init(): Promise<fastify.FastifyInstance> {
   const app = fastify.fastify(fastifyOptions);
 
+  // Record every route, including those plugins add, so the boot check
+  // can prove each one is covered by the authorization policy.
+  const registered: RegisteredRoute[] = [];
+  app.addHook("onRoute", (route) => {
+    registered.push({ method: route.method, url: route.url });
+  });
+
   logger.info("\n\nEnvironment details: " + consoleOutput);
 
   // Assign a unique request ID (or honour the upstream one) and propagate
@@ -115,12 +121,14 @@ async function init(): Promise<fastify.FastifyInstance> {
   // JWT authentication (registers the jwt decorator if JWT_SECRET is set)
   await registerAuth(app);
 
-  // Authenticate every request except probes and API docs. Fails closed:
-  // with no credential configured, only ALLOW_ANONYMOUS=1 lets requests in.
+  // Authenticate every request except probes and API docs, then enforce
+  // the route's scope from the central policy. Fails closed: with no
+  // credential configured, only ALLOW_ANONYMOUS=1 lets requests in, and a
+  // route without a policy entry answers 403.
   app.addHook("onRequest", async (request, reply) => {
-    if (isPublicPath(request.url)) return;
+    if (isPublicRoute(request.url)) return;
     const auth = await authenticate(request, reply);
-    if (!auth) return reply;
+    if (!auth || !authorizeRoute(request, reply, auth)) return reply;
     (request as { auth?: unknown }).auth = auth;
   });
 
@@ -135,6 +143,7 @@ async function init(): Promise<fastify.FastifyInstance> {
   });
 
   await app.ready();
+  assertRoutesCovered(registered);
   return app;
 }
 

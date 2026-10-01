@@ -20,6 +20,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { timingSafeEqual } from "crypto";
 import { anonymousAllowed } from "../utils/validation";
+import { AUTHENTICATED, routeRequirement } from "../config/auth-policy";
 
 /**
  * Available authorization scopes.
@@ -149,9 +150,11 @@ export async function authenticate(
  * Check if an authenticated payload has the required scope.
  */
 export function hasScope(payload: AuthPayload, required: Scope): boolean {
-  return (
-    payload.scopes.includes("crypto:admin") || payload.scopes.includes(required)
-  );
+  // A verified token without a `scopes` array grants nothing.
+  const scopes: readonly string[] = Array.isArray(payload.scopes)
+    ? payload.scopes
+    : [];
+  return scopes.includes("crypto:admin") || scopes.includes(required);
 }
 
 /**
@@ -170,4 +173,30 @@ export function requireScope(
     return false;
   }
   return true;
+}
+
+/**
+ * Enforce the central route policy (`ROUTE_SCOPES` in
+ * `config/auth-policy.ts`) for an authenticated request. Sends 403 and
+ * returns false when the principal lacks the route's scope, or when the
+ * route has no policy entry (fail closed). A request that matched no
+ * route passes, so the not-found handler can answer 404.
+ */
+export function authorizeRoute(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  payload: AuthPayload,
+): boolean {
+  const url = request.routeOptions.url;
+  if (url === undefined) return true;
+  const required = routeRequirement(request.method, url);
+  if (required === undefined) {
+    reply.status(403).send({
+      error: "Forbidden",
+      message: "No access policy is defined for this route",
+    });
+    return false;
+  }
+  if (required === AUTHENTICATED) return true;
+  return requireScope(payload, required as Scope, reply);
 }

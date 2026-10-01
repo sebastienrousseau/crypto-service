@@ -211,8 +211,9 @@ The server supports two authentication modes:
 2. **JWT Bearer** -- set `JWT_SECRET` and pass
    `Authorization: Bearer <token>`.
 
-If neither variable is set, all requests are allowed (development
-mode).
+If neither variable is set, every request except the probes and
+`/docs` gets `401`, unless `ALLOW_ANONYMOUS=1` is set for local
+development or behind an authenticating gateway.
 
 ```bash
 # API key
@@ -221,6 +222,29 @@ curl -H "x-api-key: your-secret-api-key" ...
 # JWT Bearer
 curl -H "Authorization: Bearer eyJhbGciOi..." ...
 ```
+
+### Scopes
+
+Every route requires one scope, defined in one table
+(`ROUTE_SCOPES` in `src/config/auth-policy.ts`). A principal without it
+gets `403`. The server refuses to start if a route has no entry.
+JWT principals carry their scopes in a `scopes` array claim; API-key
+and anonymous principals hold `crypto:admin`, which satisfies every
+scope.
+
+| Scope            | Routes                                                                                                               |
+| :--------------- | :------------------------------------------------------------------------------------------------------------------- |
+| `crypto:encrypt` | `/v1/encrypt`, `/v2/encrypt`, secretbox/sealedbox seal, password and multi-recipient encrypt, PQ encapsulate         |
+| `crypto:decrypt` | `/v1/decrypt`, `/v2/decrypt`, secretbox/sealedbox open, password decrypt, PQ decapsulate                             |
+| `crypto:sign`    | `/v2/sign`, `/v2/stream/sign`, ML-DSA and SLH-DSA sign, `/v2/hmac`                                                   |
+| `crypto:verify`  | `/v1/verify`, `/v2/verify`, `/v2/stream/verify`, `/v2/stream/iso20022`, ML-DSA and SLH-DSA verify, `/v2/hmac/verify` |
+| `crypto:hash`    | `/v2/hash`                                                                                                           |
+| `crypto:kdf`     | `/v2/kdf`, `/v2/password/hash`, `/v2/password/verify`                                                                |
+| `crypto:keys`    | `/v1/generate`, `/v2/keys/*`, PQ, ML-DSA and SLH-DSA keygen                                                          |
+| `crypto:admin`   | `/v1/revoke` (revokes the server's own key pair); satisfies every other scope                                        |
+
+`GET /`, `GET /v2/algorithms` and `GET /v2/compliance/*` need
+authentication but no scope.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
