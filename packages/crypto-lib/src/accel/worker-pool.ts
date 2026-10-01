@@ -59,10 +59,17 @@ interface WorkerEntry {
  */
 const WORKER_SCRIPT = `
 const { parentPort } = require("node:worker_threads");
+const { isAbsolute } = require("node:path");
+const { pathToFileURL } = require("node:url");
 
 parentPort.on("message", async (msg) => {
   try {
-    const mod = await import(msg.modulePath);
+    // import() needs a file:// URL for absolute paths on Windows
+    // ("D:\\..." is read as a URL with scheme "d:").
+    const specifier = isAbsolute(msg.modulePath)
+      ? pathToFileURL(msg.modulePath).href
+      : msg.modulePath;
+    const mod = await import(specifier);
     const fn = mod[msg.functionName];
     if (typeof fn !== "function") {
       throw new Error(\`"\${msg.functionName}" is not a function in \${msg.modulePath}\`);

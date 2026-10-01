@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { WorkerPool } from "../../src/accel/worker-pool";
 import * as path from "path";
+import * as os from "os";
 import * as fs from "fs";
 
 describe("WorkerPool", () => {
@@ -20,10 +21,7 @@ describe("WorkerPool", () => {
   it("should execute a task using a module path", async () => {
     const pool = new WorkerPool({ size: 1 });
     try {
-      const modulePath = path.resolve(
-        __dirname,
-        "../../dist/modern/hash.js",
-      );
+      const modulePath = path.resolve(__dirname, "../../dist/modern/hash.js");
       const result = await pool.execute<{ digest: string }>({
         modulePath,
         functionName: "hash",
@@ -71,10 +69,7 @@ describe("WorkerPool", () => {
   describe("pending and active getters", () => {
     it("should report pending and active counts when pool is saturated", async () => {
       const pool = new WorkerPool({ size: 1 });
-      const modulePath = path.resolve(
-        __dirname,
-        "../../dist/modern/hash.js",
-      );
+      const modulePath = path.resolve(__dirname, "../../dist/modern/hash.js");
 
       try {
         // Submit multiple tasks to a pool with only 1 worker
@@ -104,10 +99,7 @@ describe("WorkerPool", () => {
   describe("processQueue", () => {
     it("should automatically dispatch queued tasks when a worker becomes free", async () => {
       const pool = new WorkerPool({ size: 1 });
-      const modulePath = path.resolve(
-        __dirname,
-        "../../dist/modern/hash.js",
-      );
+      const modulePath = path.resolve(__dirname, "../../dist/modern/hash.js");
 
       try {
         const results: Array<{ digest: string }> = [];
@@ -148,7 +140,7 @@ describe("WorkerPool", () => {
 
       try {
         await pool.execute({
-          modulePath: "/tmp/nonexistent-module-xyz.js",
+          modulePath: path.join(os.tmpdir(), "nonexistent-module-xyz.js"),
           functionName: "doSomething",
           args: [],
         });
@@ -163,10 +155,7 @@ describe("WorkerPool", () => {
 
     it("should reject when the function does not exist in the module", async () => {
       const pool = new WorkerPool({ size: 1 });
-      const modulePath = path.resolve(
-        __dirname,
-        "../../dist/modern/hash.js",
-      );
+      const modulePath = path.resolve(__dirname, "../../dist/modern/hash.js");
 
       try {
         await pool.execute({
@@ -185,15 +174,12 @@ describe("WorkerPool", () => {
 
     it("should continue processing queued tasks after an error", async () => {
       const pool = new WorkerPool({ size: 1 });
-      const modulePath = path.resolve(
-        __dirname,
-        "../../dist/modern/hash.js",
-      );
+      const modulePath = path.resolve(__dirname, "../../dist/modern/hash.js");
 
       try {
         // Submit a failing task followed by a valid task
         const failTask = pool.execute({
-          modulePath: "/tmp/nonexistent-module-xyz.js",
+          modulePath: path.join(os.tmpdir(), "nonexistent-module-xyz.js"),
           functionName: "doSomething",
           args: [],
         });
@@ -223,7 +209,7 @@ describe("WorkerPool", () => {
 
     it("should trigger the worker error event handler when the worker thread crashes", async () => {
       // Create a worker script that throws an unhandled error when it receives a message
-      const crashScript = "/tmp/crash-worker-test.js";
+      const crashScript = path.join(os.tmpdir(), "crash-worker-test.js");
       fs.writeFileSync(
         crashScript,
         `const { parentPort } = require("node:worker_threads");
@@ -255,7 +241,7 @@ parentPort.on("message", () => {
   describe("shutdown with pending tasks", () => {
     it("should reject queued tasks when shutdown is called", async () => {
       // Create a worker script that delays responding, so tasks queue up
-      const slowScript = "/tmp/slow-worker-test.js";
+      const slowScript = path.join(os.tmpdir(), "slow-worker-test.js");
       fs.writeFileSync(
         slowScript,
         `const { parentPort } = require("node:worker_threads");
@@ -270,11 +256,15 @@ parentPort.on("message", (msg) => {
       const pool = new WorkerPool({ size: 1, workerScript: slowScript });
 
       // Submit 3 tasks — first one occupies the worker, the rest queue
-      pool.execute({
-        modulePath: "any",
-        functionName: "any",
-        args: [],
-      }).catch(() => { /* p1 will never resolve — worker terminated */ });
+      pool
+        .execute({
+          modulePath: "any",
+          functionName: "any",
+          args: [],
+        })
+        .catch(() => {
+          /* p1 will never resolve — worker terminated */
+        });
 
       const p2 = pool.execute({
         modulePath: "any",
@@ -297,9 +287,9 @@ parentPort.on("message", (msg) => {
       const results = await Promise.allSettled([p2, p3]);
       expect(results.every((r) => r.status === "rejected")).to.be.true;
       for (const r of results) {
-        expect(
-          (r as PromiseRejectedResult).reason.message,
-        ).to.include("shutting down");
+        expect((r as PromiseRejectedResult).reason.message).to.include(
+          "shutting down",
+        );
       }
 
       fs.unlinkSync(slowScript);
