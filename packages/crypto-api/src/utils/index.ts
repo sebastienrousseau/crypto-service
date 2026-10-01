@@ -281,13 +281,20 @@ export const readItems = (items: ItemShape[], folderDeep = 1): string => {
 };
 
 /**
- * Creates a markdown file with specified content.
+ * Output directory for generated markdown: `CRYPTO_API_DOCS_DIR` when set,
+ * otherwise the package's `src/docs` directory.
+ */
+export const docsDir = (): string =>
+  process.env["CRYPTO_API_DOCS_DIR"] ?? resolve(__dirname, "../../src/docs");
+
+/**
+ * Creates a markdown file with specified content in {@link docsDir}.
  */
 export const response = async (
   content: string,
   fileName: string,
 ): Promise<void> => {
-  const dir = resolve(__dirname, "../../src/docs");
+  const dir = docsDir();
   await mkdir(dir, { recursive: true });
   // Sanitize fileName to prevent path traversal
   const safeName = basename(fileName);
