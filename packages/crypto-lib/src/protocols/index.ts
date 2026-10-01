@@ -9,7 +9,7 @@
  * Phase 6 — composable cryptographic protocol primitives:
  * - PQXDH: Post-Quantum Extended Triple Diffie-Hellman (Signal-style)
  * - Double Ratchet: Forward-secret messaging with PQ upgrades
- * - PAKE: OPAQUE-like password-authenticated key exchange
+ * - PAKE: OPAQUE-3DH password-authenticated key exchange (RFC 9807)
  * - Threshold: Shamir Secret Sharing + Feldman VSS
  */
 

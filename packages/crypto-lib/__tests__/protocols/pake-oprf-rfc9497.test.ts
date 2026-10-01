@@ -5,8 +5,8 @@
 
 // RFC 9497 Appendix A.3.1 known-answer tests for the OPRF that
 // src/protocols/pake.ts builds on (P256-SHA256, OPRF mode 0x00). The
-// blinding step uses the same DST as the module; pake-security.test.ts
-// checks that the module's blinded element matches this construction.
+// blinding step uses the same DST as the module; the RFC 9807 vectors in
+// opaque-rfc9807.test.ts check the module's own blinding end to end.
 
 import { expect } from "chai";
 import * as fs from "fs";

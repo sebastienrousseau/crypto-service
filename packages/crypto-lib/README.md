@@ -174,7 +174,7 @@ overhead.
 | `streaming/stream-aead`       | Streaming AEAD encryption                        |
 | `protocols/pqxdh`             | Post-Quantum Extended Triple DH                  |
 | `protocols/ratchet`           | Double Ratchet (Signal-style)                    |
-| `protocols/pake`              | OPAQUE-like PAKE                                 |
+| `protocols/pake`              | OPAQUE-3DH PAKE (RFC 9807)                       |
 | `protocols/threshold`         | Shamir SSS + Feldman VSS                         |
 | `registry`                    | Algorithm metadata, deprecation, recommendations |
 | `crypto`                      | Unified API namespace                            |

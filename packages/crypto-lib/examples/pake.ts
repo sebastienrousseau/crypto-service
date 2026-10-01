@@ -2,19 +2,15 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 /**
- * PAKE (Password-Authenticated Key Exchange): OPAQUE-like protocol using
- * P-256 OPRF, HKDF-SHA256, and XChaCha20-Poly1305 for envelope encryption.
+ * PAKE: OPAQUE-3DH (RFC 9807) with the P256-SHA256 suite and the default
+ * scrypt key-stretching function.
  *
- * Demonstrates the full PAKE flow:
- * - serverRegister: register a password (server never learns it)
- * - clientStartLogin: client initiates login with blinded password
- * - serverRespondLogin: server evaluates OPRF and responds
- * - clientFinishLogin: client derives session key and proves identity
- * - serverVerifyClient: server verifies client MAC for mutual auth
- *
- * Also demonstrates:
- * - Session key agreement (both sides derive the same key)
- * - Error case: wrong password
+ * Demonstrates:
+ * - Server setup and a fake record for unknown users
+ * - Registration (the server never sees the password)
+ * - Login: KE1 -> KE2 -> KE3, both sides derive the same session key
+ * - Wire encoding of every message
+ * - Error cases: wrong password, unknown user
  *
  * Run: `npx ts-node examples/pake.ts`
  */
@@ -22,102 +18,86 @@
 import { header, task, taskResult, summary } from "./support";
 import { protocols } from "../src";
 
-const { serverRegister, clientStartLogin, serverRespondLogin, clientFinishLogin, serverVerifyClient } =
-  protocols.pake;
+const { pake } = protocols;
+const config = { context: "crypto-lib-example-v1" };
+const equal = (a: Uint8Array, b: Uint8Array) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
 
 async function main() {
-  header("crypto-lib -- pake");
+  header("crypto-lib -- pake (RFC 9807 OPAQUE-3DH)");
 
   const password = "correct-horse-battery-staple";
-  const serverId = "auth.example.com";
+  const id = "alice@example.com";
 
-  // 1. Registration phase
-  const record = await task("Server: register user password", () => {
-    const reg = serverRegister(password, serverId);
-    if (!reg.userPublicKey) throw new Error("Missing userPublicKey");
-    if (!reg.serverPublicKey) throw new Error("Missing serverPublicKey");
-    if (!reg.serverPrivateKey) throw new Error("Missing serverPrivateKey");
-    if (!reg.envelope) throw new Error("Missing envelope");
-    if (!reg.oprfSalt) throw new Error("Missing oprfSalt");
-    if (reg.serverId !== serverId) throw new Error("Server ID mismatch");
-    return reg;
+  const setup = await task("Server: create long-term setup", () =>
+    pake.createServerSetup(config),
+  );
+  const fake = pake.createFakeRecord(config);
+
+  const record = await task("Register (client + server)", () => {
+    const { request, blind } = pake.createRegistrationRequest(password, config);
+    const response = pake.createRegistrationResponse(
+      request,
+      setup.serverPublicKey,
+      id,
+      setup.oprfSeed,
+      config,
+    );
+    return pake.finalizeRegistrationRequest(
+      password,
+      blind,
+      response,
+      {},
+      config,
+    ).record;
   });
 
-  // 2. Client starts login
-  const { request, state: clientState } = await task("Client: start login (blind password)", () => {
-    const result = clientStartLogin(password);
-    if (!result.request.blindedElement) throw new Error("Missing blindedElement");
-    if (!result.request.clientEphemeralPublic) throw new Error("Missing clientEphemeralPublic");
-    if (!result.state.blind) throw new Error("Missing blind");
-    if (!result.state.clientEphemeralPrivate) throw new Error("Missing clientEphemeralPrivate");
-    return result;
-  });
+  /** Run one login; returns client and server session keys. */
+  const login = (pw: string, rec = record) => {
+    const client = pake.generateKE1(pw, config);
+    const ke1 = pake.deserializeKE1(pake.serializeKE1(client.ke1));
+    const server = pake.generateKE2(
+      { ...setup, record: rec, credentialIdentifier: id, ke1 },
+      config,
+    );
+    const ke2 = pake.deserializeKE2(pake.serializeKE2(server.ke2));
+    const { ke3, sessionKey } = pake.generateKE3(client.state, ke2);
+    return { sessionKey, serverKey: pake.serverFinish(server.state, ke3) };
+  };
 
-  // 3. Server processes login request
-  const { response, state: serverState } = await task("Server: respond to login request", () => {
-    const result = serverRespondLogin(request, record);
-    if (!result.response.evaluatedElement) throw new Error("Missing evaluatedElement");
-    if (!result.response.serverEphemeralPublic) throw new Error("Missing serverEphemeralPublic");
-    if (!result.response.serverMac) throw new Error("Missing serverMac");
-    if (!result.state.sessionKey) throw new Error("Missing server sessionKey");
-    if (!result.state.expectedClientMac) throw new Error("Missing expectedClientMac");
-    return result;
-  });
-
-  // 4. Client finishes login (derives session key)
-  const clientResult = await task("Client: finish login (derive session key)", () => {
-    const result = clientFinishLogin(response, clientState, serverId);
-    if (!result.sessionKey) throw new Error("Missing sessionKey");
-    if (!result.clientMac) throw new Error("Missing clientMac");
-    if (result.algorithm !== "opaque-p256") throw new Error("Unexpected algorithm");
-    return result;
-  });
-
-  // 5. Server verifies client MAC (mutual authentication)
-  await task("Server: verify client MAC (mutual auth)", () => {
-    const valid = serverVerifyClient(clientResult.clientMac, serverState);
-    if (!valid) throw new Error("Client MAC verification failed");
-  });
-
-  // 6. Verify both sides derived the same session key
-  await task("Verify: session keys match", () => {
-    if (clientResult.sessionKey !== serverState.sessionKey) {
-      throw new Error("Session key mismatch between client and server");
+  const first = await task("Login: session keys match", () => {
+    const result = login(password);
+    if (!equal(result.sessionKey, result.serverKey)) {
+      throw new Error("Session key mismatch");
     }
-    if (clientResult.sessionKey.length !== 64) {
-      throw new Error("Expected 32-byte (64 hex) session key");
+    return result;
+  });
+
+  await task("Login again: a fresh session key", () => {
+    if (equal(login(password).sessionKey, first.sessionKey)) {
+      throw new Error("Session keys should differ per login");
     }
   });
 
-  // 7. Error case: wrong password
-  await taskResult("Error: wrong password fails login", () => {
-    const wrongPassword = "wrong-password-attempt";
-    const { request: wrongReq, state: wrongState } = clientStartLogin(wrongPassword);
-    const { response: wrongResp } = serverRespondLogin(wrongReq, record);
+  await taskResult("Error: wrong password is rejected", () => {
     try {
-      clientFinishLogin(wrongResp, wrongState, serverId);
-      throw new Error("Should have thrown");
-    } catch (err) {
-      if ((err as Error).message === "Should have thrown") throw err;
-      // Expected: server authentication failed (MAC mismatch)
+      login("wrong-password");
+    } catch {
+      return;
     }
+    throw new Error("Wrong password was accepted");
   });
 
-  // 8. Verify different sessions produce different keys
-  await task("Verify: different sessions produce unique keys", () => {
-    const { request: req2, state: state2 } = clientStartLogin(password);
-    const { response: resp2, state: serverState2 } = serverRespondLogin(req2, record);
-    const result2 = clientFinishLogin(resp2, state2, serverId);
-
-    if (result2.sessionKey === clientResult.sessionKey) {
-      throw new Error("Session keys should be unique per session");
+  await taskResult("Error: unknown user fails like a wrong password", () => {
+    try {
+      login(password, fake);
+    } catch {
+      return;
     }
-    if (result2.sessionKey !== serverState2.sessionKey) {
-      throw new Error("New session key mismatch");
-    }
+    throw new Error("Fake record was accepted");
   });
 
-  summary(8);
+  summary(6);
 }
 
 main();

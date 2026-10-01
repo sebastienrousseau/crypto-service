@@ -69,7 +69,7 @@ with you and credit reporters (unless anonymity is preferred).
   DHKEM(X25519)+AES-128-GCM, DHKEM(P-256)+AES-128-GCM
 - **High-level:** Secretbox, Sealed Box, password encryption, key wrapping
   (AES-KW/KWP), multi-recipient encryption
-- **Protocols:** PQXDH, Double Ratchet, PAKE (OPAQUE-like), Threshold/Shamir+Feldman VSS
+- **Protocols:** PQXDH, Double Ratchet, PAKE (RFC 9807 OPAQUE-3DH), Threshold/Shamir+Feldman VSS
 
 ### Deprecated (v1 API)
 
@@ -100,11 +100,10 @@ major release. Migrate to the v2 API for modern primitives.
   The post-quantum algorithms (FIPS 203/204/205 and FN-DSA) come from
   `@noble/post-quantum`, which has not been independently audited and does
   not guarantee constant-time execution.
-- **Secret comparisons:** Not every secret comparison is constant-time.
-  crypto-lib exports a constant-time `timingSafeEqual`, but, for example,
-  the PAKE client's server-MAC check (`clientFinishLogin` in
-  `packages/crypto-lib/src/protocols/pake.ts`) compares with
-  `Array.prototype.every`, which returns at the first mismatch.
+- **Secret comparisons:** crypto-lib exports a constant-time
+  `timingSafeEqual`, used by the PAKE (OPAQUE) MAC and envelope checks and
+  the API-key check. Not every comparison in the codebase has been audited
+  for constant-time behaviour.
 - **Zeroization is limited:** `SecureBuffer` zeroes its contents only when
   `destroy()` is called explicitly, and crypto-lib's own APIs do not use it.
   Most APIs accept and return keys as hex strings or ordinary buffers, which

@@ -160,7 +160,7 @@ Software implementations of lattice cryptography are particularly susceptible to
 <h3>What Crypto Service Suite does and does not provide</h3>
 <ul>
 <li><strong>No constant-time guarantee:</strong> Lattice arithmetic comes from <code>@noble/post-quantum</code>, which does not guarantee constant-time execution. The suite has not been evaluated against timing, power or fault-injection attacks.</li>
-<li><strong>Secret comparisons:</strong> crypto-lib exports a constant-time <code>timingSafeEqual</code>, but not every internal comparison uses it (for example, the PAKE client's server-MAC check exits at the first mismatch).</li>
+<li><strong>Secret comparisons:</strong> crypto-lib exports a constant-time <code>timingSafeEqual</code>, used by the PAKE (OPAQUE) MAC checks; not every internal comparison has been audited for constant-time behaviour.</li>
 <li><strong>Limited zeroization:</strong> <code>wipeMemory()</code> and <code>SecureBuffer</code> are available to callers, but crypto-lib's own APIs do not call them, and keys handled as hex strings cannot be wiped.</li>
 </ul>
 </div>
