@@ -288,7 +288,11 @@ describe("Server-side key custody (F28, F29)", function () {
       const a = await first.put(KEY);
       const b = await first.put(KEY); // evicts a from memory
       const file = path.join(dir, `${a.keyId}.json`);
-      expect(statSync(file).mode & 0o777).to.equal(0o600);
+      // Windows has no POSIX permission bits (files report 0o666), so the
+      // owner-only mode can only be checked elsewhere.
+      if (process.platform !== "win32") {
+        expect(statSync(file).mode & 0o777).to.equal(0o600);
+      }
       expect((await first.get(a.keyId, "alice")).keyId).to.equal(a.keyId);
 
       const restarted = new KeyStore(dir);
