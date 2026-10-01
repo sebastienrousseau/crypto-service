@@ -1,9 +1,9 @@
 ---
 title: "Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions"
-description: "Architecture white paper specifying sovereign on-premises and private-cloud Cryptography-as-a-Service (CaaS) daemons, processing 100k+ ops/sec with sub-millisecond lattice digital signatures while satisfying EU DORA Articles 13 & 14."
+description: "Architecture white paper on running a self-hosted Cryptography-as-a-Service (CaaS) tier with crypto-server inside a private VPC, what the suite provides today, and how it fits EU DORA ICT risk work."
 eyebrow: "Architecture Blueprint · Sovereign CaaS"
 headline: "Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions"
-lead: "An architectural specification for deploying sovereign non-custodial cryptography daemons across private VPCs, handling 100k+ ops/sec with sub-millisecond lattice digital signatures."
+lead: "An architecture pattern for running a self-hosted cryptography service inside private VPCs, with an honest account of what Crypto Service Suite provides today."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -16,79 +16,79 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <div class="whitepaper-doc-header">
-<div class="book-meta">Published September 28, 2026 · Sebastien Rousseau · Crypto Service Core Architecture Group</div>
+<div class="book-meta">Sebastien Rousseau · Crypto Service Core Architecture Group</div>
 <div class="whitepaper-doc-meta font-mono">
 <span>Document ID: CSS-ARCH-2026-004</span>
 <span>Classification: Technical Architecture Blueprint</span>
-<span>Compliance: EU DORA Art. 13/14 · NIST FIPS 203/204 · CNSA 2.0</span>
-<span>Reference Implementation: @sebastienrousseau/crypto-server v0.0.4</span>
+<span>Standards: NIST FIPS 203/204 algorithms (not a validated module)</span>
+<span>Reference Implementation: @sebastienrousseau/crypto-server v0.0.6</span>
 </div>
 </div>
 
 <div class="whitepaper-doc-abstract">
 <h3>Executive Abstract</h3>
 <p>
-Modern enterprise engineering teams face a painful architectural dilemma: rely on multi-tenant commercial cloud Key Management Services (AWS KMS, Google Cloud KMS, Azure Key Vault) that introduce third-party custodial counterparty risks and extraterritorial data access liabilities, or construct cumbersome internal cryptographic monoliths that fail to meet modern microservice throughput requirements.
+Engineering teams that rely only on multi-tenant cloud Key Management Services accept a dependency on a third party for key custody and availability. Teams that build their own cryptographic services take on the burden of getting the primitives, interfaces and operations right.
 </p>
 <p>
-This paper specifies the architecture of a <strong>Sovereign Cryptography-as-a-Service (CaaS) Daemon</strong>. Deployed within an institution's private Virtual Private Cloud (VPC), bare-metal Kubernetes clusters, or sovereign data center perimeter, the CaaS daemon acts as an isolated cryptographic coprocessor. Delivering over 100,000 cryptographic operations per second with sub-millisecond signature latencies over HTTP/2 and gRPC, it enforces strict non-custodial key governance, hardware security module (HSM) abstraction, automated envelope encryption, and full compliance with European Union Digital Operational Resilience Act (DORA) Articles 13 &amp; 14.
+This paper describes a middle path: a <strong>self-hosted Cryptography-as-a-Service (CaaS) tier</strong> built on <code>@sebastienrousseau/crypto-server</code>, deployed inside an institution's own VPC or data centre. It states what the suite provides today and what it does not. An earlier version of this paper claimed more than 100,000 operations per second, sub-millisecond signatures over HTTP/2 and gRPC, a WebAssembly SIMD engine, HSM abstraction and DORA compliance; none of those claims was supported by the code, and they have been withdrawn.
 </p>
 </div>
 
 <div class="research-toc-box">
 <h3>Table of Contents</h3>
 <ol>
-<li><a href="#custodial-risk">1. The Crisis of Custodial Counterparty Risk in Financial Infrastructure</a></li>
-<li><a href="#caas-topology">2. Sovereign CaaS System Topology &amp; Isolation Boundaries</a></li>
-<li><a href="#performance-engine">3. High-Throughput Concurrency &amp; WebAssembly Acceleration</a></li>
-<li><a href="#multi-cloud-kms">4. Multi-Cloud KMS Orchestration &amp; Hardware Security Modules</a></li>
-<li><a href="#envelope-architecture">5. Automated Envelope Encryption (DEK/KEK) Mechanics</a></li>
-<li><a href="#dora-compliance">6. Compliance Verification Under EU DORA Articles 13 &amp; 14</a></li>
-<li><a href="#production-rollout">7. Production Deployment &amp; Zero-Downtime Rollout Strategy</a></li>
+<li><a href="#custodial-risk">1. Why Self-Host Cryptographic Services</a></li>
+<li><a href="#caas-topology">2. Service Topology &amp; Isolation Boundaries</a></li>
+<li><a href="#performance-engine">3. Performance</a></li>
+<li><a href="#multi-cloud-kms">4. Key Management Backends</a></li>
+<li><a href="#envelope-architecture">5. Envelope Encryption (DEK/KEK)</a></li>
+<li><a href="#dora-compliance">6. Relationship to EU DORA</a></li>
+<li><a href="#production-rollout">7. Production Deployment</a></li>
 </ol>
 </div>
 
 <hr class="section-divider">
 
 <section id="custodial-risk" class="research-section">
-<h2>1. The Crisis of Custodial Counterparty Risk in Financial Infrastructure</h2>
+<h2>1. Why Self-Host Cryptographic Services</h2>
 <p class="lead-text">
-In traditional financial institutions, cryptographic keys represent legal ownership and authoritative authorization. When enterprise applications delegate master key storage and signing directly to third-party public cloud providers, they incur structural legal, regulatory, and technical risks:
+When applications delegate key storage and signing to a third-party cloud provider, they take on risks that some institutions prefer to control directly:
 </p>
 <ul>
-<li><strong>Extraterritorial Jurisdiction &amp; Subpoena Exposure:</strong> Cloud providers subject to foreign statutory acts (such as the US CLOUD Act) can be compelled to access or surrender cryptographic material without host-nation notification.</li>
-<li><strong>Vendor Lock-In &amp; Proprietary API Fragmentation:</strong> Each hyper-scaler implements incompatible key derivation APIs, locking financial institutions into proprietary cryptographic paradigms that frustrate multi-cloud redundancy mandates.</li>
-<li><strong>Rate Limiting &amp; Inter-Region Latency:</strong> Public cloud KMS endpoints typically throttle requests to between 1,000 and 10,000 ops/sec per account, with network round-trip latencies of 15ms to 50ms—unacceptable for high-frequency interbank settlement or wholesale matching engines.</li>
+<li><strong>Jurisdiction:</strong> providers subject to foreign law (such as the US CLOUD Act) may be compelled to provide access to customer data.</li>
+<li><strong>Vendor lock-in:</strong> each provider's KMS API differs, which complicates multi-cloud redundancy.</li>
+<li><strong>Quotas and latency:</strong> cloud KMS endpoints apply request quotas and add a network round trip to every operation.</li>
 </ul>
 <p>
-A sovereign CaaS model returns key material custody strictly to the asset-holding institution while exposing modern, standardized interfaces to microservices and database tiers.
+A self-hosted service keeps key material on infrastructure the institution controls while exposing a standard interface to microservices.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="caas-topology" class="research-section">
-<h2>2. Sovereign CaaS System Topology &amp; Isolation Boundaries</h2>
+<h2>2. Service Topology &amp; Isolation Boundaries</h2>
 <p>
-The Crypto Service CaaS daemon (`@sebastienrousseau/crypto-server`) is designed under the principle of <em>zero master key exfiltration</em>. The daemon operates as a dedicated microservice with four strict architectural tiers:
+<code>@sebastienrousseau/crypto-server</code> is a Fastify REST service that exposes crypto-lib operations. What it provides today:
 </p>
 
 <div class="grid-2x2">
 <div class="card">
-<h3>1. Client Ingress Layer</h3>
-<p>Accepts mutual-TLS (mTLS) authenticated gRPC and HTTP/2 connections from internal application workloads. Every request carries cryptographic tenant identity tokens with automated role-based access control (RBAC) and quota enforcement.</p>
+<h3>1. Ingress</h3>
+<p>REST endpoints with JSON schema validation, rate limiting, security headers, and API-key or HS256 JWT authentication. There is no gRPC, HTTP/2 or built-in mTLS; terminate TLS at a proxy or load balancer.</p>
 </div>
 <div class="card">
-<h3>2. Cryptographic Execution Core</h3>
-<p>Zero-dependency WebAssembly SIMD and native Node.js engines executing NIST FIPS 203 (ML-KEM) encapsulation, FIPS 204 (ML-DSA) signatures, and AES-256-GCM authenticated encryption in constant time.</p>
+<h3>2. Cryptographic Execution</h3>
+<p>crypto-lib in the same Node.js process: FIPS 203/204/205 algorithms via <code>@noble/post-quantum</code> (not a validated module, no constant-time guarantee) and AES-GCM or XChaCha20-Poly1305 via <code>@noble/ciphers</code>. There is no WebAssembly engine.</p>
 </div>
 <div class="card">
-<h3>3. Hardware HSM Broker</h3>
-<p>Abstracts physical Hardware Security Modules (PKCS#11, Luna HSM, YubiHSM) and cloud vaults via a unified Key Derivation Interface. Master Root Keys (MRKs) never exit hardware boundary protection.</p>
+<h3>3. Key Management</h3>
+<p>No HSM integration. crypto-kms offers AWS KMS and local in-memory providers; its GCP, Azure and Vault providers are stubs and its PKCS#11 provider is a software simulation for tests.</p>
 </div>
 <div class="card">
-<h3>4. Real-Time Telemetry &amp; CBOM Auditor</h3>
-<p>Continuously records structured cryptographic audit trails, metrics, and CycloneDX 1.6 Cryptographic Bills of Materials (CBOM) to guarantee continuous auditability under regulatory scrutiny.</p>
+<h3>4. Telemetry &amp; Inventory</h3>
+<p>Optional OpenTelemetry export, a Prometheus-format <code>/metrics</code> endpoint, structured JSON logs, and a <code>/v2/compliance/cbom</code> endpoint returning a CycloneDX 1.6 CBOM of the algorithms the service implements.</p>
 </div>
 </div>
 </section>
@@ -96,126 +96,70 @@ The Crypto Service CaaS daemon (`@sebastienrousseau/crypto-server`) is designed 
 <hr class="section-divider">
 
 <section id="performance-engine" class="research-section">
-<h2>3. High-Throughput Concurrency &amp; WebAssembly Acceleration</h2>
+<h2>3. Performance</h2>
 <p class="lead-text">
-To process over 100,000 operations per second, Crypto Service eliminates JavaScript runtime bottlenecks by compiling lattice mathematics into WebAssembly SIMD:
+No throughput or latency figures are published for crypto-server yet. The table in earlier versions of this paper (104,200 ops/sec, 0.72 ms P99 signing, comparisons with cloud KMS and hardware HSMs) was not produced by committed benchmark code and has been withdrawn.
 </p>
-<ul>
-<li><strong>Constant-Time Execution:</strong> Hand-crafted NTT polynomial multiplication and Montgomery reductions guarantee immunity against timing side-channel attacks and cache-collision attacks.</li>
-<li><strong>Zero Garbage Collection Stalls:</strong> Memory buffers for key pairs and ciphertexts are allocated once in fixed-size WebAssembly linear memory pools and reused across operations, preventing Node.js V8 garbage collector pauses.</li>
-<li><strong>Asynchronous HTTP/2 Multiplexing:</strong> Up to 128 concurrent requests are multiplexed over a single TCP/TLS connection, avoiding socket allocation overhead under peak banking clearing volumes.</li>
-</ul>
-
-<div class="table-responsive">
-<table class="comparison-table">
-<thead>
-<tr>
-<th>Benchmark Workload</th>
-<th>Public Cloud KMS</th>
-<th>Traditional Hardware HSM</th>
-<th>Sovereign CaaS Daemon (WASM SIMD)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Throughput (ops/sec)</strong></td>
-<td>~5,500 ops/sec (Throttled)</td>
-<td>~12,000 ops/sec</td>
-<td><strong>104,200 ops/sec</strong></td>
-</tr>
-<tr>
-<td><strong>P99 Latency (Signing)</strong></td>
-<td>24.5 ms</td>
-<td>4.2 ms</td>
-<td><strong>0.72 ms</strong></td>
-</tr>
-<tr>
-<td><strong>FIPS 203/204 PQC Native</strong></td>
-<td>No (Proprietary beta only)</td>
-<td>Requires multi-year firmware cycle</td>
-<td><strong>Native Full Conformance</strong></td>
-</tr>
-<tr>
-<td><strong>Custodial Independence</strong></td>
-<td>Zero (Cloud provider controls root)</td>
-<td>Full (On-premises)</td>
-<td><strong>Full (Zero external counterparty)</strong></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>
+To measure primitive latency on your own hardware, run <code>node benchmarks/crypto-bench.ts</code> from the repository after <code>pnpm -r run build</code>. Load-test the REST service in your target environment before sizing a deployment.
+</p>
 </section>
 
 <hr class="section-divider">
 
 <section id="multi-cloud-kms" class="research-section">
-<h2>4. Multi-Cloud KMS Orchestration &amp; Hardware Security Modules</h2>
+<h2>4. Key Management Backends</h2>
 <p>
-Financial resilience mandates (including Bank of England SS1/21 and Federal Reserve SR 20-24) require institutions to maintain operational continuity even if a primary cloud provider experiences systemic outage.
+<code>@sebastienrousseau/crypto-kms</code> defines one <code>KmsProvider</code> interface. There is no multi-cloud broker or automatic failover.
 </p>
-<p>
-Crypto Service CaaS provides a unified abstraction across heterogeneous key managers:
-</p>
-<pre><code>// Unified Key Broker Initialization across AWS, GCP, Azure, and Vault
-import { MultiCloudKmsBroker } from "@sebastienrousseau/crypto-kms";
+<pre><code>import { AwsKmsProvider } from "@sebastienrousseau/crypto-kms";
 
-const kms = new MultiCloudKmsBroker({
-primary: "vault://vault.internal.bank.net:8200/v1/transit",
-fallbacks: [
-"aws://kms.eu-west-1.amazonaws.com/alias/sovereign-caas",
-"gcp://cloudkms.googleapis.com/v1/projects/bank/locations/europe-west1"
-],
-rotationPolicyDays: 90,
-pqcHybridScheme: "X25519_ML_KEM_768"
-});</code></pre>
+const kms = new AwsKmsProvider({ region: "eu-west-1" });
+const key = await kms.createKey("aes-256-gcm", "encrypt");
+const { plaintext, ciphertext } = await kms.generateDataKey(key.keyId);</code></pre>
 <p>
-If the primary vault becomes unreachable, the broker fails over in under 5 milliseconds with automated health telemetry and alerting.
+AWS KMS and the local in-memory provider are implemented. The GCP, Azure and HashiCorp Vault providers reject every call with <code>Not implemented</code>.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="envelope-architecture" class="research-section">
-<h2>5. Automated Envelope Encryption (DEK/KEK) Mechanics</h2>
+<h2>5. Envelope Encryption (DEK/KEK)</h2>
 <p>
-To prevent encrypting gigabytes of data under long-lived master keys, the CaaS architecture strictly enforces <strong>Envelope Encryption</strong>:
+Envelope encryption avoids encrypting large volumes of data directly under a long-lived key:
 </p>
 <ol>
-<li><strong>Data Encryption Key (DEK) Generation:</strong> For every unique record, database row, or message payload, a cryptographically secure 256-bit symmetric key is generated in memory.</li>
-<li><strong>Data Encryption:</strong> The record is encrypted locally using AES-256-GCM with a unique 96-bit initialization vector (IV) and 128-bit authentication tag.</li>
-<li><strong>Key Encapsulation:</strong> The ephemeral DEK is wrapped under the institution's Key Encryption Key (KEK) using NIST FIPS 203 ML-KEM-768 hybrid encapsulation.</li>
-<li><strong>Memory Sanitization:</strong> The plaintext DEK is securely zeroized from volatile memory immediately after encryption.</li>
+<li><strong>Data key generation:</strong> <code>generateDataKey()</code> returns a fresh 256-bit data encryption key (DEK) in plaintext and wrapped under the provider's key encryption key (KEK).</li>
+<li><strong>Data encryption:</strong> the application encrypts the record locally, for example with AES-256-GCM (96-bit nonce, 128-bit tag).</li>
+<li><strong>Storage:</strong> the application stores the wrapped DEK next to the ciphertext and unwraps it through the KMS when needed.</li>
+<li><strong>Memory:</strong> JavaScript cannot guarantee that a plaintext DEK is wiped from memory; drop references promptly and keep process lifetimes and core-dump policies in mind.</li>
 </ol>
 </section>
 
 <hr class="section-divider">
 
 <section id="dora-compliance" class="research-section">
-<h2>6. Compliance Verification Under EU DORA Articles 13 &amp; 14</h2>
+<h2>6. Relationship to EU DORA</h2>
 <p>
-The European Union Digital Operational Resilience Act (DORA) imposes rigorous obligations on financial entities:
+The EU Digital Operational Resilience Act (Regulation 2022/2554) requires financial entities to maintain an ICT risk management framework, and its regulatory technical standards include requirements on encryption and cryptographic key management.
 </p>
-<ul>
-<li><strong>Article 13(1) (Cryptographic Controls):</strong> Entities must establish and document policies on the cryptographic protection of data-in-transit, data-in-use, and data-at-rest based on leading cryptographic standards.</li>
-<li><strong>Article 13(2) (Key Lifecycle Governance):</strong> Entities must implement cryptographic key management systems ensuring automated key rotation, secure decommissioning, and strict separation of duties.</li>
-<li><strong>Article 14 (Continuity &amp; Recovery):</strong> Cryptographic services must support instantaneous failover and zero single points of failure across infrastructure domains.</li>
-</ul>
 <p>
-By deploying `@sebastienrousseau/crypto-server`, financial institutions obtain pre-packaged compliance telemetry, structured audit event feeds, and cryptographic health reports that directly address European Banking Authority (EBA) audit protocols.
+Crypto Service Suite can supply building blocks for that work, such as a cryptographic inventory (CBOM), algorithm choices and key management interfaces. Deploying it does not make an institution DORA compliant, and the suite has not been assessed by any regulator or auditor.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="production-rollout" class="research-section">
-<h2>7. Production Deployment &amp; Zero-Downtime Rollout Strategy</h2>
+<h2>7. Production Deployment</h2>
 <p>
-We recommend deploying the CaaS daemon in a clustered configuration behind internal layer-4 load balancers:
+If you deploy crypto-server, we suggest:
 </p>
 <ul>
-<li>Deploy at least three instances across independent availability zones or data center racks.</li>
-<li>Configure health probe endpoints (`/health/ready`, `/health/live`) to verify cryptographic coprocessor availability and HSM connectivity.</li>
-<li>Mount local HSM access tokens via Kubernetes Secrets or encrypted runtime volumes with automatic rotation.</li>
+<li>Run several instances across independent availability zones behind an internal load balancer.</li>
+<li>Use the <code>/live</code> and <code>/ready</code> probe endpoints for health checks.</li>
+<li>Terminate TLS in front of the service, enable authentication, and supply secrets through Kubernetes Secrets or an equivalent secret store.</li>
 </ul>
 
 <div class="whitepaper-citation">
@@ -224,7 +168,7 @@ Rousseau, S. (2026). <em>Sovereign CaaS: Eliminating Custodial Counterparty Risk
 </div>
 
 <div class="book-actions">
-<a class="pill primary" href="/solutions/#caas-server">Explore CaaS Daemon Implementation</a>
+<a class="pill primary" href="/solutions/#caas-server">Explore the CaaS Service</a>
 <a class="pill ghost" href="/whitepapers/">Back to Publications Shelf</a>
 </div>
 </section>

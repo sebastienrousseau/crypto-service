@@ -43,12 +43,12 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 <tbody>
 <tr>
 <td><strong>Custody &amp; Key Control</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">NON-CUSTODIAL &amp; SOVEREIGN</span><br>Keys reside strictly within your sovereign VPC or HSM</td>
+<td class="col-highlight"><span class="comp-badge-ok">NON-CUSTODIAL &amp; SOVEREIGN</span><br>Keys stay on infrastructure you control (no HSM integration)</td>
 <td><span class="comp-badge-warn">CUSTODIAL TRUST</span><br>Custodial legal title held by trust company intermediary</td>
 </tr>
 <tr>
 <td><strong>Post-Quantum Readiness</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL ECC</span><br>ECDSA / Ed25519 vulnerable to quantum cryptanalysis</td>
 </tr>
 <tr>
@@ -58,17 +58,17 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 </tr>
 <tr>
 <td><strong>Regulatory Alignment</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">DORA ARTICLE 13</span><br>Automated CycloneDX 1.6 &amp; SPDX 3.0 CBOM telemetry</td>
+<td class="col-highlight"><span class="comp-badge-ok">CBOM GENERATION</span><br>CycloneDX 1.6 &amp; SPDX 3.0 CBOM generator (input to DORA work, not a compliance verdict)</td>
 <td><span class="comp-badge-warn">SOC 2 TYPE II</span><br>Periodic static audits under single jurisdiction</td>
 </tr>
 <tr>
 <td><strong>Deployment Flexibility</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">UNIVERSAL RUNTIME</span><br>Edge isolates, browser Wasm, and multi-cloud KMS adapters</td>
+<td class="col-highlight"><span class="comp-badge-ok">UNIVERSAL RUNTIME</span><br>Node.js, edge isolates and browsers; AWS KMS adapter</td>
 <td><span class="comp-badge-warn">HOSTED API</span><br>Proprietary BitGo cloud API gateway</td>
 </tr>
 <tr>
 <td><strong>Verification Floor</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">100% COVERAGE FLOOR</span><br>Strict coverage across all 18 packages and CAVP vectors</td>
+<td class="col-highlight"><span class="comp-badge-ok">CI COVERAGE GATES</span><br>100% line and function coverage in all 18 packages; no CAVP validation</td>
 <td><span class="comp-badge-warn">PROPRIETARY</span><br>Closed-source proprietary implementation</td>
 </tr>
 </tbody>
@@ -84,8 +84,8 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 <h3>Asset Sovereignty &amp; P&amp;L Protection</h3>
 <ul class="comparison-detail-list">
 <li><strong>Eliminating AUC Rents:</strong> On a $2B portfolio, a 15 bps custodial fee costs $3,000,000 annually. Crypto Service operates as pure infrastructure with zero asset taxation.</li>
-<li><strong>Bankruptcy Remoteness:</strong> Cryptographic root keys remain in the institution's private KMS/HSM, preventing asset freezing during custodian Chapter 11 reorganizations.</li>
-<li><strong>Auditable Cryptographic Lineage:</strong> Generates automated CBOM reports proving FIPS and ISO compliance to banking regulators.</li>
+<li><strong>Bankruptcy Remoteness:</strong> Cryptographic root keys remain in infrastructure the institution controls, preventing asset freezing during custodian Chapter 11 reorganizations.</li>
+<li><strong>Cryptographic Inventory:</strong> Generates CBOM reports listing the algorithms in use. They are inventory evidence, not proof of FIPS or ISO compliance.</li>
 </ul>
 </div>
 
@@ -94,7 +94,7 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 <h3>Zero-Latency Core &amp; Enclave Control</h3>
 <ul class="comparison-detail-list">
 <li><strong>In-Process Execution:</strong> Eliminates external REST API latency, network jitter, and vendor rate-limiting for high-frequency operations.</li>
-<li><strong>Universal Multi-Cloud KMS:</strong> Seamlessly switch key backends across AWS KMS, GCP KMS, Azure Key Vault, and HashiCorp Vault with zero code rewrites.</li>
+<li><strong>KMS Interface:</strong> One provider interface for key backends. AWS KMS is implemented; GCP KMS, Azure Key Vault and HashiCorp Vault providers are stubs.</li>
 <li><strong>Post-Quantum Envelope Encryption:</strong> Native Prisma and TypeORM extensions encrypt database fields before records leave the application tier.</li>
 </ul>
 </div>

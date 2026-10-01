@@ -4,11 +4,10 @@
 
 ## Supported Versions
 
-| Version | Supported           |
-| ------- | ------------------- |
-| 0.0.3   | Yes                 |
-| 0.0.2   | Security fixes only |
-| < 0.0.2 | No                  |
+| Version | Supported |
+| ------- | --------- |
+| 0.0.6   | Yes       |
+| < 0.0.6 | No        |
 
 ## Reporting a Vulnerability
 
@@ -77,7 +76,7 @@ with you and credit reporters (unless anonymity is preferred).
 The v1 routes use OpenPGP (via the openpgp library) for key generation,
 encryption, decryption, signing, verification, and revocation. These routes
 emit `Deprecation` and `Sunset` headers and will be removed in a future
-major release. Migrate to the v2 API for modern, audited primitives.
+major release. Migrate to the v2 API for modern primitives.
 
 ## Security Controls
 
@@ -97,10 +96,19 @@ major release. Migrate to the v2 API for modern, audited primitives.
 
 ## Library-Level Security
 
-- **Constant-time comparisons:** All secret data comparisons use
-  `timingSafeEqual` to prevent timing side channels.
-- **SecureBuffer:** Key material is held in `SecureBuffer` instances that
-  zeroize memory when no longer referenced.
+- **Validation status:** No module in this suite is FIPS 140-3 validated.
+  The post-quantum algorithms (FIPS 203/204/205 and FN-DSA) come from
+  `@noble/post-quantum`, which has not been independently audited and does
+  not guarantee constant-time execution.
+- **Secret comparisons:** Not every secret comparison is constant-time.
+  crypto-lib exports a constant-time `timingSafeEqual`, but, for example,
+  the PAKE client's server-MAC check (`clientFinishLogin` in
+  `packages/crypto-lib/src/protocols/pake.ts`) compares with
+  `Array.prototype.every`, which returns at the first mismatch.
+- **Zeroization is limited:** `SecureBuffer` zeroes its contents only when
+  `destroy()` is called explicitly, and crypto-lib's own APIs do not use it.
+  Most APIs accept and return keys as hex strings or ordinary buffers, which
+  JavaScript cannot reliably wipe.
 - **Random nonces:** All AEAD operations generate random nonces internally;
   the API does not accept caller-supplied nonces.
 - **AEAD-only:** No unauthenticated encryption modes are exposed.

@@ -16,6 +16,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
@@ -97,6 +98,7 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
       const N = params.N ?? 131072;
       const r = params.r ?? 8;
       const p = params.p ?? 1;
+      checkScryptCosts(N, r, p);
       derived = scrypt(password, salt, { N, r, p, dkLen: keyLength });
       break;
     }
@@ -107,6 +109,7 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
     }
     case "pbkdf2-sha256": {
       const iterations = params.iterations ?? 600000;
+      checkPbkdf2Iterations(iterations);
       derived = pbkdf2(sha256, password, salt, {
         c: iterations,
         dkLen: keyLength,

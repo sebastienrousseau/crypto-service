@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/dist/modern/mac";
 
 /** List of HMAC algorithms accepted by the v2 HMAC endpoint. */
@@ -35,7 +32,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { computeHmac } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/mac");
         const body = request.body as {
@@ -76,7 +72,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { verifyHmac } =
           await import("@sebastienrousseau/crypto-lib/dist/modern/mac");
         const body = request.body as {

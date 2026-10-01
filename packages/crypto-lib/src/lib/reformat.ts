@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import { writeFile } from "fs/promises";
-import * as path from "path";
 import * as openpgp from "openpgp";
+import { writeKeyOutputs } from "./key-output";
 import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
@@ -65,17 +64,14 @@ export const reformat = async (
   const pubArmored = reformatted.publicKey as string;
   const privArmored = reformatted.privateKey as string;
 
-  const keyDir =
-    process.env["CRYPTO_KEY_DIR"] ?? path.resolve(__dirname, "..", "key");
-  await Promise.all([
-    writeFile(path.join(keyDir, "rsa-reformat.pub"), pubArmored, "utf8"),
-    writeFile(path.join(keyDir, "rsa-reformat.key"), privArmored, "utf8"),
-    /* c8 ignore next 5 -- revocationCertificate is always a string from reformatKey */
-    writeFile(
-      path.join(keyDir, "rsa-reformat.cert"),
-      reformatted.revocationCertificate ?? "",
-      "utf8",
-    ),
+  await writeKeyOutputs([
+    { name: "rsa-reformat.pub", content: pubArmored, secret: false },
+    { name: "rsa-reformat.key", content: privArmored, secret: true },
+    {
+      name: "rsa-reformat.cert",
+      content: reformatted.revocationCertificate,
+      secret: false,
+    },
   ]);
 
   return reformatted;

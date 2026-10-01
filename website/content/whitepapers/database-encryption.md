@@ -1,9 +1,9 @@
 ---
 title: "Transparent Column-Level Database Encryption with Prisma & TypeORM"
-description: "Engineering white paper detailing transparent, column-level authenticated encryption (AES-256-GCM envelope encryption with ML-KEM-768 hybrid key encapsulation) in enterprise databases without schema breaking changes."
-eyebrow: "Database Security White Paper · Zero-Trust ORM"
+description: "Engineering white paper on transparent field-level authenticated encryption (XChaCha20-Poly1305) with the crypto-prisma and crypto-typeorm adapters: how they work today and what they do not yet do."
+eyebrow: "Database Security White Paper · ORM Field Encryption"
 headline: "Transparent Column-Level Database Encryption with Prisma & TypeORM"
-lead: "An architectural guide for implementing authenticated column encryption and post-quantum hybrid ciphers in enterprise database architectures with zero schema breaking changes."
+lead: "An architectural guide to authenticated field-level encryption in application code with the Prisma and TypeORM adapters, including their current limits."
 layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
@@ -16,121 +16,96 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <div class="whitepaper-doc-header">
-<div class="book-meta">Published September 28, 2026 · Sebastien Rousseau · Architecture Practice</div>
+<div class="book-meta">Sebastien Rousseau · Architecture Practice</div>
 <div class="whitepaper-doc-meta font-mono">
 <span>Document ID: CSS-DATA-2026-007</span>
 <span>Classification: Technical Engineering White Paper</span>
-<span>Supported ORMs: Prisma ORM v5/v6 · TypeORM · Drizzle ORM</span>
-<span>Database Engines: PostgreSQL · MySQL · CockroachDB · Amazon Aurora</span>
+<span>Supported ORMs: Prisma Client (extensions and middleware) · TypeORM</span>
 </div>
 </div>
 
 <div class="whitepaper-doc-abstract">
 <h3>Executive Abstract</h3>
 <p>
-Protecting sensitive data-at-rest in relational databases has traditionally forced engineering teams into compromised trade-offs. Transparent Data Encryption (TDE) at the disk block layer protects against physical storage theft, but provides zero defense against compromised application credentials, SQL injection attacks, or rogue database administrators exfiltrating plaintext table rows.
+Transparent Data Encryption (TDE) at the storage layer protects against theft of disks and snapshots, but anyone who can query the database still reads plaintext. Application-level field encryption closes that gap by encrypting sensitive values before they leave application memory.
 </p>
 <p>
-Conversely, application-level field encryption has historically required extensive manual code refactoring, complex migration scripts, breaking database schema changes, and high latency overhead.
-</p>
-<p>
-This engineering white paper specifies a transparent, zero-trust column encryption architecture utilizing `@sebastienrousseau/crypto-prisma` and `@sebastienrousseau/crypto-typeorm`. Operating as native ORM client extensions and metadata decorators, the architecture enforces authenticated envelope encryption (AES-256-GCM with NIST FIPS 203 ML-KEM-768 key encapsulation). Sensitive fields remain ciphertext in database memory and on disk, with transparent decryption occurring exclusively in volatile application memory under 0.05ms query overhead.
+<code>@sebastienrousseau/crypto-prisma</code> and <code>@sebastienrousseau/crypto-typeorm</code> provide this for Prisma and TypeORM. Both encrypt configured fields with XChaCha20-Poly1305 (crypto-lib's <code>secretbox</code>) under a single 256-bit key supplied by the application. An earlier version of this paper described AES-256-GCM envelope encryption with ML-KEM-768 key wrapping, KMS-backed key rotation, a <code>crypto-cli db rekey</code> command, Drizzle support and measured query overheads; none of that exists in the code, and those claims have been withdrawn.
 </p>
 </div>
 
 <div class="research-toc-box">
 <h3>Table of Contents</h3>
 <ol>
-<li><a href="#tde-limitations">1. The Architectural Failure of Disk-Level TDE in Cloud Deployments</a></li>
-<li><a href="#envelope-orm-architecture">2. Zero-Trust Envelope Encryption Architecture for ORM Models</a></li>
-<li><a href="#prisma-extension">3. Prisma Client Extension Implementation &amp; Query Pipeline Hooks</a></li>
-<li><a href="#typeorm-decorators">4. TypeORM Column Decorators &amp; Lifecycle Subscriber Invariants</a></li>
-<li><a href="#kms-key-rotation">5. Multi-Cloud KMS Integration &amp; Zero-Downtime KEK Rotation</a></li>
-<li><a href="#performance-impact">6. Query Performance Telemetry &amp; Micro-Benchmark Evaluation</a></li>
-<li><a href="#migration-guide">7. Schema-Preserving Migration Guide for Existing Production Databases</a></li>
+<li><a href="#tde-limitations">1. Limits of Disk-Level TDE</a></li>
+<li><a href="#envelope-orm-architecture">2. How the Adapters Encrypt Fields</a></li>
+<li><a href="#prisma-extension">3. Prisma Client Extension</a></li>
+<li><a href="#typeorm-decorators">4. TypeORM Column Decorator</a></li>
+<li><a href="#kms-key-rotation">5. Key Management and Rotation</a></li>
+<li><a href="#performance-impact">6. Performance</a></li>
+<li><a href="#migration-guide">7. Migrating Existing Data</a></li>
 </ol>
 </div>
 
 <hr class="section-divider">
 
 <section id="tde-limitations" class="research-section">
-<h2>1. The Architectural Failure of Disk-Level TDE in Cloud Deployments</h2>
+<h2>1. Limits of Disk-Level TDE</h2>
 <p class="lead-text">
-Many enterprise compliance audits mistakenly treat cloud provider storage volume encryption (AWS EBS encryption, Google Cloud persistent disk encryption) or database Transparent Data Encryption (TDE) as adequate controls.
-</p>
-<p>
-In reality, disk-level TDE provides near-zero defense against modern breach vectors:
+Storage-volume encryption and database TDE protect data on disk. They do not protect against:
 </p>
 <ul>
-<li><strong>Database Administrator Exfiltration:</strong> Any user or service account with `SELECT` permissions views sensitive records (bank account numbers, tax IDs, credit balances) in cleartext plaintext.</li>
-<li><strong>SQL Injection Attacks:</strong> When queries execute against a TDE database, the database engine transparently decrypts the blocks into shared memory buffers. An attacker exploiting an injection vulnerability extracts plaintext rows effortlessly.</li>
-<li><strong>Unprotected Memory Dumps &amp; Logging:</strong> Database replication streams, Write-Ahead Logs (WAL), and core dumps contain cleartext customer records.</li>
+<li><strong>Over-privileged access:</strong> any account with <code>SELECT</code> permission reads sensitive columns in plaintext.</li>
+<li><strong>SQL injection:</strong> the engine decrypts blocks for every query, so an injection returns plaintext rows.</li>
+<li><strong>Replicas, logs and dumps:</strong> replication streams, query logs and exports may contain plaintext values.</li>
 </ul>
 <p>
-True zero-trust database security requires encrypting sensitive attributes before they depart application memory, ensuring that the database engine itself handles only opaque ciphertext.
+Encrypting sensitive fields in the application means the database only stores ciphertext for those fields.
 </p>
 </section>
 
 <hr class="section-divider">
 
 <section id="envelope-orm-architecture" class="research-section">
-<h2>2. Zero-Trust Envelope Encryption Architecture for ORM Models</h2>
-<p>
-Crypto Service implements envelope encryption at the application data access layer:
-</p>
+<h2>2. How the Adapters Encrypt Fields</h2>
 <ol>
-<li><strong>Unique Data Encryption Key (DEK):</strong> For every database write, an ephemeral 256-bit AES-GCM key is generated.</li>
-<li><strong>Authenticated Payload Generation:</strong> The plaintext attribute is serialized to UTF-8 and encrypted with AES-256-GCM using a cryptographically random 96-bit initialization vector (IV) and a 128-bit authentication tag.</li>
-<li><strong>Key Encapsulation:</strong> The ephemeral DEK is wrapped under the Master Key Encryption Key (KEK) using NIST FIPS 203 ML-KEM-768 hybrid encapsulation.</li>
-<li><strong>Compact Wire Encoding:</strong> The wrapped DEK, IV, authentication tag, and ciphertext are concatenated into a compact, self-describing binary or base64 token stored in standard `VARCHAR` or `BYTEA` database columns:
-$$\text{ColumnValue} = \text{Version} \mathbin{\Vert} \text{KMS\_Key\_ID} \mathbin{\Vert} \text{Wrapped\_DEK} \mathbin{\Vert} \text{IV} \mathbin{\Vert} \text{Tag} \mathbin{\Vert} \text{Ciphertext}$$
-</li>
+<li><strong>Key:</strong> the application supplies one 256-bit key as a 64-character hex string. The adapters do not fetch or wrap keys through a KMS.</li>
+<li><strong>Encryption:</strong> each configured value is serialised to UTF-8 and sealed with XChaCha20-Poly1305 using a random 24-byte nonce.</li>
+<li><strong>Encoding:</strong> the stored value is base64 of <code>nonce || ciphertext || tag</code>, so the column must be a text type large enough to hold it.</li>
+<li><strong>Searchable fields (Prisma only):</strong> fields listed as deterministic are stored as an HMAC-SHA256 of the value instead. They support equality lookups but cannot be decrypted.</li>
 </ol>
 </section>
 
 <hr class="section-divider">
 
 <section id="prisma-extension" class="research-section">
-<h2>3. Prisma Client Extension Implementation</h2>
+<h2>3. Prisma Client Extension</h2>
 <p class="lead-text">
-`@sebastienrousseau/crypto-prisma` extends Prisma Client v5 and v6 using native client extensions (`$extends`), intercepting queries transparently without requiring schema DSL modifications:
+<code>createFieldEncryptionExtension()</code> returns a Prisma Client extension (<code>$extends</code>); <code>createEncryptionMiddleware()</code> offers the older <code>$use</code> style.
 </p>
 <pre><code>import { PrismaClient } from "@prisma/client";
-import { withFieldEncryption } from "@sebastienrousseau/crypto-prisma";
+import { createFieldEncryptionExtension } from "@sebastienrousseau/crypto-prisma";
 
-const basePrisma = new PrismaClient();
-
-export const prisma = basePrisma.$extends(
-withFieldEncryption({
-kmsProvider: "vault://vault.bank.internal:8200/v1/transit",
-models: {
-AccountHolder: {
-fields: ["nationalId", "bankAccountNumber", "taxId"],
-pqcScheme: "ML_KEM_768"
-}
-}
-})
-);
-
-// Transparent Application Query - Code remains 100% natural:
-const user = await prisma.accountHolder.create({
-data: {
-name: "Dr. Elena Rostova",
-bankAccountNumber: "GB29HSBC12345678901234", // Encrypted automatically before transmission
-taxId: "TX-998822-UK" // Stored as opaque ciphertext in PostgreSQL
-}
-});
-
-// Reads are transparently decrypted in memory:
-console.log(user.bankAccountNumber); // "GB29HSBC12345678901234"</code></pre>
+export const prisma = new PrismaClient().$extends(
+createFieldEncryptionExtension({
+key: process.env.FIELD_ENCRYPTION_KEY!, // 64 hex characters
+encryptedFields: [
+{ model: "AccountHolder", fields: ["nationalId", "bankAccountNumber"] },
+],
+deterministicFields: ["nationalId"], // HMAC, searchable, not decryptable
+}),
+);</code></pre>
+<p>
+The <code>algorithm</code> option is accepted but ignored: values are always sealed with XChaCha20-Poly1305.
+</p>
 </section>
 
 <hr class="section-divider">
 
 <section id="typeorm-decorators" class="research-section">
-<h2>4. TypeORM Column Decorators &amp; Lifecycle Subscribers</h2>
+<h2>4. TypeORM Column Decorator</h2>
 <p>
-For enterprise architectures built on TypeORM, `@sebastienrousseau/crypto-typeorm` provides declarative TypeScript property decorators:
+<code>@sebastienrousseau/crypto-typeorm</code> provides an <code>@EncryptedColumn()</code> decorator backed by a column transformer, and an <code>EncryptionSubscriber</code>:
 </p>
 <pre><code>import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { EncryptedColumn } from "@sebastienrousseau/crypto-typeorm";
@@ -143,100 +118,45 @@ id: string;
 @Column()
 legalEntityName: string;
 
-@EncryptedColumn({
-pqcScheme: "ML_KEM_768",
-algorithm: "AES-256-GCM"
-})
-treasuryBalance: string;
-
-@EncryptedColumn()
+// Key from options.encrypt.key or the TYPEORM_ENCRYPTION_KEY env var
+@EncryptedColumn({ encrypt: { key: process.env.COLUMN_ENCRYPTION_KEY! } })
 beneficiaryRoutingNumber: string;
 }</code></pre>
-<p>
-TypeORM entity lifecycle subscribers (`BeforeInsert`, `BeforeUpdate`, `AfterLoad`) guarantee that unencrypted values never touch the database wire protocol.
-</p>
 </section>
 
 <hr class="section-divider">
 
 <section id="kms-key-rotation" class="research-section">
-<h2>5. Multi-Cloud KMS Integration &amp; Zero-Downtime KEK Rotation</h2>
+<h2>5. Key Management and Rotation</h2>
 <p class="lead-text">
-A fundamental flaw of rudimentary encryption libraries is the inability to rotate keys without taking the database offline to re-encrypt millions of rows.
+The adapters take a raw key from the application. They have no KMS integration, no key versioning in the stored value, and no rotation tooling.
 </p>
 <p>
-Crypto Service solves this via <strong>Two-Tier Key Hierarchy</strong>:
+To rotate a key today, read each row with the old key and write it back with the new one in an application-level migration. If you need envelope encryption, generate and unwrap data keys with <code>@sebastienrousseau/crypto-kms</code> (AWS KMS is implemented) and pass the unwrapped key to the adapter.
 </p>
-<ul>
-<li>When the institution rotates its master key in AWS KMS, Vault, or GCP Cloud KMS, existing database rows do not require immediate re-encryption.</li>
-<li>The self-describing header on each encrypted column contains the version ID of the KEK used to wrap that row's DEK.</li>
-<li>During read queries, the ORM client decrypts the DEK using the historical KEK version.</li>
-<li>During subsequent write/update queries, the ORM client re-wraps the DEK using the latest active KEK version.</li>
-<li>A background worker utility (`@sebastienrousseau/crypto-cli db rekey`) can lazily re-wrap legacy rows without locking database tables.</li>
-</ul>
 </section>
 
 <hr class="section-divider">
 
 <section id="performance-impact" class="research-section">
-<h2>6. Query Performance Telemetry &amp; Micro-Benchmark Evaluation</h2>
+<h2>6. Performance</h2>
 <p>
-Micro-benchmarks conducted on a PostgreSQL 16 cluster processing 10,000 concurrent queries demonstrate negligible operational overhead:
+No query-overhead measurements are published. The table in earlier versions of this paper did not come from committed benchmark code and has been withdrawn. Measure the overhead in your own environment before adopting the adapters on hot paths.
 </p>
-
-<div class="table-responsive">
-<table class="comparison-table">
-<thead>
-<tr>
-<th>Operation</th>
-<th>Unencrypted Baseline</th>
-<th>Crypto Service (AES-256-GCM + ML-KEM)</th>
-<th>Latency Delta</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Single Row INSERT</strong></td>
-<td>1.24 ms</td>
-<td>1.28 ms</td>
-<td><strong>+0.04 ms</strong></td>
-</tr>
-<tr>
-<td><strong>Single Row SELECT</strong></td>
-<td>0.82 ms</td>
-<td>0.86 ms</td>
-<td><strong>+0.04 ms</strong></td>
-</tr>
-<tr>
-<td><strong>Batch 100 Rows SELECT</strong></td>
-<td>4.12 ms</td>
-<td>4.48 ms</td>
-<td><strong>+0.36 ms (Vectorized)</strong></td>
-</tr>
-<tr>
-<td><strong>Database Throughput</strong></td>
-<td>14,200 req/sec</td>
-<td>13,950 req/sec</td>
-<td><strong>&lt; 1.8% variance</strong></td>
-</tr>
-</tbody>
-</table>
-</div>
 </section>
 
 <hr class="section-divider">
 
 <section id="migration-guide" class="research-section">
-<h2>7. Schema-Preserving Migration Guide for Existing Production Databases</h2>
+<h2>7. Migrating Existing Data</h2>
 <p>
-Migrating an existing production database with millions of unencrypted rows:
+When the Prisma adapter cannot decrypt a stored value (for example, a legacy plaintext row), it returns the stored value unchanged. That behaviour allows a gradual migration:
 </p>
 <ol>
-<li>Alter the target column data type to `TEXT` or `VARCHAR(1024)` to accommodate ciphertext envelope tokens.</li>
-<li>Deploy the Crypto Service ORM extension in <em>Dual-Read Mode</em>: if the retrieved column starts with the `ENC:` envelope prefix, decrypt it; if unencrypted, return the plaintext directly.</li>
-<li>All new writes automatically generate encrypted tokens.</li>
-<li>Run a background batch script to encrypt remaining legacy rows.</li>
-<li>Enforce <em>Strict Encryption Mode</em> in production once all legacy rows are migrated.</li>
+<li>Change the target column to a text type large enough for the base64 ciphertext.</li>
+<li>Deploy the adapter. New writes are encrypted; unencrypted legacy values are still returned as stored.</li>
+<li>Run a batch job that reads and rewrites legacy rows so they are encrypted.</li>
+<li>Verify that no plaintext rows remain. Note that a value that fails authentication is also returned unchanged rather than raising an error.</li>
 </ol>
 
 <div class="whitepaper-citation">

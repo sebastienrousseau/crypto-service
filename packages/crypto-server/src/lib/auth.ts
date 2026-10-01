@@ -14,11 +14,12 @@
  * - JWT_SECRET: HMAC secret for HS256 JWT validation
  * - CRYPTO_API_KEY: Static API key for service-to-service auth
  *
- * If neither is set, all requests are allowed (development mode).
+ * If neither is set, requests are refused unless ALLOW_ANONYMOUS=1.
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { timingSafeEqual } from "crypto";
+import { anonymousAllowed } from "../utils/validation";
 
 /**
  * Available authorization scopes.
@@ -60,6 +61,8 @@ export async function registerAuth(app: FastifyInstance): Promise<void> {
     const fastifyJwt = await import("@fastify/jwt");
     await app.register(fastifyJwt.default, {
       secret: jwtSecret,
+      // Pin the algorithm so a token cannot choose a weaker one.
+      verify: { algorithms: ["HS256"] },
     });
   }
 }
@@ -68,7 +71,7 @@ export async function registerAuth(app: FastifyInstance): Promise<void> {
  * Authenticate a request. Checks (in order):
  * 1. Bearer JWT token in Authorization header
  * 2. API key in x-api-key header
- * 3. If neither configured, allow all (dev mode)
+ * 3. If neither configured, allow only with ALLOW_ANONYMOUS=1
  *
  * Returns the authenticated payload or sends 401.
  */
@@ -79,9 +82,15 @@ export async function authenticate(
   const jwtSecret = process.env["JWT_SECRET"];
   const apiKey = process.env["CRYPTO_API_KEY"];
 
-  // Dev mode: no auth configured
+  // No credential configured: anonymous only with explicit opt-in.
   if (!jwtSecret && !apiKey) {
-    return { sub: "anonymous", scopes: ["crypto:admin"] };
+    if (anonymousAllowed()) {
+      return { sub: "anonymous", scopes: ["crypto:admin"] };
+    }
+    reply
+      .status(401)
+      .send({ error: "Unauthorized: authentication is not configured" });
+    return null;
   }
 
   // Try JWT first

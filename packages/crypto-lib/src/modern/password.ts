@@ -20,6 +20,7 @@
 import { argon2id, argon2i, argon2d } from "@noble/hashes/argon2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { timingSafeEqual } from "../utils";
+import { checkArgon2Costs } from "./cost-limits";
 
 // --- Types ---
 
@@ -208,6 +209,7 @@ export function hashPassword(options: HashPasswordOptions): HashPasswordResult {
   const m = options.memoryCost ?? DEFAULT_MEMORY_COST;
   const p = options.parallelism ?? DEFAULT_PARALLELISM;
   const dkLen = options.hashLength ?? DEFAULT_HASH_LENGTH;
+  checkArgon2Costs(t, m, p);
 
   const hash = argon2Fn(password, salt, { t, m, p, dkLen });
   const params: Argon2Params = { t, m, p };
@@ -233,6 +235,7 @@ export function verifyPassword(
   const salt = toBytes(options.salt, "hex");
   const expectedHash = toBytes(options.hash, "hex");
   const { t, m, p } = options.params;
+  checkArgon2Costs(t, m, p);
   const dkLen = expectedHash.length;
 
   const computedHash = argon2Fn(password, salt, { t, m, p, dkLen });
@@ -257,6 +260,7 @@ export function verifyPasswordPhc(
   const argon2Fn = getArgon2Fn(variant);
   const password = toBytes(options.password, "utf8");
   const dkLen = hash.length;
+  checkArgon2Costs(params.t, params.m, params.p);
 
   const computedHash = argon2Fn(password, salt, {
     t: params.t,

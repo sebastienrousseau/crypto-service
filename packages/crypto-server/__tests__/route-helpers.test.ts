@@ -4,9 +4,8 @@
  */
 
 import { expect } from "chai";
-import type { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyReply } from "fastify";
 import {
-  rejectUnauthorized,
   collectValidation,
   classifyCryptoError,
 } from "../src/utils/route-helpers";
@@ -44,79 +43,7 @@ function createMockReply(): {
   };
 }
 
-function createMockRequest(headers: Record<string, unknown> = {}): {
-  headers: Record<string, unknown>;
-} {
-  return { headers };
-}
-
 describe("Route helpers", () => {
-  describe("rejectUnauthorized", () => {
-    const originalEnv = process.env["CRYPTO_API_KEY"];
-
-    afterEach(() => {
-      if (originalEnv !== undefined) {
-        process.env["CRYPTO_API_KEY"] = originalEnv;
-      } else {
-        delete process.env["CRYPTO_API_KEY"];
-      }
-    });
-
-    it("should allow when no API key is configured", () => {
-      delete process.env["CRYPTO_API_KEY"];
-      const { reply } = createMockReply();
-      const request = createMockRequest();
-
-      expect(
-        rejectUnauthorized(
-          request as unknown as FastifyRequest,
-          reply as unknown as FastifyReply,
-        ),
-      ).to.be.false;
-    });
-
-    it("should reject when API key is missing from request", () => {
-      process.env["CRYPTO_API_KEY"] = "test-key";
-      const { reply } = createMockReply();
-      const request = createMockRequest();
-
-      expect(
-        rejectUnauthorized(
-          request as unknown as FastifyRequest,
-          reply as unknown as FastifyReply,
-        ),
-      ).to.be.true;
-      expect(reply.statusCode).to.equal(401);
-    });
-
-    it("should accept when API key matches", () => {
-      process.env["CRYPTO_API_KEY"] = "test-key";
-      const { reply } = createMockReply();
-      const request = createMockRequest({ "x-api-key": "test-key" });
-
-      expect(
-        rejectUnauthorized(
-          request as unknown as FastifyRequest,
-          reply as unknown as FastifyReply,
-        ),
-      ).to.be.false;
-    });
-
-    it("should reject when API key does not match", () => {
-      process.env["CRYPTO_API_KEY"] = "test-key";
-      const { reply } = createMockReply();
-      const request = createMockRequest({ "x-api-key": "wrong-key" });
-
-      expect(
-        rejectUnauthorized(
-          request as unknown as FastifyRequest,
-          reply as unknown as FastifyReply,
-        ),
-      ).to.be.true;
-      expect(reply.statusCode).to.equal(401);
-    });
-  });
-
   describe("collectValidation", () => {
     it("should return unwrapped values when all valid", () => {
       const { reply } = createMockReply();

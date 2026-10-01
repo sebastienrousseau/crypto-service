@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import type { AcceleratedOperation } from "@aspect/crypto-wasm";
+ * import type { AcceleratedOperation } from "@sebastienrousseau/crypto-wasm";
  *
  * const op: AcceleratedOperation = "hash-sha256";
  * ```
@@ -27,7 +27,7 @@ export type AcceleratedOperation =
  *
  * @example
  * ```ts
- * import type { BenchmarkResult } from "@aspect/crypto-wasm";
+ * import type { BenchmarkResult } from "@sebastienrousseau/crypto-wasm";
  *
  * const result: BenchmarkResult = {
  *   operation: "hash-sha256",
@@ -53,14 +53,13 @@ export interface BenchmarkResult {
  *
  * @example
  * ```ts
- * import type { WasmStatus } from "@aspect/crypto-wasm";
+ * import { WasmAccelerator } from "@sebastienrousseau/crypto-wasm";
+ * import type { WasmStatus } from "@sebastienrousseau/crypto-wasm";
  *
- * const status: WasmStatus = {
- *   available: true,
- *   version: "0.0.3",
- *   operations: ["hash-sha256", "aes-gcm-encrypt"],
- *   memoryUsageBytes: 65536,
- * };
+ * const accel = new WasmAccelerator();
+ * await accel.init();
+ * const status: WasmStatus = accel.status();
+ * console.log(status.version); // installed package version, or null
  * ```
  */
 export interface WasmStatus {

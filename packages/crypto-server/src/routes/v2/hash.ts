@@ -8,10 +8,7 @@ import {
   hash,
   HASH_ALGORITHMS,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v2 hash endpoint. */
 const hashSchema = {
@@ -33,7 +30,6 @@ const hashSchema = {
 export default (app: FastifyInstance): void => {
   app.post("/v2/hash", { schema: hashSchema }, async (request, reply) => {
     try {
-      if (rejectUnauthorized(request, reply)) return;
       const { algorithm, data } = request.body as {
         algorithm: string;
         data: string;

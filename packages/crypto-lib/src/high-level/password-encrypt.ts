@@ -18,6 +18,7 @@
 import { argon2id } from "@noble/hashes/argon2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { checkArgon2Costs } from "../modern/cost-limits";
 
 /** Password-encrypt format version identifier. */
 const VERSION = 0x01;
@@ -90,6 +91,9 @@ function readU32LE(buf: Uint8Array, offset: number): number {
  *
  * The output is self-describing: all Argon2 parameters and the salt are
  * embedded in the ciphertext header, so decryption only needs the password.
+ * Costs are bounded (see `cost-limits`) because decryption reads them from
+ * that untrusted header; encryption applies the same bounds so it never
+ * produces a payload decryption would refuse.
  */
 export function passwordEncrypt(
   options: PasswordEncryptOptions,
@@ -100,6 +104,7 @@ export function passwordEncrypt(
   const t = options.timeCost ?? DEFAULT_TIME;
   const m = options.memoryCost ?? DEFAULT_MEMORY;
   const p = options.parallelism ?? DEFAULT_PARALLELISM;
+  checkArgon2Costs(t, m, p);
 
   const salt = randomBytes(SALT_LEN);
   const key = argon2id(pwd, salt, { t, m, p, dkLen: KEY_LEN });
@@ -171,6 +176,10 @@ export function passwordDecrypt(
   off += NONCE_LEN;
   const ct = raw.subarray(off);
 
+  checkArgon2Costs(t, m, p);
+  if (dkLen !== KEY_LEN) {
+    throw new Error(`Unsupported key length in header: ${dkLen}`);
+  }
   const key = argon2id(pwd, salt, { t, m, p, dkLen });
   const cipher = xchacha20poly1305(key, nonce);
   return cipher.decrypt(ct);

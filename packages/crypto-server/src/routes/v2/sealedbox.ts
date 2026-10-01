@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 sealed-box (anonymous public-key) encryption endpoints. */
 export default (app: FastifyInstance): void => {
@@ -30,7 +27,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { seal } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
         const { recipientPublicKey, plaintext } = request.body as {
@@ -63,7 +59,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { open } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
         const { recipientSecretKey, sealed } = request.body as {
@@ -101,7 +96,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { sealPQ } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
         const { x25519PublicKey, mlKemPublicKey, plaintext } = request.body as {
@@ -138,7 +132,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { openPQ } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
         const { x25519SecretKey, mlKemSecretKey, sealed } = request.body as {

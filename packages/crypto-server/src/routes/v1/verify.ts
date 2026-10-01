@@ -18,10 +18,7 @@ import {
   validateDateString,
   validateRequiredString,
 } from "../../utils/validation";
-import {
-  rejectUnauthorized,
-  collectValidation,
-} from "../../utils/route-helpers";
+import { collectValidation } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v1 signature-verification endpoint. */
 const verifySchema = {
@@ -60,8 +57,6 @@ export default (app: FastifyInstance): void => {
     { schema: verifySchema },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
-
         const body = request.body as IBodyVerify;
         const v = collectValidation(
           {

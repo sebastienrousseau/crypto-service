@@ -48,7 +48,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 </tr>
 <tr>
 <td><strong>Post-Quantum Key Exchange</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 NATIVE</span><br>ML-KEM &amp; RFC 10024 hybrid dual encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM &amp; RFC 10024 hybrid dual encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL ECC</span><br>Pre-quantum elliptic curves (secp256k1 &amp; Ed25519)</td>
 </tr>
 <tr>
@@ -78,7 +78,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 <span class="solution-badge font-mono">FOR CHIEF COMPLIANCE &amp; LEGAL OFFICERS</span>
 <h3>Data Sovereignty &amp; Privacy Regulations</h3>
 <ul class="comparison-detail-list">
-<li><strong>GDPR "Right to be Forgotten":</strong> Public ledgers cannot delete historical data. Crypto Service executes cryptographic shredding by securely wiping envelope keys, ensuring absolute privacy compliance.</li>
+<li><strong>GDPR "Right to be Forgotten":</strong> Public ledgers cannot delete historical data. Encrypting personal data under per-record keys lets you make it unreadable by destroying those keys (crypto-shredding). Destroying keys is your application's responsibility, and JavaScript cannot guarantee that key material is wiped from memory.</li>
 <li><strong>Zero Token Volatility:</strong> Cryptographic operations incur zero exposure to cryptocurrency price swings, gas fee spikes, or public token governance changes.</li>
 <li><strong>Strict Bank-Grade Secrecy:</strong> Customer transactions and internal records are encrypted before any proof is anchored externally.</li>
 </ul>
@@ -89,7 +89,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 <h3>High-Throughput State Anchoring &amp; Verifiable Audits</h3>
 <ul class="comparison-detail-list">
 <li><strong>Hedera Consensus Service (HCS) Anchoring:</strong> Process 50,000+ local transactions per second in Crypto Service, bundling roots into a single post-quantum ML-DSA hash anchored to Hedera.</li>
-<li><strong>Zero Overhead Edge Processing:</strong> Compile cryptographic routines into WebAssembly SIMD for instant execution in edge workers or mobile nodes.</li>
+<li><strong>Edge Processing:</strong> crypto-edge adapts crypto-lib to edge runtimes such as Cloudflare Workers and Vercel Edge (JavaScript only; no WebAssembly acceleration).</li>
 <li><strong>Multi-Backend Interoperability:</strong> Write cryptographic payloads once and target Hedera, EVM chains, or relational databases seamlessly.</li>
 </ul>
 </div>

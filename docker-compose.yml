@@ -10,7 +10,12 @@ services:
       - HOST=0.0.0.0
       - PORT=3000
       - LOG_LEVEL=info
-      # - CRYPTO_API_KEY=your-secret-key
+      # Passed through from the host. Production refuses to start without
+      # a credential (CRYPTO_API_KEY or JWT_SECRET).
+      - CRYPTO_API_KEY
+      # - JWT_SECRET=at-least-32-bytes-of-secret
+      # Required for the v1 PGP routes (sign, revoke, reformat).
+      # - CRYPTO_KEY_DIR=/run/secrets/crypto-keys
       # - CORS_ORIGIN=https://your-app.com
       # - TRUSTED_PROXY_CIDRS=10.0.0.0/8
     healthcheck:
@@ -37,6 +42,7 @@ services:
       - HOST=0.0.0.0
       - PORT=3000
       - LOG_LEVEL=debug
+      - ALLOW_ANONYMOUS=1
     command: node packages/crypto-server/dist/src/index.js
     profiles:
       - dev

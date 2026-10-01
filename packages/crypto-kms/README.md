@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-kms</h1>
 
 <p align="center">
-  Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.
+  Unified Key Management Service interface. AWS KMS and an in-memory local provider are implemented; GCP, Azure and Vault are stubs.
 </p>
 
 <p align="center">
@@ -101,7 +101,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-api`](../crypto-api)                      | API Schemas     | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                                |
 | [`@sebastienrousseau/crypto-cli`](../crypto-cli)                      | Terminal CLI    | An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms. |
 | [`@sebastienrousseau/crypto-edge`](../crypto-edge)                    | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.               |
-| **[`@sebastienrousseau/crypto-kms`](../crypto-kms)** _(this package)_ | **Cloud KMS**   | **Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.**                         |
+| **[`@sebastienrousseau/crypto-kms`](../crypto-kms)** _(this package)_ | **Cloud KMS**   | **Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.**                                    |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                      | Core Library    | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)        | Middleware      | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
 | [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter     | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
@@ -111,7 +111,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-testing`](../crypto-testing)              | Test Support    | Deterministic keys, fast mocks, and test fixtures for crypto-lib                                                                       |
 | [`@sebastienrousseau/crypto-typeorm`](../crypto-typeorm)              | ORM Adapter     | TypeORM column-level encryption with a single decorator, powered by crypto-lib.                                                        |
 | [`@sebastienrousseau/crypto-vue`](../crypto-vue)                      | Vue Composables | Vue 3 composables for client-side cryptography                                                                                         |
-| [`@sebastienrousseau/crypto-wasm`](../crypto-wasm)                    | Acceleration    | WebAssembly performance accelerator for crypto-lib                                                                                     |
+| [`@sebastienrousseau/crypto-wasm`](../crypto-wasm)                    | Acceleration    | Placeholder for a WebAssembly accelerator; contains no WebAssembly code yet.                                                           |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -119,24 +119,30 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 ## Overview
 
-crypto-kms provides a unified `KmsProvider` interface over multiple
-key management backends -- AWS KMS, Google Cloud KMS, Azure Key
-Vault, HashiCorp Vault, and an in-memory local provider. All
-providers expose the same methods for key creation, encryption,
-decryption, signing, verification, rotation, and data-key
-generation, making it trivial to swap backends without changing
-application code.
+crypto-kms defines a unified `KmsProvider` interface for key
+creation, encryption, decryption, signing, verification, rotation
+and data-key generation. Two providers are implemented: AWS KMS and
+an in-memory local provider. The GCP, Azure and HashiCorp Vault
+providers are stubs: every method rejects with `Not implemented`.
+The PKCS#11 provider is an in-memory software simulation for tests
+(see below); it does not talk to an HSM.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 ## Providers
 
-| Provider  | Class              | Backend                    | Peer Dependency        |
-| :-------- | :----------------- | :------------------------- | :--------------------- |
-| **AWS**   | `AwsKmsProvider`   | AWS Key Management Service | `@aws-sdk/client-kms`  |
-| **GCP**   | `GcpKmsProvider`   | Google Cloud KMS           | `@google-cloud/kms`    |
-| **Azure** | `AzureKmsProvider` | Azure Key Vault            | `@azure/keyvault-keys` |
-| **Vault** | `VaultKmsProvider` | HashiCorp Vault Transit    | None (uses `fetch`)    |
-| **Local** | `LocalKmsProvider` | In-memory (crypto-lib)     | None                   |
+| Provider    | Class               | Backend                    | Status                                | Peer Dependency        |
+| :---------- | :------------------ | :------------------------- | :------------------------------------ | :--------------------- |
+| **AWS**     | `AwsKmsProvider`    | AWS Key Management Service | Implemented                           | `@aws-sdk/client-kms`  |
+| **GCP**     | `GcpKmsProvider`    | Google Cloud KMS           | Stub (rejects `Not implemented`)      | `@google-cloud/kms`    |
+| **Azure**   | `AzureKmsProvider`  | Azure Key Vault            | Stub (rejects `Not implemented`)      | `@azure/keyvault-keys` |
+| **Vault**   | `VaultKmsProvider`  | HashiCorp Vault Transit    | Stub (rejects `Not implemented`)      | None                   |
+| **Local**   | `LocalKmsProvider`  | In-memory (crypto-lib)     | Implemented                           | None                   |
+| **PKCS#11** | `Pkcs11HsmProvider` | None (in-memory)           | Software simulation; `simulate: true` | None                   |
+
+`Pkcs11HsmProvider` has no PKCS#11 binding: it never loads a module,
+accepts any PIN, keeps keys in process memory and reports
+`fipsLevel: "none (software simulation)"`. Its constructor throws
+unless you pass `{ simulate: true }`. Use it only in tests.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 ## API Reference
@@ -164,9 +170,9 @@ Every provider exposes the `KmsProvider` interface:
 | Provider  | Credentials                                                                        |
 | :-------- | :--------------------------------------------------------------------------------- |
 | **AWS**   | Pass `credentials` in `AwsKmsOptions`, or rely on the default AWS credential chain |
-| **GCP**   | Uses Application Default Credentials (ADC). Set `GOOGLE_APPLICATION_CREDENTIALS`   |
-| **Azure** | Uses `@azure/identity` `DefaultAzureCredential`                                    |
-| **Vault** | Pass `token` in `VaultKmsOptions`                                                  |
+| **GCP**   | Not applicable yet (stub provider)                                                 |
+| **Azure** | Not applicable yet (stub provider)                                                 |
+| **Vault** | Not applicable yet (stub provider)                                                 |
 | **Local** | No authentication required                                                         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
@@ -212,7 +218,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+The local and simulated PKCS#11 providers run AES-256-GCM through Node.js `crypto` and Ed25519 through crypto-lib (`@noble/curves`). Neither is a validated cryptographic module, and neither zeroes key material held in memory.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

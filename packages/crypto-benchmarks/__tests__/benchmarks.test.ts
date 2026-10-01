@@ -9,7 +9,9 @@ import {
   runHashBenchmarks,
   runSuite,
   run,
+  createPqcOperations,
 } from "../src";
+import { mlKemDecap } from "@sebastienrousseau/crypto-lib";
 
 describe("Crypto Benchmarks Suite", () => {
   describe("High-Precision Timing Harness (benchmarkOperation)", () => {
@@ -91,6 +93,19 @@ describe("Crypto Benchmarks Suite", () => {
   });
 
   describe("Post-Quantum Cryptography Benchmarking", () => {
+    it("times real crypto-lib ML-KEM-768 and ML-DSA-65 operations", () => {
+      const ops = createPqcOperations();
+
+      const encap = ops.mlKem768Encapsulate();
+      expect(encap.algorithm).to.equal("ml-kem-768");
+      const decap = mlKemDecap(768, ops.mlKem768SecretKey, encap.ciphertext);
+      expect(decap.sharedSecret).to.equal(encap.sharedSecret);
+
+      const verified = ops.mlDsa65Verify();
+      expect(verified.algorithm).to.equal("ml-dsa-65");
+      expect(verified.valid).to.be.true;
+    });
+
     it("profiles classical ECDH baseline vs ML-KEM-768 and ML-DSA-65", async () => {
       const results = await runPqcBenchmarks(5);
       expect(results).to.have.lengthOf(3);

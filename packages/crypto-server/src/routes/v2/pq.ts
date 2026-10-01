@@ -18,10 +18,7 @@ import {
   hybridEncapsulate,
   hybridDecapsulate,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 post-quantum ML-KEM and hybrid key-exchange endpoints. */
 export default (app: FastifyInstance): void => {
@@ -40,7 +37,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const keyPair = mlKemGenerateKeyPair();
         return reply.send({ data: keyPair });
         /* c8 ignore next 3 -- defensive: mlKemGenerateKeyPair never throws */
@@ -70,7 +66,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { publicKey } = request.body as { publicKey: string };
         const result = mlKemEncapsulate(publicKey);
         return reply.send({ data: result });
@@ -101,7 +96,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { secretKey, ciphertext } = request.body as {
           secretKey: string;
           ciphertext: string;
@@ -129,7 +123,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const keyPair = hybridGenerateKeyPair();
         return reply.send({ data: keyPair });
         /* c8 ignore next 3 -- defensive: hybridGenerateKeyPair never throws */
@@ -160,7 +153,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { x25519PublicKey, mlKemPublicKey } = request.body as {
           x25519PublicKey: string;
           mlKemPublicKey: string;
@@ -210,7 +202,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const body = request.body as {
           x25519PrivateKey: string;
           mlKemSecretKey: string;

@@ -69,7 +69,7 @@ export interface CycloneDxCbom {
     component?:
       | {
           name: string;
-          version: string;
+          version?: string | undefined;
           type: string;
         }
       | undefined;

@@ -15,6 +15,7 @@ import { analyzeDocument } from "./diagnostics";
 import { getHover } from "./hover";
 import { getCodeActions } from "./code-action";
 import { getCompletions } from "./completion";
+import { VERSION } from "./version";
 
 /**
  * Crypto Language Server Protocol (LSP 3.17) implementation.
@@ -63,7 +64,7 @@ export class CryptoLspServer {
           },
           serverInfo: {
             name: "crypto-lsp",
-            version: "0.0.3",
+            version: VERSION,
           },
         };
         return { jsonrpc: "2.0", id, result };

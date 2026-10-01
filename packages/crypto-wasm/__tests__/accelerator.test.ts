@@ -22,12 +22,31 @@ import type {
  */
 function minimalWasmWithMemory(): Uint8Array {
   return new Uint8Array([
-    0x00, 0x61, 0x73, 0x6d, // magic
-    0x01, 0x00, 0x00, 0x00, // version 1
-    0x05, 0x03, 0x01, 0x00, 0x01, // memory section: 1 memory, min 1 page
-    0x07, 0x0a, 0x01, 0x06,
-    0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, // "memory"
-    0x02, 0x00, // memory export, index 0
+    0x00,
+    0x61,
+    0x73,
+    0x6d, // magic
+    0x01,
+    0x00,
+    0x00,
+    0x00, // version 1
+    0x05,
+    0x03,
+    0x01,
+    0x00,
+    0x01, // memory section: 1 memory, min 1 page
+    0x07,
+    0x0a,
+    0x01,
+    0x06,
+    0x6d,
+    0x65,
+    0x6d,
+    0x6f,
+    0x72,
+    0x79, // "memory"
+    0x02,
+    0x00, // memory export, index 0
   ]);
 }
 
@@ -111,8 +130,7 @@ describe("WasmAccelerator", () => {
       const accel = new WasmAccelerator();
       // Minimal valid WASM module: magic + version, empty
       const minimal = new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d,
-        0x01, 0x00, 0x00, 0x00,
+        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
       ]);
       await accel.init(minimal);
       expect(accel.isAvailable).to.equal(true);
@@ -142,20 +160,39 @@ describe("WasmAccelerator", () => {
     it("returns available status when WASM is loaded", async () => {
       const accel = new WasmAccelerator();
       const minimal = new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d,
-        0x01, 0x00, 0x00, 0x00,
+        0x00,
+        0x61,
+        0x73,
+        0x6d,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
         // Memory section: 1 memory, min 1 page
-        0x05, 0x03, 0x01, 0x00, 0x01,
+        0x05,
+        0x03,
+        0x01,
+        0x00,
+        0x01,
         // Export section: export "memory"
-        0x07, 0x0a, 0x01, 0x06,
-        0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, // "memory"
-        0x02, 0x00, // memory export, index 0
+        0x07,
+        0x0a,
+        0x01,
+        0x06,
+        0x6d,
+        0x65,
+        0x6d,
+        0x6f,
+        0x72,
+        0x79, // "memory"
+        0x02,
+        0x00, // memory export, index 0
       ]);
       await accel.init(minimal);
       if (accel.isAvailable) {
         const s = accel.status();
         expect(s.available).to.equal(true);
-        expect(s.version).to.equal("0.0.3");
+        expect(s.version).to.be.a("string");
         expect(s.operations).to.have.length.greaterThan(0);
         expect(s.memoryUsageBytes).to.be.greaterThan(0);
       }
@@ -164,12 +201,9 @@ describe("WasmAccelerator", () => {
     it("operations list contains expected entries when available", async () => {
       const accel = new WasmAccelerator();
       const minimal = new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d,
-        0x01, 0x00, 0x00, 0x00,
-        0x05, 0x03, 0x01, 0x00, 0x01,
-        0x07, 0x0a, 0x01, 0x06,
-        0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79,
-        0x02, 0x00,
+        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x05, 0x03, 0x01, 0x00,
+        0x01, 0x07, 0x0a, 0x01, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
+        0x00,
       ]);
       await accel.init(minimal);
       if (accel.isAvailable) {
@@ -238,10 +272,7 @@ describe("WasmAccelerator", () => {
     it("returns a BenchmarkResult", async () => {
       const accel = new WasmAccelerator();
       await accel.init();
-      const result: BenchmarkResult = await accel.benchmark(
-        "hash-sha256",
-        10,
-      );
+      const result: BenchmarkResult = await accel.benchmark("hash-sha256", 10);
       expect(result.operation).to.equal("hash-sha256");
       expect(result.jsTimeMs).to.be.a("number").and.to.be.greaterThan(0);
       expect(result.wasmTimeMs).to.be.a("number").and.to.be.greaterThan(0);
@@ -289,20 +320,16 @@ describe("detect — error branches", () => {
     });
 
     afterEach(() => {
-      (WebAssembly as any).Module = origModule;
+      (WebAssembly as { Module: unknown }).Module = origModule;
     });
 
     it("returns false when WebAssembly.Module constructor throws", () => {
       // Force the `new WebAssembly.Module(minimal)` call to throw
-      (WebAssembly as any).Module = function () {
+      (WebAssembly as { Module: unknown }).Module = function () {
         throw new Error("forced failure");
       };
-      // Re-import won't help since the function closes over global WebAssembly.
-      // We need to call it directly — the function reads `WebAssembly` at call time.
-      const {
-        isWasmSupported: freshIsWasmSupported,
-      } = require("../src/detect");
-      expect(freshIsWasmSupported()).to.equal(false);
+      // isWasmSupported reads the global `WebAssembly` at call time.
+      expect(isWasmSupported()).to.equal(false);
     });
   });
 
@@ -314,18 +341,15 @@ describe("detect — error branches", () => {
     });
 
     afterEach(() => {
-      (WebAssembly as any).Module = origModule;
+      (WebAssembly as { Module: unknown }).Module = origModule;
     });
 
     it("returns false when SIMD module compilation throws", () => {
       // Replace Module with one that throws on any input
-      (WebAssembly as any).Module = function () {
+      (WebAssembly as { Module: unknown }).Module = function () {
         throw new Error("SIMD not supported");
       };
-      const {
-        isSimdSupported: freshIsSimdSupported,
-      } = require("../src/detect");
-      expect(freshIsSimdSupported()).to.equal(false);
+      expect(isSimdSupported()).to.equal(false);
     });
   });
 });
@@ -436,8 +460,8 @@ describe("WasmAccelerator — additional coverage", () => {
       try {
         await accel.hash("sha256", new Uint8Array([1, 2, 3]));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include(
+      } catch (err) {
+        expect((err as Error).message).to.include(
           'WASM module does not export hash function for "sha256"',
         );
       }
@@ -463,31 +487,77 @@ describe("WasmAccelerator — additional coverage", () => {
       //   (func (export "hash_sha256") (param i32) (result i32) i32.const 0)
       // )
       const wasmBytes = new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d, // magic
-        0x01, 0x00, 0x00, 0x00, // version 1
+        0x00,
+        0x61,
+        0x73,
+        0x6d, // magic
+        0x01,
+        0x00,
+        0x00,
+        0x00, // version 1
 
         // Type section: 1 type (i32) -> (i32)
-        0x01, 0x06, 0x01,
-        0x60, 0x01, 0x7f, 0x01, 0x7f,
+        0x01,
+        0x06,
+        0x01,
+        0x60,
+        0x01,
+        0x7f,
+        0x01,
+        0x7f,
 
         // Function section: 1 function, type index 0
-        0x03, 0x02, 0x01, 0x00,
+        0x03,
+        0x02,
+        0x01,
+        0x00,
 
         // Memory section: 1 memory, min 1 page
-        0x05, 0x03, 0x01, 0x00, 0x01,
+        0x05,
+        0x03,
+        0x01,
+        0x00,
+        0x01,
 
         // Export section: 2 exports
-        0x07, 0x18, 0x02,
+        0x07,
+        0x18,
+        0x02,
         // export "memory" (memory 0)
-        0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02, 0x00,
+        0x06,
+        0x6d,
+        0x65,
+        0x6d,
+        0x6f,
+        0x72,
+        0x79,
+        0x02,
+        0x00,
         // export "hash_sha256" (func 0)
-        0x0b, 0x68, 0x61, 0x73, 0x68, 0x5f, 0x73, 0x68, 0x61, 0x32, 0x35, 0x36, 0x00, 0x00,
+        0x0b,
+        0x68,
+        0x61,
+        0x73,
+        0x68,
+        0x5f,
+        0x73,
+        0x68,
+        0x61,
+        0x32,
+        0x35,
+        0x36,
+        0x00,
+        0x00,
 
         // Code section: 1 function body
-        0x0a, 0x06, 0x01,
-        0x04, 0x00, // body size=4, local count=0
-        0x41, 0x00, // i32.const 0
-        0x0b,       // end
+        0x0a,
+        0x06,
+        0x01,
+        0x04,
+        0x00, // body size=4, local count=0
+        0x41,
+        0x00, // i32.const 0
+        0x0b, // end
       ]);
 
       const accel = new WasmAccelerator();

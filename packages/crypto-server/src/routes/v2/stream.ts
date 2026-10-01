@@ -7,10 +7,7 @@ import {
   verifyIso20022Payment,
   type Iso20022DualSignatureEnvelope,
 } from "@sebastienrousseau/crypto-lib/dist/protocols/iso20022";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 interface StreamSignItem {
   id: string;
@@ -62,7 +59,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { items } = request.body as { items: StreamSignItem[] };
 
         const signatures = items.map((item) => {
@@ -123,7 +119,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { items } = request.body as { items: StreamVerifyItem[] };
 
         let validCount = 0;
@@ -226,7 +221,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { envelope, payload } = request.body as {
           envelope: Iso20022DualSignatureEnvelope;
           payload: string | Record<string, unknown>;

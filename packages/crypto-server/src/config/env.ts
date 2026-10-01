@@ -11,6 +11,8 @@
  * immediately with a clear error message — fail fast, not at runtime.
  */
 
+import { authConfigError } from "./auth-policy";
+
 /** Server configuration loaded from environment variables. */
 export interface Config {
   /** Hostname the server binds to (default `"localhost"`). */
@@ -87,6 +89,9 @@ export function loadConfig(): Config {
       `LOG_LEVEL must be one of error|warn|info|debug, got "${logLevel}"`,
     );
   }
+
+  const authError = authConfigError(process.env);
+  if (authError) errors.push(authError);
 
   let port = 3000;
   try {

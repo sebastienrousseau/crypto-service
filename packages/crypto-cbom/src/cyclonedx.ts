@@ -2,6 +2,7 @@
 
 import crypto from "node:crypto";
 import { CryptoAsset, CycloneDxCbom, CycloneDxComponent } from "./types";
+import { VERSION } from "./version";
 
 export interface CycloneDxOptions {
   componentName?: string;
@@ -52,12 +53,16 @@ export function generateCycloneDxCbom(
         {
           vendor: "Sebastien Rousseau",
           name: "@sebastienrousseau/crypto-cbom",
-          version: "0.0.3",
+          version: VERSION,
         },
       ],
       component: {
         name: options.componentName || "cryptographic-application",
-        version: options.componentVersion || "0.0.3",
+        // CycloneDX 1.6 makes component.version optional: omit it rather
+        // than invent a version for an application we did not analyse.
+        ...(options.componentVersion
+          ? { version: options.componentVersion }
+          : {}),
         type: options.componentType || "application",
       },
     },

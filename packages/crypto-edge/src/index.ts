@@ -69,6 +69,5 @@ export {
   TextDecoderPolyfill,
   btoaPolyfill,
   atobPolyfill,
-  insecureGetRandomValues,
   _resetPolyfillState,
 } from "./polyfill";

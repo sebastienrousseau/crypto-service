@@ -14,6 +14,8 @@ automated change is most likely to get wrong.
   Never propose a 0.1.0 or 1.0 jump; to achieve `v0.1.0`, the project must have
   progressed through `v0.0.999`.
 - Work for the next iteration MUST begin on a branch named `feat/v<next-version>`.
+- **Single Active Release PR Invariant**: Across this repository, there MUST be at most ONE active pull request targeting `main`, which MUST be the release iteration branch `feat/v<next-version>`.
+- **Branch Funneling Policy**: Any Dependabot PRs, security fixes, documentation updates, or auxiliary topic branches MUST NEVER be merged directly into `main`. They MUST ALWAYS be merged into the active `feat/v<next-version>` branch, and their standalone PRs targeting `main` closed. All iteration work funnels into the single release PR.
 - All 18 packages in this pnpm workspace move in lockstep:
   `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`,
   `@sebastienrousseau/crypto-cli`, `@sebastienrousseau/crypto-sdk`,

@@ -8,10 +8,7 @@ import {
   aeadEncrypt,
   aeadDecrypt,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v2 AEAD encrypt endpoint. */
 const encryptSchema = {
@@ -56,7 +53,6 @@ const decryptSchema = {
 export default (app: FastifyInstance): void => {
   app.post("/v2/encrypt", { schema: encryptSchema }, async (request, reply) => {
     try {
-      if (rejectUnauthorized(request, reply)) return;
       const { key, plaintext } = request.body as {
         key: string;
         plaintext: string;
@@ -70,7 +66,6 @@ export default (app: FastifyInstance): void => {
 
   app.post("/v2/decrypt", { schema: decryptSchema }, async (request, reply) => {
     try {
-      if (rejectUnauthorized(request, reply)) return;
       const { key, ciphertext } = request.body as {
         key: string;
         ciphertext: string;

@@ -234,6 +234,15 @@ export function sendValidationError(
 }
 
 /**
+ * Whether unauthenticated requests are allowed. Anonymous access is off
+ * unless `ALLOW_ANONYMOUS=1` is set explicitly; a missing credential never
+ * opens the API by itself.
+ */
+export function anonymousAllowed(): boolean {
+  return process.env["ALLOW_ANONYMOUS"] === "1";
+}
+
+/**
  * API Key validation for authentication.
  */
 export function validateApiKey(
@@ -241,8 +250,8 @@ export function validateApiKey(
   expectedKey: string | undefined,
 ): boolean {
   if (!expectedKey) {
-    // Dev mode: no key configured → allow all.
-    return true;
+    // No key configured: allow only with explicit anonymous opt-in.
+    return anonymousAllowed();
   }
   if (apiKey === undefined || apiKey === null) return false;
   const key = Array.isArray(apiKey) ? apiKey[0] : apiKey;

@@ -4,10 +4,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import {
-  rejectUnauthorized,
-  classifyCryptoError,
-} from "../../utils/route-helpers";
+import { classifyCryptoError } from "../../utils/route-helpers";
 
 /** Registers v2 AES key-wrap and unwrap endpoints. */
 export default (app: FastifyInstance): void => {
@@ -31,7 +28,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { aesKwWrap, aesKwpWrap } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/key-wrap");
         const { kek, keyToWrap, algorithm } = request.body as {
@@ -70,7 +66,6 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
         const { aesKwUnwrap, aesKwpUnwrap } =
           await import("@sebastienrousseau/crypto-lib/dist/high-level/key-wrap");
         const { kek, wrappedKey, algorithm } = request.body as {

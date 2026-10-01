@@ -413,16 +413,19 @@ export interface KeyGenerateResult {
   kid: string;
 }
 
-/** Automated DORA compliance scorecard result. */
+/**
+ * DORA self-assessment returned by `/v2/compliance/dora`. It describes the
+ * algorithms the suite implements; it is not a compliance verdict.
+ */
 export interface DoraComplianceScorecard {
   /** Regulatory standard identifier. */
   standard: string;
   /** Specific regulatory articles evaluated. */
   article: string;
-  /** Overall compliance score (0-100). */
-  complianceScore: number;
-  /** Overall compliance posture status. */
+  /** Assessment status, e.g. "Self-assessment (not a compliance verdict)". */
   status: string;
+  /** Statement of what the assessment does and does not establish. */
+  disclaimer: string;
   /** Percentage of post-quantum resilient algorithms. */
   quantumResistanceRatio: number;
   /** Total count of active cryptographic primitives. */
@@ -432,7 +435,7 @@ export interface DoraComplianceScorecard {
   /** Deprecation schedule for classical algorithms. */
   algorithmDeprecationSchedule: Array<{
     algorithm: string;
-    status: string;
+    category: string;
     sunsetDate: string;
     recommendedMigration: string;
   }>;

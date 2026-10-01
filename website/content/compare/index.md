@@ -20,7 +20,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <div class="card institutional-highlight-card">
 <p class="institutional-highlight-text">
-<strong>Institutional Definition:</strong> <strong>Crypto Service Suite</strong> is an open-source, sovereign cryptographic operating core that executes NIST-standardized post-quantum key encapsulation (FIPS 203 ML-KEM), digital signatures (FIPS 204 ML-DSA), and multi-cloud KMS orchestration directly within an institution's private security perimeter—eliminating third-party counterparty risk, AUC basis-point fees, and vendor lock-in.
+<strong>Institutional Definition:</strong> <strong>Crypto Service Suite</strong> is an open-source, sovereign cryptographic operating core that executes NIST-standardized post-quantum key encapsulation (FIPS 203 ML-KEM), digital signatures (FIPS 204 ML-DSA), and a KMS interface (AWS KMS today) directly within an institution's private security perimeter—eliminating third-party counterparty risk, AUC basis-point fees, and vendor lock-in.
 </p>
 </div>
 
@@ -51,7 +51,7 @@ Unlike multi-tenant SaaS custodians that maintain operational control and charge
 </tr>
 <tr>
 <td><strong>Key Custody Model</strong></td>
-<td class="col-highlight"><strong>Self-Sovereign (HSM / Enclaves)</strong></td>
+<td class="col-highlight"><strong>Self-Hosted (your infrastructure; no HSM integration)</strong></td>
 <td>Third-Party Trust Company</td>
 <td>Collateral in Bilateral Trust</td>
 <td>Co-Signed MPC Network</td>
@@ -91,7 +91,7 @@ Unlike multi-tenant SaaS custodians that maintain operational control and charge
 </tr>
 <tr>
 <td><strong>Verification &amp; Auditability</strong></td>
-<td class="col-highlight"><strong>100% Test Floor (Open-Source)</strong></td>
+<td class="col-highlight"><strong>Open Source with CI Coverage Gates</strong></td>
 <td>Proprietary Closed Source</td>
 <td>Proprietary Closed Source</td>
 <td>Proprietary Closed Source</td>
@@ -113,17 +113,17 @@ Unlike multi-tenant SaaS custodians that maintain operational control and charge
 <ul class="comparison-detail-list">
 <li><strong>Zero Counterparty Insolvency:</strong> Private keys remain exclusively within your institutional boundary, eliminating catastrophic exchange/custodian freeze risks.</li>
 <li><strong>Predictable OpEx:</strong> Eliminates AUC basis-point taxes (saving $500k–$2.5M annually on $1B+ digital asset balances).</li>
-<li><strong>DORA &amp; CNSA 2.0 Compliance:</strong> Automated CycloneDX 1.6 CBOM telemetry satisfies European Union Digital Operational Resilience Act mandates.</li>
+<li><strong>Cryptographic Inventory:</strong> CycloneDX 1.6 CBOM generation provides inventory input for EU DORA work. It does not by itself establish DORA or CNSA 2.0 compliance.</li>
 </ul>
 </div>
 
 <div class="card">
 <span class="solution-badge font-mono">FOR CHIEF ARCHITECTS &amp; LEAD ENGS</span>
-<h3>Deterministic Systems &amp; Zero Runtime Dependencies</h3>
+<h3>Small Dependency Tree &amp; Enforced Tests</h3>
 <ul class="comparison-detail-list">
-<li><strong>Zero Supply-Chain Bloat:</strong> Strict zero external runtime dependencies across all cryptographic execution packages.</li>
-<li><strong>100% Test Coverage Invariant:</strong> Statements, branches, functions, and lines maintain a mandatory 100% verification floor.</li>
-<li><strong>Microsecond Latency:</strong> Constant-time WebAssembly SIMD primitives execute post-quantum key exchanges in sub-millisecond cycles.</li>
+<li><strong>Small Dependency Tree:</strong> crypto-lib depends on the <code>@noble/*</code> libraries and OpenPGP.js (six runtime dependencies).</li>
+<li><strong>Coverage Gates:</strong> CI enforces 100% line and function coverage in every package, and 100% branch coverage in every package except crypto-lib (99.5%).</li>
+<li><strong>In-Process Execution:</strong> crypto-lib runs in your process with no network round trip. There is no WebAssembly acceleration and no published latency figures.</li>
 </ul>
 </div>
 </div>
@@ -180,7 +180,7 @@ Crypto Service Suite is an open-source, sovereign cryptographic software core th
 <div class="card">
 <h3>How does Crypto Service support NIST post-quantum standards?</h3>
 <p>
-Crypto Service natively implements FIPS 203 (ML-KEM) for quantum-resistant key encapsulation and FIPS 204 (ML-DSA) for quantum-resistant digital signatures across parameter sets 512, 768, and 1024, protecting institutional digital assets against Harvest Now, Decrypt Later (HNDL) attacks.
+Crypto Service implements FIPS 203 (ML-KEM-512/768/1024) and FIPS 204 (ML-DSA-44/65/87) algorithms via @noble/post-quantum, which is not a validated cryptographic module, to help protect data against Harvest Now, Decrypt Later (HNDL) attacks.
 </p>
 </div>
 
@@ -218,7 +218,7 @@ Crypto Service executes local confidential transactions, encrypts sensitive appl
       "name": "How does Crypto Service support NIST post-quantum standards?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Crypto Service implements official NIST post-quantum standards including FIPS 203 (ML-KEM) for quantum-resistant key encapsulation and FIPS 204 (ML-DSA) for quantum-resistant digital signatures, protecting institutional digital assets against Harvest Now, Decrypt Later (HNDL) attacks."
+        "text": "Crypto Service implements FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) algorithms via @noble/post-quantum, which is not a validated cryptographic module, to help protect data against Harvest Now, Decrypt Later (HNDL) attacks."
       }
     },
     {

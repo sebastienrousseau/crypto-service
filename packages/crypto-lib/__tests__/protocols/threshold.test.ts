@@ -4,7 +4,8 @@ import * as threshold from "../../src/protocols/threshold";
 describe("Threshold / Shamir Secret Sharing", () => {
   it("should split and reconstruct a secret (3-of-5)", () => {
     // Use a value that's valid in the Ed25519 scalar field (< group order)
-    const secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    const secret =
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     const result = threshold.splitSecret(secret, 5, 3);
     expect(result.shares).to.have.length(5);
     expect(result.threshold).to.equal(3);
@@ -20,7 +21,8 @@ describe("Threshold / Shamir Secret Sharing", () => {
   });
 
   it("should split and reconstruct with 2-of-3", () => {
-    const secret = "0000000000000000000000000000000000000000000000000000000000000042";
+    const secret =
+      "0000000000000000000000000000000000000000000000000000000000000042";
     const result = threshold.splitSecret(secret, 3, 2);
     expect(result.shares).to.have.length(3);
 
@@ -33,12 +35,35 @@ describe("Threshold / Shamir Secret Sharing", () => {
   });
 
   it("should fail reconstruction with insufficient shares", () => {
-    const secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    const secret =
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     const result = threshold.splitSecret(secret, 5, 3);
 
     // Only 2 shares — should NOT reconstruct correctly for a 3-of-5 scheme
     const bad = threshold.combineShares([result.shares[0], result.shares[1]]);
     expect(bad).to.not.equal(secret);
+  });
+
+  it("should reject a secret outside the scalar field instead of altering it", () => {
+    // 0xff…ff is larger than the Ed25519 group order; reducing it would
+    // make combineShares return a different secret.
+    expect(() => threshold.splitSecret("ff".repeat(32), 3, 2)).to.throw(
+      /group order/,
+    );
+  });
+
+  it("should accept the largest in-range secret (order - 1)", () => {
+    const secret = (
+      BigInt(
+        "7237005577332262213973186563042994240857116359379907606001950938285454250989",
+      ) - BigInt(1)
+    )
+      .toString(16)
+      .padStart(64, "0");
+    const result = threshold.splitSecret(secret, 3, 2);
+    expect(
+      threshold.combineShares([result.shares[0], result.shares[2]]),
+    ).to.equal(secret);
   });
 
   it("should reject invalid parameters (threshold > n)", () => {
@@ -50,29 +75,46 @@ describe("Threshold / Shamir Secret Sharing", () => {
   });
 
   describe("Feldman VSS", () => {
+    it("should reject an out-of-range secret", () => {
+      expect(() =>
+        threshold.splitSecretWithCommitments("ff".repeat(32), 3, 2),
+      ).to.throw(/group order/);
+    });
+
     it("should generate commitments and verify shares", () => {
-      const secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+      const secret =
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
       const commitResult = threshold.splitSecretWithCommitments(secret, 5, 3);
       expect(commitResult.commitments).to.be.an("object");
       expect(commitResult.commitments.commitments).to.have.length(3);
-      expect(commitResult.commitments.algorithm).to.equal("feldman-vss-ed25519");
+      expect(commitResult.commitments.algorithm).to.equal(
+        "feldman-vss-ed25519",
+      );
 
       for (const share of commitResult.shares) {
-        const valid = threshold.verifyFeldmanShare(share, commitResult.commitments);
+        const valid = threshold.verifyFeldmanShare(
+          share,
+          commitResult.commitments,
+        );
         expect(valid).to.be.true;
       }
     });
 
     it("should reject tampered shares", () => {
-      const secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+      const secret =
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
       const result = threshold.splitSecretWithCommitments(secret, 5, 3);
 
       // Tamper with a share value (use a valid non-zero scalar)
       const tamperedShare = {
         index: result.shares[0].index,
-        value: "0000000000000000000000000000000000000000000000000000000000000001",
+        value:
+          "0000000000000000000000000000000000000000000000000000000000000001",
       };
-      const valid = threshold.verifyFeldmanShare(tamperedShare, result.commitments);
+      const valid = threshold.verifyFeldmanShare(
+        tamperedShare,
+        result.commitments,
+      );
       expect(valid).to.be.false;
     });
   });

@@ -17,22 +17,25 @@ import {
   validateRequiredString,
   validateRequiredNumber,
 } from "../../utils/validation";
-import {
-  rejectUnauthorized,
-  collectValidation,
-} from "../../utils/route-helpers";
+import { collectValidation } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v1 key-revocation endpoint. */
 const revokeSchema = {
   tags: ["Key Management"],
   summary: "Revoke a key pair",
   description:
-    "Revokes the shipped key pair with a reason code (0=unspecified, 1=superseded, 2=compromised, 3=retired).",
+    "Revokes the shipped key pair with a reason code (0=unspecified, 1=superseded, 2=compromised, 3=retired). Returns the revoked public key only.",
   response: {
     200: {
       type: "object",
-      additionalProperties: true,
-      properties: { data: {} },
+      additionalProperties: false,
+      properties: {
+        data: {
+          type: "object",
+          additionalProperties: false,
+          properties: { publicKey: { type: "string" } },
+        },
+      },
     },
     400: {
       type: "object",
@@ -59,8 +62,6 @@ export default (app: FastifyInstance): void => {
     { schema: revokeSchema },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
-
         const body = request.body as IBodyRevoke;
         const v = collectValidation(
           {
@@ -79,7 +80,8 @@ export default (app: FastifyInstance): void => {
           reason: v.reason as string,
         });
 
-        return reply.send({ data: revocationData });
+        // Never return the (unlocked) private key.
+        return reply.send({ data: { publicKey: revocationData.publicKey } });
       } catch (error) {
         request.log.error(error, "Revocation operation failed");
         return reply.status(500).send({ error: "Revocation failed" });

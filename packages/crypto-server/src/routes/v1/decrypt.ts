@@ -14,10 +14,7 @@ import type { FastifyInstance } from "fastify";
 import decrypt from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
 import { IBodyDecrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
-import {
-  rejectUnauthorized,
-  collectValidation,
-} from "../../utils/route-helpers";
+import { collectValidation } from "../../utils/route-helpers";
 
 /** Fastify JSON Schema for the v1 decrypt endpoint. */
 const decryptSchema = {
@@ -53,8 +50,6 @@ export default (app: FastifyInstance): void => {
     { schema: decryptSchema },
     async (request, reply) => {
       try {
-        if (rejectUnauthorized(request, reply)) return;
-
         const body = request.body as IBodyDecrypt;
         const v = collectValidation(
           {

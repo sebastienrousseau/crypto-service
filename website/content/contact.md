@@ -70,9 +70,9 @@ Our solutions engineering and cryptography teams work directly with enterprise d
 <select id="contact-interest" name="interest" class="form-control">
 <option value="pqc">Post-Quantum Migration (NIST FIPS 203 ML-KEM, FIPS 204 ML-DSA)</option>
 <option value="field-enc">Transparent Database Field Encryption (Prisma ORM &amp; TypeORM)</option>
-<option value="multi-kms">Multi-Cloud KMS Orchestration (AWS, GCP, Azure, Vault)</option>
-<option value="caas-server">Sovereign CaaS Daemon &amp; Microservice Deployment (HTTP/2, gRPC)</option>
-<option value="edge-wasm">High-Performance Edge &amp; WebAssembly Acceleration</option>
+<option value="multi-kms">KMS Integration (AWS KMS)</option>
+<option value="caas-server">Self-Hosted CaaS Service &amp; Microservice Deployment (REST)</option>
+<option value="edge-wasm">Edge Runtime Deployment</option>
 <option value="cbom-dora">Cryptographic Bill of Materials (CycloneDX 1.6 CBOM, EU DORA)</option>
 <option value="enterprise-sla">Enterprise Dual-Licensing &amp; 24/7 Production Support</option>
 </select>

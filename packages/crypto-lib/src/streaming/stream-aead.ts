@@ -166,6 +166,36 @@ export function streamEncrypt(
   };
 }
 
+/** Tag byte and encrypted length of the chunk that starts at `offset`. */
+interface ChunkHeader {
+  chunkTag: number;
+  isFinal: boolean;
+  encLen: number;
+}
+
+/**
+ * Read and validate the chunk header at `offset`: the tag byte must be a
+ * MESSAGE or FINAL marker, and the chunk must fit in the ciphertext.
+ */
+function readChunkHeader(
+  ciphertext: Uint8Array,
+  offset: number,
+  chunkSize: number,
+): ChunkHeader {
+  const chunkTag = ciphertext[offset]!;
+  if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
+    throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
+  }
+  const isFinal = chunkTag === CHUNK_TAG_FINAL;
+  const start = offset + 1;
+  // The FINAL chunk runs to the end; every other chunk is full-sized.
+  const encLen = isFinal ? ciphertext.length - start : chunkSize + TAG_LEN;
+  if (start + encLen > ciphertext.length) {
+    throw new Error("Ciphertext truncated — incomplete chunk");
+  }
+  return { chunkTag, isFinal, encLen };
+}
+
 /**
  * Decrypt a stream produced by {@link streamEncrypt}.
  *
@@ -186,28 +216,15 @@ export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
 
   const plaintextChunks: Uint8Array[] = [];
   let totalPtLen = 0;
+  let sawFinal = false;
 
   while (offset < ciphertext.length) {
-    const chunkTag = ciphertext[offset]!;
+    const { chunkTag, isFinal, encLen } = readChunkHeader(
+      ciphertext,
+      offset,
+      chunkSize,
+    );
     offset += 1;
-
-    if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
-      throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
-    }
-
-    const isFinal = chunkTag === CHUNK_TAG_FINAL;
-
-    // Determine encrypted chunk length
-    let encLen: number;
-    if (isFinal) {
-      encLen = ciphertext.length - offset;
-    } else {
-      encLen = chunkSize + TAG_LEN;
-    }
-
-    if (offset + encLen > ciphertext.length) {
-      throw new Error("Ciphertext truncated — incomplete chunk");
-    }
 
     const chunkIdx = plaintextChunks.length;
     const nonce = deriveChunkNonce(baseNonce, chunkIdx, chunkTag);
@@ -220,7 +237,16 @@ export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
     totalPtLen += decrypted.length;
     offset += encLen;
 
-    if (isFinal) break;
+    if (isFinal) {
+      sawFinal = true;
+      break;
+    }
+  }
+
+  // Without the FINAL chunk, an attacker could drop trailing chunks and
+  // the remaining prefix would still authenticate chunk by chunk.
+  if (!sawFinal) {
+    throw new Error("Ciphertext truncated — final chunk missing");
   }
 
   // Assemble plaintext

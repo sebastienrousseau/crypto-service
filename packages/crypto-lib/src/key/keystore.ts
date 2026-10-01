@@ -55,11 +55,18 @@ let cache: Promise<Keystore> | undefined;
 
 /**
  * Resolve the key directory. Honours `CRYPTO_KEY_DIR` env var, falling back
- * to `<package>/src/key` relative to this compiled module.
+ * to `<package>/src/key` relative to this compiled module outside production.
+ * In production the fallback throws: those keys are public test fixtures.
  */
 function resolveKeyDir(dir?: string): string {
   if (dir) return dir;
   if (process.env["CRYPTO_KEY_DIR"]) return process.env["CRYPTO_KEY_DIR"];
+  // The bundled keys are public test fixtures: anyone can sign with them.
+  if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "CRYPTO_KEY_DIR is not set; refusing to use the bundled test keys in production",
+    );
+  }
   return path.resolve(__dirname, "..", "key");
 }
 

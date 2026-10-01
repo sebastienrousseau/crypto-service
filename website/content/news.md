@@ -15,14 +15,14 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<section class="news-featured-section" id="release-v004">
+<section class="news-featured-section" id="release-v006">
 <div class="news-spotlight-card">
 <div class="news-tag font-mono">LATEST RELEASE • SEPTEMBER 2026</div>
-<h2>Crypto Service Suite v0.0.4 Released with Production FIPS 203 &amp; 204 Standard Compliance</h2>
+<h2>Crypto Service Suite v0.0.6 Released with Unified Release Pipeline &amp; Cross-Platform Fixes</h2>
 <p class="lead-text">
-We are proud to announce the general availability of Crypto Service Suite v0.0.4 across all 18 monorepo workspace packages. This release brings complete NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) implementation conformance, validated against official NIST Known-Answer Test (KAT) vectors.
+We are proud to announce the general availability of Crypto Service Suite v0.0.6 across all 18 monorepo workspace packages. This iteration unifies dependency security overrides across all downstream packages, streamlines cross-platform build pipelines for Windows runners, and establishes a single-funnel release pipeline.
 </p>
-<div class="news-meta font-mono">Published September 28, 2026 • 6 min read • Core Engineering Team</div>
+<div class="news-meta font-mono">Published September 29, 2026 • 5 min read • Core Engineering Team</div>
 </div>
 </section>
 
@@ -33,7 +33,7 @@ We are proud to announce the general availability of Crypto Service Suite v0.0.4
 <div>
 <h3 class="category-heading">Institutional White Papers &amp; Technical Publications</h3>
 <p class="section-lead section-lead-muted">
-Peer-reviewed architectural briefs, threat model analyses, and mathematical benchmark white papers published by Sebastien Rousseau and the Crypto Service cryptographic engineering group.
+Architectural briefs, threat model analyses, and technical white papers published by Sebastien Rousseau and the Crypto Service cryptographic engineering group.
 </p>
 </div>
 <a class="pill primary no-chev" href="/whitepapers/">Browse All White Papers →</a>
@@ -60,8 +60,8 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <p class="book-eyebrow">ARCHITECTURE BLUEPRINT · SOVEREIGN CAAS</p>
 <h4 class="book-title"><a href="/whitepapers/sovereign-caas/">Sovereign CaaS: Eliminating Custodial Counterparty Risk in Financial Institutions</a></h4>
 <p class="book-meta"><time datetime="2026-09-28">September 2026</time> · Sebastien Rousseau · Architecture Practice</p>
-<p class="book-meta book-meta-faint">English · Technical White Paper · FIPS 203/204 Conformance</p>
-<p class="book-excerpt">How tier-1 banks, fintechs, and asset managers deploy on-premises and private-cloud Cryptography-as-a-Service daemons, retaining sovereign key governance while satisfying EU DORA Articles 13 &amp; 14. Operating at over 100,000 ops/sec with sub-millisecond digital signature latencies over HTTP/2 and gRPC.</p>
+<p class="book-meta book-meta-faint">English · Technical White Paper · FIPS 203/204 Algorithms</p>
+<p class="book-excerpt">How tier-1 banks, fintechs, and asset managers deploy on-premises and private-cloud Cryptography-as-a-Service daemons, retaining control of their keys, and how that supports EU DORA ICT risk work.</p>
 <div class="book-actions">
 <a class="pill primary no-chev" href="/whitepapers/sovereign-caas/">Read White Paper →</a>
 <a class="pill ghost no-chev" href="/solutions/#caas-server">CaaS Daemon Specs</a>
@@ -106,23 +106,23 @@ Peer-reviewed architectural briefs, threat model analyses, and mathematical benc
 <div class="news-cards-grid">
 <article class="news-article-card" id="benchmarks">
 <span class="article-category font-mono">PERFORMANCE BENCHMARK</span>
-<h4><a href="/whitepapers/sub-millisecond-benchmarks/">Micro-Benchmark Results: Sub-Millisecond PQC Signatures at Scale</a></h4>
-<p>Benchmarking results demonstrate that zero-dependency WebAssembly ML-KEM-768 executes in 34.1 µs and ML-DSA-65 verify in 68.4 µs on modern server hardware, disproving the myth that post-quantum cryptography introduces prohibitive latency.</p>
+<h4><a href="/whitepapers/sub-millisecond-benchmarks/">Benchmarking Post-Quantum Operations in Crypto Service Suite</a></h4>
+<p>How to measure ML-KEM and ML-DSA latency with the committed benchmark script. Earlier figures on this card (including a WebAssembly ML-KEM-768 result) did not come from committed code and have been withdrawn.</p>
 <div class="article-footer font-mono">Read Technical Specification →</div>
 </article>
 
 <article class="news-article-card" id="database-encryption">
 <span class="article-category font-mono">DATA AT REST</span>
 <h4><a href="/whitepapers/database-encryption/">Transparent Database Field Encryption with Prisma &amp; TypeORM</a></h4>
-<p>A comprehensive architectural guide for implementing column-level authenticated encryption (AES-256-GCM + ML-KEM) in PostgreSQL and MySQL architectures with zero schema breaking changes.</p>
+<p>An architectural guide to field-level authenticated encryption (XChaCha20-Poly1305) with the Prisma and TypeORM adapters.</p>
 <div class="article-footer font-mono">Read Implementation Guide →</div>
 </article>
 
 <article class="news-article-card" id="cbom-guide">
 <span class="article-category font-mono">DEVSECOPS</span>
 <h4><a href="/whitepapers/dora-cbom-manual/">Automated CBOM Auditing with CycloneDX and Crypto Service Suite</a></h4>
-<p>Step-by-step regulatory guidance for European Union Digital Operational Resilience Act (DORA) compliance, automated CycloneDX 1.6 CBOM generation, and continuous curve deprecation audits in CI/CD.</p>
-<div class="article-footer font-mono">Read Compliance Manual →</div>
+<p>Generating CycloneDX 1.6 CBOMs and using them as inventory input for Digital Operational Resilience Act (DORA) work. A CBOM does not by itself establish compliance.</p>
+<div class="article-footer font-mono">Read CBOM Manual →</div>
 </article>
 </div>
 </div>

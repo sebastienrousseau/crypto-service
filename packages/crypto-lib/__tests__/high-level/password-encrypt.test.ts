@@ -1,5 +1,8 @@
 import { expect } from "chai";
-import { passwordEncrypt, passwordDecrypt } from "../../src/high-level/password-encrypt";
+import {
+  passwordEncrypt,
+  passwordDecrypt,
+} from "../../src/high-level/password-encrypt";
 
 describe("Password Encryption", function () {
   this.timeout(30000); // Argon2 can be slow
@@ -16,7 +19,9 @@ describe("Password Encryption", function () {
     expect(result.encrypted).to.be.a("string");
 
     const pt = passwordDecrypt("my-secret-password", result.encrypted);
-    expect(Buffer.from(pt).toString("utf8")).to.equal("Hello, Password Encryption!");
+    expect(Buffer.from(pt).toString("utf8")).to.equal(
+      "Hello, Password Encryption!",
+    );
   });
 
   it("should reject wrong password", () => {
@@ -31,7 +36,13 @@ describe("Password Encryption", function () {
   });
 
   it("should produce different ciphertexts for same password+plaintext", () => {
-    const opts = { password: "p", plaintext: "d", timeCost: 1, memoryCost: 1024, parallelism: 1 };
+    const opts = {
+      password: "p",
+      plaintext: "d",
+      timeCost: 1,
+      memoryCost: 1024,
+      parallelism: 1,
+    };
     const r1 = passwordEncrypt(opts);
     const r2 = passwordEncrypt(opts);
     expect(r1.encrypted).to.not.equal(r2.encrypted);
@@ -104,5 +115,64 @@ describe("Password Encryption", function () {
     const raw = Buffer.from(result.encrypted, "base64");
     const pt = passwordDecrypt("p", raw);
     expect(Buffer.from(pt).toString("utf8")).to.equal("data");
+  });
+
+  describe("untrusted header parameters", () => {
+    const encryptLow = () =>
+      Buffer.from(
+        passwordEncrypt({
+          password: "pw",
+          plaintext: "data",
+          timeCost: 1,
+          memoryCost: 1024,
+          parallelism: 1,
+        }).encrypted,
+        "base64",
+      );
+
+    it("should refuse a header time cost above the cap before running Argon2", () => {
+      const raw = encryptLow();
+      raw.writeUInt32LE(0xffffffff, 1); // t
+      expect(() => passwordDecrypt("pw", raw)).to.throw(/time cost/);
+    });
+
+    it("should refuse a header memory cost above the cap", () => {
+      const raw = encryptLow();
+      raw.writeUInt32LE(0xffffffff, 5); // m (KiB)
+      expect(() => passwordDecrypt("pw", raw)).to.throw(/memory cost/);
+    });
+
+    it("should refuse a header parallelism above the cap", () => {
+      const raw = encryptLow();
+      raw.writeUInt32LE(1000, 9); // p
+      expect(() => passwordDecrypt("pw", raw)).to.throw(/parallelism/);
+    });
+
+    it("should refuse a header key length other than 32", () => {
+      const raw = encryptLow();
+      raw.writeUInt32LE(64, 13); // dkLen
+      expect(() => passwordDecrypt("pw", raw)).to.throw(/key length/);
+    });
+
+    it("should refuse non-integer or too-small costs", () => {
+      expect(() =>
+        passwordEncrypt({ password: "pw", plaintext: "d", timeCost: 1.5 }),
+      ).to.throw(/time cost/);
+      expect(() =>
+        passwordEncrypt({
+          password: "pw",
+          plaintext: "d",
+          timeCost: 1,
+          memoryCost: 16,
+          parallelism: 4,
+        }),
+      ).to.throw(/memory cost/);
+    });
+
+    it("should refuse to encrypt with parameters it would not decrypt", () => {
+      expect(() =>
+        passwordEncrypt({ password: "pw", plaintext: "d", timeCost: 11 }),
+      ).to.throw(/time cost/);
+    });
   });
 });

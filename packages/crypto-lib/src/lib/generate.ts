@@ -3,10 +3,43 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import { writeFile } from "fs/promises";
 import * as path from "path";
 import * as openpgp from "openpgp";
+import { writeKeyOutputs } from "./key-output";
 import * as types from "../types/types";
+
+/**
+ * Validate and normalise the numeric inputs of {@link generate}, and reject
+ * key types that could escape the output directory (CWE-23).
+ */
+function validateGenerateInput(data: types.dataGenerate): {
+  rsaBits: number;
+  keyExpirationTime: number;
+} {
+  const rsaBits = Number(data.rsaBits);
+  if (!Number.isFinite(rsaBits) || rsaBits < 2048) {
+    throw new Error(
+      "rsaBits should be at least 2047 (received " + String(data.rsaBits) + ")",
+    );
+  }
+
+  const keyExpirationTime = Number(data.keyExpirationTime);
+  if (!Number.isFinite(keyExpirationTime) || keyExpirationTime < 0) {
+    throw new Error(
+      "keyExpirationTime must be a non-negative number of seconds",
+    );
+  }
+
+  // Sanitize key type early to prevent path traversal (CWE-23).
+  if (data.type) {
+    const safeType = path.basename(data.type);
+    if (safeType !== data.type || safeType.includes("..")) {
+      throw new Error("Invalid key type: must not contain path separators");
+    }
+  }
+
+  return { rsaBits, keyExpirationTime };
+}
 
 /**
  * ### generate
@@ -33,27 +66,7 @@ import * as types from "../types/types";
  *                                    revocation certificate.
  */
 export async function generate(data: types.dataGenerate): Promise<object> {
-  const rsaBits = Number(data.rsaBits);
-  if (!Number.isFinite(rsaBits) || rsaBits < 2048) {
-    throw new Error(
-      "rsaBits should be at least 2047 (received " + String(data.rsaBits) + ")",
-    );
-  }
-
-  const keyExpirationTime = Number(data.keyExpirationTime);
-  if (!Number.isFinite(keyExpirationTime) || keyExpirationTime < 0) {
-    throw new Error(
-      "keyExpirationTime must be a non-negative number of seconds",
-    );
-  }
-
-  // Sanitize key type early to prevent path traversal (CWE-23).
-  if (data.type) {
-    const safeType = path.basename(data.type);
-    if (safeType !== data.type || safeType.includes("..")) {
-      throw new Error("Invalid key type: must not contain path separators");
-    }
-  }
+  const { rsaBits, keyExpirationTime } = validateGenerateInput(data);
 
   const options = {
     date: new Date(),
@@ -78,27 +91,11 @@ export async function generate(data: types.dataGenerate): Promise<object> {
   const privateKeyString =
     typeof privateKey === "string" ? privateKey : privateKey.armor();
 
-  const keyDir =
-    process.env["CRYPTO_KEY_OUT_DIR"] ??
-    process.env["CRYPTO_KEY_DIR"] ??
-    path.resolve(__dirname, "..", "key");
-
-  await Promise.all([
-    writeFile(
-      path.join(keyDir, `${path.basename(data.type)}.pub`),
-      publicKeyString,
-      "utf8",
-    ),
-    writeFile(
-      path.join(keyDir, `${path.basename(data.type)}.key`),
-      privateKeyString,
-      "utf8",
-    ),
-    writeFile(
-      path.join(keyDir, `${path.basename(data.type)}.cert`),
-      revocationCertificate,
-      "utf8",
-    ),
+  const base = path.basename(data.type);
+  await writeKeyOutputs([
+    { name: `${base}.pub`, content: publicKeyString, secret: false },
+    { name: `${base}.key`, content: privateKeyString, secret: true },
+    { name: `${base}.cert`, content: revocationCertificate, secret: false },
   ]);
 
   return { publicKey, privateKey, revocationCertificate };

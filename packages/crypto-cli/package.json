@@ -123,5 +123,5 @@
   },
   "types": "./dist/index.d.ts",
   "sideEffects": false,
-  "version": "0.0.5"
+  "version": "0.0.6"
 }

@@ -169,7 +169,8 @@ function evaluatePolynomial(coefficients: bigint[], x: bigint): bigint {
  * Uses Shamir's Secret Sharing over GF(p) where p is the Ed25519 group order.
  * The secret is the constant term of a random polynomial of degree (threshold - 1).
  *
- * @param secret - Hex-encoded 32-byte secret (interpreted as a scalar in GF(p)).
+ * @param secret - Hex-encoded 32-byte secret (interpreted as a scalar in GF(p));
+ *   must be less than the group order, or the call throws.
  * @param n - Total number of shares to generate (must be >= threshold).
  * @param threshold - Minimum shares required for reconstruction (must be >= 2).
  */
@@ -188,7 +189,14 @@ export function splitSecret(
     throw new Error("Maximum 255 shares supported");
   }
 
-  const secretScalar = mod(hexToScalar(secret));
+  const secretScalar = hexToScalar(secret);
+  // Reducing an out-of-range secret mod P would silently change it, so
+  // combineShares would hand back a different value.
+  if (secretScalar >= P) {
+    throw new Error(
+      "Secret must be less than the Ed25519 group order; reduce or derive it first",
+    );
+  }
 
   // Generate random polynomial: coefficients[0] = secret, rest random
   const coefficients: bigint[] = [secretScalar];
@@ -354,7 +362,14 @@ export function splitSecretWithCommitments(
     throw new Error("Maximum 255 shares supported");
   }
 
-  const secretScalar = mod(hexToScalar(secret));
+  const secretScalar = hexToScalar(secret);
+  // Reducing an out-of-range secret mod P would silently change it, so
+  // combineShares would hand back a different value.
+  if (secretScalar >= P) {
+    throw new Error(
+      "Secret must be less than the Ed25519 group order; reduce or derive it first",
+    );
+  }
 
   // Generate random polynomial
   const coefficients: bigint[] = [secretScalar];
