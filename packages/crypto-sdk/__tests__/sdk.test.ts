@@ -29,7 +29,7 @@ import {
  * specified HTTP status code.
  */
 function mockFetch(status: number, body: unknown): typeof globalThis.fetch {
-  return (async (_url: RequestInfo | URL, _init?: RequestInit) => {
+  return (async () => {
     return {
       ok: status >= 200 && status < 300,
       status,

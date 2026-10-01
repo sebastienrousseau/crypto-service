@@ -114,9 +114,10 @@
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "lint": "eslint \"src/**/*.ts\" \"__tests__/**/*.ts\"",
+    "lint:fix": "eslint --cache --fix \"src/**/*.ts\" \"__tests__/**/*.ts\"",
     "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/cli.js",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc"

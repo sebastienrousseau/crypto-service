@@ -564,11 +564,7 @@ describe("LocalKmsProvider", () => {
       await provider.rotateKey(key.keyId);
 
       // Old signature should NOT verify with new key
-      const valid = await provider.verify(
-        key.keyId,
-        data,
-        sigBefore.signature,
-      );
+      const valid = await provider.verify(key.keyId, data, sigBefore.signature);
       expect(valid).to.be.false;
 
       // New sign/verify should work
@@ -623,7 +619,9 @@ describe("LocalKmsProvider", () => {
       const dek = await provider.generateDataKey(key.keyId);
 
       const unwrapped = await provider.decrypt(key.keyId, dek.ciphertext);
-      expect(Buffer.from(unwrapped.plaintext).equals(Buffer.from(dek.plaintext))).to.be.true;
+      expect(
+        Buffer.from(unwrapped.plaintext).equals(Buffer.from(dek.plaintext)),
+      ).to.be.true;
     });
 
     it("throws for unknown key", async () => {
@@ -683,16 +681,25 @@ describe("GcpKmsProvider", () => {
     call: () => Promise<unknown>;
   }> = [
     { name: "listKeys", call: () => provider.listKeys() },
-    { name: "listKeys (with filter)", call: () => provider.listKeys({ usage: "encrypt" }) },
+    {
+      name: "listKeys (with filter)",
+      call: () => provider.listKeys({ usage: "encrypt" }),
+    },
     { name: "getKey", call: () => provider.getKey("k1") },
-    { name: "createKey", call: () => provider.createKey("aes-256-gcm", "encrypt") },
+    {
+      name: "createKey",
+      call: () => provider.createKey("aes-256-gcm", "encrypt"),
+    },
     {
       name: "createKey (with metadata)",
       call: () => provider.createKey("aes-256-gcm", "encrypt", { a: "b" }),
     },
     { name: "enableKey", call: () => provider.enableKey("k1") },
     { name: "disableKey", call: () => provider.disableKey("k1") },
-    { name: "scheduleKeyDeletion", call: () => provider.scheduleKeyDeletion("k1") },
+    {
+      name: "scheduleKeyDeletion",
+      call: () => provider.scheduleKeyDeletion("k1"),
+    },
     {
       name: "scheduleKeyDeletion (with days)",
       call: () => provider.scheduleKeyDeletion("k1", 7),
@@ -764,16 +771,25 @@ describe("AzureKmsProvider", () => {
     call: () => Promise<unknown>;
   }> = [
     { name: "listKeys", call: () => provider.listKeys() },
-    { name: "listKeys (with filter)", call: () => provider.listKeys({ enabled: true }) },
+    {
+      name: "listKeys (with filter)",
+      call: () => provider.listKeys({ enabled: true }),
+    },
     { name: "getKey", call: () => provider.getKey("k1") },
-    { name: "createKey", call: () => provider.createKey("rsa-2048", "encrypt") },
+    {
+      name: "createKey",
+      call: () => provider.createKey("rsa-2048", "encrypt"),
+    },
     {
       name: "createKey (with metadata)",
       call: () => provider.createKey("rsa-2048", "sign", { team: "x" }),
     },
     { name: "enableKey", call: () => provider.enableKey("k1") },
     { name: "disableKey", call: () => provider.disableKey("k1") },
-    { name: "scheduleKeyDeletion", call: () => provider.scheduleKeyDeletion("k1") },
+    {
+      name: "scheduleKeyDeletion",
+      call: () => provider.scheduleKeyDeletion("k1"),
+    },
     {
       name: "scheduleKeyDeletion (with days)",
       call: () => provider.scheduleKeyDeletion("k1", 14),
@@ -874,16 +890,25 @@ describe("VaultKmsProvider", () => {
     call: () => Promise<unknown>;
   }> = [
     { name: "listKeys", call: () => provider.listKeys() },
-    { name: "listKeys (with filter)", call: () => provider.listKeys({ usage: "sign" }) },
+    {
+      name: "listKeys (with filter)",
+      call: () => provider.listKeys({ usage: "sign" }),
+    },
     { name: "getKey", call: () => provider.getKey("k1") },
-    { name: "createKey", call: () => provider.createKey("aes256-gcm96", "encrypt") },
+    {
+      name: "createKey",
+      call: () => provider.createKey("aes256-gcm96", "encrypt"),
+    },
     {
       name: "createKey (with metadata)",
       call: () => provider.createKey("aes256-gcm96", "wrap", { env: "prod" }),
     },
     { name: "enableKey", call: () => provider.enableKey("k1") },
     { name: "disableKey", call: () => provider.disableKey("k1") },
-    { name: "scheduleKeyDeletion", call: () => provider.scheduleKeyDeletion("k1") },
+    {
+      name: "scheduleKeyDeletion",
+      call: () => provider.scheduleKeyDeletion("k1"),
+    },
     {
       name: "scheduleKeyDeletion (with days)",
       call: () => provider.scheduleKeyDeletion("k1", 3),
@@ -1197,11 +1222,9 @@ describe("AwsKmsProvider", () => {
     });
 
     it("createKey with sign usage sends SIGN_VERIFY", async () => {
-      let sentCommand: any = null;
-      const p = createMocked(async (cmd) => {
-        sentCommand = cmd;
-        return { KeyMetadata: { KeyId: "sign-key" } };
-      });
+      const p = createMocked(async () => ({
+        KeyMetadata: { KeyId: "sign-key" },
+      }));
       const meta = await p.createKey("rsa-2048", "sign");
       expect(meta.keyId).to.equal("sign-key");
       expect(meta.usage).to.equal("sign");
@@ -1288,7 +1311,10 @@ describe("AwsKmsProvider", () => {
         Plaintext: Buffer.from("hello"),
         KeyId: "k-dec",
       }));
-      const result = await p.decrypt("k1", Buffer.from("ct").toString("base64"));
+      const result = await p.decrypt(
+        "k1",
+        Buffer.from("ct").toString("base64"),
+      );
       expect(new TextDecoder().decode(result.plaintext)).to.equal("hello");
       expect(result.keyId).to.equal("k-dec");
     });

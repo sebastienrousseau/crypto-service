@@ -65,7 +65,10 @@ import {
 // Underlying keygen module ref for mocking non-Error throws in useKeypair.
 // The barrel export uses a getter, so mutating keygen.generateKeyPair is
 // visible to all code that accesses it through the barrel.
-const keygen = require("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+import * as keygenModule from "@sebastienrousseau/crypto-lib/dist/keys/keygen";
+const keygen: {
+  -readonly [K in keyof typeof keygenModule]: (typeof keygenModule)[K];
+} = keygenModule;
 
 // ── Tests ──
 
@@ -305,7 +308,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
       // The composable imports generateKeyPair which resolves to keygen.generateKeyPair.
       // Since it's the same object reference, mutating the property is seen by the composable.
       const origGen = keygen.generateKeyPair;
-      keygen.generateKeyPair = () => { throw "string-error"; };
+      keygen.generateKeyPair = () => {
+        throw "string-error";
+      };
 
       const result = useKeypair();
       try {
@@ -557,7 +562,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
 
     it("should wrap non-Error encrypt throws in Error", async () => {
       const origEncrypt = (crypto as Record<string, unknown>).encrypt;
-      (crypto as Record<string, unknown>).encrypt = () => { throw "encrypt-string-error"; };
+      (crypto as Record<string, unknown>).encrypt = () => {
+        throw "encrypt-string-error";
+      };
 
       const result = useEncrypt();
       const key = crypto.randomKey();
@@ -566,7 +573,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
-        expect((result.error.value as Error).message).to.equal("encrypt-string-error");
+        expect((result.error.value as Error).message).to.equal(
+          "encrypt-string-error",
+        );
       }
 
       (crypto as Record<string, unknown>).encrypt = origEncrypt;
@@ -574,7 +583,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
 
     it("should wrap non-Error decrypt throws in Error", async () => {
       const origDecrypt = (crypto as Record<string, unknown>).decrypt;
-      (crypto as Record<string, unknown>).decrypt = () => { throw "decrypt-string-error"; };
+      (crypto as Record<string, unknown>).decrypt = () => {
+        throw "decrypt-string-error";
+      };
 
       const result = useEncrypt();
       const key = crypto.randomKey();
@@ -583,7 +594,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
-        expect((result.error.value as Error).message).to.equal("decrypt-string-error");
+        expect((result.error.value as Error).message).to.equal(
+          "decrypt-string-error",
+        );
       }
 
       (crypto as Record<string, unknown>).decrypt = origDecrypt;
@@ -710,7 +723,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
 
     it("should wrap non-Error hash throws in Error", async () => {
       const origHash = (crypto as Record<string, unknown>).hash;
-      (crypto as Record<string, unknown>).hash = () => { throw "hash-string-error"; };
+      (crypto as Record<string, unknown>).hash = () => {
+        throw "hash-string-error";
+      };
 
       const result = useHash();
       try {
@@ -718,7 +733,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
-        expect((result.error.value as Error).message).to.equal("hash-string-error");
+        expect((result.error.value as Error).message).to.equal(
+          "hash-string-error",
+        );
       }
 
       (crypto as Record<string, unknown>).hash = origHash;
@@ -802,12 +819,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
       expect(result.signature.value).to.equal(sig);
       expect(result.algorithm.value).to.equal("ed25519");
 
-      const valid = await result.verify(
-        "ed25519",
-        kp.publicKey,
-        "hello",
-        sig,
-      );
+      const valid = await result.verify("ed25519", kp.publicKey, "hello", sig);
       expect(valid).to.be.true;
       expect(result.isValid.value).to.be.true;
       expect(result.algorithm.value).to.equal("ed25519");
@@ -906,12 +918,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
     it("should handle unsupported verify algorithm", async () => {
       const result = useSignature();
       try {
-        await result.verify(
-          "bad-algo" as SignAlgorithm,
-          "key",
-          "msg",
-          "sig",
-        );
+        await result.verify("bad-algo" as SignAlgorithm, "key", "msg", "sig");
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
@@ -923,8 +930,11 @@ describe("@sebastienrousseau/crypto-vue", () => {
       // the `err instanceof Error ? err : new Error(String(err))` else branch
       const desc = Object.getOwnPropertyDescriptor(crypto, "sign")!;
       Object.defineProperty(crypto, "sign", {
-        value: () => { throw "sign-string-error"; },
-        writable: true, configurable: true,
+        value: () => {
+          throw "sign-string-error";
+        },
+        writable: true,
+        configurable: true,
       });
 
       const result = useSignature();
@@ -933,7 +943,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
-        expect((result.error.value as Error).message).to.equal("sign-string-error");
+        expect((result.error.value as Error).message).to.equal(
+          "sign-string-error",
+        );
       }
 
       Object.defineProperty(crypto, "sign", desc);
@@ -942,8 +954,11 @@ describe("@sebastienrousseau/crypto-vue", () => {
     it("should wrap non-Error verify throws in Error (coverage: line 97)", async () => {
       const desc = Object.getOwnPropertyDescriptor(crypto, "verify")!;
       Object.defineProperty(crypto, "verify", {
-        value: () => { throw "verify-string-error"; },
-        writable: true, configurable: true,
+        value: () => {
+          throw "verify-string-error";
+        },
+        writable: true,
+        configurable: true,
       });
 
       const result = useSignature();
@@ -952,7 +967,9 @@ describe("@sebastienrousseau/crypto-vue", () => {
         expect.fail("Should have thrown");
       } catch {
         expect(result.error.value).to.be.instanceOf(Error);
-        expect((result.error.value as Error).message).to.equal("verify-string-error");
+        expect((result.error.value as Error).message).to.equal(
+          "verify-string-error",
+        );
       }
 
       Object.defineProperty(crypto, "verify", desc);

@@ -4,7 +4,11 @@ import { EncryptionTransformer } from "../src/transformer";
 import { EncryptionSubscriber } from "../src/subscriber";
 import { EncryptedColumn } from "../src/decorator";
 import type { EncryptionConfig } from "../src/types";
+import type { InsertEvent, LoadEvent, UpdateEvent } from "typeorm";
 import { secretbox } from "@sebastienrousseau/crypto-lib";
+
+/** Entity shape the subscriber operates on. */
+type Entity = Record<string, unknown>;
 
 // 256-bit key as 64-char hex string
 const TEST_KEY =
@@ -200,7 +204,7 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new User();
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       expect(entity.ssn).to.not.equal("123-45-6789");
       expect(entity.email).to.not.equal("alice@example.com");
@@ -224,7 +228,7 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new User();
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       expect(entity.ssn).to.be.null;
       expect(entity.email).to.be.undefined;
@@ -241,7 +245,7 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new User();
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       expect(entity.metadata).to.be.a("string");
       const decrypted = Buffer.from(
@@ -261,7 +265,7 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new Order();
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       expect(entity.total).to.equal(99.99);
     });
@@ -273,7 +277,7 @@ describe("EncryptionSubscriber", () => {
       });
 
       const entity = { ssn: "123-45-6789" };
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       // Plain Object's constructor.name is "Object", which is excluded
       expect(entity.ssn).to.equal("123-45-6789");
@@ -292,7 +296,7 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new User();
-      sub.beforeUpdate({ entity } as any);
+      sub.beforeUpdate({ entity } as unknown as UpdateEvent<Entity>);
 
       expect(entity.email).to.not.equal("updated@example.com");
     });
@@ -304,7 +308,7 @@ describe("EncryptionSubscriber", () => {
       });
 
       // Should not throw
-      sub.beforeUpdate({ entity: undefined } as any);
+      sub.beforeUpdate({ entity: undefined } as unknown as UpdateEvent<Entity>);
     });
 
     it("handles null entity gracefully", () => {
@@ -314,7 +318,7 @@ describe("EncryptionSubscriber", () => {
       });
 
       // Should not throw
-      sub.beforeUpdate({ entity: null } as any);
+      sub.beforeUpdate({ entity: null } as unknown as UpdateEvent<Entity>);
     });
   });
 
@@ -405,7 +409,7 @@ describe("EncryptionSubscriber", () => {
 
       const entity = new User();
       // Pass a mock event (should be ignored)
-      sub.afterLoad(entity, { entity } as any);
+      sub.afterLoad(entity, { entity } as unknown as LoadEvent<Entity>);
 
       expect(entity.email).to.equal("alice@test.com");
     });
@@ -443,7 +447,7 @@ describe("EncryptionSubscriber", () => {
       const entity = new User();
 
       // Simulate insert
-      sub.beforeInsert({ entity } as any);
+      sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
       expect(entity.email).to.not.equal("round-trip@test.com");
       expect(entity.ssn).to.not.equal("999-88-7777");
 
@@ -466,7 +470,7 @@ describe("EncryptionSubscriber", () => {
 
       const entity = new User();
 
-      sub.beforeUpdate({ entity } as any);
+      sub.beforeUpdate({ entity } as unknown as UpdateEvent<Entity>);
       expect(entity.email).to.not.equal("updated@test.com");
 
       sub.afterLoad(entity);
@@ -514,9 +518,9 @@ describe("EncryptedColumn decorator", () => {
     delete process.env.TYPEORM_ENCRYPTION_KEY;
 
     try {
-      expect(() =>
-        EncryptedColumn({ encrypt: { key: "" } }),
-      ).to.throw("encryption key is required");
+      expect(() => EncryptedColumn({ encrypt: { key: "" } })).to.throw(
+        "encryption key is required",
+      );
     } finally {
       if (saved !== undefined) {
         process.env.TYPEORM_ENCRYPTION_KEY = saved;

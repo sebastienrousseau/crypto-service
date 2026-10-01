@@ -1,5 +1,9 @@
 import { expect } from "chai";
 import { crypto } from "../src/crypto";
+import {
+  hashPassword as hp,
+  verifyPassword as vp,
+} from "../src/modern/password";
 
 describe("Unified Crypto API", () => {
   describe("randomKey", () => {
@@ -70,11 +74,6 @@ describe("Unified Crypto API", () => {
   describe("hashPassword / verifyPassword", () => {
     it("should hash and verify a password", () => {
       // Use lightweight Argon2id via the lower-level API to avoid 64MB default
-      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-      const {
-        hashPassword: hp,
-        verifyPassword: vp,
-      } = require("../src/modern/password");
       const hashed = hp({
         password: "mypassword",
         timeCost: 1,

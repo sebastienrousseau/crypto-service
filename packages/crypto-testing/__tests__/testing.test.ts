@@ -34,6 +34,14 @@ import {
 // -- index.ts barrel re-exports --
 import * as barrel from "../src/index";
 
+// -- crypto-lib, patched in place by the failure-path helper tests --
+import { crypto as libCrypto } from "@sebastienrousseau/crypto-lib";
+
+/** Writable view of the crypto-lib facade so tests can monkey-patch it. */
+type MutableCrypto = {
+  -readonly [K in keyof typeof libCrypto]: (typeof libCrypto)[K];
+};
+
 // ============================================================================
 // keys.ts
 // ============================================================================
@@ -41,15 +49,23 @@ import * as barrel from "../src/index";
 describe("keys", () => {
   describe("TEST_KEYS", () => {
     it("should have ed25519 key pair with hex public and private keys", () => {
-      expect(TEST_KEYS.ed25519).to.have.property("publicKey").that.is.a("string");
-      expect(TEST_KEYS.ed25519).to.have.property("privateKey").that.is.a("string");
+      expect(TEST_KEYS.ed25519)
+        .to.have.property("publicKey")
+        .that.is.a("string");
+      expect(TEST_KEYS.ed25519)
+        .to.have.property("privateKey")
+        .that.is.a("string");
       expect(TEST_KEYS.ed25519.publicKey).to.have.lengthOf(64);
       expect(TEST_KEYS.ed25519.privateKey).to.have.lengthOf(64);
     });
 
     it("should have x25519 key pair with hex public and private keys", () => {
-      expect(TEST_KEYS.x25519).to.have.property("publicKey").that.is.a("string");
-      expect(TEST_KEYS.x25519).to.have.property("privateKey").that.is.a("string");
+      expect(TEST_KEYS.x25519)
+        .to.have.property("publicKey")
+        .that.is.a("string");
+      expect(TEST_KEYS.x25519)
+        .to.have.property("privateKey")
+        .that.is.a("string");
       expect(TEST_KEYS.x25519.publicKey).to.have.lengthOf(64);
       expect(TEST_KEYS.x25519.privateKey).to.have.lengthOf(64);
     });
@@ -421,7 +437,12 @@ describe("fixtures", () => {
 
     it("should produce a verifiable signature", () => {
       const msg = createTestSignedMessage();
-      const valid = mockVerify(msg.publicKey, msg.message, msg.signature, msg.privateKey);
+      const valid = mockVerify(
+        msg.publicKey,
+        msg.message,
+        msg.signature,
+        msg.privateKey,
+      );
       expect(valid).to.be.true;
     });
 
@@ -474,7 +495,9 @@ describe("helpers", () => {
     });
 
     it("should throw for empty string", () => {
-      expect(() => expectValidHex("")).to.throw("Expected a non-empty hex string");
+      expect(() => expectValidHex("")).to.throw(
+        "Expected a non-empty hex string",
+      );
     });
 
     it("should throw for non-string (number coerced)", () => {
@@ -516,7 +539,9 @@ describe("helpers", () => {
 
   describe("expectValidBase64", () => {
     it("should accept valid Base64 strings", () => {
-      expect(() => expectValidBase64(Buffer.from("hello").toString("base64"))).to.not.throw();
+      expect(() =>
+        expectValidBase64(Buffer.from("hello").toString("base64")),
+      ).to.not.throw();
     });
 
     it("should accept Base64 with padding", () => {
@@ -533,7 +558,9 @@ describe("helpers", () => {
     });
 
     it("should throw for empty string", () => {
-      expect(() => expectValidBase64("")).to.throw("Expected a non-empty Base64 string");
+      expect(() => expectValidBase64("")).to.throw(
+        "Expected a non-empty Base64 string",
+      );
     });
 
     it("should throw for non-string", () => {
@@ -543,7 +570,9 @@ describe("helpers", () => {
     });
 
     it("should throw for invalid Base64 characters", () => {
-      expect(() => expectValidBase64("not!valid@base64")).to.throw("not valid Base64");
+      expect(() => expectValidBase64("not!valid@base64")).to.throw(
+        "not valid Base64",
+      );
     });
 
     it("should throw for Base64 that does not survive round-trip", () => {
@@ -551,7 +580,9 @@ describe("helpers", () => {
       // "A" is valid regex match but single char doesn't round-trip correctly
       // "AAAA" round-trips fine, but "A===" would fail.
       // Let's pick something that matches regex but doesn't round-trip:
-      expect(() => expectValidBase64("A")).to.throw("does not survive round-trip");
+      expect(() => expectValidBase64("A")).to.throw(
+        "does not survive round-trip",
+      );
     });
   });
 
@@ -576,11 +607,15 @@ describe("helpers", () => {
     });
 
     it("should throw for null input", () => {
-      expect(() => expectKeyPair(null as never)).to.throw("Expected a key pair object");
+      expect(() => expectKeyPair(null as never)).to.throw(
+        "Expected a key pair object",
+      );
     });
 
     it("should throw for undefined input", () => {
-      expect(() => expectKeyPair(undefined as never)).to.throw("Expected a key pair object");
+      expect(() => expectKeyPair(undefined as never)).to.throw(
+        "Expected a key pair object",
+      );
     });
 
     it("should throw for non-object input", () => {
@@ -620,27 +655,29 @@ describe("helpers", () => {
 
   describe("expectEncryptDecryptRoundTrip", () => {
     it("should succeed for a valid key and plaintext", () => {
-      const { crypto: cryptoLib } = require("@sebastienrousseau/crypto-lib");
+      const cryptoLib: MutableCrypto = libCrypto;
       const key = cryptoLib.randomKey();
-      expect(() => expectEncryptDecryptRoundTrip(key, "hello world")).to.not.throw();
+      expect(() =>
+        expectEncryptDecryptRoundTrip(key, "hello world"),
+      ).to.not.throw();
     });
 
     it("should succeed for longer plaintext", () => {
-      const { crypto: cryptoLib } = require("@sebastienrousseau/crypto-lib");
+      const cryptoLib: MutableCrypto = libCrypto;
       const key = cryptoLib.randomKey();
       const longText = "A".repeat(1000);
       expect(() => expectEncryptDecryptRoundTrip(key, longText)).to.not.throw();
     });
 
     it("should succeed for empty plaintext", () => {
-      const { crypto: cryptoLib } = require("@sebastienrousseau/crypto-lib");
+      const cryptoLib: MutableCrypto = libCrypto;
       const key = cryptoLib.randomKey();
       expect(() => expectEncryptDecryptRoundTrip(key, "")).to.not.throw();
     });
 
     it("should throw when round-trip produces different plaintext", () => {
       // Monkey-patch crypto.decrypt to return wrong data
-      const { crypto: cryptoLib } = require("@sebastienrousseau/crypto-lib");
+      const cryptoLib: MutableCrypto = libCrypto;
       const originalDecrypt = cryptoLib.decrypt;
       try {
         cryptoLib.decrypt = () => Buffer.from("WRONG DATA", "utf8");
@@ -698,7 +735,7 @@ describe("helpers", () => {
 
     it("should throw when verification returns false", () => {
       // Monkey-patch crypto.verify to return false
-      const { crypto: cryptoLib } = require("@sebastienrousseau/crypto-lib");
+      const cryptoLib: MutableCrypto = libCrypto;
       const originalVerify = cryptoLib.verify;
       try {
         cryptoLib.verify = () => false;
@@ -754,7 +791,9 @@ describe("index barrel exports", () => {
   });
 
   it("should export createTestEncryptedMessage", () => {
-    expect(barrel.createTestEncryptedMessage).to.equal(createTestEncryptedMessage);
+    expect(barrel.createTestEncryptedMessage).to.equal(
+      createTestEncryptedMessage,
+    );
   });
 
   it("should export createTestSignedMessage", () => {
@@ -778,10 +817,14 @@ describe("index barrel exports", () => {
   });
 
   it("should export expectEncryptDecryptRoundTrip", () => {
-    expect(barrel.expectEncryptDecryptRoundTrip).to.equal(expectEncryptDecryptRoundTrip);
+    expect(barrel.expectEncryptDecryptRoundTrip).to.equal(
+      expectEncryptDecryptRoundTrip,
+    );
   });
 
   it("should export expectSignVerifyRoundTrip", () => {
-    expect(barrel.expectSignVerifyRoundTrip).to.equal(expectSignVerifyRoundTrip);
+    expect(barrel.expectSignVerifyRoundTrip).to.equal(
+      expectSignVerifyRoundTrip,
+    );
   });
 });

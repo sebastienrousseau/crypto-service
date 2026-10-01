@@ -35,13 +35,15 @@ const mockReact: Record<string, unknown> = {
       stateStore.set(idx, initial);
     }
     const value = stateStore.get(idx) as T;
-    const setter = (v: T) => { stateStore.set(idx, v); };
+    const setter = (v: T) => {
+      stateStore.set(idx, v);
+    };
     return [value, setter];
   },
-  useCallback<T>(fn: T, _deps: unknown[]): T {
+  useCallback<T>(fn: T): T {
     return fn;
   },
-  useMemo<T>(fn: () => T, _deps: unknown[]): T {
+  useMemo<T>(fn: () => T): T {
     return fn();
   },
   createContext<T>(defaultValue: T): object {
@@ -50,7 +52,10 @@ const mockReact: Record<string, unknown> = {
     return ctx;
   },
   useContext(ctx: object): unknown {
-    return defaultContextValues.get(ctx) ?? (ctx as { _defaultValue: unknown })._defaultValue;
+    return (
+      defaultContextValues.get(ctx) ??
+      (ctx as { _defaultValue: unknown })._defaultValue
+    );
   },
   // React JSX runtime needs createElement for the provider component
   createElement(type: unknown, props: unknown, ...children: unknown[]) {
@@ -120,7 +125,10 @@ function uncache(pattern: string) {
 }
 uncache("crypto-react/src");
 
-const indexModule = require("../src/index");
+// TypeScript compiles this suite to CommonJS and emits each import's
+// require() at its source position, so the module under test loads after
+// the React mock above has been installed in require.cache.
+import * as indexModule from "../src/index";
 const {
   CryptoProvider,
   useCryptoContext,
@@ -279,8 +287,12 @@ describe("@sebastienrousseau/crypto-react", () => {
       // After generate(), state setters were called. Re-invoke to read updated state.
       stateIdx = 0;
       const updated = useKeypair();
-      expect(updated.publicKey).to.be.a("string").and.have.length.greaterThan(0);
-      expect(updated.privateKey).to.be.a("string").and.have.length.greaterThan(0);
+      expect(updated.publicKey)
+        .to.be.a("string")
+        .and.have.length.greaterThan(0);
+      expect(updated.privateKey)
+        .to.be.a("string")
+        .and.have.length.greaterThan(0);
       expect(updated.algorithm).to.equal("ed25519");
       expect(updated.isGenerating).to.be.false;
     });
@@ -469,9 +481,13 @@ describe("@sebastienrousseau/crypto-react", () => {
       const key = crypto.randomKey();
       const result = seal(key, "test plaintext");
       expect(result).to.have.property("sealed").that.is.a("string");
-      expect(result).to.have.property("algorithm").that.equals("xchacha20-poly1305");
+      expect(result)
+        .to.have.property("algorithm")
+        .that.equals("xchacha20-poly1305");
       const decrypted = open(key, result.sealed);
-      expect(Buffer.from(decrypted).toString("utf8")).to.equal("test plaintext");
+      expect(Buffer.from(decrypted).toString("utf8")).to.equal(
+        "test plaintext",
+      );
     });
 
     it("seal and open round-trip with Uint8Array plaintext", () => {
