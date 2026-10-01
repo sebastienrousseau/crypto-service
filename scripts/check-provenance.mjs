@@ -23,7 +23,7 @@ const names = readdirSync(`${ROOT}packages`)
   .map((pkg) => pkg.name);
 
 async function problem(name) {
-  const url = `https://registry.npmjs.org/${name.replace("/", "%2f")}`;
+  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}`;
   const res = await fetch(url, { headers: { "cache-control": "no-cache" } });
   if (!res.ok) return `${name}: registry returned ${res.status}`;
   const meta = (await res.json()).versions?.[version];
