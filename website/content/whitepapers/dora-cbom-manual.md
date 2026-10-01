@@ -74,7 +74,7 @@ A CycloneDX 1.6 CBOM lists cryptographic assets as components with <code>crypto-
 <section id="automated-pipeline" class="research-section">
 <h2>3. Generating and Auditing a CBOM in CI</h2>
 <p class="lead-text">
-<code>@sebastienrousseau/crypto-cbom</code> is not published to npm yet; build it from the repository. Its CLI has two commands: <code>scan</code> writes a CycloneDX (or, with <code>--format spdx</code>, SPDX) CBOM, and <code>audit</code> validates a CBOM and prints an audit.
+Install <code>@sebastienrousseau/crypto-cbom</code> from npm (0.0.8 or later). Its CLI has two commands: <code>scan</code> writes a CycloneDX (or, with <code>--format spdx</code>, SPDX) CBOM, and <code>audit</code> validates a CBOM and prints an audit.
 </p>
 <pre><code>crypto-cbom scan src/ --format cyclonedx --output cbom.cdx.json
 crypto-cbom audit cbom.cdx.json</code></pre>

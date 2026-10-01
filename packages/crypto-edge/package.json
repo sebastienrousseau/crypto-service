@@ -1,14 +1,14 @@
 {
   "name": "@sebastienrousseau/crypto-edge",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
   "repository": {
-    "directory": "packages/crypto-edge",
     "type": "git",
-    "url": "git@github.com:sebastienrousseau/crypto-service.git"
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-edge"
   },
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
@@ -48,7 +48,7 @@
     "@types/chai": "^4.3.7",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.2",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.3",
     "c8": "^12.0.0",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",

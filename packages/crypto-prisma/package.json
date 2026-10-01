@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-prisma",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Prisma ORM integration for transparent field-level encryption using crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -39,7 +39,7 @@
     "@prisma/client": "^5.0.0 || ^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.3",
     "c8": "^12.0.0",
     "chai": "^4.5.0",
     "mocha": "^10.8.2",
@@ -49,6 +49,11 @@
     "typescript": "~5.9.3"
   },
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-prisma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/crypto-service.git",
+    "directory": "packages/crypto-prisma"
+  },
   "publishConfig": {
     "access": "public"
   },
