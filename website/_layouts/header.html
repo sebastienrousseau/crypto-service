@@ -22,19 +22,19 @@
                 <div class="swift-dropdown-heading">Post-Quantum Cryptography</div>
                 <a href="{{site_path}}solutions/#post-quantum" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">ML-KEM Key Encapsulation</div>
-                  <div class="swift-dropdown-item-desc">NIST FIPS 203 lattice key agreement for interbank TLS and tunnel encryption.</div>
+                  <div class="swift-dropdown-item-desc">NIST FIPS 203 lattice key encapsulation (ML-KEM-512, 768 and 1024).</div>
                 </a>
                 <a href="{{site_path}}solutions/#signatures" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">ML-DSA &amp; SLH-DSA Signatures</div>
-                  <div class="swift-dropdown-item-desc">NIST FIPS 204 &amp; 205 digital signatures for high-value financial transfers.</div>
+                  <div class="swift-dropdown-item-desc">NIST FIPS 204 &amp; 205 signature algorithms (ML-DSA, SLH-DSA); not a validated module.</div>
                 </a>
                 <a href="{{site_path}}standards/#cnsa" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">CNSA 2.0 Hybrid Dual-Layers</div>
-                  <div class="swift-dropdown-item-desc">Composite X25519 + Kyber handshakes fulfilling NSA and BSI mandates.</div>
+                  <div class="swift-dropdown-item-title">Hybrid KEM &amp; CNSA 2.0 Parameters</div>
+                  <div class="swift-dropdown-item-desc">X25519 + ML-KEM hybrid key encapsulation; ML-KEM-1024 and ML-DSA-87 available, not validated.</div>
                 </a>
                 <a href="{{site_path}}solutions/#entropy" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Deterministic Entropy &amp; KDF</div>
-                  <div class="swift-dropdown-item-desc">Hardware-seeded HKDF, Argon2id, and PBKDF2 for multi-party transaction keys.</div>
+                  <div class="swift-dropdown-item-title">Entropy &amp; Key Derivation</div>
+                  <div class="swift-dropdown-item-desc">Platform CSPRNG randomness with HKDF, Argon2id, and PBKDF2 key derivation.</div>
                 </a>
               </div>
 
@@ -45,43 +45,43 @@
                   <div class="swift-dropdown-item-desc">Transparent ORM column-level encryption for Prisma and TypeORM.</div>
                 </a>
                 <a href="{{site_path}}solutions/#multi-cloud-kms" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Multi-Cloud KMS Orchestration</div>
-                  <div class="swift-dropdown-item-desc">Unified abstraction across AWS KMS, GCP KMS, Azure Key Vault &amp; HashiCorp Vault.</div>
+                  <div class="swift-dropdown-item-title">KMS Provider Interface</div>
+                  <div class="swift-dropdown-item-desc">One interface for key management; AWS KMS and local providers implemented, others are stubs.</div>
                 </a>
                 <a href="{{site_path}}solutions/#edge-wasm" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Edge &amp; WebAssembly Core</div>
-                  <div class="swift-dropdown-item-desc">Near-native SIMD execution for Cloudflare Workers, Fastly, Bun, and browsers.</div>
+                  <div class="swift-dropdown-item-title">Edge Runtime Support</div>
+                  <div class="swift-dropdown-item-desc">JavaScript adapters for Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.</div>
                 </a>
                 <a href="{{site_path}}solutions/#caas-server" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Sovereign CaaS Daemon</div>
-                  <div class="swift-dropdown-item-desc">Fastify HTTP/2 microservice for centralized cryptographic operations.</div>
+                  <div class="swift-dropdown-item-desc">Self-hosted Fastify REST microservice for centralized cryptographic operations.</div>
                 </a>
               </div>
 
               <div class="swift-dropdown-col">
-                <div class="swift-dropdown-heading">Audit &amp; Compliance</div>
+                <div class="swift-dropdown-heading">Audit &amp; Standards</div>
                 <a href="{{site_path}}standards/#cbom" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Cryptographic Bill of Materials</div>
-                  <div class="swift-dropdown-item-desc">CycloneDX CBOM tracking every key, algorithm, curve, and certificate lifespan.</div>
+                  <div class="swift-dropdown-item-desc">CycloneDX 1.6 and SPDX 3.0 CBOMs generated from algorithm usage in source code.</div>
                 </a>
                 <a href="{{site_path}}standards/#dora" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">DORA Articles 13 &amp; 14 Compliance</div>
-                  <div class="swift-dropdown-item-desc">Operational resilience protocols meeting European Union Digital Resilience rules.</div>
+                  <div class="swift-dropdown-item-title">DORA Supporting Tools</div>
+                  <div class="swift-dropdown-item-desc">CBOM and KMS building blocks that can feed DORA work; no compliance claim.</div>
                 </a>
                 <a href="{{site_path}}compare/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Institutional Comparison Matrix</div>
-                  <div class="swift-dropdown-item-desc">Benchmark Crypto Service vs Fireblocks, Copper, BitGo, and legacy custodians.</div>
+                  <div class="swift-dropdown-item-desc">Architectural comparison with Fireblocks, Copper, BitGo, and Hedera.</div>
                 </a>
                 <a href="{{site_path}}standards/" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Standards Compliance Portal</div>
-                  <div class="swift-dropdown-item-desc">Complete FIPS, ANSSI, BSI, and NIST algorithmic verification registry.</div>
+                  <div class="swift-dropdown-item-title">Standards Coverage</div>
+                  <div class="swift-dropdown-item-desc">Which FIPS, NIST and CNSA 2.0 algorithms are implemented, and their validation status.</div>
                 </a>
               </div>
 
               <div class="swift-dropdown-spotlight">
-                <div class="swift-spotlight-badge">PRODUCTION READY</div>
+                <div class="swift-spotlight-badge">SELF-HOSTED</div>
                 <div class="swift-spotlight-title">CaaS Server Daemon</div>
-                <p class="swift-spotlight-text">Deploy high-throughput sovereign microservices handling 100k+ ops/sec with sub-millisecond PQC signing.</p>
+                <p class="swift-spotlight-text">Run crypto-lib operations behind a rate-limited Fastify REST API on infrastructure you control.</p>
                 <a href="{{site_path}}solutions/" class="swift-spotlight-link">Explore Solutions Overview →</a>
               </div>
             </div>
@@ -100,19 +100,19 @@
                 <div class="swift-dropdown-heading">Core Workspace Packages</div>
                 <a href="{{site_path}}packages/crypto-lib/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-lib</div>
-                  <div class="swift-dropdown-item-desc">Zero-dependency, pure post-quantum cryptographic primitives and mathematical lattices.</div>
+                  <div class="swift-dropdown-item-desc">Post-quantum and classical primitives built on the @noble/* libraries and OpenPGP.js.</div>
                 </a>
                 <a href="{{site_path}}packages/crypto-server/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-server</div>
-                  <div class="swift-dropdown-item-desc">Sovereign CaaS daemon with HTTP/2 and gRPC institutional endpoints.</div>
+                  <div class="swift-dropdown-item-desc">Self-hosted CaaS daemon exposing crypto-lib over a Fastify REST API.</div>
                 </a>
                 <a href="{{site_path}}packages/crypto-cli/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-cli</div>
-                  <div class="swift-dropdown-item-desc">Production-grade key generation, signing, and verification CLI for automated DevOps.</div>
+                  <div class="swift-dropdown-item-desc">Interactive terminal menu for key generation, encryption, signing, hashing, and CBOMs.</div>
                 </a>
                 <a href="{{site_path}}packages/crypto-sdk/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-sdk</div>
-                  <div class="swift-dropdown-item-desc">Unified TypeScript/JavaScript client for web, Node, and edge runtimes.</div>
+                  <div class="swift-dropdown-item-desc">Fetch-based TypeScript client for the crypto-server API, with no runtime dependencies.</div>
                 </a>
               </div>
 
@@ -120,11 +120,11 @@
                 <div class="swift-dropdown-heading">Enterprise &amp; Frameworks</div>
                 <a href="{{site_path}}packages/crypto-kms/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-kms</div>
-                  <div class="swift-dropdown-item-desc">Universal KMS broker for AWS, GCP, Azure, and PKCS#11 hardware security modules.</div>
+                  <div class="swift-dropdown-item-desc">KMS interface with AWS KMS and local providers; other providers are stubs or simulations.</div>
                 </a>
                 <a href="{{site_path}}packages/crypto-edge/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-edge</div>
-                  <div class="swift-dropdown-item-desc">Low-latency WebAssembly crypto engine optimized for Cloudflare Workers &amp; Fastly.</div>
+                  <div class="swift-dropdown-item-desc">Runtime detection and adapters for Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.</div>
                 </a>
                 <a href="{{site_path}}packages/crypto-prisma/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-prisma</div>
@@ -132,7 +132,7 @@
                 </a>
                 <a href="{{site_path}}packages/crypto-typeorm/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-typeorm</div>
-                  <div class="swift-dropdown-item-desc">Automated column-level envelope encryption for TypeORM enterprise systems.</div>
+                  <div class="swift-dropdown-item-desc">@EncryptedColumn() decorator encrypting TypeORM column values with XChaCha20-Poly1305.</div>
                 </a>
               </div>
 
@@ -152,14 +152,14 @@
                 </a>
                 <a href="{{site_path}}packages/crypto-testing/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">@sebastienrousseau/crypto-testing</div>
-                  <div class="swift-dropdown-item-desc">FIPS vector test harnesses and synthetic institutional fixtures for CI/CD.</div>
+                  <div class="swift-dropdown-item-desc">RFC test vectors, synthetic key fixtures, and test helpers for CI.</div>
                 </a>
               </div>
 
               <div class="swift-dropdown-spotlight">
                 <div class="swift-spotlight-badge">18 WORKSPACE MODULES</div>
                 <div class="swift-spotlight-title">Monorepo Suite</div>
-                <p class="swift-spotlight-text">All 18 workspace packages move in strict lockstep with 100% test coverage floor across all metrics.</p>
+                <p class="swift-spotlight-text">All 18 workspace packages move in lockstep; CI enforces 100% line and function coverage in each.</p>
                 <a href="{{site_path}}ecosystem/" class="swift-spotlight-link">Browse Full Ecosystem →</a>
               </div>
             </div>
@@ -176,17 +176,17 @@
             <div class="swift-dropdown-container">
               <div class="swift-dropdown-col">
                 <div class="swift-dropdown-heading">Announcements &amp; Releases</div>
-                <a href="{{site_path}}news/#release-v004" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Production Release v0.0.5</div>
-                  <div class="swift-dropdown-item-desc">Complete FIPS 203/204 standard compliance across all 18 monorepo packages.</div>
+                <a href="{{site_path}}news/#release-v006" class="swift-dropdown-item">
+                  <div class="swift-dropdown-item-title">Release v0.0.6</div>
+                  <div class="swift-dropdown-item-desc">Unified release pipeline, dependency security overrides, and Windows build fixes.</div>
                 </a>
                 <a href="{{site_path}}whitepapers/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Institutional White Papers</div>
                   <div class="swift-dropdown-item-desc">Flagship publications, threat models, benchmarks, and architectural treatises.</div>
                 </a>
                 <a href="{{site_path}}news/#benchmarks" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Global Benchmark Publication</div>
-                  <div class="swift-dropdown-item-desc">Sub-millisecond latency verified for post-quantum transaction signing on ARM64.</div>
+                  <div class="swift-dropdown-item-title">Benchmarking Guide</div>
+                  <div class="swift-dropdown-item-desc">How to measure ML-KEM and ML-DSA latency on your own hardware with the committed script.</div>
                 </a>
               </div>
 
@@ -194,7 +194,7 @@
                 <div class="swift-dropdown-heading">Research &amp; Industry Trends</div>
                 <a href="{{site_path}}research/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">2027 Financial Migration Roadmap</div>
-                  <div class="swift-dropdown-item-desc">Regulatory analysis of NIST, ANSSI, BSI, and CNSA 2.0 institutional deadlines.</div>
+                  <div class="swift-dropdown-item-desc">Analysis of NIST and CNSA 2.0 post-quantum migration timelines.</div>
                 </a>
                 <a href="{{site_path}}research/#threat-model" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Harvest-Now-Decrypt-Later Defense</div>
@@ -247,8 +247,8 @@
                   <div class="swift-dropdown-item-desc">Eliminating third-party vendor lock-in and foreign counterparty key custody.</div>
                 </a>
                 <a href="{{site_path}}about/#zero-dependency" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Zero-Dependency Architecture</div>
-                  <div class="swift-dropdown-item-desc">Preventing supply-chain compromises in critical financial infrastructure.</div>
+                  <div class="swift-dropdown-item-title">Four-Layer Monorepo Architecture</div>
+                  <div class="swift-dropdown-item-desc">18 packages in four layers: primitives, infrastructure, clients, and assurance tooling.</div>
                 </a>
                 <a href="{{site_path}}about/#versioning" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Deterministic Releases</div>
@@ -259,28 +259,28 @@
               <div class="swift-dropdown-col">
                 <div class="swift-dropdown-heading">Trust &amp; Quality Gates</div>
                 <a href="{{site_path}}about/#coverage" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">100% Test Coverage Floor</div>
-                  <div class="swift-dropdown-item-desc">Strict floor across statements, branches, functions, and lines on all packages.</div>
+                  <div class="swift-dropdown-item-title">Coverage Gates</div>
+                  <div class="swift-dropdown-item-desc">100% line and function coverage in every package; 100% branches except crypto-lib (99.5%).</div>
                 </a>
                 <a href="{{site_path}}about/#licensing" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Dual Apache-2.0 / MIT Licensing</div>
-                  <div class="swift-dropdown-item-desc">Permissive dual licensing ensuring frictionless institutional adoption.</div>
+                  <div class="swift-dropdown-item-desc">Permissive dual licensing, with an SBOM, pnpm audit, and CodeQL in CI.</div>
                 </a>
                 <a href="{{site_path}}about/#dora" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">DORA Compliance Ready</div>
-                  <div class="swift-dropdown-item-desc">Designed from inception for EU Digital Operational Resilience Act compliance.</div>
+                  <div class="swift-dropdown-item-title">Regulation &amp; DORA</div>
+                  <div class="swift-dropdown-item-desc">Building blocks such as a CBOM generator that can support DORA work; not a compliance claim.</div>
                 </a>
               </div>
 
               <div class="swift-dropdown-col">
                 <div class="swift-dropdown-heading">Security &amp; Advisory</div>
                 <a href="{{site_path}}about/#disclosure" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Responsible Disclosure</div>
-                  <div class="swift-dropdown-item-desc">Cryptographic advisory board and coordinated vulnerability handling procedures.</div>
+                  <div class="swift-dropdown-item-title">Constant-Time Limits</div>
+                  <div class="swift-dropdown-item-desc">No constant-time guarantee: the implementations are not verified against timing side channels.</div>
                 </a>
                 <a href="{{site_path}}about/#verification" class="swift-dropdown-item">
-                  <div class="swift-dropdown-item-title">Independent Verification</div>
-                  <div class="swift-dropdown-item-desc">Continuous fuzzing, constant-time execution validation, and memory safety.</div>
+                  <div class="swift-dropdown-item-title">Memory Zeroization Limits</div>
+                  <div class="swift-dropdown-item-desc">wipeMemory() and SecureBuffer are exported, but crypto-lib's own APIs do not call them.</div>
                 </a>
                 <a href="{{site_path}}contact/" class="swift-dropdown-item">
                   <div class="swift-dropdown-item-title">Institutional Advisory Services</div>

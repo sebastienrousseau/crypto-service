@@ -51,7 +51,7 @@
           "@id": "{{site_url}}#software",
           "name": "Crypto Service Suite",
           "applicationCategory": "SecurityApplication, DeveloperApplication, FinancialApplication",
-          "operatingSystem": "Universal (Node.js >= 22, Edge, WebAssembly, Linux, macOS, Windows)",
+          "operatingSystem": "Node.js >= 22 (Linux, macOS, Windows); edge runtimes and browsers via crypto-edge",
           "offers": {
             "@type": "AggregateOffer",
             "priceCurrency": "USD",
@@ -71,17 +71,19 @@
               }
             ]
           },
-          "description": "Modular Post-Quantum Crypto-as-a-Service (CaaS) operating core for tier-1 banks, custodians, and enterprise treasuries. FIPS 203 ML-KEM, FIPS 204 ML-DSA, and DORA Article 13 compliance across 18 lockstep packages.",
-          "softwareVersion": "0.0.5",
-          "license": "https://spdx.org/licenses/Apache-2.0.html",
+          "description": "Modular Post-Quantum Crypto-as-a-Service (CaaS) operating core for tier-1 banks, custodians, and enterprise treasuries. FIPS 203 ML-KEM and FIPS 204 ML-DSA algorithms (not a validated module) across 18 lockstep packages.",
+          "softwareVersion": "0.0.7",
+          "license": [
+            "https://spdx.org/licenses/Apache-2.0.html",
+            "https://spdx.org/licenses/MIT.html"
+          ],
           "featureList": [
             "NIST FIPS 203 Post-Quantum Key Encapsulation (ML-KEM-512/768/1024)",
             "NIST FIPS 204 Post-Quantum Digital Signatures (ML-DSA-44/65/87)",
-            "RFC 10024 Hybrid Dual-Key Classical/Post-Quantum Encapsulation",
+            "Hybrid X25519 + ML-KEM Key Encapsulation",
             "Transparent Database Column Encryption for Prisma and TypeORM",
-            "Multi-Cloud KMS Driver Interface (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault)",
-            "Zero External Runtime Dependencies with 100% Test Coverage Floor",
-            "Institutional Rail Interoperability with BitGo CaaS, Copper ClearLoop, Fireblocks, and Hedera"
+            "KMS Provider Interface (AWS KMS and local providers implemented)",
+            "100% Test Coverage Floor"
           ],
           "author": {
             "@type": "Person",
@@ -93,7 +95,7 @@
           "@type": "FinancialService",
           "@id": "{{site_url}}#service",
           "name": "Crypto Service Suite — Sovereign Cryptography as a Service",
-          "description": "Institutional post-quantum cryptographic operating core providing non-custodial key orchestration, off-exchange settlement signing, and automated DORA CBOM compliance.",
+          "description": "Self-hosted post-quantum cryptography toolkit: FIPS 203/204 algorithm implementations (not a validated module), a KMS provider interface, database field encryption, and CycloneDX CBOM generation that can support DORA assessments.",
           "url": "{{site_url}}",
           "serviceType": "Cryptographic Infrastructure & Key Orchestration",
           "provider": {
