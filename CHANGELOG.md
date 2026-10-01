@@ -7,11 +7,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.7] - Unreleased
+## [0.0.7] - 2026-10-01
 
 ### Security
 
-- **PAKE**: the password now enters the key exchange (RFC 9497 OPRF with RFC 9380 hash-to-curve, an envelope holding the client's static key, 3DH and two-way key confirmation compared in constant time). Before, a client MAC could be forged without the password, the stored record allowed offline guessing, and honest logins always failed. It is still not RFC 9807 OPAQUE; the module documents the gaps.
+- **PAKE is RFC 9807 OPAQUE-3DH**: `protocols.pake` implements OPAQUE-3DH (P256-SHA256 and ristretto255-SHA512) and reproduces the RFC 9807 Appendix C test vectors. The server never sees the password, unknown users get an indistinguishable fake response, MACs are compared in constant time, and the default key-stretching function is scrypt with the RFC parameters. The earlier PAKE could be logged into without the password and honest logins always failed. **Breaking:** the API now follows the RFC (`createRegistrationRequest`, `generateKE1` ... `serverFinish`, with byte serialisation for every message); earlier records cannot be converted, so users must register again.
 - **HPKE**: the DHKEM key schedule follows RFC 9180 section 4.1 and is checked against the RFC 9180 test vectors; PSK inputs are validated. Ciphertexts from earlier versions do not open.
 - **ISO 20022 dual signatures**: `verifyIso20022Payment(envelope, payload, trustedKeys)` verifies against caller-supplied keys, not the keys in the envelope, over a length-prefixed statement that includes the timestamp and algorithm identifiers. `/v2/stream/iso20022` requires `trustedKeys`. Earlier envelopes do not verify.
 - **Hybrid KEMs**: the combiner binds both ciphertexts and public keys under a versioned label. Shared secrets differ from 0.0.6. The TLS group names (X25519MLKEM768 and others) are no longer accepted, since this construction is not RFC 10024 or X-Wing; the SecP256r1MLKEM768 codepoint constant is corrected to 0x11EB.
@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Makefile**: `start-crypto-server` and the key-generation targets called scripts that did not exist; `.PHONY` listed comma-separated names.
 
 ### Changed
+
+- **Website**: removed advisory services, SLA support, an enterprise licence offer and an invented provider name that nothing backs; the contact form no longer claims a request was received, and opens a pre-filled GitHub issue instead.
+- **Examples and benchmarks**: all crypto-lib examples compile and run (several had type errors, `web-streams.ts` deadlocked), a new `examples:check` script type-checks them in CI, and the web stream factories return typed `CryptoTransformStream`s. The benchmark script uses the new PAKE API and an in-range Shamir secret.
 
 - **Docs and checks**: markdownlint is blocking in CI after fixing 38 headings that rendered as literal text and the crypto-api doc generator (escaped table cells, spacing); MD041 and MD036 are disabled because the canonical README template requires a logo block first and bold Contents labels. The Windows CI job runs lint and tests. crypto-lib's test environment is set in `.mocharc.cjs` instead of POSIX shell syntax.
 - **Corrections to earlier entries**: the 0.0.5 ISO 20022 entry said "ECDSA/Ed25519 + ML-DSA-87"; the code signs Ed25519 + ML-DSA-65 by default (ML-DSA-44/87 accepted) and has no ECDSA. Entries describing X25519MLKEM768 / RFC 10024 support described a library-specific hybrid, not RFC 10024.
