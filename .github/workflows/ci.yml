@@ -66,6 +66,8 @@ jobs:
         run: pnpm --filter @sebastienrousseau/crypto-lib run examples:check
       # Installs the packed tarballs as a user would and boots the server,
       # catching runtime imports missing from "dependencies".
+      - name: Check publishable manifests
+        run: node scripts/check-manifests.mjs
       - name: Pack and install smoke test
         run: ./scripts/pack-smoke.sh
       - name: Check markdownlint

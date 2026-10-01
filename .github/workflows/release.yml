@@ -27,6 +27,12 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: pnpm install --frozen-lockfile
+
+      # Refuse to publish if the tag and the manifests disagree or a
+      # manifest would be rejected (npm provenance needs repository.url).
+      - name: Preflight manifests against the tag
+        run: node scripts/check-manifests.mjs --tag "$GITHUB_REF_NAME"
+
       - run: pnpm -r run build
       - run: pnpm -r run test
 
@@ -44,13 +50,15 @@ jobs:
         with:
           generate_release_notes: true
 
+      # Fails rather than silently skipping when the token is missing.
+      # pnpm skips package versions that are already on the registry.
       - name: Publish to npm
         run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            pnpm -r publish --access public --no-git-checks --provenance
-          else
-            echo "NPM_TOKEN secret is not set, skipping npm publish."
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is not set; cannot publish to npm."
+            exit 1
           fi
+          pnpm -r publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -109,6 +109,7 @@ check:
 	@node scripts/complexity-check.mjs
 	@pnpm -r run test
 	@pnpm -r run docs
+	@node scripts/check-manifests.mjs
 	@./scripts/pack-smoke.sh
 
 #
