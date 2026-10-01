@@ -13,6 +13,8 @@ import {
   readFormDataBody,
   readResponse,
   readItems,
+  readMethods,
+  cell,
   docsDir,
 } from "../src/utils";
 import * as path from "path";
@@ -665,5 +667,33 @@ describe("docsDir", () => {
       if (saved === undefined) delete process.env["CRYPTO_API_DOCS_DIR"];
       else process.env["CRYPTO_API_DOCS_DIR"] = saved;
     }
+  });
+});
+
+describe("generated markdown is well-formed", () => {
+  it("renders missing cell values as empty", () => {
+    expect(cell(undefined)).to.equal("");
+    expect(cell(null)).to.equal("");
+  });
+
+  it("escapes pipes and newlines inside table cells", () => {
+    const md = readRequest({
+      header: [{ key: "a|b", value: "line1\nline2", description: "x | y" }],
+    } as unknown as JsonRequest);
+    expect(md).to.include("|a\\|b|line1 line2|x \\| y|");
+  });
+
+  it("separates a table from the following heading with a blank line", () => {
+    const md = readMethods({
+      name: "Test",
+      request: {
+        method: "POST",
+        url: "http://x",
+        header: [{ key: "k", value: "v", description: "d" }],
+      },
+      response: [{ code: 200, status: "OK", body: "{}" }],
+    } as unknown as Parameters<typeof readMethods>[0]);
+    expect(md).to.not.match(/\|\n#/);
+    expect(md).to.not.match(/\n\n\n/);
   });
 });

@@ -80,7 +80,7 @@ export async function init(): Promise<void> {
      */
     let markdown = createMarkdown(json);
     markdown +=
-      "[divider]: https://kura.pro/common/images/elements/divider.svg";
+      "[divider]: https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/divider.svg\n";
 
     if (outputFileName) {
       /**
