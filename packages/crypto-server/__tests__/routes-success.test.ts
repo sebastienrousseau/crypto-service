@@ -161,7 +161,12 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(200);
       const body = JSON.parse(res.payload);
-      expect(body).to.have.property("data");
+      // Before the response schema matched the handler, this was
+      // { data: "[object Object]" } and the plaintext was lost.
+      expect(body.data).to.deep.equal({
+        data: "Secret message",
+        signatureValid: false,
+      });
     });
   });
 

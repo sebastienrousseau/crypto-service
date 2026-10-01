@@ -24,7 +24,18 @@ const decryptSchema = {
   description:
     "Decrypts a PGP message encrypted to the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase. The API never takes a private key.",
   response: {
-    200: { type: "object", properties: { data: { type: "string" } } },
+    200: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            data: { type: "string" },
+            signatureValid: { type: "boolean" },
+          },
+        },
+      },
+    },
     400: {
       type: "object",
       properties: { error: { type: "string" }, details: { type: "array" } },
