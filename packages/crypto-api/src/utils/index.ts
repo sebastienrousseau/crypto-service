@@ -115,11 +115,13 @@ export interface ItemShape {
 
 /**
  * Escape a value for a markdown table cell: pipes would split the cell and
- * newlines would end the row, silently dropping data.
+ * newlines would end the row, silently dropping data. Backslashes are
+ * escaped first so an input ending in `\\` cannot unescape the next pipe.
  */
 export const cell = (value: unknown): string =>
   String(value ?? "")
     .replace(/\r?\n/g, " ")
+    .replace(/\\/g, "\\\\")
     .replace(/\|/g, "\\|");
 
 /**

@@ -671,6 +671,10 @@ describe("docsDir", () => {
 });
 
 describe("generated markdown is well-formed", () => {
+  it("escapes backslashes so they cannot cancel a pipe escape", () => {
+    expect(cell("a\\|b")).to.equal("a\\\\\\|b");
+  });
+
   it("renders missing cell values as empty", () => {
     expect(cell(undefined)).to.equal("");
     expect(cell(null)).to.equal("");
