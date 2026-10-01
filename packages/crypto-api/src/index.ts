@@ -114,4 +114,10 @@ export async function init(): Promise<void> {
   }
 }
 
-init();
+// Run only from the command line (`node dist/index.js <file>`), so that
+// importing the package has no side effects.
+/* c8 ignore start */
+if (require.main === module) {
+  void init();
+}
+/* c8 ignore stop */
