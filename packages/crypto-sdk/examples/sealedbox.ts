@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, taskWithOutput, summary } from "./support";
+import { header, task, taskWithOutput, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- sealedbox");
@@ -29,15 +26,15 @@ async function main() {
     });
   });
 
-  await taskWithOutput("Open sealed box with secret key", async () => {
+  await taskWithOutput("Open sealed box with the server-held key", async () => {
     const { data } = await client.sealedboxOpen({
-      recipientSecretKey: keys.data.privateKey,
+      keyId: keys.data.keyId,
       sealed: sealed.data.sealed,
     });
-    if (data.plaintext !== "Eyes-only message for the recipient") {
+    if (data !== "Eyes-only message for the recipient") {
       throw new Error("Round-trip mismatch");
     }
-    return [`plaintext: ${data.plaintext}`];
+    return [`plaintext: ${data}`];
   });
 
   summary(3);

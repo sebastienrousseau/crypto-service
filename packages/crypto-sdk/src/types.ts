@@ -9,6 +9,8 @@
  * @remarks TypeScript SDK for the Crypto Service Suite v2 API.
  *
  * Zero-dependency, fetch-based typed client for all cryptographic operations.
+ * Types for server-held keys (key generation, signing, decapsulation and
+ * sealed boxes) live in `key-types.ts`.
  *
  * @example
  * ```ts
@@ -45,30 +47,65 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+/** One failed check in a `validation-failed` problem. */
+export interface ApiErrorField {
+  /** JSON pointer to the invalid field (e.g. `"/algorithm"`). */
+  field: string;
+  /** Validation failure description. */
+  message: string;
+}
+
 /**
- * Error response returned by the API on failure.
+ * Error body returned by the API on failure: an RFC 9457 problem
+ * (`application/problem+json`).
  *
  * @example
  * ```ts
  * try {
- *   await client.hash({ algorithm: 'invalid', data: 'x' });
+ *   await client.sign({ keyId: 'k_unknown0000000000000000', message: 'x' });
  * } catch (err) {
- *   const apiErr = (err as CryptoApiError).body satisfies ApiError;
- *   console.error(apiErr.error, apiErr.details);
+ *   const problem = (err as CryptoApiError).body satisfies ApiError;
+ *   console.error(problem.type, problem.detail, problem.code);
  * }
  * ```
  */
 export interface ApiError {
-  /** Human-readable error message. */
-  error: string;
-  /** Optional per-field validation errors. */
-  details?: Array<{
-    /** Name of the invalid field. */
-    field: string;
-    /** Validation failure description. */
-    message: string;
-  }>;
+  /** Problem type, `urn:crypto-service:problem:<slug>` (or `about:blank`). */
+  type: string;
+  /** Short summary of the problem type. */
+  title: string;
+  /** HTTP status code. */
+  status: number;
+  /** Explanation of this occurrence. */
+  detail: string;
+  /** Request path of this occurrence. */
+  instance?: string;
+  /** Machine-readable code for crypto-lib and key-store errors (e.g. `"KEY_NOT_FOUND"`). */
+  code?: string;
+  /** Per-field failures of a `validation-failed` problem. */
+  errors?: ApiErrorField[];
+  /** Other extension members (e.g. `tier`, `limit`, `resetSeconds`). */
+  [extension: string]: unknown;
 }
+
+// --- Algorithm names accepted by the server ---
+
+/** Hash algorithms accepted by `POST /v2/hash`. */
+export type HashAlgorithm =
+  | "sha256"
+  | "sha384"
+  | "sha512"
+  | "sha3-256"
+  | "sha3-512"
+  | "blake2b"
+  | "blake3";
+
+/** HMAC hash functions accepted by `POST /v2/hmac` and `/v2/hmac/verify`. */
+export type HmacAlgorithm =
+  "sha256" | "sha384" | "sha512" | "sha3-256" | "sha3-512";
+
+/** Key derivation functions accepted by `POST /v2/kdf`. */
+export type KdfAlgorithm = "scrypt" | "hkdf-sha256" | "pbkdf2-sha256";
 
 // --- Response types ---
 
@@ -92,7 +129,7 @@ export interface HashResult {
 }
 
 /**
- * Result of an AEAD encryption operation.
+ * Result of `POST /v2/encrypt` (XChaCha20-Poly1305).
  *
  * @example
  * ```ts
@@ -102,9 +139,9 @@ export interface HashResult {
  * ```
  */
 export interface AeadResult {
-  /** Hex-encoded ciphertext (includes nonce and tag). */
+  /** Base64-encoded nonce, ciphertext and tag. */
   ciphertext: string;
-  /** AEAD algorithm used. */
+  /** AEAD algorithm used (`"xchacha20-poly1305"`). */
   algorithm: string;
 }
 
@@ -130,210 +167,7 @@ export interface KdfResult {
 }
 
 /**
- * Ed25519 key pair returned by key generation.
- *
- * @example
- * ```ts
- * const { data } = await client.generateKeyPair({ algorithm: 'ed25519' });
- * const keys: Ed25519KeyPair = { privateKey: data.privateKey, publicKey: data.publicKey };
- * ```
- */
-export interface Ed25519KeyPair {
-  /** Hex-encoded Ed25519 private key. */
-  privateKey: string;
-  /** Hex-encoded Ed25519 public key. */
-  publicKey: string;
-}
-
-/**
- * Result of a signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.sign({ privateKey: hexKey, message: 'hello' });
- * const result: SignResult = data;
- * console.log(result.signature, result.algorithm);
- * ```
- */
-export interface SignResult {
-  /** Hex-encoded signature bytes. */
-  signature: string;
-  /** Signing algorithm used (e.g. `"ed25519"`). */
-  algorithm: string;
-}
-
-/**
- * Result of a signature verification operation.
- *
- * @example
- * ```ts
- * const { data } = await client.verify({ publicKey, message: 'hello', signature: sig });
- * const result: VerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface VerifyResult {
-  /** Whether the signature is valid. */
-  valid: boolean;
-  /** Signing algorithm used for verification. */
-  algorithm: string;
-}
-
-/**
- * Hybrid X25519+ML-KEM key pair for post-quantum key exchange.
- *
- * @example
- * ```ts
- * const { data } = await client.pqGenerateKeyPair();
- * const keys: HybridKeyPair = data;
- * console.log(keys.x25519PublicKey, keys.mlKemPublicKey);
- * ```
- */
-export interface HybridKeyPair {
-  /** Hex-encoded X25519 private key. */
-  x25519PrivateKey: string;
-  /** Hex-encoded X25519 public key. */
-  x25519PublicKey: string;
-  /** Hex-encoded ML-KEM public (encapsulation) key. */
-  mlKemPublicKey: string;
-  /** Hex-encoded ML-KEM secret (decapsulation) key. */
-  mlKemSecretKey: string;
-  /** Hybrid KEM algorithm identifier. */
-  algorithm: string;
-}
-
-/**
- * Result of a hybrid KEM encapsulation operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqEncapsulate({
- *   x25519PublicKey: keys.x25519PublicKey,
- *   mlKemPublicKey: keys.mlKemPublicKey,
- * });
- * const result: HybridEncapsulateResult = data;
- * console.log(result.sharedSecret, result.mlKemCiphertext);
- * ```
- */
-export interface HybridEncapsulateResult {
-  /** Hex-encoded ephemeral X25519 public key. */
-  x25519EphemeralPublic: string;
-  /** Hex-encoded ML-KEM ciphertext. */
-  mlKemCiphertext: string;
-  /** Hex-encoded combined shared secret. */
-  sharedSecret: string;
-  /** Hybrid KEM algorithm identifier. */
-  algorithm: string;
-}
-
-/**
- * ML-DSA (Dilithium) key pair for post-quantum digital signatures.
- *
- * @example
- * ```ts
- * const { data } = await client.pqSignKeygen({ level: 65 });
- * const keys: MlDsaKeyPair = data;
- * console.log(keys.publicKey, keys.algorithm); // "ml-dsa-65"
- * ```
- */
-export interface MlDsaKeyPair {
-  /** Hex-encoded ML-DSA public key. */
-  publicKey: string;
-  /** Hex-encoded ML-DSA secret key. */
-  secretKey: string;
-  /** ML-DSA algorithm level (e.g. `"ml-dsa-65"`). */
-  algorithm: string;
-}
-
-/**
- * Result of an ML-DSA signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqSign({ level: 65, secretKey, message: 'hello' });
- * const result: MlDsaSignResult = data;
- * console.log(result.signature, result.algorithm);
- * ```
- */
-export interface MlDsaSignResult {
-  /** Hex-encoded ML-DSA signature. */
-  signature: string;
-  /** ML-DSA algorithm level used for signing. */
-  algorithm: string;
-}
-
-/**
- * Result of an ML-DSA signature verification.
- *
- * @example
- * ```ts
- * const { data } = await client.pqVerify({ level: 65, publicKey, message: 'hello', signature: sig });
- * const result: MlDsaVerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface MlDsaVerifyResult {
-  /** Whether the ML-DSA signature is valid. */
-  valid: boolean;
-  /** ML-DSA algorithm level used for verification. */
-  algorithm: string;
-}
-
-/**
- * SLH-DSA (SPHINCS+) key pair for hash-based post-quantum signatures.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashSignKeygen({ variant: 'shake-128f' });
- * const keys: SlhDsaKeyPair = data;
- * console.log(keys.publicKey, keys.algorithm);
- * ```
- */
-export interface SlhDsaKeyPair {
-  /** Hex-encoded SLH-DSA public key. */
-  publicKey: string;
-  /** Hex-encoded SLH-DSA secret key. */
-  secretKey: string;
-  /** SLH-DSA variant identifier (e.g. `"slh-dsa-shake-128f"`). */
-  algorithm: string;
-}
-
-/**
- * Result of an SLH-DSA signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashSign({ variant: 'shake-128f', secretKey, message: 'hello' });
- * const result: SlhDsaSignResult = data;
- * console.log(result.signature);
- * ```
- */
-export interface SlhDsaSignResult {
-  /** Hex-encoded SLH-DSA signature. */
-  signature: string;
-  /** SLH-DSA variant used for signing. */
-  algorithm: string;
-}
-
-/**
- * Result of an SLH-DSA signature verification.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashVerify({ variant: 'shake-128f', publicKey, message: 'hello', signature: sig });
- * const result: SlhDsaVerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface SlhDsaVerifyResult {
-  /** Whether the SLH-DSA signature is valid. */
-  valid: boolean;
-  /** SLH-DSA variant used for verification. */
-  algorithm: string;
-}
-
-/**
- * Result of a secretbox seal operation (symmetric authenticated encryption).
+ * Result of `POST /v2/secretbox/seal` (XChaCha20-Poly1305).
  *
  * @example
  * ```ts
@@ -343,76 +177,57 @@ export interface SlhDsaVerifyResult {
  * ```
  */
 export interface SecretboxSealResult {
-  /** Hex-encoded sealed ciphertext (nonce + ciphertext + tag). */
+  /** Base64-encoded sealed ciphertext (nonce + ciphertext + tag). */
   sealed: string;
+  /** AEAD algorithm used (`"xchacha20-poly1305"`). */
+  algorithm: string;
 }
 
 /**
- * Result of a sealed box seal operation (anonymous public-key encryption).
- *
- * @example
- * ```ts
- * const { data } = await client.sealedboxSeal({ recipientPublicKey: pubKey, plaintext: 'secret' });
- * const result: SealedboxSealResult = data;
- * console.log(result.sealed, result.ephemeralPublicKey);
- * ```
- */
-export interface SealedboxSealResult {
-  /** Hex-encoded sealed ciphertext. */
-  sealed: string;
-  /** Hex-encoded ephemeral public key used for encryption. */
-  ephemeralPublicKey: string;
-}
-
-/**
- * Result of a password-based encryption operation.
+ * Result of `POST /v2/password/encrypt` (Argon2id + XChaCha20-Poly1305).
  *
  * @example
  * ```ts
  * const { data } = await client.passwordEncrypt({ password: 'my-pass', plaintext: 'secret' });
  * const result: PasswordEncryptResult = data;
- * console.log(result.ciphertext);
+ * await client.passwordDecrypt({ password: 'my-pass', ciphertext: result.encrypted });
  * ```
  */
 export interface PasswordEncryptResult {
-  /** Hex-encoded password-encrypted ciphertext. */
-  ciphertext: string;
+  /** Base64-encoded payload (parameters, salt, nonce and ciphertext). */
+  encrypted: string;
+  /** Construction used (`"argon2id-xchacha20-poly1305"`). */
+  algorithm: string;
 }
 
+/** Key-wrapping algorithms accepted by `/v2/keys/wrap` and `/v2/keys/unwrap`. */
+export type KeyWrapAlgorithm = "aes-kw" | "aes-kwp";
+
 /**
- * Result of an AES key-wrap operation.
+ * Result of `POST /v2/keys/wrap` (AES-KW, RFC 3394, or AES-KWP, RFC 5649).
  *
  * @example
  * ```ts
  * const { data } = await client.keyWrap({ kek: hexKek, keyToWrap: hexKey });
  * const result: KeyWrapResult = data;
- * console.log(result.wrappedKey);
+ * await client.keyUnwrap({ kek: hexKek, wrappedKey: result.wrapped });
  * ```
  */
 export interface KeyWrapResult {
-  /** Hex-encoded wrapped key material. */
-  wrappedKey: string;
+  /** Base64-encoded wrapped key. */
+  wrapped: string;
+  /** Key-wrapping algorithm used. */
+  algorithm: KeyWrapAlgorithm;
 }
 
-/**
- * Result of a key generation operation.
- *
- * @example
- * ```ts
- * const { data } = await client.generateKeyPair({ algorithm: 'ed25519' });
- * const result: KeyGenerateResult = data;
- * console.log(result.publicKey, result.privateKey, result.kid);
- * ```
- */
-export interface KeyGenerateResult {
-  /** Hex-encoded public key. */
-  publicKey: string;
-  /** Hex-encoded private key. */
-  privateKey: string;
-  /** Key algorithm (e.g. `"ed25519"`). */
-  algorithm: string;
-  /** Unique key identifier. */
-  kid: string;
+/** Result of `GET /health`. */
+export interface HealthResult {
+  /** HTTP status code reported by the health check. */
+  statusCode: number;
+  /** Health status (`"ok"` when healthy). */
+  status?: string;
+  /** Process uptime in seconds. */
+  uptime?: number;
 }
 
 /**
@@ -509,11 +324,11 @@ export interface AlgorithmNegotiationResult {
 }
 
 /**
- * Result of a MAC computation.
+ * Result of `POST /v2/hmac`.
  *
  * @example
  * ```ts
- * const { data } = await client.mac({ algorithm: 'hmac-sha256', key: hexKey, data: 'hello' });
+ * const { data } = await client.mac({ algorithm: 'sha256', key: hexKey, data: 'hello' });
  * const result: MacResult = data;
  * console.log(result.mac, result.algorithm);
  * ```
@@ -521,8 +336,26 @@ export interface AlgorithmNegotiationResult {
 export interface MacResult {
   /** Hex-encoded MAC tag. */
   mac: string;
-  /** MAC algorithm used (e.g. `"hmac-sha256"`). */
+  /** HMAC hash function used (e.g. `"sha256"`). */
   algorithm: string;
+}
+
+/** Result of `POST /v2/hmac/verify`. */
+export interface MacVerifyResult {
+  /** Whether the MAC is valid. */
+  valid: boolean;
+  /** HMAC hash function used. */
+  algorithm: string;
+}
+
+/** Argon2 cost parameters. */
+export interface Argon2Params {
+  /** Time cost (iterations). */
+  t: number;
+  /** Memory cost (KiB). */
+  m: number;
+  /** Parallelism factor. */
+  p: number;
 }
 
 /**
@@ -542,14 +375,7 @@ export interface PasswordHashResult {
   /** Hex-encoded salt used for hashing. */
   salt: string;
   /** Argon2 cost parameters (time, memory, parallelism). */
-  params: {
-    /** Time cost (iterations). */
-    t: number;
-    /** Memory cost (KiB). */
-    m: number;
-    /** Parallelism factor. */
-    p: number;
-  };
+  params: Argon2Params;
   /** Argon2 variant used (e.g. `"argon2id"`). */
   algorithm: string;
   /** PHC-format encoded hash string. */

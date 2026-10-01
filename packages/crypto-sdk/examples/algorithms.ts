@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, taskWithOutput, summary } from "./support";
+import { header, taskWithOutput, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- algorithms");

@@ -64,6 +64,8 @@ jobs:
         run: pnpm -r run docs
       - name: Type-check crypto-lib examples
         run: pnpm --filter @sebastienrousseau/crypto-lib run examples:check
+      - name: Type-check crypto-sdk examples
+        run: pnpm --filter @sebastienrousseau/crypto-sdk run examples:check
       - name: Check publishable manifests
         run: node scripts/check-manifests.mjs
       # publint on each manifest, attw on each packed tarball.
