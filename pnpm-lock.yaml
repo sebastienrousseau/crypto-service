@@ -741,6 +741,9 @@ importers:
 
   packages/crypto-sdk:
     devDependencies:
+      '@sebastienrousseau/crypto-server':
+        specifier: workspace:*
+        version: link:../crypto-server
       '@sebastienrousseau/mocha-config':
         specifier: ^0.0.5
         version: 0.0.5

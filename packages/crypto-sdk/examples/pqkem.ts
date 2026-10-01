@@ -11,12 +11,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- pqkem");
@@ -34,8 +31,7 @@ async function main() {
 
   const decap = await task("Decapsulate shared secret", async () => {
     return client.pqDecapsulate({
-      x25519PrivateKey: keys.data.x25519PrivateKey,
-      mlKemSecretKey: keys.data.mlKemSecretKey,
+      keyId: keys.data.keyId,
       x25519EphemeralPublic: encap.data.x25519EphemeralPublic,
       mlKemCiphertext: encap.data.mlKemCiphertext,
     });

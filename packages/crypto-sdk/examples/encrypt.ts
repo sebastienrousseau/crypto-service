@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- encrypt");
@@ -21,7 +18,7 @@ async function main() {
   const key = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
   const plaintext = "Sensitive message that must be encrypted";
 
-  const encrypted = await task("Encrypt plaintext with AES-256-GCM", async () => {
+  const encrypted = await task("Encrypt plaintext with XChaCha20-Poly1305", async () => {
     return client.encrypt({ key, plaintext });
   });
 

@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- sign");
@@ -25,10 +22,8 @@ async function main() {
   });
 
   const signed = await task("Sign message with Ed25519", async () => {
-    return client.sign({
-      privateKey: keys.data.privateKey,
-      message,
-    });
+    // The private key never leaves the server: sign by keyId.
+    return client.sign({ keyId: keys.data.keyId, message });
   });
 
   await task("Verify Ed25519 signature", async () => {

@@ -6,46 +6,72 @@
 /**
  * Typed HTTP client for the Crypto Service Suite v2 API.
  *
+ * Private keys never cross the API: key-generation methods return a
+ * `keyId` with the public key, and signing, decapsulation and sealed-box
+ * opening take that `keyId`. Errors are thrown as {@link CryptoApiError}
+ * carrying the server's RFC 9457 problem body.
+ *
  * @example
  * ```ts
- * const client = new CryptoClient({ baseUrl: 'http://localhost:3000' });
+ * const client = new CryptoClient({ baseUrl: 'http://localhost:3000', apiKey });
  * const { data } = await client.hash({ algorithm: 'sha256', data: 'hello' });
  * console.log(data.digest);
  * ```
  */
 
 import { negotiateAlgorithm } from "./negotiation";
+import { CryptoApiError, readProblem } from "./errors";
 import type {
   ClientOptions,
   ApiResponse,
-  ApiError,
+  HashAlgorithm,
   HashResult,
   AeadResult,
+  KdfAlgorithm,
   KdfResult,
-  SignResult,
-  VerifyResult,
-  HybridKeyPair,
-  HybridEncapsulateResult,
-  MlDsaKeyPair,
-  MlDsaSignResult,
-  MlDsaVerifyResult,
-  SlhDsaKeyPair,
-  SlhDsaSignResult,
-  SlhDsaVerifyResult,
   SecretboxSealResult,
-  SealedboxSealResult,
   PasswordEncryptResult,
+  KeyWrapAlgorithm,
   KeyWrapResult,
-  KeyGenerateResult,
+  HealthResult,
   DoraComplianceScorecard,
   CbomExportPayload,
   AlgorithmNegotiationOptions,
   AlgorithmNegotiationResult,
+  HmacAlgorithm,
   MacResult,
+  MacVerifyResult,
+  Argon2Params,
   PasswordHashResult,
 } from "./types";
+import type {
+  KeyAlgorithm,
+  KeyIdParams,
+  SignParams,
+  KeyMetadata,
+  KeyGenerateResult,
+  KeyExportResult,
+  SignResult,
+  VerifyResult,
+  MlKemKeyPair,
+  MlKemEncapsulateResult,
+  KemDecapsulateResult,
+  HybridKeyPair,
+  HybridEncapsulateResult,
+  MlDsaLevel,
+  MlDsaKeyPair,
+  MlDsaSignResult,
+  MlDsaVerifyResult,
+  SlhDsaVariant,
+  SlhDsaKeyPair,
+  SlhDsaSignResult,
+  SlhDsaVerifyResult,
+  SealedboxSealResult,
+} from "./key-types";
 
 export * from "./types";
+export * from "./key-types";
+export { CryptoApiError } from "./errors";
 
 export class CryptoClient {
   private baseUrl: string;
@@ -65,11 +91,12 @@ export class CryptoClient {
     }
   }
 
-  private async request<T>(
+  /** Send a request and return the parsed JSON body; throws on a non-OK status. */
+  private async send<T>(
     method: string,
     path: string,
     body?: unknown,
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     const init: RequestInit = {
       method,
       headers: this.headers,
@@ -78,17 +105,24 @@ export class CryptoClient {
       init.body = JSON.stringify(body);
     }
     const res = await this.fetchFn(`${this.baseUrl}${path}`, init);
-
-    const json = await res.json();
     if (!res.ok) {
-      throw new CryptoApiError(res.status, json as ApiError);
+      throw new CryptoApiError(res.status, await readProblem(res));
     }
-    return json as ApiResponse<T>;
+    return (await res.json()) as T;
+  }
+
+  /** Send a request to a route that wraps its result in `{ data }`. */
+  private request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+  ): Promise<ApiResponse<T>> {
+    return this.send<ApiResponse<T>>(method, path, body);
   }
 
   // --- Encryption ---
 
-  /** Encrypt plaintext using AEAD (AES-GCM or XChaCha20-Poly1305). */
+  /** Encrypt plaintext with XChaCha20-Poly1305 under a 256-bit hex key. */
   async encrypt(params: {
     key: string;
     plaintext: string;
@@ -110,7 +144,7 @@ export class CryptoClient {
 
   /** Compute a cryptographic hash digest. */
   async hash(params: {
-    algorithm: string;
+    algorithm: HashAlgorithm;
     data: string;
   }): Promise<ApiResponse<HashResult>> {
     return this.request("POST", "/v2/hash", params);
@@ -118,49 +152,62 @@ export class CryptoClient {
 
   // --- KDF ---
 
-  /** Derive a key from a password using a KDF algorithm. */
+  /**
+   * Derive a key from a password using a KDF algorithm. The server
+   * enforces OWASP floors: scrypt N = 2^17 with r = 8, PBKDF2 at least
+   * 600,000 iterations.
+   */
   async kdf(params: {
-    algorithm: string;
+    algorithm: KdfAlgorithm;
     password: string;
     salt?: string;
+    /** Derived key length in bytes (16 to 64). */
     keyLength?: number;
-    params?: Record<string, unknown>;
+    params?: {
+      /** scrypt cost (only 131072 is accepted). */
+      N?: number;
+      /** scrypt block size (only 8 is accepted). */
+      r?: number;
+      /** scrypt parallelism (1 to 4). */
+      p?: number;
+      /** PBKDF2 iterations (600,000 to 1,000,000). */
+      iterations?: number;
+      /** HKDF info string. */
+      info?: string;
+    };
   }): Promise<ApiResponse<KdfResult>> {
     return this.request("POST", "/v2/kdf", params);
   }
 
   // --- MAC ---
 
-  /** Compute a message authentication code (HMAC or KMAC). */
+  /** Compute an HMAC with a hex key. */
   async mac(params: {
-    algorithm: string;
+    algorithm: HmacAlgorithm;
     key: string;
     data: string;
   }): Promise<ApiResponse<MacResult>> {
     return this.request("POST", "/v2/hmac", params);
   }
 
-  /** Verify a message authentication code. */
+  /** Verify an HMAC. */
   async macVerify(params: {
-    algorithm: string;
+    algorithm: HmacAlgorithm;
     key: string;
     data: string;
     mac: string;
-  }): Promise<
-    ApiResponse<{
-      /** Whether the MAC is valid. */
-      valid: boolean;
-    }>
-  > {
+  }): Promise<ApiResponse<MacVerifyResult>> {
     return this.request("POST", "/v2/hmac/verify", params);
   }
 
   // --- Password Hashing ---
 
-  /** Hash a password using Argon2. */
+  /**
+   * Hash a password with Argon2id. The server requires at least two
+   * passes and 19456 KiB of memory.
+   */
   async passwordHash(params: {
     password: string;
-    variant?: string;
     timeCost?: number;
     memoryCost?: number;
     parallelism?: number;
@@ -168,13 +215,12 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/hash", params);
   }
 
-  /** Verify a password against a stored Argon2 hash. */
+  /** Verify a password against a stored Argon2id hash. */
   async passwordVerify(params: {
     password: string;
     hash: string;
     salt: string;
-    params: { t: number; m: number; p: number };
-    variant?: string;
+    params: Argon2Params;
   }): Promise<
     ApiResponse<{
       /** Whether the password matches the hash. */
@@ -184,12 +230,15 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/verify", params);
   }
 
-  // --- Signing ---
+  // --- Key Management ---
 
-  /** Generate a new asymmetric key pair. */
+  /**
+   * Generate a server-held key pair. Returns its `keyId` and public key;
+   * the private key stays on the server.
+   */
   async generateKeyPair(params?: {
-    algorithm?: string;
-    metadata?: Record<string, string>;
+    algorithm?: KeyAlgorithm;
+    metadata?: KeyMetadata;
   }): Promise<ApiResponse<KeyGenerateResult>> {
     return this.request(
       "POST",
@@ -198,15 +247,22 @@ export class CryptoClient {
     );
   }
 
-  /** Sign a message with a private key. */
-  async sign(params: {
-    privateKey: string;
-    message: string;
-  }): Promise<ApiResponse<SignResult>> {
+  /**
+   * Export a server-held key, private parts included. Needs the
+   * `crypto:keys:export` scope, which `crypto:admin` does not imply.
+   */
+  async exportKey(params: KeyIdParams): Promise<ApiResponse<KeyExportResult>> {
+    return this.request("POST", "/v2/keys/export", params);
+  }
+
+  // --- Signing ---
+
+  /** Sign a message with a server-held Ed25519 key. */
+  async sign(params: SignParams): Promise<ApiResponse<SignResult>> {
     return this.request("POST", "/v2/sign", params);
   }
 
-  /** Verify a digital signature against a public key. */
+  /** Verify an Ed25519 signature against a public key. */
   async verify(params: {
     publicKey: string;
     message: string;
@@ -217,7 +273,26 @@ export class CryptoClient {
 
   // --- Post-Quantum KEM ---
 
-  /** Generate a hybrid X25519+ML-KEM key pair. */
+  /** Generate a server-held ML-KEM-768 key pair. */
+  async mlKemGenerateKeyPair(): Promise<ApiResponse<MlKemKeyPair>> {
+    return this.request("POST", "/v2/pq/keygen", {});
+  }
+
+  /** Encapsulate a shared secret to an ML-KEM-768 public key. */
+  async mlKemEncapsulate(params: {
+    publicKey: string;
+  }): Promise<ApiResponse<MlKemEncapsulateResult>> {
+    return this.request("POST", "/v2/pq/encapsulate", params);
+  }
+
+  /** Recover an ML-KEM-768 shared secret with a server-held key. */
+  async mlKemDecapsulate(
+    params: KeyIdParams & { ciphertext: string },
+  ): Promise<ApiResponse<KemDecapsulateResult>> {
+    return this.request("POST", "/v2/pq/decapsulate", params);
+  }
+
+  /** Generate a server-held hybrid X25519 + ML-KEM-768 key pair. */
   async pqGenerateKeyPair(): Promise<ApiResponse<HybridKeyPair>> {
     return this.request("POST", "/v2/pq/hybrid/keygen", {});
   }
@@ -230,37 +305,26 @@ export class CryptoClient {
     return this.request("POST", "/v2/pq/hybrid/encapsulate", params);
   }
 
-  /** Decapsulate a shared secret using hybrid KEM. */
-  async pqDecapsulate(params: {
-    x25519PrivateKey: string;
-    mlKemSecretKey: string;
-    x25519EphemeralPublic: string;
-    mlKemCiphertext: string;
-  }): Promise<
-    ApiResponse<{
-      /** Hex-encoded shared secret. */
-      sharedSecret: string;
-      /** Hybrid KEM algorithm identifier. */
-      algorithm: string;
-    }>
-  > {
+  /** Recover a hybrid KEM shared secret with a server-held key. */
+  async pqDecapsulate(
+    params: KeyIdParams & {
+      x25519EphemeralPublic: string;
+      mlKemCiphertext: string;
+    },
+  ): Promise<ApiResponse<KemDecapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/decapsulate", params);
   }
 
   // --- Post-Quantum Signatures (ML-DSA) ---
 
-  /** Sign a message using ML-DSA (FIPS 204). */
-  async pqSign(params: {
-    level: 44 | 65 | 87;
-    secretKey: string;
-    message: string;
-  }): Promise<ApiResponse<MlDsaSignResult>> {
+  /** Sign with a server-held ML-DSA key (FIPS 204); the level comes from the key. */
+  async pqSign(params: SignParams): Promise<ApiResponse<MlDsaSignResult>> {
     return this.request("POST", "/v2/pq/dsa/sign", params);
   }
 
   /** Verify an ML-DSA signature. */
   async pqVerify(params: {
-    level: 44 | 65 | 87;
+    level: MlDsaLevel;
     publicKey: string;
     message: string;
     signature: string;
@@ -268,39 +332,35 @@ export class CryptoClient {
     return this.request("POST", "/v2/pq/dsa/verify", params);
   }
 
-  /** Generate an ML-DSA key pair. */
+  /** Generate a server-held ML-DSA key pair. */
   async pqSignKeygen(params: {
-    level: 44 | 65 | 87;
+    level: MlDsaLevel;
   }): Promise<ApiResponse<MlDsaKeyPair>> {
     return this.request("POST", "/v2/pq/dsa/keygen", params);
   }
 
   // --- Post-Quantum Hash-Based Signatures (SLH-DSA) ---
 
-  /** Sign a message using SLH-DSA (FIPS 205). */
-  async pqHashSign(params: {
-    variant: string;
-    secretKey: string;
-    message: string;
-  }): Promise<ApiResponse<SlhDsaSignResult>> {
-    return this.request("POST", "/v2/pq/hash-sign/sign", params);
+  /** Sign with a server-held SLH-DSA key (FIPS 205); the variant comes from the key. */
+  async pqHashSign(params: SignParams): Promise<ApiResponse<SlhDsaSignResult>> {
+    return this.request("POST", "/v2/pq/slh-dsa/sign", params);
   }
 
   /** Verify an SLH-DSA signature. */
   async pqHashVerify(params: {
-    variant: string;
+    variant: SlhDsaVariant;
     publicKey: string;
     message: string;
     signature: string;
   }): Promise<ApiResponse<SlhDsaVerifyResult>> {
-    return this.request("POST", "/v2/pq/hash-sign/verify", params);
+    return this.request("POST", "/v2/pq/slh-dsa/verify", params);
   }
 
-  /** Generate an SLH-DSA key pair. */
+  /** Generate a server-held SLH-DSA key pair. */
   async pqHashSignKeygen(params: {
-    variant: string;
+    variant: SlhDsaVariant;
   }): Promise<ApiResponse<SlhDsaKeyPair>> {
-    return this.request("POST", "/v2/pq/hash-sign/keygen", params);
+    return this.request("POST", "/v2/pq/slh-dsa/keygen", params);
   }
 
   // --- High-Level: Secretbox ---
@@ -314,23 +374,18 @@ export class CryptoClient {
     return this.request("POST", "/v2/secretbox/seal", params);
   }
 
-  /** Open a secretbox sealed ciphertext. */
+  /** Open a secretbox; `data` is the recovered plaintext. */
   async secretboxOpen(params: {
     key: string;
     ciphertext: string;
     aad?: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/secretbox/open", params);
   }
 
   // --- High-Level: Sealed Box ---
 
-  /** Seal plaintext with anonymous public-key encryption. */
+  /** Seal plaintext to an X25519 public key (anonymous sender). */
   async sealedboxSeal(params: {
     recipientPublicKey: string;
     plaintext: string;
@@ -338,22 +393,32 @@ export class CryptoClient {
     return this.request("POST", "/v2/sealedbox/seal", params);
   }
 
-  /** Open a sealed box ciphertext with the recipient's secret key. */
-  async sealedboxOpen(params: {
-    recipientSecretKey: string;
-    sealed: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  /** Open a sealed box with a server-held x25519 key; `data` is the plaintext. */
+  async sealedboxOpen(
+    params: KeyIdParams & { sealed: string },
+  ): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/sealedbox/open", params);
+  }
+
+  /** Seal plaintext to a hybrid X25519 + ML-KEM-768 public key pair. */
+  async sealedboxSealPq(params: {
+    x25519PublicKey: string;
+    mlKemPublicKey: string;
+    plaintext: string;
+  }): Promise<ApiResponse<SealedboxSealResult>> {
+    return this.request("POST", "/v2/sealedbox/seal-pq", params);
+  }
+
+  /** Open a hybrid sealed box with a server-held hybrid key; `data` is the plaintext. */
+  async sealedboxOpenPq(
+    params: KeyIdParams & { sealed: string },
+  ): Promise<ApiResponse<string>> {
+    return this.request("POST", "/v2/sealedbox/open-pq", params);
   }
 
   // --- High-Level: Password Encryption ---
 
-  /** Encrypt plaintext with a password (Argon2 + AEAD). */
+  /** Encrypt plaintext with a password (Argon2id + XChaCha20-Poly1305). */
   async passwordEncrypt(params: {
     password: string;
     plaintext: string;
@@ -361,16 +426,14 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/encrypt", params);
   }
 
-  /** Decrypt password-encrypted ciphertext. */
+  /**
+   * Decrypt a payload from `passwordEncrypt` (its `encrypted` field);
+   * `data` is the plaintext.
+   */
   async passwordDecrypt(params: {
     password: string;
     ciphertext: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/password/decrypt", params);
   }
 
@@ -380,35 +443,33 @@ export class CryptoClient {
   async keyWrap(params: {
     kek: string;
     keyToWrap: string;
-    algorithm?: "aes-kw" | "aes-kwp";
+    algorithm?: KeyWrapAlgorithm;
   }): Promise<ApiResponse<KeyWrapResult>> {
     return this.request("POST", "/v2/keys/wrap", params);
   }
 
-  /** Unwrap (decrypt) a wrapped key. */
+  /** Unwrap a wrapped key; `data` is the hex-encoded key. */
   async keyUnwrap(params: {
     kek: string;
     wrappedKey: string;
-    algorithm?: "aes-kw" | "aes-kwp";
-  }): Promise<
-    ApiResponse<{
-      /** Hex-encoded unwrapped key. */
-      key: string;
-    }>
-  > {
+    algorithm?: KeyWrapAlgorithm;
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/keys/unwrap", params);
   }
 
   // --- Compliance & Regulatory Endpoints ---
 
-  /** Fetch automated DORA Article 13 & 9 compliance scorecard. */
+  /** Fetch the DORA Article 9 & 13 self-assessment. */
   async getDoraCompliance(): Promise<ApiResponse<DoraComplianceScorecard>> {
     return this.request("GET", "/v2/compliance/dora");
   }
 
-  /** Fetch CycloneDX 1.6 Cryptographic Bill of Materials (CBOM). */
-  async getCbom(): Promise<ApiResponse<CbomExportPayload>> {
-    return this.request("GET", "/v2/compliance/cbom");
+  /**
+   * Fetch the CycloneDX 1.6 Cryptographic Bill of Materials (CBOM). The
+   * route returns the CycloneDX document itself, not wrapped in `{ data }`.
+   */
+  async getCbom(): Promise<CbomExportPayload> {
+    return this.send("GET", "/v2/compliance/cbom");
   }
 
   // --- Dynamic Crypto-Agility Engine ---
@@ -430,40 +491,9 @@ export class CryptoClient {
     return this.request("GET", "/v2/algorithms");
   }
 
-  /** Check API server health. */
-  async health(): Promise<{
-    /** HTTP status code from health endpoint. */
-    statusCode: number;
-  }> {
+  /** Check API server health (a public route: no credentials are sent). */
+  async health(): Promise<HealthResult> {
     const res = await this.fetchFn(`${this.baseUrl}/health`);
-    return res.json() as Promise<{ statusCode: number }>;
-  }
-}
-
-/**
- * Error thrown when the Crypto API returns a non-OK HTTP response.
- *
- * @example
- * ```ts
- * try {
- *   await client.hash({ algorithm: 'invalid', data: 'x' });
- * } catch (err) {
- *   if (err instanceof CryptoApiError) {
- *     console.error(err.status, err.body.error);
- *   }
- * }
- * ```
- */
-export class CryptoApiError extends Error {
-  /** HTTP status code returned by the API. */
-  public readonly status: number;
-  /** Parsed error response body. */
-  public readonly body: ApiError;
-
-  constructor(status: number, body: ApiError) {
-    super(`API Error ${status}: ${body.error}`);
-    this.name = "CryptoApiError";
-    this.status = status;
-    this.body = body;
+    return res.json() as Promise<HealthResult>;
   }
 }

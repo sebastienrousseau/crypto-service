@@ -11,12 +11,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- pqsign");
@@ -28,11 +25,8 @@ async function main() {
   });
 
   const signed = await task("Sign message with ML-DSA-65", async () => {
-    return client.pqSign({
-      level: 65,
-      secretKey: keys.data.secretKey,
-      message,
-    });
+    // The level comes from the server-held key.
+    return client.pqSign({ keyId: keys.data.keyId, message });
   });
 
   await task("Verify ML-DSA-65 signature", async () => {

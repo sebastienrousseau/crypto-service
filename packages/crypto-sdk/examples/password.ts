@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- password");
@@ -46,9 +43,9 @@ async function main() {
   await task("Decrypt password-encrypted data", async () => {
     const { data } = await client.passwordDecrypt({
       password,
-      ciphertext: encrypted.data.ciphertext,
+      ciphertext: encrypted.data.encrypted,
     });
-    return data.plaintext;
+    return data;
   });
 
   summary(4);
