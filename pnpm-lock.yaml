@@ -591,6 +591,9 @@ importers:
       '@sebastienrousseau/crypto-lib':
         specifier: workspace:*
         version: link:../crypto-lib
+      fastify-plugin:
+        specifier: ^6.0.0
+        version: 6.0.0
     devDependencies:
       '@sebastienrousseau/mocha-config':
         specifier: ^0.0.5
@@ -625,9 +628,6 @@ importers:
       fastify:
         specifier: ^5.12.5
         version: 5.12.5
-      fastify-plugin:
-        specifier: ^6.0.0
-        version: 6.0.0
       mocha:
         specifier: ^12.0.3
         version: 12.0.3
