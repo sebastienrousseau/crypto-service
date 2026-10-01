@@ -16,8 +16,9 @@
  */
 export interface EncryptionConfig {
   /**
-   * 256-bit encryption key as a 64-character hex string or 32-byte
-   * `Uint8Array`. Used for XChaCha20-Poly1305 secretbox operations.
+   * 256-bit key as a 64-character hex string. New values are sealed
+   * under a subkey derived from it with HKDF-SHA-256; the key itself is
+   * used only to read legacy (pre-`v2`) ciphertexts.
    */
   key: string;
 
@@ -43,4 +44,36 @@ export interface EncryptionConfig {
    * ```
    */
   fields?: Map<string, string[]>;
+
+  /**
+   * Column context bound into every ciphertext as associated data, by
+   * convention `"Entity.property"`. A value sealed for one context fails
+   * to decrypt under another, so ciphertexts cannot be swapped between
+   * columns. `@EncryptedColumn` sets it to `ClassName.property` unless
+   * given here; `EncryptionSubscriber` always uses `EntityName.field`.
+   * A bare `EncryptionTransformer` without a context binds the empty
+   * context, which every other context-less transformer shares.
+   *
+   * @default ""
+   */
+  context?: string;
+
+  /**
+   * Return a stored value as-is when it is not a ciphertext at all,
+   * instead of throwing a `FieldDecryptionError`. Meant only for the
+   * window in which existing plaintext rows are being migrated. A value
+   * in the `v2:` format that fails authentication is always rejected.
+   *
+   * @default false
+   */
+  allowPlaintextFallback?: boolean;
+
+  /**
+   * Accept legacy ciphertexts written before the `v2:` format (sealed
+   * with the configured key and no associated data). Turn this off once
+   * every row has been re-written.
+   *
+   * @default true
+   */
+  acceptLegacyCiphertext?: boolean;
 }

@@ -8,13 +8,18 @@
  * and decrypts them after load, driven by an {@link EncryptionConfig}.
  */
 
-import { secretbox } from "@sebastienrousseau/crypto-lib";
 import type {
   EntitySubscriberInterface,
   InsertEvent,
   UpdateEvent,
   LoadEvent,
 } from "typeorm";
+import {
+  createColumnCodec,
+  openColumn,
+  sealColumn,
+  type ColumnCodec,
+} from "./codec";
 import type { EncryptionConfig } from "./types";
 
 /**
@@ -25,6 +30,11 @@ import type { EncryptionConfig } from "./types";
  *
  * This approach is useful when you want to keep your entity classes free
  * from transformer configuration and centralise encryption policy.
+ *
+ * Each value is bound to `EntityName.field` as associated data, and a
+ * stored value that cannot be decrypted makes `afterLoad` throw a
+ * `FieldDecryptionError` (unless `allowPlaintextFallback` is set and the
+ * value is not a ciphertext at all).
  *
  * @example
  * ```ts
@@ -46,17 +56,21 @@ import type { EncryptionConfig } from "./types";
  * ```
  */
 export class EncryptionSubscriber implements EntitySubscriberInterface {
-  /** Hex-encoded encryption key. */
-  private readonly key: string;
+  /** Derived keys and read options. */
+  private readonly codec: ColumnCodec;
   /** Map of entity names to encrypted field names. */
   private readonly fields: Map<string, string[]>;
 
-  /** Create a new subscriber with the given encryption configuration. */
+  /**
+   * Create a new subscriber with the given encryption configuration.
+   *
+   * @throws If the key is missing or not a 64-character hex string.
+   */
   constructor(config: EncryptionConfig) {
     if (!config.key) {
       throw new Error("EncryptionSubscriber: key is required");
     }
-    this.key = config.key;
+    this.codec = createColumnCodec(config, "EncryptionSubscriber");
     this.fields = config.fields ?? new Map();
   }
 
@@ -95,39 +109,40 @@ export class EncryptionSubscriber implements EntitySubscriberInterface {
     return ctor?.name && ctor.name !== "Object" ? ctor.name : undefined;
   }
 
-  /** Return the list of encrypted field names for the given entity. */
-  private getFieldsFor(entity: Record<string, unknown>): string[] {
+  /** Return the entity name and its encrypted field names. */
+  private getFieldsFor(entity: Record<string, unknown>): {
+    name: string;
+    fields: string[];
+  } {
     const name = this.getEntityName(entity);
-    if (!name) return [];
-    return this.fields.get(name) ?? [];
+    if (!name) return { name: "", fields: [] };
+    return { name, fields: this.fields.get(name) ?? [] };
   }
 
   /** Encrypt all configured fields on the entity in place. */
   private encryptFields(entity: Record<string, unknown>): void {
-    const fields = this.getFieldsFor(entity);
+    const { name, fields } = this.getFieldsFor(entity);
     for (const field of fields) {
       const value = entity[field];
       if (value === null || value === undefined) continue;
       const plaintext =
         typeof value === "string" ? value : JSON.stringify(value);
-      const { sealed } = secretbox.seal(this.key, plaintext);
-      entity[field] = sealed;
+      entity[field] = sealColumn(this.codec, `${name}.${field}`, plaintext);
     }
   }
 
-  /** Decrypt all configured fields on the entity in place. */
+  /**
+   * Decrypt all configured fields on the entity in place.
+   *
+   * @throws `FieldDecryptionError` when a stored value is not a
+   *   valid ciphertext for `EntityName.field`.
+   */
   private decryptFields(entity: Record<string, unknown>): void {
-    const fields = this.getFieldsFor(entity);
+    const { name, fields } = this.getFieldsFor(entity);
     for (const field of fields) {
       const value = entity[field];
-      if (value === null || value === undefined) continue;
       if (typeof value !== "string") continue;
-      try {
-        const plaintext = secretbox.open(this.key, value);
-        entity[field] = Buffer.from(plaintext).toString("utf8");
-      } catch {
-        // Value is not encrypted (e.g. legacy unencrypted row) — leave as-is
-      }
+      entity[field] = openColumn(this.codec, `${name}.${field}`, value);
     }
   }
 }

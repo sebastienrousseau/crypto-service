@@ -50,7 +50,7 @@ When trading digital assets across global derivative and spot exchanges, holding
 </tr>
 <tr>
 <td><strong>Post-Quantum Resistance</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid dual encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; X25519 + ML-KEM hybrid dual encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL MPC</span><br>Legacy pre-quantum threshold signatures / optical HSMs</td>
 </tr>
 <tr>

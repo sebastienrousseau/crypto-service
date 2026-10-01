@@ -75,7 +75,11 @@ describe("Auth module", function () {
     it("should return true and not send a reply when scope is present", () => {
       const payload: AuthPayload = { sub: "test", scopes: ["crypto:admin"] };
       const { reply, state } = createMockReply();
-      const result = requireScope(payload, "crypto:encrypt", reply as unknown as FastifyReply);
+      const result = requireScope(
+        payload,
+        "crypto:encrypt",
+        reply as unknown as FastifyReply,
+      );
       expect(result).to.be.true;
       expect(state.statusCode).to.equal(200); // unchanged
     });
@@ -83,11 +87,19 @@ describe("Auth module", function () {
     it("should return false and send 403 when scope is missing", () => {
       const payload: AuthPayload = { sub: "test", scopes: ["crypto:encrypt"] };
       const { reply, state } = createMockReply();
-      const result = requireScope(payload, "crypto:decrypt", reply as unknown as FastifyReply);
+      const result = requireScope(
+        payload,
+        "crypto:decrypt",
+        reply as unknown as FastifyReply,
+      );
       expect(result).to.be.false;
       expect(state.statusCode).to.equal(403);
-      expect((state.body as Record<string, unknown>).error).to.equal("Forbidden");
-      expect((state.body as Record<string, unknown>).message).to.include("crypto:decrypt");
+      expect((state.body as Record<string, unknown>).error).to.equal(
+        "Forbidden",
+      );
+      expect((state.body as Record<string, unknown>).message).to.include(
+        "crypto:decrypt",
+      );
     });
 
     it("should include the missing scope name in the 403 message", () => {
@@ -120,7 +132,10 @@ describe("Auth module", function () {
 
       const request = { headers: {} } as unknown as FastifyRequest;
       const { reply } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.not.be.null;
       expect(result!.sub).to.equal("anonymous");
@@ -133,33 +148,50 @@ describe("Auth module", function () {
 
       const request = { headers: {} } as unknown as FastifyRequest;
       const { reply, state } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include("Missing API key");
+      expect((state.body as Record<string, unknown>).error).to.include(
+        "Missing API key",
+      );
     });
 
     it("should return null and send 401 when API key does not match", async () => {
       delete process.env["JWT_SECRET"];
       process.env["CRYPTO_API_KEY"] = "test-secret-key";
 
-      const request = { headers: { "x-api-key": "wrong-key" } } as unknown as FastifyRequest;
+      const request = {
+        headers: { "x-api-key": "wrong-key" },
+      } as unknown as FastifyRequest;
       const { reply, state } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include("Invalid API key");
+      expect((state.body as Record<string, unknown>).error).to.include(
+        "Invalid API key",
+      );
     });
 
     it("should return api-key payload when API key matches", async () => {
       delete process.env["JWT_SECRET"];
       process.env["CRYPTO_API_KEY"] = "correct-key";
 
-      const request = { headers: { "x-api-key": "correct-key" } } as unknown as FastifyRequest;
+      const request = {
+        headers: { "x-api-key": "correct-key" },
+      } as unknown as FastifyRequest;
       const { reply } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.not.be.null;
       expect(result!.sub).to.equal("api-key");
@@ -172,20 +204,30 @@ describe("Auth module", function () {
 
       const request = { headers: {} } as unknown as FastifyRequest;
       const { reply, state } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include("No valid credentials");
+      expect((state.body as Record<string, unknown>).error).to.include(
+        "No valid credentials",
+      );
     });
 
     it("should return 401 when non-string API key header is provided", async () => {
       delete process.env["JWT_SECRET"];
       process.env["CRYPTO_API_KEY"] = "test-key";
 
-      const request = { headers: { "x-api-key": 12345 } } as unknown as FastifyRequest;
+      const request = {
+        headers: { "x-api-key": 12345 },
+      } as unknown as FastifyRequest;
       const { reply, state } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
@@ -250,11 +292,16 @@ describe("Auth module", function () {
         },
       } as unknown as FastifyRequest;
       const { reply, state } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include("Invalid or expired JWT");
+      expect((state.body as Record<string, unknown>).error).to.include(
+        "Invalid or expired JWT",
+      );
     });
 
     it("should accept a valid JWT token", async () => {
@@ -271,7 +318,10 @@ describe("Auth module", function () {
         jwtVerify: async () => expectedPayload,
       } as unknown as FastifyRequest;
       const { reply } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.not.be.null;
       expect(result!.sub).to.equal("user1");
@@ -289,7 +339,10 @@ describe("Auth module", function () {
         },
       } as unknown as FastifyRequest;
       const { reply } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.not.be.null;
       expect(result!.sub).to.equal("api-key");
@@ -304,7 +357,10 @@ describe("Auth module", function () {
         headers: { "x-api-key": "api-key" },
       } as unknown as FastifyRequest;
       const { reply } = createMockReply();
-      const result = await authenticate(request, reply as unknown as FastifyReply);
+      const result = await authenticate(
+        request,
+        reply as unknown as FastifyReply,
+      );
 
       expect(result).to.not.be.null;
       expect(result!.sub).to.equal("api-key");

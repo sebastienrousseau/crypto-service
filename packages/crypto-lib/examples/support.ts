@@ -24,11 +24,6 @@ export function footer(): void {
   console.log();
 }
 
-/** Sleep helper. */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 /**
  * Run a task with an animated spinner, then show a checkmark.
  *

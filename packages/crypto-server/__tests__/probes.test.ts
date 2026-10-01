@@ -68,9 +68,7 @@ describe("Probe endpoints", function () {
       expect(payload).to.include(
         "# HELP process_resident_memory_bytes Resident memory size in bytes",
       );
-      expect(payload).to.include(
-        "# TYPE process_resident_memory_bytes gauge",
-      );
+      expect(payload).to.include("# TYPE process_resident_memory_bytes gauge");
       expect(payload).to.include(
         "# HELP process_heap_used_bytes Heap used in bytes",
       );
@@ -87,9 +85,7 @@ describe("Probe endpoints", function () {
       expect(payload).to.match(/process_heap_total_bytes \d+/);
 
       // Check Node.js version info metric
-      expect(payload).to.match(
-        /nodejs_version_info\{version="v[\d.]+"\} 1/,
-      );
+      expect(payload).to.match(/nodejs_version_info\{version="v[\d.]+"\} 1/);
     });
   });
 });

@@ -44,7 +44,7 @@ export async function getPrompt(
           role: "user",
           content: {
             type: "text",
-            text: `Please design a 4-phase Post-Quantum Cryptography (PQC) migration plan for ${target} in accordance with NIST FIPS 203/204/205 standards and NSA CNSA 2.0 timelines:\n\n1. Cryptographic Asset Discovery & CBOM Generation\n2. Hybrid Dual Encapsulation (RFC 10024 / X25519 + ML-KEM-768)\n3. Hardware & Memory Zeroization Audit (Wasm linear memory vs V8 GC heap)\n4. Complete Deprecation of Classical Public Key Infrastructure.`,
+            text: `Please design a 4-phase Post-Quantum Cryptography (PQC) migration plan for ${target} in accordance with NIST FIPS 203/204/205 standards and NSA CNSA 2.0 timelines:\n\n1. Cryptographic Asset Discovery & CBOM Generation\n2. Hybrid Key Exchange (X25519MLKEM768 in TLS 1.3 per RFC 10024; hybrid X25519 + ML-KEM-768 for data at rest)\n3. Hardware & Memory Zeroization Audit (Wasm linear memory vs V8 GC heap)\n4. Complete Deprecation of Classical Public Key Infrastructure.`,
           },
         },
       ],

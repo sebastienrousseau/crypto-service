@@ -114,6 +114,17 @@ export interface ItemShape {
 }
 
 /**
+ * Escape a value for a markdown table cell: pipes would split the cell and
+ * newlines would end the row, silently dropping data. Backslashes are
+ * escaped first so an input ending in `\\` cannot unescape the next pipe.
+ */
+export const cell = (value: unknown): string =>
+  String(value ?? "")
+    .replace(/\r?\n/g, " ")
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|");
+
+/**
  * Creates a markdown structure from a JSON document type definition.
  */
 export const createMarkdown = (data: JsonDocument): string => {
@@ -124,7 +135,7 @@ export const createMarkdown = (data: JsonDocument): string => {
     parts.push(`${data.info.description || ""}\n`);
   }
   parts.push(readItems((data.item || []) as unknown as ItemShape[])); // skipcq: JS-0357
-  parts.push("\n\n");
+  parts.push("\n");
   return parts.join("");
 };
 
@@ -141,9 +152,9 @@ export const readAuthorization = (
   parts.push("|---|---|---|\n");
   for (let i = 0, len = data.bearer.length; i < len; i++) {
     const auth = data.bearer[i];
-    parts.push(`|${auth.key}|${auth.value}|${auth.type}|\n`);
+    parts.push(`|${cell(auth.key)}|${cell(auth.value)}|${cell(auth.type)}|\n`);
   }
-  parts.push("\n\n");
+  parts.push("\n");
   return parts.join("");
 };
 
@@ -153,13 +164,16 @@ export const readAuthorization = (
 export const readRequest = (data: JsonRequest | undefined): string => {
   if (!data || !data.header) return "";
   const parts: string[] = [];
-  parts.push("\n### Request Headers\n\n");
+  parts.push("### Request Headers\n\n");
   parts.push("|Parameter|Value|Description|\n");
   parts.push("|---|---|---|\n");
   for (let i = 0, len = data.header.length; i < len; i++) {
     const header = data.header[i];
-    parts.push(`|${header.key}|${header.value}|${header.description}|\n`);
+    parts.push(
+      `|${cell(header.key)}|${cell(header.value)}|${cell(header.description)}|\n`,
+    );
   }
+  parts.push("\n");
   return parts.join("");
 };
 
@@ -176,9 +190,9 @@ export const readQueryParams = (
   parts.push("|---|---|\n");
   for (let i = 0, len = url.query.length; i < len; i++) {
     const param = url.query[i];
-    if (param) parts.push(`|${param.key}|${param.value}|\n`);
+    if (param) parts.push(`|${cell(param.key)}|${cell(param.value)}|\n`);
   }
-  parts.push("\n\n");
+  parts.push("\n");
   return parts.join("");
 };
 
@@ -212,9 +226,11 @@ export const readFormDataBody = (
     parts.push("|---|---|---|\n");
     for (let i = 0, len = body.formdata.length; i < len; i++) {
       const form = body.formdata[i];
-      parts.push(`|${form.key}|${formatFieldValue(form)}|${form.type}|\n`);
+      parts.push(
+        `|${cell(form.key)}|${cell(formatFieldValue(form))}|${cell(form.type)}|\n`,
+      );
     }
-    parts.push("\n\n");
+    parts.push("\n");
   }
   return parts.join("");
 };
@@ -231,7 +247,7 @@ export const readResponse = (responses: ResponseType[] | undefined): string => {
   parts.push("|---|---|\n");
   for (let i = 0, len = responses.length; i < len; i++) {
     const resp = responses[i];
-    if (resp) parts.push(`|${resp.code}|${resp.status}|\n`);
+    if (resp) parts.push(`|${cell(resp.code)}|${cell(resp.status)}|\n`);
   }
   parts.push("\n#### Example response\n\n");
   parts.push("```json\n");
@@ -253,13 +269,13 @@ export const readMethods = (method: MethodLike): string => {
   const urlString =
     typeof method.request?.url === "string" ? method.request.url : "";
   parts.push(`>${urlString}\n`);
-  parts.push(">```\n");
+  parts.push(">```\n\n");
   parts.push(readRequest(method.request));
   parts.push(readFormDataBody(method.request?.body));
   parts.push(readQueryParams(method.request?.url));
   parts.push(readAuthorization(method.request?.auth));
   parts.push(readResponse(method.response));
-  parts.push("\n![divider][divider]\n");
+  parts.push("![divider][divider]\n");
   return parts.join("");
 };
 
@@ -281,13 +297,20 @@ export const readItems = (items: ItemShape[], folderDeep = 1): string => {
 };
 
 /**
- * Creates a markdown file with specified content.
+ * Output directory for generated markdown: `CRYPTO_API_DOCS_DIR` when set,
+ * otherwise the package's `src/docs` directory.
+ */
+export const docsDir = (): string =>
+  process.env["CRYPTO_API_DOCS_DIR"] ?? resolve(__dirname, "../../src/docs");
+
+/**
+ * Creates a markdown file with specified content in {@link docsDir}.
  */
 export const response = async (
   content: string,
   fileName: string,
 ): Promise<void> => {
-  const dir = resolve(__dirname, "../../src/docs");
+  const dir = docsDir();
   await mkdir(dir, { recursive: true });
   // Sanitize fileName to prevent path traversal
   const safeName = basename(fileName);

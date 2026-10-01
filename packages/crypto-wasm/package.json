@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-wasm",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "WebAssembly performance accelerator for crypto-lib — near-native speed for heavy cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -29,9 +29,10 @@
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc",
-    "lint": "eslint src",
-    "lint:fix": "eslint --cache --fix src",
-    "format": "prettier --write src/**/*.ts"
+    "lint": "eslint --ext .ts src __tests__",
+    "lint:fix": "eslint --cache --fix --ext .ts src __tests__",
+    "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "devDependencies": {
     "@types/chai": "^4.3.7",

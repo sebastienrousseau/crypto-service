@@ -8,13 +8,9 @@
  * single-process applications that do not need cloud KMS integration.
  */
 
-import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import {
-  generateEd25519KeyPair,
-  ed25519Sign,
-  ed25519Verify,
   bytesToHex,
-  hexToBytes,
   bytesToBase64,
   base64ToBytes,
 } from "@sebastienrousseau/crypto-lib";
@@ -25,14 +21,24 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import { KmsError } from "../errors";
+import {
+  type VersionedKey,
+  createVersionedKey,
+  currentVersion,
+  rotateVersionedKey,
+  destroyVersion,
+  sealCurrent,
+  openVersioned,
+  signCurrent,
+  verifyAnyVersion,
+} from "./versioned-key";
 
 /** Internal key record stored in memory. */
 interface LocalKeyRecord {
   metadata: KmsKeyMetadata;
-  /** Raw key material (symmetric key bytes or serialized key pair). */
-  material: Uint8Array;
-  /** For signing keys: the public key bytes. */
-  publicKey: Uint8Array | undefined;
+  /** Every version of the key material; the last one is current. */
+  key: VersionedKey;
   /** Whether the key is pending deletion. */
   pendingDeletion: boolean | undefined;
   /** Scheduled deletion timestamp. */
@@ -51,6 +57,13 @@ function generateId(): string {
  * `@sebastienrousseau/crypto-lib` Ed25519 for signing operations.
  * Keys are stored in memory and do not persist across restarts.
  *
+ * Rotation adds a key version rather than replacing the material:
+ * ciphertext names the version that produced it, so data encrypted
+ * before a rotation still decrypts, and signatures made before a rotation
+ * still verify, until that version is destroyed with
+ * {@link LocalKmsProvider.destroyKeyVersion}. Failures reject with a
+ * {@link KmsError}.
+ *
  * @example
  * ```ts
  * const provider = new LocalKmsProvider();
@@ -66,54 +79,75 @@ export class LocalKmsProvider implements KmsProvider {
   /** In-memory key store mapping key IDs to records. */
   private readonly store = new Map<string, LocalKeyRecord>();
 
+  /** Look up a key record or throw `NOT_FOUND`. */
+  private record(keyId: string): LocalKeyRecord {
+    const record = this.store.get(keyId);
+    if (!record) {
+      throw new KmsError("NOT_FOUND", `Key not found: ${keyId}`, keyId);
+    }
+    return record;
+  }
+
+  /** Look up an enabled key record or throw `NOT_FOUND` / `DISABLED`. */
+  private enabledRecord(keyId: string): LocalKeyRecord {
+    const record = this.record(keyId);
+    if (!record.metadata.enabled) {
+      throw new KmsError("DISABLED", `Key is disabled: ${keyId}`, keyId);
+    }
+    return record;
+  }
+
+  /** Look up an enabled encryption or wrapping key. */
+  private cipherRecord(keyId: string, purpose: string): LocalKeyRecord {
+    const record = this.enabledRecord(keyId);
+    if (record.metadata.usage === "sign") {
+      throw new KmsError(
+        "INVALID_USAGE",
+        `Key ${keyId} is a signing key, ${purpose}`,
+        keyId,
+      );
+    }
+    return record;
+  }
+
+  /** Copy of the metadata with the current version filled in. */
+  private snapshot(record: LocalKeyRecord): KmsKeyMetadata {
+    return {
+      ...record.metadata,
+      currentVersion: currentVersion(record.key).version,
+    };
+  }
+
   /** List all keys, optionally filtered by usage or enabled state. */
-  listKeys(filters?: {
+  async listKeys(filters?: {
     usage?: string;
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
     const keys = Array.from(this.store.values())
       .filter((r) => !r.pendingDeletion)
-      .map((r) => r.metadata);
+      .map((r) => this.snapshot(r));
 
-    if (!filters) return Promise.resolve(keys);
+    if (!filters) return keys;
 
-    return Promise.resolve(
-      keys.filter(
-        (k) =>
-          (filters.usage === undefined || k.usage === filters.usage) &&
-          (filters.enabled === undefined || k.enabled === filters.enabled),
-      ),
+    return keys.filter(
+      (k) =>
+        (filters.usage === undefined || k.usage === filters.usage) &&
+        (filters.enabled === undefined || k.enabled === filters.enabled),
     );
   }
 
   /** Retrieve metadata for a specific key by ID. */
-  getKey(keyId: string): Promise<KmsKeyMetadata> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    return Promise.resolve({ ...record.metadata });
+  async getKey(keyId: string): Promise<KmsKeyMetadata> {
+    return this.snapshot(this.record(keyId));
   }
 
   /** Create a new key with the given algorithm and usage. */
-  createKey(
+  async createKey(
     algorithm: string,
     usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
     const keyId = generateId();
-    let material: Uint8Array;
-    let publicKey: Uint8Array | undefined;
-
-    if (usage === "sign") {
-      // Ed25519 signing key pair
-      const kp = generateEd25519KeyPair();
-      material = hexToBytes(kp.privateKey);
-      publicKey = hexToBytes(kp.publicKey);
-    } else {
-      // AES-256 symmetric key (32 bytes)
-      material = randomBytes(32);
-      publicKey = undefined;
-    }
-
     const metadata: KmsKeyMetadata = {
       keyId,
       algorithm,
@@ -122,181 +156,132 @@ export class LocalKmsProvider implements KmsProvider {
       enabled: true,
       provider: "local",
     };
-
-    this.store.set(keyId, {
+    const record: LocalKeyRecord = {
       metadata,
-      material,
-      publicKey,
+      key: createVersionedKey(usage),
       pendingDeletion: undefined,
       deletionDate: undefined,
-    });
-    return Promise.resolve({ ...metadata });
+    };
+    this.store.set(keyId, record);
+    return this.snapshot(record);
   }
 
   /** Enable a previously disabled key. */
-  enableKey(keyId: string): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    record.metadata.enabled = true;
-    return Promise.resolve();
+  async enableKey(keyId: string): Promise<void> {
+    this.record(keyId).metadata.enabled = true;
   }
 
   /** Disable a key so it cannot be used for operations. */
-  disableKey(keyId: string): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    record.metadata.enabled = false;
-    return Promise.resolve();
+  async disableKey(keyId: string): Promise<void> {
+    this.record(keyId).metadata.enabled = false;
   }
 
   /** Schedule a key for deletion after a pending window. */
-  scheduleKeyDeletion(keyId: string, pendingWindowDays = 30): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
+  async scheduleKeyDeletion(
+    keyId: string,
+    pendingWindowDays = 30,
+  ): Promise<void> {
+    const record = this.record(keyId);
     record.pendingDeletion = true;
     record.metadata.enabled = false;
     const deletionDate = new Date();
     deletionDate.setDate(deletionDate.getDate() + pendingWindowDays);
     record.deletionDate = deletionDate.toISOString();
-    return Promise.resolve();
   }
 
-  /** Encrypt plaintext with AES-256-GCM using the managed key. */
-  encrypt(
+  /** Encrypt plaintext with AES-256-GCM under the current key version. */
+  async encrypt(
     keyId: string,
     plaintext: Uint8Array,
     context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    if (!record.metadata.enabled)
-      return Promise.reject(new Error(`Key is disabled: ${keyId}`));
-    if (record.metadata.usage === "sign")
-      return Promise.reject(
-        new Error(`Key ${keyId} is a signing key, not an encryption key`),
-      );
-
-    const iv = randomBytes(12);
-    const aad = context ? Buffer.from(JSON.stringify(context)) : undefined;
-    const cipher = createCipheriv("aes-256-gcm", record.material, iv);
-    if (aad) cipher.setAAD(aad);
-
-    const encrypted = Buffer.concat([cipher.update(plaintext), cipher.final()]);
-    const tag = cipher.getAuthTag();
-
-    // Pack: iv (12) + tag (16) + ciphertext
-    const packed = Buffer.concat([iv, tag, encrypted]);
-
+    const record = this.cipherRecord(keyId, "not an encryption key");
+    const sealed = sealCurrent(record.key, plaintext, context);
     const result: KmsEncryptResult = {
-      ciphertext: bytesToBase64(packed),
+      ciphertext: sealed.ciphertext,
       keyId,
+      keyVersion: sealed.version,
     };
     if (context) {
       result.context = context;
     }
-    return Promise.resolve(result);
+    return result;
   }
 
-  /** Decrypt AES-256-GCM ciphertext using the managed key. */
-  decrypt(
+  /** Decrypt AES-256-GCM ciphertext with the key version it names. */
+  async decrypt(
     keyId: string,
     ciphertext: string,
     context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    if (!record.metadata.enabled)
-      return Promise.reject(new Error(`Key is disabled: ${keyId}`));
-    if (record.metadata.usage === "sign")
-      return Promise.reject(
-        new Error(`Key ${keyId} is a signing key, not an encryption key`),
-      );
-
-    const packed = base64ToBytes(ciphertext);
-    const iv = packed.slice(0, 12);
-    const tag = packed.slice(12, 28);
-    const encryptedData = packed.slice(28);
-
-    const aad = context ? Buffer.from(JSON.stringify(context)) : undefined;
-    const decipher = createDecipheriv("aes-256-gcm", record.material, iv);
-    decipher.setAuthTag(tag);
-    if (aad) decipher.setAAD(aad);
-
-    const decrypted = Buffer.concat([
-      decipher.update(encryptedData),
-      decipher.final(),
-    ]);
-    return Promise.resolve({
-      plaintext: new Uint8Array(decrypted),
-      keyId,
-    });
+    const record = this.cipherRecord(keyId, "not an encryption key");
+    const opened = openVersioned(record.key, keyId, ciphertext, context);
+    return { plaintext: opened.plaintext, keyId, keyVersion: opened.version };
   }
 
-  /** Sign data using the Ed25519 signing key. */
-  sign(
+  /** Return a signing record's key versions, or throw `INVALID_USAGE`. */
+  private signingRecord(keyId: string, record: LocalKeyRecord): VersionedKey {
+    if (record.metadata.usage !== "sign") {
+      throw new KmsError(
+        "INVALID_USAGE",
+        `Key ${keyId} is not a signing key`,
+        keyId,
+      );
+    }
+    return record.key;
+  }
+
+  /** Sign data using the current Ed25519 key version. */
+  async sign(
     keyId: string,
     data: Uint8Array,
     _algorithm?: string,
   ): Promise<KmsSignResult> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    if (!record.metadata.enabled)
-      return Promise.reject(new Error(`Key is disabled: ${keyId}`));
-    if (record.metadata.usage !== "sign")
-      return Promise.reject(new Error(`Key ${keyId} is not a signing key`));
-
-    const result = ed25519Sign(bytesToHex(record.material), bytesToHex(data));
-
-    return Promise.resolve({
-      signature: bytesToBase64(hexToBytes(result.signature)),
+    const key = this.signingRecord(keyId, this.enabledRecord(keyId));
+    return {
+      signature: bytesToBase64(signCurrent(key, data)),
       keyId,
       algorithm: "ed25519",
-    });
+    };
   }
 
-  /** Verify an Ed25519 signature against data. */
-  verify(
+  /**
+   * Verify an Ed25519 signature against every key version that has not
+   * been destroyed. Malformed signatures verify as `false`.
+   */
+  async verify(
     keyId: string,
     data: Uint8Array,
     signature: string,
     _algorithm?: string,
   ): Promise<boolean> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    if (record.metadata.usage !== "sign")
-      return Promise.reject(new Error(`Key ${keyId} is not a signing key`));
-    if (!record.publicKey)
-      return Promise.reject(new Error(`Key ${keyId} has no public key`));
-
-    const result = ed25519Verify(
-      bytesToHex(record.publicKey),
-      bytesToHex(data),
-      bytesToHex(base64ToBytes(signature)),
-    );
-
-    return Promise.resolve(result.valid);
+    const key = this.signingRecord(keyId, this.record(keyId));
+    return verifyAnyVersion(key, data, base64ToBytes(signature));
   }
 
-  /** Rotate key material while preserving the key ID and metadata. */
-  rotateKey(keyId: string): Promise<KmsKeyMetadata> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
+  /**
+   * Rotate the key: add a new current version while keeping earlier
+   * versions for decryption and verification.
+   */
+  async rotateKey(keyId: string): Promise<KmsKeyMetadata> {
+    const record = this.record(keyId);
+    const next = rotateVersionedKey(record.key);
+    record.metadata.createdAt = next.createdAt;
+    return this.snapshot(record);
+  }
 
-    // Generate new key material
-    if (record.metadata.usage === "sign") {
-      const kp = generateEd25519KeyPair();
-      record.material = hexToBytes(kp.privateKey);
-      record.publicKey = hexToBytes(kp.publicKey);
-    } else {
-      record.material = randomBytes(32);
-    }
-
-    record.metadata.createdAt = new Date().toISOString();
-    return Promise.resolve({ ...record.metadata });
+  /**
+   * Destroy the material of a non-current key version. Ciphertext and
+   * signatures produced under it can no longer be used. Rejects with
+   * `INVALID_ARGUMENT` for the current version and `NOT_FOUND` for an
+   * unknown key or version.
+   */
+  async destroyKeyVersion(keyId: string, version: number): Promise<void> {
+    destroyVersion(this.record(keyId).key, version, keyId);
   }
 
   /** Generate a data encryption key (DEK) wrapped by the managed key. */
-  generateDataKey(
+  async generateDataKey(
     keyId: string,
     _keySpec?: string,
   ): Promise<{
@@ -305,22 +290,11 @@ export class LocalKmsProvider implements KmsProvider {
     /** Encrypted (wrapped) data key. */
     ciphertext: string;
   }> {
-    const record = this.store.get(keyId);
-    if (!record) return Promise.reject(new Error(`Key not found: ${keyId}`));
-    if (!record.metadata.enabled)
-      return Promise.reject(new Error(`Key is disabled: ${keyId}`));
-    if (record.metadata.usage === "sign")
-      return Promise.reject(
-        new Error(`Key ${keyId} is a signing key, cannot generate data key`),
-      );
+    this.cipherRecord(keyId, "cannot generate data key");
 
-    // Generate a 32-byte data encryption key
-    const dek = randomBytes(32);
-
-    // Wrap the DEK with the managed key
-    return this.encrypt(keyId, dek).then((wrapped) => ({
-      plaintext: new Uint8Array(dek),
-      ciphertext: wrapped.ciphertext,
-    }));
+    // Generate a 32-byte data encryption key and wrap it with the managed key
+    const dek = new Uint8Array(randomBytes(32));
+    const wrapped = await this.encrypt(keyId, dek);
+    return { plaintext: dek, ciphertext: wrapped.ciphertext };
   }
 }

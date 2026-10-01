@@ -10,6 +10,7 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import { KmsError } from "../errors";
 
 /**
  * Configuration for the Google Cloud KMS provider.
@@ -71,14 +72,20 @@ export class GcpKmsProvider implements KmsProvider {
   }): Promise<KmsKeyMetadata[]> {
     void this.getParent();
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
   /** Retrieve metadata for a specific key by ID. */
   getKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -89,21 +96,30 @@ export class GcpKmsProvider implements KmsProvider {
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
   /** Enable a previously disabled key. */
   enableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
   /** Disable a key so it cannot be used for operations. */
   disableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -113,7 +129,10 @@ export class GcpKmsProvider implements KmsProvider {
     _pendingWindowDays?: number,
   ): Promise<void> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -124,7 +143,10 @@ export class GcpKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -135,7 +157,10 @@ export class GcpKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -146,7 +171,10 @@ export class GcpKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<KmsSignResult> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -158,14 +186,20 @@ export class GcpKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
   /** Rotate a key to a new version. */
   rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 
@@ -180,7 +214,10 @@ export class GcpKmsProvider implements KmsProvider {
     ciphertext: string;
   }> {
     return Promise.reject(
-      new Error("Not implemented: install @google-cloud/kms"),
+      new KmsError(
+        "NOT_IMPLEMENTED",
+        "Not implemented: install @google-cloud/kms",
+      ),
     );
   }
 }

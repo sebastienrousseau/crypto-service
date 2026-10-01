@@ -20,5 +20,7 @@ export { createFieldEncryptionExtension } from "./extension";
 /** Re-exported field encryption extension interface. */
 export type { FieldEncryptionExtension } from "./extension";
 
+export { FieldDecryptionError } from "./errors";
+
 /** Re-exported encryption configuration and field config types. */
 export type { EncryptionConfig, FieldConfig } from "./types";

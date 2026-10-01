@@ -72,9 +72,9 @@ This matrix lists the standards whose algorithms or formats Crypto Service Suite
 <td><span class="badge-status">Implemented (not validated)</span></td>
 </tr>
 <tr id="hpke">
-<td><strong>RFC 9180 &amp; RFC 10024</strong></td>
+<td><strong>RFC 9180</strong></td>
 <td>IETF</td>
-<td>Hybrid Public Key Encryption (HPKE) and dual-layer PQ hybrids</td>
+<td>Hybrid Public Key Encryption (HPKE), base and PSK modes, checked against the RFC 9180 test vectors. The hybrid X25519 + ML-KEM KEM uses a library-specific combiner, not RFC 10024.</td>
 <td><code>@sebastienrousseau/crypto-lib</code> (X25519 + ML-KEM)</td>
 <td><span class="badge-status">Implemented (not validated)</span></td>
 </tr>

@@ -240,18 +240,18 @@ importers:
 
   packages/crypto-cli:
     dependencies:
-      '@types/openpgp':
-        specifier: ^5.0.0
-        version: 5.0.0(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))
+      '@sebastienrousseau/crypto-cbom':
+        specifier: workspace:*
+        version: link:../crypto-cbom
+      '@sebastienrousseau/crypto-lib':
+        specifier: workspace:*
+        version: link:../crypto-lib
       figlet:
         specifier: ^1.6.0
         version: 1.11.0
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      openpgp:
-        specifier: ^6.3.1
-        version: 6.3.1(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -259,12 +259,6 @@ importers:
       '@sebastienrousseau/c8-config':
         specifier: ^0.0.3
         version: 0.0.3
-      '@sebastienrousseau/crypto-cbom':
-        specifier: workspace:*
-        version: link:../crypto-cbom
-      '@sebastienrousseau/crypto-lib':
-        specifier: workspace:*
-        version: link:../crypto-lib
       '@sebastienrousseau/eslint-config':
         specifier: ^0.0.2
         version: 0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)
@@ -855,15 +849,15 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: ^1.43.0
         version: 1.43.0
+      '@sebastienrousseau/crypto-lib':
+        specifier: workspace:*
+        version: link:../crypto-lib
       fastify:
         specifier: ^5.12.5
         version: 5.12.5
       fastify-healthcheck:
         specifier: ^5.1.0
         version: 5.1.0
-      openpgp:
-        specifier: ^6.3.1
-        version: 6.3.1(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))
       uuid:
         specifier: '>=11.1.1'
         version: 14.0.2
@@ -871,9 +865,6 @@ importers:
         specifier: ^3.17.0
         version: 3.19.0
     devDependencies:
-      '@sebastienrousseau/crypto-lib':
-        specifier: workspace:*
-        version: link:../crypto-lib
       '@types/chai':
         specifier: ^4.3.7
         version: 4.3.20
@@ -901,6 +892,9 @@ importers:
       mocha:
         specifier: ^10.8.2
         version: 10.8.2
+      openpgp:
+        specifier: ^6.3.1
+        version: 6.3.1(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))
       prettier:
         specifier: ^3.9.8
         version: 3.9.8
@@ -2260,9 +2254,6 @@ packages:
 
   '@types/node@26.4.1':
     resolution: {integrity: sha512-k97ENvZWtvA6yqz5/FS6a7duDgOPEeOQOc2iKS/nY6mX6qJUKtLnWzQS+Xj6tXweyj6ZcTAK2Qecetnvi9nCLA==}
-
-  '@types/openpgp@5.0.0':
-    resolution: {integrity: sha512-bzIQl7uFcb4bQLyl5UN6ZUSixpf00cyaUdBNqIaQQocNfcAB07v+NGBANBqDiNffm3xe3UC1iKaUw0UP25XyJw==}
 
   '@types/prompts@2.4.9':
     resolution: {integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==}
@@ -7508,12 +7499,6 @@ snapshots:
   '@types/node@26.4.1':
     dependencies:
       undici-types: 8.3.0
-
-  '@types/openpgp@5.0.0(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))':
-    dependencies:
-      openpgp: 6.3.1(@openpgp/web-stream-tools@0.3.1(@types/node@26.4.1)(typescript@5.9.3))
-    transitivePeerDependencies:
-      - '@openpgp/web-stream-tools'
 
   '@types/prompts@2.4.9':
     dependencies:

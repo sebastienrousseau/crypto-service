@@ -104,7 +104,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | **[`@sebastienrousseau/crypto-kms`](../crypto-kms)** _(this package)_ | **Cloud KMS**   | **Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.**                                    |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                      | Core Library    | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)        | Middleware      | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter     | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter     | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                  | React Hooks     | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                      | Client SDK      | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                | HTTP API        | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -128,6 +128,7 @@ The PKCS#11 provider is an in-memory software simulation for tests
 (see below); it does not talk to an HSM.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Providers
 
 | Provider    | Class               | Backend                    | Status                                | Peer Dependency        |
@@ -145,6 +146,7 @@ accepts any PIN, keeps keys in process memory and reports
 unless you pass `{ simulate: true }`. Use it only in tests.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## API Reference
 
 Every provider exposes the `KmsProvider` interface:
@@ -161,10 +163,72 @@ Every provider exposes the `KmsProvider` interface:
 | `decrypt(keyId, ciphertext, context?)`       | Decrypt ciphertext with a managed key        |
 | `sign(keyId, data, algorithm?)`              | Sign data with a managed signing key         |
 | `verify(keyId, data, signature, algorithm?)` | Verify a signature                           |
-| `rotateKey(keyId)`                           | Rotate key material (new version)            |
+| `rotateKey(keyId)`                           | Add a new current key version                |
+| `destroyKeyVersion?(keyId, version)`         | Destroy a retired version (optional method)  |
 | `generateDataKey(keyId, keySpec?)`           | Generate a wrapped data encryption key       |
 
+### Key rotation and versions
+
+`LocalKmsProvider` and `Pkcs11HsmProvider` keep every version of a key.
+`rotateKey` adds a new current version; it does not replace the old
+material. New ciphertext and signatures use the current version, and
+each ciphertext records the version that produced it, so data encrypted
+before a rotation still decrypts and signatures made before it still
+verify. `getKey` reports `currentVersion`; `encrypt` and `decrypt`
+report `keyVersion`.
+
+A version stays usable until you destroy it with
+`destroyKeyVersion(keyId, version)`. After that, ciphertext from that
+version rejects with `VERSION_DESTROYED` and its signatures no longer
+verify. The current version cannot be destroyed; rotate first.
+`disableKey` and `scheduleKeyDeletion` still block every operation on
+the key, all versions included.
+
+```ts
+const key = await kms.createKey("aes-256-gcm", "encrypt");
+const old = await kms.encrypt(key.keyId, data); // old.keyVersion === 1
+await kms.rotateKey(key.keyId); // currentVersion === 2
+await kms.decrypt(key.keyId, old.ciphertext); // still decrypts with version 1
+await kms.destroyKeyVersion(key.keyId, 1); // version 1 is gone for good
+```
+
+The ciphertext of these two providers is the base64 of: a format byte
+(`0x01`), the key version (4 bytes, big-endian), the AES-GCM IV (12
+bytes), the tag (16 bytes) and the AES-256-GCM ciphertext. Ciphertext
+produced by 0.0.6 and earlier is not accepted; neither provider persists
+keys, so none can outlive the process that made it.
+
+### Encryption context
+
+The encryption context is bound to the ciphertext as AES-GCM additional
+authenticated data. It is canonicalised first (entries sorted by key),
+so `{ a: "1", b: "2" }` and `{ b: "2", a: "1" }` are the same context.
+Values must be strings; anything else rejects with `INVALID_ARGUMENT`.
+An empty context is the same as no context.
+
+### Errors
+
+Providers reject with `KmsError`, which extends `Error` and carries a
+`code` (and the `keyId` when there is one). Branch on the code, not the
+message:
+
+| Code                 | Meaning                                                        |
+| :------------------- | :------------------------------------------------------------- |
+| `NOT_FOUND`          | Unknown key, or a ciphertext names a version the key never had |
+| `DISABLED`           | The key is disabled or scheduled for deletion                  |
+| `INVALID_USAGE`      | The key's usage does not allow the operation                   |
+| `INVALID_ARGUMENT`   | Malformed argument, or destroying the current version          |
+| `INVALID_CIPHERTEXT` | Truncated ciphertext or an unknown format                      |
+| `DECRYPTION_FAILED`  | Wrong context, wrong key, or tampered ciphertext               |
+| `VERSION_DESTROYED`  | The ciphertext's key version has been destroyed                |
+| `NOT_IMPLEMENTED`    | Stub provider (GCP, Azure, Vault)                              |
+| `DEPENDENCY_MISSING` | The AWS SDK peer dependency is not installed                   |
+
+Errors raised by the AWS SDK itself are passed through unchanged. No
+provider method takes a timeout or an `AbortSignal` yet.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Authentication
 
 | Provider  | Credentials                                                                        |
@@ -176,6 +240,7 @@ Every provider exposes the `KmsProvider` interface:
 | **Local** | No authentication required                                                         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
@@ -190,7 +255,7 @@ npx ts-node examples/<name>.ts
 | Local    | [local.ts](examples/local.ts)       | Create keys, encrypt/decrypt with the in-memory provider |
 | AWS      | [aws.ts](examples/aws.ts)           | AWS KMS setup and usage pattern                          |
 | Envelope | [envelope.ts](examples/envelope.ts) | Envelope encryption with `generateDataKey`               |
-| Rotation | [rotation.ts](examples/rotation.ts) | Key rotation workflow                                    |
+| Rotation | [rotation.ts](examples/rotation.ts) | Rotate, decrypt old data, destroy a retired version      |
 | Multi    | [multi.ts](examples/multi.ts)       | Provider-agnostic code across multiple backends          |
 
 <p align="right"><a href="#contents">Back to Top</a></p>

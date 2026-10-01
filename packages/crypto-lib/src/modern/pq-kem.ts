@@ -13,7 +13,25 @@
  * - If quantum computers arrive: X25519 fails but ML-KEM protects
  * - If ML-KEM has a flaw: X25519 still provides classical security
  *
- * Shared secret derivation: HKDF-SHA256(X25519_shared || ML-KEM_shared, salt, info)
+ * Combiner (v2, all three hybrids in this module):
+ *
+ *   HKDF-SHA256(ikm  = ss_classical || ss_mlkem,
+ *               salt = none,
+ *               info = lp(label) || lp(ct_classical) || lp(pk_classical) ||
+ *                      lp(ct_mlkem) || lp(pk_mlkem),
+ *               L    = 32)
+ *
+ * where `lp(x)` is a 4-byte big-endian length followed by `x`,
+ * `label` is `crypto-service/hybrid-kem/v2/<algorithm>`, `ct_classical` is
+ * the sender's ephemeral public key and `pk_*` are the recipient's public
+ * keys. Binding the ciphertexts and public keys means a shared secret
+ * commits to the exact exchange it came from.
+ *
+ * These are this library's own constructions. They are NOT the RFC 10024
+ * TLS 1.3 groups (X25519MLKEM768, SecP256r1MLKEM768), which derive keys
+ * through the TLS key schedule, and NOT X-Wing; they do not interoperate
+ * with either. Secrets derived by releases before v0.0.7 (unbound
+ * `HKDF(ss_classical || ss_mlkem)`) do not match v2 secrets.
  */
 
 import {
@@ -36,16 +54,22 @@ export type MlKemLevel = 512 | 768 | 1024;
 /** ML-KEM algorithm identifier string. */
 export type MlKemAlgorithm = "ml-kem-512" | "ml-kem-768" | "ml-kem-1024";
 
-/** Canonical RFC 10024 / IETF identifier for X25519 + ML-KEM-768 hybrid key exchange. */
+/**
+ * IANA TLS Supported Groups name for X25519 + ML-KEM-768 (RFC 10024).
+ * Reference only: no function in this module implements this TLS group.
+ */
 export const RFC10024_X25519_MLKEM768 = "X25519MLKEM768" as const;
 
-/** Canonical RFC 10024 / IETF identifier for SecP256r1 + ML-KEM-768 hybrid key exchange. */
+/**
+ * IANA TLS Supported Groups name for secp256r1 + ML-KEM-768 (RFC 10024).
+ * Reference only: no function in this module implements this TLS group.
+ */
 export const RFC10024_SECP256R1_MLKEM768 = "SecP256r1MLKEM768" as const;
 
-/** RFC 10024 TLS NamedGroup codepoints. */
+/** IANA TLS Supported Groups codepoints for the RFC 10024 groups above. */
 export const RFC10024_CODEPOINTS = {
+  [RFC10024_SECP256R1_MLKEM768]: 0x11eb,
   [RFC10024_X25519_MLKEM768]: 0x11ec,
-  [RFC10024_SECP256R1_MLKEM768]: 0x11ed,
 } as const;
 
 /** Hybrid KEM algorithm identifier combining classical + post-quantum. */
@@ -54,26 +78,28 @@ export type HybridKemAlgorithm =
   | "x25519-ml-kem-768"
   | "x25519-ml-kem-1024"
   | "p256-ml-kem-768"
-  | "x448-ml-kem-1024"
-  | typeof RFC10024_X25519_MLKEM768
-  | typeof RFC10024_SECP256R1_MLKEM768;
+  | "x448-ml-kem-1024";
 
 /**
- * Normalizes an RFC 10024 or legacy hybrid KEM algorithm identifier to its internal name.
+ * Validates a hybrid KEM algorithm identifier and returns it unchanged.
+ *
+ * @throws If given an RFC 10024 TLS group name: those groups are not
+ *   implemented here, and this library's hybrids are not compatible with
+ *   them, so the names must not be treated as aliases.
  */
 export function normalizeHybridKemAlgorithm(
   name: HybridKemAlgorithm | string,
 ): string {
-  switch (name) {
-    case RFC10024_X25519_MLKEM768:
-    case "x25519-ml-kem-768":
-      return "x25519-ml-kem-768";
-    case RFC10024_SECP256R1_MLKEM768:
-    case "p256-ml-kem-768":
-      return "p256-ml-kem-768";
-    default:
-      return name;
+  if (
+    name === RFC10024_X25519_MLKEM768 ||
+    name === RFC10024_SECP256R1_MLKEM768
+  ) {
+    throw new Error(
+      `${name} (RFC 10024 TLS group) is not implemented by this library; ` +
+        "its hybrid KEMs use a different combiner and do not interoperate",
+    );
   }
+  return name;
 }
 
 /** ML-KEM key pair (encapsulation + decapsulation keys). */
@@ -172,6 +198,53 @@ function algorithmName(level: MlKemLevel): MlKemAlgorithm {
   return `ml-kem-${level}` as MlKemAlgorithm;
 }
 
+/** Transcript of one hybrid encapsulation, fed to {@link combineHybrid}. */
+interface HybridTranscript {
+  /** Algorithm identifier, used in the domain-separation label. */
+  algorithm: HybridKemAlgorithm;
+  /** Classical (ECDH) shared secret. */
+  ssClassical: Uint8Array;
+  /** ML-KEM shared secret. */
+  ssMlKem: Uint8Array;
+  /** Sender's ephemeral classical public key (the classical "ciphertext"). */
+  ctClassical: Uint8Array;
+  /** Recipient's classical public key. */
+  pkClassical: Uint8Array;
+  /** ML-KEM ciphertext. */
+  ctMlKem: Uint8Array;
+  /** Recipient's ML-KEM public key. */
+  pkMlKem: Uint8Array;
+}
+
+/** 4-byte big-endian length prefix followed by the bytes. */
+function lengthPrefixed(bytes: Uint8Array): Uint8Array {
+  const out = new Uint8Array(4 + bytes.length);
+  new DataView(out.buffer).setUint32(0, bytes.length, false);
+  out.set(bytes, 4);
+  return out;
+}
+
+/**
+ * v2 combiner: HKDF-SHA256 over both shared secrets, with a domain label,
+ * both ciphertexts and both recipient public keys bound in `info`.
+ */
+function combineHybrid(t: HybridTranscript): Uint8Array {
+  const ikm = Buffer.concat([t.ssClassical, t.ssMlKem]);
+  const info = Buffer.concat([
+    lengthPrefixed(Buffer.from(`crypto-service/hybrid-kem/v2/${t.algorithm}`)),
+    lengthPrefixed(t.ctClassical),
+    lengthPrefixed(t.pkClassical),
+    lengthPrefixed(t.ctMlKem),
+    lengthPrefixed(t.pkMlKem),
+  ]);
+  return hkdf(sha256, ikm, undefined, info, 32);
+}
+
+/** Hex-encode bytes. */
+function toHex(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString("hex");
+}
+
 /** Build the hybrid KEM algorithm identifier string from a security level. */
 function hybridAlgorithmName(level: MlKemLevel): HybridKemAlgorithm {
   return `x25519-ml-kem-${level}` as HybridKemAlgorithm;
@@ -248,8 +321,8 @@ export function hybridKemKeygen(kemLevel: MlKemLevel = 768): HybridKemKeyPair {
 }
 
 /**
- * Hybrid encapsulate — performs X25519 ECDH + ML-KEM encapsulation,
- * then derives a combined shared secret via HKDF.
+ * Hybrid encapsulate — performs X25519 ECDH + ML-KEM encapsulation, then
+ * derives the combined shared secret with the v2 combiner (see module docs).
  *
  * @param kemLevel - ML-KEM security level (512, 768, or 1024).
  * @param theirX25519Public - Recipient's X25519 public key (hex).
@@ -261,33 +334,30 @@ export function hybridKemEncapsulate(
   theirMlKemPublic: string,
 ): HybridKemEncapsulateResult {
   const kem = getKem(kemLevel);
+  const pkClassical = assertHex(theirX25519Public, "theirX25519Public");
+  const pkMlKem = assertHex(theirMlKemPublic, "theirMlKemPublic");
 
-  // X25519: generate ephemeral key pair and compute shared secret
   const ephemeralPriv = randomBytes(32);
   const ephemeralPub = x25519.getPublicKey(ephemeralPriv);
-  const x25519Shared = x25519.getSharedSecret(
-    ephemeralPriv,
-    assertHex(theirX25519Public, "theirX25519Public"),
-  );
+  const ssClassical = x25519.getSharedSecret(ephemeralPriv, pkClassical);
+  const { cipherText, sharedSecret: ssMlKem } = kem.encapsulate(pkMlKem);
 
-  // ML-KEM: encapsulate with their public key
-  const { cipherText, sharedSecret: mlKemShared } = kem.encapsulate(
-    assertHex(theirMlKemPublic, "theirMlKemPublic"),
-  );
-
-  // Combine both shared secrets via HKDF-SHA256
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const info = new TextEncoder().encode(`x25519-ml-kem-${kemLevel}-hybrid`);
-  const derivedSecret = hkdf(sha256, combined, undefined, info, 32);
+  const algorithm = hybridAlgorithmName(kemLevel);
+  const derived = combineHybrid({
+    algorithm,
+    ssClassical,
+    ssMlKem,
+    ctClassical: ephemeralPub,
+    pkClassical,
+    ctMlKem: cipherText,
+    pkMlKem,
+  });
 
   return {
-    x25519EphemeralPublic: Buffer.from(ephemeralPub).toString("hex"),
-    mlKemCiphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
-    algorithm: hybridAlgorithmName(kemLevel),
+    x25519EphemeralPublic: toHex(ephemeralPub),
+    mlKemCiphertext: toHex(cipherText),
+    sharedSecret: toHex(derived),
+    algorithm,
   };
 }
 
@@ -309,31 +379,23 @@ export function hybridKemDecapsulate(
   mlKemCiphertext: string,
 ): HybridKemDecapsulateResult {
   const kem = getKem(kemLevel);
+  const priv = assertHex(ourX25519Private, "ourX25519Private");
+  const ctClassical = assertHex(theirX25519Ephemeral, "theirX25519Ephemeral");
+  const ctMlKem = assertHex(mlKemCiphertext, "mlKemCiphertext");
+  const mlKemSecret = assertHex(ourMlKemSecret, "ourMlKemSecret");
 
-  // X25519: compute shared secret
-  const x25519Shared = x25519.getSharedSecret(
-    assertHex(ourX25519Private, "ourX25519Private"),
-    assertHex(theirX25519Ephemeral, "theirX25519Ephemeral"),
-  );
+  const algorithm = hybridAlgorithmName(kemLevel);
+  const derived = combineHybrid({
+    algorithm,
+    ssClassical: x25519.getSharedSecret(priv, ctClassical),
+    ssMlKem: kem.decapsulate(ctMlKem, mlKemSecret),
+    ctClassical,
+    pkClassical: x25519.getPublicKey(priv),
+    ctMlKem,
+    pkMlKem: kem.getPublicKey(mlKemSecret),
+  });
 
-  // ML-KEM: decapsulate
-  const mlKemShared = kem.decapsulate(
-    assertHex(mlKemCiphertext, "mlKemCiphertext"),
-    assertHex(ourMlKemSecret, "ourMlKemSecret"),
-  );
-
-  // Combine via same HKDF derivation
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const info = new TextEncoder().encode(`x25519-ml-kem-${kemLevel}-hybrid`);
-  const derivedSecret = hkdf(sha256, combined, undefined, info, 32);
-
-  return {
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
-    algorithm: hybridAlgorithmName(kemLevel),
-  };
+  return { sharedSecret: toHex(derived), algorithm };
 }
 
 // --- P-256 + ML-KEM-768 Hybrid (TLS interop) ---
@@ -390,41 +452,38 @@ export function p256MlKemKeygen(): P256MlKemKeyPair {
 }
 
 /**
- * P-256 + ML-KEM-768 hybrid encapsulation.
+ * P-256 + ML-KEM-768 hybrid encapsulation (v2 combiner, see module docs).
+ * The recipient P-256 key may be compressed or uncompressed; it is bound in
+ * its uncompressed form.
  */
 export function p256MlKemEncapsulate(
   theirP256Public: string,
   theirMlKemPublic: string,
 ): P256MlKemEncapsulateResult {
-  // P-256 ECDH: generate ephemeral key pair
+  const pkClassical = p256.Point.fromBytes(
+    assertHex(theirP256Public, "theirP256Public"),
+  ).toBytes(false);
+  const pkMlKem = assertHex(theirMlKemPublic, "theirMlKemPublic");
+
   const ephemeralPriv = p256.utils.randomSecretKey();
   const ephemeralPub = p256.getPublicKey(ephemeralPriv, false);
-  const ecdhShared = p256.getSharedSecret(
-    ephemeralPriv,
-    assertHex(theirP256Public, "theirP256Public"),
-  );
+  const ssClassical = p256.getSharedSecret(ephemeralPriv, pkClassical);
+  const { cipherText, sharedSecret: ssMlKem } = ml_kem768.encapsulate(pkMlKem);
 
-  // ML-KEM-768: encapsulate
-  const { cipherText, sharedSecret: mlKemShared } = ml_kem768.encapsulate(
-    assertHex(theirMlKemPublic, "theirMlKemPublic"),
-  );
-
-  // Combine via HKDF
-  const combined = new Uint8Array(ecdhShared.length + mlKemShared.length);
-  combined.set(ecdhShared);
-  combined.set(mlKemShared, ecdhShared.length);
-  const derivedSecret = hkdf(
-    sha256,
-    combined,
-    undefined,
-    new TextEncoder().encode("p256-ml-kem-768-hybrid"),
-    32,
-  );
+  const derived = combineHybrid({
+    algorithm: "p256-ml-kem-768",
+    ssClassical,
+    ssMlKem,
+    ctClassical: ephemeralPub,
+    pkClassical,
+    ctMlKem: cipherText,
+    pkMlKem,
+  });
 
   return {
-    p256EphemeralPublic: Buffer.from(ephemeralPub).toString("hex"),
-    mlKemCiphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+    p256EphemeralPublic: toHex(ephemeralPub),
+    mlKemCiphertext: toHex(cipherText),
+    sharedSecret: toHex(derived),
     algorithm: "p256-ml-kem-768",
   };
 }
@@ -438,34 +497,22 @@ export function p256MlKemDecapsulate(
   theirP256Ephemeral: string,
   mlKemCiphertext: string,
 ): P256MlKemDecapsulateResult {
-  // P-256 ECDH
-  const ecdhShared = p256.getSharedSecret(
-    assertHex(ourP256Private, "ourP256Private"),
-    assertHex(theirP256Ephemeral, "theirP256Ephemeral"),
-  );
+  const priv = assertHex(ourP256Private, "ourP256Private");
+  const ctClassical = assertHex(theirP256Ephemeral, "theirP256Ephemeral");
+  const ctMlKem = assertHex(mlKemCiphertext, "mlKemCiphertext");
+  const mlKemSecret = assertHex(ourMlKemSecret, "ourMlKemSecret");
 
-  // ML-KEM-768 decapsulate
-  const mlKemShared = ml_kem768.decapsulate(
-    assertHex(mlKemCiphertext, "mlKemCiphertext"),
-    assertHex(ourMlKemSecret, "ourMlKemSecret"),
-  );
-
-  // Same HKDF derivation
-  const combined = new Uint8Array(ecdhShared.length + mlKemShared.length);
-  combined.set(ecdhShared);
-  combined.set(mlKemShared, ecdhShared.length);
-  const derivedSecret = hkdf(
-    sha256,
-    combined,
-    undefined,
-    new TextEncoder().encode("p256-ml-kem-768-hybrid"),
-    32,
-  );
-
-  return {
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+  const derived = combineHybrid({
     algorithm: "p256-ml-kem-768",
-  };
+    ssClassical: p256.getSharedSecret(priv, ctClassical),
+    ssMlKem: ml_kem768.decapsulate(ctMlKem, mlKemSecret),
+    ctClassical,
+    pkClassical: p256.getPublicKey(priv, false),
+    ctMlKem,
+    pkMlKem: ml_kem768.getPublicKey(mlKemSecret),
+  });
+
+  return { sharedSecret: toHex(derived), algorithm: "p256-ml-kem-768" };
 }
 
 // --- X448 + ML-KEM-1024 Hybrid (maximum security) ---
@@ -522,41 +569,34 @@ export function x448MlKemKeygen(): X448MlKemKeyPair {
 }
 
 /**
- * X448 + ML-KEM-1024 hybrid encapsulation.
+ * X448 + ML-KEM-1024 hybrid encapsulation (v2 combiner, see module docs).
  */
 export function x448MlKemEncapsulate(
   theirX448Public: string,
   theirMlKemPublic: string,
 ): X448MlKemEncapsulateResult {
-  // X448: generate ephemeral key pair
+  const pkClassical = assertHex(theirX448Public, "theirX448Public");
+  const pkMlKem = assertHex(theirMlKemPublic, "theirMlKemPublic");
+
   const ephemeralPriv = x448.utils.randomSecretKey();
   const ephemeralPub = x448.getPublicKey(ephemeralPriv);
-  const x448Shared = x448.getSharedSecret(
-    ephemeralPriv,
-    assertHex(theirX448Public, "theirX448Public"),
-  );
+  const ssClassical = x448.getSharedSecret(ephemeralPriv, pkClassical);
+  const { cipherText, sharedSecret: ssMlKem } = ml_kem1024.encapsulate(pkMlKem);
 
-  // ML-KEM-1024: encapsulate
-  const { cipherText, sharedSecret: mlKemShared } = ml_kem1024.encapsulate(
-    assertHex(theirMlKemPublic, "theirMlKemPublic"),
-  );
-
-  // Combine via HKDF
-  const combined = new Uint8Array(x448Shared.length + mlKemShared.length);
-  combined.set(x448Shared);
-  combined.set(mlKemShared, x448Shared.length);
-  const derivedSecret = hkdf(
-    sha256,
-    combined,
-    undefined,
-    new TextEncoder().encode("x448-ml-kem-1024-hybrid"),
-    32,
-  );
+  const derived = combineHybrid({
+    algorithm: "x448-ml-kem-1024",
+    ssClassical,
+    ssMlKem,
+    ctClassical: ephemeralPub,
+    pkClassical,
+    ctMlKem: cipherText,
+    pkMlKem,
+  });
 
   return {
-    x448EphemeralPublic: Buffer.from(ephemeralPub).toString("hex"),
-    mlKemCiphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+    x448EphemeralPublic: toHex(ephemeralPub),
+    mlKemCiphertext: toHex(cipherText),
+    sharedSecret: toHex(derived),
     algorithm: "x448-ml-kem-1024",
   };
 }
@@ -570,32 +610,20 @@ export function x448MlKemDecapsulate(
   theirX448Ephemeral: string,
   mlKemCiphertext: string,
 ): X448MlKemDecapsulateResult {
-  // X448 ECDH
-  const x448Shared = x448.getSharedSecret(
-    assertHex(ourX448Private, "ourX448Private"),
-    assertHex(theirX448Ephemeral, "theirX448Ephemeral"),
-  );
+  const priv = assertHex(ourX448Private, "ourX448Private");
+  const ctClassical = assertHex(theirX448Ephemeral, "theirX448Ephemeral");
+  const ctMlKem = assertHex(mlKemCiphertext, "mlKemCiphertext");
+  const mlKemSecret = assertHex(ourMlKemSecret, "ourMlKemSecret");
 
-  // ML-KEM-1024 decapsulate
-  const mlKemShared = ml_kem1024.decapsulate(
-    assertHex(mlKemCiphertext, "mlKemCiphertext"),
-    assertHex(ourMlKemSecret, "ourMlKemSecret"),
-  );
-
-  // Same HKDF derivation
-  const combined = new Uint8Array(x448Shared.length + mlKemShared.length);
-  combined.set(x448Shared);
-  combined.set(mlKemShared, x448Shared.length);
-  const derivedSecret = hkdf(
-    sha256,
-    combined,
-    undefined,
-    new TextEncoder().encode("x448-ml-kem-1024-hybrid"),
-    32,
-  );
-
-  return {
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+  const derived = combineHybrid({
     algorithm: "x448-ml-kem-1024",
-  };
+    ssClassical: x448.getSharedSecret(priv, ctClassical),
+    ssMlKem: ml_kem1024.decapsulate(ctMlKem, mlKemSecret),
+    ctClassical,
+    pkClassical: x448.getPublicKey(priv),
+    ctMlKem,
+    pkMlKem: ml_kem1024.getPublicKey(mlKemSecret),
+  });
+
+  return { sharedSecret: toHex(derived), algorithm: "x448-ml-kem-1024" };
 }

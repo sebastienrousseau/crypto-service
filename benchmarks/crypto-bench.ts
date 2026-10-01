@@ -168,9 +168,7 @@ function runBenchmarks(): BenchResult[] {
   const msgHex = Buffer.from("benchmark message").toString("hex");
   const sig = cryptoLib.ed25519Sign(edKP.privateKey, msgHex);
   add(
-    bench("Ed25519 sign", () =>
-      cryptoLib.ed25519Sign(edKP.privateKey, msgHex),
-    ),
+    bench("Ed25519 sign", () => cryptoLib.ed25519Sign(edKP.privateKey, msgHex)),
   );
   add(
     bench("Ed25519 verify", () =>
@@ -217,7 +215,11 @@ function runBenchmarks(): BenchResult[] {
   console.log("\n=== HPKE (RFC 9180) ===");
 
   const hpkeKP = cryptoLib.hpkeGenerateKeyPair("x25519");
-  add(bench("HPKE keygen (X25519)", () => cryptoLib.hpkeGenerateKeyPair("x25519")));
+  add(
+    bench("HPKE keygen (X25519)", () =>
+      cryptoLib.hpkeGenerateKeyPair("x25519"),
+    ),
+  );
 
   const ptHex = Buffer.from(pt, "utf8").toString("hex");
 
@@ -280,8 +282,7 @@ function runBenchmarks(): BenchResult[] {
     add(
       bench(
         "FN-DSA-512 verify",
-        () =>
-          fnDsa.fnDsaVerify(512, fnKP.publicKey, msgHex, fnSig.signature),
+        () => fnDsa.fnDsaVerify(512, fnKP.publicKey, msgHex, fnSig.signature),
         { iters: 50 },
       ),
     );
@@ -296,40 +297,52 @@ function runBenchmarks(): BenchResult[] {
     console.log("\n=== PROTOCOLS ===");
     const protocols = require("../packages/crypto-lib/dist/protocols");
 
-    // PAKE
-    const pakeRecord = protocols.pake.serverRegister("bench-password", "server-1");
-    add(
-      bench(
-        "PAKE serverRegister",
-        () => protocols.pake.serverRegister("password", "srv"),
-        { iters: 20 },
+    // PAKE (RFC 9807 OPAQUE-3DH, P256-SHA256). The default scrypt KSF
+    // dominates client-side cost; the server steps exclude it.
+    const pake = protocols.pake;
+    const pakeSetup = pake.createServerSetup();
+    const pakeReg = pake.createRegistrationRequest("bench-password");
+    const pakeRecord = pake.finalizeRegistrationRequest(
+      "bench-password",
+      pakeReg.blind,
+      pake.createRegistrationResponse(
+        pakeReg.request,
+        pakeSetup.serverPublicKey,
+        "bench-user",
+        pakeSetup.oprfSeed,
       ),
-    );
-    const loginStart = protocols.pake.clientStartLogin("bench-password");
+    ).record;
+    const pakeKe1 = pake.generateKE1("bench-password");
     add(
-      bench(
-        "PAKE clientStartLogin",
-        () => protocols.pake.clientStartLogin("password"),
-        { iters: 20 },
-      ),
+      bench("PAKE generateKE1 (client)", () => pake.generateKE1("password"), {
+        iters: 20,
+      }),
     );
     add(
       bench(
-        "PAKE serverRespondLogin",
-        () => protocols.pake.serverRespondLogin(loginStart.request, pakeRecord),
+        "PAKE generateKE2 (server)",
+        () =>
+          pake.generateKE2({
+            ...pakeSetup,
+            record: pakeRecord,
+            credentialIdentifier: "bench-user",
+            ke1: pakeKe1.ke1,
+          }),
         { iters: 20 },
       ),
     );
 
-    // Threshold (Shamir)
+    // Threshold (Shamir). The secret must be below the Ed25519 group
+    // order (about 2^252), so the top nibble is 0.
+    const shamirSecret = "0e" + "ad".repeat(31);
     add(
       bench(
         "Shamir split (3-of-5)",
-        () => protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3),
+        () => protocols.threshold.splitSecret(shamirSecret, 5, 3),
         { iters: 100 },
       ),
     );
-    const shares = protocols.threshold.splitSecret("deadbeef".repeat(8), 5, 3);
+    const shares = protocols.threshold.splitSecret(shamirSecret, 5, 3);
     add(
       bench(
         "Shamir reconstruct (3-of-5)",
@@ -348,7 +361,11 @@ function runBenchmarks(): BenchResult[] {
     console.log("\n=== TOKENS (PASETO v4) ===");
     const tokens = require("../packages/crypto-lib/dist/tokens");
     const pasetoKey = "aa".repeat(32);
-    const payload = { sub: "user-1", iss: "bench", exp: "2099-01-01T00:00:00Z" };
+    const payload = {
+      sub: "user-1",
+      iss: "bench",
+      exp: "2099-01-01T00:00:00Z",
+    };
     add(
       bench("PASETO v4.local encrypt", () =>
         tokens.v4local.encrypt({ key: pasetoKey, payload }),
@@ -463,8 +480,9 @@ function runBenchmarks(): BenchResult[] {
     console.log("\n=== SDK (serialization) ===");
     const sdk = require("../packages/crypto-sdk/dist");
     add(
-      bench("SDK client instantiation", () =>
-        new sdk.CryptoClient({ baseUrl: "http://localhost:3000" }),
+      bench(
+        "SDK client instantiation",
+        () => new sdk.CryptoClient({ baseUrl: "http://localhost:3000" }),
       ),
     );
   } catch (e: unknown) {
@@ -543,9 +561,7 @@ function formatResults(results: BenchResult[]): void {
         ? `${(r.opsPerSec / 1000).toFixed(1)}K`
         : r.opsPerSec.toFixed(1);
     const avg =
-      r.avgMs < 0.01
-        ? `${(r.avgMs * 1000).toFixed(1)}us`
-        : r.avgMs.toFixed(3);
+      r.avgMs < 0.01 ? `${(r.avgMs * 1000).toFixed(1)}us` : r.avgMs.toFixed(3);
     const tp = r.throughputMBps
       ? r.throughputMBps >= 1000
         ? `${(r.throughputMBps / 1000).toFixed(1)} GB/s`
@@ -560,7 +576,9 @@ function formatResults(results: BenchResult[]): void {
   console.log(
     `\nNode.js ${process.version} | ${process.platform} ${process.arch}`,
   );
-  console.log(`WASM backend: ${accel.detectWasmBackend()}`);
+  console.log(
+    `WebAssembly runtime support: ${accel.detectWasmBackend()} (no WASM module ships; operations run in JavaScript)`,
+  );
   console.log(`PQC backend: ${accel.pqcBackend()}`);
   console.log(`Default iterations: ${iterations}\n`);
 }

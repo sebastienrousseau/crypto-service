@@ -135,6 +135,10 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
       GrpHdr: { MsgId: "PACS-STREAM-001" },
       CdtTrfTxInf: { Amt: 5000000, Ccy: "GBP" },
     };
+    const trustedKeys = {
+      classicalPublicKey: edKey.publicKey,
+      postQuantumPublicKey: mlKey.publicKey,
+    };
 
     it("verifies a valid ISO 20022 dual-signature envelope", async () => {
       const envelope = signIso20022Payment({
@@ -155,7 +159,7 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
       const res = await app.inject({
         method: "POST",
         url: "/v2/stream/iso20022",
-        payload: { envelope, payload: payment },
+        payload: { envelope, payload: payment, trustedKeys },
       });
 
       expect(res.statusCode).to.equal(200);
@@ -187,6 +191,7 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
         payload: {
           envelope,
           payload: { ...payment, CdtTrfTxInf: { Amt: 9999999 } },
+          trustedKeys,
         },
       });
 
@@ -194,6 +199,58 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
       const json = JSON.parse(res.payload);
       expect(json.data.valid).to.be.false;
       expect(json.data.digestMatches).to.be.false;
+    });
+    it("rejects an envelope re-signed with attacker keys", async () => {
+      const attackerEd = generateEd25519KeyPair();
+      const attackerMl = mlDsaKeygen(65);
+      const forged = { ...payment, CdtTrfTxInf: { Amt: 1, Ccy: "GBP" } };
+      const envelope = signIso20022Payment({
+        messageId: "PACS-STREAM-003",
+        messageType: "pacs.008",
+        payload: forged,
+        classicalKey: {
+          privateKeyHex: attackerEd.privateKey,
+          publicKeyHex: attackerEd.publicKey,
+        },
+        postQuantumKey: {
+          secretKeyHex: attackerMl.secretKey,
+          publicKeyHex: attackerMl.publicKey,
+        },
+      });
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/iso20022",
+        payload: { envelope, payload: forged, trustedKeys },
+      });
+
+      expect(res.statusCode).to.equal(200);
+      const json = JSON.parse(res.payload);
+      expect(json.data.digestMatches).to.be.true;
+      expect(json.data.classicalValid).to.be.false;
+      expect(json.data.postQuantumValid).to.be.false;
+      expect(json.data.valid).to.be.false;
+    });
+
+    it("requires trustedKeys", async () => {
+      const envelope = signIso20022Payment({
+        messageId: "PACS-STREAM-004",
+        payload: payment,
+        classicalKey: {
+          privateKeyHex: edKey.privateKey,
+          publicKeyHex: edKey.publicKey,
+        },
+        postQuantumKey: {
+          secretKeyHex: mlKey.secretKey,
+          publicKeyHex: mlKey.publicKey,
+        },
+      });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/iso20022",
+        payload: { envelope, payload: payment },
+      });
+      expect(res.statusCode).to.equal(400);
     });
   });
 
@@ -260,6 +317,7 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
             },
           },
           payload: "test",
+          trustedKeys: { classicalPublicKey: "p", postQuantumPublicKey: "p" },
         },
       });
       expect(res.statusCode).to.equal(401);

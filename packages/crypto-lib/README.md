@@ -114,7 +114,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                      | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | **[`@sebastienrousseau/crypto-lib`](../crypto-lib)** _(this package)_ | **Core Library** | **A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.**        |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)        | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                  | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                      | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -130,10 +130,11 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 ## Overview
 
 crypto-lib is the core cryptographic engine of the Crypto Service
-Suite. It provides a unified TypeScript API over the audited
+Suite. It provides a unified TypeScript API over the
 `@noble/hashes`, `@noble/curves`, `@noble/ciphers`, and
 `@noble/post-quantum` libraries -- pure TypeScript, zero native
-add-ons, no C bindings. Post-quantum primitives (ML-KEM, ML-DSA,
+add-ons, no C bindings. The first three have had independent audits;
+`@noble/post-quantum` has not. Post-quantum primitives (ML-KEM, ML-DSA,
 SLH-DSA) are first-class citizens, not add-ons, and hybrid
 constructions combine classical and PQ algorithms so security holds
 even if one family breaks.
@@ -145,6 +146,7 @@ primitives; the unified API is a thin dispatcher that adds no
 overhead.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Features
 
 | Module                        | Adds                                             |
@@ -172,13 +174,14 @@ overhead.
 | `streaming/stream-aead`       | Streaming AEAD encryption                        |
 | `protocols/pqxdh`             | Post-Quantum Extended Triple DH                  |
 | `protocols/ratchet`           | Double Ratchet (Signal-style)                    |
-| `protocols/pake`              | OPAQUE-like PAKE                                 |
+| `protocols/pake`              | OPAQUE-3DH PAKE (RFC 9807)                       |
 | `protocols/threshold`         | Shamir SSS + Feldman VSS                         |
 | `registry`                    | Algorithm metadata, deprecation, recommendations |
 | `crypto`                      | Unified API namespace                            |
 | `utils`                       | `timingSafeEqual`, `SecureBuffer`                |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Library Usage
 
 <details>
@@ -265,6 +268,7 @@ const jwks = ring.toJwks();
 </details>
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
@@ -322,7 +326,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

@@ -1,6 +1,6 @@
 ---
 title: "News, Research & Institutional Insights — Crypto Service"
-description: "Latest news, cryptographic research publications, whitepapers, and event announcements from the Crypto Service engineering and advisory team."
+description: "Latest news, cryptographic research publications, whitepapers, and event announcements from the Crypto Service Suite project."
 eyebrow: "News & Thought Leadership"
 headline: "Post-Quantum Cryptography Insights for Institutional Leaders"
 lead: "Stay abreast of regulatory deadlines, cryptographic breakthroughs, institutional case studies, and engineering updates across the global post-quantum landscape."

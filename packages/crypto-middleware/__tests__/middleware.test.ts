@@ -8,6 +8,11 @@ import * as crypto from "node:crypto";
 
 // --- Types ---
 import { CryptoMiddlewareError } from "../src/types";
+import type { MiddlewareConfig } from "../src/types";
+
+// --- Framework adapters ---
+import { createCryptoMiddleware as createExpressMiddleware } from "../src/express";
+import { cryptoPlugin as fastifyCryptoPlugin } from "../src/fastify";
 
 // --- Common functions ---
 import {
@@ -34,7 +39,11 @@ const JWT_SECRET = "super-secret-jwt-key";
 
 function base64url(data: string | Buffer): string {
   const buf = typeof data === "string" ? Buffer.from(data, "utf8") : data;
-  return buf.toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return buf
+    .toString("base64")
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 }
 
 function createJwt(
@@ -46,10 +55,7 @@ function createJwt(
   const headerB64 = base64url(JSON.stringify(header));
   const payloadB64 = base64url(JSON.stringify(payload));
   const signingInput = `${headerB64}.${payloadB64}`;
-  const sig = crypto
-    .createHmac("sha256", secret)
-    .update(signingInput)
-    .digest();
+  const sig = crypto.createHmac("sha256", secret).update(signingInput).digest();
   const sigB64 = base64url(sig);
   return `${headerB64}.${payloadB64}.${sigB64}`;
 }
@@ -236,7 +242,11 @@ describe("verifyHmacSignature", () => {
 
 describe("verifyJwt", () => {
   it("should verify a valid HS256 JWT", () => {
-    const payload = { sub: "user123", iss: "test", iat: Math.floor(Date.now() / 1000) };
+    const payload = {
+      sub: "user123",
+      iss: "test",
+      iat: Math.floor(Date.now() / 1000),
+    };
     const token = createJwt(payload, JWT_SECRET);
     const result = verifyJwt(JWT_SECRET, token);
     expect(result.sub).to.equal("user123");
@@ -258,7 +268,10 @@ describe("verifyJwt", () => {
   });
 
   it("should return arbitrary claims", () => {
-    const token = createJwt({ sub: "u", role: "admin", custom: 99 }, JWT_SECRET);
+    const token = createJwt(
+      { sub: "u", role: "admin", custom: 99 },
+      JWT_SECRET,
+    );
     const result = verifyJwt(JWT_SECRET, token);
     expect(result.role).to.equal("admin");
     expect(result.custom).to.equal(99);
@@ -427,11 +440,16 @@ describe("matchRoute", () => {
 // ---------------------------------------------------------------------------
 
 describe("Express middleware (createCryptoMiddleware)", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { createCryptoMiddleware } = require("../src/express");
+  // The tests drive the middleware with lightweight mocks rather than real
+  // Express objects, so widen the parameter types at this single boundary.
+  const createCryptoMiddleware = createExpressMiddleware as unknown as (
+    config: MiddlewareConfig,
+  ) => (req: unknown, res: unknown, next: () => void) => void;
 
   // Mock Express request/response/next
-  function mockReq(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  function mockReq(
+    overrides: Record<string, unknown> = {},
+  ): Record<string, unknown> {
     return {
       path: "/api/test",
       headers: {},
@@ -464,7 +482,7 @@ describe("Express middleware (createCryptoMiddleware)", () => {
       json(body: unknown) {
         res._body = body;
         res._jsonCalled = true;
-        return res as any;
+        return res;
       },
     };
     return res;
@@ -481,7 +499,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ path: "/api/public" });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -494,7 +514,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ path: "/api/test" });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -506,7 +528,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ path: "/anything" });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -522,7 +546,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: { encrypted: sealed } });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
     expect(req.body).to.deep.equal(original);
   });
@@ -535,7 +561,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: { plain: "data" } });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
     expect(req.body).to.deep.equal({ plain: "data" });
   });
@@ -548,7 +576,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: undefined });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -560,7 +590,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: "raw string body" });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
     expect(req.body).to.equal("raw string body");
   });
@@ -573,10 +605,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: { encrypted: sealed } });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(500);
-    expect((res._body as any).code).to.equal("MISSING_CONFIG");
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   it("should return 400 when encrypted body is invalid", () => {
@@ -587,10 +621,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ body: { encrypted: "garbage-data" } });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(400);
-    expect((res._body as any).code).to.equal("DECRYPTION_FAILED");
+    expect((res._body as { code: string }).code).to.equal("DECRYPTION_FAILED");
   });
 
   // --- encrypt-response ---
@@ -603,14 +639,19 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq();
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
 
     // Now call the patched res.json
     res.json({ data: "secret" });
     expect(res._body).to.have.property("encrypted");
     // Decrypt and verify
-    const decrypted = decryptPayload(TEST_KEY, (res._body as any).encrypted);
+    const decrypted = decryptPayload(
+      TEST_KEY,
+      (res._body as { encrypted: string }).encrypted,
+    );
     expect(decrypted).to.deep.equal({ data: "secret" });
   });
 
@@ -621,10 +662,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq();
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(500);
-    expect((res._body as any).code).to.equal("MISSING_CONFIG");
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   // --- verify-signature ---
@@ -643,7 +686,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -661,7 +706,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -669,7 +716,10 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const bodyObj = { event: "push" };
     const bodyStr = JSON.stringify(bodyObj);
     const keyBuf = Buffer.from(HMAC_KEY, "hex");
-    const sig = crypto.createHmac("sha256", keyBuf).update(bodyStr).digest("hex");
+    const sig = crypto
+      .createHmac("sha256", keyBuf)
+      .update(bodyStr)
+      .digest("hex");
     const mw = createCryptoMiddleware({
       operations: ["verify-signature"],
       hmacKey: HMAC_KEY,
@@ -680,7 +730,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 
@@ -696,7 +748,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(401);
   });
@@ -712,10 +766,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(401);
-    expect((res._body as any).code).to.equal("MISSING_SIGNATURE");
+    expect((res._body as { code: string }).code).to.equal("MISSING_SIGNATURE");
   });
 
   it("should return 500 when verify-signature is used without hmacKey", () => {
@@ -728,10 +784,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(500);
-    expect((res._body as any).code).to.equal("MISSING_CONFIG");
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   // --- verify-jwt ---
@@ -747,9 +805,11 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
-    expect((req as any).jwtPayload).to.have.property("sub", "user1");
+    expect(req.jwtPayload).to.have.property("sub", "user1");
   });
 
   it("should return 401 for missing Authorization header", () => {
@@ -760,7 +820,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq({ headers: {} });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(401);
   });
@@ -775,7 +837,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(401);
   });
@@ -789,10 +853,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(500);
-    expect((res._body as any).code).to.equal("MISSING_CONFIG");
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   it("should extract token when auth header lacks Bearer prefix (empty token)", () => {
@@ -805,7 +871,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(false);
     // Should get MISSING_TOKEN because token becomes "" when not "Bearer " prefix
     expect(res.statusCode).to.equal(401);
@@ -825,7 +893,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextErr: unknown = undefined;
-    mw(req, res, (err?: unknown) => { nextErr = err; });
+    mw(req, res, (err?: unknown) => {
+      nextErr = err;
+    });
     // The raw Error should be passed to next(), not caught as CryptoMiddlewareError
     expect(nextErr).to.be.instanceOf(Error);
     expect(nextErr).to.not.be.instanceOf(CryptoMiddlewareError);
@@ -850,10 +920,12 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
     expect(req.body).to.deep.equal(original);
-    expect((req as any).jwtPayload).to.have.property("sub", "user1");
+    expect(req.jwtPayload).to.have.property("sub", "user1");
 
     // res.json should be patched to encrypt
     res.json({ result: "ok" });
@@ -867,7 +939,9 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     const req = mockReq();
     const res = mockRes();
     let nextCalled = false;
-    mw(req, res, () => { nextCalled = true; });
+    mw(req, res, () => {
+      nextCalled = true;
+    });
     expect(nextCalled).to.equal(true);
   });
 });
@@ -877,30 +951,44 @@ describe("Express middleware (createCryptoMiddleware)", () => {
 // ---------------------------------------------------------------------------
 
 describe("Fastify plugin (cryptoPlugin)", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { cryptoPlugin } = require("../src/fastify");
+  // The tests drive the plugin with a mock Fastify instance, so widen the
+  // instance type at this single boundary.
+  const cryptoPlugin = fastifyCryptoPlugin as unknown as (
+    instance: unknown,
+    opts: MiddlewareConfig,
+  ) => Promise<void>;
+
+  type PluginFn = (instance: unknown, opts: unknown) => Promise<void>;
 
   // Helper to build a mock Fastify instance that records hooks
   function mockFastify(): {
     hooks: Record<string, Array<(...args: unknown[]) => Promise<unknown>>>;
-    addHook: (name: string, fn: (...args: unknown[]) => Promise<unknown>) => void;
-    register: (plugin: any, opts: any) => Promise<void>;
+    addHook: (
+      name: string,
+      fn: (...args: unknown[]) => Promise<unknown>,
+    ) => void;
+    register: (plugin: PluginFn, opts: unknown) => Promise<void>;
   } {
-    const hooks: Record<string, Array<(...args: unknown[]) => Promise<unknown>>> = {};
+    const hooks: Record<
+      string,
+      Array<(...args: unknown[]) => Promise<unknown>>
+    > = {};
     return {
       hooks,
       addHook(name: string, fn: (...args: unknown[]) => Promise<unknown>) {
         if (!hooks[name]) hooks[name] = [];
         hooks[name].push(fn);
       },
-      async register(plugin: any, opts: any) {
+      async register(plugin: PluginFn, opts: unknown) {
         // fastify-plugin unwraps, so we call the inner function directly
         await plugin(this, opts);
       },
     };
   }
 
-  function mockRequest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  function mockRequest(
+    overrides: Record<string, unknown> = {},
+  ): Record<string, unknown> {
     return {
       url: "/api/test",
       headers: {},
@@ -909,14 +997,16 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     };
   }
 
-  function mockReply(): Record<string, unknown> & {
+  type ReplyMock = Record<string, unknown> & {
     _statusCode: number;
     _body: unknown;
     _sent: boolean;
     code: (n: number) => Record<string, unknown>;
     send: (body: unknown) => void;
-  } {
-    const reply: any = {
+  };
+
+  function mockReply(): ReplyMock {
+    const reply: ReplyMock = {
       _statusCode: 200,
       _body: undefined,
       _sent: false,
@@ -939,7 +1029,12 @@ describe("Fastify plugin (cryptoPlugin)", () => {
   it("should register hooks on the fastify instance", async () => {
     const fastify = mockFastify();
     await cryptoPlugin(fastify, {
-      operations: ["verify-jwt", "verify-signature", "decrypt-request", "encrypt-response"],
+      operations: [
+        "verify-jwt",
+        "verify-signature",
+        "decrypt-request",
+        "encrypt-response",
+      ],
       key: TEST_KEY,
       hmacKey: HMAC_KEY,
       jwtSecret: JWT_SECRET,
@@ -973,7 +1068,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     const req = mockRequest({ headers: { authorization: `Bearer ${token}` } });
     const reply = mockReply();
     await fastify.hooks.onRequest[0](req, reply);
-    expect((req as any).jwtPayload).to.have.property("sub", "user1");
+    expect(req.jwtPayload).to.have.property("sub", "user1");
     expect(reply._sent).to.equal(false);
   });
 
@@ -984,7 +1079,9 @@ describe("Fastify plugin (cryptoPlugin)", () => {
       jwtSecret: JWT_SECRET,
     });
 
-    const req = mockRequest({ headers: { authorization: "Bearer bad.token.sig" } });
+    const req = mockRequest({
+      headers: { authorization: "Bearer bad.token.sig" },
+    });
     const reply = mockReply();
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
@@ -1005,7 +1102,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(401);
-    expect((reply._body as any).code).to.equal("MISSING_TOKEN");
+    expect((reply._body as { code: string }).code).to.equal("MISSING_TOKEN");
   });
 
   it("should handle auth header without Bearer prefix (token becomes empty)", async () => {
@@ -1021,7 +1118,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(401);
-    expect((reply._body as any).code).to.equal("MISSING_TOKEN");
+    expect((reply._body as { code: string }).code).to.equal("MISSING_TOKEN");
   });
 
   it("should return 500 when verify-jwt lacks jwtSecret", async () => {
@@ -1035,7 +1132,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(500);
-    expect((reply._body as any).code).to.equal("MISSING_CONFIG");
+    expect((reply._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   // --- onRequest: verify-signature ---
@@ -1069,7 +1166,10 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     const bodyObj = { event: "push" };
     const bodyStr = JSON.stringify(bodyObj);
     const keyBuf = Buffer.from(HMAC_KEY, "hex");
-    const sig = crypto.createHmac("sha256", keyBuf).update(bodyStr).digest("hex");
+    const sig = crypto
+      .createHmac("sha256", keyBuf)
+      .update(bodyStr)
+      .digest("hex");
     const req = mockRequest({
       headers: { "x-signature": sig },
       body: bodyObj,
@@ -1133,7 +1233,9 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(401);
-    expect((reply._body as any).code).to.equal("MISSING_SIGNATURE");
+    expect((reply._body as { code: string }).code).to.equal(
+      "MISSING_SIGNATURE",
+    );
   });
 
   it("should return 500 when verify-signature lacks hmacKey", async () => {
@@ -1150,7 +1252,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.onRequest[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(500);
-    expect((reply._body as any).code).to.equal("MISSING_CONFIG");
+    expect((reply._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   // --- onRequest: route mismatch ---
@@ -1167,7 +1269,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     const reply = mockReply();
     await fastify.hooks.onRequest[0](req, reply);
     // Should not have set jwtPayload or sent an error
-    expect((req as any).jwtPayload).to.be.undefined;
+    expect(req.jwtPayload).to.be.undefined;
     expect(reply._sent).to.equal(false);
   });
 
@@ -1249,7 +1351,7 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.preHandler[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(500);
-    expect((reply._body as any).code).to.equal("MISSING_CONFIG");
+    expect((reply._body as { code: string }).code).to.equal("MISSING_CONFIG");
   });
 
   it("should return error in preHandler for invalid encrypted data", async () => {
@@ -1264,7 +1366,9 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     await fastify.hooks.preHandler[0](req, reply);
     expect(reply._sent).to.equal(true);
     expect(reply._statusCode).to.equal(400);
-    expect((reply._body as any).code).to.equal("DECRYPTION_FAILED");
+    expect((reply._body as { code: string }).code).to.equal(
+      "DECRYPTION_FAILED",
+    );
   });
 
   it("should re-throw non-CryptoMiddlewareError from preHandler", async () => {
@@ -1275,10 +1379,8 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     });
 
     // Use a getter that throws a plain Error when 'encrypted' property is read
-    let accessCount = 0;
     const trickBody = {
       get encrypted(): string {
-        accessCount++;
         // The 'in' operator check doesn't call the getter, but property access does
         throw new Error("unexpected getter error");
       },
@@ -1308,7 +1410,10 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     });
 
     const sealed = encryptPayload(TEST_KEY, { a: 1 });
-    const req = mockRequest({ url: "/api/public", body: { encrypted: sealed } });
+    const req = mockRequest({
+      url: "/api/public",
+      body: { encrypted: sealed },
+    });
     const reply = mockReply();
     await fastify.hooks.preHandler[0](req, reply);
     // Body should not be decrypted
@@ -1326,9 +1431,14 @@ describe("Fastify plugin (cryptoPlugin)", () => {
 
     const req = mockRequest();
     const reply = mockReply();
-    const result = await fastify.hooks.preSerialization[0](req, reply, { data: "secret" });
+    const result = await fastify.hooks.preSerialization[0](req, reply, {
+      data: "secret",
+    });
     expect(result).to.have.property("encrypted");
-    const decrypted = decryptPayload(TEST_KEY, (result as any).encrypted);
+    const decrypted = decryptPayload(
+      TEST_KEY,
+      (result as { encrypted: string }).encrypted,
+    );
     expect(decrypted).to.deep.equal({ data: "secret" });
   });
 
@@ -1341,7 +1451,11 @@ describe("Fastify plugin (cryptoPlugin)", () => {
 
     const req = mockRequest();
     const reply = mockReply();
-    const result = await fastify.hooks.preSerialization[0](req, reply, "string payload");
+    const result = await fastify.hooks.preSerialization[0](
+      req,
+      reply,
+      "string payload",
+    );
     expect(result).to.equal("string payload");
   });
 
@@ -1395,9 +1509,16 @@ describe("Fastify plugin (cryptoPlugin)", () => {
 
     const req = mockRequest();
     const reply = mockReply();
-    const result = await fastify.hooks.preSerialization[0](req, reply, [1, 2, 3]);
+    const result = await fastify.hooks.preSerialization[0](
+      req,
+      reply,
+      [1, 2, 3],
+    );
     expect(result).to.have.property("encrypted");
-    const decrypted = decryptPayload(TEST_KEY, (result as any).encrypted);
+    const decrypted = decryptPayload(
+      TEST_KEY,
+      (result as { encrypted: string }).encrypted,
+    );
     expect(decrypted).to.deep.equal([1, 2, 3]);
   });
 

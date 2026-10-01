@@ -48,7 +48,7 @@ Fintechs and financial institutions expanding digital asset and cryptographic in
 </tr>
 <tr>
 <td><strong>Post-Quantum Readiness</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; RFC 10024 hybrid encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM, ML-DSA &amp; X25519 + ML-KEM hybrid encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL ECC</span><br>ECDSA / Ed25519 vulnerable to quantum cryptanalysis</td>
 </tr>
 <tr>

@@ -14,7 +14,9 @@ import {
   fastifyOptions,
   healthCheckOptions,
   helmetOptions,
+  isProbePath,
   rateLimitOptions,
+  resolveRateLimitMax,
   LIB_VERSION,
 } from "./config/constants";
 
@@ -34,13 +36,38 @@ import { registerMetering } from "./enterprise/metering";
 import routes from "./routes";
 import * as fastify from "fastify";
 
-/** Paths served without authentication: probes and the API docs. */
-const PUBLIC_PATHS = new Set(["/health", "/live", "/ready", "/metrics"]);
-
-/** Whether a request URL is a public (unauthenticated) path. */
+/** Whether a request URL is a public (unauthenticated) path: probes and the API docs. */
 function isPublicPath(url: string): boolean {
-  const pathname = url.split("?")[0];
-  return PUBLIC_PATHS.has(pathname) || pathname.startsWith("/docs");
+  return isProbePath(url) || url.startsWith("/docs");
+}
+
+/** Registers the OpenAPI spec and the Swagger UI served at `/docs`. */
+async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
+  // OpenAPI documentation — auto-generated from Fastify route schemas.
+  await app.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: "Crypto Service Suite API",
+        description:
+          "REST API for low-level cryptographic operations: key generation, encryption, decryption, signing, verification, and revocation.",
+        version: JSON.parse(LIB_VERSION),
+      },
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: "apiKey",
+            name: "x-api-key",
+            in: "header",
+          },
+        },
+      },
+      security: [{ apiKey: [] }],
+    },
+  });
+
+  await app.register(fastifySwaggerUi, {
+    routePrefix: "/docs",
+  });
 }
 
 /**
@@ -71,31 +98,7 @@ async function init(): Promise<fastify.FastifyInstance> {
     }
   });
 
-  // OpenAPI documentation — auto-generated from Fastify route schemas.
-  await app.register(fastifySwagger, {
-    openapi: {
-      info: {
-        title: "Crypto Service Suite API",
-        description:
-          "REST API for low-level cryptographic operations: key generation, encryption, decryption, signing, verification, and revocation.",
-        version: JSON.parse(LIB_VERSION),
-      },
-      components: {
-        securitySchemes: {
-          apiKey: {
-            type: "apiKey",
-            name: "x-api-key",
-            in: "header",
-          },
-        },
-      },
-      security: [{ apiKey: [] }],
-    },
-  });
-
-  await app.register(fastifySwaggerUi, {
-    routePrefix: "/docs",
-  });
+  await registerDocs(app);
 
   await app
     .register(Accepts, { decorateReply: true })
@@ -104,7 +107,10 @@ async function init(): Promise<fastify.FastifyInstance> {
     .register(Etag)
     .register(fastifyCompress, compressOptions)
     .register(fastifyHealthcheck, healthCheckOptions)
-    .register(fastifyRateLimit, rateLimitOptions);
+    .register(fastifyRateLimit, {
+      ...rateLimitOptions,
+      max: resolveRateLimitMax(),
+    });
 
   // JWT authentication (registers the jwt decorator if JWT_SECRET is set)
   await registerAuth(app);
@@ -118,7 +124,8 @@ async function init(): Promise<fastify.FastifyInstance> {
     (request as { auth?: unknown }).auth = auth;
   });
 
-  // Multi-tenant Sovereign CaaS metering and rate limiting
+  // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
+  // every onRequest hook, so the tenant is the authenticated principal.
   registerMetering(app);
 
   // Register routes inside an encapsulated plugin so they inherit all

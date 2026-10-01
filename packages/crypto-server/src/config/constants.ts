@@ -124,18 +124,44 @@ export const corsOptions: FastifyCorsOptions = {
 };
 
 /**
+ * @remarks {Set<string>} PROBE_PATHS
+ * Health, liveness, readiness and metrics probe paths. They are served
+ * without authentication, rate limiting or tenant metering.
+ */
+export const PROBE_PATHS: ReadonlySet<string> = new Set([
+  "/health",
+  "/live",
+  "/ready",
+  "/metrics",
+]);
+
+/**
+ * Whether a request URL (query string ignored) is a probe path.
+ */
+export const isProbePath = (url: string): boolean =>
+  PROBE_PATHS.has(url.split("?")[0]);
+
+/**
  * @remarks {object} rateLimitOptions
  * Configuration options for the rate-limit plugin.
  */
 export const rateLimitOptions = {
   /** Apply rate limiting to all routes. */
   global: true,
-  /** Maximum number of requests per time window. */
+  /**
+   * Default maximum number of requests per client per time window. The
+   * server uses {@link resolveRateLimitMax}, which honours `RATE_LIMIT_MAX`.
+   */
   max: 10,
   /** Duration of the sliding rate-limit window. */
   timeWindow: "1 minute",
-  /** IP addresses exempt from rate limiting. */
-  allowList: ["127.0.0.1"],
+  /**
+   * Requests exempt from rate limiting: only the health, liveness,
+   * readiness and metrics probes, so orchestrators and scrapers are never
+   * throttled. There is deliberately no IP allow-list: behind a local
+   * reverse proxy every client would appear as the loopback address.
+   */
+  allowList: (req: { url: string }): boolean => isProbePath(req.url),
   /** Redis/store key prefix for rate-limit counters. */
   nameSpace: "crypto-server-rate-limit-",
   /** Rate-limit headers to include in responses. */
@@ -153,12 +179,16 @@ export const rateLimitOptions = {
   /** Builds the JSON body returned when a client is rate-limited. */
   errorResponseBuilder(
     req: { ip: string; log: { warn: (msg: string) => void } },
-    context: { max: number; after: string; ttl: number },
+    context: { statusCode: number; max: number; after: string; ttl: number },
   ) {
     req.log.warn(`${req.ip} have been rateLimited`);
+    // @fastify/rate-limit throws this object, so it must carry `statusCode`
+    // or Fastify's error handler answers 500 instead of 429.
     return {
-      /** HTTP status code. */
-      code: 429,
+      /** HTTP status code used by Fastify's error handler. */
+      statusCode: context.statusCode,
+      /** HTTP status code (kept for existing clients). */
+      code: context.statusCode,
       /** Error name. */
       error: "Too Many Requests",
       /** Human-readable rate-limit explanation. */
@@ -169,6 +199,18 @@ export const rateLimitOptions = {
       expiresIn: context.ttl,
     };
   },
+};
+
+/**
+ * Resolve the per-client request limit from `RATE_LIMIT_MAX`, read when the
+ * server is initialised. A missing, non-integer or non-positive value falls
+ * back to the default in {@link rateLimitOptions}, never to "unlimited".
+ */
+export const resolveRateLimitMax = (): number => {
+  const parsed = Number(process.env["RATE_LIMIT_MAX"]);
+  return Number.isSafeInteger(parsed) && parsed > 0
+    ? parsed
+    : rateLimitOptions.max;
 };
 
 /**

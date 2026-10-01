@@ -18,15 +18,18 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm -r run lint
+      - run: pnpm -r run format:check
+      - name: Complexity gate (baseline may only shrink)
+        run: node scripts/complexity-check.mjs
       - run: pnpm -r run test
 
   build-windows:
@@ -35,21 +38,23 @@ jobs:
       matrix:
         node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
+      - run: pnpm -r run lint
+      - run: pnpm -r run test
 
   docs-and-hygiene:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: "pnpm"
@@ -57,6 +62,11 @@ jobs:
       - run: pnpm -r run build
       - name: Build TypeDoc API documentation
         run: pnpm -r run docs
-      - name: Check markdownlint and README structure
-        run: |
-          npx --yes markdownlint-cli "**/*.md" --ignore "**/node_modules/**" --ignore "**/dist/**" || true
+      - name: Type-check crypto-lib examples
+        run: pnpm --filter @sebastienrousseau/crypto-lib run examples:check
+      # Installs the packed tarballs as a user would and boots the server,
+      # catching runtime imports missing from "dependencies".
+      - name: Pack and install smoke test
+        run: ./scripts/pack-smoke.sh
+      - name: Check markdownlint
+        run: npx --yes markdownlint-cli "**/*.md" --ignore "**/node_modules/**" --ignore "**/dist/**"

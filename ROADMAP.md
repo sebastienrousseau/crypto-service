@@ -433,9 +433,9 @@ File: src/protocols/ratchet.ts (NEW)
 File: src/protocols/pake.ts (NEW)
 ```
 
-- [ ] OPAQUE (asymmetric PAKE, draft-irtf-cfrg-opaque)
+- [x] OPAQUE (asymmetric PAKE, RFC 9807 OPAQUE-3DH; P256-SHA256 and ristretto255-SHA512, checked against the RFC test vectors)
 - [ ] SRP-6a (legacy but widely deployed)
-- [ ] Zero-knowledge password proof (server never sees password)
+- [x] Server never sees the password (OPAQUE registration and login)
 
 #### 6D. Threshold Signatures (Shamir Secret Sharing)
 

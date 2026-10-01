@@ -1,14 +1,40 @@
-node_modules
-dist
-coverage
-docs
+# The image builds crypto-server and its workspace dependencies from
+# source: it needs the root manifests (package.json, pnpm-lock.yaml,
+# pnpm-workspace.yaml, .npmrc), tsconfig.base.json and packages/*/src.
+
+# VCS and tooling
 .git
 .github
 .husky
 .claude
+.devcontainer
+.DS_Store
+
+# Dependencies and build output (rebuilt inside the image)
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+**/.nyc_output
+
+# Generated documentation and website sources
+_site
+public
+website
+assets
+docs
+packages/*/docs
+
+# Not part of the server build
+benchmarks
+examples
+scripts
+__tests__
+**/__tests__
+*.test.ts
 *.md
 !README.md
-__tests__
-*.test.ts
+
+# Secrets and logs
 .env*
 *.log

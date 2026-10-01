@@ -256,7 +256,8 @@ describe("Pkcs11HsmProvider", () => {
         );
         expect.fail("should have thrown");
       } catch (err: unknown) {
-        expect((err as Error).message).to.include("Decryption failed");
+        // 28 bytes: shorter than the 33-byte versioned envelope
+        expect((err as Error).message).to.include("Ciphertext too short");
       }
     });
 

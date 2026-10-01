@@ -78,7 +78,7 @@ Docker container images are published to GHCR. Standalone distro packages and Re
 ### Individual packages
 
 Only three packages are published to npm, and the published versions are
-older than this repository (`v0.0.6`):
+older than this repository (`v0.0.7`):
 
 ```bash
 pnpm add @sebastienrousseau/crypto-lib      # npm 0.0.3
@@ -86,7 +86,7 @@ pnpm add @sebastienrousseau/crypto-server   # npm 0.0.2
 pnpm add -g @sebastienrousseau/crypto-cli   # npm 0.0.1
 ```
 
-The Quick Start below uses the `v0.0.6` API, which the npm release of
+The Quick Start below uses the `v0.0.7` API, which the npm release of
 crypto-lib (0.0.3) may not include. Every other package in the table below
 is not on npm yet; use it from source through the pnpm workspace.
 
@@ -161,13 +161,13 @@ crypto-cli
 All 18 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
 
 > [!NOTE]
-> **Registry availability**: four packages are on npm, all at versions older than `v0.0.6`: `@sebastienrousseau/crypto-service` (0.0.2), `@sebastienrousseau/crypto-lib` (0.0.3), `@sebastienrousseau/crypto-server` (0.0.2) and `@sebastienrousseau/crypto-cli` (0.0.1). The other packages are not published; use them from source through the pnpm workspace.
+> **Registry availability**: four packages are on npm, all at versions older than `v0.0.7`: `@sebastienrousseau/crypto-service` (0.0.2), `@sebastienrousseau/crypto-lib` (0.0.3), `@sebastienrousseau/crypto-server` (0.0.2) and `@sebastienrousseau/crypto-cli` (0.0.1). The other packages are not published; use them from source through the pnpm workspace.
 
 | Component                                                            | Purpose                                                              | Use case                                             | Registry Availability     |
 | :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------ |
-| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm 0.0.3 / v0.0.6 source |
-| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm 0.0.2 / v0.0.6 source |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm 0.0.1 / v0.0.6 source |
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm 0.0.3 / v0.0.7 source |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm 0.0.2 / v0.0.7 source |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm 0.0.1 / v0.0.7 source |
 | [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | Source only (not on npm)  |
 | [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Shared TypeScript types for the REST API surface                     | Shared HTTP contract                                 | Source only (not on npm)  |
 | [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | Source only (not on npm)  |

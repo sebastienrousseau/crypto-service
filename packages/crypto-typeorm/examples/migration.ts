@@ -60,7 +60,12 @@ async function main() {
     ]);
   });
 
-  const transformer = new EncryptionTransformer({ key: ENCRYPTION_KEY });
+  // Bind the same context @EncryptedColumn will use for Customer.taxId,
+  // so the migrated values decrypt once the column is decorated.
+  const transformer = new EncryptionTransformer({
+    key: ENCRYPTION_KEY,
+    context: "Customer.taxId",
+  });
 
   await task("Encrypt existing taxId columns in-place", async () => {
     const rows: { id: number; taxId: string }[] = await ds.query(

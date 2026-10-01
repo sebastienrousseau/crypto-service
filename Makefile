@@ -84,11 +84,12 @@ format:
 # Start tasks
 #
 
-# @HELP Start crypto-server in development mode
+# @HELP Build and start crypto-server
 start-crypto-server:
 	@echo
-	@echo "Start crypto-server in development mode"
-	@pnpm --filter @sebastienrousseau/crypto-server run dev
+	@echo "Build and start crypto-server"
+	@pnpm --filter "@sebastienrousseau/crypto-server..." run build
+	@node packages/crypto-server/dist/index.js
 
 #
 # Test tasks
@@ -99,6 +100,16 @@ test:
 	@echo
 	@echo "Run test suite across all packages"
 	@pnpm -r run test
+
+# @HELP Run every CI gate in order (build, lint, format, complexity, test, docs, pack smoke test)
+check:
+	@pnpm -r run build
+	@pnpm -r run lint
+	@pnpm -r run format:check
+	@node scripts/complexity-check.mjs
+	@pnpm -r run test
+	@pnpm -r run docs
+	@./scripts/pack-smoke.sh
 
 #
 # Node Module install tasks
@@ -116,65 +127,70 @@ node_modules: package.json
 # Run Crypto Service Suite tasks
 #
 
+# Generate an armored OpenPGP key pair with crypto-lib's generate() API.
+# Arguments (process.argv): key type (rsa or ecc), curve (empty for rsa),
+# RSA modulus size in bits. Requires a prior `make build`.
+KEYGEN = node -e 'require("./packages/crypto-lib/dist/bin/cryptolib.js").generate({name: "Jane Doe", email: "jane@doe.com", passphrase: "123456789abcdef", type: process.argv[1], curve: process.argv[2] || undefined, rsaBits: Number(process.argv[3]), keyExpirationTime: 0, format: "armored"}).then((k) => console.log(k.publicKey + k.privateKey), (e) => { console.error(e.message); process.exit(1); })'
+
 # @HELP Generate RSA-2048 key.
 rsa-2048:
 	@echo
 	@echo "Generate RSA-2048 key."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 2048 --expiration 0 --format armored --sign true || echo "An error occurred while generating the RSA-2048 key."
+	@$(KEYGEN) rsa '' 2048
 
 # @HELP Generate RSA-4096 key.
 rsa-4096:
 	@echo
 	@echo "Generate RSA-4096 key."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "rsa" --curve "" --bits 4096 --expiration 0 --format armored --sign true
+	@$(KEYGEN) rsa '' 4096
 
 # @HELP Generate Curve 25519 key pair.
 curve-25519:
 	@echo
 	@echo "Generate Curve 25519 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve curve25519 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'curve25519' 2048
 
 # @HELP Generate p256 key pair.
 curve-p256:
 	@echo
 	@echo "Generate p256 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p256 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'p256' 2048
 
 # @HELP Generate p384 key pair.
 curve-p384:
 	@echo
 	@echo "Generate p384 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p384 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'p384' 2048
 
 # @HELP Generate p521 key pair.
 curve-p521:
 	@echo
 	@echo "Generate p521 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve p521 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'p521' 2048
 
 # @HELP Generate secp256k1 key pair.
 curve-secp256k1:
 	@echo
 	@echo "Generate secp256k1 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve secp256k1 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'secp256k1' 2048
 
 # @HELP Generate brainpoolP256r1 key pair.
 curve-brainpoolP256r1:
 	@echo
 	@echo "Generate brainpoolP256r1 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve brainpoolP256r1 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'brainpoolP256r1' 2048
 
 # @HELP Generate brainpoolP384r1 key pair.
 curve-brainpoolP384r1:
 	@echo
 	@echo "Generate brainpoolP384r1 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve brainpoolP384r1 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'brainpoolP384r1' 2048
 
 # @HELP Generate brainpoolP512r1 key pair.
 curve-brainpoolP512r1:
 	@echo
 	@echo "Generate brainpoolP512r1 key pair."
-	@npx ts-node packages/crypto-lib/src/bin/crypto-lib.ts --name "Jane Doe" --email "jane@doe.com" --passphrase "123456789abcdef" --type "ecc" --curve brainpoolP512r1 --bits null --expiration 0 --format armored --sign true
+	@$(KEYGEN) ecc 'brainpoolP512r1' 2048
 
 # @HELP Display the help menu.
 help:
@@ -198,4 +214,4 @@ help:
 	@ echo ''
 
 
-.PHONY: dev, up, dev-web, build, clean, docs, lint, lint-fix, format, start-crypto-server, test, install, node_modules, rsa-2048, rsa-4096, curve-25519, curve-p256, curve-p384, curve-p521, curve-secp256k1, curve-brainpoolP256r1, curve-brainpoolP384r1, curve-brainpoolP512r1, help
+.PHONY: dev up dev-web build check clean docs lint lint-fix format start-crypto-server test install node_modules rsa-2048 rsa-4096 curve-25519 curve-p256 curve-p384 curve-p521 curve-secp256k1 curve-brainpoolP256r1 curve-brainpoolP384r1 curve-brainpoolP512r1 help

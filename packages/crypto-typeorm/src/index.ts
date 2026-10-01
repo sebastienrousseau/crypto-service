@@ -20,5 +20,7 @@ export { EncryptionSubscriber } from "./subscriber";
 
 export { EncryptionTransformer } from "./transformer";
 
+export { FieldDecryptionError } from "./errors";
+
 /** Re-exported encryption configuration type from the types module. */
 export type { EncryptionConfig } from "./types";

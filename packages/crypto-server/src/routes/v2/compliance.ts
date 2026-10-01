@@ -96,7 +96,8 @@ const DEPRECATION_SCHEDULE: DoraSelfAssessment["algorithmDeprecationSchedule"] =
       algorithm: "Classical X25519 ECDH",
       category: "asymmetric",
       sunsetDate: "2030-01-01T00:00:00Z",
-      recommendedMigration: "RFC 10024 Composite Hybrid (X25519 + ML-KEM-768)",
+      recommendedMigration:
+        "Hybrid X25519 + ML-KEM-768 (X25519MLKEM768 per RFC 10024 for TLS 1.3)",
     },
     {
       algorithm: "Triple-DES (3DES) & RC4",

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-mcp",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Model Context Protocol (MCP) server for the Crypto Service Suite — exposing cryptographic operations, post-quantum primitives, and key management to AI assistants and agentic workflows.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -30,9 +30,10 @@
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint --cache --fix src/**/*.ts",
-    "format": "prettier --write src/**/*.ts"
+    "lint": "eslint --ext .ts src __tests__",
+    "lint:fix": "eslint --cache --fix --ext .ts src __tests__",
+    "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
     "@sebastienrousseau/crypto-lib": "workspace:*",

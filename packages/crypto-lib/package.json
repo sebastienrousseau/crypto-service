@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -30,12 +30,14 @@
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint --cache --fix src/**/*.ts",
+    "lint": "eslint --ext .ts src __tests__",
+    "lint:fix": "eslint --cache --fix --ext .ts src __tests__",
     "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/index.js",
-    "test": "mkdir -p \"${TMPDIR:-/tmp}/crypto-lib-test-out\" && CRYPTO_KEY_DIR=\"$(pwd)/__tests__/fixtures/keys\" CRYPTO_KEY_OUT_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" CRYPTO_DATA_DIR=\"${TMPDIR:-/tmp}/crypto-lib-test-out\" c8 --check-coverage --lines 100 --branches 99.5 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
-    "docs": "typedoc"
+    "test": "c8 --check-coverage --lines 100 --branches 99.5 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "docs": "typedoc",
+    "examples:check": "tsc -p examples/tsconfig.json"
   },
   "dependencies": {
     "@noble/ciphers": "^2.4.0",

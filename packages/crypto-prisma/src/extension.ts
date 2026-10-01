@@ -9,122 +9,50 @@
  * encrypt-on-write / decrypt-on-read semantics via query-level extensions.
  */
 
-import { secretbox } from "@sebastienrousseau/crypto-lib";
-import { computeHmac } from "@sebastienrousseau/crypto-lib";
+import { createFieldCodec, type FieldCodec } from "./codec";
 import type { EncryptionConfig } from "./types";
 
-// ── Helpers (shared logic) ───────────────────────────────────────────
+/** Arguments Prisma passes to a query-extension handler. */
+type QueryContext = {
+  args: Record<string, unknown>;
+  query: (args: Record<string, unknown>) => Promise<unknown>;
+};
 
-/** Check whether a field is configured for deterministic (HMAC) encryption. */
-function isDeterministic(
-  field: string,
-  deterministicFields?: string[],
-): boolean {
-  return deterministicFields?.includes(field) ?? false;
-}
+/** Argument keys that carry record data to encrypt on write. */
+const WRITE_ARG_KEYS = ["data", "create", "update"];
 
-/** Encrypt a single field value using HMAC (deterministic) or secretbox (random nonce). */
-function encryptValue(
-  value: unknown,
-  key: string,
-  field: string,
-  deterministicFields?: string[],
-): unknown {
-  if (value === null || value === undefined) return value;
-  const plaintext = typeof value === "string" ? value : JSON.stringify(value);
+/** Model operations the extension intercepts. */
+const OPERATIONS = [
+  "create",
+  "createMany",
+  "update",
+  "updateMany",
+  "upsert",
+  "findUnique",
+  "findUniqueOrThrow",
+  "findFirst",
+  "findFirstOrThrow",
+  "findMany",
+];
 
-  if (isDeterministic(field, deterministicFields)) {
-    const { mac } = computeHmac({
-      algorithm: "sha256",
-      key,
-      data: plaintext,
-    });
-    return mac;
-  }
-
-  const { sealed } = secretbox.seal(key, plaintext);
-  return sealed;
-}
-
-/** Decrypt a single field value; deterministic (HMAC) fields are returned as-is. */
-function decryptValue(
-  value: unknown,
-  key: string,
-  field: string,
-  deterministicFields?: string[],
-): unknown {
-  if (value === null || value === undefined) return value;
-  if (typeof value !== "string") return value;
-
-  if (isDeterministic(field, deterministicFields)) {
-    return value;
-  }
-
-  try {
-    const plainBytes = secretbox.open(key, value);
-    return Buffer.from(plainBytes).toString("utf8");
-  } catch {
-    return value;
-  }
-}
-
-/** Encrypt all configured fields in a data record in-place. */
-function encryptRecord(
-  data: Record<string, unknown> | undefined,
+/**
+ * Build the handler for one model: encrypt write data and blind-index
+ * `where` values, run the query, then decrypt the returned record(s).
+ */
+function createModelHandler(
+  codec: FieldCodec,
+  model: string,
   fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!data) return;
-  for (const field of fields) {
-    if (field in data) {
-      data[field] = encryptValue(data[field], key, field, deterministicFields);
+): (ctx: QueryContext) => Promise<unknown> {
+  return async ({ args, query }) => {
+    for (const argKey of WRITE_ARG_KEYS) {
+      codec.encryptRecord(model, fields, args[argKey]);
     }
-  }
-}
-
-/** Decrypt all configured fields in a result record in-place. */
-function decryptRecord(
-  record: Record<string, unknown> | undefined | null,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!record) return;
-  for (const field of fields) {
-    if (field in record) {
-      record[field] = decryptValue(
-        record[field],
-        key,
-        field,
-        deterministicFields,
-      );
-    }
-  }
-}
-
-/** Encrypt deterministic fields inside a Prisma `where` clause in-place. */
-function encryptWhereClause(
-  where: Record<string, unknown> | undefined,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!where || !deterministicFields) return;
-  for (const field of fields) {
-    if (
-      isDeterministic(field, deterministicFields) &&
-      field in where &&
-      typeof where[field] === "string"
-    ) {
-      where[field] = encryptValue(
-        where[field],
-        key,
-        field,
-        deterministicFields,
-      );
-    }
-  }
+    codec.encryptWhere(model, fields, args["where"]);
+    const result = await query(args);
+    codec.decryptRecord(model, fields, result);
+    return result;
+  };
 }
 
 // ── Extension factory ────────────────────────────────────────────────
@@ -154,6 +82,14 @@ export interface FieldEncryptionExtension {
  * Create a Prisma Client Extension that transparently encrypts/decrypts
  * configured model fields.
  *
+ * Writes (`create`, `createMany`, `update`, `updateMany`, `upsert`) seal
+ * each configured field in the `v2:` format, bound to its model and
+ * field. Reads (`findUnique`, `findFirst`, `findMany` and the `OrThrow`
+ * variants) decrypt them and reject with a `FieldDecryptionError` when a
+ * stored value is not a valid ciphertext for that model and field.
+ *
+ * @throws If the key is not a 64-character hex string.
+ *
  * @example
  * ```ts
  * import { PrismaClient } from "@prisma/client";
@@ -172,194 +108,14 @@ export interface FieldEncryptionExtension {
 export function createFieldEncryptionExtension(
   config: EncryptionConfig,
 ): FieldEncryptionExtension {
-  const { key, encryptedFields, deterministicFields } = config;
-
-  if (!key || key.length !== 64) {
-    throw new Error(
-      "Encryption key must be a 64-character hex string (256 bits).",
-    );
-  }
-
-  // Build per-model query handlers
+  const codec = createFieldCodec(config);
   const queryHandlers: Record<string, Record<string, unknown>> = {};
 
-  for (const fieldConfig of encryptedFields) {
-    const modelName = fieldConfig.model;
-    const modelNameLower =
-      modelName.charAt(0).toLowerCase() + modelName.slice(1);
-    const fields = fieldConfig.fields;
-
-    queryHandlers[modelNameLower] = {
-      async create({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptRecord(
-          args["data"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (result && typeof result === "object") {
-          decryptRecord(
-            result as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-        return result;
-      },
-
-      async update({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptRecord(
-          args["data"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        encryptWhereClause(
-          args["where"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (result && typeof result === "object") {
-          decryptRecord(
-            result as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-        return result;
-      },
-
-      async upsert({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptRecord(
-          args["create"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        encryptRecord(
-          args["update"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        encryptWhereClause(
-          args["where"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (result && typeof result === "object") {
-          decryptRecord(
-            result as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-        return result;
-      },
-
-      async findUnique({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptWhereClause(
-          args["where"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (result && typeof result === "object") {
-          decryptRecord(
-            result as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-        return result;
-      },
-
-      async findFirst({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptWhereClause(
-          args["where"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (result && typeof result === "object") {
-          decryptRecord(
-            result as Record<string, unknown>,
-            fields,
-            key,
-            deterministicFields,
-          );
-        }
-        return result;
-      },
-
-      async findMany({
-        args,
-        query,
-      }: {
-        args: Record<string, unknown>;
-        query: (args: Record<string, unknown>) => Promise<unknown>;
-      }) {
-        encryptWhereClause(
-          args["where"] as Record<string, unknown> | undefined,
-          fields,
-          key,
-          deterministicFields,
-        );
-        const result = await query(args);
-        if (Array.isArray(result)) {
-          for (const record of result) {
-            decryptRecord(
-              record as Record<string, unknown>,
-              fields,
-              key,
-              deterministicFields,
-            );
-          }
-        }
-        return result;
-      },
-    };
+  for (const { model, fields } of config.encryptedFields) {
+    const handle = createModelHandler(codec, model, fields);
+    const handlers: Record<string, unknown> = {};
+    for (const op of OPERATIONS) handlers[op] = handle;
+    queryHandlers[model.charAt(0).toLowerCase() + model.slice(1)] = handlers;
   }
 
   return {

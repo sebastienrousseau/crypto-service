@@ -105,7 +105,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                        | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                        | Core Library     | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)          | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                    | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                        | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                  | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -130,6 +130,7 @@ operation transparently falls back to the equivalent pure-JavaScript
 implementation.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## How It Works
 
 ### Auto-Detection
@@ -164,6 +165,7 @@ const caps = detectCapabilities();
 ```
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Supported Operations
 
 | Operation       | ID                | Description                          |
@@ -179,6 +181,7 @@ const caps = detectCapabilities();
 | X25519          | `x25519-exchange` | X25519 Diffie-Hellman key exchange   |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Building from Source
 
 The WASM module is compiled from Rust. A Rust toolchain with
@@ -201,6 +204,7 @@ pnpm run build:wasm
 The compiled `.wasm` file is placed in `wasm/crypto_accel.wasm`.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Benchmarks
 
 Run the built-in benchmark to compare JS and WASM performance:
@@ -229,6 +233,7 @@ console.log(`Speedup: ${result.speedup.toFixed(2)}x`);
 | X25519                | 2-4x             |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
@@ -270,7 +275,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

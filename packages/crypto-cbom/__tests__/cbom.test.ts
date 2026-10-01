@@ -220,8 +220,8 @@ describe("Crypto CBOM Suite", () => {
 
       const audit = auditCbom(safeAssets);
       expect(audit.score).to.equal(100);
-      expect(audit.doraStatus).to.equal("COMPLIANT");
-      expect(audit.craStatus).to.equal("COMPLIANT");
+      expect(audit.status).to.equal("PASS");
+      expect(audit.disclaimer).to.match(/not a DORA or CRA compliance/);
       expect(audit.findings).to.have.lengthOf(0);
       expect(audit.migrationRoadmap[0]).to.include("Continuous Monitoring");
     });
@@ -258,12 +258,17 @@ describe("Crypto CBOM Suite", () => {
       ];
 
       const audit = auditCbom(brokenAssets);
-      expect(audit.doraStatus).to.equal("NON_COMPLIANT");
-      expect(audit.craStatus).to.equal("NON_COMPLIANT");
+      expect(audit.status).to.equal("FAIL");
       expect(audit.score).to.be.lessThan(80);
       expect(audit.migrationRoadmap.length).to.be.greaterThan(1);
-      expect(audit.findings.some((f) => f.regulation === "DORA_ART_9")).to.be
-        .true;
+      expect(audit.findings.map((f) => f.reference)).to.have.members([
+        "NIST_SP_800_131A",
+        "NIST_IR_8547",
+        "CNSA_2_0",
+      ]);
+      // Findings describe the cryptography; they make no regulatory verdict.
+      const text = JSON.stringify(audit);
+      expect(text).to.not.match(/violates|DORA Art|CRA Art|FIPS 140/);
     });
 
     it("audits from a CycloneDX document object", () => {
@@ -310,7 +315,7 @@ describe("Crypto CBOM Suite", () => {
       expect(audit.vulnerableCount).to.equal(2);
       expect(audit.quantumSafeCount).to.equal(1);
     });
-    it("evaluates conditional DORA status when score is between 50 and 84 with no deprecated assets", () => {
+    it("returns REVIEW when quantum-vulnerable assets remain but nothing is broken", () => {
       const conditionalAssets: CryptoAsset[] = [
         {
           name: "RSA-2048",
@@ -328,7 +333,7 @@ describe("Crypto CBOM Suite", () => {
         },
       ];
       const audit = auditCbom(conditionalAssets);
-      expect(audit.doraStatus).to.equal("CONDITIONAL");
+      expect(audit.status).to.equal("REVIEW");
       expect(audit.score).to.equal(80);
     });
   });
@@ -424,6 +429,11 @@ describe("Crypto CBOM Suite", () => {
 
         const defaultScan = run(["scan"]);
         expect(defaultScan).to.equal(0);
+
+        // A flag with no value falls back to the default format.
+        stdoutData = "";
+        expect(run(["scan", tmpDir, "--format"])).to.equal(0);
+        expect(stdoutData).to.include("CycloneDX");
       } finally {
         process.stdout.write = origWrite;
       }

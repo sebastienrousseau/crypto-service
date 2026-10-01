@@ -1,8 +1,12 @@
 {
   "MD013": false,
-  "MD024": { "siblings_only": true },
+  "MD024": {
+    "siblings_only": true
+  },
   "MD033": false,
   "MD040": false,
   "MD043": false,
-  "MD047": true
+  "MD047": true,
+  "MD041": false,
+  "MD036": false
 }

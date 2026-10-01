@@ -10,6 +10,11 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import { KmsError } from "../errors";
+
+/** Message raised when the optional AWS SDK peer dependency is absent. */
+const AWS_SDK_MISSING =
+  "AWS KMS requires @aws-sdk/client-kms. Install it: npm install @aws-sdk/client-kms";
 
 /**
  * Configuration for the AWS KMS provider.
@@ -86,9 +91,7 @@ export class AwsKmsProvider implements KmsProvider {
         this.client = new mod.KMSClient(config) as unknown as AwsKmsClient;
         /* c8 ignore next 5 -- peer dep not installed in test env */
       } catch {
-        throw new Error(
-          "AWS KMS requires @aws-sdk/client-kms. Install it: npm install @aws-sdk/client-kms",
-        );
+        throw new KmsError("DEPENDENCY_MISSING", AWS_SDK_MISSING);
       }
     }
     return this.client;

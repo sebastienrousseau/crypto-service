@@ -12,13 +12,9 @@
  * isolation and no FIPS 140 validation, and must not protect real keys.
  */
 
-import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import {
-  generateEd25519KeyPair,
-  ed25519Sign,
-  ed25519Verify,
   bytesToHex,
-  hexToBytes,
   bytesToBase64,
   base64ToBytes,
 } from "@sebastienrousseau/crypto-lib";
@@ -29,6 +25,18 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import { KmsError } from "../errors";
+import {
+  type VersionedKey,
+  createVersionedKey,
+  currentVersion,
+  rotateVersionedKey,
+  destroyVersion,
+  sealCurrent,
+  openVersioned,
+  signCurrent,
+  verifyAnyVersion,
+} from "./versioned-key";
 
 /** Configuration options for the simulated PKCS#11 provider. */
 export interface Pkcs11HsmOptions {
@@ -73,8 +81,8 @@ export interface HsmSessionInfo {
 
 interface HsmKeyRecord {
   metadata: KmsKeyMetadata;
-  material: Uint8Array;
-  publicKey?: Uint8Array;
+  /** Every version of the key material; the last one is current. */
+  key: VersionedKey;
   pendingDeletion?: boolean;
   deletionDate?: string;
   hsmHandle: number;
@@ -145,287 +153,202 @@ export class Pkcs11HsmProvider implements KmsProvider {
     };
   }
 
+  /** Look up a key record or throw `NOT_FOUND`. */
+  private record(keyId: string): HsmKeyRecord {
+    const record = this.store.get(keyId);
+    if (!record) {
+      throw new KmsError("NOT_FOUND", `HSM key not found: ${keyId}`, keyId);
+    }
+    return record;
+  }
+
+  /** Look up an enabled key record or throw `NOT_FOUND` / `DISABLED`. */
+  private enabledRecord(keyId: string): HsmKeyRecord {
+    const record = this.record(keyId);
+    if (!record.metadata.enabled) {
+      throw new KmsError("DISABLED", `HSM key is disabled: ${keyId}`, keyId);
+    }
+    return record;
+  }
+
+  /**
+   * Return the record's key versions, or throw `INVALID_USAGE`. `encrypt`
+   * accepts encryption and wrapping keys; `sign` accepts signing keys.
+   */
+  private requireUsage(
+    keyId: string,
+    record: HsmKeyRecord,
+    expected: "encrypt" | "sign",
+  ): VersionedKey {
+    const usage = record.metadata.usage;
+    const ok = expected === "sign" ? usage === "sign" : usage !== "sign";
+    if (!ok) {
+      throw new KmsError(
+        "INVALID_USAGE",
+        `HSM key usage is '${usage}', expected '${expected}'`,
+        keyId,
+      );
+    }
+    return record.key;
+  }
+
+  /** Copy of the metadata with the current version filled in. */
+  private snapshot(record: HsmKeyRecord): KmsKeyMetadata {
+    return {
+      ...record.metadata,
+      currentVersion: currentVersion(record.key).version,
+    };
+  }
+
   /** List all simulated keys matching optional filters. */
-  listKeys(filters?: {
+  async listKeys(filters?: {
     usage?: string;
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
     const keys = Array.from(this.store.values())
       .filter((r) => !r.pendingDeletion)
-      .map((r) => r.metadata);
+      .map((r) => this.snapshot(r));
 
-    if (!filters) return Promise.resolve(keys);
+    if (!filters) return keys;
 
-    return Promise.resolve(
-      keys.filter(
-        (k) =>
-          (filters.usage === undefined || k.usage === filters.usage) &&
-          (filters.enabled === undefined || k.enabled === filters.enabled),
-      ),
+    return keys.filter(
+      (k) =>
+        (filters.usage === undefined || k.usage === filters.usage) &&
+        (filters.enabled === undefined || k.enabled === filters.enabled),
     );
   }
 
   /** Retrieve metadata for a specific simulated key. */
-  getKey(keyId: string): Promise<KmsKeyMetadata> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    return Promise.resolve({ ...record.metadata });
+  async getKey(keyId: string): Promise<KmsKeyMetadata> {
+    return this.snapshot(this.record(keyId));
   }
 
   /** Create a key held in process memory (not hardware-isolated). */
-  createKey(
+  async createKey(
     algorithm: string,
     usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
     const keyId = generateHsmKeyId(this.hsmModel);
-    const hsmHandle = ++this.handleCounter;
-
-    let material: Uint8Array;
-    let publicKey: Uint8Array | undefined;
-
-    if (usage === "sign") {
-      const kp = generateEd25519KeyPair();
-      material = hexToBytes(kp.privateKey);
-      publicKey = hexToBytes(kp.publicKey);
-    } else {
-      material = randomBytes(32);
-    }
-
-    const meta: KmsKeyMetadata = {
-      keyId,
-      algorithm,
-      usage,
-      createdAt: new Date().toISOString(),
-      enabled: true,
-      provider: "pkcs11",
-    };
-
     const record: HsmKeyRecord = {
-      metadata: meta,
-      material,
-      hsmHandle,
+      metadata: {
+        keyId,
+        algorithm,
+        usage,
+        createdAt: new Date().toISOString(),
+        enabled: true,
+        provider: "pkcs11",
+      },
+      key: createVersionedKey(usage),
+      hsmHandle: ++this.handleCounter,
     };
-    if (publicKey !== undefined) {
-      record.publicKey = publicKey;
-    }
-
     this.store.set(keyId, record);
-    return Promise.resolve({ ...meta });
+    return this.snapshot(record);
   }
 
   /** Enable an HSM key. */
-  enableKey(keyId: string): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    record.metadata.enabled = true;
-    return Promise.resolve();
+  async enableKey(keyId: string): Promise<void> {
+    this.record(keyId).metadata.enabled = true;
   }
 
   /** Disable an HSM key. */
-  disableKey(keyId: string): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    record.metadata.enabled = false;
-    return Promise.resolve();
+  async disableKey(keyId: string): Promise<void> {
+    this.record(keyId).metadata.enabled = false;
   }
 
   /** Schedule deletion of a simulated key. */
-  scheduleKeyDeletion(keyId: string, pendingWindowDays = 7): Promise<void> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
+  async scheduleKeyDeletion(
+    keyId: string,
+    pendingWindowDays = 7,
+  ): Promise<void> {
+    const record = this.record(keyId);
     record.pendingDeletion = true;
     const date = new Date();
     date.setDate(date.getDate() + pendingWindowDays);
     record.deletionDate = date.toISOString();
     record.metadata.enabled = false;
-    return Promise.resolve();
   }
 
-  /** Encrypt plaintext with AES-256-GCM in software. */
-  encrypt(
+  /** Encrypt plaintext with AES-256-GCM in software (current key version). */
+  async encrypt(
     keyId: string,
     plaintext: Uint8Array,
     context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    if (!record.metadata.enabled) {
-      return Promise.reject(new Error(`HSM key is disabled: ${keyId}`));
-    }
-    if (
-      record.metadata.usage !== "encrypt" &&
-      record.metadata.usage !== "wrap"
-    ) {
-      return Promise.reject(
-        new Error(
-          `HSM key usage is '${record.metadata.usage}', expected 'encrypt'`,
-        ),
-      );
-    }
-
-    const iv = randomBytes(12);
-    const cipher = createCipheriv(
-      "aes-256-gcm",
-      Buffer.from(record.material),
-      iv,
-    );
-
-    if (context) {
-      cipher.setAAD(Buffer.from(JSON.stringify(context)));
-    }
-
-    const enc = Buffer.concat([
-      cipher.update(Buffer.from(plaintext)),
-      cipher.final(),
-    ]);
-    const tag = cipher.getAuthTag();
-    const payload = Buffer.concat([iv, tag, enc]);
-
+    const record = this.enabledRecord(keyId);
+    const key = this.requireUsage(keyId, record, "encrypt");
+    const sealed = sealCurrent(key, plaintext, context);
     const result: KmsEncryptResult = {
-      ciphertext: bytesToBase64(new Uint8Array(payload)),
+      ciphertext: sealed.ciphertext,
       keyId,
+      keyVersion: sealed.version,
     };
     if (context !== undefined) {
       result.context = context;
     }
-
-    return Promise.resolve(result);
+    return result;
   }
 
-  /** Decrypt ciphertext with AES-256-GCM in software. */
-  decrypt(
+  /** Decrypt ciphertext with AES-256-GCM using the key version it names. */
+  async decrypt(
     keyId: string,
     ciphertext: string,
     context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    if (!record.metadata.enabled) {
-      return Promise.reject(new Error(`HSM key is disabled: ${keyId}`));
-    }
-
-    try {
-      const data = Buffer.from(base64ToBytes(ciphertext));
-      if (data.length < 28) {
-        return Promise.reject(new Error("Ciphertext too short"));
-      }
-      const iv = data.subarray(0, 12);
-      const tag = data.subarray(12, 28);
-      const enc = data.subarray(28);
-
-      const decipher = createDecipheriv(
-        "aes-256-gcm",
-        Buffer.from(record.material),
-        iv,
-      );
-      decipher.setAuthTag(tag);
-
-      if (context) {
-        decipher.setAAD(Buffer.from(JSON.stringify(context)));
-      }
-
-      const dec = Buffer.concat([decipher.update(enc), decipher.final()]);
-      return Promise.resolve({
-        plaintext: new Uint8Array(dec),
-        keyId,
-      });
-    } catch {
-      return Promise.reject(new Error("Decryption failed"));
-    }
+    const record = this.enabledRecord(keyId);
+    const key = this.requireUsage(keyId, record, "encrypt");
+    const opened = openVersioned(key, keyId, ciphertext, context);
+    return { plaintext: opened.plaintext, keyId, keyVersion: opened.version };
   }
 
-  /** Sign data with Ed25519 in software. */
-  sign(
+  /** Sign data with Ed25519 in software (current key version). */
+  async sign(
     keyId: string,
     data: Uint8Array,
     algorithm = "Ed25519",
   ): Promise<KmsSignResult> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    if (!record.metadata.enabled) {
-      return Promise.reject(new Error(`HSM key is disabled: ${keyId}`));
-    }
-    if (record.metadata.usage !== "sign") {
-      return Promise.reject(
-        new Error(
-          `HSM key usage is '${record.metadata.usage}', expected 'sign'`,
-        ),
-      );
-    }
-
-    const result = ed25519Sign(bytesToHex(record.material), bytesToHex(data));
-    return Promise.resolve({
-      signature: bytesToBase64(hexToBytes(result.signature)),
+    const record = this.enabledRecord(keyId);
+    const key = this.requireUsage(keyId, record, "sign");
+    return {
+      signature: bytesToBase64(signCurrent(key, data)),
       keyId,
       algorithm,
-    });
+    };
   }
 
-  /** Verify a signature against the simulated key's public key. */
-  verify(
+  /**
+   * Verify a signature against every simulated key version that has not
+   * been destroyed. Malformed signatures verify as `false`.
+   */
+  async verify(
     keyId: string,
     data: Uint8Array,
     signature: string,
     _algorithm?: string,
   ): Promise<boolean> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-    if (record.metadata.usage !== "sign" || !record.publicKey) {
-      return Promise.reject(
-        new Error(
-          `HSM key usage is '${record.metadata.usage}', expected 'sign'`,
-        ),
-      );
-    }
-
-    try {
-      const sigBytes = base64ToBytes(signature);
-      const result = ed25519Verify(
-        bytesToHex(record.publicKey),
-        bytesToHex(data),
-        bytesToHex(sigBytes),
-      );
-      return Promise.resolve(result.valid);
-    } catch {
-      return Promise.resolve(false);
-    }
+    const key = this.requireUsage(keyId, this.record(keyId), "sign");
+    return verifyAnyVersion(key, data, base64ToBytes(signature));
   }
 
-  /** Rotate a simulated key: new key material and a new simulated handle. */
-  rotateKey(keyId: string): Promise<KmsKeyMetadata> {
-    const record = this.store.get(keyId);
-    if (!record) {
-      return Promise.reject(new Error(`HSM key not found: ${keyId}`));
-    }
-
-    if (record.metadata.usage === "sign") {
-      const kp = generateEd25519KeyPair();
-      record.material = hexToBytes(kp.privateKey);
-      record.publicKey = hexToBytes(kp.publicKey);
-    } else {
-      record.material = randomBytes(32);
-    }
-
+  /**
+   * Rotate a simulated key: add a new current version and a new simulated
+   * handle, keeping earlier versions for decryption and verification.
+   */
+  async rotateKey(keyId: string): Promise<KmsKeyMetadata> {
+    const record = this.record(keyId);
+    const next = rotateVersionedKey(record.key);
     record.hsmHandle = ++this.handleCounter;
-    record.metadata.createdAt = new Date().toISOString();
-    return Promise.resolve({ ...record.metadata });
+    record.metadata.createdAt = next.createdAt;
+    return this.snapshot(record);
+  }
+
+  /**
+   * Destroy the material of a non-current key version. Rejects with
+   * `INVALID_ARGUMENT` for the current version and `NOT_FOUND` for an
+   * unknown key or version.
+   */
+  async destroyKeyVersion(keyId: string, version: number): Promise<void> {
+    destroyVersion(this.record(keyId).key, version, keyId);
   }
 
   /** Generate a data encryption key wrapped by the simulated key. */

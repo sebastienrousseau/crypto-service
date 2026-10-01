@@ -15,7 +15,7 @@ async function main() {
 
   const password = "correct horse battery staple";
 
-  const result = await taskWithOutput("Hash with Argon2id (t=3, m=65536, p=4)", () => {
+  await taskWithOutput("Hash with Argon2id (t=3, m=65536, p=4)", () => {
     const r = hashPassword({ password });
     return [
       `algorithm: ${r.algorithm}`,

@@ -16,6 +16,9 @@ export type {
   KmsDecryptResult,
   KmsSignResult,
 } from "./types";
+export { KmsError } from "./errors";
+/** Re-exported machine-readable error code type. */
+export type { KmsErrorCode } from "./errors";
 export { AwsKmsProvider } from "./providers/aws";
 /** Re-exported AWS KMS configuration options type. */
 export type { AwsKmsOptions } from "./providers/aws";
@@ -30,5 +33,5 @@ export { VaultKmsProvider } from "./providers/vault";
 export type { VaultKmsOptions } from "./providers/vault";
 export { LocalKmsProvider } from "./providers/local";
 export { Pkcs11HsmProvider } from "./providers/pkcs11";
-/** Re-exported PKCS#11 HSM configuration options and session info types. */
+/** Re-exported options and session types for the PKCS#11 software simulation (no real HSM). */
 export type { Pkcs11HsmOptions, HsmSessionInfo } from "./providers/pkcs11";

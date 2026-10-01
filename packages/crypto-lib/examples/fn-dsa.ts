@@ -14,7 +14,7 @@
  * Run: `npx ts-node examples/fn-dsa.ts`
  */
 
-import { header, task, taskResult, summary } from "./support";
+import { header, task, summary } from "./support";
 import { fnDsaKeygen, fnDsaSign, fnDsaVerify } from "../src";
 
 async function main() {

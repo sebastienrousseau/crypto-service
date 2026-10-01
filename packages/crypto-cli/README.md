@@ -115,7 +115,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                      | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                                 |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                      | Core Library     | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.                |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)        | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                    |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                    |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                                  |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                  | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                           |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                      | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                      |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.                 |
@@ -138,6 +138,7 @@ algorithm support. All operations run interactively via a guided
 prompt menu.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Commands Reference
 
 ### Legacy Commands (OpenPGP)
@@ -164,6 +165,7 @@ prompt menu.
 | `Password Hash`  | Hash and verify passwords with 3 Argon2 variants            |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Configuration
 
 The CLI respects the following environment variables:
@@ -182,6 +184,7 @@ cryptocli
 ```
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 Runnable shell scripts are provided in the [`examples/`](examples/)
@@ -227,7 +230,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

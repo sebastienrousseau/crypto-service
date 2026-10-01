@@ -81,7 +81,10 @@ describe("V2 New Routes", function () {
       const openRes = await app.inject({
         method: "POST",
         url: "/v2/sealedbox/open",
-        payload: { recipientSecretKey: privateKey, sealed: sealBody.data.sealed },
+        payload: {
+          recipientSecretKey: privateKey,
+          sealed: sealBody.data.sealed,
+        },
       });
       expect(openRes.statusCode).to.equal(200);
     });
@@ -137,7 +140,10 @@ describe("V2 New Routes", function () {
       const decRes = await app.inject({
         method: "POST",
         url: "/v2/password/decrypt",
-        payload: { password: "my-secret-pass", ciphertext: encBody.data.encrypted },
+        payload: {
+          password: "my-secret-pass",
+          ciphertext: encBody.data.encrypted,
+        },
       });
       expect(decRes.statusCode).to.equal(200);
     });
@@ -178,7 +184,11 @@ describe("V2 New Routes", function () {
       const unwrapRes = await app.inject({
         method: "POST",
         url: "/v2/keys/unwrap",
-        payload: { kek, wrappedKey: wrapBody.data.wrapped, algorithm: "aes-kw" },
+        payload: {
+          kek,
+          wrappedKey: wrapBody.data.wrapped,
+          algorithm: "aes-kw",
+        },
       });
       expect(unwrapRes.statusCode).to.equal(200);
     });
@@ -198,7 +208,11 @@ describe("V2 New Routes", function () {
       const unwrapRes = await app.inject({
         method: "POST",
         url: "/v2/keys/unwrap",
-        payload: { kek, wrappedKey: wrapBody.data.wrapped, algorithm: "aes-kwp" },
+        payload: {
+          kek,
+          wrappedKey: wrapBody.data.wrapped,
+          algorithm: "aes-kwp",
+        },
       });
       expect(unwrapRes.statusCode).to.equal(200);
     });
@@ -286,7 +300,12 @@ describe("V2 New Routes", function () {
       const hashRes = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
-        payload: { password: "test-password", timeCost: 1, memoryCost: 1024, parallelism: 1 },
+        payload: {
+          password: "test-password",
+          timeCost: 1,
+          memoryCost: 1024,
+          parallelism: 1,
+        },
       });
       expect(hashRes.statusCode).to.equal(200);
       const hashBody = JSON.parse(hashRes.payload);
@@ -313,7 +332,12 @@ describe("V2 New Routes", function () {
       const hashRes = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
-        payload: { password: "correct", timeCost: 1, memoryCost: 1024, parallelism: 1 },
+        payload: {
+          password: "correct",
+          timeCost: 1,
+          memoryCost: 1024,
+          parallelism: 1,
+        },
       });
       const hashBody = JSON.parse(hashRes.payload);
 
@@ -349,7 +373,12 @@ describe("V2 New Routes", function () {
       const verRes = await app.inject({
         method: "POST",
         url: "/v2/hmac/verify",
-        payload: { algorithm: "sha256", key: testKey, data: "hello", mac: compBody.data.mac },
+        payload: {
+          algorithm: "sha256",
+          key: testKey,
+          data: "hello",
+          mac: compBody.data.mac,
+        },
       });
       expect(verRes.statusCode).to.equal(200);
       const verBody = JSON.parse(verRes.payload);
@@ -380,7 +409,12 @@ describe("V2 New Routes", function () {
       const verifyRes = await app.inject({
         method: "POST",
         url: "/v2/pq/dsa/verify",
-        payload: { level: 44, publicKey: keys.publicKey, message: "test msg", signature: sigData.signature },
+        payload: {
+          level: 44,
+          publicKey: keys.publicKey,
+          message: "test msg",
+          signature: sigData.signature,
+        },
       });
       expect(verifyRes.statusCode).to.equal(200);
       expect(JSON.parse(verifyRes.payload).data.valid).to.be.true;
@@ -402,7 +436,11 @@ describe("V2 New Routes", function () {
       const signRes = await app.inject({
         method: "POST",
         url: "/v2/pq/slh-dsa/sign",
-        payload: { variant: "shake-128f", secretKey: keys.secretKey, message: "sign me" },
+        payload: {
+          variant: "shake-128f",
+          secretKey: keys.secretKey,
+          message: "sign me",
+        },
       });
       expect(signRes.statusCode).to.equal(200);
       const sigData = JSON.parse(signRes.payload).data;
@@ -410,7 +448,12 @@ describe("V2 New Routes", function () {
       const verifyRes = await app.inject({
         method: "POST",
         url: "/v2/pq/slh-dsa/verify",
-        payload: { variant: "shake-128f", publicKey: keys.publicKey, message: "sign me", signature: sigData.signature },
+        payload: {
+          variant: "shake-128f",
+          publicKey: keys.publicKey,
+          message: "sign me",
+          signature: sigData.signature,
+        },
       });
       expect(verifyRes.statusCode).to.equal(200);
       expect(JSON.parse(verifyRes.payload).data.valid).to.be.true;

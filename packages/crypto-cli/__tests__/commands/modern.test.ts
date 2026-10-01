@@ -456,7 +456,7 @@ describe("Modern CLI Commands", function () {
       );
       prompts.inject(["audit", validCbomFile, ""]);
       await handleModernCbom();
-      expect(captured.join("")).to.include("doraStatus");
+      expect(captured.join("")).to.include('"status"');
     });
 
     it("should audit valid CBOM and write audit report to file", async () => {

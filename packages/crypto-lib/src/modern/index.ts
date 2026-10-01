@@ -6,8 +6,10 @@
 /**
  * @remarks Modern cryptographic primitives barrel export.
  *
- * These operations use the noble suite — audited, zero-dependency,
- * pure-JS implementations of modern cryptographic algorithms.
+ * These operations use the noble suite: pure-JS implementations of
+ * modern cryptographic algorithms. `@noble/hashes`, `@noble/curves` and
+ * `@noble/ciphers` have had independent audits; `@noble/post-quantum`
+ * has not, and does not guarantee constant-time execution.
  */
 
 /* c8 ignore start -- barrel re-exports; actual functions tested in source modules */

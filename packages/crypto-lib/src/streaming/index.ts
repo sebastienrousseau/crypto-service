@@ -27,4 +27,5 @@ export type {
   HashStreamResult,
   EncryptStreamOptions,
   DecryptStreamOptions,
+  CryptoTransformStream,
 } from "./web-streams";

@@ -116,7 +116,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                              | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                              | Core Library     | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)                | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                        | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                        | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                          | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                              | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                        | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -139,6 +139,7 @@ and round-trip validations. Use it to make your CI/CD pipeline fast
 and reproducible without sacrificing coverage.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Features
 
 | Category       | What you get                                                                  |
@@ -150,6 +151,7 @@ and reproducible without sacrificing coverage.
 | **Assertions** | Hex, Base64, key-pair, encrypt/decrypt, and sign/verify round-trip helpers    |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Deterministic Keys
 
 `TEST_KEYS` provides well-known key pairs that never change between
@@ -166,6 +168,7 @@ runs:
 `TEST_VECTORS` includes a known plaintext and its expected hashes.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Mock Functions
 
 Replace expensive crypto operations with instant, deterministic
@@ -185,6 +188,7 @@ cryptographically secure** but are deterministic and round-trip
 correctly.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Fixtures
 
 Fixture generators produce complete test data structures in one
@@ -198,6 +202,7 @@ call:
 | `createTestPasswordHash()`     | Hash + salt + params + PHC string                               |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Assertion Helpers
 
 One-liner assertions that throw descriptive errors on failure:
@@ -211,6 +216,7 @@ One-liner assertions that throw descriptive errors on failure:
 | `expectSignVerifyRoundTrip`     | Real keygen, sign, and verify          |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
@@ -252,7 +258,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

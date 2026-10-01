@@ -12,23 +12,14 @@
 
 /** Cryptographic operation category for algorithm classification. */
 export type AlgorithmCategory =
-  | "encryption"
-  | "hash"
-  | "kdf"
-  | "mac"
-  | "signing"
-  | "key-exchange"
-  | "kem";
+  "encryption" | "hash" | "kdf" | "mac" | "signing" | "key-exchange" | "kem";
 
 /** NIST security level (1, 2, 3, or 5). */
 export type SecurityLevel = 1 | 2 | 3 | 5;
 
 /** Lifecycle status of a registered algorithm. */
 export type AlgorithmStatus =
-  | "recommended"
-  | "acceptable"
-  | "deprecated"
-  | "experimental";
+  "recommended" | "acceptable" | "deprecated" | "experimental";
 
 /** Metadata for a registered cryptographic algorithm. */
 export interface AlgorithmInfo {

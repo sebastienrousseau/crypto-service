@@ -101,7 +101,7 @@ Located in `crypto-lib/src/accel/`:
 | ------------ | -------------------------------------------- |
 | pqxdh.ts     | Post-Quantum Extended Triple Diffie-Hellman  |
 | ratchet.ts   | Double Ratchet (Signal-like forward secrecy) |
-| pake.ts      | PAKE (OPAQUE-like password-authenticated KE) |
+| pake.ts      | PAKE (RFC 9807 OPAQUE-3DH)                   |
 | threshold.ts | Shamir Secret Sharing + Feldman VSS          |
 
 ### Streaming (`src/streaming/`)

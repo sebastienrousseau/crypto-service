@@ -19,10 +19,10 @@
   <div class="container swift-hero-content">
     <div class="swift-hero-grid">
       <div class="hero-glass-card">
-        <div class="hero-badge font-mono">POST-QUANTUM CRYPTOGRAPHY • FIPS 203 &amp; 204 NATIVE</div>
+        <div class="hero-badge font-mono">POST-QUANTUM CRYPTOGRAPHY • IMPLEMENTS FIPS 203 &amp; 204 ALGORITHMS</div>
         <h1 class="swift-hero-title">The Developer-First Crypto as a Service Platform</h1>
         <p class="swift-hero-lead">
-          Deploy sovereign post-quantum encryption, multi-cloud KMS orchestration, and transparent database field protection across our modular suite of 18 libraries.
+          Self-host post-quantum encryption, a pluggable KMS interface, and transparent database field protection across our modular suite of 18 libraries.
         </p>
         <div class="swift-hero-cta-group">
           <a class="btn-swift-hero-pill" href="{{site_path}}solutions/">Explore solutions</a>
@@ -36,14 +36,14 @@
           <span class="quickstart-lang">TypeScript / ESM</span>
         </div>
         <div class="hero-code-block">
-          <pre><code><span class="hero-code-comment"># 1. Install cryptographic primitives &amp; ORM tools</span>
+          <pre><code><span class="hero-code-comment"># 1. Install cryptographic primitives</span>
 <span class="hero-code-cmd">pnpm add</span> @sebastienrousseau/crypto-lib
 
-<span class="hero-code-comment">// 2. Post-quantum encapsulation (FIPS 203)</span>
-<span class="hero-code-keyword">import</span> { generateKeyPair, encrypt } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;
+<span class="hero-code-comment">// 2. Post-quantum key encapsulation (ML-KEM-768, FIPS 203)</span>
+<span class="hero-code-keyword">import</span> { mlKemGenerateKeyPair, mlKemEncapsulate } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;
 
-<span class="hero-code-keyword">const</span> keyPair = <span class="hero-code-keyword">await</span> generateKeyPair(<span class="hero-code-string">"ML-KEM-768"</span>);
-<span class="hero-code-keyword">const</span> ciphertext = <span class="hero-code-keyword">await</span> encrypt(<span class="hero-code-string">"confidential data"</span>, keyPair.publicKey);</code></pre>
+<span class="hero-code-keyword">const</span> keyPair = mlKemGenerateKeyPair();
+<span class="hero-code-keyword">const</span> { ciphertext, sharedSecret } = mlKemEncapsulate(keyPair.publicKey);</code></pre>
         </div>
         <div class="quickstart-footer">
           <span class="quickstart-stat">18 Packages in Lockstep</span>
@@ -60,19 +60,19 @@
     <div class="telemetry-inner">
       <div class="telemetry-item">
         <span class="telemetry-value font-mono">100%</span>
-        <span class="telemetry-label">Strict Test Floor</span>
+        <span class="telemetry-label">Line &amp; Function Coverage</span>
       </div>
       <div class="telemetry-item">
         <span class="telemetry-value font-mono">FIPS 203/204</span>
-        <span class="telemetry-label">NIST Standard Compliant</span>
+        <span class="telemetry-label">Algorithms Implemented (Not Validated)</span>
       </div>
       <div class="telemetry-item">
-        <span class="telemetry-value font-mono">DORA &amp; CRA</span>
-        <span class="telemetry-label">Audit-Ready CBOM</span>
+        <span class="telemetry-value font-mono">CBOM</span>
+        <span class="telemetry-label">CycloneDX 1.6 &amp; SPDX 3.0</span>
       </div>
       <div class="telemetry-item">
-        <span class="telemetry-value font-mono">MULTI-KMS</span>
-        <span class="telemetry-label">AWS, GCP, Azure &amp; Vault</span>
+        <span class="telemetry-value font-mono">KMS</span>
+        <span class="telemetry-label">AWS KMS &amp; Local Providers</span>
       </div>
       <div class="telemetry-item">
         <span class="telemetry-value font-mono">APACHE / MIT</span>
@@ -105,12 +105,12 @@
         <div class="swift-card-body">
           <div class="swift-card-meta">28 September 2026 | 5 min read</div>
           <h3 class="swift-card-title">
-            <a href="{{site_path}}news/#release-v004">NIST FIPS 203 &amp; 204 Standard Finalization: What Financial Leaders Must Know</a>
+            <a href="{{site_path}}standards/#fips203">NIST FIPS 203 &amp; 204 Are Final: What Changes for Financial Systems</a>
           </h3>
           <p class="swift-card-excerpt">
-            NIST has finalized ML-KEM and ML-DSA standards. Discover the concrete architectural steps required to transition payment rails and digital custody before 2027 mandates.
+            NIST has published ML-KEM (FIPS 203) and ML-DSA (FIPS 204). Crypto Service Suite implements both algorithms through @noble/post-quantum; it is not a validated cryptographic module.
           </p>
-          <a class="swift-arrow-link" href="{{site_path}}news/#release-v004">Read more &gt;</a>
+          <a class="swift-arrow-link" href="{{site_path}}standards/#fips203">Read more &gt;</a>
         </div>
       </article>
 
@@ -128,10 +128,10 @@
         <div class="swift-card-body">
           <div class="swift-card-meta">24 September 2026 | 4 min read</div>
           <h3 class="swift-card-title">
-            <a href="{{site_path}}news/#benchmarks">Sub-Millisecond PQC Benchmark: High-Throughput Signing at 100k Ops/Sec</a>
+            <a href="{{site_path}}news/#benchmarks">Benchmarking Post-Quantum Operations in Crypto Service Suite</a>
           </h3>
           <p class="swift-card-excerpt">
-            New benchmark data reveals how Crypto Service's zero-dependency WebAssembly engine delivers sub-millisecond post-quantum signature verification with zero garbage collection pauses.
+            How to measure ML-KEM and ML-DSA latency on your own hardware with the committed benchmark script. No timing figures are published yet.
           </p>
           <a class="swift-arrow-link" href="{{site_path}}news/#benchmarks">Read more &gt;</a>
         </div>
@@ -171,9 +171,9 @@
       <div class="swift-tabs-nav" role="tablist" aria-label="Solutions Categories">
         <button class="swift-tab-btn active" role="tab" aria-selected="true" data-tab="tab-pqc">POST-QUANTUM (PQC)</button>
         <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-caas">SOVEREIGN CAAS</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-kms">MULTI-CLOUD KMS</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-kms">KMS INTERFACE</button>
         <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-field">FIELD ENCRYPTION</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-wasm">EDGE &amp; WASM</button>
+        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-wasm">EDGE RUNTIMES</button>
       </div>
     </div>
 
@@ -185,7 +185,7 @@
           <span class="swift-solution-eyebrow">NIST Standardized Core</span>
           <h3 class="swift-solution-headline">Post-Quantum Cryptography</h3>
           <p class="swift-solution-desc">
-            Protect sensitive data, credentials, and API communication channels against Harvest-Now-Decrypt-Later (HNDL) adversaries. Native implementations of NIST FIPS 203 (ML-KEM) key encapsulation and FIPS 204 (ML-DSA) digital signatures, backed by CNSA 2.0 dual-layer hybrid schemes for smooth legacy coexistence.
+            Protect sensitive data, credentials, and API communication channels against Harvest-Now-Decrypt-Later (HNDL) adversaries. Implements the NIST FIPS 203 (ML-KEM) key encapsulation and FIPS 204 (ML-DSA) signature algorithms via @noble/post-quantum (not a validated module), plus hybrid X25519 + ML-KEM key encapsulation for coexistence with classical cryptography.
           </p>
           <div class="swift-solution-action">
             <a class="btn-swift-readmore" href="{{site_path}}solutions/#post-quantum">Explore PQC Infrastructure</a>
@@ -211,10 +211,10 @@
       <div class="swift-solution-split">
         <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
         <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">High-Throughput Microservice</span>
+          <span class="swift-solution-eyebrow">Self-Hosted Microservice</span>
           <h3 class="swift-solution-headline">Cryptography-as-a-Service Daemon</h3>
           <p class="swift-solution-desc">
-            A high-performance cryptographic microservice processing over 100,000 ops/sec with sub-millisecond signing latency via HTTP/2 and gRPC. Retain exclusive cryptographic custody within your private cloud or on-premises data centers, eliminating third-party custodial counterparty risks.
+            A Fastify REST microservice that exposes crypto-lib operations with rate limiting and OpenTelemetry instrumentation. Run it in your private cloud or on-premises data centre so keys you manage with it stay on infrastructure you control. No throughput figures are published yet.
           </p>
           <div class="swift-solution-action">
             <a class="btn-swift-readmore" href="{{site_path}}solutions/#caas-server">Explore CaaS Daemon</a>
@@ -235,18 +235,18 @@
       </div>
     </div>
 
-    <!-- Tab 3: Multi-Cloud KMS -->
+    <!-- Tab 3: KMS Interface -->
     <div class="swift-tab-content-panel" id="tab-kms">
       <div class="swift-solution-split">
         <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
         <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">Hardware Abstraction</span>
-          <h3 class="swift-solution-headline">Multi-Cloud KMS &amp; Key Broker</h3>
+          <span class="swift-solution-eyebrow">Key Management</span>
+          <h3 class="swift-solution-headline">KMS Provider Interface</h3>
           <p class="swift-solution-desc">
-            A unified interface orchestrating AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault. Enforce automated key rotation, envelope encryption (DEK/KEK), and multi-cloud resilience with zero proprietary vendor lock-in.
+            One TypeScript interface for key management backends, with envelope encryption (DEK/KEK) through generateDataKey(). AWS KMS and a local in-memory provider are implemented; Google Cloud KMS, Azure Key Vault and HashiCorp Vault are stubs, and PKCS#11 is a software simulation with no HSM support.
           </p>
           <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Broker</a>
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Interface</a>
           </div>
         </div>
 
@@ -272,7 +272,7 @@
           <span class="swift-solution-eyebrow">Database &amp; Middleware Security</span>
           <h3 class="swift-solution-headline">Zero-Trust Field &amp; Column Encryption</h3>
           <p class="swift-solution-desc">
-            Transparent, envelope-based column encryption for enterprise databases, Kafka streaming queues, and Redis caches. Native Prisma ORM extensions and TypeORM decorators guarantee sensitive customer records remain ciphertext-at-rest without requiring database schema rewrites.
+            Transparent column encryption for Prisma and TypeORM. A Prisma Client extension and a TypeORM @EncryptedColumn() decorator encrypt configured fields with XChaCha20-Poly1305 before they are written, so database dumps hold only ciphertext for those fields, without schema rewrites.
           </p>
           <div class="swift-solution-action">
             <a class="btn-swift-readmore" href="{{site_path}}solutions/#field-encryption">Explore Field Encryption</a>
@@ -293,18 +293,18 @@
       </div>
     </div>
 
-    <!-- Tab 5: Edge & WASM Core -->
+    <!-- Tab 5: Edge Runtimes -->
     <div class="swift-tab-content-panel" id="tab-wasm">
       <div class="swift-solution-split">
         <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
         <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">High-Performance Runtime</span>
-          <h3 class="swift-solution-headline">SIMD WebAssembly &amp; Edge Execution</h3>
+          <span class="swift-solution-eyebrow">Runtime Portability</span>
+          <h3 class="swift-solution-headline">Edge Runtime Support</h3>
           <p class="swift-solution-desc">
-            Compiled WebAssembly core delivering near-native execution speed for heavy post-quantum lattice mathematics. Zero garbage collection pauses, constant-time operations, and lightweight runtime adapters tailored for Cloudflare Workers, Fastly Compute, Vercel Edge, Deno, and Bun.
+            crypto-edge adapts crypto-lib to Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers, with runtime detection and text/base64 fallbacks. All operations run in JavaScript or the platform Web Crypto API: crypto-wasm is a placeholder with no WebAssembly module, and there is no constant-time guarantee.
           </p>
           <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#edge-wasm">Explore Edge &amp; WASM</a>
+            <a class="btn-swift-readmore" href="{{site_path}}solutions/#edge-wasm">Explore Edge Runtimes</a>
           </div>
         </div>
 
@@ -324,19 +324,19 @@
   </div>
 </section>
 
-<!-- Section: Micro-Benchmark Evidence (Scannable Data Matrix) -->
+<!-- Section: Algorithm Reference (Scannable Data Matrix) -->
 <section class="swift-benchmarks-section">
   <div class="container">
     <div class="swift-solutions-header">
       <div>
-        <span class="swift-solution-eyebrow">EMPIRICAL BENCHMARKS // NODE.JS 22 &amp; WASM SIMD</span>
-        <h2 class="swift-section-title">Micro-Benchmark Evidence: Zero-Latency Execution</h2>
+        <span class="swift-solution-eyebrow">ALGORITHM REFERENCE // CRYPTO-LIB</span>
+        <h2 class="swift-section-title">Supported Algorithms and Standards</h2>
       </div>
-      <a class="btn-swift-news-pill" href="{{site_path}}research/#benchmarks">Explore Full Benchmarks</a>
+      <a class="btn-swift-news-pill" href="{{site_path}}research/#benchmarks">Sizes &amp; Benchmarking</a>
     </div>
 
     <p class="swift-section-lead">
-      Post-quantum cryptography does not imply prohibitive computational latency. Our zero-dependency WebAssembly engine executes ML-KEM-768 key encapsulation in 34.1 µs — over 300x faster than 3072-bit RSA key generation.
+      The algorithms below are implemented in crypto-lib on top of the @noble/* libraries; none is a validated cryptographic module. No timing figures are published yet: run <code>node benchmarks/crypto-bench.ts</code> from the repository to measure on your own hardware.
     </p>
 
     <div class="table-responsive">
@@ -346,9 +346,6 @@
             <th scope="col">Primitive</th>
             <th scope="col">Mathematical Type</th>
             <th scope="col">NIST Security Level</th>
-            <th scope="col">Key Generation</th>
-            <th scope="col">Encaps / Sign</th>
-            <th scope="col">Decaps / Verify</th>
             <th scope="col">Package</th>
           </tr>
         </thead>
@@ -357,37 +354,25 @@
             <td><strong>ML-KEM-768</strong></td>
             <td>Module-LWE Lattice (FIPS 203)</td>
             <td>Level 3 (AES-192)</td>
-            <td><strong>28.4 µs</strong></td>
-            <td>34.1 µs</td>
-            <td>31.8 µs</td>
             <td><code>@crypto-lib</code></td>
           </tr>
           <tr>
             <td><strong>ML-DSA-65</strong></td>
             <td>Module-SIS Lattice (FIPS 204)</td>
             <td>Level 3 (AES-192)</td>
-            <td><strong>84.2 µs</strong></td>
-            <td>172.6 µs</td>
-            <td>68.4 µs</td>
             <td><code>@crypto-lib</code></td>
           </tr>
           <tr>
             <td><strong>Composite Hybrid</strong></td>
             <td>X25519 + ML-KEM-768</td>
             <td>Dual Quantum + Classical</td>
-            <td><strong>42.6 µs</strong></td>
-            <td>73.0 µs</td>
-            <td>70.7 µs</td>
             <td><code>@crypto-lib</code></td>
           </tr>
           <tr>
             <td><strong>AES-256-GCM</strong></td>
             <td>Authenticated Symmetric Cipher</td>
             <td>FIPS 197 / SP 800-38D</td>
-            <td><strong>4.2 µs</strong></td>
-            <td>12.8 µs / MB</td>
-            <td>11.4 µs / MB</td>
-            <td><code>@crypto-prisma</code></td>
+            <td><code>@crypto-lib</code></td>
           </tr>
         </tbody>
       </table>
@@ -401,7 +386,7 @@
     <div class="swift-banner-text">
       <h2 class="swift-banner-title">Ready to future-proof your cryptographic architecture?</h2>
       <p class="swift-banner-desc">
-        Crypto Service Suite is your sovereign post-quantum core to manage cryptographic keys, database field protection, and DORA Article 13 &amp; 14 compliance.
+        Crypto Service Suite is an open-source, self-hosted post-quantum toolkit for key management, database field protection, and CBOM generation that can support DORA work.
       </p>
     </div>
     <div class="swift-banner-action">
@@ -420,25 +405,25 @@
 <section class="swift-resources-section">
   <div class="container">
     <div class="swift-solutions-header swift-solutions-header-spaced">
-      <h2 class="swift-section-title">Cryptographic Architecture &amp; Compliance Resources</h2>
+      <h2 class="swift-section-title">Cryptographic Architecture &amp; Standards Resources</h2>
     </div>
     <div class="swift-resource-grid">
       <!-- Resource Card 1 -->
       <div class="swift-resource-card">
-        <div class="resource-badge">Hardware Security</div>
-        <h3 class="resource-title">Multi-Cloud KMS &amp; HSM Hardware</h3>
+        <div class="resource-badge">Key Management</div>
+        <h3 class="resource-title">KMS Provider Interface</h3>
         <p class="resource-desc">
-          Reinforcing enterprise application security with multi-cloud KMS orchestration, PKCS#11 hardware abstraction, and zero master key exfiltration.
+          Envelope encryption through one KMS interface. AWS KMS and a local provider are implemented; Google Cloud, Azure and Vault are stubs, and there is no HSM support.
         </p>
         <a class="swift-arrow-link" href="{{site_path}}solutions/#multi-cloud-kms">Learn more &gt;</a>
       </div>
 
       <!-- Resource Card 2 -->
       <div class="swift-resource-card">
-        <div class="resource-badge">Compliance</div>
-        <h3 class="resource-title">DORA &amp; NIST FIPS Standards</h3>
+        <div class="resource-badge">Standards</div>
+        <h3 class="resource-title">NIST FIPS, CNSA 2.0 &amp; DORA</h3>
         <p class="resource-desc">
-          Continuous compliance verification against NIST FIPS 203/204, US CNSA 2.0 requirements, and EU DORA Article 13 &amp; 14 operational resilience rules.
+          Which NIST FIPS 203/204/205 and CNSA 2.0 algorithms are implemented (none validated), and which tools can support EU DORA work (no compliance claim).
         </p>
         <a class="swift-arrow-link" href="{{site_path}}standards/">Find out more &gt;</a>
       </div>

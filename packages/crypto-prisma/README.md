@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-prisma</h1>
 
 <p align="center">
-  Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.
+  Transparent field-level encryption extension for Prisma Client, powered by XChaCha20-Poly1305.
 </p>
 
 <p align="center">
@@ -130,7 +130,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                            | Cloud KMS       | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                            | Core Library    | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)              | Middleware      | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| **[`@sebastienrousseau/crypto-prisma`](../crypto-prisma)** _(this package)_ | **ORM Adapter** | **Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.**                                            |
+| **[`@sebastienrousseau/crypto-prisma`](../crypto-prisma)** _(this package)_ | **ORM Adapter** | **Transparent field-level encryption extension for Prisma Client, powered by XChaCha20-Poly1305.**                                     |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                        | React Hooks     | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                            | Client SDK      | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                      | HTTP API        | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -154,28 +154,74 @@ on encrypted columns. Both the classic `$use()` middleware and the
 modern `$extends()` Client Extension API are supported.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Features
 
-| Feature                    | Detail                                                                                                                                                                              |
-| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Encrypt on write**       | `create`, `update`, `upsert`, and `createMany` fields are encrypted with XChaCha20-Poly1305 (secretbox) before reaching the database. Each write uses a fresh random 24-byte nonce. |
-| **Decrypt on read**        | `findUnique`, `findFirst`, and `findMany` results are decrypted transparently.                                                                                                      |
-| **Graceful fallback**      | If decryption fails, the original value is returned as-is, making migration seamless.                                                                                               |
-| **Searchable fields**      | Deterministic HMAC-SHA-256 mode for exact-match `WHERE` queries on encrypted columns.                                                                                               |
-| **Two integration styles** | Classic `$use()` middleware and the modern `$extends()` Client Extension API.                                                                                                       |
-| **Zero native deps**       | Built on `@sebastienrousseau/crypto-lib` which uses the audited `@noble/*` family.                                                                                                  |
+| Feature                    | Detail                                                                                                                                                                                            |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Encrypt on write**       | `create`, `createMany`, `update`, `updateMany`, and `upsert` fields are encrypted with XChaCha20-Poly1305 (secretbox) before reaching the database. Each write uses a fresh random 24-byte nonce. |
+| **Decrypt on read**        | `findUnique`, `findFirst`, `findMany` (and the `OrThrow` variants) results are decrypted transparently, as are the records returned by `create`, `update`, and `upsert`.                          |
+| **Bound ciphertexts**      | Every value is sealed with associated data `crypto-prisma/v2:<Model>.<field>`, so a ciphertext copied into another field or model fails to decrypt.                                               |
+| **Fails closed**           | A stored value that is tampered with, moved, or not a ciphertext throws a `FieldDecryptionError`; it is never returned as if it were decrypted data.                                              |
+| **Searchable fields**      | Deterministic HMAC-SHA-256 mode for exact-match `WHERE` queries on encrypted columns.                                                                                                             |
+| **Two integration styles** | Classic `$use()` middleware and the modern `$extends()` Client Extension API.                                                                                                                     |
+| **Zero native deps**       | Built on `@sebastienrousseau/crypto-lib` which uses the audited `@noble/*` family.                                                                                                                |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Configuration
 
-| Option                | Type            | Required | Default                | Description                                    |
-| :-------------------- | :-------------- | :------- | :--------------------- | :--------------------------------------------- |
-| `key`                 | `string`        | Yes      | --                     | 64-character hex string (256-bit key)          |
-| `encryptedFields`     | `FieldConfig[]` | Yes      | --                     | Models and their fields to encrypt             |
-| `algorithm`           | `string`        | No       | `"xchacha20-poly1305"` | Encryption algorithm                           |
-| `deterministicFields` | `string[]`      | No       | `[]`                   | Fields that use HMAC for searchable encryption |
+| Option                    | Type                   | Required | Default                | Description                                                                                       |
+| :------------------------ | :--------------------- | :------- | :--------------------- | :------------------------------------------------------------------------------------------------ |
+| `key`                     | `string`               | Yes      | --                     | 64-character hex string (256-bit key)                                                             |
+| `encryptedFields`         | `FieldConfig[]`        | Yes      | --                     | Models and their fields to encrypt                                                                |
+| `algorithm`               | `string`               | No       | `"xchacha20-poly1305"` | Accepted for forward compatibility; only XChaCha20-Poly1305 is implemented                        |
+| `deterministicFields`     | `string[]`             | No       | `[]`                   | Fields stored as an HMAC-SHA-256 blind index for exact-match search (reads return the MAC)        |
+| `allowPlaintextFallback`  | `boolean`              | No       | `false`                | Return values that are not ciphertexts as-is instead of throwing; for plaintext migrations only   |
+| `acceptLegacyCiphertext`  | `boolean`              | No       | `true`                 | Read ciphertexts written before the `v2:` format; turn off once every row has been re-written     |
+| `blindIndexKeyDerivation` | `"legacy"` \| `"hkdf"` | No       | `"legacy"`             | `"hkdf"` computes the blind index with a derived subkey; existing index values must be recomputed |
+
+## Stored format and compatibility
+
+New values are written as `v2:` followed by the Base64 sealed box
+(24-byte nonce, ciphertext, 16-byte Poly1305 tag):
+
+- **Encryption key.** Values are sealed under a subkey derived from
+  `key` with HKDF-SHA-256 (info `crypto-prisma/enc/v2`), not under
+  `key` itself.
+- **Associated data.** Each value is bound to
+  `crypto-prisma/v2:<Model>.<field>`, using the model name as written
+  in `encryptedFields`. The primary key is not bound, because it is
+  usually generated by the database and unknown when a row is created,
+  so two rows of the same model can still have the same field's value
+  swapped.
+- **Fail closed.** A value that does not decrypt throws
+  `FieldDecryptionError` (exported; it carries `model` and `field` and
+  never the stored value). `allowPlaintextFallback: true` returns a
+  value that is not a ciphertext at all as-is, for the duration of a
+  plaintext migration; a `v2:` value that fails authentication is
+  rejected even then.
+- **Legacy values.** Ciphertexts written by earlier versions (bare
+  Base64, sealed with `key` and no associated data) are still read,
+  and never written. They are not bound to a model or field. Re-write
+  them by reading each row and updating the field with the value read,
+  then set `acceptLegacyCiphertext: false`.
+- **Blind index.** `deterministicFields` keep using `key` for
+  HMAC-SHA-256 by default, so existing index values keep matching.
+  `blindIndexKeyDerivation: "hkdf"` uses a separate subkey (info
+  `crypto-prisma/bidx/v1`) instead; switching an existing database
+  requires recomputing every stored index value. The blind index is
+  not bound to a model, so equal values in two deterministic fields
+  produce the same MAC.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Searchable Encryption
 
 For fields you need to query by exact match, use deterministic
@@ -200,7 +246,15 @@ const user = await prisma.user.findFirst({
 same value for that field. Use this only for fields where exact-match
 search is essential.
 
+**Reads return the MAC.** A deterministic field holds a one-way
+HMAC-SHA-256 digest, not a ciphertext, so reads return that hex MAC
+rather than the original plaintext. Store the plaintext in a separate
+encrypted field if the application also needs to read it back.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`
@@ -242,7 +296,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

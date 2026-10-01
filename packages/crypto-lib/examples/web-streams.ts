@@ -15,114 +15,82 @@
  */
 
 import { header, task, summary } from "./support";
-import { createEncryptStream, createDecryptStream, createHashStream } from "../src";
+import {
+  createEncryptStream,
+  createDecryptStream,
+  createHashStream,
+} from "../src";
+import type { CryptoTransformStream } from "../src/streaming";
 import { randomBytes } from "@noble/ciphers/utils.js";
+
+const enc = (s: string) => new TextEncoder().encode(s);
+
+/**
+ * Write `chunks` into a TransformStream while reading its output
+ * concurrently (reading only after writing can stall on backpressure),
+ * and return every output chunk.
+ */
+async function run<O>(
+  stream: CryptoTransformStream<Uint8Array, O>,
+  chunks: Uint8Array[],
+): Promise<O[]> {
+  const out: O[] = [];
+  const reading = (async () => {
+    const reader = stream.readable.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      out.push(value);
+    }
+  })();
+  const writer = stream.writable.getWriter();
+  for (const c of chunks) await writer.write(c);
+  await writer.close();
+  await reading;
+  return out;
+}
 
 async function main() {
   header("crypto-lib -- web-streams");
 
   const key = Buffer.from(randomBytes(32)).toString("hex");
 
-  // 1. Encrypt stream: write plaintext → read ciphertext
   const ciphertext = await task("Encrypt stream: write chunks, read ciphertext", async () => {
-    const encStream = createEncryptStream({ key });
-    const writer = encStream.writable.getWriter();
-    await writer.write(new TextEncoder().encode("Hello, "));
-    await writer.write(new TextEncoder().encode("streaming "));
-    await writer.write(new TextEncoder().encode("world!"));
-    await writer.close();
-
-    const reader = encStream.readable.getReader();
-    const { value } = await reader.read();
-    if (!value || value.length === 0) throw new Error("No ciphertext output");
-    // Ciphertext should be nonce (24) + plaintext (23) + tag (16) = 63 bytes
-    if (value.length !== 63) throw new Error(`Unexpected ciphertext length: ${value.length}`);
-    return value as Uint8Array;
+    const [ct] = await run(createEncryptStream({ key }), [
+      enc("Hello, "),
+      enc("streaming "),
+      enc("world!"),
+    ]);
+    // nonce (24) + plaintext (23) + tag (16) = 63 bytes
+    if (!ct || ct.length !== 63) throw new Error(`Unexpected ciphertext length: ${ct?.length}`);
+    return ct;
   });
 
-  // 2. Decrypt stream: write ciphertext → read plaintext
   await task("Decrypt stream: round-trip back to plaintext", async () => {
-    const decStream = createDecryptStream({ key });
-    const writer = decStream.writable.getWriter();
-    await writer.write(ciphertext);
-    await writer.close();
-
-    const reader = decStream.readable.getReader();
-    const { value } = await reader.read();
-    if (!value) throw new Error("No plaintext output");
-    const text = new TextDecoder().decode(value);
+    const [pt] = await run(createDecryptStream({ key }), [ciphertext]);
+    const text = new TextDecoder().decode(pt);
     if (text !== "Hello, streaming world!") throw new Error(`Decryption mismatch: "${text}"`);
   });
 
-  // 3. Encrypt → Decrypt pipe pattern
-  await task("Pipe pattern: encrypt → decrypt in one pipeline", async () => {
+  await task("Pipe pattern: encrypt then decrypt", async () => {
     const message = "Piped through encrypt and decrypt streams";
-    const encStream = createEncryptStream({ key });
-    const decStream = createDecryptStream({ key });
-
-    // Write plaintext into encryption stream
-    const encWriter = encStream.writable.getWriter();
-    await encWriter.write(new TextEncoder().encode(message));
-    await encWriter.close();
-
-    // Read ciphertext from encrypt, write into decrypt
-    const encReader = encStream.readable.getReader();
-    const { value: ct } = await encReader.read();
-
-    const decWriter = decStream.writable.getWriter();
-    await decWriter.write(ct!);
-    await decWriter.close();
-
-    // Read plaintext from decrypt
-    const decReader = decStream.readable.getReader();
-    const { value: pt } = await decReader.read();
-    const recovered = new TextDecoder().decode(pt);
-    if (recovered !== message) throw new Error("Pipe round-trip failed");
+    const [ct] = await run(createEncryptStream({ key }), [enc(message)]);
+    const [pt] = await run(createDecryptStream({ key }), [ct!]);
+    if (new TextDecoder().decode(pt) !== message) throw new Error("Pipe round-trip failed");
   });
 
-  // 4. Hash stream with SHA-256
-  await task("Hash stream: SHA-256 with multiple chunks", async () => {
-    const hashStream = createHashStream("sha256");
-    const writer = hashStream.writable.getWriter();
-    await writer.write(new TextEncoder().encode("chunk1"));
-    await writer.write(new TextEncoder().encode("chunk2"));
-    await writer.write(new TextEncoder().encode("chunk3"));
-    await writer.close();
-
-    const reader = hashStream.readable.getReader();
-    const { value } = await reader.read();
-    if (!value) throw new Error("No hash output");
-    if (value.algorithm !== "sha256") throw new Error("Wrong algorithm");
-    if (value.digest.length !== 64) throw new Error("Expected 32-byte (64 hex) SHA-256 digest");
-  });
-
-  // 5. Hash stream with BLAKE3
-  await task("Hash stream: BLAKE3", async () => {
-    const hashStream = createHashStream("blake3");
-    const writer = hashStream.writable.getWriter();
-    await writer.write(new TextEncoder().encode("hello blake3"));
-    await writer.close();
-
-    const reader = hashStream.readable.getReader();
-    const { value } = await reader.read();
-    if (!value) throw new Error("No hash output");
-    if (value.algorithm !== "blake3") throw new Error("Wrong algorithm");
-    if (value.digest.length !== 64) throw new Error("Expected 32-byte (64 hex) BLAKE3 digest");
-  });
-
-  // 6. Hash stream with SHA3-512
-  await task("Hash stream: SHA3-512", async () => {
-    const hashStream = createHashStream("sha3-512");
-    const writer = hashStream.writable.getWriter();
-    await writer.write(new TextEncoder().encode("sha3 data"));
-    await writer.close();
-
-    const reader = hashStream.readable.getReader();
-    const { value } = await reader.read();
-    if (!value) throw new Error("No hash output");
-    if (value.algorithm !== "sha3-512") throw new Error("Wrong algorithm");
-    if (value.digest.length !== 128) throw new Error("Expected 64-byte (128 hex) SHA3-512 digest");
-  });
+  const hashCases: Array<["sha256" | "blake3" | "sha3-512", string[], number]> = [
+    ["sha256", ["chunk1", "chunk2", "chunk3"], 64],
+    ["blake3", ["hello blake3"], 64],
+    ["sha3-512", ["sha3 data"], 128],
+  ];
+  for (const [algorithm, chunks, hexLength] of hashCases) {
+    await task(`Hash stream: ${algorithm}`, async () => {
+      const [result] = await run(createHashStream(algorithm), chunks.map(enc));
+      if (!result || result.algorithm !== algorithm) throw new Error("Wrong algorithm");
+      if (result.digest.length !== hexLength) throw new Error(`Expected ${hexLength} hex chars`);
+    });
+  }
 
   summary(6);
 }

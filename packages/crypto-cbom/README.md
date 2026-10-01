@@ -2,7 +2,7 @@
 
 # `@sebastienrousseau/crypto-cbom`
 
-> Cryptographic Bill of Materials (CBOM) generator and auditor compliant with CycloneDX 1.6, SPDX 3.0, EU DORA Articles 9/13, and CRA Article 14.
+> Cryptographic Bill of Materials (CBOM) generator and auditor: CycloneDX 1.6 and SPDX 3.0 output, plus a heuristic quantum-readiness score.
 
 [![Version](https://img.shields.io/npm/v/@sebastienrousseau/crypto-cbom.svg)](https://www.npmjs.com/package/@sebastienrousseau/crypto-cbom)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
@@ -13,11 +13,13 @@
 
 `@sebastienrousseau/crypto-cbom` provides automated inventory, specification, and auditing of cryptographic assets across codebases and enterprise systems. It maps algorithms, protocols, key lengths, cipher modes, and certificates into standardized machine-readable CycloneDX 1.6 Cryptographic BOM and SPDX 3.0 formats.
 
-It features an integrated regulatory engine assessing compliance with:
+The auditor classifies each asset by algorithm name and returns a posture score (0–100), a `PASS` / `REVIEW` / `FAIL` status and findings that cite the guidance they draw on:
 
-- **EU DORA (Digital Operational Resilience Act)**: Articles 9 and 13 ICT security requirements and cryptographic management.
-- **EU Cyber Resilience Act (CRA)**: Article 14 vulnerability management and post-quantum preparedness.
-- **NIST SP 800-161 & CNSA 2.0**: Supply chain cryptographic security and quantum migration roadmaps.
+- **NIST SP 800-131A**: broken or disallowed primitives (MD5, SHA-1, DES, RC4, ECB).
+- **NIST IR 8547** (draft): quantum-vulnerable public-key algorithms (RSA, ECC, Ed25519).
+- **CNSA 2.0**: symmetric keys below 256 bits.
+
+The result is a heuristic over names found in code or a CBOM. It is evidence you can use in a DORA or CRA assessment, not a compliance verdict.
 
 ## CLI Usage
 
@@ -28,7 +30,7 @@ crypto-cbom scan ./src --format cyclonedx --output cbom.json
 # Generate SPDX 3.0 CBOM
 crypto-cbom scan ./src --format spdx --output cbom-spdx.json
 
-# Audit an existing CBOM for DORA & CRA compliance
+# Audit an existing CBOM (exit code 1 when the status is FAIL)
 crypto-cbom audit cbom.json
 ```
 
@@ -50,9 +52,9 @@ const cbomDoc = generateCycloneDxCbom(assets, {
   componentVersion: "1.0.0",
 });
 
-// 3. Perform automated compliance & quantum audit
+// 3. Score the cryptographic posture (heuristic; not a compliance verdict)
 const audit = auditCbom(cbomDoc);
-console.log(`DORA Compliance Score: ${audit.score}/100`);
+console.log(`Posture: ${audit.status}, score ${audit.score}/100`);
 console.log(`Quantum Safe Assets: ${audit.quantumSafeRatio * 100}%`);
 ```
 
