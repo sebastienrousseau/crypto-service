@@ -5,6 +5,7 @@ import {
   CbomAuditResult,
   CryptoAsset,
   CycloneDxCbom,
+  SpdxCbom,
   QuantumResistanceLevel,
 } from "./types";
 
@@ -36,8 +37,16 @@ export function classifyPrimitive(primitive: string): QuantumResistanceLevel {
 }
 
 /** Normalise either input shape into audited assets. */
-function toAssets(input: CycloneDxCbom | CryptoAsset[]): AuditedAsset[] {
+function toAssets(
+  input: CycloneDxCbom | SpdxCbom | CryptoAsset[],
+): AuditedAsset[] {
   if (Array.isArray(input)) return input;
+  if ("elements" in input) {
+    return input.elements.map((e) => ({
+      name: e.name,
+      resistanceLevel: classifyPrimitive(e.algorithm || e.name),
+    }));
+  }
   return input.components.map((c) => ({
     name: c.name,
     resistanceLevel: classifyPrimitive(
@@ -132,7 +141,7 @@ function migrationRoadmap(
  * CRA compliance assessment; see {@link AUDIT_DISCLAIMER}.
  */
 export function auditCbom(
-  input: CycloneDxCbom | CryptoAsset[],
+  input: CycloneDxCbom | SpdxCbom | CryptoAsset[],
 ): CbomAuditResult {
   const assets = toAssets(input);
   const count = (level: QuantumResistanceLevel) =>
