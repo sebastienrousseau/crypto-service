@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **crypto-middleware on Fastify 5**: the Fastify plugin declared `fastify: "4.x"` to fastify-plugin, so registering it on Fastify 5 (the version crypto-server uses) threw "expected '4.x' fastify version". It now accepts 4.x and 5.x, and the peer dependency is `^4.0.0 || ^5.0.0`.
 - **crypto-cli closed pipes**: piping output into a reader that stops early (`crypto-cli cbom scan . --json | head`) crashed with an unhandled `EPIPE` stack trace and exit code 1. The CLI now stops quietly with exit code 0, as Unix tools do.
 - **crypto-api import side effect**: importing or requiring the package ran its command-line `init()`, which read `process.argv` and printed "Path of JSON file is required." in the importing program, contradicting its `sideEffects: false`. `init()` now runs only when `dist/index.js` is executed directly.
 - **crypto-cbom SPDX audit**: `auditCbom` crashed ("Cannot read properties of undefined") on an SPDX 3.0 CBOM, which `validateCbom` accepts and `generateSpdxCbom` produces; it read only CycloneDX `components`. It now audits SPDX `elements` and gives the same result as for the CycloneDX document of the same assets.
