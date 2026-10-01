@@ -156,7 +156,7 @@ export class CryptoMcpServer {
         const req = JSON.parse(trimmed) as JSONRPCRequest;
         const res = await this.handleRequest(req);
         output.write(JSON.stringify(res) + "\n");
-      } catch (e) {
+      } catch {
         const parseError: JSONRPCResponse = {
           jsonrpc: "2.0",
           id: null,

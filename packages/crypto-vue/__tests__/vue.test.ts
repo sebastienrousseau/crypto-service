@@ -296,7 +296,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
       try {
         await result.generate("invalid-algo" as KeyAlgorithm);
         expect.fail("Should have thrown");
-      } catch (err) {
+      } catch {
         expect(result.error.value).to.be.instanceOf(Error);
         expect((result.error.value as Error).message).to.include("Unsupported");
         expect(result.isGenerating.value).to.be.false;
@@ -424,7 +424,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
       try {
         await result.encrypt("invalid-key", "data");
         expect.fail("Should have thrown");
-      } catch (err) {
+      } catch {
         expect(result.error.value).to.be.instanceOf(Error);
         expect(result.isProcessing.value).to.be.false;
       }
@@ -436,7 +436,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
       try {
         await result.decrypt(key, "not-valid-ciphertext");
         expect.fail("Should have thrown");
-      } catch (err) {
+      } catch {
         expect(result.error.value).to.be.instanceOf(Error);
         expect(result.isProcessing.value).to.be.false;
       }
@@ -471,7 +471,7 @@ describe("@sebastienrousseau/crypto-vue", () => {
       try {
         await result.encrypt("", "data");
         expect.fail("Should have thrown");
-      } catch (err) {
+      } catch {
         expect(result.error.value).to.be.instanceOf(Error);
       }
     });

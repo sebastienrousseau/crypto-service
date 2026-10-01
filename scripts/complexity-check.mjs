@@ -50,9 +50,8 @@ function measure() {
       "npx",
       [
         "eslint",
-        "--no-eslintrc",
         "-c",
-        `${ROOT}.eslintrc`,
+        `${ROOT}eslint.config.mjs`,
         "--rule",
         JSON.stringify(RULES),
         "-f",

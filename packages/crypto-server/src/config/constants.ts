@@ -12,7 +12,7 @@ import { FastifyServerOptions } from "fastify";
 import { FastifyCompressOptions } from "@fastify/compress";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { FastifyHelmetOptions } from "@fastify/helmet";
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const pack = require("../../package.json") as { version: string };
 
 /**

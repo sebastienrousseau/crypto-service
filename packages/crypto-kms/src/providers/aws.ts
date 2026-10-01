@@ -10,6 +10,11 @@ import type {
   KmsDecryptResult,
   KmsSignResult,
 } from "../types";
+import type {
+  DataKeySpec,
+  KeySpec,
+  SigningAlgorithmSpec,
+} from "@aws-sdk/client-kms";
 import { KmsError } from "../errors";
 
 /** Message raised when the optional AWS SDK peer dependency is absent. */
@@ -120,13 +125,14 @@ export class AwsKmsProvider implements KmsProvider {
     const client = await this.getClient();
     const { DescribeKeyCommand } = await import("@aws-sdk/client-kms");
     const result = await client.send(new DescribeKeyCommand({ KeyId: keyId }));
-    const meta = result.KeyMetadata;
+    const meta: Partial<NonNullable<typeof result.KeyMetadata>> =
+      result.KeyMetadata ?? {};
     return {
-      keyId: meta?.KeyId ?? keyId,
-      algorithm: meta?.KeySpec ?? "unknown",
-      usage: meta?.KeyUsage === "SIGN_VERIFY" ? "sign" : "encrypt",
-      createdAt: meta?.CreationDate?.toISOString() ?? new Date().toISOString(),
-      enabled: meta?.Enabled ?? true,
+      keyId: meta.KeyId ?? keyId,
+      algorithm: meta.KeySpec ?? "unknown",
+      usage: meta.KeyUsage === "SIGN_VERIFY" ? "sign" : "encrypt",
+      createdAt: meta.CreationDate?.toISOString() ?? new Date().toISOString(),
+      enabled: meta.Enabled ?? true,
       provider: "aws",
     };
   }
@@ -143,7 +149,7 @@ export class AwsKmsProvider implements KmsProvider {
     const result = await client.send(
       new CreateKeyCommand({
         KeyUsage: usage === "sign" ? "SIGN_VERIFY" : "ENCRYPT_DECRYPT",
-        KeySpec: keySpec as any,
+        KeySpec: keySpec as KeySpec,
         ...(metadata
           ? {
               Tags: Object.entries(metadata).map(([k, v]) => ({
@@ -254,7 +260,7 @@ export class AwsKmsProvider implements KmsProvider {
         KeyId: keyId,
         Message: data,
         MessageType: "RAW",
-        SigningAlgorithm: algorithm as any,
+        SigningAlgorithm: algorithm as SigningAlgorithmSpec,
       }),
     );
     return {
@@ -279,7 +285,7 @@ export class AwsKmsProvider implements KmsProvider {
         Message: data,
         MessageType: "RAW",
         Signature: Buffer.from(signature, "base64"),
-        SigningAlgorithm: algorithm as any,
+        SigningAlgorithm: algorithm as SigningAlgorithmSpec,
       }),
     );
     return result.SignatureValid ?? false;
@@ -308,7 +314,7 @@ export class AwsKmsProvider implements KmsProvider {
     const result = await client.send(
       new GenerateDataKeyCommand({
         KeyId: keyId,
-        KeySpec: keySpec as any,
+        KeySpec: keySpec as DataKeySpec,
       }),
     );
     return {

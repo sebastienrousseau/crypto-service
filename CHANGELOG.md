@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Toolchain** (from Dependabot #170): ESLint 10 with typescript-eslint 8, chai 6, chai-as-promised 8, mocha 12 and prettier 3.9.9 across all 18 packages. The 20 `.eslintrc` files and `.eslintignore` are replaced by one root `eslint.config.mjs` with the same rule set; chai assertions in tests are checked by `eslint-plugin-chai-friendly`. `eslint-plugin-import` and its resolver, configured nowhere, are removed. TypeScript stays on 5.9: typescript-eslint (`<6.1.0`), TypeDoc (`<=6.0`) and ts-node do not support TypeScript 7 yet.
+- **Complexity**: ESLint 10 counts optional chaining and default parameters, and crypto-sdk is now measured (the old ignore file hid it at the root). The functions this exposed were refactored rather than re-baselined, and the baseline shrinks from 49 to 41 entries.
+
 ### Fixed
 
 - **npm provenance**: 0.0.8 was published to npm without provenance attestations, although the release workflow passed `--provenance`; `pnpm -r publish` does not forward that flag to npm. The workflow now sets `NPM_CONFIG_PROVENANCE=true`, and a new step (`scripts/check-provenance.mjs`) reads every published version back from the registry and fails the release if one is missing or has no attestation. The README no longer claims provenance for 0.0.8.

@@ -15,6 +15,12 @@ import type {
   KmsSignResult,
 } from "../src/types";
 
+/** The AwsKmsProvider internals the AWS tests replace with mocks. */
+interface AwsInternals {
+  client: unknown;
+  getClient: () => Promise<unknown>;
+}
+
 // ---------------------------------------------------------------------------
 // Types – compile-time shape verification
 // ---------------------------------------------------------------------------
@@ -159,8 +165,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.getKey("nonexistent");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
   });
@@ -249,8 +255,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.enableKey("bad-id");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -258,8 +264,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.disableKey("bad-id");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
   });
@@ -292,8 +298,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.scheduleKeyDeletion("bad-id");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
   });
@@ -338,7 +344,7 @@ describe("LocalKmsProvider", () => {
           tenant: "other",
         });
         expect.fail("should have thrown");
-      } catch (err: any) {
+      } catch (err) {
         // AES-GCM auth tag failure
         expect(err).to.be.instanceOf(Error);
       }
@@ -352,7 +358,7 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.decrypt(key.keyId, enc.ciphertext);
         expect.fail("should have thrown");
-      } catch (err: any) {
+      } catch (err) {
         expect(err).to.be.instanceOf(Error);
       }
     });
@@ -368,8 +374,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.encrypt("bad", new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -377,8 +383,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.decrypt("bad", "AAAA");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -388,8 +394,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.encrypt(key.keyId, new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key is disabled");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key is disabled");
       }
     });
 
@@ -400,8 +406,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.decrypt(key.keyId, enc.ciphertext);
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key is disabled");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key is disabled");
       }
     });
 
@@ -410,8 +416,10 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.encrypt(key.keyId, new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("signing key, not an encryption key");
+      } catch (err) {
+        expect((err as Error).message).to.include(
+          "signing key, not an encryption key",
+        );
       }
     });
 
@@ -420,8 +428,10 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.decrypt(key.keyId, "AAAA");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("signing key, not an encryption key");
+      } catch (err) {
+        expect((err as Error).message).to.include(
+          "signing key, not an encryption key",
+        );
       }
     });
   });
@@ -455,8 +465,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.sign("bad", new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -464,8 +474,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.verify("bad", new Uint8Array(1), "sig");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -475,8 +485,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.sign(key.keyId, new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key is disabled");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key is disabled");
       }
     });
 
@@ -485,8 +495,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.sign(key.keyId, new Uint8Array(1));
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("not a signing key");
+      } catch (err) {
+        expect((err as Error).message).to.include("not a signing key");
       }
     });
 
@@ -495,8 +505,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.verify(key.keyId, new Uint8Array(1), "sig");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("not a signing key");
+      } catch (err) {
+        expect((err as Error).message).to.include("not a signing key");
       }
     });
 
@@ -580,8 +590,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.rotateKey("bad");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
   });
@@ -611,8 +621,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.generateDataKey("bad");
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key not found");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key not found");
       }
     });
 
@@ -622,8 +632,8 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.generateDataKey(key.keyId);
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Key is disabled");
+      } catch (err) {
+        expect((err as Error).message).to.include("Key is disabled");
       }
     });
 
@@ -632,8 +642,10 @@ describe("LocalKmsProvider", () => {
       try {
         await provider.generateDataKey(key.keyId);
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("signing key, cannot generate data key");
+      } catch (err) {
+        expect((err as Error).message).to.include(
+          "signing key, cannot generate data key",
+        );
       }
     });
 
@@ -726,8 +738,8 @@ describe("GcpKmsProvider", () => {
       try {
         await m.call();
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Not implemented");
+      } catch (err) {
+        expect((err as Error).message).to.include("Not implemented");
       }
     });
   }
@@ -816,8 +828,8 @@ describe("AzureKmsProvider", () => {
       try {
         await m.call();
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Not implemented");
+      } catch (err) {
+        expect((err as Error).message).to.include("Not implemented");
       }
     });
   }
@@ -935,8 +947,8 @@ describe("VaultKmsProvider", () => {
       try {
         await m.call();
         expect.fail("should have thrown");
-      } catch (err: any) {
-        expect(err.message).to.include("Not implemented");
+      } catch (err) {
+        expect((err as Error).message).to.include("Not implemented");
       }
     });
   }
@@ -1063,7 +1075,7 @@ describe("AwsKmsProvider", () => {
         try {
           await m.call();
           expect.fail("should have thrown");
-        } catch (err: any) {
+        } catch (err) {
           expect(err).to.be.instanceOf(Error);
         }
       });
@@ -1077,9 +1089,9 @@ describe("AwsKmsProvider", () => {
   it("getClient catch path: throws user-friendly message when SDK import fails", async () => {
     const provider = new AwsKmsProvider({ region: "us-east-1" });
     // Override getClient to simulate the exact catch-block behavior
-    (provider as any).client = null;
-    (provider as any).getClient = async function () {
-      if (!(this as any).client) {
+    (provider as unknown as AwsInternals).client = null;
+    (provider as unknown as AwsInternals).getClient = async function () {
+      if (!(this as AwsInternals).client) {
         try {
           // Simulate the import failing (e.g., SDK not installed)
           await Promise.reject(new Error("MODULE_NOT_FOUND"));
@@ -1089,14 +1101,16 @@ describe("AwsKmsProvider", () => {
           );
         }
       }
-      return (this as any).client;
+      return (this as AwsInternals).client;
     };
 
     try {
       await provider.listKeys();
       expect.fail("should have thrown");
-    } catch (err: any) {
-      expect(err.message).to.include("AWS KMS requires @aws-sdk/client-kms");
+    } catch (err) {
+      expect((err as Error).message).to.include(
+        "AWS KMS requires @aws-sdk/client-kms",
+      );
     }
   });
 
@@ -1106,11 +1120,11 @@ describe("AwsKmsProvider", () => {
   describe("with mock client (response processing)", () => {
     /** Create a provider with a mock client injected */
     function createMocked(
-      sendFn: (command: unknown) => Promise<Record<string, any>>,
+      sendFn: (command: unknown) => Promise<Record<string, unknown>>,
     ): AwsKmsProvider {
       const p = new AwsKmsProvider({ region: "us-east-1" });
       // Inject a mock client directly
-      (p as any).client = { send: sendFn };
+      (p as unknown as AwsInternals).client = { send: sendFn };
       return p;
     }
 
@@ -1214,7 +1228,7 @@ describe("AwsKmsProvider", () => {
     });
 
     it("createKey with metadata sends Tags", async () => {
-      let sentCommand: any = null;
+      let sentCommand: unknown = null;
       const p = createMocked(async (cmd) => {
         sentCommand = cmd;
         return { KeyMetadata: { KeyId: "tagged-key" } };

@@ -36,8 +36,8 @@
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc",
-    "lint": "eslint --ext .ts src __tests__",
-    "lint:fix": "eslint --cache --fix --ext .ts src __tests__",
+    "lint": "eslint src __tests__",
+    "lint:fix": "eslint --cache --fix src __tests__",
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check \"src/**/*.ts\""
   },
