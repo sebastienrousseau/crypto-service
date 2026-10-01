@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { ed25519Sign, ed25519Verify } from "@sebastienrousseau/crypto-lib";
 import {
   verifyIso20022Payment,
   type Iso20022DualSignatureEnvelope,
 } from "@sebastienrousseau/crypto-lib/dist/protocols/iso20022";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
+import type { StoredKey } from "../../lib/key-store";
 
 interface StreamSignItem {
   id: string;
   message: string;
-  privateKey: string;
+  keyId: string;
 }
 
 interface StreamVerifyItem {
@@ -39,12 +41,12 @@ const SIGN_SCHEMA = {
         maxItems: 1000,
         items: {
           type: "object",
-          required: ["id", "message", "privateKey"],
+          required: ["id", "message", "keyId"],
           additionalProperties: false,
           properties: {
             id: { type: "string" },
             message: { type: "string", minLength: 1 },
-            privateKey: { type: "string", minLength: 64, maxLength: 64 },
+            keyId: KEY_ID_SCHEMA,
           },
         },
       },
@@ -157,34 +159,47 @@ const ISO20022_SCHEMA = {
   },
 };
 
+/**
+ * Resolve every distinct `keyId` in a batch once, as server-held ed25519
+ * keys of the requesting principal. Throws on the first unknown key.
+ */
+async function resolveBatchKeys(
+  request: FastifyRequest,
+  items: readonly StreamSignItem[],
+): Promise<Map<string, StoredKey>> {
+  const keys = new Map<string, StoredKey>();
+  for (const keyId of new Set(items.map((i) => i.keyId))) {
+    keys.set(keyId, await resolveKey(request, keyId, ["ed25519"]));
+  }
+  return keys;
+}
+
 /** Batch/streaming signing pipeline. */
 function registerBatchSign(app: FastifyInstance): void {
   app.post(
     "/v2/stream/sign",
     { schema: SIGN_SCHEMA },
     async (request, reply) => {
-      try {
-        const { items } = request.body as { items: StreamSignItem[] };
+      const { items } = request.body as { items: StreamSignItem[] };
+      const keys = await resolveBatchKeys(request, items);
 
-        const signatures = items.map((item) => {
-          const res = ed25519Sign(item.privateKey, item.message);
-          return {
-            id: item.id,
-            signature: res.signature,
-            algorithm: "ed25519" as const,
-          };
-        });
+      // Stored ed25519 keys always sign; anything else is a server error.
+      const signatures = items.map((item) => {
+        const key = keys.get(item.keyId) as StoredKey;
+        const res = ed25519Sign(key.privateParts["privateKey"], item.message);
+        return {
+          id: item.id,
+          signature: res.signature,
+          algorithm: "ed25519" as const,
+        };
+      });
 
-        return reply.send({
-          data: {
-            count: signatures.length,
-            signatures,
-          },
-        });
-        /* c8 ignore next 3 -- defensive: batch signing handles internal errors */
-      } catch (error) {
-        return classifyCryptoError(error, request, reply, "Batch signing");
-      }
+      return reply.send({
+        data: {
+          count: signatures.length,
+          signatures,
+        },
+      });
     },
   );
 }

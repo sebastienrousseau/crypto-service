@@ -37,6 +37,7 @@ import {
   type RegisteredRoute,
 } from "./config/auth-policy";
 import { registerMetering } from "./enterprise/metering";
+import { keyStoreFromEnv } from "./lib/key-store";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -131,6 +132,9 @@ async function init(): Promise<fastify.FastifyInstance> {
     if (!auth || !authorizeRoute(request, reply, auth)) return reply;
     (request as { auth?: unknown }).auth = auth;
   });
+
+  // Server-side custody of generated key pairs (see lib/key-store.ts).
+  app.decorate("keyStore", keyStoreFromEnv());
 
   // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
   // every onRequest hook, so the tenant is the authenticated principal.

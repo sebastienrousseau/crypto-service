@@ -18,6 +18,7 @@ import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
 import { IBodyEncrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 encrypt endpoint. */
 const encryptSchema = {
@@ -41,7 +42,11 @@ const encryptSchema = {
       passphrase: { type: "string", minLength: 1, maxLength: 1024 },
       message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
       publicKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
-      privateKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+      sign: {
+        type: "boolean",
+        description:
+          "Also sign with the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase.",
+      },
     },
   },
 } as const;
@@ -68,7 +73,7 @@ export default (app: FastifyInstance): void => {
           passphrase: v.passphrase,
           message: v.message,
           publicKey: v.publicKey,
-          ...(body.privateKey ? { privateKey: body.privateKey } : {}),
+          ...(body.sign ? { privateKey: await serverPgpPrivateKey() } : {}),
         });
 
         return reply.send({ data: encryptedData });

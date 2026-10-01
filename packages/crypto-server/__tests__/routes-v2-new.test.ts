@@ -67,7 +67,7 @@ describe("V2 New Routes", function () {
         url: "/v2/keys/generate",
         payload: { algorithm: "x25519" },
       });
-      const { publicKey, privateKey } = JSON.parse(keyRes.payload).data;
+      const { publicKey, keyId } = JSON.parse(keyRes.payload).data;
 
       const sealRes = await app.inject({
         method: "POST",
@@ -82,11 +82,12 @@ describe("V2 New Routes", function () {
         method: "POST",
         url: "/v2/sealedbox/open",
         payload: {
-          recipientSecretKey: privateKey,
+          keyId,
           sealed: sealBody.data.sealed,
         },
       });
       expect(openRes.statusCode).to.equal(200);
+      expect(JSON.parse(openRes.payload).data).to.equal("sealed secret");
     });
 
     it("should seal and open with PQ keys", async () => {
@@ -115,12 +116,12 @@ describe("V2 New Routes", function () {
         method: "POST",
         url: "/v2/sealedbox/open-pq",
         payload: {
-          x25519SecretKey: keys.x25519PrivateKey,
-          mlKemSecretKey: keys.mlKemSecretKey,
+          keyId: keys.keyId,
           sealed: sealBody.data.sealed,
         },
       });
       expect(openRes.statusCode).to.equal(200);
+      expect(JSON.parse(openRes.payload).data).to.equal("quantum safe");
     });
   });
 
@@ -230,7 +231,10 @@ describe("V2 New Routes", function () {
       expect(res.statusCode).to.equal(200);
       const body = JSON.parse(res.payload);
       expect(body.data).to.have.property("publicKey");
-      expect(body.data).to.have.property("privateKey");
+      expect(body.data).to.have.property("keyId");
+      expect(body.data.algorithm).to.equal("ed25519");
+      // The private key stays on the server.
+      expect(body.data).to.not.have.property("privateKey");
       expect(body.data).to.have.property("kid");
     });
 
@@ -401,7 +405,7 @@ describe("V2 New Routes", function () {
       const signRes = await app.inject({
         method: "POST",
         url: "/v2/pq/dsa/sign",
-        payload: { level: 44, secretKey: keys.secretKey, message: "test msg" },
+        payload: { keyId: keys.keyId, message: "test msg" },
       });
       expect(signRes.statusCode).to.equal(200);
       const sigData = JSON.parse(signRes.payload).data;
@@ -437,8 +441,7 @@ describe("V2 New Routes", function () {
         method: "POST",
         url: "/v2/pq/slh-dsa/sign",
         payload: {
-          variant: "shake-128f",
-          secretKey: keys.secretKey,
+          keyId: keys.keyId,
           message: "sign me",
         },
       });

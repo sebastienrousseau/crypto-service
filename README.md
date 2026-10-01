@@ -285,7 +285,7 @@ The REST API server is configured via environment variables:
 | `JWT_AUDIENCE`                | Required JWT `aud` value                        | None (not checked)     |
 | `ALLOW_ANONYMOUS`             | `1` allows unauthenticated requests             | Off                    |
 | `CRYPTO_KEY_DIR`              | Keystore for the v1 PGP routes                  | Bundled test keys      |
-| `CRYPTO_KEY_OUT_DIR`          | Where generated keys are written                | None (not written)     |
+| `CRYPTO_KEY_OUT_DIR`          | Where generated keys are persisted              | None (memory only)     |
 
 With neither `CRYPTO_API_KEY` nor `JWT_SECRET` set, every request except `/health`, `/live`, `/ready`, `/metrics` and `/docs` gets `401`. In production (`NODE_ENV=production`) the server refuses to start without a credential unless `ALLOW_ANONYMOUS=1` is set (for example behind an authenticating gateway), rejects a `JWT_SECRET` shorter than 32 bytes or set without `JWT_ISSUER` and `JWT_AUDIENCE`, and refuses the bundled test keys unless `CRYPTO_KEY_DIR` is set.
 

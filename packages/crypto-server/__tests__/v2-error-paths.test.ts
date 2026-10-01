@@ -53,7 +53,7 @@ describe("V2 error paths", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/sign",
-          payload: { privateKey: "a".repeat(64), message: "hello" },
+          payload: { keyId: `k_${"A".repeat(22)}`, message: "hello" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -62,20 +62,38 @@ describe("V2 error paths", function () {
       }
     });
 
-    it("should return 400 when signing fails with invalid hex key", async () => {
-      // 'g' is not a valid hex char — Buffer.from("ggg...", "hex") gives
-      // an empty buffer, which ed25519 will reject as wrong length.
+    it("should return 404 for an unknown keyId", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/sign",
-        payload: {
-          privateKey: "g".repeat(64),
-          message: "test",
-        },
+        payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
+      });
+      expect(res.statusCode).to.equal(404);
+    });
+
+    it("should return 400 for a malformed keyId", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/sign",
+        payload: { keyId: "../../etc/passwd", message: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Signing failed: invalid input");
+    });
+
+    it("should return 400 when the key is not an ed25519 key", async () => {
+      const gen = await app.inject({
+        method: "POST",
+        url: "/v2/keys/generate",
+        payload: { algorithm: "x25519" },
+      });
+      const { keyId } = JSON.parse(gen.payload).data;
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/sign",
+        payload: { keyId, message: "test" },
+      });
+      expect(res.statusCode).to.equal(400);
+      expect(res.payload).to.include("needs ed25519");
     });
   });
 
@@ -343,7 +361,6 @@ describe("V2 error paths", function () {
           passphrase: "x",
           message: "x",
           publicKey: "x",
-          privateKey: "x",
         },
       });
       expect(res.statusCode).to.equal(401);

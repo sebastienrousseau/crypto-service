@@ -32,7 +32,7 @@ async function main() {
   const keyPair = await task("Generate ML-DSA-65 key pair", async () => {
     const res = await post("/v2/pq/dsa/keygen", { level });
     const body = (await res.json()) as {
-      data: { publicKey: string; secretKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });
@@ -41,8 +41,7 @@ async function main() {
 
   const signature = await task("Sign message with ML-DSA-65", async () => {
     const res = await post("/v2/pq/dsa/sign", {
-      level,
-      secretKey: keyPair.secretKey,
+      keyId: keyPair.keyId,
       message,
     });
     const body = (await res.json()) as { data: string };

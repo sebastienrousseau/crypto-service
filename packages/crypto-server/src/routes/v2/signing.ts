@@ -9,24 +9,24 @@ import {
   ed25519Verify,
 } from "@sebastienrousseau/crypto-lib/dist/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
 
-/** Registers v2 digital signature (sign/verify) endpoints. */
-export default (app: FastifyInstance): void => {
-  // Key generation moved to keys.ts (supports all algorithms)
-
+/** `POST /v2/sign`: Ed25519 signature with a server-held key. */
+function registerSign(app: FastifyInstance): void {
   app.post(
     "/v2/sign",
     {
       schema: {
         tags: ["Signing"],
         summary: "Sign with Ed25519",
-        description: "Create an Ed25519 digital signature over a message.",
+        description:
+          "Create an Ed25519 digital signature over a message with a server-held ed25519 key (keyId from POST /v2/keys/generate).",
         body: {
           type: "object",
-          required: ["privateKey", "message"],
+          required: ["keyId", "message"],
           additionalProperties: false,
           properties: {
-            privateKey: { type: "string", minLength: 64, maxLength: 64 },
+            keyId: KEY_ID_SCHEMA,
             message: {
               type: "string",
               minLength: 1,
@@ -37,19 +37,20 @@ export default (app: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
-      try {
-        const { privateKey, message } = request.body as {
-          privateKey: string;
-          message: string;
-        };
-        const result = ed25519Sign(privateKey, message);
-        return reply.send({ data: result });
-      } catch (error) {
-        return classifyCryptoError(error, request, reply, "Signing");
-      }
+      const { keyId, message } = request.body as {
+        keyId: string;
+        message: string;
+      };
+      const key = await resolveKey(request, keyId, ["ed25519"]);
+      // A stored ed25519 key always signs; anything else is a server error.
+      const result = ed25519Sign(key.privateParts["privateKey"], message);
+      return reply.send({ data: result });
     },
   );
+}
 
+/** `POST /v2/verify`: Ed25519 verification against a public key. */
+function registerVerify(app: FastifyInstance): void {
   app.post(
     "/v2/verify",
     {
@@ -88,4 +89,11 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 digital signature (sign/verify) endpoints. */
+export default (app: FastifyInstance): void => {
+  // Key generation moved to keys.ts (supports all algorithms)
+  registerSign(app);
+  registerVerify(app);
 };

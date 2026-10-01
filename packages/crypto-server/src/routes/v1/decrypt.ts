@@ -15,13 +15,14 @@ import decrypt from "@sebastienrousseau/crypto-lib/dist/lib/decrypt";
 import { IBodyDecrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 decrypt endpoint. */
 const decryptSchema = {
   tags: ["Encryption"],
   summary: "Decrypt a message",
   description:
-    "Decrypts a PGP-encrypted message using private/public key pair and passphrase.",
+    "Decrypts a PGP message encrypted to the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase. The API never takes a private key.",
   response: {
     200: { type: "object", properties: { data: { type: "string" } } },
     400: {
@@ -32,13 +33,12 @@ const decryptSchema = {
   },
   body: {
     type: "object",
-    required: ["passphrase", "message", "publicKey", "privateKey"],
+    required: ["passphrase", "message", "publicKey"],
     additionalProperties: false,
     properties: {
       passphrase: { type: "string", minLength: 1, maxLength: 1024 },
       message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
       publicKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
-      privateKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
     },
   },
 } as const;
@@ -56,7 +56,6 @@ export default (app: FastifyInstance): void => {
             passphrase: validateRequiredString(body.passphrase, "passphrase"),
             message: validateBase64(body.message, "message"),
             publicKey: validateBase64(body.publicKey, "publicKey"),
-            privateKey: validateBase64(body.privateKey, "privateKey"),
           },
           reply,
         );
@@ -66,7 +65,7 @@ export default (app: FastifyInstance): void => {
           passphrase: v.passphrase,
           message: v.message,
           publicKey: v.publicKey,
-          privateKey: v.privateKey,
+          privateKey: await serverPgpPrivateKey(),
         });
 
         return reply.send({ data: decryptedData });

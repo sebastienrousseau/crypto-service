@@ -102,7 +102,8 @@ export const AUTHENTICATED = "authenticated";
  *
  * The server enforces it on every authenticated request and refuses to
  * boot when a non-public route has no entry, so a new route cannot ship
- * without an explicit decision. `crypto:admin` satisfies every scope.
+ * without an explicit decision. `crypto:admin` satisfies every scope
+ * except `crypto:keys:export`.
  */
 export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   // Service metadata
@@ -156,6 +157,9 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/password/verify": "crypto:kdf",
   // Key management
   "POST /v2/keys/generate": "crypto:keys",
+  // The only route that returns private key material; crypto:admin does
+  // not imply this scope.
+  "POST /v2/keys/export": "crypto:keys:export",
   "POST /v2/keys/wrap": "crypto:keys",
   "POST /v2/keys/unwrap": "crypto:keys",
   "POST /v2/pq/keygen": "crypto:keys",

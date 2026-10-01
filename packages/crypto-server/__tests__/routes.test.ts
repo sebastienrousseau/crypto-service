@@ -95,7 +95,7 @@ describe("API Routes", () => {
       expect(res.statusCode).to.equal(400);
     });
 
-    it("should reject missing privateKey", async () => {
+    it("takes no privateKey: the request validates without one", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v1/decrypt",
@@ -105,7 +105,9 @@ describe("API Routes", () => {
           publicKey: "dGVzdA==",
         },
       });
-      expect(res.statusCode).to.equal(400);
+      // Past validation; "dGVzdA==" is not a PGP message, so decryption
+      // with the server's key fails.
+      expect(res.statusCode).to.equal(500);
     });
   });
 

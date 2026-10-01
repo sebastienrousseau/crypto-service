@@ -25,6 +25,12 @@ describe("V2 error paths (extended)", function () {
     else delete process.env["CRYPTO_API_KEY"];
   });
 
+  /** Generate a server-held key with `url`; returns its keyId. */
+  async function serverKeyId(url: string, payload: object): Promise<string> {
+    const res = await app.inject({ method: "POST", url, payload });
+    return JSON.parse(res.payload).data.keyId;
+  }
+
   // ---------------------------------------------------------------
   // key-wrap.ts catch blocks
   // ---------------------------------------------------------------
@@ -398,16 +404,23 @@ describe("V2 error paths (extended)", function () {
       expect([200, 500]).to.include(res.statusCode);
     });
 
-    it("should return 400 on sign with invalid key", async () => {
+    it("should return 404 on sign with an unknown keyId", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/slh-dsa/sign",
-        payload: { variant: "sha2-128f", secretKey: "x", message: "test" },
+        payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
+      });
+      expect(res.statusCode).to.equal(404);
+    });
+
+    it("should return 400 on sign with a key of another algorithm", async () => {
+      const keyId = await serverKeyId("/v2/pq/dsa/keygen", { level: 44 });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/pq/slh-dsa/sign",
+        payload: { keyId, message: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
-        "Signing failed: invalid input",
-      );
     });
 
     it("should return 400 on verify with invalid key", async () => {
@@ -450,7 +463,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/pq/slh-dsa/sign",
-          payload: { variant: "sha2-128f", secretKey: "x", message: "test" },
+          payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -485,16 +498,25 @@ describe("V2 error paths (extended)", function () {
   // pq-sign.ts catch blocks
   // ---------------------------------------------------------------
   describe("POST /v2/pq/dsa/* error paths", () => {
-    it("should return 400 on sign with invalid key", async () => {
+    it("should return 404 on sign with an unknown keyId", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/dsa/sign",
-        payload: { level: 44, secretKey: "x", message: "test" },
+        payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
+      });
+      expect(res.statusCode).to.equal(404);
+    });
+
+    it("should return 400 on sign with a key of another algorithm", async () => {
+      const keyId = await serverKeyId("/v2/keys/generate", {
+        algorithm: "ed25519",
+      });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/pq/dsa/sign",
+        payload: { keyId, message: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
-        "Signing failed: invalid input",
-      );
     });
 
     it("should return 400 on verify with invalid key", async () => {
@@ -532,7 +554,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/pq/dsa/sign",
-          payload: { level: 44, secretKey: "x", message: "test" },
+          payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -579,11 +601,14 @@ describe("V2 error paths (extended)", function () {
       );
     });
 
-    it("should return 400 on open with invalid key", async () => {
+    it("should return 400 on open with an invalid sealed box", async () => {
+      const keyId = await serverKeyId("/v2/keys/generate", {
+        algorithm: "x25519",
+      });
       const res = await app.inject({
         method: "POST",
         url: "/v2/sealedbox/open",
-        payload: { recipientSecretKey: "zz", sealed: "zz" },
+        payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
       expect(JSON.parse(res.payload).error).to.equal(
@@ -607,11 +632,12 @@ describe("V2 error paths (extended)", function () {
       );
     });
 
-    it("should return 400 on open-pq with invalid keys", async () => {
+    it("should return 400 on open-pq with an invalid sealed box", async () => {
+      const keyId = await serverKeyId("/v2/pq/hybrid/keygen", {});
       const res = await app.inject({
         method: "POST",
         url: "/v2/sealedbox/open-pq",
-        payload: { x25519SecretKey: "zz", mlKemSecretKey: "zz", sealed: "zz" },
+        payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
       expect(JSON.parse(res.payload).error).to.equal(
@@ -642,7 +668,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/sealedbox/open",
-          payload: { recipientSecretKey: "aa", sealed: "bb" },
+          payload: { keyId: `k_${"A".repeat(22)}`, sealed: "bb" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -679,8 +705,7 @@ describe("V2 error paths (extended)", function () {
           method: "POST",
           url: "/v2/sealedbox/open-pq",
           payload: {
-            x25519SecretKey: "aa",
-            mlKemSecretKey: "bb",
+            keyId: `k_${"A".repeat(22)}`,
             sealed: "cc",
           },
         });

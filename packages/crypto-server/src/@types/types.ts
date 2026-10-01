@@ -95,14 +95,14 @@ export interface IBodyGenerate {
  * ```
  */
 export interface IBodyEncrypt {
-  /** Passphrase to unlock the signing private key (if provided). */
+  /** Passphrase that unlocks the server's signing key (used with `sign`). */
   passphrase: string;
   /** Plaintext message to encrypt. */
   message: string;
   /** Armored PGP public key of the recipient. */
   publicKey: string;
-  /** Optional armored PGP private key for sign-and-encrypt. */
-  privateKey?: string;
+  /** Also sign with the server's key pair (`CRYPTO_KEY_DIR`). */
+  sign?: boolean;
 }
 
 /**
@@ -113,20 +113,20 @@ export interface IBodyEncrypt {
  * {
  *   "passphrase": "s3cret",
  *   "message": "-----BEGIN PGP MESSAGE-----...",
- *   "publicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----...",
- *   "privateKey": "-----BEGIN PGP PRIVATE KEY BLOCK-----..."
+ *   "publicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----..."
  * }
  * ```
+ *
+ * The message is decrypted with the server's key pair (`CRYPTO_KEY_DIR`);
+ * the API never takes a private key.
  */
 export interface IBodyDecrypt {
-  /** Passphrase to unlock the private key. */
+  /** Passphrase that unlocks the server's private key. */
   passphrase: string;
   /** Armored PGP encrypted message to decrypt. */
   message: string;
   /** Armored PGP public key of the sender (for signature verification). */
   publicKey: string;
-  /** Armored PGP private key of the recipient. */
-  privateKey: string;
 }
 
 /**

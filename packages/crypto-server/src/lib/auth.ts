@@ -41,11 +41,19 @@ export const SCOPES = [
   "crypto:hash",
   "crypto:kdf",
   "crypto:keys",
+  "crypto:keys:export",
   "crypto:admin",
 ] as const;
 
 /** A single authorization scope string from {@link SCOPES}. */
 export type Scope = (typeof SCOPES)[number];
+
+/**
+ * Scopes `crypto:admin` does not imply: each must be granted explicitly.
+ * Exporting a private key is never a side effect of holding an API key or
+ * running with anonymous access, both of which hold `crypto:admin`.
+ */
+export const EXPLICIT_SCOPES: readonly Scope[] = ["crypto:keys:export"];
 
 /** Decoded JWT or synthetic auth payload attached to a request. */
 export interface AuthPayload {
@@ -217,7 +225,8 @@ export function hasScope(payload: AuthPayload, required: Scope): boolean {
   const scopes: readonly string[] = Array.isArray(payload.scopes)
     ? payload.scopes
     : [];
-  return scopes.includes("crypto:admin") || scopes.includes(required);
+  if (scopes.includes(required)) return true;
+  return !EXPLICIT_SCOPES.includes(required) && scopes.includes("crypto:admin");
 }
 
 /**

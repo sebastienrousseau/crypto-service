@@ -152,15 +152,15 @@ describe("V2 API Routes", function () {
         payload: { algorithm: "ed25519" },
       });
       expect(genRes.statusCode).to.equal(200);
-      const { privateKey, publicKey } = JSON.parse(genRes.payload).data;
-      expect(privateKey).to.have.length(64);
+      const { keyId, publicKey, privateKey } = JSON.parse(genRes.payload).data;
+      expect(privateKey).to.equal(undefined);
       expect(publicKey).to.have.length(64);
 
-      // Sign
+      // Sign with the server-held key
       const signRes = await app.inject({
         method: "POST",
         url: "/v2/sign",
-        payload: { privateKey, message: "Sign this" },
+        payload: { keyId, message: "Sign this" },
       });
       expect(signRes.statusCode).to.equal(200);
       const { signature } = JSON.parse(signRes.payload).data;
