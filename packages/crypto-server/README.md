@@ -159,49 +159,61 @@ All v2 endpoints accept and return `application/json`. Authenticated
 requests must include an `x-api-key` header (or
 `Authorization: Bearer <jwt>`).
 
-| Method | Path                          | Description                                                   |
-| :----- | :---------------------------- | :------------------------------------------------------------ |
-| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)  |
-| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                       |
-| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                       |
-| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                 |
-| `POST` | `/v2/verify`                  | Verify a digital signature                                    |
-| `POST` | `/v2/kdf`                     | Derive a key (scrypt, HKDF-SHA256, PBKDF2-SHA256)             |
-| `POST` | `/v2/hmac`                    | Compute an HMAC                                               |
-| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                               |
-| `POST` | `/v2/password/hash`           | Hash a password with Argon2id                                 |
-| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                    |
-| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)         |
-| `POST` | `/v2/password/decrypt`        | Decrypt with password                                         |
-| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key |
-| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)        |
-| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                             |
-| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                  |
-| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                   |
-| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                |
-| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                      |
-| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)  |
-| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                 |
-| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key         |
-| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                               |
-| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                    |
-| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                   |
-| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)       |
-| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                |
-| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                          |
-| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)         |
-| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                        |
-| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                  |
-| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                    |
-| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                       |
-| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                 |
-| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                   |
-| `GET`  | `/v2/algorithms`              | List all supported algorithms                                 |
-| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                   |
-| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                  |
-| `GET`  | `/metrics`                    | Prometheus-compatible metrics                                 |
+| Method | Path                          | Description                                                          |
+| :----- | :---------------------------- | :------------------------------------------------------------------- |
+| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)         |
+| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                              |
+| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                              |
+| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                        |
+| `POST` | `/v2/verify`                  | Verify a digital signature                                           |
+| `POST` | `/v2/kdf`                     | Derive a key (scrypt N=2^17 r=8, HKDF-SHA256, PBKDF2-SHA256 >= 600k) |
+| `POST` | `/v2/hmac`                    | Compute an HMAC                                                      |
+| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                                      |
+| `POST` | `/v2/password/hash`           | Hash a password with Argon2id (m >= 19 MiB, t >= 2)                  |
+| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                           |
+| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)                |
+| `POST` | `/v2/password/decrypt`        | Decrypt with password                                                |
+| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key        |
+| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)               |
+| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                    |
+| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                         |
+| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                          |
+| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                       |
+| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                             |
+| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)         |
+| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                        |
+| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key                |
+| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                                      |
+| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                           |
+| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                          |
+| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)              |
+| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                       |
+| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                                 |
+| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)                |
+| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                               |
+| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                         |
+| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                           |
+| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                              |
+| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                        |
+| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                          |
+| `GET`  | `/v2/algorithms`              | List all supported algorithms                                        |
+| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                          |
+| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                         |
+| `GET`  | `/metrics`                    | Prometheus-compatible metrics                                        |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+### Work factors
+
+`/v2/kdf` and `/v2/password/hash` enforce the OWASP Password Storage
+Cheat Sheet floors for new keys and hashes: scrypt N = 2^17 with r = 8
+(crypto-lib caps N at 2^17), PBKDF2-HMAC-SHA256 with at least 600,000
+iterations, and Argon2id with at least 19 MiB of memory and two passes.
+A lower value gets `400`. `/v2/password/verify` still accepts the
+parameters of existing hashes. Scrypt, PBKDF2 and Argon2 (including
+`/v2/password/encrypt` and `/decrypt`) run on two worker threads, so a
+derivation does not block other requests or the health probes; further
+derivations queue.
 
 ### Key custody
 

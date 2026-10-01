@@ -226,7 +226,7 @@ describe("V2 error paths", function () {
       }
     });
 
-    it("should return 500 when scrypt fails with invalid N (not power of 2)", async () => {
+    it("should return 400 for an scrypt N other than 2^17 (schema floor)", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/kdf",
@@ -236,9 +236,18 @@ describe("V2 error paths", function () {
           params: { N: 3, r: 8, p: 1 },
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
+    });
+
+    it("should return 400 when the worker rejects a malformed salt", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/kdf",
+        payload: { algorithm: "hkdf-sha256", password: "test", salt: "zz" },
+      });
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Key derivation failed");
+      expect(body.error).to.equal("Key derivation failed: invalid input");
     });
   });
 
@@ -299,7 +308,7 @@ describe("V2 error paths", function () {
         payload: {
           algorithm: "scrypt",
           password: "test",
-          params: { N: 1024, r: 8, p: 1 },
+          params: { N: 131072, r: 8, p: 1 },
         },
         headers: { "x-api-key": testKey },
       });

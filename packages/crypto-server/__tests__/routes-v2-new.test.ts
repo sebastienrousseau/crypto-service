@@ -306,8 +306,8 @@ describe("V2 New Routes", function () {
         url: "/v2/password/hash",
         payload: {
           password: "test-password",
-          timeCost: 1,
-          memoryCost: 1024,
+          timeCost: 2,
+          memoryCost: 19456,
           parallelism: 1,
         },
       });
@@ -338,8 +338,8 @@ describe("V2 New Routes", function () {
         url: "/v2/password/hash",
         payload: {
           password: "correct",
-          timeCost: 1,
-          memoryCost: 1024,
+          timeCost: 2,
+          memoryCost: 19456,
           parallelism: 1,
         },
       });

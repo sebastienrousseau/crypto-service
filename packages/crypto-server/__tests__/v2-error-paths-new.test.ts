@@ -294,42 +294,38 @@ describe("V2 error paths (extended)", function () {
   // password.ts catch blocks
   // ---------------------------------------------------------------
   describe("POST /v2/password/hash error paths", () => {
-    it("should hash with custom params (covers true branch)", async () => {
+    it("should hash with custom params at the OWASP floor", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
         payload: {
           password: "test",
           timeCost: 2,
-          memoryCost: 1024,
+          memoryCost: 19456,
           parallelism: 2,
         },
       });
       expect(res.statusCode).to.equal(200);
       const body = JSON.parse(res.payload);
-      expect(body.data.params.t).to.equal(2);
-      expect(body.data.params.m).to.equal(1024);
-      expect(body.data.params.p).to.equal(2);
+      expect(body.data.params).to.deep.equal({ t: 2, m: 19456, p: 2 });
     });
 
-    it("should hash with only timeCost (memoryCost/parallelism false branches)", async () => {
+    it("should reject a time cost below the floor (t < 2) with 400", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
         payload: { password: "test", timeCost: 1 },
       });
-      expect(res.statusCode).to.equal(200);
-      const body = JSON.parse(res.payload);
-      expect(body.data.params.t).to.equal(1);
+      expect(res.statusCode).to.equal(400);
     });
 
-    it("should hash with only memoryCost (timeCost/parallelism false branches)", async () => {
+    it("should reject memory below the floor (< 19 MiB) with 400", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
-        payload: { password: "test", memoryCost: 1024 },
+        payload: { password: "test", memoryCost: 19455 },
       });
-      expect(res.statusCode).to.equal(200);
+      expect(res.statusCode).to.equal(400);
     });
 
     it("should return 401 when API key required", async () => {

@@ -38,6 +38,7 @@ import {
 } from "./config/auth-policy";
 import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
+import { KdfRunner } from "./lib/kdf-runner";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -133,8 +134,11 @@ async function init(): Promise<fastify.FastifyInstance> {
     (request as { auth?: unknown }).auth = auth;
   });
 
-  // Server-side custody of generated key pairs (see lib/key-store.ts).
+  // Server-side custody of generated key pairs (see lib/key-store.ts),
+  // and KDF / password hashing on worker threads (lib/kdf-runner.ts).
   app.decorate("keyStore", keyStoreFromEnv());
+  app.decorate("kdf", new KdfRunner());
+  app.addHook("onClose", () => app.kdf.close());
 
   // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
   // every onRequest hook, so the tenant is the authenticated principal.

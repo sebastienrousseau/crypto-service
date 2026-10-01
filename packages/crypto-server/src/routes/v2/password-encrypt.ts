@@ -6,14 +6,16 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 password-based encryption/decryption endpoints. */
-export default (app: FastifyInstance): void => {
+/** `POST /v2/password/encrypt`: Argon2id + XChaCha20-Poly1305 on a worker. */
+function registerEncrypt(app: FastifyInstance): void {
   app.post(
     "/v2/password/encrypt",
     {
       schema: {
         tags: ["Password Encryption"],
         summary: "Encrypt with password (Argon2id + XChaCha20-Poly1305)",
+        description:
+          "Derives the key with Argon2id (t = 3, m = 64 MiB, p = 4) on a worker thread.",
         body: {
           type: "object",
           required: ["password", "plaintext"],
@@ -26,29 +28,31 @@ export default (app: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
-      try {
-        const { passwordEncrypt } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
-        const { password, plaintext } = request.body as {
-          password: string;
-          plaintext: string;
-        };
-        return reply.send({
-          data: passwordEncrypt({ password, plaintext }),
-        });
-        /* c8 ignore next 3 -- passwordEncrypt only fails with invalid inputs blocked by schema */
-      } catch (error) {
-        return classifyCryptoError(error, request, reply, "Encryption");
-      }
+      const { password, plaintext } = request.body as {
+        password: string;
+        plaintext: string;
+      };
+      // Non-empty strings always encrypt; anything else is a server error.
+      const result = await request.server.kdf.run<unknown>(
+        "passwordEncrypt",
+        "passwordEncrypt",
+        { password, plaintext },
+      );
+      return reply.send({ data: result });
     },
   );
+}
 
+/** `POST /v2/password/decrypt`: password decryption on a worker thread. */
+function registerDecrypt(app: FastifyInstance): void {
   app.post(
     "/v2/password/decrypt",
     {
       schema: {
         tags: ["Password Encryption"],
         summary: "Decrypt with password (Argon2id + XChaCha20-Poly1305)",
+        description:
+          "Derives the key with the Argon2id parameters stored in the ciphertext, on a worker thread.",
         body: {
           type: "object",
           required: ["password", "ciphertext"],
@@ -62,13 +66,16 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { passwordDecrypt } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
         const { password, ciphertext } = request.body as {
           password: string;
           ciphertext: string;
         };
-        const plaintext = passwordDecrypt(password, ciphertext);
+        const plaintext = await request.server.kdf.run<Uint8Array>(
+          "passwordEncrypt",
+          "passwordDecrypt",
+          password,
+          ciphertext,
+        );
         return reply.send({
           data: Buffer.from(plaintext).toString("utf8"),
         });
@@ -77,4 +84,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 password-based encryption/decryption endpoints. */
+export default (app: FastifyInstance): void => {
+  registerEncrypt(app);
+  registerDecrypt(app);
 };

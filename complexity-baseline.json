@@ -23,8 +23,6 @@
   "packages/crypto-server/src/routes/v2/key-wrap.ts :: max-lines-per-function :: default export": 78,
   "packages/crypto-server/src/routes/v2/mac.ts :: max-lines-per-function :: default export": 81,
   "packages/crypto-server/src/routes/v2/multi-recipient.ts :: max-lines-per-function :: default export": 62,
-  "packages/crypto-server/src/routes/v2/password-encrypt.ts :: max-lines-per-function :: default export": 69,
-  "packages/crypto-server/src/routes/v2/password.ts :: max-lines-per-function :: default export": 95,
   "packages/crypto-server/src/routes/v2/secretbox.ts :: max-lines-per-function :: default export": 73,
   "packages/crypto-vue/src/composables/useEncrypt.ts :: max-lines-per-function :: useEncrypt": 67,
   "packages/crypto-vue/src/composables/useSignature.ts :: max-lines-per-function :: useSignature": 62

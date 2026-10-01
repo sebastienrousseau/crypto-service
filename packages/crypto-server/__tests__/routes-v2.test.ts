@@ -119,7 +119,7 @@ describe("V2 API Routes", function () {
         payload: {
           algorithm: "scrypt",
           password: "mypassword",
-          params: { N: 1024, r: 8, p: 1 },
+          params: { N: 131072, r: 8, p: 1 },
         },
       });
       expect(res.statusCode).to.equal(200);
