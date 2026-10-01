@@ -8,8 +8,13 @@
  * crypto-lib's secretbox (XChaCha20-Poly1305).
  */
 
-import { secretbox } from "@sebastienrousseau/crypto-lib";
 import type { ValueTransformer } from "typeorm";
+import {
+  createColumnCodec,
+  openColumn,
+  sealColumn,
+  type ColumnCodec,
+} from "./codec";
 import type { EncryptionConfig } from "./types";
 
 /**
@@ -17,8 +22,9 @@ import type { EncryptionConfig } from "./types";
  * before they are persisted and decrypts them when they are loaded.
  *
  * Uses crypto-lib's secretbox (XChaCha20-Poly1305) under the hood: each
- * write generates a fresh random nonce, and the sealed output is stored
- * as a Base64 string in the database.
+ * write generates a fresh random nonce, and the output is stored as
+ * `"v2:" + Base64(nonce || ciphertext || tag)`, bound to `config.context`
+ * as associated data.
  *
  * @example
  * ```ts
@@ -36,15 +42,22 @@ import type { EncryptionConfig } from "./types";
  * ```
  */
 export class EncryptionTransformer implements ValueTransformer {
-  /** Hex-encoded encryption key. */
-  private readonly key: string;
+  /** Derived keys and read options. */
+  private readonly codec: ColumnCodec;
+  /** Column context bound into each ciphertext. */
+  private readonly context: string;
 
-  /** Create a new transformer with the given encryption configuration. */
+  /**
+   * Create a new transformer with the given encryption configuration.
+   *
+   * @throws If the key is missing or not a 64-character hex string.
+   */
   constructor(config: EncryptionConfig) {
     if (!config.key) {
       throw new Error("EncryptionTransformer: key is required");
     }
-    this.key = config.key;
+    this.codec = createColumnCodec(config);
+    this.context = config.context ?? "";
   }
 
   /**
@@ -52,15 +65,15 @@ export class EncryptionTransformer implements ValueTransformer {
    *
    * - `null` / `undefined` values pass through unchanged.
    * - Non-string values are JSON-serialised before encryption.
-   * - Returns a Base64-encoded sealed box (nonce + ciphertext + tag).
+   * - Returns `"v2:"` followed by the Base64 sealed box
+   *   (nonce + ciphertext + tag).
    */
   to(value: unknown): string | null {
     if (value === null || value === undefined) {
       return null;
     }
     const plaintext = typeof value === "string" ? value : JSON.stringify(value);
-    const { sealed } = secretbox.seal(this.key, plaintext);
-    return sealed;
+    return sealColumn(this.codec, this.context, plaintext);
   }
 
   /**
@@ -68,6 +81,10 @@ export class EncryptionTransformer implements ValueTransformer {
    *
    * - `null` / `undefined` values pass through unchanged.
    * - Returns the original plaintext string.
+   *
+   * @throws `FieldDecryptionError` when the value is not a valid
+   *   ciphertext for this context (tampered, moved from another column,
+   *   or plaintext) and no opt-in fallback applies.
    */
   from(value: unknown): string | null {
     if (value === null || value === undefined) {
@@ -76,7 +93,6 @@ export class EncryptionTransformer implements ValueTransformer {
     if (typeof value !== "string") {
       return null;
     }
-    const plaintext = secretbox.open(this.key, value);
-    return Buffer.from(plaintext).toString("utf8");
+    return openColumn(this.codec, this.context, value);
   }
 }

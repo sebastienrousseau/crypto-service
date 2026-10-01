@@ -110,7 +110,7 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 | [`@sebastienrousseau/crypto-kms`](../crypto-kms)                              | Cloud KMS       | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
 | [`@sebastienrousseau/crypto-lib`](../crypto-lib)                              | Core Library    | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
 | [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)                | Middleware      | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                        | ORM Adapter     | Transparent field-level encryption extension for Prisma Client, powered by AES-256-GCM.                                                |
+| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                        | ORM Adapter     | Transparent field-level encryption extension for Prisma Client, powered by XChaCha20-Poly1305.                                         |
 | [`@sebastienrousseau/crypto-react`](../crypto-react)                          | React Hooks     | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
 | [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                              | Client SDK      | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
 | [`@sebastienrousseau/crypto-server`](../crypto-server)                        | HTTP API        | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
@@ -134,20 +134,64 @@ field configuration, and an `EncryptionTransformer` for manual
 crypto-lib's secretbox, with fresh random nonces on every write.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Configuration
 
 All APIs accept an `EncryptionConfig` object:
 
-| Property    | Type                    | Default                | Description                                            |
-| :---------- | :---------------------- | :--------------------- | :----------------------------------------------------- |
-| `key`       | `string`                | **required**           | 256-bit key as a 64-char hex string                    |
-| `algorithm` | `string`                | `"xchacha20-poly1305"` | Algorithm identifier                                   |
-| `fields`    | `Map<string, string[]>` | `undefined`            | Per-entity field list (used by `EncryptionSubscriber`) |
+| Property                 | Type                    | Default                | Description                                                                                     |
+| :----------------------- | :---------------------- | :--------------------- | :---------------------------------------------------------------------------------------------- |
+| `key`                    | `string`                | **required**           | 256-bit key as a 64-char hex string                                                             |
+| `algorithm`              | `string`                | `"xchacha20-poly1305"` | Algorithm identifier                                                                            |
+| `fields`                 | `Map<string, string[]>` | `undefined`            | Per-entity field list (used by `EncryptionSubscriber`)                                          |
+| `context`                | `string`                | `""`                   | Column context bound into each ciphertext (`Entity.property`); set by `@EncryptedColumn`        |
+| `allowPlaintextFallback` | `boolean`               | `false`                | Return values that are not ciphertexts as-is instead of throwing; for plaintext migrations only |
+| `acceptLegacyCiphertext` | `boolean`               | `true`                 | Read ciphertexts written before the `v2:` format; turn off once every row has been re-written   |
 
 `@EncryptedColumn` reads `process.env.TYPEORM_ENCRYPTION_KEY` when
 no key is provided in decorator options.
 
+### Stored format and compatibility
+
+New values are written as `v2:` followed by the Base64 sealed box
+(24-byte nonce, ciphertext, 16-byte Poly1305 tag):
+
+- **Encryption key.** Values are sealed under a subkey derived from
+  `key` with HKDF-SHA-256 (info `crypto-typeorm/enc/v2`), not under
+  `key` itself.
+- **Associated data.** Each value is bound to
+  `crypto-typeorm/v2:<context>`. `@EncryptedColumn` uses
+  `ClassName.property` and `EncryptionSubscriber` uses
+  `EntityName.field`, so a ciphertext copied into another column or
+  entity fails to decrypt. The primary key is not bound: a
+  `ValueTransformer` never sees the row, and generated keys do not
+  exist yet at insert time, so two rows can still have the same
+  column's value swapped. A bare `EncryptionTransformer` without
+  `context` binds the empty context, shared with every other
+  context-less transformer; pass `context` explicitly.
+- **Class names.** The default context comes from the class name. If
+  a bundler renames classes, pin `encrypt.context` (or keep class
+  names) so values written before and after the build still match.
+- **Fail closed.** A value that does not decrypt throws
+  `FieldDecryptionError` (exported; it carries `context` and never
+  the stored value), from `EncryptionTransformer.from()` and from
+  `EncryptionSubscriber.afterLoad`. `allowPlaintextFallback: true`
+  returns a value that is not a ciphertext at all as-is, for the
+  duration of a plaintext migration; a `v2:` value that fails
+  authentication is rejected even then.
+- **Legacy values.** Ciphertexts written by earlier versions (bare
+  Base64, sealed with `key` and no associated data) are still read,
+  and never written. They are not bound to a column. Rewrite them in
+  the `v2:` format (as `examples/migration.ts` does for plaintext:
+  read each value, write it back through the transformer), then set
+  `acceptLegacyCiphertext: false`.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Decorator API
 
 ### `@EncryptedColumn(options?)`
@@ -159,9 +203,16 @@ A property decorator that combines TypeORM's `@Column` with an
 @EncryptedColumn()                              // uses TYPEORM_ENCRYPTION_KEY env var
 @EncryptedColumn({ encrypt: { key: "..." } })   // explicit key
 @EncryptedColumn({ type: "text", nullable: true, encrypt: { key: "..." } })
+@EncryptedColumn({ encrypt: { key: "...", context: "User.ssn" } }) // pinned context
 ```
 
+Each value is bound to `ClassName.property` unless `encrypt.context`
+is given.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Subscriber API
 
 ### `EncryptionSubscriber`
@@ -192,10 +243,15 @@ const ds = new DataSource({
 | `beforeUpdate` | Encrypts configured fields in-place |
 | `afterLoad`    | Decrypts configured fields in-place |
 
-Decryption is wrapped in a try/catch so that legacy unencrypted
-rows are left as-is during a gradual migration.
+`afterLoad` throws `FieldDecryptionError` when a stored value is not
+a valid ciphertext for `EntityName.field`. To load rows that still
+hold plaintext during a gradual migration, set
+`allowPlaintextFallback: true` until every row has been rewritten.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Transformer API
 
 ### `EncryptionTransformer`
@@ -209,6 +265,7 @@ import { EncryptionTransformer } from "@sebastienrousseau/crypto-typeorm";
 
 const transformer = new EncryptionTransformer({
   key: process.env.COLUMN_ENCRYPTION_KEY!,
+  context: "Secret.value",
 });
 
 @Entity()
@@ -221,12 +278,15 @@ class Secret {
 }
 ```
 
-| Method        | Input                       | Output                      |
-| :------------ | :-------------------------- | :-------------------------- |
-| `to(value)`   | plaintext or `null`         | Base64 sealed box or `null` |
-| `from(value)` | Base64 sealed box or `null` | plaintext string or `null`  |
+| Method        | Input                       | Output                                                    |
+| :------------ | :-------------------------- | :-------------------------------------------------------- |
+| `to(value)`   | plaintext or `null`         | `v2:` Base64 sealed box or `null`                         |
+| `from(value)` | stored ciphertext or `null` | plaintext string or `null`; throws `FieldDecryptionError` |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
+
+---
+
 ## Examples
 
 All examples are self-contained TypeScript files in the `examples/`

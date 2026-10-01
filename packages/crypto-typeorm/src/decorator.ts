@@ -11,7 +11,9 @@
  * encrypt/decrypt.
  */
 
-import { Column, type ColumnOptions } from "typeorm";
+import { Column } from "typeorm";
+import type { ColumnOptions } from "typeorm";
+import { createColumnCodec } from "./codec";
 import { EncryptionTransformer } from "./transformer";
 import type { EncryptionConfig } from "./types";
 
@@ -43,9 +45,13 @@ export interface EncryptedColumnOptions extends Omit<
 /**
  * Property decorator that creates an encrypted TypeORM column.
  *
- * Under the hood it applies a `text` column (to hold the Base64 sealed
- * box) with an `EncryptionTransformer` attached. You can override the
- * column type and any other standard `ColumnOptions`.
+ * Under the hood it applies a `text` column (to hold the `v2:` Base64
+ * sealed box) with an `EncryptionTransformer` attached. Each value is
+ * bound to `ClassName.property` as associated data, so it cannot be
+ * swapped into another encrypted column; set `encrypt.context` to pin
+ * the context explicitly (for example when a bundler renames classes).
+ * You can override the column type and any other standard
+ * `ColumnOptions`.
  *
  * @example
  * ```ts
@@ -79,18 +85,19 @@ export function EncryptedColumn(
     );
   }
 
-  const config: EncryptionConfig = { key };
-  if (encrypt?.algorithm) {
-    config.algorithm = encrypt.algorithm;
-  }
+  const config: EncryptionConfig = { ...encrypt, key };
+  // Fail at decoration time, not at the first read or write.
+  createColumnCodec(config, "EncryptedColumn");
 
-  const transformer = new EncryptionTransformer(config);
-
-  const merged: ColumnOptions = {
-    type: "text",
-    ...columnOptions,
-    transformer,
+  return (target: object, propertyKey: string | symbol): void => {
+    const transformer = new EncryptionTransformer({
+      ...config,
+      context:
+        encrypt?.context ?? `${target.constructor.name}.${String(propertyKey)}`,
+    });
+    Column({ type: "text", ...columnOptions, transformer })(
+      target,
+      propertyKey,
+    );
   };
-
-  return Column(merged);
 }

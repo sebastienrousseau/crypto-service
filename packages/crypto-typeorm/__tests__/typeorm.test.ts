@@ -210,9 +210,10 @@ describe("EncryptionSubscriber", () => {
       expect(entity.email).to.not.equal("alice@example.com");
       expect(entity.name).to.equal("Alice");
       // Verify it's actually decryptable
-      const decryptedSsn = Buffer.from(
-        secretbox.open(TEST_KEY, entity.ssn),
-      ).toString("utf8");
+      const decryptedSsn = new EncryptionTransformer({
+        key: TEST_KEY,
+        context: "User.ssn",
+      }).from(entity.ssn);
       expect(decryptedSsn).to.equal("123-45-6789");
     });
 
@@ -248,9 +249,10 @@ describe("EncryptionSubscriber", () => {
       sub.beforeInsert({ entity } as unknown as InsertEvent<Entity>);
 
       expect(entity.metadata).to.be.a("string");
-      const decrypted = Buffer.from(
-        secretbox.open(TEST_KEY, entity.metadata as string),
-      ).toString("utf8");
+      const decrypted = new EncryptionTransformer({
+        key: TEST_KEY,
+        context: "User.metadata",
+      }).from(entity.metadata);
       expect(decrypted).to.equal('{"role":"admin"}');
     });
 
@@ -380,7 +382,7 @@ describe("EncryptionSubscriber", () => {
       expect(entity.score).to.equal(100);
     });
 
-    it("leaves unencrypted strings as-is when decryption fails", () => {
+    it("throws on unencrypted strings (fails closed)", () => {
       const sub = new EncryptionSubscriber({
         key: TEST_KEY,
         fields: new Map([["User", ["email"]]]),
@@ -391,9 +393,9 @@ describe("EncryptionSubscriber", () => {
       }
 
       const entity = new User();
-      sub.afterLoad(entity);
 
-      // Decryption failed — value left as-is
+      // Decryption failed: must not be returned as trusted data
+      expect(() => sub.afterLoad(entity)).to.throw("Cannot decrypt User.email");
       expect(entity.email).to.equal("plaintext-not-encrypted");
     });
 
