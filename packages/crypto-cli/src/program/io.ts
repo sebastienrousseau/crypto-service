@@ -52,6 +52,20 @@ export const isInteractive = (
   output: { isTTY?: boolean },
 ) => Boolean(input.isTTY && output.isTTY);
 
+/**
+ * End quietly when the reader of `stream` goes away (`crypto-cli ... |
+ * head`): an EPIPE exits with {@link EXIT.OK}, as Unix tools stop
+ * writing to a closed pipe. Any other stream error is re-thrown.
+ */
+export const exitOnClosedPipe = (
+  stream: NodeJS.EventEmitter,
+  exit: (code: number) => void,
+) =>
+  stream.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code !== "EPIPE") throw err;
+    exit(EXIT.OK);
+  });
+
 /** The {@link CliIO} of the current Node.js process. */
 export const processIO = (): CliIO => ({
   stdin: process.stdin,

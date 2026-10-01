@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import { main, processIO } from "./program/index";
+import { exitOnClosedPipe, main, processIO } from "./program/index";
+
+exitOnClosedPipe(process.stdout, (code) => process.exit(code));
 
 main(process.argv.slice(2), processIO(), () =>
   import("./menu").then((menu) => menu.runMenu()),

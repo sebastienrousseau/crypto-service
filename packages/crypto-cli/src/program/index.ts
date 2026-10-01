@@ -10,7 +10,13 @@ import { registerHash } from "./hash";
 import { EXIT, type CliIO, type RunContext } from "./io";
 import { registerKeygen } from "./keygen";
 
-export { EXIT, processIO, type CliIO, type RunContext } from "./io";
+export {
+  EXIT,
+  exitOnClosedPipe,
+  processIO,
+  type CliIO,
+  type RunContext,
+} from "./io";
 
 /**
  * Build the non-interactive command tree. Commander reports usage
