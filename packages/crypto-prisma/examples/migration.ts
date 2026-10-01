@@ -12,72 +12,58 @@ import { header, task, summary } from "./support";
 async function main() {
   header("crypto-prisma -- migration");
 
-  await task("Enable encryption middleware (handles both plaintext and ciphertext)", () => {
+  await task("Enable encryption with the plaintext fallback switched on", () => {
     // import { PrismaClient } from "@prisma/client";
-    // import { createEncryptionMiddleware } from "@sebastienrousseau/crypto-prisma";
+    // import { createFieldEncryptionExtension } from "@sebastienrousseau/crypto-prisma";
     //
-    // const prisma = new PrismaClient();
-    // const ENCRYPTION_KEY = process.env.FIELD_ENCRYPTION_KEY!;
-    //
-    // prisma.$use(
-    //   createEncryptionMiddleware({
-    //     key: ENCRYPTION_KEY,
-    //     encryptedFields: [
-    //       { model: "User", fields: ["email", "phone"] },
-    //     ],
-    //   })
+    // const prisma = new PrismaClient().$extends(
+    //   createFieldEncryptionExtension({
+    //     key: process.env.FIELD_ENCRYPTION_KEY!,
+    //     encryptedFields: [{ model: "User", fields: ["email", "phone"] }],
+    //     // Only while the migration runs: rows that still hold plaintext
+    //     // are returned as-is instead of throwing FieldDecryptionError.
+    //     // A tampered "v2:" value is rejected even with this switched on.
+    //     allowPlaintextFallback: true,
+    //   }),
     // );
-    // Reads will gracefully return plaintext for un-migrated rows.
   });
 
-  await task("Detect already-encrypted values via base64 heuristic", () => {
-    // function isBase64Blob(value: string): boolean {
-    //   if (value.length < 54) return false; // base64 of 40B min
-    //   try {
-    //     const buf = Buffer.from(value, "base64");
-    //     return buf.toString("base64") === value;
-    //   } catch {
-    //     return false;
-    //   }
-    // }
-  });
-
-  await task("Batch-migrate rows using raw queries to bypass middleware", () => {
-    // import { secretbox } from "@sebastienrousseau/crypto-lib";
+  await task("Re-write every row through the extension", () => {
+    // Reading decrypts v2 and legacy ciphertexts and passes plaintext
+    // through; writing the value back seals it in the v2 format, bound
+    // to User.email / User.phone.
     //
-    // let migrated = 0;
     // let cursor: number | undefined;
-    //
-    // while (true) {
-    //   const rows = await prisma.$queryRaw<
-    //     Array<{ id: number; email: string; phone: string | null }>
-    //   >`SELECT id, email, phone FROM "User"
-    //     ${cursor ? Prisma.sql`WHERE id > ${cursor}` : Prisma.empty}
-    //     ORDER BY id ASC LIMIT 100`;
-    //
+    // let migrated = 0;
+    // for (;;) {
+    //   const rows = await prisma.user.findMany({
+    //     take: 100,
+    //     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+    //     orderBy: { id: "asc" },
+    //     select: { id: true, email: true, phone: true },
+    //   });
     //   if (rows.length === 0) break;
-    //
     //   for (const row of rows) {
-    //     if (isBase64Blob(row.email)) { cursor = row.id; continue; }
-    //     const encEmail = secretbox.seal(ENCRYPTION_KEY, row.email).sealed;
-    //     const encPhone = row.phone
-    //       ? secretbox.seal(ENCRYPTION_KEY, row.phone).sealed
-    //       : null;
-    //     await prisma.$executeRaw`
-    //       UPDATE "User" SET email = ${encEmail}, phone = ${encPhone}
-    //       WHERE id = ${row.id}`;
+    //     await prisma.user.update({
+    //       where: { id: row.id },
+    //       data: { email: row.email, phone: row.phone },
+    //     });
     //     migrated++;
     //     cursor = row.id;
     //   }
     // }
   });
 
-  await task("Verify migration complete", () => {
-    // console.log(`Migration complete: ${migrated} rows encrypted.`);
-    // await prisma.$disconnect();
+  await task("Switch the fallbacks off once every row is rewritten", () => {
+    // createFieldEncryptionExtension({
+    //   key: process.env.FIELD_ENCRYPTION_KEY!,
+    //   encryptedFields: [{ model: "User", fields: ["email", "phone"] }],
+    //   // allowPlaintextFallback defaults to false: plaintext now throws.
+    //   acceptLegacyCiphertext: false, // pre-v2 values are no longer read
+    // });
   });
 
-  summary(4);
+  summary(3);
 }
 
 main();

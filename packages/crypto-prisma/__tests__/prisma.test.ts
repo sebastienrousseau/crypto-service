@@ -139,11 +139,20 @@ describe("createEncryptionMiddleware", () => {
 
       const params = mockParams({
         action: "create",
-        args: { data: { email: "alice@example.com", ssn: "123-45-6789", name: "Alice" } },
+        args: {
+          data: {
+            email: "alice@example.com",
+            ssn: "123-45-6789",
+            name: "Alice",
+          },
+        },
       });
 
       const next = async (p: typeof params) => {
-        capturedArgs = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedArgs = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -167,7 +176,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -194,12 +206,12 @@ describe("createEncryptionMiddleware", () => {
       };
 
       await mw(params, next);
-      expect((capturedArgs!["create"] as Record<string, unknown>)["email"]).to.not.equal(
-        "c@example.com",
-      );
-      expect((capturedArgs!["update"] as Record<string, unknown>)["email"]).to.not.equal(
-        "u@example.com",
-      );
+      expect(
+        (capturedArgs!["create"] as Record<string, unknown>)["email"],
+      ).to.not.equal("c@example.com");
+      expect(
+        (capturedArgs!["update"] as Record<string, unknown>)["email"],
+      ).to.not.equal("u@example.com");
     });
 
     it("encrypts each record in createMany", async () => {
@@ -209,15 +221,15 @@ describe("createEncryptionMiddleware", () => {
       const params = mockParams({
         action: "createMany",
         args: {
-          data: [
-            { email: "a@example.com" },
-            { email: "b@example.com" },
-          ],
+          data: [{ email: "a@example.com" }, { email: "b@example.com" }],
         },
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>[];
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >[];
         return { count: 2 };
       };
 
@@ -236,7 +248,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { count: 5 };
       };
 
@@ -254,7 +269,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -273,7 +291,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -407,12 +428,15 @@ describe("createEncryptionMiddleware", () => {
         { id: 1, email: secretbox.seal(TEST_KEY, "a@test.com").sealed },
       ];
 
-      const result = (await mw(params, next)) as (Record<string, unknown> | null)[];
+      const result = (await mw(params, next)) as (Record<
+        string,
+        unknown
+      > | null)[];
       expect(result[0]).to.be.null;
       expect(result[1]!["email"]).to.equal("a@test.com");
     });
 
-    it("returns value as-is when decryption fails (migration scenario)", async () => {
+    it("rejects a value that is not a ciphertext (fails closed)", async () => {
       const mw = createEncryptionMiddleware(config);
 
       const params = mockParams({
@@ -420,10 +444,11 @@ describe("createEncryptionMiddleware", () => {
         args: { where: { id: 1 } },
       });
 
-      // Not a valid sealed box, should return as-is
+      // Not a valid sealed box: must not be returned as trusted data
       const next = async () => ({ id: 1, email: "plaintext-not-encrypted" });
-      const result = (await mw(params, next)) as Record<string, unknown>;
-      expect(result["email"]).to.equal("plaintext-not-encrypted");
+      let error: unknown;
+      await mw(params, next).catch((err: unknown) => (error = err));
+      expect((error as Error).name).to.equal("FieldDecryptionError");
     });
   });
 
@@ -447,7 +472,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -476,7 +504,10 @@ describe("createEncryptionMiddleware", () => {
         });
 
         const next = async (p: typeof params) => {
-          const d = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+          const d = (p.args as Record<string, unknown>)["data"] as Record<
+            string,
+            unknown
+          >;
           results.push(d["email"] as string);
           return { id: i };
         };
@@ -517,7 +548,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<string, unknown>;
+        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<
+          string,
+          unknown
+        >;
         return null;
       };
 
@@ -541,7 +575,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<string, unknown>;
+        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<
+          string,
+          unknown
+        >;
         return null;
       };
 
@@ -560,7 +597,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<string, unknown>;
+        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<
+          string,
+          unknown
+        >;
         return [];
       };
 
@@ -589,7 +629,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedData = (p.args as Record<string, unknown>)["data"] as Record<string, unknown>;
+        capturedData = (p.args as Record<string, unknown>)["data"] as Record<
+          string,
+          unknown
+        >;
         return { id: 1 };
       };
 
@@ -655,7 +698,9 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const createNext = async (p: typeof createParams) => {
-        encryptedEmail = ((p.args as Record<string, unknown>)["data"] as Record<string, unknown>)["email"] as string;
+        encryptedEmail = (
+          (p.args as Record<string, unknown>)["data"] as Record<string, unknown>
+        )["email"] as string;
         return { id: 1 };
       };
 
@@ -670,7 +715,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const findNext = async () => ({ id: 1, email: encryptedEmail });
-      const result = (await mw(findParams, findNext)) as Record<string, unknown>;
+      const result = (await mw(findParams, findNext)) as Record<
+        string,
+        unknown
+      >;
       expect(result["email"]).to.equal("round-trip@test.com");
     });
   });
@@ -694,7 +742,10 @@ describe("createEncryptionMiddleware", () => {
       });
 
       const next = async (p: typeof params) => {
-        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<string, unknown>;
+        capturedWhere = (p.args as Record<string, unknown>)["where"] as Record<
+          string,
+          unknown
+        >;
         return null;
       };
 
@@ -805,7 +856,9 @@ describe("createFieldEncryptionExtension", () => {
       // Data was encrypted before reaching the query
       expect(capturedData!["email"]).to.not.equal("create@test.com");
       // Result was decrypted
-      expect((result as Record<string, unknown>)["email"]).to.equal("create@test.com");
+      expect((result as Record<string, unknown>)["email"]).to.equal(
+        "create@test.com",
+      );
     });
 
     it("returns non-object results as-is", async () => {
@@ -861,16 +914,18 @@ describe("createFieldEncryptionExtension", () => {
       });
 
       // data.email should be HMAC (deterministic)
-      expect((capturedArgs!["data"] as Record<string, unknown>)["email"]).to.equal(mac);
+      expect(
+        (capturedArgs!["data"] as Record<string, unknown>)["email"],
+      ).to.equal(mac);
       // where.email should also be HMAC
       const expectedWhereMac = computeHmac({
         algorithm: "sha256",
         key: TEST_KEY,
         data: "old@test.com",
       }).mac;
-      expect((capturedArgs!["where"] as Record<string, unknown>)["email"]).to.equal(
-        expectedWhereMac,
-      );
+      expect(
+        (capturedArgs!["where"] as Record<string, unknown>)["email"],
+      ).to.equal(expectedWhereMac);
       // Deterministic field returned as-is (one-way)
       expect((result as Record<string, unknown>)["email"]).to.equal(mac);
     });
@@ -918,19 +973,23 @@ describe("createFieldEncryptionExtension", () => {
         query: async (args) => {
           capturedArgs = args;
           // Return encrypted email to test decryption
-          const encrypted = (args["create"] as Record<string, unknown>)["email"];
+          const encrypted = (args["create"] as Record<string, unknown>)[
+            "email"
+          ];
           return { id: 1, email: encrypted };
         },
       });
 
-      expect((capturedArgs!["create"] as Record<string, unknown>)["email"]).to.not.equal(
+      expect(
+        (capturedArgs!["create"] as Record<string, unknown>)["email"],
+      ).to.not.equal("new@test.com");
+      expect(
+        (capturedArgs!["update"] as Record<string, unknown>)["email"],
+      ).to.not.equal("upd@test.com");
+      // Result should be decrypted
+      expect((result as Record<string, unknown>)["email"]).to.equal(
         "new@test.com",
       );
-      expect((capturedArgs!["update"] as Record<string, unknown>)["email"]).to.not.equal(
-        "upd@test.com",
-      );
-      // Result should be decrypted
-      expect((result as Record<string, unknown>)["email"]).to.equal("new@test.com");
     });
 
     it("returns non-object results as-is", async () => {
@@ -1030,7 +1089,9 @@ describe("createFieldEncryptionExtension", () => {
         query: async () => ({ id: 1, email: sealed }),
       });
 
-      expect((result as Record<string, unknown>)["email"]).to.equal("first@test.com");
+      expect((result as Record<string, unknown>)["email"]).to.equal(
+        "first@test.com",
+      );
     });
 
     it("returns null result as-is", async () => {
@@ -1081,7 +1142,7 @@ describe("createFieldEncryptionExtension", () => {
       expect(arr[1]["email"]).to.equal("b@test.com");
     });
 
-    it("returns invalid ciphertext as-is in findMany items", async () => {
+    it("rejects invalid ciphertext in findMany items", async () => {
       const ext = createFieldEncryptionExtension({
         key: TEST_KEY,
         encryptedFields: [{ model: "User", fields: ["email"] }],
@@ -1092,15 +1153,13 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const result = await findManyFn({
+      let error: unknown;
+      await findManyFn({
         args: {},
-        query: async () => [
-          { id: 1, email: "not-encrypted" },
-        ],
-      });
+        query: async () => [{ id: 1, email: "not-encrypted" }],
+      }).catch((err: unknown) => (error = err));
 
-      const arr = result as Record<string, unknown>[];
-      expect(arr[0]["email"]).to.equal("not-encrypted");
+      expect((error as Error).name).to.equal("FieldDecryptionError");
     });
 
     it("handles null items in findMany array", async () => {
@@ -1220,8 +1279,8 @@ describe("createFieldEncryptionExtension", () => {
     });
   });
 
-  describe("extension decryptValue catch branch", () => {
-    it("returns invalid ciphertext as-is when decryption fails in findUnique", async () => {
+  describe("extension decryptValue failure", () => {
+    it("rejects invalid ciphertext in findUnique", async () => {
       const ext = createFieldEncryptionExtension({
         key: TEST_KEY,
         encryptedFields: [{ model: "User", fields: ["email"] }],
@@ -1232,18 +1291,16 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const result = await findUniqueFn({
+      let error: unknown;
+      await findUniqueFn({
         args: { where: { id: 1 } },
         query: async () => ({ id: 1, email: "not-valid-sealed-data" }),
-      });
+      }).catch((err: unknown) => (error = err));
 
-      // decryptValue catch branch: returns value as-is
-      expect((result as Record<string, unknown>)["email"]).to.equal(
-        "not-valid-sealed-data",
-      );
+      expect((error as Error).name).to.equal("FieldDecryptionError");
     });
 
-    it("returns invalid ciphertext as-is in findFirst", async () => {
+    it("rejects invalid ciphertext in findFirst", async () => {
       const ext = createFieldEncryptionExtension({
         key: TEST_KEY,
         encryptedFields: [{ model: "User", fields: ["email"] }],
@@ -1254,12 +1311,13 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const result = await findFirstFn({
+      let error: unknown;
+      await findFirstFn({
         args: {},
         query: async () => ({ id: 1, email: "bad-ciphertext" }),
-      });
+      }).catch((err: unknown) => (error = err));
 
-      expect((result as Record<string, unknown>)["email"]).to.equal("bad-ciphertext");
+      expect((error as Error).name).to.equal("FieldDecryptionError");
     });
 
     it("returns non-string values as-is during decryption in extension", async () => {

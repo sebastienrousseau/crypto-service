@@ -4,16 +4,17 @@
 /**
  * @remarks Prisma middleware for transparent field-level encryption/decryption.
  *
- * Intercepts create/update/upsert to encrypt configured fields before they
- * reach the database, and intercepts find* queries to decrypt them on read.
+ * Intercepts create/update/upsert/createMany/updateMany to encrypt
+ * configured fields before they reach the database, and decrypts the
+ * records returned by find* queries and by create/update/upsert.
  *
- * Uses secretbox (XChaCha20-Poly1305) from crypto-lib by default, with
- * optional AES-256-GCM support. Deterministic fields use HMAC-SHA-256 to
- * produce searchable ciphertexts (same plaintext + key = same hash).
+ * Uses secretbox (XChaCha20-Poly1305) from crypto-lib in the `v2:` format
+ * described in `codec.ts`. Deterministic fields use an HMAC-SHA-256 blind
+ * index (same plaintext + key = same MAC) and are returned as the MAC.
+ * A stored value that cannot be decrypted raises `FieldDecryptionError`.
  */
 
-import { secretbox } from "@sebastienrousseau/crypto-lib";
-import { computeHmac } from "@sebastienrousseau/crypto-lib";
+import { createFieldCodec, type FieldCodec } from "./codec";
 import type { EncryptionConfig, FieldConfig } from "./types";
 
 /**
@@ -73,122 +74,7 @@ export type PrismaMiddleware = (
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-/** Return the list of encrypted field names for a given Prisma model. */
-function getFieldsForModel(
-  model: string,
-  encryptedFields: FieldConfig[],
-): string[] {
-  const config = encryptedFields.find(
-    (c) => c.model.toLowerCase() === model.toLowerCase(),
-  );
-  return config?.fields ?? [];
-}
-
-/** Check whether a field is configured for deterministic (HMAC) encryption. */
-function isDeterministic(
-  field: string,
-  deterministicFields?: string[],
-): boolean {
-  return deterministicFields?.includes(field) ?? false;
-}
-
-/**
- * Encrypt a single field value.
- *
- * - Deterministic fields produce a hex HMAC-SHA-256 digest (searchable).
- * - Non-deterministic fields produce a base64 secretbox sealed blob.
- */
-function encryptValue(
-  value: unknown,
-  key: string,
-  field: string,
-  deterministicFields?: string[],
-): unknown {
-  if (value === null || value === undefined) return value;
-  const plaintext = typeof value === "string" ? value : JSON.stringify(value);
-
-  if (isDeterministic(field, deterministicFields)) {
-    const { mac } = computeHmac({
-      algorithm: "sha256",
-      key,
-      data: plaintext,
-    });
-    return mac;
-  }
-
-  const { sealed } = secretbox.seal(key, plaintext);
-  return sealed;
-}
-
-/**
- * Decrypt a single field value.
- *
- * Deterministic (HMAC) fields are one-way and cannot be decrypted — they
- * are returned as-is so the caller can compare hashes.
- */
-function decryptValue(
-  value: unknown,
-  key: string,
-  field: string,
-  deterministicFields?: string[],
-): unknown {
-  if (value === null || value === undefined) return value;
-  if (typeof value !== "string") return value;
-
-  // Deterministic fields cannot be reversed
-  if (isDeterministic(field, deterministicFields)) {
-    return value;
-  }
-
-  try {
-    const plainBytes = secretbox.open(key, value);
-    return Buffer.from(plainBytes).toString("utf8");
-  } catch {
-    // If decryption fails (e.g. plaintext data during migration), return as-is
-    return value;
-  }
-}
-
-// ── Encrypt / decrypt record helpers ─────────────────────────────────
-
-/** Encrypt all configured fields in a data record in-place. */
-function encryptRecord(
-  data: Record<string, unknown> | undefined,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!data) return;
-  for (const field of fields) {
-    if (field in data) {
-      data[field] = encryptValue(data[field], key, field, deterministicFields);
-    }
-  }
-}
-
-/** Decrypt all configured fields in a result record in-place. */
-function decryptRecord(
-  record: Record<string, unknown> | undefined | null,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!record) return;
-  for (const field of fields) {
-    if (field in record) {
-      record[field] = decryptValue(
-        record[field],
-        key,
-        field,
-        deterministicFields,
-      );
-    }
-  }
-}
-
-// ── Actions ──────────────────────────────────────────────────────────
-
-/** Prisma actions that write data and require field encryption. */
+/** Prisma actions whose arguments carry record data to encrypt. */
 const WRITE_ACTIONS = [
   "create",
   "update",
@@ -196,113 +82,44 @@ const WRITE_ACTIONS = [
   "createMany",
   "updateMany",
 ];
-/** Prisma actions that read data and require field decryption. */
-const READ_ACTIONS = ["findUnique", "findFirst", "findMany"];
+/** Argument keys that carry record data to encrypt on write. */
+const WRITE_ARG_KEYS = ["data", "create", "update"];
+/** Prisma actions whose result records are decrypted. */
+const RESULT_ACTIONS = [
+  "create",
+  "update",
+  "upsert",
+  "findUnique",
+  "findUniqueOrThrow",
+  "findFirst",
+  "findFirstOrThrow",
+  "findMany",
+];
 
-/** Encrypt records for write actions (upsert, createMany, create, update, etc.). */
-function applyWriteEncryption(
-  action: string,
-  args: Record<string, unknown>,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (action === "upsert") {
-    encryptRecord(
-      args["create"] as Record<string, unknown> | undefined,
-      fields,
-      key,
-      deterministicFields,
-    );
-    encryptRecord(
-      args["update"] as Record<string, unknown> | undefined,
-      fields,
-      key,
-      deterministicFields,
-    );
-    return;
-  }
-
-  if (action === "createMany") {
-    const data = args["data"];
-    if (Array.isArray(data)) {
-      for (const record of data) {
-        encryptRecord(
-          record as Record<string, unknown>,
-          fields,
-          key,
-          deterministicFields,
-        );
-      }
-    }
-    return;
-  }
-
-  encryptRecord(
-    args["data"] as Record<string, unknown> | undefined,
-    fields,
-    key,
-    deterministicFields,
+/** Return the field configuration for a Prisma model (case-insensitive). */
+function findModelConfig(
+  model: string,
+  encryptedFields: FieldConfig[],
+): FieldConfig | undefined {
+  return encryptedFields.find(
+    (c) => c.model.toLowerCase() === model.toLowerCase(),
   );
 }
 
-/** Encrypt where clauses for deterministic searchable fields. */
-function applyWhereEncryption(
-  args: Record<string, unknown> | undefined,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
-): void {
-  if (!args || typeof args !== "object" || !deterministicFields) return;
-  const where = args["where"] as Record<string, unknown> | undefined;
-  if (!where) return;
-
-  for (const field of fields) {
-    if (
-      isDeterministic(field, deterministicFields) &&
-      field in where &&
-      typeof where[field] === "string"
-    ) {
-      where[field] = encryptValue(
-        where[field],
-        key,
-        field,
-        deterministicFields,
-      );
-    }
-  }
-}
-
-/** Decrypt returned records for read actions. */
-function applyReadDecryption(
+/** Encrypt write data and blind-index `where` values in place. */
+function encryptArgs(
+  codec: FieldCodec,
   action: string,
-  result: unknown,
-  fields: string[],
-  key: string,
-  deterministicFields?: string[],
+  args: Record<string, unknown> | undefined,
+  { model, fields }: FieldConfig,
 ): void {
-  if (!READ_ACTIONS.includes(action) || !result) return;
-
-  if (Array.isArray(result)) {
-    for (const record of result) {
-      decryptRecord(
-        record as Record<string, unknown>,
-        fields,
-        key,
-        deterministicFields,
-      );
+  if (!args) return;
+  if (WRITE_ACTIONS.includes(action)) {
+    for (const argKey of WRITE_ARG_KEYS) {
+      codec.encryptRecord(model, fields, args[argKey]);
     }
-    return;
   }
-
-  if (typeof result === "object") {
-    decryptRecord(
-      result as Record<string, unknown>,
-      fields,
-      key,
-      deterministicFields,
-    );
-  }
+  codec.encryptWhere(model, fields, args["where"]);
 }
 
 // ── Factory ──────────────────────────────────────────────────────────
@@ -328,51 +145,22 @@ function applyReadDecryption(
 export function createEncryptionMiddleware(
   config: EncryptionConfig,
 ): PrismaMiddleware {
-  const { key, encryptedFields, deterministicFields } = config;
-
-  if (!key || key.length !== 64) {
-    throw new Error(
-      "Encryption key must be a 64-character hex string (256 bits).",
-    );
-  }
+  const codec = createFieldCodec(config);
 
   return async (
     params: MiddlewareParams,
     next: MiddlewareNext,
   ): Promise<unknown> => {
-    const model = params.model;
-    if (!model) return next(params);
+    const modelConfig = params.model
+      ? findModelConfig(params.model, config.encryptedFields)
+      : undefined;
+    if (!modelConfig || modelConfig.fields.length === 0) return next(params);
 
-    const fields = getFieldsForModel(model, encryptedFields);
-    if (fields.length === 0) return next(params);
-
-    if (WRITE_ACTIONS.includes(params.action)) {
-      applyWriteEncryption(
-        params.action,
-        params.args as Record<string, unknown>,
-        fields,
-        key,
-        deterministicFields,
-      );
-    }
-
-    applyWhereEncryption(
-      params.args as Record<string, unknown> | undefined,
-      fields,
-      key,
-      deterministicFields,
-    );
-
+    encryptArgs(codec, params.action, params.args, modelConfig);
     const result = await next(params);
-
-    applyReadDecryption(
-      params.action,
-      result,
-      fields,
-      key,
-      deterministicFields,
-    );
-
+    if (RESULT_ACTIONS.includes(params.action)) {
+      codec.decryptRecord(modelConfig.model, modelConfig.fields, result);
+    }
     return result;
   };
 }
