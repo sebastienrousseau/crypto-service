@@ -51,12 +51,11 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <div class="card card-quickstart">
 <div class="quickstart-header">
 <span class="quickstart-title">Developer Quick-Start Installation</span>
-<span class="quickstart-lang">from source (pnpm workspace)</span>
+<span class="quickstart-lang">npm (0.0.8 or later)</span>
 </div>
 <div class="hero-code-block">
-<pre><code><span class="hero-code-comment"># 1. Build from source (npm has crypto-lib 0.0.3 only; crypto-prisma is not on npm)</span>
-<span class="hero-code-cmd">git clone</span> https://github.com/sebastienrousseau/crypto-service.git
-<span class="hero-code-cmd">cd</span> crypto-service &amp;&amp; <span class="hero-code-cmd">pnpm install</span> &amp;&amp; <span class="hero-code-cmd">pnpm -r run build</span>
+<pre><code><span class="hero-code-comment"># 1. Install (0.0.8 or later)</span>
+<span class="hero-code-cmd">pnpm add</span> @sebastienrousseau/crypto-lib
 
 <span class="hero-code-comment">// 2. ML-KEM-768 key encapsulation (FIPS 203 algorithm)</span>
 <span class="hero-code-keyword">import</span> { mlKemKeygen, mlKemEncap, mlKemDecap } <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@sebastienrousseau/crypto-lib"</span>;

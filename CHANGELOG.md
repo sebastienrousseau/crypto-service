@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8] - 2026-10-01
+
+### Fixed
+
+- **npm publishing**: six packages (crypto-kms, crypto-mcp, crypto-prisma, crypto-sdk, crypto-typeorm, crypto-wasm) had no `repository` field, which npm provenance requires, and the others used an SSH URL. Every manifest now declares `git+https://github.com/sebastienrousseau/crypto-service.git` with its package directory, so the release workflow can publish all 18 packages to npm with provenance. This is the first release published to npm in full; 0.0.6 and 0.0.7 were not published to npm.
+- **Release workflow**: a preflight step checks the manifests against the tag before building, and the npm step fails instead of silently skipping when `NPM_TOKEN` is missing.
+
+### Added
+
+- **`scripts/check-manifests.mjs`**: checks lockstep versions, the repository field, public access and the file list for every publishable package (and the tag, with `--tag`); it runs in CI, in the release workflow and in `make check`.
+
+### Changed
+
+- **Lockstep version bump**: all 18 packages, the root manifest and `CITATION.cff` move to 0.0.8. The README and website describe npm as the install path from 0.0.8.
+
 ## [0.0.7] - 2026-10-01
 
 ### Security
@@ -152,6 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.8]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.4...v0.0.5

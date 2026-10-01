@@ -77,18 +77,17 @@ Docker container images are published to GHCR. Standalone distro packages and Re
 
 ### Individual packages
 
-Only three packages are published to npm, and the published versions are
-older than this repository (`v0.0.7`):
+From 0.0.8, every tagged release publishes all 18 packages to npm (with
+provenance) and to GitHub Packages from CI:
 
 ```bash
-pnpm add @sebastienrousseau/crypto-lib      # npm 0.0.3
-pnpm add @sebastienrousseau/crypto-server   # npm 0.0.2
-pnpm add -g @sebastienrousseau/crypto-cli   # npm 0.0.1
+pnpm add @sebastienrousseau/crypto-lib
+pnpm add @sebastienrousseau/crypto-server
+pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-The Quick Start below uses the `v0.0.7` API, which the npm release of
-crypto-lib (0.0.3) may not include. Every other package in the table below
-is not on npm yet; use it from source through the pnpm workspace.
+Releases before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
+crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 
 ---
 
@@ -161,28 +160,28 @@ crypto-cli
 All 18 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
 
 > [!NOTE]
-> **Registry availability**: four packages are on npm, all at versions older than `v0.0.7`: `@sebastienrousseau/crypto-service` (0.0.2), `@sebastienrousseau/crypto-lib` (0.0.3), `@sebastienrousseau/crypto-server` (0.0.2) and `@sebastienrousseau/crypto-cli` (0.0.1). The other packages are not published; use them from source through the pnpm workspace.
+> **Registry availability**: from 0.0.8 every package is published to npm and GitHub Packages on each tagged release. Earlier npm versions of `@sebastienrousseau/crypto-service`, `crypto-lib`, `crypto-server` and `crypto-cli` predate this repository's fixes; use 0.0.8 or later.
 
-| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability     |
-| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :------------------------ |
-| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm 0.0.3 / v0.0.7 source |
-| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm 0.0.2 / v0.0.7 source |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm 0.0.1 / v0.0.7 source |
-| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Shared TypeScript types for the REST API surface                     | Shared HTTP contract                                 | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | KMS interface: AWS and local providers; GCP/Azure/Vault are stubs    | Envelope encryption and key rotation                 | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Field-level encryption before data reaches the DB    | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | Placeholder: contains no WebAssembly code yet                        | None yet; operations run in JavaScript               | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | Cryptographic inventory tracking                     | Source only (not on npm)  |
-| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | Source only (not on npm)  |
+| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability |
+| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :-------------------- |
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Shared TypeScript types for the REST API surface                     | Shared HTTP contract                                 | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | KMS interface: AWS and local providers; GCP/Azure/Vault are stubs    | Envelope encryption and key rotation                 | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Field-level encryption before data reaches the DB    | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | Placeholder: contains no WebAssembly code yet                        | None yet; operations run in JavaScript               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | Cryptographic inventory tracking                     | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | npm (0.0.8+)          |
 
 ---
 
