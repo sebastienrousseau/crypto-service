@@ -222,7 +222,7 @@ describe("Modern CLI Commands", function () {
     it("should sign with existing key (ed25519)", async () => {
       // First generate a key
       const { generateKeyPair } =
-        await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+        await import("@sebastienrousseau/crypto-lib/keys");
       const kp = generateKeyPair("ed25519");
       prompts.inject(["ed25519", "sign", "test message", kp.privateKey]);
       await handleModernSign();
@@ -231,9 +231,8 @@ describe("Modern CLI Commands", function () {
 
     it("should verify a signature (ed25519)", async () => {
       const { generateKeyPair } =
-        await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
-      const { crypto } =
-        await import("@sebastienrousseau/crypto-lib/dist/crypto");
+        await import("@sebastienrousseau/crypto-lib/keys");
+      const { crypto } = await import("@sebastienrousseau/crypto-lib");
       const kp = generateKeyPair("ed25519");
       const sig = crypto.sign("ed25519", kp.privateKey, "test");
       prompts.inject(["ed25519", "verify", "test", kp.publicKey, sig]);
@@ -286,7 +285,7 @@ describe("Modern CLI Commands", function () {
     it("should verify a password via PHC", async () => {
       // First hash to get a PHC string
       const { hashPassword } =
-        await import("@sebastienrousseau/crypto-lib/dist/modern/password");
+        await import("@sebastienrousseau/crypto-lib/modern");
       const result = hashPassword({
         password: "test123",
         memoryCost: 1024,

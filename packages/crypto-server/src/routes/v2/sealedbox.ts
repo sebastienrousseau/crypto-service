@@ -6,8 +6,12 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 sealed-box (anonymous public-key) encryption endpoints. */
-export default (app: FastifyInstance): void => {
+/** crypto-lib sealed-box API, loaded on first use. */
+const loadSealedbox = async () =>
+  (await import("@sebastienrousseau/crypto-lib/high-level")).sealedbox;
+
+/** POST /v2/sealedbox/seal: X25519 sealed box. */
+function registerSeal(app: FastifyInstance): void {
   app.post(
     "/v2/sealedbox/seal",
     {
@@ -27,8 +31,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { seal } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { seal } = await loadSealedbox();
         const { recipientPublicKey, plaintext } = request.body as {
           recipientPublicKey: string;
           plaintext: string;
@@ -39,7 +42,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** POST /v2/sealedbox/open: open an X25519 sealed box. */
+function registerOpen(app: FastifyInstance): void {
   app.post(
     "/v2/sealedbox/open",
     {
@@ -59,8 +65,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { open } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { open } = await loadSealedbox();
         const { recipientSecretKey, sealed } = request.body as {
           recipientSecretKey: string;
           sealed: string;
@@ -74,7 +79,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** POST /v2/sealedbox/seal-pq: X25519 + ML-KEM-768 sealed box. */
+function registerSealPq(app: FastifyInstance): void {
   app.post(
     "/v2/sealedbox/seal-pq",
     {
@@ -96,8 +104,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { sealPQ } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { sealPQ } = await loadSealedbox();
         const { x25519PublicKey, mlKemPublicKey, plaintext } = request.body as {
           x25519PublicKey: string;
           mlKemPublicKey: string;
@@ -111,7 +118,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** POST /v2/sealedbox/open-pq: open a post-quantum sealed box. */
+function registerOpenPq(app: FastifyInstance): void {
   app.post(
     "/v2/sealedbox/open-pq",
     {
@@ -132,8 +142,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { openPQ } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/sealedbox");
+        const { openPQ } = await loadSealedbox();
         const { x25519SecretKey, mlKemSecretKey, sealed } = request.body as {
           x25519SecretKey: string;
           mlKemSecretKey: string;
@@ -148,4 +157,12 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 sealed-box (anonymous public-key) encryption endpoints. */
+export default (app: FastifyInstance): void => {
+  registerSeal(app);
+  registerOpen(app);
+  registerSealPq(app);
+  registerOpenPq(app);
 };

@@ -5,7 +5,7 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
-import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign";
+import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/modern";
 
 /** List of SLH-DSA variants accepted by the v2 hash-sign endpoint. */
 const SLH_DSA_VARIANTS = [
@@ -23,8 +23,8 @@ const SLH_DSA_VARIANTS = [
   "shake-256s",
 ];
 
-/** Registers v2 SLH-DSA (FIPS 205) hash-based signature endpoints. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/pq/slh-dsa/keygen. */
+function registerPqSlhDsaKeygen(app: FastifyInstance): void {
   // SLH-DSA (FIPS 205) — Hash-Based Post-Quantum Signatures
   app.post(
     "/v2/pq/slh-dsa/keygen",
@@ -45,7 +45,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { slhDsaKeygen } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const { variant } = request.body as { variant: string };
         return reply.send({ data: slhDsaKeygen(variant as SlhDsaVariant) });
         /* c8 ignore next 3 -- schema enum validation prevents invalid variant values */
@@ -54,7 +54,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/pq/slh-dsa/sign. */
+function registerPqSlhDsaSign(app: FastifyInstance): void {
   app.post(
     "/v2/pq/slh-dsa/sign",
     {
@@ -76,7 +79,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { slhDsaSign } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           variant: string;
           secretKey: string;
@@ -94,7 +97,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/pq/slh-dsa/verify. */
+function registerPqSlhDsaVerify(app: FastifyInstance): void {
   app.post(
     "/v2/pq/slh-dsa/verify",
     {
@@ -117,7 +123,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { slhDsaVerify } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/pq-hash-sign");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           variant: string;
           publicKey: string;
@@ -137,4 +143,11 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 SLH-DSA (FIPS 205) hash-based signature endpoints. */
+export default (app: FastifyInstance): void => {
+  registerPqSlhDsaKeygen(app);
+  registerPqSlhDsaSign(app);
+  registerPqSlhDsaVerify(app);
 };

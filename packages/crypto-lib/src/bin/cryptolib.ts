@@ -168,27 +168,3 @@ export async function verify(data: dataVerify) {
   const verify = await key.verify.default(data);
   return verify;
 }
-
-/**
- * Default exported PGP crypto functions.
- *
- * @public
- */
-export default {
-  /** Decrypt a PGP-encrypted message. */
-  decrypt,
-  /** Encrypt a message with PGP. */
-  encrypt,
-  /** Generate a new PGP key pair. */
-  generate,
-  /** Reformat an existing PGP key. */
-  reformat,
-  /** Revoke a PGP key pair. */
-  revoke,
-  /** Generate a PGP session key. */
-  session,
-  /** Sign a message with PGP. */
-  sign,
-  /** Verify a PGP-signed message. */
-  verify,
-};

@@ -6,8 +6,8 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 password hashing and verification endpoints. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/password/hash. */
+function registerPasswordHash(app: FastifyInstance): void {
   app.post(
     "/v2/password/hash",
     {
@@ -32,7 +32,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { hashPassword } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/password");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           password: string;
           timeCost?: number;
@@ -52,7 +52,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/password/verify. */
+function registerPasswordVerify(app: FastifyInstance): void {
   app.post(
     "/v2/password/verify",
     {
@@ -85,7 +88,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { verifyPassword } =
-          await import("@sebastienrousseau/crypto-lib/dist/modern/password");
+          await import("@sebastienrousseau/crypto-lib/modern");
         const body = request.body as {
           password: string;
           hash: string;
@@ -104,4 +107,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 password hashing and verification endpoints. */
+export default (app: FastifyInstance): void => {
+  registerPasswordHash(app);
+  registerPasswordVerify(app);
 };

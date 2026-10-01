@@ -13,8 +13,8 @@ MESSAGE="Authenticate this message"
 
 # Ed25519 sign + verify
 node -e "
-  const { crypto } = require('@sebastienrousseau/crypto-lib/dist/crypto');
-  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/dist/keys/keygen');
+  const { crypto } = require('@sebastienrousseau/crypto-lib');
+  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/keys');
   const kp = generateKeyPair('ed25519');
   const sig = crypto.sign('ed25519', kp.privateKey, '$MESSAGE');
   const valid = crypto.verify('ed25519', kp.publicKey, '$MESSAGE', sig);
@@ -24,8 +24,8 @@ echo "  ✓ Ed25519 sign + verify"
 
 # ECDSA-P256 sign + verify
 node -e "
-  const { crypto } = require('@sebastienrousseau/crypto-lib/dist/crypto');
-  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/dist/keys/keygen');
+  const { crypto } = require('@sebastienrousseau/crypto-lib');
+  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/keys');
   const kp = generateKeyPair('p256');
   const sig = crypto.sign('ecdsa-p256', kp.privateKey, '$MESSAGE');
   const valid = crypto.verify('ecdsa-p256', kp.publicKey, '$MESSAGE', sig);
@@ -35,8 +35,8 @@ echo "  ✓ ECDSA-P256 sign + verify"
 
 # ML-DSA-65 post-quantum sign + verify
 node -e "
-  const { crypto } = require('@sebastienrousseau/crypto-lib/dist/crypto');
-  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/dist/keys/keygen');
+  const { crypto } = require('@sebastienrousseau/crypto-lib');
+  const { generateKeyPair } = require('@sebastienrousseau/crypto-lib/keys');
   const kp = generateKeyPair('ml-dsa-65');
   const sig = crypto.sign('ml-dsa-65', kp.privateKey, '$MESSAGE');
   const valid = crypto.verify('ml-dsa-65', kp.publicKey, '$MESSAGE', sig);

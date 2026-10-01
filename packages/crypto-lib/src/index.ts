@@ -5,10 +5,11 @@
  * streaming, protocols, tokens, acceleration, unified crypto API, and registry.
  */
 
-import CryptoLib from "./bin/cryptolib";
-
-/** Default export of the CryptoLib facade. */
-export default CryptoLib;
+// OpenPGP operations (encrypt, decrypt, sign, verify, generate, reformat,
+// revoke, session). Also published as the "./pgp" subpath. A named
+// namespace rather than a default export: a CommonJS default export does
+// not survive a native ESM import in Node.
+export * as pgp from "./bin/cryptolib";
 
 // Modern cryptographic primitives (noble-based)
 export * from "./modern";

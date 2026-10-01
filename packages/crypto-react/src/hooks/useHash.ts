@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import {
   hash as computeHash,
   type HashAlgorithm,
-} from "@sebastienrousseau/crypto-lib/dist/modern/hash";
+} from "@sebastienrousseau/crypto-lib/modern";
 
 /**
  * Return type of the {@link useHash} hook.

@@ -53,8 +53,7 @@ const handleModernHash = async () => {
   if (!response.algorithm || !response.data) return;
 
   try {
-    const { hash } =
-      await import("@sebastienrousseau/crypto-lib/dist/modern/hash");
+    const { hash } = await import("@sebastienrousseau/crypto-lib/modern");
 
     const result = hash({ algorithm: response.algorithm, data: response.data });
 

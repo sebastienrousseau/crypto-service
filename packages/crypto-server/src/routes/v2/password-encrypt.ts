@@ -6,8 +6,8 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 password-based encryption/decryption endpoints. */
-export default (app: FastifyInstance): void => {
+/** Registers /v2/password/encrypt. */
+function registerPasswordEncrypt(app: FastifyInstance): void {
   app.post(
     "/v2/password/encrypt",
     {
@@ -28,7 +28,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { passwordEncrypt } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
+          await import("@sebastienrousseau/crypto-lib/high-level");
         const { password, plaintext } = request.body as {
           password: string;
           plaintext: string;
@@ -42,7 +42,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** Registers /v2/password/decrypt. */
+function registerPasswordDecrypt(app: FastifyInstance): void {
   app.post(
     "/v2/password/decrypt",
     {
@@ -63,7 +66,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const { passwordDecrypt } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/password-encrypt");
+          await import("@sebastienrousseau/crypto-lib/high-level");
         const { password, ciphertext } = request.body as {
           password: string;
           ciphertext: string;
@@ -77,4 +80,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 password-based encryption/decryption endpoints. */
+export default (app: FastifyInstance): void => {
+  registerPasswordEncrypt(app);
+  registerPasswordDecrypt(app);
 };

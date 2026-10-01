@@ -68,7 +68,7 @@ const handleModernKeygen = async () => {
 
   try {
     const { generateKeyPair } =
-      await import("@sebastienrousseau/crypto-lib/dist/keys/keygen");
+      await import("@sebastienrousseau/crypto-lib/keys");
 
     const metadata: Record<string, string> = {};
     if (response.kid) metadata.kid = response.kid;

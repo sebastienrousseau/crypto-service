@@ -13,7 +13,7 @@ PASSWORD="super-secret-passphrase-2026"
 
 # Argon2id (recommended)
 node -e "
-  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/dist/modern/password');
+  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/modern');
   const result = hashPassword({ password: '$PASSWORD', variant: 'argon2id' });
   const check = verifyPasswordPhc({ password: '$PASSWORD', phc: result.phc });
   if (!check.valid) throw new Error('verification failed');
@@ -22,7 +22,7 @@ echo "  ✓ Argon2id hash + verify"
 
 # Argon2i (side-channel resistant)
 node -e "
-  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/dist/modern/password');
+  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/modern');
   const result = hashPassword({ password: '$PASSWORD', variant: 'argon2i' });
   const check = verifyPasswordPhc({ password: '$PASSWORD', phc: result.phc });
   if (!check.valid) throw new Error('verification failed');
@@ -31,7 +31,7 @@ echo "  ✓ Argon2i hash + verify"
 
 # Argon2d (GPU resistant)
 node -e "
-  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/dist/modern/password');
+  const { hashPassword, verifyPasswordPhc } = require('@sebastienrousseau/crypto-lib/modern');
   const result = hashPassword({ password: '$PASSWORD', variant: 'argon2d' });
   const check = verifyPasswordPhc({ password: '$PASSWORD', phc: result.phc });
   if (!check.valid) throw new Error('verification failed');

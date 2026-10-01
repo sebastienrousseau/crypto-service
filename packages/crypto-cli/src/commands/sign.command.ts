@@ -1,4 +1,4 @@
-import sign from "@sebastienrousseau/crypto-lib/dist/lib/sign";
+import { sign } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

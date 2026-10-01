@@ -16,12 +16,86 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "sideEffects": false,
-  "bin": {
-    "cryptolib": "./dist/index.js"
+  "typesVersions": {
+    "*": {
+      "modern": [
+        "./dist/modern/index.d.ts"
+      ],
+      "high-level": [
+        "./dist/high-level/index.d.ts"
+      ],
+      "keys": [
+        "./dist/keys/index.d.ts"
+      ],
+      "streaming": [
+        "./dist/streaming/index.d.ts"
+      ],
+      "protocols": [
+        "./dist/protocols/index.d.ts"
+      ],
+      "tokens": [
+        "./dist/tokens/index.d.ts"
+      ],
+      "accel": [
+        "./dist/accel/index.d.ts"
+      ],
+      "pgp": [
+        "./dist/bin/cryptolib.d.ts"
+      ]
+    }
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./modern": {
+      "types": "./dist/modern/index.d.ts",
+      "require": "./dist/modern/index.js",
+      "default": "./dist/modern/index.js"
+    },
+    "./high-level": {
+      "types": "./dist/high-level/index.d.ts",
+      "require": "./dist/high-level/index.js",
+      "default": "./dist/high-level/index.js"
+    },
+    "./keys": {
+      "types": "./dist/keys/index.d.ts",
+      "require": "./dist/keys/index.js",
+      "default": "./dist/keys/index.js"
+    },
+    "./streaming": {
+      "types": "./dist/streaming/index.d.ts",
+      "require": "./dist/streaming/index.js",
+      "default": "./dist/streaming/index.js"
+    },
+    "./protocols": {
+      "types": "./dist/protocols/index.d.ts",
+      "require": "./dist/protocols/index.js",
+      "default": "./dist/protocols/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "require": "./dist/tokens/index.js",
+      "default": "./dist/tokens/index.js"
+    },
+    "./accel": {
+      "types": "./dist/accel/index.d.ts",
+      "require": "./dist/accel/index.js",
+      "default": "./dist/accel/index.js"
+    },
+    "./pgp": {
+      "types": "./dist/bin/cryptolib.d.ts",
+      "require": "./dist/bin/cryptolib.js",
+      "default": "./dist/bin/cryptolib.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
   "files": [
     "dist/**/*.js",
     "dist/**/*.d.ts",

@@ -1,4 +1,4 @@
-import verify from "@sebastienrousseau/crypto-lib/dist/lib/verify";
+import { verify } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

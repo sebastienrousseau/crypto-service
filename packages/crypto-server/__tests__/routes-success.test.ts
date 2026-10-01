@@ -8,7 +8,19 @@ import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 import * as openpgp from "openpgp";
 import * as path from "path";
-import { _resetKeystoreForTests } from "@sebastienrousseau/crypto-lib/dist/key/keystore";
+import { createRequire } from "module";
+
+// The keystore cache is internal to crypto-lib and not part of its
+// package exports. Load the module by file path next to the package
+// entry, which is the same module instance the server uses, so the
+// tests can clear the cache after changing CRYPTO_KEY_DIR.
+const { _resetKeystoreForTests } = createRequire(__filename)(
+  path.join(
+    path.dirname(require.resolve("@sebastienrousseau/crypto-lib")),
+    "key",
+    "keystore.js",
+  ),
+) as { _resetKeystoreForTests: () => void };
 
 /**
  * Integration tests that exercise the full success path of each route.
