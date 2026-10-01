@@ -223,6 +223,14 @@ curl -H "x-api-key: your-secret-api-key" ...
 curl -H "Authorization: Bearer eyJhbGciOi..." ...
 ```
 
+A JWT must be HS256 and carry `exp` and `iat`; it is refused once it
+is older than `JWT_MAX_AGE` seconds (default 3600) or if it declares a
+longer lifetime (`exp - iat`). When `JWT_ISSUER` / `JWT_AUDIENCE` are
+set, its `iss` must equal the issuer and its `aud` must contain the
+audience. In production (`NODE_ENV=production`) both are required
+whenever `JWT_SECRET` is set, and the server refuses to start without
+them.
+
 ### Scopes
 
 Every route requires one scope, defined in one table
@@ -259,6 +267,9 @@ authentication but no scope.
 | `LOG_LEVEL`           | `info`        | `error`, `warn`, `info`, or `debug`                |
 | `CRYPTO_API_KEY`      | --            | Static API key for `x-api-key` authentication      |
 | `JWT_SECRET`          | --            | HMAC secret for HS256 JWT validation               |
+| `JWT_MAX_AGE`         | `3600`        | Maximum JWT lifetime in seconds                    |
+| `JWT_ISSUER`          | --            | Required JWT `iss` (required in production)        |
+| `JWT_AUDIENCE`        | --            | Required JWT `aud` (required in production)        |
 | `CORS_ORIGIN`         | --            | Comma-separated allowed origins (empty = disabled) |
 | `TRUSTED_PROXY_CIDRS` | --            | Comma-separated trusted proxy CIDRs                |
 | `CRYPTO_KEY_DIR`      | --            | Directory for key storage                          |

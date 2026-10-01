@@ -12,6 +12,9 @@
  *
  * Configure via environment variables:
  * - JWT_SECRET: HMAC secret for HS256 JWT validation
+ * - JWT_MAX_AGE: maximum token lifetime in seconds (default 3600)
+ * - JWT_ISSUER / JWT_AUDIENCE: required `iss` / `aud` (required in
+ *   production when JWT_SECRET is set)
  * - CRYPTO_API_KEY: Static API key for service-to-service auth
  *
  * If neither is set, requests are refused unless ALLOW_ANONYMOUS=1.
@@ -20,7 +23,12 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { timingSafeEqual } from "crypto";
 import { anonymousAllowed } from "../utils/validation";
-import { AUTHENTICATED, routeRequirement } from "../config/auth-policy";
+import {
+  AUTHENTICATED,
+  jwtConfigError,
+  jwtPolicy,
+  routeRequirement,
+} from "../config/auth-policy";
 
 /**
  * Available authorization scopes.
@@ -52,19 +60,82 @@ export interface AuthPayload {
 }
 
 /**
- * Register JWT plugin and authentication hooks.
+ * How far in the future a token's `iat` may be, in seconds, to allow for
+ * clock skew between the issuer and this server.
+ */
+const IAT_CLOCK_SKEW_SECONDS = 60;
+
+/**
+ * Register the JWT plugin when `JWT_SECRET` is set. Every token must be
+ * HS256, carry `exp` and `iat`, be younger than `JWT_MAX_AGE` seconds
+ * (default 3600), and match `JWT_ISSUER` / `JWT_AUDIENCE` when those are
+ * set. Throws on invalid JWT settings, so a misconfigured server does not
+ * start.
  */
 export async function registerAuth(app: FastifyInstance): Promise<void> {
   const jwtSecret = process.env["JWT_SECRET"];
+  if (!jwtSecret) return;
 
-  if (jwtSecret) {
-    /* c8 ignore next 5 -- @fastify/jwt requires Fastify 5.x; tested via catch */
-    const fastifyJwt = await import("@fastify/jwt");
-    await app.register(fastifyJwt.default, {
-      secret: jwtSecret,
+  const configError = jwtConfigError(process.env);
+  if (configError) throw new Error(configError);
+  const policy = jwtPolicy(process.env);
+
+  const fastifyJwt = await import("@fastify/jwt");
+  await app.register(fastifyJwt.default, {
+    secret: jwtSecret,
+    verify: {
       // Pin the algorithm so a token cannot choose a weaker one.
-      verify: { algorithms: ["HS256"] },
-    });
+      algorithms: ["HS256"],
+      // fast-jwt skips an absent claim, so required ones are listed here.
+      requiredClaims: [
+        "exp",
+        "iat",
+        ...(policy.issuer ? ["iss"] : []),
+        ...(policy.audience ? ["aud"] : []),
+      ],
+      // fast-jwt takes milliseconds and checks it against `iat`.
+      maxAge: policy.maxAgeSeconds * 1000,
+      ...(policy.issuer ? { allowedIss: policy.issuer } : {}),
+      ...(policy.audience ? { allowedAud: policy.audience } : {}),
+    },
+  });
+}
+
+/**
+ * Whether a verified token's declared lifetime breaks the policy: `exp`
+ * or `iat` missing or not a number, `exp - iat` longer than the maximum
+ * age, or `iat` in the future (beyond the clock-skew allowance).
+ */
+export function exceedsLifetime(
+  payload: AuthPayload,
+  maxAgeSeconds: number,
+  nowSeconds: number = Math.floor(Date.now() / 1000),
+): boolean {
+  const { exp, iat } = payload;
+  if (typeof exp !== "number" || typeof iat !== "number") return true;
+  return exp - iat > maxAgeSeconds || iat > nowSeconds + IAT_CLOCK_SKEW_SECONDS;
+}
+
+/**
+ * Verify the Bearer token with @fastify/jwt and the lifetime policy.
+ * Sends the 401 and returns null when it is invalid.
+ */
+async function verifyBearer(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<AuthPayload | null> {
+  try {
+    const decoded = await (
+      request as { jwtVerify: () => Promise<AuthPayload> }
+    ).jwtVerify();
+    const { maxAgeSeconds } = jwtPolicy(process.env);
+    if (exceedsLifetime(decoded, maxAgeSeconds)) {
+      throw new Error("token lifetime exceeds JWT_MAX_AGE");
+    }
+    return decoded;
+  } catch {
+    reply.status(401).send({ error: "Invalid or expired JWT token" });
+    return null;
   }
 }
 
@@ -124,15 +195,7 @@ export async function authenticate(
   // Try JWT first
   const authHeader = request.headers["authorization"];
   if (authHeader?.startsWith("Bearer ") && jwtSecret) {
-    try {
-      const decoded = await (
-        request as { jwtVerify: () => Promise<AuthPayload> }
-      ).jwtVerify();
-      return decoded;
-    } catch {
-      reply.status(401).send({ error: "Invalid or expired JWT token" });
-      return null;
-    }
+    return verifyBearer(request, reply);
   }
 
   // Fallback to API key

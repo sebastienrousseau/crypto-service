@@ -308,9 +308,12 @@ describe("Auth module", function () {
       process.env["JWT_SECRET"] = "test-secret";
       delete process.env["CRYPTO_API_KEY"];
 
+      const now = Math.floor(Date.now() / 1000);
       const expectedPayload: AuthPayload = {
         sub: "user1",
         scopes: ["crypto:encrypt"],
+        iat: now,
+        exp: now + 600,
       };
 
       const request = {

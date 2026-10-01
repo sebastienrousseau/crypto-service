@@ -63,12 +63,14 @@ const JWT_ONLY = {
   ALLOW_ANONYMOUS: undefined,
 };
 
-/** Sign a token with the app's own @fastify/jwt signer. */
+/** Sign a one-hour token with the app's own @fastify/jwt signer. */
 function sign(app: FastifyInstance, scopes: unknown): string {
-  return (app as unknown as { jwt: { sign: (p: object) => string } }).jwt.sign({
-    sub: "svc",
-    scopes,
-  });
+  const jwt = (
+    app as unknown as {
+      jwt: { sign: (p: object, o: { expiresIn: string }) => string };
+    }
+  ).jwt;
+  return jwt.sign({ sub: "svc", scopes }, { expiresIn: "1h" });
 }
 
 describe("Route authorization policy (F05)", function () {

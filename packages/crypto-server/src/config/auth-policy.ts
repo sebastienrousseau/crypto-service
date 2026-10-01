@@ -14,6 +14,54 @@ import { isProbePath } from "./constants";
 /** Minimum JWT HMAC secret length in bytes (HS256 key size). */
 const MIN_JWT_SECRET_BYTES = 32;
 
+/** Default maximum JWT lifetime in seconds (one hour). */
+export const DEFAULT_JWT_MAX_AGE_SECONDS = 3600;
+
+/** The claims checks applied to every JWT, from the environment. */
+export interface JwtPolicy {
+  /**
+   * Maximum token lifetime in seconds (`JWT_MAX_AGE`): a token must be
+   * younger than this (by `iat`) and must not declare a longer lifetime
+   * (`exp - iat`).
+   */
+  readonly maxAgeSeconds: number;
+  /** Required `iss` claim (`JWT_ISSUER`), or undefined to skip the check. */
+  readonly issuer: string | undefined;
+  /** Required `aud` value (`JWT_AUDIENCE`), or undefined to skip the check. */
+  readonly audience: string | undefined;
+}
+
+/**
+ * Check the JWT settings. `JWT_MAX_AGE`, when set, must be a positive
+ * integer number of seconds. With `JWT_SECRET` set, production also
+ * requires `JWT_ISSUER` and `JWT_AUDIENCE`, so a token minted for another
+ * service that shares the secret is not accepted.
+ */
+export function jwtConfigError(env: NodeJS.ProcessEnv): string | null {
+  const maxAge = env["JWT_MAX_AGE"];
+  if (maxAge && !/^[1-9]\d{0,8}$/.test(maxAge)) {
+    return "JWT_MAX_AGE must be a positive integer number of seconds";
+  }
+  const pinned = Boolean(env["JWT_ISSUER"] && env["JWT_AUDIENCE"]);
+  if (env["NODE_ENV"] === "production" && env["JWT_SECRET"] && !pinned) {
+    return "Production with JWT_SECRET requires JWT_ISSUER and JWT_AUDIENCE";
+  }
+  return null;
+}
+
+/**
+ * The JWT policy from the environment. Call {@link jwtConfigError} first:
+ * this assumes the settings are valid. Empty values count as unset.
+ */
+export function jwtPolicy(env: NodeJS.ProcessEnv): JwtPolicy {
+  const maxAge = env["JWT_MAX_AGE"];
+  return {
+    maxAgeSeconds: maxAge ? Number(maxAge) : DEFAULT_JWT_MAX_AGE_SECONDS,
+    issuer: env["JWT_ISSUER"] || undefined,
+    audience: env["JWT_AUDIENCE"] || undefined,
+  };
+}
+
 /**
  * Check the authentication settings. Returns an error message, or `null`
  * when they are acceptable.
@@ -27,6 +75,8 @@ export function authConfigError(env: NodeJS.ProcessEnv): string | null {
   if (jwtSecret && Buffer.byteLength(jwtSecret) < MIN_JWT_SECRET_BYTES) {
     return `JWT_SECRET must be at least ${MIN_JWT_SECRET_BYTES} bytes`;
   }
+  const jwtError = jwtConfigError(env);
+  if (jwtError) return jwtError;
   const hasCredential = Boolean(env["CRYPTO_API_KEY"] || jwtSecret);
   if (
     env["NODE_ENV"] === "production" &&

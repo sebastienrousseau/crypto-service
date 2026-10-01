@@ -136,8 +136,13 @@ describe("Fail-closed security defaults", function () {
           expect(denied.statusCode).to.equal(401);
 
           const token = (
-            app as unknown as { jwt: { sign: (p: object) => string } }
-          ).jwt.sign({ sub: "svc", scopes: ["crypto:hash"] });
+            app as unknown as {
+              jwt: { sign: (p: object, o: object) => string };
+            }
+          ).jwt.sign(
+            { sub: "svc", scopes: ["crypto:hash"] },
+            { expiresIn: "1h" },
+          );
           const allowed = await app.inject({
             method: "POST",
             url: "/v2/hash",

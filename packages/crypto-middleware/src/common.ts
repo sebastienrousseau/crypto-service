@@ -17,7 +17,7 @@ import {
   verifyHmac,
   timingSafeEqual,
 } from "@sebastienrousseau/crypto-lib";
-import { CryptoMiddlewareError, JwtPayload } from "./types";
+import { CryptoMiddlewareError, JwtPayload, MiddlewareConfig } from "./types";
 
 /**
  * Encrypt a JSON-serialisable payload using secretbox (XChaCha20-Poly1305).
@@ -129,8 +129,111 @@ function base64urlDecode(input: string): string {
   return Buffer.from(padded, "base64").toString("utf8");
 }
 
+/** Options for {@link verifyJwt}. */
+export interface JwtVerifyOptions {
+  /**
+   * Required `iss` claim. When set, a token with another issuer, or none,
+   * is rejected with `INVALID_ISSUER`.
+   */
+  issuer?: string | undefined;
+  /**
+   * Required audience. When set, the token's `aud` claim (a string or an
+   * array of strings) must contain it, or the token is rejected with
+   * `INVALID_AUDIENCE`.
+   */
+  audience?: string | undefined;
+}
+
+/** Throw a 401 {@link CryptoMiddlewareError}. */
+function reject(message: string, code: string): never {
+  throw new CryptoMiddlewareError(message, 401, code);
+}
+
+/** Split a compact JWS into its three base64url parts. */
+function splitToken(token: string): [string, string, string] {
+  if (!token) reject("Missing JWT token", "MISSING_TOKEN");
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    reject("Malformed JWT: expected 3 parts", "MALFORMED_TOKEN");
+  }
+  return parts as [string, string, string];
+}
+
+/** Decode one JWT segment as a JSON object, or throw `MALFORMED_TOKEN`. */
+function decodeObject(segment: string, name: string): Record<string, unknown> {
+  let value: unknown;
+  try {
+    value = JSON.parse(base64urlDecode(segment));
+  } catch {
+    value = undefined;
+  }
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    reject(`Malformed JWT ${name}`, "MALFORMED_TOKEN");
+  }
+  return value as Record<string, unknown>;
+}
+
+/** Check `HMAC-SHA256(secret, signingInput)` against the token signature. */
+function checkSignature(
+  jwtSecret: string,
+  signingInput: string,
+  signatureB64: string,
+): void {
+  // The secret may be a plain UTF-8 string; convert to hex for crypto-lib
+  const keyHex = Buffer.from(jwtSecret, "utf8").toString("hex");
+  const computed = computeHmac({
+    algorithm: "sha256",
+    key: keyHex,
+    data: signingInput,
+  });
+  // Decode the base64url signature to bytes for comparison
+  const sigPadded =
+    signatureB64 + "=".repeat((4 - (signatureB64.length % 4)) % 4);
+  const signatureBytes = Buffer.from(sigPadded, "base64");
+  const computedBytes = Buffer.from(computed.mac, "hex");
+  if (!timingSafeEqual(computedBytes, signatureBytes)) {
+    reject("Invalid JWT signature", "INVALID_TOKEN");
+  }
+}
+
+/**
+ * Check `exp` (required) and `nbf` (optional). Both must be numbers when
+ * present: a token without an expiry would be valid forever.
+ */
+function checkTimes(payload: JwtPayload): void {
+  const now = Math.floor(Date.now() / 1000);
+  if (typeof payload.exp !== "number") {
+    reject("JWT has no numeric exp claim", "MISSING_EXPIRATION");
+  }
+  if (now >= payload.exp) reject("JWT has expired", "TOKEN_EXPIRED");
+  if (payload.nbf === undefined) return;
+  if (typeof payload.nbf !== "number") {
+    reject("JWT nbf claim is not a number", "MALFORMED_TOKEN");
+  }
+  if (now < payload.nbf) reject("JWT is not yet valid", "TOKEN_NOT_YET_VALID");
+}
+
+/** Check the issuer and audience the caller requires, if any. */
+function checkIssuerAudience(
+  payload: JwtPayload,
+  options: JwtVerifyOptions,
+): void {
+  if (options.issuer !== undefined && payload.iss !== options.issuer) {
+    reject("JWT issuer is not accepted", "INVALID_ISSUER");
+  }
+  if (options.audience === undefined) return;
+  const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  if (!aud.includes(options.audience)) {
+    reject("JWT audience is not accepted", "INVALID_AUDIENCE");
+  }
+}
+
 /**
  * Verify a JWT (HS256 only) using HMAC-SHA256.
+ *
+ * The algorithm is pinned to HS256: any other `alg`, including `none`, is
+ * rejected. The token must carry a numeric `exp` claim; `nbf` is checked
+ * when present, and `iss` / `aud` when `options` require them.
  *
  * This is a minimal JWT verifier intended for middleware use cases. For
  * production systems requiring RS256/ES256 or full JOSE support, consider
@@ -138,117 +241,93 @@ function base64urlDecode(input: string): string {
  *
  * @param jwtSecret  The HMAC secret (UTF-8 string or hex-encoded key).
  * @param token      The raw JWT string (header.payload.signature).
+ * @param options    Required issuer and audience, if any.
  * @returns          The decoded JWT payload.
  * @throws           {CryptoMiddlewareError} On invalid/expired tokens.
  *
  * @example
  * ```ts
  * const token = req.headers.authorization?.replace("Bearer ", "") ?? "";
- * const payload = verifyJwt("my-hs256-secret", token);
+ * const payload = verifyJwt("my-hs256-secret", token, {
+ *   issuer: "https://auth.example.com",
+ *   audience: "orders-api",
+ * });
  * console.log(payload.sub); // "user-123"
  * ```
  */
-export function verifyJwt(jwtSecret: string, token: string): JwtPayload {
-  if (!token) {
-    throw new CryptoMiddlewareError("Missing JWT token", 401, "MISSING_TOKEN");
-  }
-
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new CryptoMiddlewareError(
-      "Malformed JWT: expected 3 parts",
-      401,
-      "MALFORMED_TOKEN",
-    );
-  }
-
-  const [headerB64, payloadB64, signatureB64] = parts as [
-    string,
-    string,
-    string,
-  ];
-
-  // Decode and validate header
-  let header: { alg: string; typ?: string };
-  try {
-    header = JSON.parse(base64urlDecode(headerB64));
-  } catch {
-    throw new CryptoMiddlewareError(
-      "Malformed JWT header",
-      401,
-      "MALFORMED_TOKEN",
-    );
-  }
-
-  if (header.alg !== "HS256") {
-    throw new CryptoMiddlewareError(
-      `Unsupported JWT algorithm: ${header.alg}. Only HS256 is supported.`,
-      401,
+export function verifyJwt(
+  jwtSecret: string,
+  token: string,
+  options: JwtVerifyOptions = {},
+): JwtPayload {
+  const [headerB64, payloadB64, signatureB64] = splitToken(token);
+  const header = decodeObject(headerB64, "header");
+  if (header["alg"] !== "HS256") {
+    reject(
+      `Unsupported JWT algorithm: ${String(header["alg"])}. Only HS256 is supported.`,
       "UNSUPPORTED_ALGORITHM",
     );
   }
-
-  // Verify signature: HMAC-SHA256(secret, header.payload)
-  const signingInput = `${headerB64}.${payloadB64}`;
-
-  // The secret may be a plain UTF-8 string; convert to hex for crypto-lib
-  const keyHex = Buffer.from(jwtSecret, "utf8").toString("hex");
-
-  const computed = computeHmac({
-    algorithm: "sha256",
-    key: keyHex,
-    data: signingInput,
-  });
-
-  // Decode the base64url signature to hex for comparison
-  const sigPadded =
-    signatureB64 + "=".repeat((4 - (signatureB64.length % 4)) % 4);
-  const sigHex = Buffer.from(sigPadded, "base64").toString("hex");
-
-  const computedBytes = Buffer.from(computed.mac, "hex");
-  const signatureBytes = Buffer.from(sigHex, "hex");
-
-  if (!timingSafeEqual(computedBytes, signatureBytes)) {
-    throw new CryptoMiddlewareError(
-      "Invalid JWT signature",
-      401,
-      "INVALID_TOKEN",
-    );
-  }
-
-  // Decode payload
-  let payload: JwtPayload;
-  try {
-    payload = JSON.parse(base64urlDecode(payloadB64));
-  } catch {
-    throw new CryptoMiddlewareError(
-      "Malformed JWT payload",
-      401,
-      "MALFORMED_TOKEN",
-    );
-  }
-
-  // Check expiration
-  if (payload.exp !== undefined) {
-    const now = Math.floor(Date.now() / 1000);
-    if (now >= payload.exp) {
-      throw new CryptoMiddlewareError("JWT has expired", 401, "TOKEN_EXPIRED");
-    }
-  }
-
-  // Check not-before
-  if (payload.nbf !== undefined) {
-    const now = Math.floor(Date.now() / 1000);
-    if (now < payload.nbf) {
-      throw new CryptoMiddlewareError(
-        "JWT is not yet valid",
-        401,
-        "TOKEN_NOT_YET_VALID",
-      );
-    }
-  }
-
+  checkSignature(jwtSecret, `${headerB64}.${payloadB64}`, signatureB64);
+  const payload = decodeObject(payloadB64, "payload") as JwtPayload;
+  checkTimes(payload);
+  checkIssuerAudience(payload, options);
   return payload;
+}
+
+/**
+ * Verify the Bearer token in an `Authorization` header with the JWT
+ * settings of a middleware configuration. Shared by the Express and
+ * Fastify adapters.
+ *
+ * @throws {CryptoMiddlewareError} 500 when `jwtSecret` is not configured,
+ *   401 when the token is missing or invalid.
+ */
+export function verifyBearerJwt(
+  config: MiddlewareConfig,
+  authorization: string | undefined,
+): JwtPayload {
+  if (!config.jwtSecret) {
+    throw new CryptoMiddlewareError(
+      "jwtSecret is required for verify-jwt operation",
+      500,
+      "MISSING_CONFIG",
+    );
+  }
+  const header = authorization ?? "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  return verifyJwt(config.jwtSecret, token, {
+    issuer: config.jwtIssuer,
+    audience: config.jwtAudience,
+  });
+}
+
+/**
+ * Verify the HMAC-SHA256 signature of a request (`x-signature` or
+ * `x-hub-signature-256` header) with the `hmacKey` of a middleware
+ * configuration. Shared by the Express and Fastify adapters.
+ *
+ * @throws {CryptoMiddlewareError} 500 when `hmacKey` is not configured,
+ *   401 when the signature is missing or invalid.
+ */
+export function verifyRequestSignature(
+  config: MiddlewareConfig,
+  headers: Record<string, string | string[] | undefined>,
+  body: unknown,
+): void {
+  if (!config.hmacKey) {
+    throw new CryptoMiddlewareError(
+      "hmacKey is required for verify-signature operation",
+      500,
+      "MISSING_CONFIG",
+    );
+  }
+  const signature =
+    (headers["x-signature"] as string) ??
+    (headers["x-hub-signature-256"] as string) ??
+    "";
+  const rawBody = typeof body === "string" ? body : JSON.stringify(body);
+  verifyHmacSignature(config.hmacKey, rawBody, signature);
 }
 
 /**
