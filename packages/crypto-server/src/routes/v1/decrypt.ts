@@ -15,6 +15,7 @@ import { decrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyDecrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 decrypt endpoint. */
@@ -36,11 +37,8 @@ const decryptSchema = {
         },
       },
     },
-    400: {
-      type: "object",
-      properties: { error: { type: "string" }, details: { type: "array" } },
-    },
-    401: { type: "object", properties: { error: { type: "string" } } },
+    400: PROBLEM_SCHEMA,
+    401: PROBLEM_SCHEMA,
   },
   body: {
     type: "object",
@@ -82,7 +80,7 @@ export default (app: FastifyInstance): void => {
         return reply.send({ data: decryptedData });
       } catch (error) {
         request.log.error(error, "Decryption operation failed");
-        return reply.status(500).send({ error: "Decryption failed" });
+        return sendProblem(reply, 500, "internal-error", "Decryption failed");
       }
     },
   );

@@ -148,6 +148,10 @@ describe("Route authorization policy (F05)", function () {
         status(code: number) {
           state.code = code;
           return {
+            // sendProblem chains reply.status(...).type(...).send(...).
+            type() {
+              return this;
+            },
             send(body: unknown) {
               state.body = body;
             },
@@ -222,7 +226,7 @@ describe("Route authorization policy (F05)", function () {
             payload: { key: "00".repeat(32), plaintext: "x" },
           });
           expect(outOfScope.statusCode).to.equal(403);
-          expect(outOfScope.json().message).to.equal(
+          expect(outOfScope.json().detail).to.equal(
             "Missing required scope: crypto:encrypt",
           );
 

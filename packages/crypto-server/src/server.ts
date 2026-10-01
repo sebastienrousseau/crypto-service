@@ -39,6 +39,7 @@ import {
 import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
 import { KdfRunner } from "./lib/kdf-runner";
+import { registerProblemHandlers } from "./lib/problem";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -90,6 +91,9 @@ async function init(): Promise<fastify.FastifyInstance> {
   });
 
   logger.info("\n\nEnvironment details: " + consoleOutput);
+
+  // Every error response is an RFC 9457 application/problem+json body.
+  registerProblemHandlers(app);
 
   // Assign a unique request ID (or honour the upstream one) and propagate
   // it as a response header for distributed tracing.

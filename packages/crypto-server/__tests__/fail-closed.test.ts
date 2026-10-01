@@ -103,7 +103,7 @@ describe("Fail-closed security defaults", function () {
         const reply = {
           status(code: number) {
             state.code = code;
-            return { send: () => undefined };
+            return { type: () => ({ send: () => undefined }) };
           },
         } as unknown as FastifyReply;
         const result = await authenticate(

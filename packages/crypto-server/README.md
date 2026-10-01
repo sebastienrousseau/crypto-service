@@ -203,6 +203,31 @@ requests must include an `x-api-key` header (or
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
+### Errors
+
+Every error response is an RFC 9457 problem, served as
+`application/problem+json`:
+
+```json
+{
+  "type": "urn:crypto-service:problem:forbidden",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Missing required scope: crypto:encrypt",
+  "instance": "/v2/encrypt"
+}
+```
+
+`type` is `urn:crypto-service:problem:<slug>`, one of
+`validation-failed` (400, with an `errors` array of `{ field, message }`),
+`invalid-input` (400), `request-error` (other 4xx), `unauthorized` (401),
+`forbidden` (403), `not-found` (404), `key-not-found` (404),
+`key-algorithm-mismatch` (400), `payload-too-large` (413),
+`rate-limited` (429, with `Retry-After`), `key-store-full` (503) and
+`internal-error` (500). A crypto-lib `CryptoError` or key-store error
+adds its `code`. A 500 never carries the internal message or stack, and
+`instance` is the request path without its query string.
+
 ### Work factors
 
 `/v2/kdf` and `/v2/password/hash` enforce the OWASP Password Storage

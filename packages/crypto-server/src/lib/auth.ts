@@ -23,6 +23,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { timingSafeEqual } from "crypto";
 import { anonymousAllowed } from "../utils/validation";
+import { sendProblem } from "./problem";
 import {
   AUTHENTICATED,
   jwtConfigError,
@@ -142,7 +143,7 @@ async function verifyBearer(
     }
     return decoded;
   } catch {
-    reply.status(401).send({ error: "Invalid or expired JWT token" });
+    sendProblem(reply, 401, "unauthorized", "Invalid or expired JWT token");
     return null;
   }
 }
@@ -158,16 +159,14 @@ function checkApiKey(
 ): AuthPayload | null {
   const providedKey = request.headers["x-api-key"];
   if (!providedKey || typeof providedKey !== "string") {
-    reply
-      .status(401)
-      .send({ error: "Unauthorized: Missing API key or Bearer token" });
+    sendProblem(reply, 401, "unauthorized", "Missing API key or Bearer token");
     return null;
   }
 
   const a = Buffer.from(providedKey);
   const b = Buffer.from(apiKey);
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    reply.status(401).send({ error: "Unauthorized: Invalid API key" });
+    sendProblem(reply, 401, "unauthorized", "Invalid API key");
     return null;
   }
 
@@ -194,9 +193,7 @@ export async function authenticate(
     if (anonymousAllowed()) {
       return { sub: "anonymous", scopes: ["crypto:admin"] };
     }
-    reply
-      .status(401)
-      .send({ error: "Unauthorized: authentication is not configured" });
+    sendProblem(reply, 401, "unauthorized", "Authentication is not configured");
     return null;
   }
 
@@ -211,9 +208,7 @@ export async function authenticate(
     return checkApiKey(request, reply, apiKey);
   }
 
-  reply
-    .status(401)
-    .send({ error: "Unauthorized: No valid credentials provided" });
+  sendProblem(reply, 401, "unauthorized", "No valid credentials provided");
   return null;
 }
 
@@ -238,10 +233,7 @@ export function requireScope(
   reply: FastifyReply,
 ): boolean {
   if (!hasScope(payload, scope)) {
-    reply.status(403).send({
-      error: "Forbidden",
-      message: `Missing required scope: ${scope}`,
-    });
+    sendProblem(reply, 403, "forbidden", `Missing required scope: ${scope}`);
     return false;
   }
   return true;
@@ -263,10 +255,12 @@ export function authorizeRoute(
   if (url === undefined) return true;
   const required = routeRequirement(request.method, url);
   if (required === undefined) {
-    reply.status(403).send({
-      error: "Forbidden",
-      message: "No access policy is defined for this route",
-    });
+    sendProblem(
+      reply,
+      403,
+      "forbidden",
+      "No access policy is defined for this route",
+    );
     return false;
   }
   if (required === AUTHENTICATED) return true;

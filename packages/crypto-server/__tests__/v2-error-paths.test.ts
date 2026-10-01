@@ -131,7 +131,7 @@ describe("V2 error paths", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Verification failed: invalid input");
+      expect(body.detail).to.equal("Verification failed: invalid input");
     });
   });
 
@@ -181,7 +181,7 @@ describe("V2 error paths", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encryption failed: invalid input");
+      expect(body.detail).to.equal("Encryption failed: invalid input");
     });
   });
 
@@ -247,7 +247,7 @@ describe("V2 error paths", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Key derivation failed: invalid input");
+      expect(body.detail).to.equal("Key derivation failed: invalid input");
     });
   });
 

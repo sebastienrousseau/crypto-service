@@ -28,6 +28,10 @@ function createMockReply() {
     status(code: number) {
       state.statusCode = code;
       return {
+        // sendProblem chains reply.status(...).type(...).send(...).
+        type() {
+          return this;
+        },
         send(body: unknown) {
           state.body = body;
           state.sent = true;
@@ -94,10 +98,10 @@ describe("Auth module", function () {
       );
       expect(result).to.be.false;
       expect(state.statusCode).to.equal(403);
-      expect((state.body as Record<string, unknown>).error).to.equal(
+      expect((state.body as Record<string, unknown>).title).to.equal(
         "Forbidden",
       );
-      expect((state.body as Record<string, unknown>).message).to.include(
+      expect((state.body as Record<string, unknown>).detail).to.include(
         "crypto:decrypt",
       );
     });
@@ -106,7 +110,7 @@ describe("Auth module", function () {
       const payload: AuthPayload = { sub: "test", scopes: [] };
       const { reply, state } = createMockReply();
       requireScope(payload, "crypto:kdf", reply as unknown as FastifyReply);
-      expect((state.body as Record<string, unknown>).message).to.equal(
+      expect((state.body as Record<string, unknown>).detail).to.equal(
         "Missing required scope: crypto:kdf",
       );
     });
@@ -155,7 +159,7 @@ describe("Auth module", function () {
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include(
+      expect((state.body as Record<string, unknown>).detail).to.include(
         "Missing API key",
       );
     });
@@ -175,7 +179,7 @@ describe("Auth module", function () {
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include(
+      expect((state.body as Record<string, unknown>).detail).to.include(
         "Invalid API key",
       );
     });
@@ -211,7 +215,7 @@ describe("Auth module", function () {
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include(
+      expect((state.body as Record<string, unknown>).detail).to.include(
         "No valid credentials",
       );
     });
@@ -299,7 +303,7 @@ describe("Auth module", function () {
 
       expect(result).to.be.null;
       expect(state.statusCode).to.equal(401);
-      expect((state.body as Record<string, unknown>).error).to.include(
+      expect((state.body as Record<string, unknown>).detail).to.include(
         "Invalid or expired JWT",
       );
     });

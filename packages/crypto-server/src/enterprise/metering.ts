@@ -9,6 +9,7 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { isProbePath } from "../config/constants";
+import { sendProblem } from "../lib/problem";
 import type {
   LicenseTier,
   MeteringCheckResult,
@@ -265,14 +266,17 @@ export const registerMetering = (
       if (!result.allowed) {
         const code = result.statusCode as number;
         if (code === 429) reply.header("Retry-After", result.resetSeconds);
-        return reply.code(code).send({
-          statusCode: code,
-          error: code === 413 ? "Payload Too Large" : "Too Many Requests",
-          message: result.error,
-          tier: result.tier,
-          limit: result.limit,
-          resetSeconds: result.resetSeconds,
-        });
+        return sendProblem(
+          reply,
+          code,
+          code === 413 ? "payload-too-large" : "rate-limited",
+          result.error as string,
+          {
+            tier: result.tier,
+            limit: result.limit,
+            resetSeconds: result.resetSeconds,
+          },
+        );
       }
     },
   );

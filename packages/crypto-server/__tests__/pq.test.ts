@@ -76,7 +76,7 @@ describe("PQ Routes (v2)", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encapsulation failed: invalid input");
+      expect(body.detail).to.equal("Encapsulation failed: invalid input");
     });
   });
 
@@ -128,7 +128,7 @@ describe("PQ Routes (v2)", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Decapsulation failed: invalid input");
+      expect(body.detail).to.equal("Decapsulation failed: invalid input");
     });
 
     it("should return 400 for missing required fields", async () => {
@@ -201,7 +201,9 @@ describe("PQ Routes (v2)", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Hybrid encapsulation failed: invalid input");
+      expect(body.detail).to.equal(
+        "Hybrid encapsulation failed: invalid input",
+      );
     });
 
     it("should return 400 for missing required fields", async () => {
@@ -274,7 +276,9 @@ describe("PQ Routes (v2)", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Hybrid decapsulation failed: invalid input");
+      expect(body.detail).to.equal(
+        "Hybrid decapsulation failed: invalid input",
+      );
     });
 
     it("should return 400 for missing required fields", async () => {

@@ -292,7 +292,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Validation failed");
+      expect(body.detail).to.equal("Validation failed");
     });
 
     it("should return 400 when decrypt has invalid base64 fields", async () => {
@@ -354,7 +354,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Decryption failed");
+      expect(body.detail).to.equal("Decryption failed");
     });
 
     it("should return 500 when encrypt fails with bad key", async () => {
@@ -370,7 +370,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encryption failed");
+      expect(body.detail).to.equal("Encryption failed");
     });
 
     it("should return 500 when verify fails with bad data", async () => {
@@ -386,7 +386,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Verification failed");
+      expect(body.detail).to.equal("Verification failed");
     });
 
     it("should return 500 when revoke fails with bad passphrase", async () => {
@@ -401,7 +401,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Revocation failed");
+      expect(body.detail).to.equal("Revocation failed");
     });
 
     it("should return 500 when generate fails with invalid params", async () => {

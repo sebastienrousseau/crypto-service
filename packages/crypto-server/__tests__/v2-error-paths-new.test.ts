@@ -42,7 +42,7 @@ describe("V2 error paths (extended)", function () {
         payload: { kek: "x", keyToWrap: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Key wrapping failed: invalid input",
       );
     });
@@ -72,7 +72,7 @@ describe("V2 error paths (extended)", function () {
         payload: { kek: "x", wrappedKey: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Key unwrapping failed: invalid input",
       );
     });
@@ -124,7 +124,7 @@ describe("V2 error paths (extended)", function () {
         payload: { algorithm: "sha256", key: "gg-invalid-hex!", data: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "HMAC computation failed: invalid input",
       );
     });
@@ -159,7 +159,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "HMAC verification failed: invalid input",
       );
     });
@@ -195,7 +195,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -268,7 +268,7 @@ describe("V2 error paths (extended)", function () {
         payload: { password: "test", ciphertext: "invalid-ct" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -358,7 +358,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Password verification failed: invalid input",
       );
     });
@@ -431,7 +431,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Verification failed: invalid input",
       );
     });
@@ -522,7 +522,7 @@ describe("V2 error paths (extended)", function () {
         payload: { level: 44, publicKey: "x", message: "test", signature: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Verification failed: invalid input",
       );
     });
@@ -592,7 +592,7 @@ describe("V2 error paths (extended)", function () {
         payload: { recipientPublicKey: "zz", plaintext: "hello" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -607,7 +607,7 @@ describe("V2 error paths (extended)", function () {
         payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -623,7 +623,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -636,7 +636,7 @@ describe("V2 error paths (extended)", function () {
         payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -724,7 +724,7 @@ describe("V2 error paths (extended)", function () {
         payload: { key: "zz", plaintext: "hello" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -755,7 +755,7 @@ describe("V2 error paths (extended)", function () {
         payload: { key: "zz", ciphertext: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
