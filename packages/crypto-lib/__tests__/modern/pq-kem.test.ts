@@ -171,30 +171,22 @@ describe("ML-KEM (FIPS 203)", function () {
     });
   });
 
-  describe("RFC 10024 Hybrid KEM Constants and Normalizer", () => {
-    it("should define valid RFC 10024 identifiers and codepoints", () => {
+  describe("RFC 10024 TLS group identifiers and normalizer", () => {
+    it("exposes the IANA names of the RFC 10024 TLS groups", () => {
       expect(RFC10024_X25519_MLKEM768).to.equal("X25519MLKEM768");
       expect(RFC10024_SECP256R1_MLKEM768).to.equal("SecP256r1MLKEM768");
       expect(RFC10024_CODEPOINTS[RFC10024_X25519_MLKEM768]).to.equal(0x11ec);
-      expect(RFC10024_CODEPOINTS[RFC10024_SECP256R1_MLKEM768]).to.equal(0x11ed);
+      expect(RFC10024_CODEPOINTS[RFC10024_SECP256R1_MLKEM768]).to.equal(0x11eb);
     });
 
-    it("should correctly normalize hybrid KEM algorithm identifiers", () => {
-      expect(normalizeHybridKemAlgorithm(RFC10024_X25519_MLKEM768)).to.equal(
+    it("passes this library's hybrid identifiers through unchanged", () => {
+      for (const name of [
         "x25519-ml-kem-768",
-      );
-      expect(normalizeHybridKemAlgorithm("x25519-ml-kem-768")).to.equal(
-        "x25519-ml-kem-768",
-      );
-      expect(normalizeHybridKemAlgorithm(RFC10024_SECP256R1_MLKEM768)).to.equal(
         "p256-ml-kem-768",
-      );
-      expect(normalizeHybridKemAlgorithm("p256-ml-kem-768")).to.equal(
-        "p256-ml-kem-768",
-      );
-      expect(normalizeHybridKemAlgorithm("x448-ml-kem-1024")).to.equal(
         "x448-ml-kem-1024",
-      );
+      ]) {
+        expect(normalizeHybridKemAlgorithm(name)).to.equal(name);
+      }
     });
   });
 });

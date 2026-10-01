@@ -978,7 +978,7 @@ export class CryptoClient {
         isHybrid: true,
         pk: 1216,
         ct: 1120,
-        fips: "FIPS 203 + RFC 10024",
+        fips: "FIPS 203 + X25519 hybrid",
       },
       {
         name: "ml-kem-768",
@@ -996,7 +996,7 @@ export class CryptoClient {
         isHybrid: true,
         pk: 832,
         ct: 800,
-        fips: "FIPS 203 + RFC 10024",
+        fips: "FIPS 203 + X25519 hybrid",
       },
       {
         name: "ml-kem-512",

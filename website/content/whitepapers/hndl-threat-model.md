@@ -21,7 +21,7 @@ light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 <span>Document ID: CSS-THREAT-2026-002</span>
 <span>Classification: Threat Intelligence Treatise</span>
 <span>Threat Actor Tier: Advanced Persistent Threat (APT) / Sovereign Signals Intelligence</span>
-<span>Primary Countermeasure: RFC 10024 Hybrid Dual-Key Encapsulation (X25519 + ML-KEM-768)</span>
+<span>Primary Countermeasure: Hybrid Key Encapsulation (X25519 + ML-KEM-768)</span>
 </div>
 </div>
 
@@ -41,7 +41,7 @@ Because financial transactions, sovereign debt portfolios, clinical healthcare d
 <li><a href="#adversarial-doctrine">1. Adversary Doctrine: Petabyte-Scale Harvesting Economics</a></li>
 <li><a href="#long-dated-exposure">2. The Exposure Calculus of Long-Dated Enterprise Assets</a></li>
 <li><a href="#cryptanalytic-decay">3. Cryptographic Decay Curves: Classical Diffie-Hellman vs. Shor's Algorithm</a></li>
-<li><a href="#hybrid-encapsulation">4. Mathematical Architecture of Hybrid Dual-Key Encapsulation (RFC 10024)</a></li>
+<li><a href="#hybrid-encapsulation">4. Mathematical Architecture of Hybrid Dual-Key Encapsulation</a></li>
 <li><a href="#database-at-rest">5. Defending Data-at-Rest: Retroactive Decryption of Encrypted Database Backups</a></li>
 <li><a href="#implementation-patterns">6. Implementation Patterns Using Crypto Service Suite</a></li>
 <li><a href="#executive-takeaways">7. Executive Takeaways &amp; Priority Remediation Checklist</a></li>
@@ -136,9 +136,9 @@ With approximately 4,000 logical qubits operating under fault-tolerant quantum e
 <hr class="section-divider">
 
 <section id="hybrid-encapsulation" class="research-section">
-<h2>4. Mathematical Architecture of Hybrid Dual-Key Encapsulation (RFC 10024)</h2>
+<h2>4. Mathematical Architecture of Hybrid Dual-Key Encapsulation</h2>
 <p class="lead-text">
-To defeat HNDL attacks immediately without waiting for global classical deprecation, Crypto Service Suite implements the <strong>RFC 10024 Hybrid Key Encapsulation Mechanism</strong>:
+To defeat HNDL attacks immediately without waiting for global classical deprecation, Crypto Service Suite implements a <strong>hybrid key encapsulation mechanism</strong> (X25519 + ML-KEM-768). Its combiner is specific to this library: it is neither the RFC 10024 TLS 1.3 key exchange nor X-Wing, so it does not interoperate with them. For TLS, use X25519MLKEM768 as specified in RFC 10024.
 </p>
 <p>
 The hybrid scheme executes two concurrent key encapsulations:
@@ -150,7 +150,10 @@ The hybrid scheme executes two concurrent key encapsulations:
 <p>
 The final symmetric key $K_{\text{session}}$ is derived using an extract-and-expand Key Derivation Function (HKDF-SHA256):
 </p>
-$$K_{\text{session}} = \text{HKDF-SHA256}(\text{IKM} = ss_{\text{classical}} \mathbin{\Vert} ss_{\text{pqc}},\ \text{info} = \texttt{"x25519-ml-kem-768-hybrid"},\ L = 32)$$
+$$K_{\text{session}} = \text{HKDF-SHA256}(\text{IKM} = ss_{\text{classical}} \mathbin{\Vert} ss_{\text{pqc}},\ \text{info} = \text{lp}(\texttt{label}) \mathbin{\Vert} \text{lp}(ct_{\text{classical}}) \mathbin{\Vert} \text{lp}(pk_{\text{classical}}) \mathbin{\Vert} \text{lp}(ct_{\text{pqc}}) \mathbin{\Vert} \text{lp}(pk_{\text{pqc}}),\ L = 32)$$
+<p>
+where $\text{lp}$ prefixes each value with its 4-byte big-endian length and $\texttt{label}$ is <code>crypto-service/hybrid-kem/v2/x25519-ml-kem-768</code>. Binding both ciphertexts and public keys means a substituted ciphertext or key changes the derived secret.
+</p>
 <p>
 <strong>The design goal:</strong> an adversary must break <em>both</em> the classical elliptic-curve problem and the post-quantum lattice problem to recover the session key. If a quantum computer breaks X25519, ML-KEM-768 still protects the key; if lattice cryptanalysis advances unexpectedly, X25519 still provides classical security. This relies on correct implementations of both components; crypto-lib uses <code>@noble/curves</code> and <code>@noble/post-quantum</code>, and the latter is not independently audited and does not guarantee constant-time execution.
 </p>

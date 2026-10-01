@@ -48,7 +48,7 @@ Enterprises frequently confuse public distributed ledgers like Hedera with found
 </tr>
 <tr>
 <td><strong>Post-Quantum Key Exchange</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM &amp; RFC 10024 hybrid dual encapsulation</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM &amp; X25519 + ML-KEM hybrid dual encapsulation</td>
 <td><span class="comp-badge-warn">CLASSICAL ECC</span><br>Pre-quantum elliptic curves (secp256k1 &amp; Ed25519)</td>
 </tr>
 <tr>

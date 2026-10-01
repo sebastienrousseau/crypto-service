@@ -124,7 +124,7 @@ The main cost of moving to lattice-based algorithms is size: ML-KEM ciphertexts 
 <td>32 bytes</td>
 </tr>
 <tr>
-<td><strong>RFC 10024 Hybrid (X25519 + ML-KEM-768)</strong></td>
+<td><strong>Hybrid KEM (X25519 + ML-KEM-768, library-specific combiner)</strong></td>
 <td>Dual-Key Hybrid</td>
 <td>Dual Classical + PQ</td>
 <td>1,120 bytes</td>

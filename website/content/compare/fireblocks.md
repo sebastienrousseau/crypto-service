@@ -43,7 +43,7 @@ While Fireblocks provides an extensive multi-tenant MPC network, standard commer
 <tbody>
 <tr>
 <td><strong>Cryptographic Primitive</strong></td>
-<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM-768/1024, ML-DSA-65/87 &amp; RFC 10024 Hybrid</td>
+<td class="col-highlight"><span class="comp-badge-ok">FIPS 203/204 ALGORITHMS</span><br>ML-KEM-768/1024, ML-DSA-65/87 &amp; X25519 + ML-KEM hybrid</td>
 <td><span class="comp-badge-warn">CLASSICAL MPC</span><br>Threshold ECDSA / Ed25519 (GG20 &amp; CMP algorithms)</td>
 </tr>
 <tr>

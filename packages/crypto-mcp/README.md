@@ -21,7 +21,7 @@ Instead of relying on fragile shell scripts or unverified LLM math, agents invok
 ## Features
 
 - **Standard MCP Protocol**: Full compliance with the Model Context Protocol JSON-RPC 2.0 specification via stdio transport.
-- **Post-Quantum Cryptography (PQC)**: Tools for NIST FIPS 203 (ML-KEM / Kyber), FIPS 204 (ML-DSA), and Composite Hybrid RFC 10024 key encapsulation.
+- **Post-Quantum Cryptography (PQC)**: Tools for NIST FIPS 203 (ML-KEM / Kyber), FIPS 204 (ML-DSA), and hybrid X25519 + ML-KEM key encapsulation.
 - **Classical Primitives**: RSA-2048/4096, ECC (P-256, P-384, P-521, secp256k1), Ed25519, OpenPGP (RFC 4880/9580), and AES-256-GCM / ChaCha20-Poly1305.
 - **Envelope Encryption**: Direct orchestration of multi-cloud Key Management Systems (AWS KMS, GCP KMS, Azure Key Vault, HashiCorp Vault).
 - **Cryptographic Bill of Materials (CBOM)**: Automated discovery and inventory of cryptographic assets for DORA Articles 9/13 and CRA compliance.

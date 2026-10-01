@@ -22,41 +22,146 @@ interface StreamVerifyItem {
   publicKey: string;
 }
 
-/** Registers high-throughput streaming and batch cryptographic pipeline endpoints. */
-export default (app: FastifyInstance): void => {
-  // Batch/Streaming Signing Pipeline
-  app.post(
-    "/v2/stream/sign",
-    {
-      schema: {
-        tags: ["Streaming"],
-        summary: "Batch sign messages with sub-millisecond throughput",
-        description:
-          "Process high-throughput batch digital signing operations over multiple payloads.",
-        body: {
+/** Request schema for `POST /v2/stream/sign`. */
+const SIGN_SCHEMA = {
+  tags: ["Streaming"],
+  summary: "Batch sign messages with sub-millisecond throughput",
+  description:
+    "Process high-throughput batch digital signing operations over multiple payloads.",
+  body: {
+    type: "object",
+    required: ["items"],
+    additionalProperties: false,
+    properties: {
+      items: {
+        type: "array",
+        minItems: 1,
+        maxItems: 1000,
+        items: {
           type: "object",
-          required: ["items"],
+          required: ["id", "message", "privateKey"],
           additionalProperties: false,
           properties: {
-            items: {
-              type: "array",
-              minItems: 1,
-              maxItems: 1000,
-              items: {
-                type: "object",
-                required: ["id", "message", "privateKey"],
-                additionalProperties: false,
-                properties: {
-                  id: { type: "string" },
-                  message: { type: "string", minLength: 1 },
-                  privateKey: { type: "string", minLength: 64, maxLength: 64 },
-                },
-              },
-            },
+            id: { type: "string" },
+            message: { type: "string", minLength: 1 },
+            privateKey: { type: "string", minLength: 64, maxLength: 64 },
           },
         },
       },
     },
+  },
+};
+
+/** Request schema for `POST /v2/stream/verify`. */
+const VERIFY_SCHEMA = {
+  tags: ["Streaming"],
+  summary: "Batch verify digital signatures",
+  description:
+    "Batch verification pipeline for high-concurrency payment and transaction verification.",
+  body: {
+    type: "object",
+    required: ["items"],
+    additionalProperties: false,
+    properties: {
+      items: {
+        type: "array",
+        minItems: 1,
+        maxItems: 1000,
+        items: {
+          type: "object",
+          required: ["id", "message", "signature", "publicKey"],
+          additionalProperties: false,
+          properties: {
+            id: { type: "string" },
+            message: { type: "string", minLength: 1 },
+            signature: { type: "string", minLength: 1 },
+            publicKey: { type: "string", minLength: 64, maxLength: 64 },
+          },
+        },
+      },
+    },
+  },
+};
+
+/** Request schema for `POST /v2/stream/iso20022`. */
+const ISO20022_SCHEMA = {
+  tags: ["Wholesale Payments"],
+  summary: "Verify ISO 20022 post-quantum dual-signature envelope",
+  description:
+    "Validates the payload digest and both the Ed25519 and ML-DSA signatures of a pacs.008, pain.001 or camt.053 envelope. Signatures are checked against trustedKeys, the signer's public keys from the caller's own registry; the public keys inside the envelope are ignored.",
+  body: {
+    type: "object",
+    required: ["envelope", "payload", "trustedKeys"],
+    additionalProperties: false,
+    properties: {
+      trustedKeys: {
+        type: "object",
+        required: ["classicalPublicKey", "postQuantumPublicKey"],
+        additionalProperties: false,
+        properties: {
+          classicalPublicKey: { type: "string", minLength: 1 },
+          postQuantumPublicKey: { type: "string", minLength: 1 },
+        },
+      },
+      envelope: {
+        type: "object",
+        required: [
+          "messageId",
+          "messageType",
+          "payloadDigest",
+          "digestAlgorithm",
+          "timestamp",
+          "classical",
+          "postQuantum",
+        ],
+        additionalProperties: false,
+        properties: {
+          messageId: { type: "string" },
+          messageType: {
+            type: "string",
+            enum: ["pacs.008", "pain.001", "camt.053", "generic"],
+          },
+          payloadDigest: { type: "string" },
+          digestAlgorithm: {
+            type: "string",
+            enum: ["sha256", "sha384", "sha512"],
+          },
+          timestamp: { type: "string" },
+          classical: {
+            type: "object",
+            required: ["algorithm", "signature", "publicKey"],
+            additionalProperties: false,
+            properties: {
+              algorithm: { type: "string" },
+              signature: { type: "string" },
+              publicKey: { type: "string" },
+            },
+          },
+          postQuantum: {
+            type: "object",
+            required: ["algorithm", "signature", "publicKey"],
+            additionalProperties: false,
+            properties: {
+              algorithm: {
+                type: "string",
+                enum: ["ml-dsa-44", "ml-dsa-65", "ml-dsa-87"],
+              },
+              signature: { type: "string" },
+              publicKey: { type: "string" },
+            },
+          },
+        },
+      },
+      payload: {},
+    },
+  },
+};
+
+/** Batch/streaming signing pipeline. */
+function registerBatchSign(app: FastifyInstance): void {
+  app.post(
+    "/v2/stream/sign",
+    { schema: SIGN_SCHEMA },
     async (request, reply) => {
       try {
         const { items } = request.body as { items: StreamSignItem[] };
@@ -82,41 +187,13 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
-  // Batch/Streaming Signature Verification Pipeline
+/** Batch/streaming signature verification pipeline. */
+function registerBatchVerify(app: FastifyInstance): void {
   app.post(
     "/v2/stream/verify",
-    {
-      schema: {
-        tags: ["Streaming"],
-        summary: "Batch verify digital signatures",
-        description:
-          "Batch verification pipeline for high-concurrency payment and transaction verification.",
-        body: {
-          type: "object",
-          required: ["items"],
-          additionalProperties: false,
-          properties: {
-            items: {
-              type: "array",
-              minItems: 1,
-              maxItems: 1000,
-              items: {
-                type: "object",
-                required: ["id", "message", "signature", "publicKey"],
-                additionalProperties: false,
-                properties: {
-                  id: { type: "string" },
-                  message: { type: "string", minLength: 1 },
-                  signature: { type: "string", minLength: 1 },
-                  publicKey: { type: "string", minLength: 64, maxLength: 64 },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    { schema: VERIFY_SCHEMA },
     async (request, reply) => {
       try {
         const { items } = request.body as { items: StreamVerifyItem[] };
@@ -150,83 +227,28 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
-  // ISO 20022 Post-Quantum Dual-Signature Verification Endpoint
+/** ISO 20022 post-quantum dual-signature verification endpoint. */
+function registerIso20022Verify(app: FastifyInstance): void {
   app.post(
     "/v2/stream/iso20022",
-    {
-      schema: {
-        tags: ["Wholesale Payments"],
-        summary: "Verify ISO 20022 post-quantum dual-signature envelope",
-        description:
-          "Validates payment payload digests and dual classical + ML-DSA signatures for pacs.008 and pain.001.",
-        body: {
-          type: "object",
-          required: ["envelope", "payload"],
-          additionalProperties: false,
-          properties: {
-            envelope: {
-              type: "object",
-              required: [
-                "messageId",
-                "messageType",
-                "payloadDigest",
-                "digestAlgorithm",
-                "timestamp",
-                "classical",
-                "postQuantum",
-              ],
-              additionalProperties: false,
-              properties: {
-                messageId: { type: "string" },
-                messageType: {
-                  type: "string",
-                  enum: ["pacs.008", "pain.001", "camt.053", "generic"],
-                },
-                payloadDigest: { type: "string" },
-                digestAlgorithm: {
-                  type: "string",
-                  enum: ["sha256", "sha384", "sha512"],
-                },
-                timestamp: { type: "string" },
-                classical: {
-                  type: "object",
-                  required: ["algorithm", "signature", "publicKey"],
-                  additionalProperties: false,
-                  properties: {
-                    algorithm: { type: "string" },
-                    signature: { type: "string" },
-                    publicKey: { type: "string" },
-                  },
-                },
-                postQuantum: {
-                  type: "object",
-                  required: ["algorithm", "signature", "publicKey"],
-                  additionalProperties: false,
-                  properties: {
-                    algorithm: {
-                      type: "string",
-                      enum: ["ml-dsa-44", "ml-dsa-65", "ml-dsa-87"],
-                    },
-                    signature: { type: "string" },
-                    publicKey: { type: "string" },
-                  },
-                },
-              },
-            },
-            payload: {},
-          },
-        },
-      },
-    },
+    { schema: ISO20022_SCHEMA },
     async (request, reply) => {
       try {
-        const { envelope, payload } = request.body as {
+        const { envelope, payload, trustedKeys } = request.body as {
           envelope: Iso20022DualSignatureEnvelope;
           payload: string | Record<string, unknown>;
+          trustedKeys: {
+            classicalPublicKey: string;
+            postQuantumPublicKey: string;
+          };
         };
 
-        const result = verifyIso20022Payment(envelope, payload);
+        const result = verifyIso20022Payment(envelope, payload, {
+          classicalPublicKeyHex: trustedKeys.classicalPublicKey,
+          postQuantumPublicKeyHex: trustedKeys.postQuantumPublicKey,
+        });
         return reply.send({ data: result });
         /* c8 ignore next 8 -- defensive: ISO 20022 verification handles internal errors */
       } catch (error) {
@@ -239,4 +261,11 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers high-throughput streaming and batch cryptographic pipeline endpoints. */
+export default (app: FastifyInstance): void => {
+  registerBatchSign(app);
+  registerBatchVerify(app);
+  registerIso20022Verify(app);
 };

@@ -13,6 +13,13 @@
  *   nonce (24 B) || ciphertext || tag (16 B)
  *
  * Total header overhead: 1 + 16 + 16 + 24 = 57 bytes before ciphertext.
+ *
+ * Version 0x02 (written by `passwordEncrypt`) passes the whole 57-byte header
+ * to XChaCha20-Poly1305 as associated data, so the tag authenticates the
+ * version, Argon2 parameters, salt and nonce as well as the ciphertext.
+ * Version 0x01 (legacy, no associated data) is still accepted by
+ * `passwordDecrypt` so existing payloads open; it is never written.
+ * The Argon2 cost caps apply to both versions before any key derivation.
  */
 
 import { argon2id } from "@noble/hashes/argon2.js";
@@ -20,8 +27,10 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkArgon2Costs } from "../modern/cost-limits";
 
-/** Password-encrypt format version identifier. */
-const VERSION = 0x01;
+/** Legacy format version: header not authenticated (decrypt only). */
+const VERSION_V1 = 0x01;
+/** Current format version: header authenticated as AEAD associated data. */
+const VERSION_V2 = 0x02;
 /** Random salt length in bytes. */
 const SALT_LEN = 16;
 /** XChaCha20 nonce length in bytes. */
@@ -86,6 +95,25 @@ function readU32LE(buf: Uint8Array, offset: number): number {
   );
 }
 
+/** Build the self-describing v2 header (also the AEAD associated data). */
+function buildHeader(
+  t: number,
+  m: number,
+  p: number,
+  salt: Uint8Array,
+  nonce: Uint8Array,
+): Uint8Array {
+  const header = new Uint8Array(HEADER_LEN);
+  header[0] = VERSION_V2;
+  writeU32LE(header, t, 1);
+  writeU32LE(header, m, 5);
+  writeU32LE(header, p, 9);
+  writeU32LE(header, KEY_LEN, 13);
+  header.set(salt, 17);
+  header.set(nonce, 17 + SALT_LEN);
+  return header;
+}
+
 /**
  * Encrypt plaintext with a password using Argon2id + XChaCha20-Poly1305.
  *
@@ -110,26 +138,12 @@ export function passwordEncrypt(
   const key = argon2id(pwd, salt, { t, m, p, dkLen: KEY_LEN });
 
   const nonce = randomBytes(NONCE_LEN);
-  const cipher = xchacha20poly1305(key, nonce);
-  const ct = cipher.encrypt(pt);
+  const header = buildHeader(t, m, p, salt, nonce);
+  const ct = xchacha20poly1305(key, nonce, header).encrypt(pt);
 
-  // Build self-describing header
   const out = new Uint8Array(HEADER_LEN + ct.length);
-  let off = 0;
-  out[off++] = VERSION;
-  writeU32LE(out, t, off);
-  off += 4;
-  writeU32LE(out, m, off);
-  off += 4;
-  writeU32LE(out, p, off);
-  off += 4;
-  writeU32LE(out, KEY_LEN, off);
-  off += 4;
-  out.set(salt, off);
-  off += SALT_LEN;
-  out.set(nonce, off);
-  off += NONCE_LEN;
-  out.set(ct, off);
+  out.set(header, 0);
+  out.set(ct, HEADER_LEN);
 
   return {
     encrypted: Buffer.from(out).toString("base64"),
@@ -138,9 +152,10 @@ export function passwordEncrypt(
 }
 
 /**
- * Decrypt a password-encrypted payload.
+ * Decrypt a password-encrypted payload (format version 0x02, or legacy 0x01).
  *
- * @throws If the password is wrong or the data has been tampered with.
+ * @throws If the password is wrong, the data has been tampered with, the
+ *   version is unknown, or the header costs exceed the configured caps.
  */
 export function passwordDecrypt(
   password: string | Uint8Array,
@@ -156,31 +171,24 @@ export function passwordDecrypt(
     throw new Error("Encrypted payload too short");
   }
 
-  let off = 0;
-  const version = raw[off++]!;
-  if (version !== VERSION) {
+  const version = raw[0]!;
+  if (version !== VERSION_V1 && version !== VERSION_V2) {
     throw new Error(`Unsupported format version: ${version}`);
   }
 
-  const t = readU32LE(raw, off);
-  off += 4;
-  const m = readU32LE(raw, off);
-  off += 4;
-  const p = readU32LE(raw, off);
-  off += 4;
-  const dkLen = readU32LE(raw, off);
-  off += 4;
-  const salt = raw.subarray(off, off + SALT_LEN);
-  off += SALT_LEN;
-  const nonce = raw.subarray(off, off + NONCE_LEN);
-  off += NONCE_LEN;
-  const ct = raw.subarray(off);
+  const t = readU32LE(raw, 1);
+  const m = readU32LE(raw, 5);
+  const p = readU32LE(raw, 9);
+  const dkLen = readU32LE(raw, 13);
+  const salt = raw.subarray(17, 17 + SALT_LEN);
+  const nonce = raw.subarray(17 + SALT_LEN, HEADER_LEN);
+  const ct = raw.subarray(HEADER_LEN);
 
   checkArgon2Costs(t, m, p);
   if (dkLen !== KEY_LEN) {
     throw new Error(`Unsupported key length in header: ${dkLen}`);
   }
   const key = argon2id(pwd, salt, { t, m, p, dkLen });
-  const cipher = xchacha20poly1305(key, nonce);
-  return cipher.decrypt(ct);
+  const aad = version === VERSION_V2 ? raw.subarray(0, HEADER_LEN) : undefined;
+  return xchacha20poly1305(key, nonce, aad).decrypt(ct);
 }

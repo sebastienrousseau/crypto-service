@@ -134,7 +134,7 @@ To allow gradual interbank adoption where some clearing member banks support PQC
   &lt;/SignedInfo&gt;
   &lt;SignatureValue&gt;...classical 64-byte ECDSA signature...&lt;/SignatureValue&gt;
 
-&lt;!-- Post-Quantum Extension Object (RFC 10024 / FIPS 204) --&gt;
+&lt;!-- Post-Quantum Extension Object (FIPS 204) --&gt;
 &lt;Object Id="PQCExtension"&gt;
 &lt;PQCSignature Algorithm="urn:nist:fips:204:ml-dsa-65"&gt;
 &lt;KeyId&gt;HSBC-PQC-KEY-2026-V1&lt;/KeyId&gt;
