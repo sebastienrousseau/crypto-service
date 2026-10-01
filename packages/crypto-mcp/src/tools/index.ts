@@ -3,7 +3,8 @@
 import { MCPCallToolResult, MCPToolInputSchema } from "../types";
 import { auditCbom } from "./cbom";
 import { TOOLS } from "./definitions";
-import { generateKey, inspectKey } from "./keys";
+import { kemDecapsulate, kemEncapsulate } from "./kem";
+import { destroyKey, generateKey, inspectKey, listKeys } from "./keys";
 import { kmsUnwrap, kmsWrap } from "./kms";
 import { ToolHandler, errorResult } from "./result";
 import { hash, sign, verify } from "./signing";
@@ -16,6 +17,10 @@ export { validateArguments } from "./validate";
 /** One handler per tool name declared in {@link TOOLS}. */
 const HANDLERS: Record<string, ToolHandler> = {
   crypto_generate_key: generateKey,
+  crypto_key_list: listKeys,
+  crypto_key_destroy: destroyKey,
+  crypto_kem_encapsulate: kemEncapsulate,
+  crypto_kem_decapsulate: kemDecapsulate,
   crypto_encrypt: encrypt,
   crypto_decrypt: decrypt,
   crypto_sign: sign,

@@ -4,11 +4,13 @@ import { expect } from "chai";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { mlKemEncap, mlKemDecap } from "@sebastienrousseau/crypto-lib";
+import { mlKemEncap } from "@sebastienrousseau/crypto-lib";
 import { CryptoMcpServer, executeTool } from "../src";
 import { generateKey } from "../src/tools/keys";
-import { parseKey256 } from "../src/tools/result";
+import { KeyKind, KeyStore, keyStore } from "../src/tools/keystore";
+import { MAX_KEK_LABELS } from "../src/tools/kms";
 import { hash } from "../src/tools/signing";
+import { call, callError, newKey, parse } from "./helpers";
 
 /** The message a rejected promise carries, or "" if it resolves. */
 async function rejection(promise: Promise<unknown>): Promise<string> {
@@ -20,8 +22,30 @@ async function rejection(promise: Promise<unknown>): Promise<string> {
   return "";
 }
 
-const parse = (res: { content: Array<{ text: string }> }) =>
-  JSON.parse(res.content[0].text);
+const ALL_KINDS: KeyKind[] = [
+  "ed25519",
+  "rsa",
+  "ecc",
+  "ml-kem-768",
+  "symmetric-256",
+  "hmac-sha256",
+];
+
+/** The raw secret bytes behind a handle, read from inside the server. */
+function secretOf(keyHandle: string): Buffer {
+  return keyStore.use(keyHandle, ALL_KINDS).secret as Buffer;
+}
+
+/** Every form in which a held key's secret could leak, as text. */
+function secretForms(keyHandle: string): string[] {
+  const key = keyStore.use(keyHandle, ALL_KINDS);
+  if (key.secret) {
+    return [key.secret.toString("hex"), key.secret.toString("base64")];
+  }
+  const der = key.privateKey?.export({ type: "pkcs8", format: "der" });
+  const pem = key.privateKey?.export({ type: "pkcs8", format: "pem" });
+  return [String(pem), (der as Buffer).toString("hex")];
+}
 
 /**
  * Reproduces the pre-v0.0.6 KEK derivation: scrypt(keyId, salt). If a
@@ -40,128 +64,246 @@ function unwrapWithKeyIdOnly(keyId: string, wrappedHex: string): string {
 }
 
 describe("Security hardening", () => {
+  describe("key material never reaches the client", () => {
+    it("no tool output contains a secret the server holds", async () => {
+      const outputs: string[] = [];
+      const record = async (tool: string, args: object) => {
+        const res = await executeTool(tool, args as Record<string, unknown>);
+        outputs.push(res.content[0].text);
+        return parse(res);
+      };
+      const handles: string[] = [];
+      for (const type of ["ed25519", "rsa", "ecc", "hmac-sha256"]) {
+        const key = await record("crypto_generate_key", { type });
+        handles.push(key.keyHandle);
+        await record("crypto_sign", { data: "d", keyHandle: key.keyHandle });
+      }
+      const kem = await record("crypto_generate_key", { type: "ml-kem-768" });
+      const enc = await record("crypto_kem_encapsulate", {
+        publicKey: kem.publicKey,
+      });
+      const dec = await record("crypto_kem_decapsulate", {
+        keyHandle: kem.keyHandle,
+        ciphertext: enc.ciphertext,
+      });
+      const sym = await record("crypto_encrypt", { plaintext: "p" });
+      await record("crypto_kms_wrap", {
+        provider: "local",
+        keyId: "leak-check",
+        keyHandle: sym.keyHandle,
+      });
+      await record("crypto_key_list", {});
+      handles.push(kem.keyHandle, enc.keyHandle, dec.keyHandle, sym.keyHandle);
+
+      const transcript = outputs.join("\n");
+      expect(transcript).to.not.include("PRIVATE KEY");
+      for (const handle of handles) {
+        for (const form of secretForms(handle)) {
+          expect(transcript.includes(form), handle).to.be.false;
+        }
+      }
+    });
+
+    it("no tool schema accepts raw key material", async () => {
+      const { TOOLS } = await import("../src");
+      for (const tool of TOOLS) {
+        const names = Object.keys(tool.inputSchema.properties);
+        for (const banned of ["key", "dek", "privateKey", "secret"]) {
+          expect(names, tool.name).to.not.include(banned);
+        }
+      }
+    });
+  });
+
+  describe("KeyStore", () => {
+    const symmetric = (byte: number) => ({
+      kind: "symmetric-256" as const,
+      secret: Buffer.alloc(32, byte),
+      info: {},
+    });
+
+    it("evicts the least recently used key and wipes its secret", () => {
+      const store = new KeyStore(2);
+      const first = symmetric(1);
+      const a = store.add(first);
+      const b = store.add(symmetric(2));
+      store.use(a, ["symmetric-256"]); // a is now most recently used
+      const c = store.add(symmetric(3));
+      expect(store.size).to.equal(2);
+      expect(() => store.use(b, ["symmetric-256"])).to.throw(
+        "Unknown key handle",
+      );
+      expect(store.list().map((k) => k.keyHandle)).to.deep.equal([a, c]);
+      expect(first.secret.equals(Buffer.alloc(32, 1))).to.be.true;
+      store.add(symmetric(4));
+      store.add(symmetric(5));
+      expect(first.secret.equals(Buffer.alloc(32))).to.be.true;
+    });
+
+    it("wipes a destroyed key and removes keys without raw secrets", () => {
+      const store = new KeyStore(4);
+      const key = symmetric(7);
+      const handle = store.add(key);
+      expect(store.remove(handle)).to.be.true;
+      expect(key.secret.equals(Buffer.alloc(32))).to.be.true;
+      expect(store.remove(handle)).to.be.false;
+      const pair = crypto.generateKeyPairSync("ed25519");
+      const asym = store.add({ kind: "ed25519", ...pair, info: {} });
+      expect(store.remove(asym)).to.be.true;
+      expect(store.size).to.equal(0);
+    });
+
+    it("bounds the shared store", async () => {
+      for (let i = 0; i <= keyStore.capacity; i++) {
+        await newKey("hmac-sha256");
+      }
+      expect(keyStore.size).to.equal(keyStore.capacity);
+    });
+  });
+
   describe("crypto_kms_wrap / crypto_kms_unwrap", () => {
     it("does not let a keyId holder derive the KEK", async () => {
-      const dek = crypto.randomBytes(32).toString("hex");
+      const dek = await newKey("symmetric-256");
       const keyId = "public-key-label";
-      const wrap = parse(
-        await executeTool("crypto_kms_wrap", { provider: "local", keyId, dek }),
-      );
+      const wrap = await call("crypto_kms_wrap", {
+        provider: "local",
+        keyId,
+        keyHandle: dek.keyHandle,
+      });
       let recovered: string | undefined;
       try {
         recovered = unwrapWithKeyIdOnly(keyId, wrap.wrappedKey);
       } catch {
         recovered = undefined;
       }
-      expect(recovered).to.not.equal(dek);
+      expect(recovered).to.not.equal(secretOf(dek.keyHandle).toString("hex"));
     });
 
-    it("round-trips a DEK through the local provider", async () => {
-      const dek = crypto.randomBytes(32).toString("hex");
-      const wrap = await executeTool("crypto_kms_wrap", {
+    it("unwraps to a handle holding the same DEK", async () => {
+      const dek = await newKey("symmetric-256");
+      const wrap = await call("crypto_kms_wrap", {
         provider: "local",
         keyId: "roundtrip",
-        dek,
+        keyHandle: dek.keyHandle,
       });
-      expect(wrap.isError).to.be.undefined;
-      const unwrap = await executeTool("crypto_kms_unwrap", {
+      const unwrap = await call("crypto_kms_unwrap", {
         provider: "local",
         keyId: "roundtrip",
-        wrappedKey: parse(wrap).wrappedKey,
+        wrappedKey: wrap.wrappedKey,
       });
-      expect(unwrap.isError).to.be.undefined;
-      expect(parse(unwrap).dek).to.equal(dek);
+      expect(unwrap.status).to.equal("unwrapped");
+      expect(secretOf(unwrap.keyHandle)).to.deep.equal(secretOf(dek.keyHandle));
     });
 
     it("reuses one KEK per label across several wraps", async () => {
-      const deks = [1, 2].map(() => crypto.randomBytes(32).toString("hex"));
+      const deks = [
+        await newKey("symmetric-256"),
+        await newKey("symmetric-256"),
+      ];
       const wrapped: string[] = [];
       for (const dek of deks) {
-        const res = await executeTool("crypto_kms_wrap", {
+        const res = await call("crypto_kms_wrap", {
           provider: "local",
           keyId: "shared-label",
-          dek,
+          keyHandle: dek.keyHandle,
         });
-        wrapped.push(parse(res).wrappedKey);
+        wrapped.push(res.wrappedKey);
       }
       for (const [i, wrappedKey] of wrapped.entries()) {
-        const res = await executeTool("crypto_kms_unwrap", {
+        const res = await call("crypto_kms_unwrap", {
           provider: "local",
           keyId: "shared-label",
           wrappedKey,
         });
-        expect(parse(res).dek).to.equal(deks[i]);
+        expect(secretOf(res.keyHandle)).to.deep.equal(
+          secretOf(deks[i].keyHandle),
+        );
       }
     });
 
     it("rejects providers that are not configured", async () => {
-      const dek = crypto.randomBytes(32).toString("hex");
+      const dek = await newKey("symmetric-256");
       for (const provider of ["aws", "gcp", "azure", "vault"]) {
-        const wrap = await executeTool("crypto_kms_wrap", {
+        const wrap = await callError("crypto_kms_wrap", {
           provider,
           keyId: "k",
-          dek,
+          keyHandle: dek.keyHandle,
         });
-        expect(wrap.isError, provider).to.be.true;
-        expect(wrap.content[0].text).to.include("not configured");
-        const unwrap = await executeTool("crypto_kms_unwrap", {
+        expect(wrap, provider).to.include("not configured");
+        const unwrap = await callError("crypto_kms_unwrap", {
           provider,
           keyId: "k",
           wrappedKey: "00",
         });
-        expect(unwrap.isError, provider).to.be.true;
-        expect(unwrap.content[0].text).to.include("not configured");
+        expect(unwrap, provider).to.include("not configured");
       }
-      const bogus = await executeTool("crypto_kms_wrap", {
+      const bogus = await callError("crypto_kms_wrap", {
         provider: "bogus",
         keyId: "k",
-        dek,
+        keyHandle: dek.keyHandle,
       });
-      expect(bogus.content[0].text).to.include('"provider" must be one of');
+      expect(bogus).to.include('"provider" must be one of');
     });
 
     it("refuses to unwrap under a key label that never wrapped", async () => {
-      const dek = crypto.randomBytes(32).toString("hex");
-      const wrap = parse(
-        await executeTool("crypto_kms_wrap", {
-          provider: "local",
-          keyId: "label-a",
-          dek,
-        }),
-      );
-      const unwrap = await executeTool("crypto_kms_unwrap", {
+      const dek = await newKey("symmetric-256");
+      const wrap = await call("crypto_kms_wrap", {
+        provider: "local",
+        keyId: "label-a",
+        keyHandle: dek.keyHandle,
+      });
+      const unwrap = await callError("crypto_kms_unwrap", {
         provider: "local",
         keyId: "label-never-used",
         wrappedKey: wrap.wrappedKey,
       });
-      expect(unwrap.isError).to.be.true;
-      expect(unwrap.content[0].text).to.include("Unknown key");
+      expect(unwrap).to.include("Unknown key");
     });
 
-    it("rejects a DEK that is not 32 hex-encoded bytes", async () => {
-      for (const dek of ["", "abcd", "zz".repeat(32), undefined]) {
-        const wrap = await executeTool("crypto_kms_wrap", {
+    it("wraps only symmetric-256 key handles", async () => {
+      const mac = await newKey("hmac-sha256");
+      const res = await callError("crypto_kms_wrap", {
+        provider: "local",
+        keyId: "k",
+        keyHandle: mac.keyHandle,
+      });
+      expect(res).to.include("refers to a hmac-sha256 key");
+    });
+
+    it("caps the number of KEK labels", async () => {
+      const dek = await newKey("symmetric-256");
+      let error = "";
+      for (let i = 0; i <= MAX_KEK_LABELS && !error; i++) {
+        const res = await executeTool("crypto_kms_wrap", {
           provider: "local",
-          keyId: "k",
-          dek,
+          keyId: `cap-${i}`,
+          keyHandle: dek.keyHandle,
         });
-        expect(wrap.isError, String(dek)).to.be.true;
+        if (res.isError) error = res.content[0].text;
       }
+      expect(error).to.include(`At most ${MAX_KEK_LABELS} KEK labels`);
+      // Labels created before the cap keep working.
+      await call("crypto_kms_wrap", {
+        provider: "local",
+        keyId: "cap-0",
+        keyHandle: dek.keyHandle,
+      });
     });
   });
 
   describe("crypto_generate_key", () => {
-    it("returns a real ML-KEM-768 keypair usable for encapsulation", async () => {
-      const res = await executeTool("crypto_generate_key", {
-        type: "ml-kem-768",
-      });
-      expect(res.isError).to.be.undefined;
-      const key = parse(res);
+    it("holds a real ML-KEM-768 keypair usable for decapsulation", async () => {
+      const key = await newKey("ml-kem-768");
       expect(key.publicKey).to.match(/^[0-9a-f]{2368}$/);
-      expect(key.privateKey).to.match(/^[0-9a-f]{4800}$/);
+      expect(secretOf(key.keyHandle)).to.have.lengthOf(2400);
       const enc = mlKemEncap(768, key.publicKey);
-      const dec = mlKemDecap(768, key.privateKey, enc.ciphertext);
-      expect(dec.sharedSecret).to.equal(enc.sharedSecret);
+      const dec = await call("crypto_kem_decapsulate", {
+        keyHandle: key.keyHandle,
+        ciphertext: enc.ciphertext,
+      });
+      expect(secretOf(dec.keyHandle).toString("hex")).to.equal(
+        enc.sharedSecret,
+      );
     });
 
     it("rejects RSA modulus lengths outside the documented set", async () => {
@@ -172,11 +314,8 @@ describe("Security hardening", () => {
         });
         expect(res.isError, String(modulusLength)).to.be.true;
       }
-      const ok = await executeTool("crypto_generate_key", {
-        type: "rsa",
-        modulusLength: 3072,
-      });
-      expect(parse(ok).bits).to.equal(3072);
+      const ok = await newKey("rsa", { modulusLength: 3072 });
+      expect(ok.bits).to.equal(3072);
     });
 
     it("rejects curves outside the documented set", async () => {
@@ -185,11 +324,8 @@ describe("Security hardening", () => {
         curve: "secp112r1",
       });
       expect(res.isError).to.be.true;
-      const ok = await executeTool("crypto_generate_key", {
-        type: "ecc",
-        curve: "secp384r1",
-      });
-      expect(parse(ok).curve).to.equal("secp384r1");
+      const ok = await newKey("ecc", { curve: "secp384r1" });
+      expect(ok.curve).to.equal("secp384r1");
     });
   });
 
@@ -203,11 +339,6 @@ describe("Security hardening", () => {
       ).to.include("Unsupported curve");
       const dsa = await generateKey({ type: "dsa" });
       expect(dsa.isError).to.be.true;
-    });
-
-    it("parseKey256 refuses anything but 64 hex characters", () => {
-      expect(() => parseKey256("abcd")).to.throw("64 hex characters");
-      expect(() => parseKey256(undefined, "dek")).to.throw("dek must be");
     });
   });
 
@@ -246,63 +377,28 @@ describe("Security hardening", () => {
     });
   });
 
-  describe("symmetric key handling", () => {
-    const badKeys = [
-      "my-secret-passphrase",
-      "00".repeat(16),
-      "00".repeat(33),
-      "00".repeat(31) + "zz",
-    ];
-
-    it("crypto_encrypt rejects keys that are not 32 hex-encoded bytes", async () => {
-      for (const key of badKeys) {
-        const res = await executeTool("crypto_encrypt", {
-          plaintext: "p",
-          key,
-        });
-        expect(res.isError, key).to.be.true;
-        expect(res.content[0].text).to.include(`"key"`);
-      }
-    });
-
-    it("crypto_decrypt rejects keys that are not 32 hex-encoded bytes", async () => {
-      const enc = parse(
-        await executeTool("crypto_encrypt", { plaintext: "p" }),
-      );
-      for (const key of badKeys) {
-        const res = await executeTool("crypto_decrypt", { ...enc, key });
-        expect(res.isError, key).to.be.true;
-        expect(res.content[0].text).to.include(`"key"`);
-      }
-    });
-  });
-
   describe("crypto_sign rsa-pss", () => {
     it("produces an RSASSA-PSS signature, not PKCS#1 v1.5", async () => {
-      const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-        modulusLength: 2048,
-        publicKeyEncoding: { type: "spki", format: "pem" },
-        privateKeyEncoding: { type: "pkcs8", format: "pem" },
-      });
-      const res = await executeTool("crypto_sign", {
+      const key = await newKey("rsa");
+      const res = await call("crypto_sign", {
         data: "x",
-        algorithm: "rsa-pss",
-        privateKey,
+        keyHandle: key.keyHandle,
       });
-      const sig = Buffer.from(parse(res).signature, "hex");
+      expect(res.algorithm).to.equal("rsa-pss");
+      const sig = Buffer.from(res.signature, "hex");
       const pss = crypto.verify(
         "sha256",
         Buffer.from("x"),
         {
-          key: publicKey,
+          key: key.publicKey,
           padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
           saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,
         },
         sig,
       );
       expect(pss).to.be.true;
-      expect(crypto.verify("sha256", Buffer.from("x"), publicKey, sig)).to.be
-        .false;
+      expect(crypto.verify("sha256", Buffer.from("x"), key.publicKey, sig)).to
+        .be.false;
     });
   });
 

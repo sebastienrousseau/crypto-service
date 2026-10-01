@@ -8,36 +8,57 @@ import {
   executeTool,
   validateArguments,
 } from "../src";
+import { newKey } from "./helpers";
 
-const HEX64 = "ab".repeat(32);
+/** A well-formed handle that this server never issued. */
+const UNISSUED = `kh_${"0".repeat(32)}`;
 
 /**
- * One valid argument set per tool. Every tool must have an entry, so a
- * new tool cannot ship without being run through the checks below.
+ * One valid argument set per tool, built once real key handles exist.
+ * Every tool must have an entry, so a new tool cannot ship without being
+ * run through the checks below.
  */
-const VALID: Record<string, Record<string, unknown>> = {
-  crypto_generate_key: { type: "ed25519" },
-  crypto_encrypt: { plaintext: "p", algorithm: "aes-256-gcm", key: HEX64 },
-  crypto_decrypt: {
-    ciphertext: "00",
-    algorithm: "aes-256-gcm",
-    key: HEX64,
-    iv: "00".repeat(12),
-    authTag: "00".repeat(16),
-  },
-  crypto_sign: { data: "d", algorithm: "hmac-sha256", privateKey: "k" },
-  crypto_verify: {
-    data: "d",
-    signature: "00",
-    algorithm: "hmac-sha256",
-    publicKey: "k",
-  },
-  crypto_hash: { data: "d", algorithm: "sha256" },
-  crypto_kms_wrap: { provider: "local", keyId: "k", dek: HEX64 },
-  crypto_kms_unwrap: { provider: "local", keyId: "k", wrappedKey: "00" },
-  crypto_inspect_key: { keyData: "x" },
-  crypto_audit_cbom: { algorithms: "RSA-2048" },
-};
+const VALID: Record<string, Record<string, unknown>> = {};
+
+async function buildFixtures(): Promise<void> {
+  const sym = await newKey("symmetric-256");
+  const mac = await newKey("hmac-sha256");
+  const kem = await newKey("ml-kem-768");
+  const doomed = await newKey("hmac-sha256");
+  Object.assign(VALID, {
+    crypto_generate_key: { type: "ed25519" },
+    crypto_key_list: {},
+    crypto_key_destroy: { keyHandle: doomed.keyHandle },
+    crypto_inspect_key: { keyData: "x" },
+    crypto_encrypt: {
+      plaintext: "p",
+      algorithm: "aes-256-gcm",
+      keyHandle: sym.keyHandle,
+    },
+    crypto_decrypt: {
+      ciphertext: "00",
+      algorithm: "aes-256-gcm",
+      keyHandle: sym.keyHandle,
+      iv: "00".repeat(12),
+      authTag: "00".repeat(16),
+    },
+    crypto_kem_encapsulate: { publicKey: kem.publicKey },
+    crypto_kem_decapsulate: {
+      keyHandle: kem.keyHandle,
+      ciphertext: "00".repeat(1088),
+    },
+    crypto_sign: { data: "d", keyHandle: mac.keyHandle },
+    crypto_verify: { data: "d", signature: "00", keyHandle: UNISSUED },
+    crypto_hash: { data: "d", algorithm: "sha256" },
+    crypto_kms_wrap: {
+      provider: "local",
+      keyId: "roundtrip",
+      keyHandle: sym.keyHandle,
+    },
+    crypto_kms_unwrap: { provider: "local", keyId: "k", wrappedKey: "00" },
+    crypto_audit_cbom: { algorithms: "RSA-2048" },
+  });
+}
 
 const text = (res: { content: Array<{ text: string }> }) => res.content[0].text;
 
@@ -68,6 +89,8 @@ async function expectRejected(
 }
 
 describe("Tool argument validation", () => {
+  before(buildFixtures);
+
   it("has a valid fixture for every declared tool", () => {
     expect(Object.keys(VALID).sort()).to.deep.equal(
       TOOLS.map((t) => t.name).sort(),
