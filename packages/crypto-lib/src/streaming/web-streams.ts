@@ -26,6 +26,12 @@ import { blake3 } from "@noble/hashes/blake3.js";
 const TS = (globalThis as Record<string, unknown>)
   .TransformStream as typeof import("stream/web").TransformStream;
 
+/** A typed TransformStream from `I` chunks to `O` chunks. */
+export type CryptoTransformStream<I, O> = import("stream/web").TransformStream<
+  I,
+  O
+>;
+
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
 
@@ -142,12 +148,12 @@ const hashFactories: Record<WebStreamHashAlgorithm, () => HashLike> = {
  */
 export function createEncryptStream(
   options: EncryptStreamOptions,
-): InstanceType<typeof TS> {
+): CryptoTransformStream<Uint8Array, Uint8Array> {
   const keyBytes = toKey(options.key);
   const chunks: Uint8Array[] = [];
   let totalLen = 0;
 
-  return new TS({
+  return new TS<Uint8Array, Uint8Array>({
     transform(chunk: Uint8Array) {
       chunks.push(chunk);
       totalLen += chunk.length;
@@ -194,12 +200,12 @@ export function createEncryptStream(
  */
 export function createDecryptStream(
   options: DecryptStreamOptions,
-): InstanceType<typeof TS> {
+): CryptoTransformStream<Uint8Array, Uint8Array> {
   const keyBytes = toKey(options.key);
   const chunks: Uint8Array[] = [];
   let totalLen = 0;
 
-  return new TS({
+  return new TS<Uint8Array, Uint8Array>({
     transform(chunk: Uint8Array) {
       chunks.push(chunk);
       totalLen += chunk.length;
@@ -249,14 +255,14 @@ export function createDecryptStream(
  */
 export function createHashStream(
   algorithm: WebStreamHashAlgorithm,
-): InstanceType<typeof TS> {
+): CryptoTransformStream<Uint8Array, HashStreamResult> {
   const factory = hashFactories[algorithm];
   if (!factory) {
     throw new Error(`Unsupported hash algorithm: ${algorithm}`);
   }
   const hasher = factory();
 
-  return new TS({
+  return new TS<Uint8Array, HashStreamResult>({
     transform(chunk: Uint8Array) {
       hasher.update(chunk);
     },

@@ -8,17 +8,17 @@
  */
 
 import { header, task, summary } from "./support";
-import { mlKemKeygen, mlKemEncapsulate, mlKemDecapsulate } from "../src";
+import { mlKemKeygen, mlKemEncap, mlKemDecap } from "../src";
 
 async function main() {
   header("crypto-lib -- pqkem");
 
   const kp = await task("Generate ML-KEM-768 key pair", () => mlKemKeygen(768));
 
-  const encap = await task("Encapsulate shared secret", () => mlKemEncapsulate(768, kp.publicKey));
+  const encap = await task("Encapsulate shared secret", () => mlKemEncap(768, kp.publicKey));
 
   await task("Decapsulate and verify shared secret", () => {
-    const decap = mlKemDecapsulate(768, kp.secretKey, encap.ciphertext);
+    const decap = mlKemDecap(768, kp.secretKey, encap.ciphertext);
     if (encap.sharedSecret !== decap.sharedSecret) throw new Error("Shared secrets do not match");
   });
 

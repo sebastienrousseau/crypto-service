@@ -7,7 +7,7 @@
  * Run: `npx ts-node examples/kdf.ts`
  */
 
-import { header, task, taskWithOutput, summary } from "./support";
+import { header, taskWithOutput, summary } from "./support";
 import { kdfDerive } from "../src";
 
 async function main() {
@@ -15,7 +15,7 @@ async function main() {
 
   const password = "my-secret-password";
 
-  const scryptResult = await taskWithOutput("Derive key with scrypt (RFC 7914)", () => {
+  await taskWithOutput("Derive key with scrypt (RFC 7914)", () => {
     const r = kdfDerive({ algorithm: "scrypt", password, params: { N: 16384, r: 8, p: 1 } });
     return [`key: ${r.derivedKey.slice(0, 40)}...`, `salt: ${r.salt}`, `length: ${r.keyLength} bytes`];
   });

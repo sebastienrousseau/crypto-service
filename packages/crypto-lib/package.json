@@ -36,7 +36,8 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/index.js",
     "test": "c8 --check-coverage --lines 100 --branches 99.5 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "examples:check": "tsc -p examples/tsconfig.json"
   },
   "dependencies": {
     "@noble/ciphers": "^2.4.0",

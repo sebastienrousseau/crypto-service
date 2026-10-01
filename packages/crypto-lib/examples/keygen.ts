@@ -7,7 +7,7 @@
  * Run: `npx ts-node examples/keygen.ts`
  */
 
-import { header, task, taskWithOutput, summary } from "./support";
+import { header, taskWithOutput, summary } from "./support";
 import { generateKeyPair } from "../src";
 import type { KeyAlgorithm } from "../src";
 
