@@ -78,14 +78,30 @@ describe("writeUtils", () => {
       expect(stderrOutput[0]).to.equal("err-final");
     });
 
-    it("should append newline on finalLine when stream is a TTY and not on Windows", function () {
-      if (process.platform === "win32") {
-        this.skip();
+    /** Run `fn` with process.platform reported as `platform`. */
+    const onPlatform = (platform: NodeJS.Platform, fn: () => void): void => {
+      const original = Object.getOwnPropertyDescriptor(process, "platform")!;
+      Object.defineProperty(process, "platform", { value: platform });
+      try {
+        fn();
+      } finally {
+        Object.defineProperty(process, "platform", original);
       }
+    };
+
+    // Both platforms are simulated, so coverage is the same on every OS.
+    it("should append newline on finalLine when stream is a TTY and not on Windows", () => {
       (process.stdout as unknown as { isTTY?: boolean | undefined }).isTTY =
         true;
-      writeUtils.writeLn("tty-final", true);
+      onPlatform("linux", () => writeUtils.writeLn("tty-final", true));
       expect(stdoutOutput[0]).to.equal("tty-final\n");
+    });
+
+    it("should omit newline on finalLine on Windows even on a TTY", () => {
+      (process.stdout as unknown as { isTTY?: boolean | undefined }).isTTY =
+        true;
+      onPlatform("win32", () => writeUtils.writeLn("win-final", true));
+      expect(stdoutOutput[0]).to.equal("win-final");
     });
   });
 });
