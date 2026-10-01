@@ -223,6 +223,35 @@ describe("Security hardening", () => {
     });
   });
 
+  describe("crypto_sign rsa-pss", () => {
+    it("produces an RSASSA-PSS signature, not PKCS#1 v1.5", async () => {
+      const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+        modulusLength: 2048,
+        publicKeyEncoding: { type: "spki", format: "pem" },
+        privateKeyEncoding: { type: "pkcs8", format: "pem" },
+      });
+      const res = await executeTool("crypto_sign", {
+        data: "x",
+        algorithm: "rsa-pss",
+        privateKey,
+      });
+      const sig = Buffer.from(parse(res).signature, "hex");
+      const pss = crypto.verify(
+        "sha256",
+        Buffer.from("x"),
+        {
+          key: publicKey,
+          padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,
+        },
+        sig,
+      );
+      expect(pss).to.be.true;
+      expect(crypto.verify("sha256", Buffer.from("x"), publicKey, sig)).to.be
+        .false;
+    });
+  });
+
   describe("server version", () => {
     it("reports the version from package.json", async () => {
       const pkg = JSON.parse(

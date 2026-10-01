@@ -4,7 +4,16 @@ import crypto from "node:crypto";
 import { HASH_ALGORITHMS } from "./definitions";
 import { ToolHandler, jsonResult } from "./result";
 
-/** `crypto_sign`: Ed25519, HMAC-SHA256, or RSA (SHA-256) signature. */
+/** RSASSA-PSS with SHA-256, MGF1-SHA-256 and a digest-length salt. */
+function pssKey(key: string) {
+  return {
+    key,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+    saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,
+  };
+}
+
+/** `crypto_sign`: Ed25519, HMAC-SHA256, or RSASSA-PSS (SHA-256). */
 export const sign: ToolHandler = async (args) => {
   const data = String(args.data);
   const algorithm = (args.algorithm as string) || "ed25519";
@@ -25,10 +34,10 @@ export const sign: ToolHandler = async (args) => {
     return jsonResult({ algorithm, signature });
   }
 
-  const signer = crypto.createSign("SHA256");
-  signer.update(data);
-  signer.end();
-  return jsonResult({ algorithm, signature: signer.sign(privateKey, "hex") });
+  const signature = crypto
+    .sign("sha256", Buffer.from(data), pssKey(privateKey))
+    .toString("hex");
+  return jsonResult({ algorithm, signature });
 };
 
 function verifySignature(
@@ -55,10 +64,12 @@ function verifySignature(
       Buffer.from(signature, "hex"),
     );
   }
-  const verifier = crypto.createVerify("SHA256");
-  verifier.update(data);
-  verifier.end();
-  return verifier.verify(publicKey, Buffer.from(signature, "hex"));
+  return crypto.verify(
+    "sha256",
+    Buffer.from(data),
+    pssKey(publicKey),
+    Buffer.from(signature, "hex"),
+  );
 }
 
 /** `crypto_verify`: check a signature produced by `crypto_sign`. */
