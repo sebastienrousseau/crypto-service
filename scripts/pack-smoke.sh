@@ -67,6 +67,24 @@ node -e 'const l = require("@sebastienrousseau/crypto-lib"); if (Object.keys(l).
 (cd "$work/crypto-cbom" && node node_modules/@sebastienrousseau/crypto-cbom/dist/cli.js --help >/dev/null)
 (cd "$work/crypto-cli" && node -e 'require("@sebastienrousseau/crypto-cbom"); require("@sebastienrousseau/crypto-lib");')
 
+# The installed crypto-cli binary hashes standard input non-interactively
+# and prints the digest as JSON (`crypto-cli hash --json < file`).
+(
+  cd "$work/crypto-cli"
+  printf 'crypto-cli pack smoke\n' >input.txt
+  ./node_modules/.bin/crypto-cli hash --json <input.txt >hash.json
+  node -e '
+    const fs = require("fs");
+    const got = JSON.parse(fs.readFileSync("hash.json", "utf8"));
+    const want = require("crypto").createHash("sha256")
+      .update(fs.readFileSync("input.txt")).digest("hex");
+    if (got.algorithm !== "sha256" || got.digest !== want || got.length !== 32) {
+      console.error("pack-smoke: unexpected crypto-cli hash output", got);
+      process.exit(1);
+    }
+  '
+)
+
 cd "$work/crypto-server"
 
 CRYPTO_API_KEY=smoke PORT="$port" NODE_ENV=production \
