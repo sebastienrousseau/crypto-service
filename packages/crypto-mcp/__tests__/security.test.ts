@@ -6,6 +6,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { mlKemEncap, mlKemDecap } from "@sebastienrousseau/crypto-lib";
 import { CryptoMcpServer, executeTool } from "../src";
+import { generateKey } from "../src/tools/keys";
+import { parseKey256 } from "../src/tools/result";
+import { hash } from "../src/tools/signing";
+
+/** The message a rejected promise carries, or "" if it resolves. */
+async function rejection(promise: Promise<unknown>): Promise<string> {
+  try {
+    await promise;
+  } catch (err: unknown) {
+    return (err as Error).message;
+  }
+  return "";
+}
 
 const parse = (res: { content: Array<{ text: string }> }) =>
   JSON.parse(res.content[0].text);
@@ -65,6 +78,7 @@ describe("Security hardening", () => {
       const wrapped: string[] = [];
       for (const dek of deks) {
         const res = await executeTool("crypto_kms_wrap", {
+          provider: "local",
           keyId: "shared-label",
           dek,
         });
@@ -72,6 +86,7 @@ describe("Security hardening", () => {
       }
       for (const [i, wrappedKey] of wrapped.entries()) {
         const res = await executeTool("crypto_kms_unwrap", {
+          provider: "local",
           keyId: "shared-label",
           wrappedKey,
         });
@@ -81,7 +96,7 @@ describe("Security hardening", () => {
 
     it("rejects providers that are not configured", async () => {
       const dek = crypto.randomBytes(32).toString("hex");
-      for (const provider of ["aws", "gcp", "azure", "vault", "bogus"]) {
+      for (const provider of ["aws", "gcp", "azure", "vault"]) {
         const wrap = await executeTool("crypto_kms_wrap", {
           provider,
           keyId: "k",
@@ -97,14 +112,25 @@ describe("Security hardening", () => {
         expect(unwrap.isError, provider).to.be.true;
         expect(unwrap.content[0].text).to.include("not configured");
       }
+      const bogus = await executeTool("crypto_kms_wrap", {
+        provider: "bogus",
+        keyId: "k",
+        dek,
+      });
+      expect(bogus.content[0].text).to.include('"provider" must be one of');
     });
 
     it("refuses to unwrap under a key label that never wrapped", async () => {
       const dek = crypto.randomBytes(32).toString("hex");
       const wrap = parse(
-        await executeTool("crypto_kms_wrap", { keyId: "label-a", dek }),
+        await executeTool("crypto_kms_wrap", {
+          provider: "local",
+          keyId: "label-a",
+          dek,
+        }),
       );
       const unwrap = await executeTool("crypto_kms_unwrap", {
+        provider: "local",
         keyId: "label-never-used",
         wrappedKey: wrap.wrappedKey,
       });
@@ -114,7 +140,11 @@ describe("Security hardening", () => {
 
     it("rejects a DEK that is not 32 hex-encoded bytes", async () => {
       for (const dek of ["", "abcd", "zz".repeat(32), undefined]) {
-        const wrap = await executeTool("crypto_kms_wrap", { dek });
+        const wrap = await executeTool("crypto_kms_wrap", {
+          provider: "local",
+          keyId: "k",
+          dek,
+        });
         expect(wrap.isError, String(dek)).to.be.true;
       }
     });
@@ -163,6 +193,24 @@ describe("Security hardening", () => {
     });
   });
 
+  describe("handler guards behind the schema", () => {
+    it("generateKey refuses weak RSA moduli and unlisted curves", async () => {
+      expect(
+        await rejection(generateKey({ type: "rsa", modulusLength: 1024 })),
+      ).to.include("Unsupported RSA modulus length");
+      expect(
+        await rejection(generateKey({ type: "ecc", curve: "secp112r1" })),
+      ).to.include("Unsupported curve");
+      const dsa = await generateKey({ type: "dsa" });
+      expect(dsa.isError).to.be.true;
+    });
+
+    it("parseKey256 refuses anything but 64 hex characters", () => {
+      expect(() => parseKey256("abcd")).to.throw("64 hex characters");
+      expect(() => parseKey256(undefined, "dek")).to.throw("dek must be");
+    });
+  });
+
   describe("crypto_hash", () => {
     it("rejects algorithms outside the declared enum", async () => {
       for (const algorithm of ["md5", "sha1", "sha224", "SHA256"]) {
@@ -171,8 +219,14 @@ describe("Security hardening", () => {
           algorithm,
         });
         expect(res.isError, algorithm).to.be.true;
-        expect(res.content[0].text).to.include("Unsupported hash algorithm");
+        expect(res.content[0].text).to.include('"algorithm" must be one of');
       }
+    });
+
+    it("refuses an undeclared algorithm even past the schema", async () => {
+      expect(await rejection(hash({ data: "x", algorithm: "md5" }))).to.include(
+        "Unsupported hash algorithm",
+      );
     });
 
     it("accepts every algorithm in the declared enum", async () => {
@@ -207,7 +261,7 @@ describe("Security hardening", () => {
           key,
         });
         expect(res.isError, key).to.be.true;
-        expect(res.content[0].text).to.include("64 hex characters");
+        expect(res.content[0].text).to.include(`"key"`);
       }
     });
 
@@ -218,7 +272,7 @@ describe("Security hardening", () => {
       for (const key of badKeys) {
         const res = await executeTool("crypto_decrypt", { ...enc, key });
         expect(res.isError, key).to.be.true;
-        expect(res.content[0].text).to.include("64 hex characters");
+        expect(res.content[0].text).to.include(`"key"`);
       }
     });
   });

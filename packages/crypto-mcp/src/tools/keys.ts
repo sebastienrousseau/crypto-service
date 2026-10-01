@@ -79,7 +79,7 @@ const GENERATORS: Record<string, (args: ToolArgs) => Record<string, unknown>> =
 
 /** `crypto_generate_key`: generate a classical or post-quantum keypair. */
 export const generateKey: ToolHandler = async (args) => {
-  const type = (args.type as string) || "ed25519";
+  const type = String(args.type);
   const generator = Object.hasOwn(GENERATORS, type)
     ? GENERATORS[type]
     : undefined;

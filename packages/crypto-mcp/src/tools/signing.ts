@@ -16,7 +16,7 @@ function pssKey(key: string) {
 /** `crypto_sign`: Ed25519, HMAC-SHA256, or RSASSA-PSS (SHA-256). */
 export const sign: ToolHandler = async (args) => {
   const data = String(args.data);
-  const algorithm = (args.algorithm as string) || "ed25519";
+  const algorithm = String(args.algorithm);
   const privateKey = String(args.privateKey);
 
   if (algorithm === "hmac-sha256") {
@@ -74,7 +74,7 @@ function verifySignature(
 
 /** `crypto_verify`: check a signature produced by `crypto_sign`. */
 export const verify: ToolHandler = async (args) => {
-  const algorithm = (args.algorithm as string) || "ed25519";
+  const algorithm = String(args.algorithm);
   const valid = verifySignature(
     algorithm,
     String(args.data),

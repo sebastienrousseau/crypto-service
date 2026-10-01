@@ -20,6 +20,18 @@ export const HASH_ALGORITHMS = [
   "blake2b512",
 ];
 
+/** Largest data, plaintext or algorithm-list string a tool accepts. */
+export const MAX_TEXT_LENGTH = 1_048_576;
+
+/** Largest PEM or armored key a tool accepts. */
+export const MAX_KEY_LENGTH = 16_384;
+
+/** A 256-bit key as exactly 64 hex characters. */
+const HEX_256 = "^[0-9a-fA-F]{64}$";
+
+/** Whole bytes, hex-encoded. */
+const HEX_BYTES = "^(?:[0-9a-fA-F]{2})*$";
+
 /** JSON-schema definitions of every tool exposed by the MCP server. */
 export const TOOLS: MCPTool[] = [
   {
@@ -28,6 +40,7 @@ export const TOOLS: MCPTool[] = [
       "Generate cryptographic keypairs for classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM-768, FIPS 203) algorithms.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         type: {
           type: "string",
@@ -36,9 +49,10 @@ export const TOOLS: MCPTool[] = [
           enum: KEY_TYPES,
         },
         modulusLength: {
-          type: "number",
+          type: "integer",
           description:
             "Modulus length for RSA (2048, 3072, 4096). Default is 2048.",
+          enum: RSA_MODULUS_LENGTHS,
         },
         curve: {
           type: "string",
@@ -56,10 +70,12 @@ export const TOOLS: MCPTool[] = [
       "Encrypt plaintext using authenticated symmetric encryption (AES-256-GCM, ChaCha20-Poly1305) or asymmetric keys.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         plaintext: {
           type: "string",
           description: "Plaintext string to encrypt.",
+          maxLength: MAX_TEXT_LENGTH,
         },
         algorithm: {
           type: "string",
@@ -71,6 +87,8 @@ export const TOOLS: MCPTool[] = [
           type: "string",
           description:
             "Hex-encoded 256-bit key (64 hex characters). If omitted, a secure 256-bit key is generated and returned.",
+          maxLength: 64,
+          pattern: HEX_256,
         },
       },
       required: ["plaintext"],
@@ -82,10 +100,13 @@ export const TOOLS: MCPTool[] = [
       "Decrypt ciphertext encrypted with authenticated AES-256-GCM or ChaCha20-Poly1305.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         ciphertext: {
           type: "string",
-          description: "Hex-encoded or base64-encoded ciphertext payload.",
+          description: "Hex-encoded ciphertext.",
+          maxLength: 2 * MAX_TEXT_LENGTH,
+          pattern: HEX_BYTES,
         },
         algorithm: {
           type: "string",
@@ -96,14 +117,20 @@ export const TOOLS: MCPTool[] = [
         key: {
           type: "string",
           description: "Hex-encoded 256-bit key (64 hex characters).",
+          maxLength: 64,
+          pattern: HEX_256,
         },
         iv: {
           type: "string",
-          description: "Hex-encoded initialization vector / nonce.",
+          description: "Hex-encoded 96-bit nonce (24 hex characters).",
+          maxLength: 24,
+          pattern: "^[0-9a-fA-F]{24}$",
         },
         authTag: {
           type: "string",
           description: "Hex-encoded 128-bit authentication tag.",
+          maxLength: 32,
+          pattern: "^[0-9a-fA-F]{32}$",
         },
       },
       required: ["ciphertext", "key", "iv", "authTag"],
@@ -114,10 +141,12 @@ export const TOOLS: MCPTool[] = [
     description: "Digitally sign data using Ed25519, RSA-PSS, or HMAC.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         data: {
           type: "string",
           description: "Data string to sign.",
+          maxLength: MAX_TEXT_LENGTH,
         },
         algorithm: {
           type: "string",
@@ -128,6 +157,8 @@ export const TOOLS: MCPTool[] = [
         privateKey: {
           type: "string",
           description: "Private key in PEM format or secret key for HMAC.",
+          minLength: 1,
+          maxLength: MAX_KEY_LENGTH,
         },
       },
       required: ["data", "algorithm", "privateKey"],
@@ -139,14 +170,18 @@ export const TOOLS: MCPTool[] = [
       "Verify digital signature against original data and public key.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         data: {
           type: "string",
           description: "Original data string.",
+          maxLength: MAX_TEXT_LENGTH,
         },
         signature: {
           type: "string",
           description: "Hex-encoded signature.",
+          maxLength: 1024,
+          pattern: HEX_BYTES,
         },
         algorithm: {
           type: "string",
@@ -157,6 +192,8 @@ export const TOOLS: MCPTool[] = [
         publicKey: {
           type: "string",
           description: "Public key in PEM format or secret key for HMAC.",
+          minLength: 1,
+          maxLength: MAX_KEY_LENGTH,
         },
       },
       required: ["data", "signature", "algorithm", "publicKey"],
@@ -168,10 +205,12 @@ export const TOOLS: MCPTool[] = [
       "Compute cryptographic digest (SHA-256, SHA-384, SHA-512, SHA3-256, BLAKE2b512).",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         data: {
           type: "string",
           description: "Data string to hash.",
+          maxLength: MAX_TEXT_LENGTH,
         },
         algorithm: {
           type: "string",
@@ -188,6 +227,7 @@ export const TOOLS: MCPTool[] = [
       "Wrap a Data Encryption Key (DEK) under a Key Encryption Key held by a KMS provider. Only the 'local' provider (random, in-process key material that does not survive a restart) is configured.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         provider: {
           type: "string",
@@ -199,10 +239,14 @@ export const TOOLS: MCPTool[] = [
           type: "string",
           description:
             "Label of the Key Encryption Key (KEK). It names the key; it is never used to derive it.",
+          minLength: 1,
+          maxLength: 256,
         },
         dek: {
           type: "string",
           description: "Hex-encoded 256-bit Data Encryption Key to wrap.",
+          maxLength: 64,
+          pattern: HEX_256,
         },
       },
       required: ["provider", "keyId", "dek"],
@@ -214,6 +258,7 @@ export const TOOLS: MCPTool[] = [
       "Unwrap a Data Encryption Key (DEK) previously wrapped by crypto_kms_wrap in this server process. Only the 'local' provider is configured.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         provider: {
           type: "string",
@@ -223,11 +268,16 @@ export const TOOLS: MCPTool[] = [
         },
         keyId: {
           type: "string",
-          description: "Key Encryption Key (KEK) identifier.",
+          description: "Key Encryption Key (KEK) label used to wrap.",
+          minLength: 1,
+          maxLength: 256,
         },
         wrappedKey: {
           type: "string",
           description: "Hex-encoded wrapped key payload.",
+          minLength: 2,
+          maxLength: 1024,
+          pattern: HEX_BYTES,
         },
       },
       required: ["provider", "keyId", "wrappedKey"],
@@ -239,10 +289,12 @@ export const TOOLS: MCPTool[] = [
       "Inspect and parse PEM certificate, public key, or OpenPGP armored block.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         keyData: {
           type: "string",
           description: "PEM or armored key string.",
+          maxLength: MAX_KEY_LENGTH,
         },
       },
       required: ["keyData"],
@@ -254,11 +306,13 @@ export const TOOLS: MCPTool[] = [
       "Generate a Cryptographic Bill of Materials (CBOM) inventory from cryptographic identifiers.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         algorithms: {
           type: "string",
           description:
             "Comma-separated list of algorithm names to evaluate (e.g. 'RSA-2048,AES-256-GCM,ML-KEM-768,SHA-1').",
+          maxLength: 4096,
         },
       },
       required: ["algorithms"],

@@ -20,13 +20,13 @@ interface KmsRequest {
 }
 
 function kmsRequest(args: ToolArgs): KmsRequest {
-  const provider = String(args.provider || "local");
+  const provider = String(args.provider);
   if (provider !== "local") {
     throw new Error(
       `KMS provider '${provider}' is not configured in this server; only 'local' is available`,
     );
   }
-  return { provider, keyId: String(args.keyId || "kms-key-default") };
+  return { provider, keyId: String(args.keyId) };
 }
 
 /** Binds each wrapped DEK to the label it was wrapped under. */

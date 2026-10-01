@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **crypto-mcp argument validation (breaking)**: every `tools/call` is checked against the tool's declared `inputSchema` before the tool runs. Unknown properties, missing required properties, wrong types, values outside an `enum`, and strings outside their declared length or format are rejected with `Invalid arguments for <tool>: ...`, which names the property but never echoes its value. Each schema now sets `additionalProperties: false` and bounds every string (1 MiB for data and plaintext, 16 KiB for keys). Required properties are no longer filled with defaults: `crypto_generate_key` needs `type`, `crypto_sign` and `crypto_verify` need `algorithm`, and `crypto_kms_wrap` / `crypto_kms_unwrap` need `provider` and `keyId`. `crypto_decrypt` accepts hex ciphertext only, as it always did; its description no longer offers base64. (Audit finding F18.)
+
 ### Changed
 
 - **Toolchain** (from Dependabot #170): ESLint 10 with typescript-eslint 8, chai 6, chai-as-promised 8, mocha 12 and prettier 3.9.9 across all 18 packages. The 20 `.eslintrc` files and `.eslintignore` are replaced by one root `eslint.config.mjs` with the same rule set; chai assertions in tests are checked by `eslint-plugin-chai-friendly`. `eslint-plugin-import` and its resolver, configured nowhere, are removed. TypeScript stays on 5.9: typescript-eslint (`<6.1.0`), TypeDoc (`<=6.0`) and ts-node do not support TypeScript 7 yet.

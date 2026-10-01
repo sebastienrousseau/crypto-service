@@ -123,9 +123,12 @@ describe("Crypto MCP Server Suite", () => {
       expect(unsupp.isError).to.be.true;
     });
 
-    it("executes default crypto_generate_key when type is not provided", async () => {
-      const defRes = await executeTool("crypto_generate_key", {});
-      expect(defRes.content[0].text).to.include("ed25519");
+    it("rejects crypto_generate_key without the required type", async () => {
+      const res = await executeTool("crypto_generate_key", {});
+      expect(res.isError).to.be.true;
+      expect(res.content[0].text).to.include(
+        'missing required property "type"',
+      );
     });
 
     it("executes crypto_encrypt and crypto_decrypt roundtrip (AES-256-GCM) with default and explicit algorithm", async () => {
@@ -211,20 +214,12 @@ describe("Crypto MCP Server Suite", () => {
         privateKeyEncoding: { type: "pkcs8", format: "pem" },
       });
 
-      // Default algorithm
+      // The algorithm is required
       const signDef = await executeTool("crypto_sign", {
         data: message,
         privateKey,
       });
-      const signDefData = JSON.parse(signDef.content[0].text);
-      expect(signDefData.algorithm).to.equal("ed25519");
-
-      const verifyDef = await executeTool("crypto_verify", {
-        data: message,
-        signature: signDefData.signature,
-        publicKey,
-      });
-      expect(JSON.parse(verifyDef.content[0].text).valid).to.be.true;
+      expect(signDef.isError).to.be.true;
 
       const signRes = await executeTool("crypto_sign", {
         data: message,
@@ -301,17 +296,9 @@ describe("Crypto MCP Server Suite", () => {
       const unwrapData = JSON.parse(unwrapRes.content[0].text);
       expect(unwrapData.dek).to.equal(dek);
 
-      // Default KMS wrap/unwrap parameters
+      // provider and keyId are required
       const wrapDef = await executeTool("crypto_kms_wrap", { dek });
-      const wrapDefData = JSON.parse(wrapDef.content[0].text);
-      expect(wrapDefData.provider).to.equal("local");
-      expect(wrapDefData.keyId).to.equal("kms-key-default");
-
-      const unwrapDef = await executeTool("crypto_kms_unwrap", {
-        wrappedKey: wrapDefData.wrappedKey,
-      });
-      const unwrapDefData = JSON.parse(unwrapDef.content[0].text);
-      expect(unwrapDefData.dek).to.equal(dek);
+      expect(wrapDef.isError).to.be.true;
 
       // Invalid wrapped payload
       const badUnwrap = await executeTool("crypto_kms_unwrap", {
@@ -375,7 +362,9 @@ describe("Crypto MCP Server Suite", () => {
       });
       expect(JSON.parse(inspectRaw.content[0].text).format).to.equal("Raw");
 
-      const inspectEmpty = await executeTool("crypto_inspect_key", {});
+      const inspectEmpty = await executeTool("crypto_inspect_key", {
+        keyData: "",
+      });
       expect(JSON.parse(inspectEmpty.content[0].text).type).to.equal("unknown");
     });
 
@@ -389,7 +378,9 @@ describe("Crypto MCP Server Suite", () => {
       expect(data.quantumSafeCount).to.equal(1);
       expect(data.vulnerableCount).to.equal(4);
 
-      const emptyAudit = await executeTool("crypto_audit_cbom", {});
+      const emptyAudit = await executeTool("crypto_audit_cbom", {
+        algorithms: "",
+      });
       expect(JSON.parse(emptyAudit.content[0].text).totalAudited).to.equal(0);
     });
 
