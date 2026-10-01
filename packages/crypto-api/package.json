@@ -20,7 +20,7 @@
     "minimist": "^1.2.8"
   },
   "devDependencies": {
-    "@sebastienrousseau/c8-config": "^0.0.3",
+    "@sebastienrousseau/c8-config": "^0.0.7",
     "@sebastienrousseau/eslint-config": "^0.0.2",
     "@sebastienrousseau/jsdoc-config": "^0.0.5",
     "@sebastienrousseau/markdownlint-config": "^0.0.1",
