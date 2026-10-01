@@ -130,10 +130,11 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 ## Overview
 
 crypto-lib is the core cryptographic engine of the Crypto Service
-Suite. It provides a unified TypeScript API over the audited
+Suite. It provides a unified TypeScript API over the
 `@noble/hashes`, `@noble/curves`, `@noble/ciphers`, and
 `@noble/post-quantum` libraries -- pure TypeScript, zero native
-add-ons, no C bindings. Post-quantum primitives (ML-KEM, ML-DSA,
+add-ons, no C bindings. The first three have had independent audits;
+`@noble/post-quantum` has not. Post-quantum primitives (ML-KEM, ML-DSA,
 SLH-DSA) are first-class citizens, not add-ons, and hybrid
 constructions combine classical and PQ algorithms so security holds
 even if one family breaks.
@@ -322,7 +323,7 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
 
-All cryptographic operations leverage audited primitives, enforce constant-time execution where applicable, and zero sensitive key material upon disposal.
+Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
