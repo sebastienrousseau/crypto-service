@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- **PAKE**: the password now enters the key exchange (RFC 9497 OPRF with RFC 9380 hash-to-curve, an envelope holding the client's static key, 3DH and two-way key confirmation compared in constant time). Before, a client MAC could be forged without the password, the stored record allowed offline guessing, and honest logins always failed. It is still not RFC 9807 OPAQUE; the module documents the gaps.
+- **HPKE**: the DHKEM key schedule follows RFC 9180 section 4.1 and is checked against the RFC 9180 test vectors; PSK inputs are validated. Ciphertexts from earlier versions do not open.
+- **ISO 20022 dual signatures**: `verifyIso20022Payment(envelope, payload, trustedKeys)` verifies against caller-supplied keys, not the keys in the envelope, over a length-prefixed statement that includes the timestamp and algorithm identifiers. `/v2/stream/iso20022` requires `trustedKeys`. Earlier envelopes do not verify.
+- **Hybrid KEMs**: the combiner binds both ciphertexts and public keys under a versioned label. Shared secrets differ from 0.0.6. The TLS group names (X25519MLKEM768 and others) are no longer accepted, since this construction is not RFC 10024 or X-Wing; the SecP256r1MLKEM768 codepoint constant is corrected to 0x11EB.
+- **crypto-prisma / crypto-typeorm**: decryption fails closed with `FieldDecryptionError` instead of returning stored values; new values are `v2:` ciphertexts under an HKDF subkey bound to model/entity and field as AAD (legacy values still read unless `acceptLegacyCiphertext: false`); keys must be 64 hex characters. crypto-prisma also encrypts in `createMany` / `updateMany` (previously plaintext).
+- **crypto-kms**: rotation keeps earlier versions (ciphertexts carry the key version; `destroyKeyVersion` retires one), encryption context is order-independent, signatures are plain Ed25519 over the data, and errors are typed `KmsError`s.
+- **Password encryption**: format 0x02 binds the header as AAD; 0x01 payloads still decrypt.
+
 - **Rate limiting**: limited requests now get `429` with `Retry-After` instead of `500`. `/health`, `/live`, `/ready` and `/metrics` are exempt, and the blanket `127.0.0.1` exemption (which disabled limiting behind a local proxy) is removed. `RATE_LIMIT_MAX` sets the per-client limit (default 10 per minute).
 - **Metering**: the tenant is the authenticated subject and the tier comes only from a verified JWT `tier` claim; the `x-api-key` prefix no longer selects a tier. The tenant table is bounded (LRU, 10,000 entries). Metering headers are now `X-Tenant-RateLimit-*`, so `X-RateLimit-*` comes only from the global limiter.
 - **No key files in source trees**: the unused PGP keys and sample data under `crypto-server/src/{key,data}` and `crypto-cli/src/{key,data}` are removed, with the dead `crypto-cli` key module. crypto-lib `sign` writes `signed.sig` only when `CRYPTO_DATA_DIR` is set.
@@ -23,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Makefile**: `start-crypto-server` and the key-generation targets called scripts that did not exist; `.PHONY` listed comma-separated names.
 
 ### Changed
+
+- **Docs and checks**: markdownlint is blocking in CI after fixing 38 headings that rendered as literal text and the crypto-api doc generator (escaped table cells, spacing); MD041 and MD036 are disabled because the canonical README template requires a logo block first and bold Contents labels. The Windows CI job runs lint and tests. crypto-lib's test environment is set in `.mocharc.cjs` instead of POSIX shell syntax.
+- **Corrections to earlier entries**: the 0.0.5 ISO 20022 entry said "ECDSA/Ed25519 + ML-DSA-87"; the code signs Ed25519 + ML-DSA-65 by default (ML-DSA-44/87 accepted) and has no ECDSA. Entries describing X25519MLKEM768 / RFC 10024 support described a library-specific hybrid, not RFC 10024.
 
 - **crypto-cbom audit**: `auditCbom` returns a heuristic `status` (`PASS` / `REVIEW` / `FAIL`) with a `disclaimer`, instead of `doraStatus` / `craStatus` compliance verdicts. Findings carry a `reference` (`NIST_SP_800_131A`, `NIST_IR_8547`, `CNSA_2_0`) instead of DORA/CRA article codes that did not match those articles. `DoraAuditResult` remains as a deprecated alias of `CbomAuditResult`.
 - **Quality gates**: lint now covers test files with quoted globs (the old unquoted globs skipped files), with the 54 test lint errors fixed and no suppressions; every package has `format:check`, run in CI; a complexity gate (`scripts/complexity-check.mjs`, cyclomatic <= 10, <= 60 lines per function, <= 500 per file) fails on new offenders against `complexity-baseline.json`, which records the 51 existing ones. `make check` runs every gate.
