@@ -168,3 +168,12 @@ export async function verify(data: dataVerify) {
   const verify = await key.verify.default(data);
   return verify;
 }
+
+/**
+ * The service's own OpenPGP key pair from `CRYPTO_KEY_DIR`, loaded once
+ * and shared with `revoke`. crypto-server uses it so its v1 routes never
+ * take a private key from a client.
+ */
+export { loadKeystore } from "../key/keystore";
+/** The armored key pair and revocation certificate `loadKeystore` returns. */
+export type { Keystore } from "../key/keystore";

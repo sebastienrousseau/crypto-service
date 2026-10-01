@@ -9,6 +9,7 @@ import type { FastifyInstance } from "fastify";
 import * as openpgp from "openpgp";
 import * as path from "path";
 import { createRequire } from "module";
+import { readFileSync } from "fs";
 
 // The keystore cache is internal to crypto-lib and not part of its
 // package exports. Load the module by file path next to the package
@@ -22,6 +23,40 @@ const { _resetKeystoreForTests } = createRequire(__filename)(
   ),
 ) as { _resetKeystoreForTests: () => void };
 
+/** The crypto-lib test keystore (passphrase "123456789abcdef"). */
+const FIXTURE_KEYS = path.resolve(
+  __dirname,
+  "..",
+  "..",
+  "crypto-lib",
+  "__tests__",
+  "fixtures",
+  "keys",
+);
+const FIXTURE_PASSPHRASE = "123456789abcdef";
+
+/** The fixture public key: a base64-wrapped armored key on disk. */
+const fixturePublicKey = (): string =>
+  Buffer.from(
+    readFileSync(path.join(FIXTURE_KEYS, "rsa.pub"), "latin1"),
+    "base64",
+  ).toString("latin1");
+
+/** Point the server's keystore at the fixtures for one describe block. */
+function useFixtureKeystore(): void {
+  let saved: string | undefined;
+  before(() => {
+    saved = process.env["CRYPTO_KEY_DIR"];
+    process.env["CRYPTO_KEY_DIR"] = FIXTURE_KEYS;
+    _resetKeystoreForTests();
+  });
+  after(() => {
+    if (saved === undefined) delete process.env["CRYPTO_KEY_DIR"];
+    else process.env["CRYPTO_KEY_DIR"] = saved;
+    _resetKeystoreForTests();
+  });
+}
+
 /**
  * Integration tests that exercise the full success path of each route.
  * These require generating real OpenPGP keys.
@@ -33,7 +68,6 @@ describe("Route success paths", function () {
   let publicKeyArmored: string;
   let privateKeyArmored: string;
   let publicKeyBase64: string;
-  let privateKeyBase64: string;
   const passphrase = "test-passphrase-for-coverage";
 
   before(async () => {
@@ -50,7 +84,6 @@ describe("Route success paths", function () {
     publicKeyArmored = publicKey;
     privateKeyArmored = privateKey;
     publicKeyBase64 = Buffer.from(publicKeyArmored).toString("base64");
-    privateKeyBase64 = Buffer.from(privateKeyArmored).toString("base64");
   });
 
   after(async () => {
@@ -73,28 +106,53 @@ describe("Route success paths", function () {
       expect(body).to.have.property("data");
       expect(body.data).to.be.a("string");
     });
+  });
 
-    it("should encrypt with optional privateKey field", async () => {
+  describe("POST /v1/encrypt with sign (server key)", () => {
+    useFixtureKeystore();
+
+    it("signs with the server's key pair instead of a client private key", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v1/encrypt",
         payload: {
-          passphrase,
+          passphrase: FIXTURE_PASSPHRASE,
           message: "Signed encrypt test",
           publicKey: publicKeyBase64,
-          privateKey: privateKeyBase64,
+          sign: true,
         },
       });
-      // May succeed or fail depending on OpenPGP config, but the route
-      // handler should have processed the optional privateKey field.
-      expect(res.statusCode).to.be.oneOf([200, 500]);
+      expect(res.statusCode).to.equal(200);
+      // The recipient decrypts it and checks the server's signature.
+      const serverPub = await openpgp.readKey({
+        armoredKey: fixturePublicKey(),
+      });
+      const recipient = await openpgp.decryptKey({
+        privateKey: await openpgp.readPrivateKey({
+          armoredKey: privateKeyArmored,
+        }),
+        passphrase,
+      });
+      const { data, signatures } = await openpgp.decrypt({
+        message: await openpgp.readMessage({
+          armoredMessage: JSON.parse(res.payload).data,
+        }),
+        decryptionKeys: recipient,
+        verificationKeys: serverPub,
+      });
+      expect(data).to.equal("Signed encrypt test");
+      await signatures[0]!.verified;
     });
   });
 
   describe("POST /v1/decrypt (success)", () => {
-    it("should decrypt an encrypted message", async () => {
-      // First encrypt
-      const pubKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
+    useFixtureKeystore();
+
+    it("decrypts a message sent to the server's key pair", async () => {
+      // Encrypt to the server's public key
+      const pubKey = await openpgp.readKey({
+        armoredKey: fixturePublicKey(),
+      });
       const encrypted = await openpgp.encrypt({
         message: await openpgp.createMessage({ text: "Secret message" }),
         encryptionKeys: pubKey,
@@ -108,15 +166,19 @@ describe("Route success paths", function () {
         method: "POST",
         url: "/v1/decrypt",
         payload: {
-          passphrase,
+          passphrase: FIXTURE_PASSPHRASE,
           message: encryptedBase64,
           publicKey: publicKeyBase64,
-          privateKey: privateKeyBase64,
         },
       });
       expect(res.statusCode).to.equal(200);
       const body = JSON.parse(res.payload);
-      expect(body).to.have.property("data");
+      // Before the response schema matched the handler, this was
+      // { data: "[object Object]" } and the plaintext was lost.
+      expect(body.data).to.deep.equal({
+        data: "Secret message",
+        signatureValid: false,
+      });
     });
   });
 
@@ -230,7 +292,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Validation failed");
+      expect(body.detail).to.equal("Validation failed");
     });
 
     it("should return 400 when decrypt has invalid base64 fields", async () => {
@@ -241,7 +303,6 @@ describe("Route success paths", function () {
           passphrase: "test",
           message: "not!valid#base64",
           publicKey: "not!valid#base64",
-          privateKey: "not!valid#base64",
         },
       });
       expect(res.statusCode).to.equal(400);
@@ -289,12 +350,11 @@ describe("Route success paths", function () {
           passphrase: "test",
           message: badBase64,
           publicKey: badBase64,
-          privateKey: badBase64,
         },
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Decryption failed");
+      expect(body.detail).to.equal("Decryption failed");
     });
 
     it("should return 500 when encrypt fails with bad key", async () => {
@@ -310,7 +370,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Encryption failed");
+      expect(body.detail).to.equal("Encryption failed");
     });
 
     it("should return 500 when verify fails with bad data", async () => {
@@ -326,7 +386,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Verification failed");
+      expect(body.detail).to.equal("Verification failed");
     });
 
     it("should return 500 when revoke fails with bad passphrase", async () => {
@@ -341,7 +401,7 @@ describe("Route success paths", function () {
       });
       expect(res.statusCode).to.equal(500);
       const body = JSON.parse(res.payload);
-      expect(body.error).to.equal("Revocation failed");
+      expect(body.detail).to.equal("Revocation failed");
     });
 
     it("should return 500 when generate fails with invalid params", async () => {

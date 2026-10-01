@@ -30,7 +30,7 @@ async function main() {
   const alice = await task("Generate X25519 key pair (Alice)", async () => {
     const res = await post("/v2/keys/generate", { algorithm: "x25519" });
     const body = (await res.json()) as {
-      data: { publicKey: string; privateKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });
@@ -38,7 +38,7 @@ async function main() {
   const bob = await task("Generate X25519 key pair (Bob)", async () => {
     const res = await post("/v2/keys/generate", { algorithm: "x25519" });
     const body = (await res.json()) as {
-      data: { publicKey: string; privateKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });

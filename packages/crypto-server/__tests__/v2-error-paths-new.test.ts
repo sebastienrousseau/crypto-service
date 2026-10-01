@@ -25,6 +25,12 @@ describe("V2 error paths (extended)", function () {
     else delete process.env["CRYPTO_API_KEY"];
   });
 
+  /** Generate a server-held key with `url`; returns its keyId. */
+  async function serverKeyId(url: string, payload: object): Promise<string> {
+    const res = await app.inject({ method: "POST", url, payload });
+    return JSON.parse(res.payload).data.keyId;
+  }
+
   // ---------------------------------------------------------------
   // key-wrap.ts catch blocks
   // ---------------------------------------------------------------
@@ -36,7 +42,7 @@ describe("V2 error paths (extended)", function () {
         payload: { kek: "x", keyToWrap: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Key wrapping failed: invalid input",
       );
     });
@@ -66,7 +72,7 @@ describe("V2 error paths (extended)", function () {
         payload: { kek: "x", wrappedKey: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Key unwrapping failed: invalid input",
       );
     });
@@ -118,7 +124,7 @@ describe("V2 error paths (extended)", function () {
         payload: { algorithm: "sha256", key: "gg-invalid-hex!", data: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "HMAC computation failed: invalid input",
       );
     });
@@ -153,7 +159,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "HMAC verification failed: invalid input",
       );
     });
@@ -189,7 +195,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -262,7 +268,7 @@ describe("V2 error paths (extended)", function () {
         payload: { password: "test", ciphertext: "invalid-ct" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -288,42 +294,38 @@ describe("V2 error paths (extended)", function () {
   // password.ts catch blocks
   // ---------------------------------------------------------------
   describe("POST /v2/password/hash error paths", () => {
-    it("should hash with custom params (covers true branch)", async () => {
+    it("should hash with custom params at the OWASP floor", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
         payload: {
           password: "test",
           timeCost: 2,
-          memoryCost: 1024,
+          memoryCost: 19456,
           parallelism: 2,
         },
       });
       expect(res.statusCode).to.equal(200);
       const body = JSON.parse(res.payload);
-      expect(body.data.params.t).to.equal(2);
-      expect(body.data.params.m).to.equal(1024);
-      expect(body.data.params.p).to.equal(2);
+      expect(body.data.params).to.deep.equal({ t: 2, m: 19456, p: 2 });
     });
 
-    it("should hash with only timeCost (memoryCost/parallelism false branches)", async () => {
+    it("should reject a time cost below the floor (t < 2) with 400", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
         payload: { password: "test", timeCost: 1 },
       });
-      expect(res.statusCode).to.equal(200);
-      const body = JSON.parse(res.payload);
-      expect(body.data.params.t).to.equal(1);
+      expect(res.statusCode).to.equal(400);
     });
 
-    it("should hash with only memoryCost (timeCost/parallelism false branches)", async () => {
+    it("should reject memory below the floor (< 19 MiB) with 400", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/password/hash",
-        payload: { password: "test", memoryCost: 1024 },
+        payload: { password: "test", memoryCost: 19455 },
       });
-      expect(res.statusCode).to.equal(200);
+      expect(res.statusCode).to.equal(400);
     });
 
     it("should return 401 when API key required", async () => {
@@ -356,7 +358,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Password verification failed: invalid input",
       );
     });
@@ -398,16 +400,23 @@ describe("V2 error paths (extended)", function () {
       expect([200, 500]).to.include(res.statusCode);
     });
 
-    it("should return 400 on sign with invalid key", async () => {
+    it("should return 404 on sign with an unknown keyId", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/slh-dsa/sign",
-        payload: { variant: "sha2-128f", secretKey: "x", message: "test" },
+        payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
+      });
+      expect(res.statusCode).to.equal(404);
+    });
+
+    it("should return 400 on sign with a key of another algorithm", async () => {
+      const keyId = await serverKeyId("/v2/pq/dsa/keygen", { level: 44 });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/pq/slh-dsa/sign",
+        payload: { keyId, message: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
-        "Signing failed: invalid input",
-      );
     });
 
     it("should return 400 on verify with invalid key", async () => {
@@ -422,7 +431,7 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Verification failed: invalid input",
       );
     });
@@ -450,7 +459,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/pq/slh-dsa/sign",
-          payload: { variant: "sha2-128f", secretKey: "x", message: "test" },
+          payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -485,16 +494,25 @@ describe("V2 error paths (extended)", function () {
   // pq-sign.ts catch blocks
   // ---------------------------------------------------------------
   describe("POST /v2/pq/dsa/* error paths", () => {
-    it("should return 400 on sign with invalid key", async () => {
+    it("should return 404 on sign with an unknown keyId", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/pq/dsa/sign",
-        payload: { level: 44, secretKey: "x", message: "test" },
+        payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
+      });
+      expect(res.statusCode).to.equal(404);
+    });
+
+    it("should return 400 on sign with a key of another algorithm", async () => {
+      const keyId = await serverKeyId("/v2/keys/generate", {
+        algorithm: "ed25519",
+      });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/pq/dsa/sign",
+        payload: { keyId, message: "test" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
-        "Signing failed: invalid input",
-      );
     });
 
     it("should return 400 on verify with invalid key", async () => {
@@ -504,7 +522,7 @@ describe("V2 error paths (extended)", function () {
         payload: { level: 44, publicKey: "x", message: "test", signature: "y" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Verification failed: invalid input",
       );
     });
@@ -532,7 +550,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/pq/dsa/sign",
-          payload: { level: 44, secretKey: "x", message: "test" },
+          payload: { keyId: `k_${"A".repeat(22)}`, message: "test" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -574,19 +592,22 @@ describe("V2 error paths (extended)", function () {
         payload: { recipientPublicKey: "zz", plaintext: "hello" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
 
-    it("should return 400 on open with invalid key", async () => {
+    it("should return 400 on open with an invalid sealed box", async () => {
+      const keyId = await serverKeyId("/v2/keys/generate", {
+        algorithm: "x25519",
+      });
       const res = await app.inject({
         method: "POST",
         url: "/v2/sealedbox/open",
-        payload: { recipientSecretKey: "zz", sealed: "zz" },
+        payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -602,19 +623,20 @@ describe("V2 error paths (extended)", function () {
         },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
 
-    it("should return 400 on open-pq with invalid keys", async () => {
+    it("should return 400 on open-pq with an invalid sealed box", async () => {
+      const keyId = await serverKeyId("/v2/pq/hybrid/keygen", {});
       const res = await app.inject({
         method: "POST",
         url: "/v2/sealedbox/open-pq",
-        payload: { x25519SecretKey: "zz", mlKemSecretKey: "zz", sealed: "zz" },
+        payload: { keyId, sealed: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -642,7 +664,7 @@ describe("V2 error paths (extended)", function () {
         const res = await app.inject({
           method: "POST",
           url: "/v2/sealedbox/open",
-          payload: { recipientSecretKey: "aa", sealed: "bb" },
+          payload: { keyId: `k_${"A".repeat(22)}`, sealed: "bb" },
         });
         expect(res.statusCode).to.equal(401);
       } finally {
@@ -679,8 +701,7 @@ describe("V2 error paths (extended)", function () {
           method: "POST",
           url: "/v2/sealedbox/open-pq",
           payload: {
-            x25519SecretKey: "aa",
-            mlKemSecretKey: "bb",
+            keyId: `k_${"A".repeat(22)}`,
             sealed: "cc",
           },
         });
@@ -703,7 +724,7 @@ describe("V2 error paths (extended)", function () {
         payload: { key: "zz", plaintext: "hello" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -734,7 +755,7 @@ describe("V2 error paths (extended)", function () {
         payload: { key: "zz", ciphertext: "zz" },
       });
       expect(res.statusCode).to.equal(400);
-      expect(JSON.parse(res.payload).error).to.equal(
+      expect(JSON.parse(res.payload).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });

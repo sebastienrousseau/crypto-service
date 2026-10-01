@@ -13,6 +13,7 @@
 
 import { timingSafeEqual } from "crypto";
 import { FastifyReply } from "fastify";
+import { sendProblem } from "../lib/problem";
 
 /**
  * Validation error response shape.
@@ -222,15 +223,15 @@ export function validateDateString(
 }
 
 /**
- * Sends validation error response.
+ * Sends a validation failure as an RFC 9457 problem (400), listing each
+ * failed field in `errors`.
  */
 export function sendValidationError(
   reply: FastifyReply,
   errors: ValidationError[],
 ): void {
-  reply.status(400).send({
-    error: "Validation failed",
-    details: errors,
+  sendProblem(reply, 400, "validation-failed", "Validation failed", {
+    errors,
   });
 }
 

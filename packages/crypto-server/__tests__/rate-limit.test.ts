@@ -58,10 +58,15 @@ describe("Global rate limit (server)", function () {
     const [limited] = await hit(app, "/v2/algorithms", 1, "203.0.113.5");
     expect(limited.statusCode).to.equal(429);
     expect(limited.headers["retry-after"]).to.exist;
+    expect(limited.headers["content-type"]).to.match(
+      /^application\/problem\+json/,
+    );
     expect(limited.headers["x-ratelimit-limit"]).to.equal(String(max));
     const body = JSON.parse(limited.payload);
-    expect(body.statusCode).to.equal(429);
-    expect(body.error).to.equal("Too Many Requests");
+    expect(body.status).to.equal(429);
+    expect(body.type).to.equal("urn:crypto-service:problem:rate-limited");
+    expect(body.title).to.equal("Too Many Requests");
+    expect(body.detail).to.include("requests are allowed per");
   });
 
   it("does not exempt loopback clients from the limit", async () => {

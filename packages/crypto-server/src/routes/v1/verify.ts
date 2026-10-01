@@ -19,6 +19,7 @@ import {
   validateRequiredString,
 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 
 /** Fastify JSON Schema for the v1 signature-verification endpoint. */
 const verifySchema = {
@@ -32,11 +33,8 @@ const verifySchema = {
       additionalProperties: true,
       properties: { data: {} },
     },
-    400: {
-      type: "object",
-      properties: { error: { type: "string" }, details: { type: "array" } },
-    },
-    401: { type: "object", properties: { error: { type: "string" } } },
+    400: PROBLEM_SCHEMA,
+    401: PROBLEM_SCHEMA,
   },
   body: {
     type: "object",
@@ -80,7 +78,7 @@ export default (app: FastifyInstance): void => {
         return reply.send({ data: verifyData });
       } catch (error) {
         request.log.error(error, "Verification operation failed");
-        return reply.status(500).send({ error: "Verification failed" });
+        return sendProblem(reply, 500, "internal-error", "Verification failed");
       }
     },
   );

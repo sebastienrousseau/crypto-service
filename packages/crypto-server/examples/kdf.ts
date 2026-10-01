@@ -31,7 +31,7 @@ async function main() {
       algorithm: "scrypt",
       password: "my-password",
       keyLength: 32,
-      params: { N: 16384, r: 8, p: 1 },
+      params: { N: 131072, r: 8, p: 1 },
     });
     const body = (await res.json()) as { data: unknown };
     if (!body.data) throw new Error("No derived key returned");
@@ -53,7 +53,7 @@ async function main() {
       algorithm: "pbkdf2-sha256",
       password: "my-password",
       keyLength: 32,
-      params: { iterations: 100000 },
+      params: { iterations: 600000 },
     });
     const body = (await res.json()) as { data: unknown };
     if (!body.data) throw new Error("No derived key returned");

@@ -32,7 +32,7 @@ async function main() {
   const keyPair = await task("Generate ML-KEM-768 key pair", async () => {
     const res = await post("/v2/pq/keygen", {});
     const body = (await res.json()) as {
-      data: { publicKey: string; secretKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });
@@ -49,7 +49,7 @@ async function main() {
 
   await task("Decapsulate shared secret", async () => {
     const res = await post("/v2/pq/decapsulate", {
-      secretKey: keyPair.secretKey,
+      keyId: keyPair.keyId,
       ciphertext: encap.ciphertext,
     });
     const body = (await res.json()) as { data: string };
@@ -62,10 +62,9 @@ async function main() {
     const res = await post("/v2/pq/hybrid/keygen", {});
     const body = (await res.json()) as {
       data: {
+        keyId: string;
         x25519PublicKey: string;
-        x25519PrivateKey: string;
         mlKemPublicKey: string;
-        mlKemSecretKey: string;
       };
     };
     return body.data;
@@ -88,8 +87,7 @@ async function main() {
 
   await task("Hybrid decapsulate", async () => {
     const res = await post("/v2/pq/hybrid/decapsulate", {
-      x25519PrivateKey: hybridKeys.x25519PrivateKey,
-      mlKemSecretKey: hybridKeys.mlKemSecretKey,
+      keyId: hybridKeys.keyId,
       x25519EphemeralPublic: hybridEncap.x25519EphemeralPublic,
       mlKemCiphertext: hybridEncap.mlKemCiphertext,
     });

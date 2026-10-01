@@ -11,6 +11,7 @@
 /** Re-exported middleware configuration and JWT payload types. */
 export type { MiddlewareConfig, JwtPayload } from "./types";
 export { CryptoMiddlewareError } from "./types";
+export type { JwtVerifyOptions } from "./common";
 
 // Common crypto operations
 export {
