@@ -1,12 +1,8 @@
 import { expect } from "chai";
 import * as pake from "../../src/protocols/pake";
 import { p256 } from "@noble/curves/nist.js";
-import { hkdf } from "@noble/hashes/hkdf.js";
-import { sha256 } from "@noble/hashes/sha2.js";
-import { hmac } from "@noble/hashes/hmac.js";
-import { randomBytes } from "@noble/ciphers/utils.js";
 
-describe("PAKE (OPAQUE-like)", () => {
+describe("PAKE (OPAQUE-style, not RFC 9807)", () => {
   it("should register a user", () => {
     const record = pake.serverRegister("my-password", "server-id-1");
     expect(record.envelope).to.be.a("string");
@@ -54,11 +50,6 @@ describe("PAKE (OPAQUE-like)", () => {
     expect(serverState.sessionKey).to.be.a("string");
     expect(serverState.sessionKey).to.have.length(64);
     expect(serverState.expectedClientMac).to.be.a("string");
-
-    // Note: Full mutual auth requires the client to use the same OPRF salt
-    // as was used during registration. In a real implementation the server
-    // sends the oprfSalt in the response so the client can derive the same key.
-    // This simplified test validates the server side works correctly.
   });
 
   describe("clientFinishLogin", () => {
@@ -98,132 +89,48 @@ describe("PAKE (OPAQUE-like)", () => {
       ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
     });
 
-    it("should throw 'Server authentication failed' due to salt mismatch in normal flow", () => {
-      const serverId = "srv-1";
-      const password = "my-pass";
-      const record = pake.serverRegister(password, serverId);
-      const { request, state: clientState } = pake.clientStartLogin(password);
-      const { response } = pake.serverRespondLogin(request, record);
-
-      // The clientFinishLogin will fail MAC verification because clientStartLogin
-      // used a random tempSalt but clientFinishLogin uses response.oprfSalt
+    it("should throw on odd-length hex", () => {
+      const { state: clientState } = pake.clientStartLogin("pw");
+      const validPoint = Buffer.from(p256.Point.BASE.toBytes(false)).toString(
+        "hex",
+      );
+      const fakeResponse: pake.LoginResponse = {
+        evaluatedElement: "abc",
+        serverEphemeralPublic: validPoint,
+        envelope: "ab",
+        serverPublicKey: "ab",
+        oprfSalt: "ab",
+        serverMac: "ab",
+      };
       expect(() =>
-        pake.clientFinishLogin(response, clientState, serverId),
-      ).to.throw("Server authentication failed");
+        pake.clientFinishLogin(fakeResponse, clientState, "srv"),
+      ).to.throw("Invalid hex string for evaluatedElement");
     });
 
-    it("should complete successfully with a consistent flow (manually constructed)", () => {
-      // To make clientFinishLogin succeed, we need the blinded point that the server
-      // uses in its MAC transcript to match the one that clientFinishLogin reconstructs.
-      // clientFinishLogin reconstructs: blind * H(password, oprfSalt) * G
-      // So we construct a server response where the MAC is computed over that same point.
-
+    it("should complete a full login and agree on the session key", () => {
       const serverId = "test-server";
       const password = "test-password";
-
-      // Step 1: Register to get the oprfSalt
       const record = pake.serverRegister(password, serverId);
-      const oprfSalt = Buffer.from(record.oprfSalt, "hex");
-
-      // Step 2: Manually build the client state using the SAME oprfSalt
-      // (simulating what a correct implementation would do)
-      const n = p256.Point.Fn.ORDER;
-
-      // Hash password to scalar using oprfSalt (same as registration)
-      const input = Buffer.from(password, "utf8");
-      const expanded = hkdf(
-        sha256,
-        input,
-        oprfSalt,
-        new TextEncoder().encode("opaque-p256-oprf-scalar"),
-        48,
+      const { request, state: clientState } = pake.clientStartLogin(password);
+      const { response, state: serverState } = pake.serverRespondLogin(
+        request,
+        record,
       );
-      let pwScalar = BigInt(0);
-      for (let i = 0; i < expanded.length; i++) {
-        pwScalar = (pwScalar * BigInt(256) + BigInt(expanded[i])) % n;
-      }
-      if (pwScalar === BigInt(0)) pwScalar = BigInt(1);
 
-      // Generate blind
-      const blindRaw = randomBytes(48);
-      let blind = BigInt(0);
-      for (let i = 0; i < blindRaw.length; i++) {
-        blind = (blind * BigInt(256) + BigInt(blindRaw[i])) % n;
-      }
-      if (blind === BigInt(0)) blind = BigInt(1);
-
-      // Blinded point = (blind * pwScalar) * G
-      const blindedPoint = p256.Point.BASE.multiply((blind * pwScalar) % n);
-
-      // Client ephemeral key pair
-      const ephRaw = randomBytes(48);
-      let ephPriv = BigInt(0);
-      for (let i = 0; i < ephRaw.length; i++) {
-        ephPriv = (ephPriv * BigInt(256) + BigInt(ephRaw[i])) % n;
-      }
-      if (ephPriv === BigInt(0)) ephPriv = BigInt(1);
-      const ephPub = p256.Point.BASE.multiply(ephPriv);
-
-      const clientState: pake.ClientLoginState = {
-        blind: blind.toString(16).padStart(64, "0"),
-        password,
-        clientEphemeralPrivate: ephPriv.toString(16).padStart(64, "0"),
-        clientEphemeralPublic: Buffer.from(ephPub.toBytes(false)).toString(
-          "hex",
-        ),
-      };
-
-      // Step 3: Simulate server response
-      // Server ephemeral key pair
-      const sEphRaw = randomBytes(48);
-      let sEphPriv = BigInt(0);
-      for (let i = 0; i < sEphRaw.length; i++) {
-        sEphPriv = (sEphPriv * BigInt(256) + BigInt(sEphRaw[i])) % n;
-      }
-      if (sEphPriv === BigInt(0)) sEphPriv = BigInt(1);
-      const sEphPub = p256.Point.BASE.multiply(sEphPriv);
-
-      // ECDH shared secret: serverEphPub * clientEphPriv = clientEphPub * serverEphPriv
-      const ecdhShared = ephPub.multiply(sEphPriv);
-      const sharedBytes = ecdhShared.toBytes(false);
-
-      // Derive session key and MAC keys
-      const derived = hkdf(
-        sha256,
-        sharedBytes,
-        Buffer.from(serverId, "utf8"),
-        new TextEncoder().encode("opaque-session"),
-        96,
-      );
-      const serverMacKey = derived.subarray(32, 64);
-
-      // Server MAC over transcript: blindedPoint || serverEphPub
-      // This is the SAME blinded point that clientFinishLogin will reconstruct
-      const transcript = Buffer.concat([
-        blindedPoint.toBytes(false),
-        sEphPub.toBytes(false),
-      ]);
-      const serverMac = hmac(sha256, serverMacKey, transcript);
-
-      const response: pake.LoginResponse = {
-        evaluatedElement: Buffer.from(blindedPoint.toBytes(false)).toString(
-          "hex",
-        ),
-        serverEphemeralPublic: Buffer.from(sEphPub.toBytes(false)).toString(
-          "hex",
-        ),
-        envelope: record.envelope,
-        serverPublicKey: record.serverPublicKey,
-        oprfSalt: record.oprfSalt,
-        serverMac: Buffer.from(serverMac).toString("hex"),
-      };
-
-      // Step 4: clientFinishLogin should succeed
       const result = pake.clientFinishLogin(response, clientState, serverId);
-      expect(result.sessionKey).to.be.a("string");
       expect(result.sessionKey).to.have.length(64);
-      expect(result.clientMac).to.be.a("string");
+      expect(result.sessionKey).to.equal(serverState.sessionKey);
+      expect(result.clientMac).to.equal(serverState.expectedClientMac);
       expect(result.algorithm).to.equal("opaque-p256");
+    });
+
+    it("should reject a wrong password", () => {
+      const record = pake.serverRegister("right", "srv");
+      const { request, state } = pake.clientStartLogin("wrong");
+      const { response } = pake.serverRespondLogin(request, record);
+      expect(() => pake.clientFinishLogin(response, state, "srv")).to.throw(
+        "Authentication failed — wrong password or invalid envelope",
+      );
     });
   });
 
@@ -265,8 +172,7 @@ describe("PAKE (OPAQUE-like)", () => {
       const { request } = pake.clientStartLogin(password);
       const { state: serverState } = pake.serverRespondLogin(request, record);
 
-      // We can't get a valid clientMac from clientFinishLogin (salt mismatch),
-      // but we can verify that serverVerifyClient returns true when given expectedClientMac
+      // serverVerifyClient accepts exactly the expected MAC
       const verified = pake.serverVerifyClient(
         serverState.expectedClientMac,
         serverState,

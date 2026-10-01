@@ -6,10 +6,16 @@
 /**
  * @remarks Hybrid Public Key Encryption (HPKE, RFC 9180).
  *
- * Implements Base and PSK modes for the following cipher suites:
+ * Implements single-shot Base and PSK modes (one message per encapsulation,
+ * sequence number 0) for these cipher suites:
  * - DHKEM(X25519, HKDF-SHA256) + HKDF-SHA256 + ChaCha20Poly1305
  * - DHKEM(X25519, HKDF-SHA256) + HKDF-SHA256 + AES-128-GCM
  * - DHKEM(P-256, HKDF-SHA256) + HKDF-SHA256 + AES-128-GCM
+ * - DHKEM(P-256, HKDF-SHA256) + HKDF-SHA256 + ChaCha20Poly1305
+ *
+ * Each combination is checked against the RFC 9180 Appendix A test vectors.
+ * Auth and AuthPSK modes, multi-message contexts and the secret export
+ * interface are not provided.
  *
  * All inputs and outputs use hex-encoded strings.
  */
@@ -20,7 +26,6 @@ import { extract, expand } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { gcm } from "@noble/ciphers/aes.js";
-import { randomBytes } from "@noble/ciphers/utils.js";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -36,6 +41,10 @@ const KDF_HKDF_SHA256 = 0x0001;
 const AEAD_AES_128_GCM = 0x0001;
 /** AEAD identifier for ChaCha20Poly1305. */
 const AEAD_CHACHA20_POLY1305 = 0x0003;
+/** mode_base (RFC 9180 § 5). */
+const MODE_BASE = 0x00;
+/** mode_psk (RFC 9180 § 5). */
+const MODE_PSK = 0x01;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -296,121 +305,154 @@ function labeledExpand(
 // DHKEM (RFC 9180 § 4.1)
 // ---------------------------------------------------------------------------
 
-/** Generate an ephemeral key pair and compute the KEM shared secret. */
+/** Serialised public key for a private key (P-256 uses the uncompressed form). */
+function kemPublicKey(kem: HpkeKem, sk: Uint8Array): Uint8Array {
+  return kem === "x25519"
+    ? x25519.getPublicKey(sk)
+    : p256.getPublicKey(sk, false);
+}
+
+/** Generate a random private key valid for the KEM. */
+function kemRandomPrivateKey(kem: HpkeKem): Uint8Array {
+  return kem === "x25519"
+    ? x25519.utils.randomSecretKey()
+    : p256.utils.randomSecretKey();
+}
+
+/** DH(sk, pk): X25519 output, or the P-256 shared point's x-coordinate. */
+function kemDh(kem: HpkeKem, sk: Uint8Array, pk: Uint8Array): Uint8Array {
+  if (kem === "x25519") {
+    return x25519.getSharedSecret(sk, pk);
+  }
+  // Extract x-coordinate (bytes 1..33) per RFC 9180 § 7.1.1
+  return p256.getSharedSecret(sk, pk, false).subarray(1, 33);
+}
+
+/**
+ * ExtractAndExpand(dh, kem_context) per RFC 9180 § 4.1:
+ *
+ *   eae_prk = LabeledExtract("", "eae_prk", dh)
+ *   shared_secret = LabeledExpand(eae_prk, "shared_secret", kem_context, Nsecret)
+ *
+ * Versions before 0.0.7 instead used kem_context as the
+ * extract salt and an empty expand info. That schedule was not RFC 9180
+ * and did not interoperate with any other implementation; ciphertexts
+ * sealed by those releases do not open with this one (and vice versa).
+ */
+function extractAndExpand(
+  params: SuiteParams,
+  dh: Uint8Array,
+  kemContext: Uint8Array,
+): Uint8Array {
+  const kemSid = kemSuiteId(params.kemId);
+  const eaePrk = labeledExtract(kemSid, new Uint8Array(0), "eae_prk", dh);
+  return labeledExpand(
+    kemSid,
+    eaePrk,
+    "shared_secret",
+    kemContext,
+    params.nSecret,
+  );
+}
+
+/** Encap(pkR) with an explicit ephemeral private key. */
 function dhkemEncap(
   kem: HpkeKem,
   recipientPub: Uint8Array,
+  ephPriv: Uint8Array,
   params: SuiteParams,
 ): { sharedSecret: Uint8Array; enc: Uint8Array } {
-  const kemSid = kemSuiteId(params.kemId);
-
-  let ephPriv: Uint8Array;
-  let ephPub: Uint8Array;
-  let dh: Uint8Array;
-
-  if (kem === "x25519") {
-    ephPriv = randomBytes(32);
-    ephPub = x25519.getPublicKey(ephPriv);
-    dh = x25519.getSharedSecret(ephPriv, recipientPub);
-  } else {
-    ephPriv = randomBytes(32);
-    ephPub = p256.getPublicKey(ephPriv, false); // uncompressed
-    const raw = p256.getSharedSecret(ephPriv, recipientPub, false);
-    // Extract x-coordinate (bytes 1..33) per RFC 9180 § 4.1
-    dh = raw.subarray(1, 33);
-  }
-
-  // ExtractAndExpand
-  const kemContext = concat(ephPub, recipientPub);
-  const suitedIkm = dh;
-  const prk = labeledExtract(kemSid, kemContext, "shared_secret", suitedIkm);
-  const sharedSecret = labeledExpand(
-    kemSid,
-    prk,
-    "shared_secret",
-    new Uint8Array(0),
-    params.nSecret,
-  );
-
-  return { sharedSecret, enc: ephPub };
+  const enc = kemPublicKey(kem, ephPriv);
+  const dh = kemDh(kem, ephPriv, recipientPub);
+  const sharedSecret = extractAndExpand(params, dh, concat(enc, recipientPub));
+  return { sharedSecret, enc };
 }
 
-/** Decapsulate: recover KEM shared secret from enc + recipient private key. */
+/** Decap(enc, skR): recover the KEM shared secret. */
 function dhkemDecap(
   kem: HpkeKem,
   enc: Uint8Array,
   recipientPriv: Uint8Array,
   params: SuiteParams,
 ): Uint8Array {
-  const kemSid = kemSuiteId(params.kemId);
-
-  let dh: Uint8Array;
-  let recipientPub: Uint8Array;
-
-  if (kem === "x25519") {
-    dh = x25519.getSharedSecret(recipientPriv, enc);
-    recipientPub = x25519.getPublicKey(recipientPriv);
-  } else {
-    const raw = p256.getSharedSecret(recipientPriv, enc, false);
-    dh = raw.subarray(1, 33);
-    recipientPub = p256.getPublicKey(recipientPriv, false);
-  }
-
-  const kemContext = concat(enc, recipientPub);
-  const prk = labeledExtract(kemSid, kemContext, "shared_secret", dh);
-  const sharedSecret = labeledExpand(
-    kemSid,
-    prk,
-    "shared_secret",
-    new Uint8Array(0),
-    params.nSecret,
-  );
-
-  return sharedSecret;
+  const dh = kemDh(kem, recipientPriv, enc);
+  const recipientPub = kemPublicKey(kem, recipientPriv);
+  return extractAndExpand(params, dh, concat(enc, recipientPub));
 }
 
 // ---------------------------------------------------------------------------
 // Key Schedule (RFC 9180 § 5.1)
 // ---------------------------------------------------------------------------
 
-/** Derive the AEAD key and base nonce from the shared secret via the HPKE key schedule. */
+/** Output of the HPKE key schedule. */
+interface KeyScheduleResult {
+  key: Uint8Array;
+  baseNonce: Uint8Array;
+  exporterSecret: Uint8Array;
+}
+
+/** Derive the AEAD key, base nonce and exporter secret via the HPKE key schedule. */
 function keySchedule(
   params: SuiteParams,
   sharedSecret: Uint8Array,
-  info: Uint8Array,
-  psk: Uint8Array,
-  pskId: Uint8Array,
-  mode: number,
-): { key: Uint8Array; baseNonce: Uint8Array } {
+  inputs: ScheduleInputs,
+): KeyScheduleResult {
   const suiteId = hpkeSuiteId(params);
+  const empty = new Uint8Array(0);
 
-  const pskIdHash = labeledExtract(
-    suiteId,
-    new Uint8Array(0),
-    "psk_id_hash",
-    pskId,
-  );
-  const infoHash = labeledExtract(
-    suiteId,
-    new Uint8Array(0),
-    "info_hash",
-    info,
-  );
+  const pskIdHash = labeledExtract(suiteId, empty, "psk_id_hash", inputs.pskId);
+  const infoHash = labeledExtract(suiteId, empty, "info_hash", inputs.info);
+  const ksContext = concat(new Uint8Array([inputs.mode]), pskIdHash, infoHash);
 
-  const ksContext = concat(new Uint8Array([mode]), pskIdHash, infoHash);
+  const secret = labeledExtract(suiteId, sharedSecret, "secret", inputs.psk);
 
-  const secret = labeledExtract(suiteId, sharedSecret, "secret", psk);
+  return {
+    key: labeledExpand(suiteId, secret, "key", ksContext, params.nk),
+    baseNonce: labeledExpand(
+      suiteId,
+      secret,
+      "base_nonce",
+      ksContext,
+      params.nn,
+    ),
+    exporterSecret: labeledExpand(
+      suiteId,
+      secret,
+      "exp",
+      ksContext,
+      params.nSecret,
+    ),
+  };
+}
 
-  const key = labeledExpand(suiteId, secret, "key", ksContext, params.nk);
-  const baseNonce = labeledExpand(
-    suiteId,
-    secret,
-    "base_nonce",
-    ksContext,
-    params.nn,
-  );
+/** Mode, info and PSK inputs to the key schedule, decoded from hex. */
+interface ScheduleInputs {
+  mode: number;
+  info: Uint8Array;
+  psk: Uint8Array;
+  pskId: Uint8Array;
+}
 
-  return { key, baseNonce };
+/** Decode the shared seal/open options and check them (RFC 9180 § 5.1 VerifyPSKInputs). */
+function scheduleInputs(options: {
+  info?: string;
+  psk?: HpkePskOptions;
+}): ScheduleInputs {
+  const info = options.info ? hexToBytes(options.info) : new Uint8Array(0);
+  if (!options.psk) {
+    return {
+      mode: MODE_BASE,
+      info,
+      psk: new Uint8Array(0),
+      pskId: new Uint8Array(0),
+    };
+  }
+  const psk = hexToBytes(options.psk.psk);
+  const pskId = hexToBytes(options.psk.pskId);
+  if (psk.length === 0 || pskId.length === 0) {
+    throw new Error("PSK mode requires a non-empty psk and pskId");
+  }
+  return { mode: MODE_PSK, info, psk, pskId };
 }
 
 // ---------------------------------------------------------------------------
@@ -463,19 +505,9 @@ function aeadOpen(
  * ```
  */
 export function hpkeGenerateKeyPair(kem: HpkeKem = "x25519"): HpkeKeyPair {
-  if (kem === "x25519") {
-    const privateKey = randomBytes(32);
-    const publicKey = x25519.getPublicKey(privateKey);
-    return {
-      publicKey: bytesToHex(publicKey),
-      privateKey: bytesToHex(privateKey),
-    };
-  }
-  // P-256
-  const privateKey = randomBytes(32);
-  const publicKey = p256.getPublicKey(privateKey, false); // uncompressed
+  const privateKey = kemRandomPrivateKey(kem);
   return {
-    publicKey: bytesToHex(publicKey),
+    publicKey: bytesToHex(kemPublicKey(kem, privateKey)),
     privateKey: bytesToHex(privateKey),
   };
 }
@@ -516,37 +548,55 @@ export function hpkeSeal(options: {
   psk?: HpkePskOptions;
 }): HpkeSealResult {
   const kem = options.suite?.kem ?? "x25519";
+  const sealed = hpkeSealWithEphemeral(options, kemRandomPrivateKey(kem));
+  return {
+    ciphertext: sealed.ciphertext,
+    encapsulatedKey: sealed.encapsulatedKey,
+  };
+}
+
+/**
+ * HPKE seal with a caller-chosen ephemeral private key, also returning the
+ * key-schedule outputs. This exists only so the RFC 9180 Appendix A test
+ * vectors (which fix skEm) can be checked; reusing an ephemeral key breaks
+ * HPKE's security, so production code must call {@link hpkeSeal}.
+ *
+ * @internal
+ */
+export function hpkeSealWithEphemeral(
+  options: Parameters<typeof hpkeSeal>[0],
+  ephemeralPrivateKey: Uint8Array,
+): HpkeSealResult & {
+  sharedSecret: string;
+  key: string;
+  baseNonce: string;
+  exporterSecret: string;
+} {
+  const kem = options.suite?.kem ?? "x25519";
   const aead = options.suite?.aead ?? "chacha20-poly1305";
   const params = suiteParams(kem, aead);
 
   const recipientPub = hexToBytes(options.recipientPublicKey);
   const plaintext = hexToBytes(options.plaintext);
-  const info = options.info ? hexToBytes(options.info) : new Uint8Array(0);
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
+  const inputs = scheduleInputs(options);
 
-  const mode: number = options.psk ? 0x01 : 0x00; // base=0, psk=1
-  const psk = options.psk ? hexToBytes(options.psk.psk) : new Uint8Array(0);
-  const pskId = options.psk ? hexToBytes(options.psk.pskId) : new Uint8Array(0);
-
-  // DHKEM encapsulation
-  const { sharedSecret, enc } = dhkemEncap(kem, recipientPub, params);
-
-  // Key schedule
-  const { key, baseNonce } = keySchedule(
+  const { sharedSecret, enc } = dhkemEncap(
+    kem,
+    recipientPub,
+    ephemeralPrivateKey,
     params,
-    sharedSecret,
-    info,
-    psk,
-    pskId,
-    mode,
   );
-
-  // AEAD seal
-  const ct = aeadSeal(aead, key, baseNonce, aad, plaintext);
+  const ks = keySchedule(params, sharedSecret, inputs);
+  const ct = aeadSeal(aead, ks.key, ks.baseNonce, aad, plaintext);
 
   return {
     ciphertext: bytesToHex(ct),
     encapsulatedKey: bytesToHex(enc),
+    sharedSecret: bytesToHex(sharedSecret),
+    key: bytesToHex(ks.key),
+    baseNonce: bytesToHex(ks.baseNonce),
+    exporterSecret: bytesToHex(ks.exporterSecret),
   };
 }
 
@@ -597,27 +647,11 @@ export function hpkeOpen(options: {
   const recipientPriv = hexToBytes(options.recipientPrivateKey);
   const enc = hexToBytes(options.encapsulatedKey);
   const ciphertext = hexToBytes(options.ciphertext);
-  const info = options.info ? hexToBytes(options.info) : new Uint8Array(0);
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
+  const inputs = scheduleInputs(options);
 
-  const mode: number = options.psk ? 0x01 : 0x00;
-  const psk = options.psk ? hexToBytes(options.psk.psk) : new Uint8Array(0);
-  const pskId = options.psk ? hexToBytes(options.psk.pskId) : new Uint8Array(0);
-
-  // DHKEM decapsulation
   const sharedSecret = dhkemDecap(kem, enc, recipientPriv, params);
-
-  // Key schedule
-  const { key, baseNonce } = keySchedule(
-    params,
-    sharedSecret,
-    info,
-    psk,
-    pskId,
-    mode,
-  );
-
-  // AEAD open
+  const { key, baseNonce } = keySchedule(params, sharedSecret, inputs);
   const pt = aeadOpen(aead, key, baseNonce, aad, ciphertext);
 
   return { plaintext: bytesToHex(pt) };
