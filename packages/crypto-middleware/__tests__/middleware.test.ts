@@ -46,14 +46,22 @@ function base64url(data: string | Buffer): string {
     .replace(/\//g, "_");
 }
 
+/**
+ * Mint an HS256 token. `exp` defaults to one hour from now, since
+ * verifyJwt requires it; pass `exp: undefined` to omit it.
+ */
 function createJwt(
   payload: Record<string, unknown>,
   secret: string,
   headerOverrides?: Record<string, unknown>,
 ): string {
   const header = { alg: "HS256", typ: "JWT", ...headerOverrides };
+  const claims = {
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    ...payload,
+  };
   const headerB64 = base64url(JSON.stringify(header));
-  const payloadB64 = base64url(JSON.stringify(payload));
+  const payloadB64 = base64url(JSON.stringify(claims));
   const signingInput = `${headerB64}.${payloadB64}`;
   const sig = crypto.createHmac("sha256", secret).update(signingInput).digest();
   const sigB64 = base64url(sig);
@@ -359,6 +367,75 @@ describe("verifyJwt", () => {
       const e = err as CryptoMiddlewareError;
       expect(e.code).to.equal("TOKEN_NOT_YET_VALID");
     }
+  });
+
+  /** The error code verifyJwt throws for `token`, or "none". */
+  function codeOf(token: string, options?: Parameters<typeof verifyJwt>[2]) {
+    try {
+      verifyJwt(JWT_SECRET, token, options);
+      return "none";
+    } catch (err) {
+      expect(err).to.be.instanceOf(CryptoMiddlewareError);
+      expect((err as CryptoMiddlewareError).statusCode).to.equal(401);
+      return (err as CryptoMiddlewareError).code;
+    }
+  }
+
+  it("should throw MISSING_EXPIRATION for a token without exp (F07)", () => {
+    const token = createJwt({ sub: "u", exp: undefined }, JWT_SECRET);
+    expect(codeOf(token)).to.equal("MISSING_EXPIRATION");
+  });
+
+  it("should throw MISSING_EXPIRATION for a non-numeric exp", () => {
+    const token = createJwt({ sub: "u", exp: "2099-01-01" }, JWT_SECRET);
+    expect(codeOf(token)).to.equal("MISSING_EXPIRATION");
+  });
+
+  it("should throw MALFORMED_TOKEN for a non-numeric nbf", () => {
+    const token = createJwt({ sub: "u", nbf: "soon" }, JWT_SECRET);
+    expect(codeOf(token)).to.equal("MALFORMED_TOKEN");
+  });
+
+  it("should throw MALFORMED_TOKEN for a payload that is not an object", () => {
+    const headerB64 = base64url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+    const payloadB64 = base64url("null");
+    const sig = crypto
+      .createHmac("sha256", JWT_SECRET)
+      .update(`${headerB64}.${payloadB64}`)
+      .digest();
+    expect(codeOf(`${headerB64}.${payloadB64}.${base64url(sig)}`)).to.equal(
+      "MALFORMED_TOKEN",
+    );
+  });
+
+  it("should pin HS256: alg none and HS512 are rejected", () => {
+    const none = `${base64url(JSON.stringify({ alg: "none" }))}.${base64url(
+      JSON.stringify({ sub: "u", exp: 9999999999 }),
+    )}.`;
+    expect(codeOf(none)).to.equal("UNSUPPORTED_ALGORITHM");
+    const hs512 = createJwt({ sub: "u" }, JWT_SECRET, { alg: "HS512" });
+    expect(codeOf(hs512)).to.equal("UNSUPPORTED_ALGORITHM");
+  });
+
+  it("should check iss and aud when required (F06)", () => {
+    const opts = { issuer: "https://idp", audience: "api" };
+    const ok = createJwt({ iss: "https://idp", aud: "api" }, JWT_SECRET);
+    expect(codeOf(ok, opts)).to.equal("none");
+    const okArray = createJwt(
+      { iss: "https://idp", aud: ["other", "api"] },
+      JWT_SECRET,
+    );
+    expect(codeOf(okArray, opts)).to.equal("none");
+    const wrongIss = createJwt({ iss: "https://evil", aud: "api" }, JWT_SECRET);
+    expect(codeOf(wrongIss, opts)).to.equal("INVALID_ISSUER");
+    const noIss = createJwt({ aud: "api" }, JWT_SECRET);
+    expect(codeOf(noIss, opts)).to.equal("INVALID_ISSUER");
+    const wrongAud = createJwt({ iss: "https://idp", aud: "x" }, JWT_SECRET);
+    expect(codeOf(wrongAud, opts)).to.equal("INVALID_AUDIENCE");
+    const noAud = createJwt({ iss: "https://idp" }, JWT_SECRET);
+    expect(codeOf(noAud, opts)).to.equal("INVALID_AUDIENCE");
+    // Without options, iss and aud are not checked.
+    expect(codeOf(wrongIss)).to.equal("none");
   });
 
   it("should throw MALFORMED_TOKEN for non-JSON payload", () => {
@@ -810,6 +887,32 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     });
     expect(nextCalled).to.equal(true);
     expect(req.jwtPayload).to.have.property("sub", "user1");
+  });
+
+  it("should enforce jwtIssuer and jwtAudience from the config", () => {
+    const mw = createCryptoMiddleware({
+      operations: ["verify-jwt"],
+      jwtSecret: JWT_SECRET,
+      jwtIssuer: "https://idp",
+      jwtAudience: "api",
+    });
+    const run = (claims: Record<string, unknown>) => {
+      const token = createJwt({ sub: "u", ...claims }, JWT_SECRET);
+      const req = mockReq({ headers: { authorization: `Bearer ${token}` } });
+      const res = mockRes();
+      let nextCalled = false;
+      mw(req, res, () => {
+        nextCalled = true;
+      });
+      return { nextCalled, res };
+    };
+    expect(run({ iss: "https://idp", aud: "api" }).nextCalled).to.equal(true);
+    const wrong = run({ iss: "https://idp", aud: "other" });
+    expect(wrong.nextCalled).to.equal(false);
+    expect(wrong.res.statusCode).to.equal(401);
+    expect((wrong.res._body as { code: string }).code).to.equal(
+      "INVALID_AUDIENCE",
+    );
   });
 
   it("should return 401 for missing Authorization header", () => {

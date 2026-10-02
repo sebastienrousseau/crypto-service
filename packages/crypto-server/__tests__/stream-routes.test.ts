@@ -17,6 +17,16 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
   const edKey = generateEd25519KeyPair();
   const mlKey = mlDsaKeygen(65);
 
+  /** Generate a server-held ed25519 key; returns its keyId and public key. */
+  async function serverKey(): Promise<{ keyId: string; publicKey: string }> {
+    const res = await app.inject({
+      method: "POST",
+      url: "/v2/keys/generate",
+      payload: { algorithm: "ed25519" },
+    });
+    return JSON.parse(res.payload).data;
+  }
+
   before(async () => {
     app = await init();
   });
@@ -27,6 +37,7 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
 
   describe("POST /v2/stream/sign", () => {
     it("batch signs multiple payloads with sub-millisecond throughput", async () => {
+      const { keyId } = await serverKey();
       const res = await app.inject({
         method: "POST",
         url: "/v2/stream/sign",
@@ -35,12 +46,12 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
             {
               id: "batch-1",
               message: "settlement-instruction-01",
-              privateKey: edKey.privateKey,
+              keyId,
             },
             {
               id: "batch-2",
               message: "settlement-instruction-02",
-              privateKey: edKey.privateKey,
+              keyId,
             },
           ],
         },
@@ -52,6 +63,21 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
       expect(json.data.signatures).to.have.length(2);
       expect(json.data.signatures[0].id).to.equal("batch-1");
       expect(json.data.signatures[0].signature).to.be.a("string");
+    });
+
+    it("answers 404 when a batch names an unknown keyId", async () => {
+      const { keyId } = await serverKey();
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/sign",
+        payload: {
+          items: [
+            { id: "a", message: "m", keyId },
+            { id: "b", message: "m", keyId: `k_${"Z".repeat(22)}` },
+          ],
+        },
+      });
+      expect(res.statusCode).to.equal(404);
     });
 
     it("rejects invalid batch sign requests missing required fields", async () => {
@@ -66,14 +92,14 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
 
   describe("POST /v2/stream/verify", () => {
     it("batch verifies multiple signatures successfully", async () => {
-      const kp = generateEd25519KeyPair();
+      const kp = await serverKey();
       const signRes = await app.inject({
         method: "POST",
         url: "/v2/stream/sign",
         payload: {
           items: [
-            { id: "tx-1", message: "payment-1", privateKey: kp.privateKey },
-            { id: "tx-2", message: "payment-2", privateKey: kp.privateKey },
+            { id: "tx-1", message: "payment-1", keyId: kp.keyId },
+            { id: "tx-2", message: "payment-2", keyId: kp.keyId },
           ],
         },
       });
@@ -274,7 +300,7 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
         method: "POST",
         url: "/v2/stream/sign",
         payload: {
-          items: [{ id: "1", message: "m", privateKey: edKey.privateKey }],
+          items: [{ id: "1", message: "m", keyId: `k_${"A".repeat(22)}` }],
         },
       });
       expect(res.statusCode).to.equal(401);

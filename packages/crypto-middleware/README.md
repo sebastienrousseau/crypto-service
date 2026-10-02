@@ -142,15 +142,22 @@ lets you scope protection to specific endpoints.
 
 ### Configuration
 
-| Option       | Type       | Required | Description                                       |
-| :----------- | :--------- | :------- | :------------------------------------------------ |
-| `key`        | `string`   | \*       | Hex-encoded 256-bit key for encryption/decryption |
-| `routes`     | `string[]` | No       | Glob patterns for routes to apply middleware to   |
-| `operations` | `string[]` | No       | Operations to perform (see below)                 |
-| `hmacKey`    | `string`   | \*       | Hex-encoded HMAC key for signature verification   |
-| `jwtSecret`  | `string`   | \*       | Secret for HS256 JWT verification                 |
+| Option        | Type       | Required | Description                                       |
+| :------------ | :--------- | :------- | :------------------------------------------------ |
+| `key`         | `string`   | \*       | Hex-encoded 256-bit key for encryption/decryption |
+| `routes`      | `string[]` | No       | Glob patterns for routes to apply middleware to   |
+| `operations`  | `string[]` | No       | Operations to perform (see below)                 |
+| `hmacKey`     | `string`   | \*       | Hex-encoded HMAC key for signature verification   |
+| `jwtSecret`   | `string`   | \*       | Secret for HS256 JWT verification                 |
+| `jwtIssuer`   | `string`   | No       | Required `iss` claim for `verify-jwt`             |
+| `jwtAudience` | `string`   | No       | Required `aud` value for `verify-jwt`             |
 
 \* Required when the corresponding operation is enabled.
+
+`verify-jwt` accepts only HS256 (any other `alg`, including `none`, is
+rejected), requires a numeric `exp` claim, checks `nbf` when present, and
+checks `iss` and `aud` when `jwtIssuer` / `jwtAudience` are set. Set both
+when the secret is shared with any other service.
 
 ### Operations
 
@@ -239,6 +246,8 @@ All 18 packages in the Crypto Service workspace maintain a **100% coverage floor
 ## Security
 
 Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/sebastienrousseau/crypto-service/security/advisories) or according to [`SECURITY.md`](../../SECURITY.md). Never report security issues publicly.
+
+The middleware verifies JWTs and HMAC signatures but does not rate-limit them. Register a rate limiter in the host application (for example [`@fastify/rate-limit`](https://github.com/fastify/fastify-rate-limit) or [`express-rate-limit`](https://github.com/express-rate-limit/express-rate-limit)) in front of the routes it protects, as `crypto-server` does.
 
 Cryptographic operations use the `@noble/*` libraries, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution, and no module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. See [`SECURITY.md`](../../SECURITY.md).
 

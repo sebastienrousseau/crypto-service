@@ -8,6 +8,24 @@
  * charmbracelet/bubbletea's package-manager example.
  */
 
+import { CryptoClient } from "../src";
+
+/**
+ * The client every example uses: the server at `CRYPTO_SERVER_URL`
+ * (default http://localhost:3000), authenticated with `CRYPTO_API_KEY`
+ * (x-api-key) or `CRYPTO_TOKEN` (a JWT bearer token) when set. The server
+ * refuses unauthenticated requests unless it runs with ALLOW_ANONYMOUS=1.
+ */
+export function createClient(): CryptoClient {
+  const apiKey = process.env.CRYPTO_API_KEY;
+  const token = process.env.CRYPTO_TOKEN;
+  return new CryptoClient({
+    baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
+    ...(apiKey ? { apiKey } : {}),
+    ...(token ? { token } : {}),
+  });
+}
+
 const SPINNER = ["\u2807", "\u280b", "\u2819", "\u2838", "\u2834", "\u2826", "\u2847", "\u280f"];
 const CHECK = "\u2713";
 const CROSS = "\u2717";
@@ -22,11 +40,6 @@ export function header(title: string): void {
 /** Print the footer. */
 export function footer(): void {
   console.log();
-}
-
-/** Sleep helper. */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

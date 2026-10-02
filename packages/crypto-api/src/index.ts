@@ -10,13 +10,25 @@
  * then utilizes utility functions to generate and handle the markdown content.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const minimist = require("minimist") as (argv: string[]) => {
   _: string[];
   [k: string]: unknown;
 };
 import * as fs from "fs/promises";
 import { createMarkdown, response } from "./utils";
+
+/** Collection and request types, importable from the package root. */
+export type {
+  AuthorizationToken,
+  AuthorizationInfo,
+  CollectionItem,
+  JsonDocument,
+  MethodType,
+  JsonRequest,
+  RequestHeader,
+  ResponseType,
+} from "./@types/types";
 
 /**
  * @typedef {Object} ParsedArgs
@@ -102,4 +114,10 @@ export async function init(): Promise<void> {
   }
 }
 
-init();
+// Run only from the command line (`node dist/index.js <file>`), so that
+// importing the package has no side effects.
+/* c8 ignore start */
+if (require.main === module) {
+  void init();
+}
+/* c8 ignore stop */

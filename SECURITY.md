@@ -6,8 +6,8 @@
 
 | Version | Supported |
 | ------- | --------- |
-| 0.0.8   | Yes       |
-| < 0.0.8 | No        |
+| 0.0.9   | Yes       |
+| < 0.0.9 | No        |
 
 ## Reporting a Vulnerability
 
@@ -15,6 +15,9 @@ We take the security of Crypto Service Suite seriously. If you discover a
 security vulnerability, please report it responsibly.
 
 **Email:** [security@crypto-service.co](mailto:security@crypto-service.co)
+
+**GitHub:** [report a vulnerability privately](https://github.com/sebastienrousseau/crypto-service/security/advisories/new)
+through GitHub's private vulnerability reporting.
 
 Please include:
 

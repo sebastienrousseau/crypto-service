@@ -87,7 +87,7 @@ import type {
   JsonRequest,
   RequestHeader,
   ResponseType,
-} from "@sebastienrousseau/crypto-api/dist/@types/types";
+} from "@sebastienrousseau/crypto-api";
 
 // Type-safe request header
 const header: RequestHeader = {

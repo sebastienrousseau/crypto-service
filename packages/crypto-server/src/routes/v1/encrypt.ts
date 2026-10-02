@@ -14,10 +14,12 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import encrypt from "@sebastienrousseau/crypto-lib/dist/lib/encrypt";
+import { encrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyEncrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 encrypt endpoint. */
 const encryptSchema = {
@@ -27,11 +29,8 @@ const encryptSchema = {
     "Encrypts a plaintext message using the supplied PGP public key and passphrase.",
   response: {
     200: { type: "object", properties: { data: { type: "string" } } },
-    400: {
-      type: "object",
-      properties: { error: { type: "string" }, details: { type: "array" } },
-    },
-    401: { type: "object", properties: { error: { type: "string" } } },
+    400: PROBLEM_SCHEMA,
+    401: PROBLEM_SCHEMA,
   },
   body: {
     type: "object",
@@ -41,7 +40,11 @@ const encryptSchema = {
       passphrase: { type: "string", minLength: 1, maxLength: 1024 },
       message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
       publicKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
-      privateKey: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+      sign: {
+        type: "boolean",
+        description:
+          "Also sign with the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase.",
+      },
     },
   },
 } as const;
@@ -68,13 +71,13 @@ export default (app: FastifyInstance): void => {
           passphrase: v.passphrase,
           message: v.message,
           publicKey: v.publicKey,
-          ...(body.privateKey ? { privateKey: body.privateKey } : {}),
+          ...(body.sign ? { privateKey: await serverPgpPrivateKey() } : {}),
         });
 
         return reply.send({ data: encryptedData });
       } catch (error) {
         request.log.error(error, "Encryption operation failed");
-        return reply.status(500).send({ error: "Encryption failed" });
+        return sendProblem(reply, 500, "internal-error", "Encryption failed");
       }
     },
   );

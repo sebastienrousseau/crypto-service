@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, summary } from "./support";
+import { header, task, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- hash");
@@ -28,8 +25,8 @@ async function main() {
     return data.digest;
   });
 
-  await task("Compute BLAKE2b-256 digest", async () => {
-    const { data } = await client.hash({ algorithm: "blake2b-256", data: "hello world" });
+  await task("Compute BLAKE2b digest", async () => {
+    const { data } = await client.hash({ algorithm: "blake2b", data: "hello world" });
     return data.digest;
   });
 

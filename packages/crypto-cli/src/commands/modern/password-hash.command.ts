@@ -7,6 +7,34 @@ import prompts from "prompts";
 import { writeUtils } from "../../utils/write.utils";
 import format from "kleur";
 
+/** The questions handlePasswordHash asks, in order. */
+const QUESTIONS: prompts.PromptObject[] = [
+  {
+    type: "select",
+    name: "action",
+    message: "Action",
+    choices: [
+      { title: "Hash password", value: "hash" },
+      { title: "Verify password", value: "verify" },
+    ],
+  },
+  {
+    type: "password",
+    name: "password",
+    message: "Password",
+  },
+  {
+    type: "select",
+    name: "variant",
+    message: "Argon2 variant",
+    choices: [
+      { title: "argon2id (recommended)", value: "argon2id" },
+      { title: "argon2i (side-channel resistant)", value: "argon2i" },
+      { title: "argon2d (GPU resistant)", value: "argon2d" },
+    ],
+  },
+];
+
 /**
  * Interactively hash or verify passwords using Argon2 (id/i/d variants).
  *
@@ -16,38 +44,13 @@ import format from "kleur";
  * ```
  */
 const handlePasswordHash = async () => {
-  const response = await prompts([
-    {
-      type: "select",
-      name: "action",
-      message: "Action",
-      choices: [
-        { title: "Hash password", value: "hash" },
-        { title: "Verify password", value: "verify" },
-      ],
-    },
-    {
-      type: "password",
-      name: "password",
-      message: "Password",
-    },
-    {
-      type: "select",
-      name: "variant",
-      message: "Argon2 variant",
-      choices: [
-        { title: "argon2id (recommended)", value: "argon2id" },
-        { title: "argon2i (side-channel resistant)", value: "argon2i" },
-        { title: "argon2d (GPU resistant)", value: "argon2d" },
-      ],
-    },
-  ]);
+  const response = await prompts(QUESTIONS);
 
   if (!response.action || !response.password) return;
 
   try {
     const { hashPassword, verifyPasswordPhc } =
-      await import("@sebastienrousseau/crypto-lib/dist/modern/password");
+      await import("@sebastienrousseau/crypto-lib/modern");
 
     if (response.action === "hash") {
       const result = hashPassword({

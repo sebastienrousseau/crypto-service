@@ -4,566 +4,75 @@
  */
 
 /**
- * @remarks TypeScript SDK for the Crypto Service Suite v2 API.
- *
- * Zero-dependency, fetch-based typed client for all cryptographic operations.
- *
- * @example
- * ```ts
- * import { CryptoClient } from '@sebastienrousseau/crypto-sdk';
- *
- * const client = new CryptoClient({ baseUrl: 'http://localhost:3000' });
- * const { data } = await client.hash({ algorithm: 'sha256', data: 'hello' });
- * console.log(data.digest);
- * ```
- */
-
-export interface ClientOptions {
-  /** Base URL of the crypto server (e.g., "http://localhost:3000"). */
-  baseUrl: string;
-  /** API key for x-api-key header authentication. */
-  apiKey?: string;
-  /** JWT Bearer token for Authorization header. */
-  token?: string;
-  /** Custom fetch implementation (defaults to global fetch). */
-  fetch?: typeof globalThis.fetch;
-}
-
-/**
- * Successful API response wrapper.
- *
- * @example
- * ```ts
- * const res: ApiResponse<HashResult> = await client.hash({ algorithm: 'sha256', data: 'hello' });
- * console.log(res.data.digest);
- * ```
- */
-export interface ApiResponse<T> {
-  /** Response payload. */
-  data: T;
-}
-
-/**
- * Error response returned by the API on failure.
- *
- * @example
- * ```ts
- * try {
- *   await client.hash({ algorithm: 'invalid', data: 'x' });
- * } catch (err) {
- *   const apiErr = (err as CryptoApiError).body satisfies ApiError;
- *   console.error(apiErr.error, apiErr.details);
- * }
- * ```
- */
-export interface ApiError {
-  /** Human-readable error message. */
-  error: string;
-  /** Optional per-field validation errors. */
-  details?: Array<{
-    /** Name of the invalid field. */
-    field: string;
-    /** Validation failure description. */
-    message: string;
-  }>;
-}
-
-// --- Response types ---
-
-/**
- * Result of a hash operation.
- *
- * @example
- * ```ts
- * const { data } = await client.hash({ algorithm: 'sha256', data: 'hello' });
- * const result: HashResult = data;
- * console.log(result.digest, result.algorithm, result.length);
- * ```
- */
-export interface HashResult {
-  /** Hex-encoded digest. */
-  digest: string;
-  /** Hash algorithm used (e.g. `"sha256"`). */
-  algorithm: string;
-  /** Digest length in bytes. */
-  length: number;
-}
-
-/**
- * Result of an AEAD encryption operation.
- *
- * @example
- * ```ts
- * const { data } = await client.encrypt({ key: hexKey, plaintext: 'secret' });
- * const result: AeadResult = data;
- * console.log(result.ciphertext, result.algorithm);
- * ```
- */
-export interface AeadResult {
-  /** Hex-encoded ciphertext (includes nonce and tag). */
-  ciphertext: string;
-  /** AEAD algorithm used. */
-  algorithm: string;
-}
-
-/**
- * Result of a key derivation function operation.
- *
- * @example
- * ```ts
- * const { data } = await client.kdf({ algorithm: 'hkdf-sha256', password: 'pw' });
- * const result: KdfResult = data;
- * console.log(result.derivedKey, result.salt, result.keyLength);
- * ```
- */
-export interface KdfResult {
-  /** Hex-encoded derived key. */
-  derivedKey: string;
-  /** Hex-encoded salt used for derivation. */
-  salt: string;
-  /** KDF algorithm used. */
-  algorithm: string;
-  /** Length of the derived key in bytes. */
-  keyLength: number;
-}
-
-/**
- * Ed25519 key pair returned by key generation.
- *
- * @example
- * ```ts
- * const { data } = await client.generateKeyPair({ algorithm: 'ed25519' });
- * const keys: Ed25519KeyPair = { privateKey: data.privateKey, publicKey: data.publicKey };
- * ```
- */
-export interface Ed25519KeyPair {
-  /** Hex-encoded Ed25519 private key. */
-  privateKey: string;
-  /** Hex-encoded Ed25519 public key. */
-  publicKey: string;
-}
-
-/**
- * Result of a signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.sign({ privateKey: hexKey, message: 'hello' });
- * const result: SignResult = data;
- * console.log(result.signature, result.algorithm);
- * ```
- */
-export interface SignResult {
-  /** Hex-encoded signature bytes. */
-  signature: string;
-  /** Signing algorithm used (e.g. `"ed25519"`). */
-  algorithm: string;
-}
-
-/**
- * Result of a signature verification operation.
- *
- * @example
- * ```ts
- * const { data } = await client.verify({ publicKey, message: 'hello', signature: sig });
- * const result: VerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface VerifyResult {
-  /** Whether the signature is valid. */
-  valid: boolean;
-  /** Signing algorithm used for verification. */
-  algorithm: string;
-}
-
-/**
- * Hybrid X25519+ML-KEM key pair for post-quantum key exchange.
- *
- * @example
- * ```ts
- * const { data } = await client.pqGenerateKeyPair();
- * const keys: HybridKeyPair = data;
- * console.log(keys.x25519PublicKey, keys.mlKemPublicKey);
- * ```
- */
-export interface HybridKeyPair {
-  /** Hex-encoded X25519 private key. */
-  x25519PrivateKey: string;
-  /** Hex-encoded X25519 public key. */
-  x25519PublicKey: string;
-  /** Hex-encoded ML-KEM public (encapsulation) key. */
-  mlKemPublicKey: string;
-  /** Hex-encoded ML-KEM secret (decapsulation) key. */
-  mlKemSecretKey: string;
-  /** Hybrid KEM algorithm identifier. */
-  algorithm: string;
-}
-
-/**
- * Result of a hybrid KEM encapsulation operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqEncapsulate({
- *   x25519PublicKey: keys.x25519PublicKey,
- *   mlKemPublicKey: keys.mlKemPublicKey,
- * });
- * const result: HybridEncapsulateResult = data;
- * console.log(result.sharedSecret, result.mlKemCiphertext);
- * ```
- */
-export interface HybridEncapsulateResult {
-  /** Hex-encoded ephemeral X25519 public key. */
-  x25519EphemeralPublic: string;
-  /** Hex-encoded ML-KEM ciphertext. */
-  mlKemCiphertext: string;
-  /** Hex-encoded combined shared secret. */
-  sharedSecret: string;
-  /** Hybrid KEM algorithm identifier. */
-  algorithm: string;
-}
-
-/**
- * ML-DSA (Dilithium) key pair for post-quantum digital signatures.
- *
- * @example
- * ```ts
- * const { data } = await client.pqSignKeygen({ level: 65 });
- * const keys: MlDsaKeyPair = data;
- * console.log(keys.publicKey, keys.algorithm); // "ml-dsa-65"
- * ```
- */
-export interface MlDsaKeyPair {
-  /** Hex-encoded ML-DSA public key. */
-  publicKey: string;
-  /** Hex-encoded ML-DSA secret key. */
-  secretKey: string;
-  /** ML-DSA algorithm level (e.g. `"ml-dsa-65"`). */
-  algorithm: string;
-}
-
-/**
- * Result of an ML-DSA signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqSign({ level: 65, secretKey, message: 'hello' });
- * const result: MlDsaSignResult = data;
- * console.log(result.signature, result.algorithm);
- * ```
- */
-export interface MlDsaSignResult {
-  /** Hex-encoded ML-DSA signature. */
-  signature: string;
-  /** ML-DSA algorithm level used for signing. */
-  algorithm: string;
-}
-
-/**
- * Result of an ML-DSA signature verification.
- *
- * @example
- * ```ts
- * const { data } = await client.pqVerify({ level: 65, publicKey, message: 'hello', signature: sig });
- * const result: MlDsaVerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface MlDsaVerifyResult {
-  /** Whether the ML-DSA signature is valid. */
-  valid: boolean;
-  /** ML-DSA algorithm level used for verification. */
-  algorithm: string;
-}
-
-/**
- * SLH-DSA (SPHINCS+) key pair for hash-based post-quantum signatures.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashSignKeygen({ variant: 'shake-128f' });
- * const keys: SlhDsaKeyPair = data;
- * console.log(keys.publicKey, keys.algorithm);
- * ```
- */
-export interface SlhDsaKeyPair {
-  /** Hex-encoded SLH-DSA public key. */
-  publicKey: string;
-  /** Hex-encoded SLH-DSA secret key. */
-  secretKey: string;
-  /** SLH-DSA variant identifier (e.g. `"slh-dsa-shake-128f"`). */
-  algorithm: string;
-}
-
-/**
- * Result of an SLH-DSA signing operation.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashSign({ variant: 'shake-128f', secretKey, message: 'hello' });
- * const result: SlhDsaSignResult = data;
- * console.log(result.signature);
- * ```
- */
-export interface SlhDsaSignResult {
-  /** Hex-encoded SLH-DSA signature. */
-  signature: string;
-  /** SLH-DSA variant used for signing. */
-  algorithm: string;
-}
-
-/**
- * Result of an SLH-DSA signature verification.
- *
- * @example
- * ```ts
- * const { data } = await client.pqHashVerify({ variant: 'shake-128f', publicKey, message: 'hello', signature: sig });
- * const result: SlhDsaVerifyResult = data;
- * console.log(result.valid); // true or false
- * ```
- */
-export interface SlhDsaVerifyResult {
-  /** Whether the SLH-DSA signature is valid. */
-  valid: boolean;
-  /** SLH-DSA variant used for verification. */
-  algorithm: string;
-}
-
-/**
- * Result of a secretbox seal operation (symmetric authenticated encryption).
- *
- * @example
- * ```ts
- * const { data } = await client.secretboxSeal({ key: hexKey, plaintext: 'secret' });
- * const result: SecretboxSealResult = data;
- * console.log(result.sealed);
- * ```
- */
-export interface SecretboxSealResult {
-  /** Hex-encoded sealed ciphertext (nonce + ciphertext + tag). */
-  sealed: string;
-}
-
-/**
- * Result of a sealed box seal operation (anonymous public-key encryption).
- *
- * @example
- * ```ts
- * const { data } = await client.sealedboxSeal({ recipientPublicKey: pubKey, plaintext: 'secret' });
- * const result: SealedboxSealResult = data;
- * console.log(result.sealed, result.ephemeralPublicKey);
- * ```
- */
-export interface SealedboxSealResult {
-  /** Hex-encoded sealed ciphertext. */
-  sealed: string;
-  /** Hex-encoded ephemeral public key used for encryption. */
-  ephemeralPublicKey: string;
-}
-
-/**
- * Result of a password-based encryption operation.
- *
- * @example
- * ```ts
- * const { data } = await client.passwordEncrypt({ password: 'my-pass', plaintext: 'secret' });
- * const result: PasswordEncryptResult = data;
- * console.log(result.ciphertext);
- * ```
- */
-export interface PasswordEncryptResult {
-  /** Hex-encoded password-encrypted ciphertext. */
-  ciphertext: string;
-}
-
-/**
- * Result of an AES key-wrap operation.
- *
- * @example
- * ```ts
- * const { data } = await client.keyWrap({ kek: hexKek, keyToWrap: hexKey });
- * const result: KeyWrapResult = data;
- * console.log(result.wrappedKey);
- * ```
- */
-export interface KeyWrapResult {
-  /** Hex-encoded wrapped key material. */
-  wrappedKey: string;
-}
-
-/**
- * Result of a key generation operation.
- *
- * @example
- * ```ts
- * const { data } = await client.generateKeyPair({ algorithm: 'ed25519' });
- * const result: KeyGenerateResult = data;
- * console.log(result.publicKey, result.privateKey, result.kid);
- * ```
- */
-export interface KeyGenerateResult {
-  /** Hex-encoded public key. */
-  publicKey: string;
-  /** Hex-encoded private key. */
-  privateKey: string;
-  /** Key algorithm (e.g. `"ed25519"`). */
-  algorithm: string;
-  /** Unique key identifier. */
-  kid: string;
-}
-
-/**
- * DORA self-assessment returned by `/v2/compliance/dora`. It describes the
- * algorithms the suite implements; it is not a compliance verdict.
- */
-export interface DoraComplianceScorecard {
-  /** Regulatory standard identifier. */
-  standard: string;
-  /** Specific regulatory articles evaluated. */
-  article: string;
-  /** Assessment status, e.g. "Self-assessment (not a compliance verdict)". */
-  status: string;
-  /** Statement of what the assessment does and does not establish. */
-  disclaimer: string;
-  /** Percentage of post-quantum resilient algorithms. */
-  quantumResistanceRatio: number;
-  /** Total count of active cryptographic primitives. */
-  activePrimitivesCount: number;
-  /** Total count of post-quantum primitives. */
-  postQuantumPrimitivesCount: number;
-  /** Deprecation schedule for classical algorithms. */
-  algorithmDeprecationSchedule: Array<{
-    algorithm: string;
-    category: string;
-    sunsetDate: string;
-    recommendedMigration: string;
-  }>;
-  /** Complete cryptographic package inventory. */
-  cryptographicInventory: Array<{
-    package: string;
-    version: string;
-    status: string;
-    fipsCompliance: string;
-  }>;
-  /** Scorecard timestamp. */
-  timestamp: string;
-}
-
-/** Machine-readable CycloneDX Cryptographic Bill of Materials (CBOM) payload. */
-export interface CbomExportPayload {
-  /** BOM format specification. */
-  bomFormat: string;
-  /** Specification version. */
-  specVersion: string;
-  /** Unique serial number URN. */
-  serialNumber: string;
-  /** BOM schema version. */
-  version: number;
-  /** Metadata describing generation environment and root component. */
-  metadata: Record<string, unknown>;
-  /** Complete component manifest. */
-  components: Array<Record<string, unknown>>;
-}
-
-/** Options for dynamic cryptographic algorithm negotiation. */
-export interface AlgorithmNegotiationOptions {
-  /** Maximum single-packet payload bytes (e.g. 1500 for standard Ethernet MTU). */
-  maxPayloadBytes?: number;
-  /** Minimum NIST post-quantum security category required (1, 3, or 5). Defaults to 1. */
-  securityCategoryMin?: 1 | 3 | 5;
-  /** Whether hybrid classical + post-quantum pairing is mandatory (e.g., BSI/ANSSI rules). */
-  requireHybrid?: boolean;
-  /** Client-supported algorithm list filter. */
-  clientSupportedAlgorithms?: string[];
-}
-
-/** Result of dynamic cryptographic algorithm negotiation. */
-export interface AlgorithmNegotiationResult {
-  /** Chosen algorithm identifier. */
-  selectedAlgorithm: string;
-  /** Cipher category. */
-  cipherCategory: "lattice-kem" | "hybrid-kem" | "classical-ecdh";
-  /** Security level (NIST Category 1, 3, or 5). */
-  securityCategory: 1 | 3 | 5;
-  /** Whether chosen algorithm is a composite hybrid. */
-  isHybrid: boolean;
-  /** Public key size in bytes. */
-  publicKeyBytes: number;
-  /** Ciphertext size in bytes. */
-  ciphertextBytes: number;
-  /** Total transport overhead in bytes. */
-  totalPayloadOverhead: number;
-  /** Whether ciphertext fits within maxPayloadBytes without IP fragmentation. */
-  fitsWithinMtu: boolean;
-  /** Ordered list of fallback algorithm candidates evaluated. */
-  fallbackChain: string[];
-  /** Regulatory and DORA Article 13 compliance posture. */
-  compliancePosture: {
-    standard: string;
-    doraArticle13Compliant: boolean;
-    fipsStandard: string;
-  };
-}
-
-/**
- * Result of a MAC computation.
- *
- * @example
- * ```ts
- * const { data } = await client.mac({ algorithm: 'hmac-sha256', key: hexKey, data: 'hello' });
- * const result: MacResult = data;
- * console.log(result.mac, result.algorithm);
- * ```
- */
-export interface MacResult {
-  /** Hex-encoded MAC tag. */
-  mac: string;
-  /** MAC algorithm used (e.g. `"hmac-sha256"`). */
-  algorithm: string;
-}
-
-/**
- * Result of a password hashing operation (Argon2).
- *
- * @example
- * ```ts
- * const { data } = await client.passwordHash({ password: 'hunter2' });
- * const result: PasswordHashResult = data;
- * console.log(result.phc); // PHC-format string
- * console.log(result.hash, result.salt, result.params);
- * ```
- */
-export interface PasswordHashResult {
-  /** Hex-encoded password hash. */
-  hash: string;
-  /** Hex-encoded salt used for hashing. */
-  salt: string;
-  /** Argon2 cost parameters (time, memory, parallelism). */
-  params: {
-    /** Time cost (iterations). */
-    t: number;
-    /** Memory cost (KiB). */
-    m: number;
-    /** Parallelism factor. */
-    p: number;
-  };
-  /** Argon2 variant used (e.g. `"argon2id"`). */
-  algorithm: string;
-  /** PHC-format encoded hash string. */
-  phc: string;
-}
-
-/**
  * Typed HTTP client for the Crypto Service Suite v2 API.
  *
+ * Private keys never cross the API: key-generation methods return a
+ * `keyId` with the public key, and signing, decapsulation and sealed-box
+ * opening take that `keyId`. Errors are thrown as {@link CryptoApiError}
+ * carrying the server's RFC 9457 problem body.
+ *
  * @example
  * ```ts
- * const client = new CryptoClient({ baseUrl: 'http://localhost:3000' });
+ * const client = new CryptoClient({ baseUrl: 'http://localhost:3000', apiKey });
  * const { data } = await client.hash({ algorithm: 'sha256', data: 'hello' });
  * console.log(data.digest);
  * ```
  */
+
+import { negotiateAlgorithm } from "./negotiation";
+import { CryptoApiError, readProblem } from "./errors";
+import type {
+  ClientOptions,
+  ApiResponse,
+  HashAlgorithm,
+  HashResult,
+  AeadResult,
+  KdfAlgorithm,
+  KdfResult,
+  SecretboxSealResult,
+  PasswordEncryptResult,
+  KeyWrapAlgorithm,
+  KeyWrapResult,
+  HealthResult,
+  DoraComplianceScorecard,
+  CbomExportPayload,
+  AlgorithmNegotiationOptions,
+  AlgorithmNegotiationResult,
+  HmacAlgorithm,
+  MacResult,
+  MacVerifyResult,
+  Argon2Params,
+  PasswordHashResult,
+} from "./types";
+import type {
+  KeyAlgorithm,
+  KeyIdParams,
+  SignParams,
+  KeyMetadata,
+  KeyGenerateResult,
+  KeyExportResult,
+  SignResult,
+  VerifyResult,
+  MlKemKeyPair,
+  MlKemEncapsulateResult,
+  KemDecapsulateResult,
+  HybridKeyPair,
+  HybridEncapsulateResult,
+  MlDsaLevel,
+  MlDsaKeyPair,
+  MlDsaSignResult,
+  MlDsaVerifyResult,
+  SlhDsaVariant,
+  SlhDsaKeyPair,
+  SlhDsaSignResult,
+  SlhDsaVerifyResult,
+  SealedboxSealResult,
+} from "./key-types";
+
+export * from "./types";
+export * from "./key-types";
+export { CryptoApiError } from "./errors";
+
 export class CryptoClient {
   private baseUrl: string;
   private headers: Record<string, string>;
@@ -582,11 +91,12 @@ export class CryptoClient {
     }
   }
 
-  private async request<T>(
+  /** Send a request and return the parsed JSON body; throws on a non-OK status. */
+  private async send<T>(
     method: string,
     path: string,
     body?: unknown,
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     const init: RequestInit = {
       method,
       headers: this.headers,
@@ -595,17 +105,24 @@ export class CryptoClient {
       init.body = JSON.stringify(body);
     }
     const res = await this.fetchFn(`${this.baseUrl}${path}`, init);
-
-    const json = await res.json();
     if (!res.ok) {
-      throw new CryptoApiError(res.status, json as ApiError);
+      throw new CryptoApiError(res.status, await readProblem(res));
     }
-    return json as ApiResponse<T>;
+    return (await res.json()) as T;
+  }
+
+  /** Send a request to a route that wraps its result in `{ data }`. */
+  private request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+  ): Promise<ApiResponse<T>> {
+    return this.send<ApiResponse<T>>(method, path, body);
   }
 
   // --- Encryption ---
 
-  /** Encrypt plaintext using AEAD (AES-GCM or XChaCha20-Poly1305). */
+  /** Encrypt plaintext with XChaCha20-Poly1305 under a 256-bit hex key. */
   async encrypt(params: {
     key: string;
     plaintext: string;
@@ -627,7 +144,7 @@ export class CryptoClient {
 
   /** Compute a cryptographic hash digest. */
   async hash(params: {
-    algorithm: string;
+    algorithm: HashAlgorithm;
     data: string;
   }): Promise<ApiResponse<HashResult>> {
     return this.request("POST", "/v2/hash", params);
@@ -635,49 +152,62 @@ export class CryptoClient {
 
   // --- KDF ---
 
-  /** Derive a key from a password using a KDF algorithm. */
+  /**
+   * Derive a key from a password using a KDF algorithm. The server
+   * enforces OWASP floors: scrypt N = 2^17 with r = 8, PBKDF2 at least
+   * 600,000 iterations.
+   */
   async kdf(params: {
-    algorithm: string;
+    algorithm: KdfAlgorithm;
     password: string;
     salt?: string;
+    /** Derived key length in bytes (16 to 64). */
     keyLength?: number;
-    params?: Record<string, unknown>;
+    params?: {
+      /** scrypt cost (only 131072 is accepted). */
+      N?: number;
+      /** scrypt block size (only 8 is accepted). */
+      r?: number;
+      /** scrypt parallelism (1 to 4). */
+      p?: number;
+      /** PBKDF2 iterations (600,000 to 1,000,000). */
+      iterations?: number;
+      /** HKDF info string. */
+      info?: string;
+    };
   }): Promise<ApiResponse<KdfResult>> {
     return this.request("POST", "/v2/kdf", params);
   }
 
   // --- MAC ---
 
-  /** Compute a message authentication code (HMAC or KMAC). */
+  /** Compute an HMAC with a hex key. */
   async mac(params: {
-    algorithm: string;
+    algorithm: HmacAlgorithm;
     key: string;
     data: string;
   }): Promise<ApiResponse<MacResult>> {
     return this.request("POST", "/v2/hmac", params);
   }
 
-  /** Verify a message authentication code. */
+  /** Verify an HMAC. */
   async macVerify(params: {
-    algorithm: string;
+    algorithm: HmacAlgorithm;
     key: string;
     data: string;
     mac: string;
-  }): Promise<
-    ApiResponse<{
-      /** Whether the MAC is valid. */
-      valid: boolean;
-    }>
-  > {
+  }): Promise<ApiResponse<MacVerifyResult>> {
     return this.request("POST", "/v2/hmac/verify", params);
   }
 
   // --- Password Hashing ---
 
-  /** Hash a password using Argon2. */
+  /**
+   * Hash a password with Argon2id. The server requires at least two
+   * passes and 19456 KiB of memory.
+   */
   async passwordHash(params: {
     password: string;
-    variant?: string;
     timeCost?: number;
     memoryCost?: number;
     parallelism?: number;
@@ -685,13 +215,12 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/hash", params);
   }
 
-  /** Verify a password against a stored Argon2 hash. */
+  /** Verify a password against a stored Argon2id hash. */
   async passwordVerify(params: {
     password: string;
     hash: string;
     salt: string;
-    params: { t: number; m: number; p: number };
-    variant?: string;
+    params: Argon2Params;
   }): Promise<
     ApiResponse<{
       /** Whether the password matches the hash. */
@@ -701,12 +230,15 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/verify", params);
   }
 
-  // --- Signing ---
+  // --- Key Management ---
 
-  /** Generate a new asymmetric key pair. */
+  /**
+   * Generate a server-held key pair. Returns its `keyId` and public key;
+   * the private key stays on the server.
+   */
   async generateKeyPair(params?: {
-    algorithm?: string;
-    metadata?: Record<string, string>;
+    algorithm?: KeyAlgorithm;
+    metadata?: KeyMetadata;
   }): Promise<ApiResponse<KeyGenerateResult>> {
     return this.request(
       "POST",
@@ -715,15 +247,22 @@ export class CryptoClient {
     );
   }
 
-  /** Sign a message with a private key. */
-  async sign(params: {
-    privateKey: string;
-    message: string;
-  }): Promise<ApiResponse<SignResult>> {
+  /**
+   * Export a server-held key, private parts included. Needs the
+   * `crypto:keys:export` scope, which `crypto:admin` does not imply.
+   */
+  async exportKey(params: KeyIdParams): Promise<ApiResponse<KeyExportResult>> {
+    return this.request("POST", "/v2/keys/export", params);
+  }
+
+  // --- Signing ---
+
+  /** Sign a message with a server-held Ed25519 key. */
+  async sign(params: SignParams): Promise<ApiResponse<SignResult>> {
     return this.request("POST", "/v2/sign", params);
   }
 
-  /** Verify a digital signature against a public key. */
+  /** Verify an Ed25519 signature against a public key. */
   async verify(params: {
     publicKey: string;
     message: string;
@@ -734,7 +273,26 @@ export class CryptoClient {
 
   // --- Post-Quantum KEM ---
 
-  /** Generate a hybrid X25519+ML-KEM key pair. */
+  /** Generate a server-held ML-KEM-768 key pair. */
+  async mlKemGenerateKeyPair(): Promise<ApiResponse<MlKemKeyPair>> {
+    return this.request("POST", "/v2/pq/keygen", {});
+  }
+
+  /** Encapsulate a shared secret to an ML-KEM-768 public key. */
+  async mlKemEncapsulate(params: {
+    publicKey: string;
+  }): Promise<ApiResponse<MlKemEncapsulateResult>> {
+    return this.request("POST", "/v2/pq/encapsulate", params);
+  }
+
+  /** Recover an ML-KEM-768 shared secret with a server-held key. */
+  async mlKemDecapsulate(
+    params: KeyIdParams & { ciphertext: string },
+  ): Promise<ApiResponse<KemDecapsulateResult>> {
+    return this.request("POST", "/v2/pq/decapsulate", params);
+  }
+
+  /** Generate a server-held hybrid X25519 + ML-KEM-768 key pair. */
   async pqGenerateKeyPair(): Promise<ApiResponse<HybridKeyPair>> {
     return this.request("POST", "/v2/pq/hybrid/keygen", {});
   }
@@ -747,37 +305,26 @@ export class CryptoClient {
     return this.request("POST", "/v2/pq/hybrid/encapsulate", params);
   }
 
-  /** Decapsulate a shared secret using hybrid KEM. */
-  async pqDecapsulate(params: {
-    x25519PrivateKey: string;
-    mlKemSecretKey: string;
-    x25519EphemeralPublic: string;
-    mlKemCiphertext: string;
-  }): Promise<
-    ApiResponse<{
-      /** Hex-encoded shared secret. */
-      sharedSecret: string;
-      /** Hybrid KEM algorithm identifier. */
-      algorithm: string;
-    }>
-  > {
+  /** Recover a hybrid KEM shared secret with a server-held key. */
+  async pqDecapsulate(
+    params: KeyIdParams & {
+      x25519EphemeralPublic: string;
+      mlKemCiphertext: string;
+    },
+  ): Promise<ApiResponse<KemDecapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/decapsulate", params);
   }
 
   // --- Post-Quantum Signatures (ML-DSA) ---
 
-  /** Sign a message using ML-DSA (FIPS 204). */
-  async pqSign(params: {
-    level: 44 | 65 | 87;
-    secretKey: string;
-    message: string;
-  }): Promise<ApiResponse<MlDsaSignResult>> {
+  /** Sign with a server-held ML-DSA key (FIPS 204); the level comes from the key. */
+  async pqSign(params: SignParams): Promise<ApiResponse<MlDsaSignResult>> {
     return this.request("POST", "/v2/pq/dsa/sign", params);
   }
 
   /** Verify an ML-DSA signature. */
   async pqVerify(params: {
-    level: 44 | 65 | 87;
+    level: MlDsaLevel;
     publicKey: string;
     message: string;
     signature: string;
@@ -785,39 +332,35 @@ export class CryptoClient {
     return this.request("POST", "/v2/pq/dsa/verify", params);
   }
 
-  /** Generate an ML-DSA key pair. */
+  /** Generate a server-held ML-DSA key pair. */
   async pqSignKeygen(params: {
-    level: 44 | 65 | 87;
+    level: MlDsaLevel;
   }): Promise<ApiResponse<MlDsaKeyPair>> {
     return this.request("POST", "/v2/pq/dsa/keygen", params);
   }
 
   // --- Post-Quantum Hash-Based Signatures (SLH-DSA) ---
 
-  /** Sign a message using SLH-DSA (FIPS 205). */
-  async pqHashSign(params: {
-    variant: string;
-    secretKey: string;
-    message: string;
-  }): Promise<ApiResponse<SlhDsaSignResult>> {
-    return this.request("POST", "/v2/pq/hash-sign/sign", params);
+  /** Sign with a server-held SLH-DSA key (FIPS 205); the variant comes from the key. */
+  async pqHashSign(params: SignParams): Promise<ApiResponse<SlhDsaSignResult>> {
+    return this.request("POST", "/v2/pq/slh-dsa/sign", params);
   }
 
   /** Verify an SLH-DSA signature. */
   async pqHashVerify(params: {
-    variant: string;
+    variant: SlhDsaVariant;
     publicKey: string;
     message: string;
     signature: string;
   }): Promise<ApiResponse<SlhDsaVerifyResult>> {
-    return this.request("POST", "/v2/pq/hash-sign/verify", params);
+    return this.request("POST", "/v2/pq/slh-dsa/verify", params);
   }
 
-  /** Generate an SLH-DSA key pair. */
+  /** Generate a server-held SLH-DSA key pair. */
   async pqHashSignKeygen(params: {
-    variant: string;
+    variant: SlhDsaVariant;
   }): Promise<ApiResponse<SlhDsaKeyPair>> {
-    return this.request("POST", "/v2/pq/hash-sign/keygen", params);
+    return this.request("POST", "/v2/pq/slh-dsa/keygen", params);
   }
 
   // --- High-Level: Secretbox ---
@@ -831,23 +374,18 @@ export class CryptoClient {
     return this.request("POST", "/v2/secretbox/seal", params);
   }
 
-  /** Open a secretbox sealed ciphertext. */
+  /** Open a secretbox; `data` is the recovered plaintext. */
   async secretboxOpen(params: {
     key: string;
     ciphertext: string;
     aad?: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/secretbox/open", params);
   }
 
   // --- High-Level: Sealed Box ---
 
-  /** Seal plaintext with anonymous public-key encryption. */
+  /** Seal plaintext to an X25519 public key (anonymous sender). */
   async sealedboxSeal(params: {
     recipientPublicKey: string;
     plaintext: string;
@@ -855,22 +393,32 @@ export class CryptoClient {
     return this.request("POST", "/v2/sealedbox/seal", params);
   }
 
-  /** Open a sealed box ciphertext with the recipient's secret key. */
-  async sealedboxOpen(params: {
-    recipientSecretKey: string;
-    sealed: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  /** Open a sealed box with a server-held x25519 key; `data` is the plaintext. */
+  async sealedboxOpen(
+    params: KeyIdParams & { sealed: string },
+  ): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/sealedbox/open", params);
+  }
+
+  /** Seal plaintext to a hybrid X25519 + ML-KEM-768 public key pair. */
+  async sealedboxSealPq(params: {
+    x25519PublicKey: string;
+    mlKemPublicKey: string;
+    plaintext: string;
+  }): Promise<ApiResponse<SealedboxSealResult>> {
+    return this.request("POST", "/v2/sealedbox/seal-pq", params);
+  }
+
+  /** Open a hybrid sealed box with a server-held hybrid key; `data` is the plaintext. */
+  async sealedboxOpenPq(
+    params: KeyIdParams & { sealed: string },
+  ): Promise<ApiResponse<string>> {
+    return this.request("POST", "/v2/sealedbox/open-pq", params);
   }
 
   // --- High-Level: Password Encryption ---
 
-  /** Encrypt plaintext with a password (Argon2 + AEAD). */
+  /** Encrypt plaintext with a password (Argon2id + XChaCha20-Poly1305). */
   async passwordEncrypt(params: {
     password: string;
     plaintext: string;
@@ -878,16 +426,14 @@ export class CryptoClient {
     return this.request("POST", "/v2/password/encrypt", params);
   }
 
-  /** Decrypt password-encrypted ciphertext. */
+  /**
+   * Decrypt a payload from `passwordEncrypt` (its `encrypted` field);
+   * `data` is the plaintext.
+   */
   async passwordDecrypt(params: {
     password: string;
     ciphertext: string;
-  }): Promise<
-    ApiResponse<{
-      /** Recovered plaintext string. */
-      plaintext: string;
-    }>
-  > {
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/password/decrypt", params);
   }
 
@@ -897,35 +443,33 @@ export class CryptoClient {
   async keyWrap(params: {
     kek: string;
     keyToWrap: string;
-    algorithm?: "aes-kw" | "aes-kwp";
+    algorithm?: KeyWrapAlgorithm;
   }): Promise<ApiResponse<KeyWrapResult>> {
     return this.request("POST", "/v2/keys/wrap", params);
   }
 
-  /** Unwrap (decrypt) a wrapped key. */
+  /** Unwrap a wrapped key; `data` is the hex-encoded key. */
   async keyUnwrap(params: {
     kek: string;
     wrappedKey: string;
-    algorithm?: "aes-kw" | "aes-kwp";
-  }): Promise<
-    ApiResponse<{
-      /** Hex-encoded unwrapped key. */
-      key: string;
-    }>
-  > {
+    algorithm?: KeyWrapAlgorithm;
+  }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/keys/unwrap", params);
   }
 
   // --- Compliance & Regulatory Endpoints ---
 
-  /** Fetch automated DORA Article 13 & 9 compliance scorecard. */
+  /** Fetch the DORA Article 9 & 13 self-assessment. */
   async getDoraCompliance(): Promise<ApiResponse<DoraComplianceScorecard>> {
     return this.request("GET", "/v2/compliance/dora");
   }
 
-  /** Fetch CycloneDX 1.6 Cryptographic Bill of Materials (CBOM). */
-  async getCbom(): Promise<ApiResponse<CbomExportPayload>> {
-    return this.request("GET", "/v2/compliance/cbom");
+  /**
+   * Fetch the CycloneDX 1.6 Cryptographic Bill of Materials (CBOM). The
+   * route returns the CycloneDX document itself, not wrapped in `{ data }`.
+   */
+  async getCbom(): Promise<CbomExportPayload> {
+    return this.send("GET", "/v2/compliance/cbom");
   }
 
   // --- Dynamic Crypto-Agility Engine ---
@@ -937,121 +481,7 @@ export class CryptoClient {
   negotiateAlgorithm(
     options: AlgorithmNegotiationOptions = {},
   ): AlgorithmNegotiationResult {
-    const minCategory = options.securityCategoryMin ?? 1;
-    const requireHybrid = options.requireHybrid ?? false;
-    const maxBytes = options.maxPayloadBytes ?? Infinity;
-    const clientAlgos = options.clientSupportedAlgorithms;
-
-    interface AlgoDef {
-      name: string;
-      category: "lattice-kem" | "hybrid-kem" | "classical-ecdh";
-      level: 1 | 3 | 5;
-      isHybrid: boolean;
-      pk: number;
-      ct: number;
-      fips: string;
-    }
-
-    const catalog: AlgoDef[] = [
-      {
-        name: "x448-mlkem1024",
-        category: "hybrid-kem",
-        level: 5,
-        isHybrid: true,
-        pk: 1624,
-        ct: 1624,
-        fips: "FIPS 203 + RFC 7748",
-      },
-      {
-        name: "ml-kem-1024",
-        category: "lattice-kem",
-        level: 5,
-        isHybrid: false,
-        pk: 1568,
-        ct: 1568,
-        fips: "FIPS 203",
-      },
-      {
-        name: "x25519-mlkem768",
-        category: "hybrid-kem",
-        level: 3,
-        isHybrid: true,
-        pk: 1216,
-        ct: 1120,
-        fips: "FIPS 203 + X25519 hybrid",
-      },
-      {
-        name: "ml-kem-768",
-        category: "lattice-kem",
-        level: 3,
-        isHybrid: false,
-        pk: 1184,
-        ct: 1088,
-        fips: "FIPS 203",
-      },
-      {
-        name: "x25519-mlkem512",
-        category: "hybrid-kem",
-        level: 1,
-        isHybrid: true,
-        pk: 832,
-        ct: 800,
-        fips: "FIPS 203 + X25519 hybrid",
-      },
-      {
-        name: "ml-kem-512",
-        category: "lattice-kem",
-        level: 1,
-        isHybrid: false,
-        pk: 800,
-        ct: 768,
-        fips: "FIPS 203",
-      },
-      {
-        name: "x25519",
-        category: "classical-ecdh",
-        level: 1,
-        isHybrid: false,
-        pk: 32,
-        ct: 32,
-        fips: "RFC 7748 (Legacy)",
-      },
-    ];
-
-    const fallbackChain = catalog.map((c) => c.name);
-
-    // Filter candidates
-    const eligible = catalog.filter((candidate) => {
-      if (candidate.level < minCategory) return false;
-      if (requireHybrid && !candidate.isHybrid) return false;
-      if (clientAlgos && !clientAlgos.includes(candidate.name)) return false;
-      return true;
-    });
-
-    // Select first eligible candidate that fits within maxBytes, or first eligible as fallback
-    const selected =
-      eligible.find((c) => c.ct <= maxBytes) ??
-      eligible[0] ??
-      catalog[catalog.length - 1];
-
-    const fitsWithinMtu = selected.ct <= maxBytes;
-
-    return {
-      selectedAlgorithm: selected.name,
-      cipherCategory: selected.category,
-      securityCategory: selected.level,
-      isHybrid: selected.isHybrid,
-      publicKeyBytes: selected.pk,
-      ciphertextBytes: selected.ct,
-      totalPayloadOverhead: selected.pk + selected.ct,
-      fitsWithinMtu,
-      fallbackChain,
-      compliancePosture: {
-        standard: "NIST Post-Quantum Cryptography Standardization",
-        doraArticle13Compliant: selected.level >= 3 || selected.isHybrid,
-        fipsStandard: selected.fips,
-      },
-    };
+    return negotiateAlgorithm(options);
   }
 
   // --- Utility ---
@@ -1061,40 +491,9 @@ export class CryptoClient {
     return this.request("GET", "/v2/algorithms");
   }
 
-  /** Check API server health. */
-  async health(): Promise<{
-    /** HTTP status code from health endpoint. */
-    statusCode: number;
-  }> {
+  /** Check API server health (a public route: no credentials are sent). */
+  async health(): Promise<HealthResult> {
     const res = await this.fetchFn(`${this.baseUrl}/health`);
-    return res.json() as Promise<{ statusCode: number }>;
-  }
-}
-
-/**
- * Error thrown when the Crypto API returns a non-OK HTTP response.
- *
- * @example
- * ```ts
- * try {
- *   await client.hash({ algorithm: 'invalid', data: 'x' });
- * } catch (err) {
- *   if (err instanceof CryptoApiError) {
- *     console.error(err.status, err.body.error);
- *   }
- * }
- * ```
- */
-export class CryptoApiError extends Error {
-  /** HTTP status code returned by the API. */
-  public readonly status: number;
-  /** Parsed error response body. */
-  public readonly body: ApiError;
-
-  constructor(status: number, body: ApiError) {
-    super(`API Error ${status}: ${body.error}`);
-    this.name = "CryptoApiError";
-    this.status = status;
-    this.body = body;
+    return res.json() as Promise<HealthResult>;
   }
 }

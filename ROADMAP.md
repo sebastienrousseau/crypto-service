@@ -570,16 +570,21 @@ const pwd = await crypto.hashPassword(password); // Argon2id
 ### Import Structure
 
 ```typescript
-// Primitives (tree-shakeable)
-import { aeadEncrypt } from "@sebastienrousseau/crypto-lib/aead";
-import { mlDsaSign } from "@sebastienrousseau/crypto-lib/pq-sign";
-import { argon2id } from "@sebastienrousseau/crypto-lib/password";
+// Primitives, including post-quantum (subpath entry)
+import {
+  aeadEncrypt,
+  mlDsaSign,
+  hashPassword,
+} from "@sebastienrousseau/crypto-lib/modern";
 
 // High-level (recommended for most users)
 import { secretbox, sealedbox, crypto } from "@sebastienrousseau/crypto-lib";
 
+// OpenPGP operations
+import { encrypt, decrypt } from "@sebastienrousseau/crypto-lib/pgp";
+
 // Full namespace
-import CryptoLib from "@sebastienrousseau/crypto-lib";
+import * as CryptoLib from "@sebastienrousseau/crypto-lib";
 ```
 
 ---

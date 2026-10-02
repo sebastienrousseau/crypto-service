@@ -21,10 +21,69 @@ import { MiddlewareConfig, CryptoMiddlewareError } from "./types";
 import {
   decryptPayload,
   encryptPayload,
-  verifyHmacSignature,
-  verifyJwt,
+  verifyBearerJwt,
+  verifyRequestSignature,
   matchRoute,
 } from "./common";
+
+/** The configured operations, in the order the middleware applies them. */
+type Operation = NonNullable<MiddlewareConfig["operations"]>[number];
+
+/** The payload key, or a 500 error naming the operation that needs it. */
+function requireKey(config: MiddlewareConfig, operation: Operation): string {
+  if (!config.key) {
+    throw new CryptoMiddlewareError(
+      `key is required for ${operation} operation`,
+      500,
+      "MISSING_CONFIG",
+    );
+  }
+  return config.key;
+}
+
+/** Replace an `{ encrypted }` request body with its decrypted payload. */
+function decryptBody(config: MiddlewareConfig, req: Request): void {
+  const key = requireKey(config, "decrypt-request");
+  if (req.body && typeof req.body === "object" && "encrypted" in req.body) {
+    req.body = decryptPayload(key, req.body.encrypted as string);
+  }
+}
+
+/** Make `res.json()` send `{ encrypted }` instead of the plain body. */
+function encryptJsonResponses(config: MiddlewareConfig, res: Response): void {
+  const key = requireKey(config, "encrypt-response");
+  const originalJson = res.json.bind(res);
+  res.json = function encryptedJson(body: unknown): Response {
+    const sealed = encryptPayload(key, body);
+    return originalJson({ encrypted: sealed });
+  };
+}
+
+/**
+ * Apply the configured operations to one request. Throws a
+ * {@link CryptoMiddlewareError} when one fails.
+ */
+function applyOperations(
+  config: MiddlewareConfig,
+  operations: readonly Operation[],
+  req: Request,
+  res: Response,
+): void {
+  if (operations.includes("verify-jwt")) {
+    // Attach decoded JWT payload to the request
+    (req as unknown as Record<string, unknown>).jwtPayload = verifyBearerJwt(
+      config,
+      req.headers.authorization,
+    );
+  }
+  if (operations.includes("verify-signature")) {
+    verifyRequestSignature(config, req.headers, req.body);
+  }
+  if (operations.includes("decrypt-request")) decryptBody(config, req);
+  if (operations.includes("encrypt-response")) {
+    encryptJsonResponses(config, res);
+  }
+}
 
 /**
  * Create Express middleware that performs cryptographic operations on
@@ -62,76 +121,7 @@ export function createCryptoMiddleware(config: MiddlewareConfig) {
     }
 
     try {
-      // --- Verify JWT ---
-      if (operations.includes("verify-jwt")) {
-        if (!config.jwtSecret) {
-          throw new CryptoMiddlewareError(
-            "jwtSecret is required for verify-jwt operation",
-            500,
-            "MISSING_CONFIG",
-          );
-        }
-        const authHeader = req.headers.authorization ?? "";
-        const token = authHeader.startsWith("Bearer ")
-          ? authHeader.slice(7)
-          : "";
-        const payload = verifyJwt(config.jwtSecret, token);
-        // Attach decoded JWT payload to the request
-        (req as unknown as Record<string, unknown>).jwtPayload = payload;
-      }
-
-      // --- Verify HMAC signature ---
-      if (operations.includes("verify-signature")) {
-        if (!config.hmacKey) {
-          throw new CryptoMiddlewareError(
-            "hmacKey is required for verify-signature operation",
-            500,
-            "MISSING_CONFIG",
-          );
-        }
-        const signature =
-          (req.headers["x-signature"] as string) ??
-          (req.headers["x-hub-signature-256"] as string) ??
-          "";
-        const rawBody =
-          typeof req.body === "string" ? req.body : JSON.stringify(req.body);
-        verifyHmacSignature(config.hmacKey, rawBody, signature);
-      }
-
-      // --- Decrypt request body ---
-      if (operations.includes("decrypt-request")) {
-        if (!config.key) {
-          throw new CryptoMiddlewareError(
-            "key is required for decrypt-request operation",
-            500,
-            "MISSING_CONFIG",
-          );
-        }
-        if (
-          req.body &&
-          typeof req.body === "object" &&
-          "encrypted" in req.body
-        ) {
-          req.body = decryptPayload(config.key, req.body.encrypted as string);
-        }
-      }
-
-      // --- Encrypt response body ---
-      if (operations.includes("encrypt-response")) {
-        if (!config.key) {
-          throw new CryptoMiddlewareError(
-            "key is required for encrypt-response operation",
-            500,
-            "MISSING_CONFIG",
-          );
-        }
-        const originalJson = res.json.bind(res);
-        res.json = function encryptedJson(body: unknown): Response {
-          const sealed = encryptPayload(config.key!, body);
-          return originalJson({ encrypted: sealed });
-        };
-      }
-
+      applyOperations(config, operations, req, res);
       next();
     } catch (err) {
       if (err instanceof CryptoMiddlewareError) {

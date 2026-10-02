@@ -30,8 +30,12 @@ export interface MiddlewareConfig {
   >;
   /** HMAC key for webhook signature verification (hex-encoded). */
   hmacKey?: string;
-  /** JWT public key or secret for verification. */
+  /** HMAC secret for HS256 JWT verification. */
   jwtSecret?: string;
+  /** Required JWT `iss` claim for `verify-jwt`; unchecked when unset. */
+  jwtIssuer?: string;
+  /** Required JWT audience (`aud` claim) for `verify-jwt`; unchecked when unset. */
+  jwtAudience?: string;
 }
 
 /**
@@ -53,7 +57,10 @@ export interface JwtPayload {
   iss?: string;
   /** Audience claim. */
   aud?: string | string[];
-  /** Expiration time (Unix timestamp). */
+  /**
+   * Expiration time (Unix timestamp). `verifyJwt` requires it on every
+   * token it accepts.
+   */
   exp?: number;
   /** Not before (Unix timestamp). */
   nbf?: number;

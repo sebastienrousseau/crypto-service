@@ -6,7 +6,10 @@
 import { expect } from "chai";
 import { createRequire } from "module";
 
-const require = createRequire(import.meta.url);
+// A named loader rather than a redeclared `require`: redeclaring it at
+// the top level is a syntax error in a CommonJS module, which Node then
+// retries as ESM.
+const load = createRequire(__filename);
 
 describe("Constants coverage", () => {
   describe("parseTrustProxy via TRUSTED_PROXY_CIDRS", () => {
@@ -18,15 +21,15 @@ describe("Constants coverage", () => {
       } else {
         delete process.env["TRUSTED_PROXY_CIDRS"];
       }
-      const modPath = require.resolve("../src/config/constants");
-      delete require.cache[modPath];
+      const modPath = load.resolve("../src/config/constants");
+      delete load.cache[modPath];
     });
 
     it("should parse comma-separated CIDRs into an array", () => {
       process.env["TRUSTED_PROXY_CIDRS"] = "10.0.0.0/8, 172.16.0.0/12";
-      const modPath = require.resolve("../src/config/constants");
-      delete require.cache[modPath];
-      const { fastifyOptions } = require("../src/config/constants");
+      const modPath = load.resolve("../src/config/constants");
+      delete load.cache[modPath];
+      const { fastifyOptions } = load("../src/config/constants");
       expect(fastifyOptions.trustProxy).to.deep.equal([
         "10.0.0.0/8",
         "172.16.0.0/12",
@@ -35,9 +38,9 @@ describe("Constants coverage", () => {
 
     it("should filter empty entries from CIDRS", () => {
       process.env["TRUSTED_PROXY_CIDRS"] = "10.0.0.0/8, , ";
-      const modPath = require.resolve("../src/config/constants");
-      delete require.cache[modPath];
-      const { fastifyOptions } = require("../src/config/constants");
+      const modPath = load.resolve("../src/config/constants");
+      delete load.cache[modPath];
+      const { fastifyOptions } = load("../src/config/constants");
       expect(fastifyOptions.trustProxy).to.deep.equal(["10.0.0.0/8"]);
     });
   });
@@ -51,15 +54,15 @@ describe("Constants coverage", () => {
       } else {
         delete process.env["CORS_ORIGIN"];
       }
-      const modPath = require.resolve("../src/config/constants");
-      delete require.cache[modPath];
+      const modPath = load.resolve("../src/config/constants");
+      delete load.cache[modPath];
     });
 
     it("should parse CORS_ORIGIN into array of origins", () => {
       process.env["CORS_ORIGIN"] = "https://example.com, https://other.com";
-      const modPath = require.resolve("../src/config/constants");
-      delete require.cache[modPath];
-      const { corsOptions } = require("../src/config/constants");
+      const modPath = load.resolve("../src/config/constants");
+      delete load.cache[modPath];
+      const { corsOptions } = load("../src/config/constants");
       expect(corsOptions.origin).to.deep.equal([
         "https://example.com",
         "https://other.com",
@@ -76,15 +79,15 @@ describe("Constants coverage", () => {
       } else {
         delete process.env["NODE_ENV"];
       }
-      const modPath = require.resolve("../src/lib/logger");
-      delete require.cache[modPath];
+      const modPath = load.resolve("../src/lib/logger");
+      delete load.cache[modPath];
     });
 
     it("should use structured JSON format in production", () => {
       process.env["NODE_ENV"] = "production";
-      const modPath = require.resolve("../src/lib/logger");
-      delete require.cache[modPath];
-      const logger = require("../src/lib/logger").default;
+      const modPath = load.resolve("../src/lib/logger");
+      delete load.cache[modPath];
+      const logger = load("../src/lib/logger").default;
       expect(logger).to.exist;
       expect(logger.defaultMeta.service).to.equal("crypto-server");
       expect(() => logger.info("production test")).to.not.throw();

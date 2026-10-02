@@ -4,8 +4,9 @@
 /**
  * Sign and verify a message via POST /v2/sign and POST /v2/verify.
  *
- * Generates an Ed25519 key pair via the keys endpoint, then signs and
- * verifies a message.
+ * Generates a server-held Ed25519 key pair via the keys endpoint (the
+ * server keeps the private key and returns its keyId), then signs with
+ * the keyId and verifies with the public key.
  *
  * Run: `npx ts-node examples/sign.ts`
  * Requires: crypto-server running on http://localhost:3000
@@ -30,7 +31,7 @@ async function main() {
   const keyPair = await task("Generate Ed25519 key pair", async () => {
     const res = await post("/v2/keys/generate", { algorithm: "ed25519" });
     const body = (await res.json()) as {
-      data: { publicKey: string; privateKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });
@@ -39,7 +40,7 @@ async function main() {
 
   const signature = await task("Sign message with Ed25519", async () => {
     const res = await post("/v2/sign", {
-      privateKey: keyPair.privateKey,
+      keyId: keyPair.keyId,
       message,
     });
     const body = (await res.json()) as { data: string };

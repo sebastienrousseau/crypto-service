@@ -5,6 +5,7 @@
 
 import { expect } from "chai";
 import type { FastifyReply } from "fastify";
+import { CryptoError } from "@sebastienrousseau/crypto-lib";
 import {
   collectValidation,
   classifyCryptoError,
@@ -34,6 +35,10 @@ function createMockReply(): {
       status(code: number) {
         state.statusCode = code;
         return {
+          // sendProblem chains reply.status(...).type(...).send(...).
+          type() {
+            return this;
+          },
           send(body: unknown) {
             state.body = body;
           },
@@ -86,8 +91,8 @@ describe("Route helpers", () => {
       );
       expect(result).to.be.null;
       expect(reply.statusCode).to.equal(400);
-      const body = reply.body as { details: Array<{ field: string }> };
-      expect(body.details).to.have.length(2);
+      const body = reply.body as { errors: Array<{ field: string }> };
+      expect(body.errors.map((e) => e.field)).to.deep.equal(["name", "email"]);
     });
 
     it("should handle mixed valid and invalid results", () => {
@@ -131,7 +136,7 @@ describe("Route helpers", () => {
         "Encryption",
       );
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -146,7 +151,7 @@ describe("Route helpers", () => {
         "Encryption",
       );
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Encryption failed: invalid input",
       );
     });
@@ -161,7 +166,7 @@ describe("Route helpers", () => {
         "Decryption",
       );
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -176,7 +181,7 @@ describe("Route helpers", () => {
         "Hash computation",
       );
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Hash computation failed: invalid input",
       );
     });
@@ -191,7 +196,7 @@ describe("Route helpers", () => {
         "Signing",
       );
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Signing failed: invalid input",
       );
     });
@@ -206,7 +211,7 @@ describe("Route helpers", () => {
         "Encryption",
       );
       expect(reply.statusCode).to.equal(500);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Encryption failed",
       );
     });
@@ -216,7 +221,7 @@ describe("Route helpers", () => {
       const request = createLogRequest();
       classifyCryptoError("Invalid hex in key", request, reply, "Decryption");
       expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Decryption failed: invalid input",
       );
     });
@@ -226,9 +231,40 @@ describe("Route helpers", () => {
       const request = createLogRequest();
       classifyCryptoError(42, request, reply, "Encryption");
       expect(reply.statusCode).to.equal(500);
-      expect((reply.body as { error: string }).error).to.equal(
+      expect((reply.body as { detail: string }).detail).to.equal(
         "Encryption failed",
       );
+    });
+
+    it("classifies a crypto-lib CryptoError by its code, not its message", () => {
+      const input = createMockReply();
+      classifyCryptoError(
+        new CryptoError("anything", "INVALID_KEY"),
+        createLogRequest(),
+        input.reply as unknown as FastifyReply,
+        "Signing",
+      );
+      expect(input.reply.statusCode).to.equal(400);
+      expect(input.reply.body).to.deep.include({
+        type: "urn:crypto-service:problem:invalid-input",
+        detail: "Signing failed: invalid input",
+        code: "INVALID_KEY",
+      });
+
+      // "invalid hex" would read as input by message; the code wins.
+      const internal = createMockReply();
+      classifyCryptoError(
+        new CryptoError("invalid hex", "BUFFER_DESTROYED"),
+        createLogRequest(),
+        internal.reply as unknown as FastifyReply,
+        "Signing",
+      );
+      expect(internal.reply.statusCode).to.equal(500);
+      expect(internal.reply.body).to.deep.include({
+        type: "urn:crypto-service:problem:internal-error",
+        detail: "Signing failed",
+        code: "BUFFER_DESTROYED",
+      });
     });
   });
 });

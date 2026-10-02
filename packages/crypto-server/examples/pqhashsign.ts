@@ -32,7 +32,7 @@ async function main() {
   const keyPair = await task("Generate SLH-DSA key pair (SHAKE-128f)", async () => {
     const res = await post("/v2/pq/slh-dsa/keygen", { variant });
     const body = (await res.json()) as {
-      data: { publicKey: string; secretKey: string };
+      data: { keyId: string; publicKey: string };
     };
     return body.data;
   });
@@ -41,8 +41,7 @@ async function main() {
 
   const signature = await task("Sign message with SLH-DSA", async () => {
     const res = await post("/v2/pq/slh-dsa/sign", {
-      variant,
-      secretKey: keyPair.secretKey,
+      keyId: keyPair.keyId,
       message,
     });
     const body = (await res.json()) as { data: string };

@@ -1,4 +1,4 @@
-import reformat from "@sebastienrousseau/crypto-lib/dist/lib/reformat";
+import { reformat } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

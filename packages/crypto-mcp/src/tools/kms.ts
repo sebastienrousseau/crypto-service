@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import { LocalKmsProvider } from "@sebastienrousseau/crypto-kms";
-import { ToolArgs, ToolHandler, jsonResult, parseKey256 } from "./result";
+import { keyStore, symmetricKey } from "./keystore";
+import { ToolArgs, ToolHandler, jsonResult } from "./result";
+import { symmetricSecret } from "./symmetric";
 
 /**
  * In-process KMS backing the "local" provider. Its key-encryption keys
@@ -14,19 +16,22 @@ const localKms = new LocalKmsProvider();
 /** Caller-supplied key label -> key id inside {@link localKms}. */
 const localKeyIds = new Map<string, string>();
 
+/** Most KEK labels one server process creates. */
+export const MAX_KEK_LABELS = 64;
+
 interface KmsRequest {
   provider: string;
   keyId: string;
 }
 
 function kmsRequest(args: ToolArgs): KmsRequest {
-  const provider = String(args.provider || "local");
+  const provider = String(args.provider);
   if (provider !== "local") {
     throw new Error(
       `KMS provider '${provider}' is not configured in this server; only 'local' is available`,
     );
   }
-  return { provider, keyId: String(args.keyId || "kms-key-default") };
+  return { provider, keyId: String(args.keyId) };
 }
 
 /** Binds each wrapped DEK to the label it was wrapped under. */
@@ -37,6 +42,11 @@ function wrapContext(keyId: string): Record<string, string> {
 async function localKeyFor(label: string): Promise<string> {
   const existing = localKeyIds.get(label);
   if (existing) return existing;
+  if (localKeyIds.size >= MAX_KEK_LABELS) {
+    throw new Error(
+      `At most ${MAX_KEK_LABELS} KEK labels can be created; reuse an existing keyId`,
+    );
+  }
   const created = await localKms.createKey("aes-256-gcm", "wrap", {
     label,
   });
@@ -44,25 +54,37 @@ async function localKeyFor(label: string): Promise<string> {
   return created.keyId;
 }
 
-/** `crypto_kms_wrap`: wrap a 256-bit DEK under a provider-held KEK. */
+/**
+ * `crypto_kms_wrap`: wrap the DEK a key handle refers to under a KEK.
+ * The DEK is copied before the first await, so a concurrent eviction
+ * that wipes the stored key cannot change what gets wrapped; the copy
+ * is wiped afterwards.
+ */
 export const kmsWrap: ToolHandler = async (args) => {
   const { provider, keyId } = kmsRequest(args);
-  const dek = parseKey256(args.dek, "dek");
-  const kmsKeyId = await localKeyFor(keyId);
-  const { ciphertext } = await localKms.encrypt(
-    kmsKeyId,
-    dek,
-    wrapContext(keyId),
-  );
-  return jsonResult({
-    provider,
-    keyId,
-    status: "wrapped",
-    wrappedKey: Buffer.from(ciphertext, "base64").toString("hex"),
-  });
+  const dek = Buffer.from(symmetricSecret(args.keyHandle));
+  try {
+    const kmsKeyId = await localKeyFor(keyId);
+    const { ciphertext } = await localKms.encrypt(
+      kmsKeyId,
+      dek,
+      wrapContext(keyId),
+    );
+    return jsonResult({
+      provider,
+      keyId,
+      status: "wrapped",
+      wrappedKey: Buffer.from(ciphertext, "base64").toString("hex"),
+    });
+  } finally {
+    dek.fill(0);
+  }
 };
 
-/** `crypto_kms_unwrap`: recover a DEK wrapped by `crypto_kms_wrap`. */
+/**
+ * `crypto_kms_unwrap`: recover a DEK wrapped by `crypto_kms_wrap` into
+ * the key store and return its handle, never the DEK.
+ */
 export const kmsUnwrap: ToolHandler = async (args) => {
   const { provider, keyId } = kmsRequest(args);
   const kmsKeyId = localKeyIds.get(keyId);
@@ -75,10 +97,8 @@ export const kmsUnwrap: ToolHandler = async (args) => {
     wrapped.toString("base64"),
     wrapContext(keyId),
   );
-  return jsonResult({
-    provider,
-    keyId,
-    status: "unwrapped",
-    dek: Buffer.from(plaintext).toString("hex"),
-  });
+  const dek = Buffer.from(plaintext);
+  plaintext.fill(0);
+  const keyHandle = keyStore.add(symmetricKey(dek, "crypto_kms_unwrap"));
+  return jsonResult({ provider, keyId, status: "unwrapped", keyHandle });
 };

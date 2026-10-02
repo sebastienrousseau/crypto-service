@@ -12,6 +12,7 @@
  */
 
 import type { FastifyReply } from "fastify";
+import { cryptoErrorStatus, isCryptoError, sendProblem } from "../lib/problem";
 import {
   sendValidationError,
   ValidationError,
@@ -51,8 +52,20 @@ export function collectValidation<
   };
 }
 
+/** Error messages from crypto-lib and @noble/* that mean bad input. */
+const INPUT_ERROR_PATTERNS: readonly RegExp[] = [
+  /invalid hex/i,
+  /must be \d+ bytes/i,
+  /too short/i,
+  /unsupported/i,
+  /expected.*length/i,
+  /of length \d+ expected/i,
+];
+
 /**
- * Classify a crypto operation error as client (4xx) or server (5xx).
+ * Classify a crypto operation error as client (4xx) or server (5xx), and
+ * send it as an RFC 9457 problem. A crypto-lib `CryptoError` is
+ * classified by its `code`, which the problem carries as `code`.
  * Input validation errors (invalid hex, wrong key length, etc.) return 400.
  * @example
  * ```ts
@@ -62,24 +75,35 @@ export function collectValidation<
 export function classifyCryptoError(
   error: unknown,
   request: { log: { error: (err: unknown, msg: string) => void } },
-  reply: { status: (code: number) => { send: (body: unknown) => unknown } },
+  reply: FastifyReply,
   operation: string,
-): unknown {
+): FastifyReply {
   const msg = error instanceof Error ? error.message : String(error);
+  // A crypto-lib CryptoError carries a code; anything else is classified
+  // by its message.
+  const code = isCryptoError(error) ? error.code : undefined;
   const isInputError =
-    /invalid hex/i.test(msg) ||
-    /must be \d+ bytes/i.test(msg) ||
-    /too short/i.test(msg) ||
-    /unsupported/i.test(msg) ||
-    /expected.*length/i.test(msg) ||
-    /of length \d+ expected/i.test(msg);
+    code === undefined
+      ? INPUT_ERROR_PATTERNS.some((pattern) => pattern.test(msg))
+      : cryptoErrorStatus(code) === 400;
+  const extensions = code === undefined ? {} : { code };
 
   if (isInputError) {
     request.log.error(error, `${operation} input error`);
-    return reply
-      .status(400)
-      .send({ error: `${operation} failed: invalid input` });
+    return sendProblem(
+      reply,
+      400,
+      "invalid-input",
+      `${operation} failed: invalid input`,
+      extensions,
+    );
   }
   request.log.error(error, `${operation} failed`);
-  return reply.status(500).send({ error: `${operation} failed` });
+  return sendProblem(
+    reply,
+    500,
+    "internal-error",
+    `${operation} failed`,
+    extensions,
+  );
 }

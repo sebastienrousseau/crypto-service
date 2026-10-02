@@ -13,11 +13,15 @@ import {
   HashResult,
   AeadResult,
   KdfResult,
-  Ed25519KeyPair,
+  KeyGenerateResult,
+  KeyExportResult,
   SignResult,
   VerifyResult,
   HybridKeyPair,
   HybridEncapsulateResult,
+  KemDecapsulateResult,
+  MlKemKeyPair,
+  SealedboxSealResult,
 } from "../src/index";
 
 // ---------------------------------------------------------------------------
@@ -47,10 +51,11 @@ function capturingFetch(
   body: unknown,
 ): {
   fetch: typeof globalThis.fetch;
-  calls: Array<{ url: RequestInfo | URL; init?: RequestInit }>;
+  calls: Array<{ url: string | URL; init?: RequestInit | undefined }>;
 } {
-  const calls: Array<{ url: RequestInfo | URL; init?: RequestInit }> = [];
-  const fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+  const calls: Array<{ url: string | URL; init?: RequestInit | undefined }> =
+    [];
+  const fetch = (async (url: string | URL, init?: RequestInit) => {
     calls.push({ url, init });
     return {
       ok: status >= 200 && status < 300,
@@ -60,6 +65,41 @@ function capturingFetch(
   }) as typeof globalThis.fetch;
   return { fetch, calls };
 }
+
+/**
+ * Creates a mock fetch whose response body cannot be parsed as JSON, as
+ * for an HTML error page from a proxy.
+ */
+function unparsableFetch(
+  status: number,
+  statusText: string,
+): typeof globalThis.fetch {
+  return (async () => {
+    return {
+      ok: false,
+      status,
+      statusText,
+      json: async () => {
+        throw new SyntaxError("Unexpected token <");
+      },
+    } as unknown as Response;
+  }) as typeof globalThis.fetch;
+}
+
+/** A problem body as crypto-server sends it. */
+const PROBLEM: ApiError = {
+  type: "urn:crypto-service:problem:validation-failed",
+  title: "Validation failed",
+  status: 400,
+  detail: "body/algorithm must be equal to one of the allowed values",
+  instance: "/v2/hash",
+  errors: [
+    {
+      field: "/algorithm",
+      message: "must be equal to one of the allowed values",
+    },
+  ],
+};
 
 function clientWith(
   status: number,
@@ -78,28 +118,32 @@ function clientWith(
 // ---------------------------------------------------------------------------
 
 describe("CryptoApiError", () => {
-  it("should set name, status, body, and message", () => {
-    const apiError: ApiError = {
-      error: "bad request",
-      details: [{ field: "key", message: "required" }],
-    };
-    const err = new CryptoApiError(400, apiError);
+  it("should set name, status, body, and message from the problem", () => {
+    const err = new CryptoApiError(400, PROBLEM);
 
     expect(err).to.be.an.instanceOf(Error);
     expect(err).to.be.an.instanceOf(CryptoApiError);
     expect(err.name).to.equal("CryptoApiError");
     expect(err.status).to.equal(400);
-    expect(err.body).to.deep.equal(apiError);
-    expect(err.message).to.equal("API Error 400: bad request");
+    expect(err.body).to.deep.equal(PROBLEM);
+    expect(err.message).to.equal(
+      "API Error 400: body/algorithm must be equal to one of the allowed values",
+    );
   });
 
-  it("should work without details field", () => {
-    const apiError: ApiError = { error: "not found" };
-    const err = new CryptoApiError(404, apiError);
+  it("should keep extension members such as code", () => {
+    const problem: ApiError = {
+      type: "urn:crypto-service:problem:key-not-found",
+      title: "Key not found",
+      status: 404,
+      detail: "Key not found",
+      code: "KEY_NOT_FOUND",
+    };
+    const err = new CryptoApiError(404, problem);
 
-    expect(err.status).to.equal(404);
-    expect(err.body.details).to.be.undefined;
-    expect(err.message).to.equal("API Error 404: not found");
+    expect(err.body.code).to.equal("KEY_NOT_FOUND");
+    expect(err.body.errors).to.be.undefined;
+    expect(err.message).to.equal("API Error 404: Key not found");
   });
 });
 
@@ -218,26 +262,27 @@ describe("CryptoClient", () => {
   // -----------------------------------------------------------------------
 
   describe("request (error handling)", () => {
-    it("should throw CryptoApiError on non-ok response", async () => {
-      const errorBody: ApiError = {
-        error: "validation failed",
-        details: [{ field: "algorithm", message: "unsupported" }],
-      };
-      const client = clientWith(400, errorBody);
+    it("should throw CryptoApiError carrying the problem body", async () => {
+      const client = clientWith(400, PROBLEM);
 
       try {
-        await client.hash({ algorithm: "unknown", data: "test" });
+        await client.hash({ algorithm: "sha256", data: "test" });
         expect.fail("should have thrown");
       } catch (err) {
         expect(err).to.be.an.instanceOf(CryptoApiError);
         const apiErr = err as CryptoApiError;
         expect(apiErr.status).to.equal(400);
-        expect(apiErr.body).to.deep.equal(errorBody);
+        expect(apiErr.body).to.deep.equal(PROBLEM);
       }
     });
 
     it("should throw CryptoApiError on 500 response", async () => {
-      const client = clientWith(500, { error: "internal server error" });
+      const client = clientWith(500, {
+        type: "urn:crypto-service:problem:internal-error",
+        title: "Internal Server Error",
+        status: 500,
+        detail: "An unexpected error occurred",
+      });
 
       try {
         await client.encrypt({ key: "k", plaintext: "p" });
@@ -245,19 +290,55 @@ describe("CryptoClient", () => {
       } catch (err) {
         expect(err).to.be.an.instanceOf(CryptoApiError);
         expect((err as CryptoApiError).status).to.equal(500);
+        expect((err as CryptoApiError).body.detail).to.equal(
+          "An unexpected error occurred",
+        );
       }
     });
 
-    it("should throw CryptoApiError on 401 response", async () => {
+    it("should build an about:blank problem from a non-problem JSON body", async () => {
+      // The pre-RFC 9457 `{ error }` shape, or any other JSON without `detail`.
       const client = clientWith(401, { error: "unauthorized" });
 
       try {
         await client.algorithms();
         expect.fail("should have thrown");
       } catch (err) {
-        expect(err).to.be.an.instanceOf(CryptoApiError);
-        expect((err as CryptoApiError).status).to.equal(401);
+        const apiErr = err as CryptoApiError;
+        expect(apiErr.status).to.equal(401);
+        expect(apiErr.body).to.deep.equal({
+          type: "about:blank",
+          title: "HTTP error",
+          status: 401,
+          detail: "The server answered 401 without a problem body",
+        });
       }
+    });
+
+    it("should build an about:blank problem from a null JSON body", async () => {
+      const client = clientWith(502, null);
+
+      const err = await client.algorithms().catch((e: unknown) => e);
+      expect((err as CryptoApiError).body.type).to.equal("about:blank");
+    });
+
+    it("should use the status text for a body that is not JSON", async () => {
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch: unparsableFetch(502, "Bad Gateway"),
+      });
+
+      const err = await client.algorithms().catch((e: unknown) => e);
+      expect(err).to.be.an.instanceOf(CryptoApiError);
+      expect((err as CryptoApiError).body).to.deep.equal({
+        type: "about:blank",
+        title: "Bad Gateway",
+        status: 502,
+        detail: "The server answered 502 without a problem body",
+      });
+      expect((err as CryptoApiError).message).to.equal(
+        "API Error 502: The server answered 502 without a problem body",
+      );
     });
   });
 
@@ -392,12 +473,12 @@ describe("CryptoClient", () => {
       const responseData: KdfResult = {
         derivedKey: "dk-hex",
         salt: "salt-hex",
-        algorithm: "argon2id",
+        algorithm: "pbkdf2-sha256",
         keyLength: 32,
       };
       const client = clientWith(200, { data: responseData });
       const result = await client.kdf({
-        algorithm: "argon2id",
+        algorithm: "pbkdf2-sha256",
         password: "passw0rd",
       });
 
@@ -409,7 +490,7 @@ describe("CryptoClient", () => {
         data: {
           derivedKey: "dk",
           salt: "s",
-          algorithm: "argon2id",
+          algorithm: "pbkdf2-sha256",
           keyLength: 64,
         },
       });
@@ -418,17 +499,17 @@ describe("CryptoClient", () => {
         fetch,
       });
       await client.kdf({
-        algorithm: "argon2id",
+        algorithm: "pbkdf2-sha256",
         password: "pw",
         salt: "custom-salt",
         keyLength: 64,
-        params: { iterations: 3 },
+        params: { iterations: 600_000 },
       });
 
       const body = JSON.parse(calls[0].init?.body as string);
       expect(body.salt).to.equal("custom-salt");
       expect(body.keyLength).to.equal(64);
-      expect(body.params.iterations).to.equal(3);
+      expect(body.params.iterations).to.equal(600_000);
     });
 
     it("should call /v2/kdf endpoint", async () => {
@@ -436,7 +517,7 @@ describe("CryptoClient", () => {
         data: {
           derivedKey: "dk",
           salt: "s",
-          algorithm: "argon2id",
+          algorithm: "pbkdf2-sha256",
           keyLength: 32,
         },
       });
@@ -444,7 +525,7 @@ describe("CryptoClient", () => {
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.kdf({ algorithm: "argon2id", password: "pw" });
+      await client.kdf({ algorithm: "pbkdf2-sha256", password: "pw" });
 
       expect(calls[0].url).to.equal("http://localhost:3000/v2/kdf");
     });
@@ -455,10 +536,13 @@ describe("CryptoClient", () => {
   // -----------------------------------------------------------------------
 
   describe("generateKeyPair()", () => {
-    it("should return Ed25519KeyPair on success", async () => {
-      const responseData: Ed25519KeyPair = {
-        privateKey: "priv-hex",
+    it("should return KeyGenerateResult (keyId, no private key) on success", async () => {
+      const responseData: KeyGenerateResult = {
+        keyId: "k_AAAAAAAAAAAAAAAAAAAAAA",
+        algorithm: "ed25519",
         publicKey: "pub-hex",
+        kid: "kid",
+        metadata: { kid: "kid" },
       };
       const client = clientWith(200, { data: responseData });
       const result = await client.generateKeyPair();
@@ -468,7 +552,7 @@ describe("CryptoClient", () => {
 
     it("should POST to /v2/keys/generate with ed25519 algorithm", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { privateKey: "p", publicKey: "q" },
+        data: { keyId: "k", algorithm: "ed25519", publicKey: "q" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
@@ -481,6 +565,46 @@ describe("CryptoClient", () => {
       const body = JSON.parse(calls[0].init?.body as string);
       expect(body.algorithm).to.equal("ed25519");
     });
+
+    it("should send the requested algorithm and metadata", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: {} });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      await client.generateKeyPair({
+        algorithm: "x25519",
+        metadata: { use: "enc" },
+      });
+
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        algorithm: "x25519",
+        metadata: { use: "enc" },
+      });
+    });
+  });
+
+  describe("exportKey()", () => {
+    it("should POST the keyId to /v2/keys/export", async () => {
+      const responseData: KeyExportResult = {
+        keyId: "k_AAAAAAAAAAAAAAAAAAAAAA",
+        algorithm: "ed25519",
+        publicKey: "pub",
+        privateKey: "priv",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const result = await client.exportKey({ keyId: responseData.keyId });
+
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/keys/export");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: responseData.keyId,
+      });
+      expect(result.data).to.deep.equal(responseData);
+    });
   });
 
   describe("sign()", () => {
@@ -491,14 +615,14 @@ describe("CryptoClient", () => {
       };
       const client = clientWith(200, { data: responseData });
       const result = await client.sign({
-        privateKey: "priv",
+        keyId: "k_AAAAAAAAAAAAAAAAAAAAAA",
         message: "hello",
       });
 
       expect(result.data).to.deep.equal(responseData);
     });
 
-    it("should call /v2/sign endpoint", async () => {
+    it("should send keyId and message to /v2/sign", async () => {
       const { fetch, calls } = capturingFetch(200, {
         data: { signature: "s", algorithm: "ed25519" },
       });
@@ -506,9 +630,13 @@ describe("CryptoClient", () => {
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.sign({ privateKey: "pk", message: "msg" });
+      await client.sign({ keyId: "k1", message: "msg" });
 
       expect(calls[0].url).to.equal("http://localhost:3000/v2/sign");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        message: "msg",
+      });
     });
   });
 
@@ -565,13 +693,75 @@ describe("CryptoClient", () => {
   // Post-Quantum
   // -----------------------------------------------------------------------
 
+  describe("mlKemGenerateKeyPair()", () => {
+    it("should POST an empty body to /v2/pq/keygen", async () => {
+      const responseData: MlKemKeyPair = {
+        keyId: "k1",
+        algorithm: "ml-kem-768",
+        publicKey: "pub",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const result = await client.mlKemGenerateKeyPair();
+
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/keygen");
+      expect(calls[0].init?.body).to.equal(JSON.stringify({}));
+      expect(result.data).to.deep.equal(responseData);
+    });
+  });
+
+  describe("mlKemEncapsulate()", () => {
+    it("should POST the public key to /v2/pq/encapsulate", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { ciphertext: "c", sharedSecret: "s", algorithm: "ml-kem-768" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      await client.mlKemEncapsulate({ publicKey: "pub" });
+
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/encapsulate");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        publicKey: "pub",
+      });
+    });
+  });
+
+  describe("mlKemDecapsulate()", () => {
+    it("should POST keyId and ciphertext to /v2/pq/decapsulate", async () => {
+      const responseData: KemDecapsulateResult = {
+        sharedSecret: "s",
+        algorithm: "ml-kem-768",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const result = await client.mlKemDecapsulate({
+        keyId: "k1",
+        ciphertext: "c",
+      });
+
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/decapsulate");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        ciphertext: "c",
+      });
+      expect(result.data).to.deep.equal(responseData);
+    });
+  });
+
   describe("pqGenerateKeyPair()", () => {
     it("should return HybridKeyPair on success", async () => {
       const responseData: HybridKeyPair = {
-        x25519PrivateKey: "x-priv",
+        keyId: "k_AAAAAAAAAAAAAAAAAAAAAA",
         x25519PublicKey: "x-pub",
         mlKemPublicKey: "ml-pub",
-        mlKemSecretKey: "ml-sec",
         algorithm: "x25519-ml-kem-768",
       };
       const client = clientWith(200, { data: responseData });
@@ -583,10 +773,9 @@ describe("CryptoClient", () => {
     it("should POST to /v2/pq/hybrid/keygen with empty body", async () => {
       const { fetch, calls } = capturingFetch(200, {
         data: {
-          x25519PrivateKey: "a",
+          keyId: "k1",
           x25519PublicKey: "b",
           mlKemPublicKey: "c",
-          mlKemSecretKey: "d",
           algorithm: "x25519-ml-kem-768",
         },
       });
@@ -653,8 +842,7 @@ describe("CryptoClient", () => {
       };
       const client = clientWith(200, { data: responseData });
       const result = await client.pqDecapsulate({
-        x25519PrivateKey: "x-priv",
-        mlKemSecretKey: "ml-sec",
+        keyId: "k_AAAAAAAAAAAAAAAAAAAAAA",
         x25519EphemeralPublic: "eph-pub",
         mlKemCiphertext: "ml-ct",
       });
@@ -672,8 +860,7 @@ describe("CryptoClient", () => {
         fetch,
       });
       await client.pqDecapsulate({
-        x25519PrivateKey: "a",
-        mlKemSecretKey: "b",
+        keyId: "k1",
         x25519EphemeralPublic: "c",
         mlKemCiphertext: "d",
       });
@@ -682,6 +869,11 @@ describe("CryptoClient", () => {
         "http://localhost:3000/v2/pq/hybrid/decapsulate",
       );
       expect(calls[0].init?.method).to.equal("POST");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        x25519EphemeralPublic: "c",
+        mlKemCiphertext: "d",
+      });
     });
   });
 
@@ -698,8 +890,12 @@ describe("CryptoClient", () => {
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.pqSign({ level: 65, secretKey: "sk", message: "msg" });
+      await client.pqSign({ keyId: "k1", message: "msg" });
       expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/dsa/sign");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        message: "msg",
+      });
     });
   });
 
@@ -725,7 +921,7 @@ describe("CryptoClient", () => {
   describe("pqSignKeygen()", () => {
     it("should call /v2/pq/dsa/keygen", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { publicKey: "p", secretKey: "s", algorithm: "ml-dsa-44" },
+        data: { keyId: "k1", publicKey: "p", algorithm: "ml-dsa-44" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
@@ -737,27 +933,25 @@ describe("CryptoClient", () => {
   });
 
   describe("pqHashSign()", () => {
-    it("should call /v2/pq/hash-sign/sign", async () => {
+    it("should call /v2/pq/slh-dsa/sign with keyId", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { signature: "s", algorithm: "slh-dsa" },
+        data: { signature: "s", algorithm: "slh-dsa-shake-128f" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.pqHashSign({
-        variant: "shake-128f",
-        secretKey: "sk",
+      await client.pqHashSign({ keyId: "k1", message: "m" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/pq/slh-dsa/sign");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
         message: "m",
       });
-      expect(calls[0].url).to.equal(
-        "http://localhost:3000/v2/pq/hash-sign/sign",
-      );
     });
   });
 
   describe("pqHashVerify()", () => {
-    it("should call /v2/pq/hash-sign/verify", async () => {
+    it("should call /v2/pq/slh-dsa/verify", async () => {
       const { fetch, calls } = capturingFetch(200, {
         data: { valid: true, algorithm: "slh-dsa" },
       });
@@ -772,15 +966,15 @@ describe("CryptoClient", () => {
         signature: "s",
       });
       expect(calls[0].url).to.equal(
-        "http://localhost:3000/v2/pq/hash-sign/verify",
+        "http://localhost:3000/v2/pq/slh-dsa/verify",
       );
     });
   });
 
   describe("pqHashSignKeygen()", () => {
-    it("should call /v2/pq/hash-sign/keygen", async () => {
+    it("should call /v2/pq/slh-dsa/keygen", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { publicKey: "p", secretKey: "s", algorithm: "slh-dsa" },
+        data: { keyId: "k1", publicKey: "p", algorithm: "slh-dsa-shake-128f" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
@@ -788,14 +982,16 @@ describe("CryptoClient", () => {
       });
       await client.pqHashSignKeygen({ variant: "shake-128f" });
       expect(calls[0].url).to.equal(
-        "http://localhost:3000/v2/pq/hash-sign/keygen",
+        "http://localhost:3000/v2/pq/slh-dsa/keygen",
       );
     });
   });
 
   describe("secretboxSeal()", () => {
     it("should call /v2/secretbox/seal", async () => {
-      const { fetch, calls } = capturingFetch(200, { data: { sealed: "ct" } });
+      const { fetch, calls } = capturingFetch(200, {
+        data: { sealed: "ct", algorithm: "xchacha20-poly1305" },
+      });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
@@ -806,24 +1002,25 @@ describe("CryptoClient", () => {
   });
 
   describe("secretboxOpen()", () => {
-    it("should call /v2/secretbox/open", async () => {
-      const { fetch, calls } = capturingFetch(200, {
-        data: { plaintext: "pt" },
-      });
+    it("should call /v2/secretbox/open and return the plaintext as data", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: "pt" });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.secretboxOpen({ key: "k", ciphertext: "ct" });
+      const result = await client.secretboxOpen({ key: "k", ciphertext: "ct" });
       expect(calls[0].url).to.equal("http://localhost:3000/v2/secretbox/open");
+      expect(result.data).to.equal("pt");
     });
   });
 
   describe("sealedboxSeal()", () => {
     it("should call /v2/sealedbox/seal", async () => {
-      const { fetch, calls } = capturingFetch(200, {
-        data: { sealed: "s", ephemeralPublicKey: "e" },
-      });
+      const responseData: SealedboxSealResult = {
+        sealed: "s",
+        algorithm: "x25519-xchacha20-poly1305",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
@@ -834,23 +1031,64 @@ describe("CryptoClient", () => {
   });
 
   describe("sealedboxOpen()", () => {
-    it("should call /v2/sealedbox/open", async () => {
+    it("should call /v2/sealedbox/open with keyId", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: "pt" });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const result = await client.sealedboxOpen({ keyId: "k1", sealed: "s" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/sealedbox/open");
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        sealed: "s",
+      });
+      expect(result.data).to.equal("pt");
+    });
+  });
+
+  describe("sealedboxSealPq()", () => {
+    it("should call /v2/sealedbox/seal-pq", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { plaintext: "pt" },
+        data: {
+          sealed: "s",
+          algorithm: "x25519-ml-kem-768-xchacha20-poly1305",
+        },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.sealedboxOpen({ recipientSecretKey: "sk", sealed: "s" });
-      expect(calls[0].url).to.equal("http://localhost:3000/v2/sealedbox/open");
+      await client.sealedboxSealPq({
+        x25519PublicKey: "x",
+        mlKemPublicKey: "m",
+        plaintext: "p",
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/sealedbox/seal-pq",
+      );
+    });
+  });
+
+  describe("sealedboxOpenPq()", () => {
+    it("should call /v2/sealedbox/open-pq with keyId", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: "pt" });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const result = await client.sealedboxOpenPq({ keyId: "k1", sealed: "s" });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/sealedbox/open-pq",
+      );
+      expect(result.data).to.equal("pt");
     });
   });
 
   describe("passwordEncrypt()", () => {
     it("should call /v2/password/encrypt", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { ciphertext: "ct" },
+        data: { encrypted: "ct", algorithm: "argon2id-xchacha20-poly1305" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
@@ -865,9 +1103,7 @@ describe("CryptoClient", () => {
 
   describe("passwordDecrypt()", () => {
     it("should call /v2/password/decrypt", async () => {
-      const { fetch, calls } = capturingFetch(200, {
-        data: { plaintext: "pt" },
-      });
+      const { fetch, calls } = capturingFetch(200, { data: "pt" });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
@@ -919,26 +1155,28 @@ describe("CryptoClient", () => {
   describe("mac()", () => {
     it("should call /v2/hmac", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { mac: "m", algorithm: "hmac-sha256" },
+        data: { mac: "m", algorithm: "sha256" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.mac({ algorithm: "hmac-sha256", key: "k", data: "d" });
+      await client.mac({ algorithm: "sha256", key: "k", data: "d" });
       expect(calls[0].url).to.equal("http://localhost:3000/v2/hmac");
     });
   });
 
   describe("macVerify()", () => {
     it("should call /v2/hmac/verify", async () => {
-      const { fetch, calls } = capturingFetch(200, { data: { valid: true } });
+      const { fetch, calls } = capturingFetch(200, {
+        data: { valid: true, algorithm: "sha256" },
+      });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
       await client.macVerify({
-        algorithm: "hmac-sha256",
+        algorithm: "sha256",
         key: "k",
         data: "d",
         mac: "m",
@@ -950,7 +1188,7 @@ describe("CryptoClient", () => {
   describe("keyWrap()", () => {
     it("should call /v2/keys/wrap", async () => {
       const { fetch, calls } = capturingFetch(200, {
-        data: { wrappedKey: "wk" },
+        data: { wrapped: "wk", algorithm: "aes-kw" },
       });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
@@ -963,13 +1201,14 @@ describe("CryptoClient", () => {
 
   describe("keyUnwrap()", () => {
     it("should call /v2/keys/unwrap", async () => {
-      const { fetch, calls } = capturingFetch(200, { data: { key: "k" } });
+      const { fetch, calls } = capturingFetch(200, { data: "00ff" });
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
       });
-      await client.keyUnwrap({ kek: "k", wrappedKey: "wk" });
+      const result = await client.keyUnwrap({ kek: "k", wrappedKey: "wk" });
       expect(calls[0].url).to.equal("http://localhost:3000/v2/keys/unwrap");
+      expect(result.data).to.equal("00ff");
     });
   });
 
@@ -1082,7 +1321,8 @@ describe("CryptoClient", () => {
         metadata: {},
         components: [],
       };
-      const { fetch, calls } = capturingFetch(200, { data: mockCbom });
+      // The route returns the CycloneDX document itself, without `{ data }`.
+      const { fetch, calls } = capturingFetch(200, mockCbom);
       const client = new CryptoClient({
         baseUrl: "http://localhost:3000",
         fetch,
@@ -1091,7 +1331,7 @@ describe("CryptoClient", () => {
       const res = await client.getCbom();
       expect(calls[0].url).to.equal("http://localhost:3000/v2/compliance/cbom");
       expect(calls[0].init?.method).to.equal("GET");
-      expect(res.data.bomFormat).to.equal("CycloneDX");
+      expect(res).to.deep.equal(mockCbom);
     });
   });
 
@@ -1168,11 +1408,13 @@ describe("Exported interfaces (compile-time checks)", () => {
     // and structurally sound. They run at compile-time via ts-node.
     const opts: ClientOptions = { baseUrl: "http://localhost:3000" };
     const resp: ApiResponse<string> = { data: "hello" };
-    const apiErr: ApiError = { error: "err" };
-    const apiErrDetailed: ApiError = {
-      error: "err",
-      details: [{ field: "f", message: "m" }],
+    const apiErr: ApiError = {
+      type: "about:blank",
+      title: "t",
+      status: 500,
+      detail: "d",
     };
+    const apiErrDetailed: ApiError = PROBLEM;
     const hashRes: HashResult = {
       digest: "d",
       algorithm: "sha256",
@@ -1180,17 +1422,20 @@ describe("Exported interfaces (compile-time checks)", () => {
     };
     const aeadRes: AeadResult = {
       ciphertext: "ct",
-      algorithm: "aes-256-gcm",
+      algorithm: "xchacha20-poly1305",
     };
     const kdfRes: KdfResult = {
       derivedKey: "dk",
       salt: "s",
-      algorithm: "argon2id",
+      algorithm: "pbkdf2-sha256",
       keyLength: 32,
     };
-    const ed25519: Ed25519KeyPair = {
-      privateKey: "priv",
+    const keyGen: KeyGenerateResult = {
+      keyId: "k",
+      algorithm: "ed25519",
       publicKey: "pub",
+      kid: "kid",
+      metadata: {},
     };
     const signRes: SignResult = {
       signature: "sig",
@@ -1198,10 +1443,9 @@ describe("Exported interfaces (compile-time checks)", () => {
     };
     const verifyRes: VerifyResult = { valid: true, algorithm: "ed25519" };
     const hybridKp: HybridKeyPair = {
-      x25519PrivateKey: "a",
+      keyId: "k",
       x25519PublicKey: "b",
       mlKemPublicKey: "c",
-      mlKemSecretKey: "d",
       algorithm: "x25519-ml-kem-768",
     };
     const hybridEncap: HybridEncapsulateResult = {
@@ -1219,7 +1463,7 @@ describe("Exported interfaces (compile-time checks)", () => {
     expect(hashRes).to.exist;
     expect(aeadRes).to.exist;
     expect(kdfRes).to.exist;
-    expect(ed25519).to.exist;
+    expect(keyGen).to.exist;
     expect(signRes).to.exist;
     expect(verifyRes).to.exist;
     expect(hybridKp).to.exist;

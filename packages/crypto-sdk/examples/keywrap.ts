@@ -8,12 +8,9 @@
  * Requires: crypto-server running on http://localhost:3000
  */
 
-import { CryptoClient } from "../src";
-import { header, task, taskWithOutput, summary } from "./support";
+import { header, task, taskWithOutput, summary, createClient } from "./support";
 
-const client = new CryptoClient({
-  baseUrl: process.env.CRYPTO_SERVER_URL ?? "http://localhost:3000",
-});
+const client = createClient();
 
 async function main() {
   header("crypto-sdk -- keywrap");
@@ -23,20 +20,20 @@ async function main() {
 
   await taskWithOutput("Wrap 128-bit key with AES-KW", async () => {
     const { data } = await client.keyWrap({ kek, keyToWrap, algorithm: "aes-kw" });
-    return [`wrappedKey: ${data.wrappedKey.slice(0, 16)}...`];
+    return [`wrapped: ${data.wrapped.slice(0, 16)}...`];
   });
 
   await taskWithOutput("Unwrap key and verify round-trip", async () => {
-    const wrappedKey = (await client.keyWrap({ kek, keyToWrap, algorithm: "aes-kw" })).data.wrappedKey;
+    const wrappedKey = (await client.keyWrap({ kek, keyToWrap, algorithm: "aes-kw" })).data.wrapped;
     const { data } = await client.keyUnwrap({ kek, wrappedKey, algorithm: "aes-kw" });
-    if (data.key !== keyToWrap) {
+    if (data !== keyToWrap) {
       throw new Error("Round-trip mismatch");
     }
-    return [`recovered: ${data.key}`];
+    return [`recovered: ${data}`];
   });
 
   await task("Reject unwrap with wrong KEK", async () => {
-    const wrappedKey = (await client.keyWrap({ kek, keyToWrap, algorithm: "aes-kw" })).data.wrappedKey;
+    const wrappedKey = (await client.keyWrap({ kek, keyToWrap, algorithm: "aes-kw" })).data.wrapped;
     const wrongKek = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     let unwrapped = false;
     try {

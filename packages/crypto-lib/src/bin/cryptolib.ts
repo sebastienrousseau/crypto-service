@@ -170,25 +170,10 @@ export async function verify(data: dataVerify) {
 }
 
 /**
- * Default exported PGP crypto functions.
- *
- * @public
+ * The service's own OpenPGP key pair from `CRYPTO_KEY_DIR`, loaded once
+ * and shared with `revoke`. crypto-server uses it so its v1 routes never
+ * take a private key from a client.
  */
-export default {
-  /** Decrypt a PGP-encrypted message. */
-  decrypt,
-  /** Encrypt a message with PGP. */
-  encrypt,
-  /** Generate a new PGP key pair. */
-  generate,
-  /** Reformat an existing PGP key. */
-  reformat,
-  /** Revoke a PGP key pair. */
-  revoke,
-  /** Generate a PGP session key. */
-  session,
-  /** Sign a message with PGP. */
-  sign,
-  /** Verify a PGP-signed message. */
-  verify,
-};
+export { loadKeystore } from "../key/keystore";
+/** The armored key pair and revocation certificate `loadKeystore` returns. */
+export type { Keystore } from "../key/keystore";

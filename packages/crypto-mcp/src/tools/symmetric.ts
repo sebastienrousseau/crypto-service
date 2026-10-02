@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
-import { ToolHandler, jsonResult, parseKey256 } from "./result";
+import { keyStore, symmetricKey } from "./keystore";
+import { ToolArgs, ToolHandler, jsonResult } from "./result";
 
 type AeadAlgorithm = "aes-256-gcm" | "chacha20-poly1305";
 
@@ -26,33 +27,49 @@ function createDecipher(algorithm: AeadAlgorithm, key: Buffer, iv: Buffer) {
   return crypto.createDecipheriv(algorithm, key, iv, AEAD_OPTIONS);
 }
 
-/** `crypto_encrypt`: AEAD-encrypt plaintext with a supplied or fresh key. */
+/** The 256-bit secret a `symmetric-256` key handle refers to. */
+export function symmetricSecret(keyHandle: unknown): Buffer {
+  return keyStore.use(String(keyHandle), ["symmetric-256"]).secret as Buffer;
+}
+
+/** The caller's key handle, or a fresh symmetric key's handle. */
+function encryptionKeyHandle(args: ToolArgs): string {
+  if (args.keyHandle !== undefined) return String(args.keyHandle);
+  return keyStore.add(symmetricKey(crypto.randomBytes(32), "generated"));
+}
+
+/**
+ * `crypto_encrypt`: AEAD-encrypt plaintext under a key handle. Without
+ * one, a fresh key is generated inside the server and its handle is
+ * returned; the key itself never is.
+ */
 export const encrypt: ToolHandler = async (args) => {
   const plaintext = String(args.plaintext);
   const algorithm = aeadAlgorithm(args.algorithm);
-  const generatedKey = !args.key;
-  const key = generatedKey ? crypto.randomBytes(32) : parseKey256(args.key);
+  const generatedKey = args.keyHandle === undefined;
+  const keyHandle = encryptionKeyHandle(args);
   const iv = crypto.randomBytes(12);
-  const cipher = createCipher(algorithm, key, iv);
+  const cipher = createCipher(algorithm, symmetricSecret(keyHandle), iv);
   const ciphertext = Buffer.concat([
     cipher.update(plaintext, "utf8"),
     cipher.final(),
   ]);
   return jsonResult({
     algorithm,
+    keyHandle,
+    generatedKey,
     ciphertext: ciphertext.toString("hex"),
     iv: iv.toString("hex"),
     authTag: cipher.getAuthTag().toString("hex"),
-    key: generatedKey ? key.toString("hex") : undefined,
   });
 };
 
 /** `crypto_decrypt`: verify and decrypt an AEAD ciphertext. */
 export const decrypt: ToolHandler = async (args) => {
-  const algorithm = (args.algorithm as string) || "aes-256-gcm";
-  const key = parseKey256(args.key);
+  const algorithm = aeadAlgorithm(args.algorithm);
+  const key = symmetricSecret(args.keyHandle);
   const iv = Buffer.from(String(args.iv), "hex");
-  const decipher = createDecipher(aeadAlgorithm(algorithm), key, iv);
+  const decipher = createDecipher(algorithm, key, iv);
   decipher.setAuthTag(Buffer.from(String(args.authTag), "hex"));
   const decrypted = Buffer.concat([
     decipher.update(Buffer.from(String(args.ciphertext), "hex")),

@@ -6,7 +6,7 @@
  * to JWT that eliminates algorithm confusion attacks by design.
  *
  * Demonstrates:
- * - v4.local: symmetric encryption (XChaCha20-Poly1305)
+ * - v4.local: symmetric encryption (XChaCha20 with a BLAKE2b MAC)
  * - v4.local with footer and implicit assertions
  * - v4.public: Ed25519 digital signatures
  * - v4.public with footer and implicit assertions

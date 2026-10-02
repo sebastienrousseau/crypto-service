@@ -22,7 +22,7 @@ jobs:
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 24 # bundles npm >= 11.5.1, needed for npm trusted publishing
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
@@ -50,17 +50,13 @@ jobs:
         with:
           generate_release_notes: true
 
-      # Fails rather than silently skipping when the token is missing.
-      # pnpm skips package versions that are already on the registry.
-      - name: Publish to npm
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::NPM_TOKEN secret is not set; cannot publish to npm."
-            exit 1
-          fi
-          pnpm -r publish --access public --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Packs each package with pnpm (resolving workspace:* versions) and
+      # stages the tarball with `npm stage publish`, authenticated by npm
+      # trusted publishing (OIDC). The trusted publishers allow staging
+      # only: a maintainer approves each staged version with 2FA, then
+      # runs the "Verify npm release" workflow to check provenance.
+      - name: Stage npm releases
+        run: scripts/publish-npm.sh
 
       - name: Publish to GitHub Packages
         run: |

@@ -6,8 +6,12 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 
-/** Registers v2 secretbox (symmetric authenticated) encryption endpoints. */
-export default (app: FastifyInstance): void => {
+/** crypto-lib secretbox API, loaded on first use. */
+const loadSecretbox = async () =>
+  (await import("@sebastienrousseau/crypto-lib/high-level")).secretbox;
+
+/** POST /v2/secretbox/seal: XChaCha20-Poly1305 encryption. */
+function registerSeal(app: FastifyInstance): void {
   app.post(
     "/v2/secretbox/seal",
     {
@@ -28,8 +32,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { seal } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/secretbox");
+        const { seal } = await loadSecretbox();
         const { key, plaintext, aad } = request.body as {
           key: string;
           plaintext: string;
@@ -42,7 +45,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
 
+/** POST /v2/secretbox/open: XChaCha20-Poly1305 decryption. */
+function registerOpen(app: FastifyInstance): void {
   app.post(
     "/v2/secretbox/open",
     {
@@ -63,8 +69,7 @@ export default (app: FastifyInstance): void => {
     },
     async (request, reply) => {
       try {
-        const { open } =
-          await import("@sebastienrousseau/crypto-lib/dist/high-level/secretbox");
+        const { open } = await loadSecretbox();
         const { key, ciphertext, aad } = request.body as {
           key: string;
           ciphertext: string;
@@ -80,4 +85,10 @@ export default (app: FastifyInstance): void => {
       }
     },
   );
+}
+
+/** Registers v2 secretbox (symmetric authenticated) encryption endpoints. */
+export default (app: FastifyInstance): void => {
+  registerSeal(app);
+  registerOpen(app);
 };

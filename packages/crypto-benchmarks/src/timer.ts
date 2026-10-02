@@ -8,6 +8,14 @@ export interface TimerOptions {
   warmup?: number | undefined;
 }
 
+/** Runs `fn` once, awaiting it when it returns a promise. */
+async function runOnce(fn: () => void | Promise<void>): Promise<void> {
+  const res = fn();
+  if (res instanceof Promise) {
+    await res;
+  }
+}
+
 /**
  * Runs and measures an operation with statistical distribution.
  */
@@ -22,10 +30,7 @@ export async function benchmarkOperation(
 
   // Warmup phase
   for (let i = 0; i < warmup; i++) {
-    const res = fn();
-    if (res instanceof Promise) {
-      await res;
-    }
+    await runOnce(fn);
   }
 
   const timesMs: number[] = [];
@@ -33,10 +38,7 @@ export async function benchmarkOperation(
 
   for (let i = 0; i < iterations; i++) {
     const start = process.hrtime.bigint();
-    const res = fn();
-    if (res instanceof Promise) {
-      await res;
-    }
+    await runOnce(fn);
     const end = process.hrtime.bigint();
     const diffMs = Number(end - start) / 1_000_000;
     timesMs.push(diffMs);

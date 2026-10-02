@@ -11,13 +11,14 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import revoke from "@sebastienrousseau/crypto-lib/dist/lib/revoke";
+import { revoke } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyRevoke, REVOCATION_FLAGS } from "../../@types/types";
 import {
   validateRequiredString,
   validateRequiredNumber,
 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
+import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 
 /** Fastify JSON Schema for the v1 key-revocation endpoint. */
 const revokeSchema = {
@@ -37,11 +38,8 @@ const revokeSchema = {
         },
       },
     },
-    400: {
-      type: "object",
-      properties: { error: { type: "string" }, details: { type: "array" } },
-    },
-    401: { type: "object", properties: { error: { type: "string" } } },
+    400: PROBLEM_SCHEMA,
+    401: PROBLEM_SCHEMA,
   },
   body: {
     type: "object",
@@ -84,7 +82,7 @@ export default (app: FastifyInstance): void => {
         return reply.send({ data: { publicKey: revocationData.publicKey } });
       } catch (error) {
         request.log.error(error, "Revocation operation failed");
-        return reply.status(500).send({ error: "Revocation failed" });
+        return sendProblem(reply, 500, "internal-error", "Revocation failed");
       }
     },
   );

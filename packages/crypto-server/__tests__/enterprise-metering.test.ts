@@ -285,8 +285,11 @@ describe("Enterprise CaaS Metering Engine", () => {
       expect(res.statusCode).to.equal(413);
       expect(res.headers["retry-after"]).to.be.undefined;
       const json = JSON.parse(res.payload);
-      expect(json.statusCode).to.equal(413);
-      expect(json.error).to.equal("Payload Too Large");
+      expect(json.status).to.equal(413);
+      expect(res.headers["content-type"]).to.include(
+        "application/problem+json",
+      );
+      expect(json.title).to.equal("Payload Too Large");
       expect(json.tier).to.equal("community");
     });
 
@@ -310,8 +313,8 @@ describe("Enterprise CaaS Metering Engine", () => {
       expect(res.statusCode).to.equal(429);
       expect(res.headers["retry-after"]).to.exist;
       const json = JSON.parse(res.payload);
-      expect(json.statusCode).to.equal(429);
-      expect(json.error).to.equal("Too Many Requests");
+      expect(json.status).to.equal(429);
+      expect(json.title).to.equal("Too Many Requests");
       expect(json.tier).to.equal("community");
     });
   });

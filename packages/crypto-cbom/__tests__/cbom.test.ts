@@ -315,6 +315,28 @@ describe("Crypto CBOM Suite", () => {
       expect(audit.vulnerableCount).to.equal(2);
       expect(audit.quantumSafeCount).to.equal(1);
     });
+    it("audits an SPDX CBOM the same as the CycloneDX one", () => {
+      const assets = scanCode(
+        "createHash('md5'); generateKeyPairSync('rsa'); ml_kem768.keygen();",
+      );
+      expect(assets.length).to.be.greaterThan(1);
+      const spdx = generateSpdxCbom(assets);
+      expect(validateCbom(spdx).valid).to.equal(true);
+      const fromSpdx = auditCbom(spdx);
+      const fromCdx = auditCbom(generateCycloneDxCbom(assets));
+      expect(fromSpdx).to.deep.equal(fromCdx);
+    });
+    it("classifies an SPDX element without an algorithm by its name", () => {
+      const spdx = generateSpdxCbom([]);
+      spdx.elements.push({
+        spdxId: "SPDXRef-CryptoAsset-1",
+        name: "MD5",
+        type: "hash",
+        algorithm: "",
+        quantumSafe: false,
+      });
+      expect(auditCbom(spdx).deprecatedCount).to.equal(1);
+    });
     it("returns REVIEW when quantum-vulnerable assets remain but nothing is broken", () => {
       const conditionalAssets: CryptoAsset[] = [
         {

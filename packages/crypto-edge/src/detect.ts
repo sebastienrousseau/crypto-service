@@ -125,6 +125,9 @@ export function getCapabilities(): RuntimeCapabilities {
       typeof g.process.versions === "object" &&
       typeof g.process.versions.node === "string"
     ) {
+      // A runtime probe, not a dependency: a static import would fail to
+      // load in edge runtimes that have no node:crypto.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime probe
       require("node:crypto"); // skipcq: JS-0359
       hasNodeCrypto = true;
     }

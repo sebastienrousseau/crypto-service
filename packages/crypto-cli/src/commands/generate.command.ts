@@ -1,4 +1,4 @@
-import generate from "@sebastienrousseau/crypto-lib/dist/lib/generate";
+import { generate } from "@sebastienrousseau/crypto-lib/pgp";
 import prompts from "prompts";
 
 /**

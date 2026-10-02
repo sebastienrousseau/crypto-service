@@ -24,23 +24,51 @@ export interface JSONRPCError {
   data?: unknown;
 }
 
+/** JSON types a tool parameter may declare. */
+export type MCPToolParameterType = "string" | "integer" | "number" | "boolean";
+
+/**
+ * One tool parameter: the subset of JSON Schema that `validateArguments`
+ * enforces before a tool runs.
+ */
 export interface MCPToolParameterProperty {
-  type: string;
+  type: MCPToolParameterType;
   description: string;
-  enum?: string[];
+  enum?: Array<string | number>;
   default?: unknown;
+  /** Minimum string length, in UTF-16 code units. */
+  minLength?: number;
+  /** Maximum string length, in UTF-16 code units. */
+  maxLength?: number;
+  /** Regular expression (Unicode mode) a string must match. */
+  pattern?: string;
+  minimum?: number;
+  maximum?: number;
 }
 
 export interface MCPToolInputSchema {
   type: "object";
   properties: Record<string, MCPToolParameterProperty>;
   required?: string[];
+  /** Always `false`: unknown arguments are rejected. */
+  additionalProperties: false;
+}
+
+/** Tool behaviour hints (MCP 2025-03-26 and later). */
+export interface MCPToolAnnotations {
+  title?: string;
+  readOnlyHint?: boolean;
+  destructiveHint?: boolean;
+  idempotentHint?: boolean;
+  openWorldHint?: boolean;
 }
 
 export interface MCPTool {
   name: string;
+  title?: string;
   description: string;
   inputSchema: MCPToolInputSchema;
+  annotations?: MCPToolAnnotations;
 }
 
 export interface MCPTextContent {
@@ -106,4 +134,5 @@ export interface MCPInitializeResult {
   protocolVersion: string;
   capabilities: MCPServerCapabilities;
   serverInfo: MCPServerInfo;
+  instructions?: string;
 }

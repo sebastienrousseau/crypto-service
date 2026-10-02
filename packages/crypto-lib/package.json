@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -16,12 +16,86 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "sideEffects": false,
-  "bin": {
-    "cryptolib": "./dist/index.js"
+  "typesVersions": {
+    "*": {
+      "modern": [
+        "./dist/modern/index.d.ts"
+      ],
+      "high-level": [
+        "./dist/high-level/index.d.ts"
+      ],
+      "keys": [
+        "./dist/keys/index.d.ts"
+      ],
+      "streaming": [
+        "./dist/streaming/index.d.ts"
+      ],
+      "protocols": [
+        "./dist/protocols/index.d.ts"
+      ],
+      "tokens": [
+        "./dist/tokens/index.d.ts"
+      ],
+      "accel": [
+        "./dist/accel/index.d.ts"
+      ],
+      "pgp": [
+        "./dist/bin/cryptolib.d.ts"
+      ]
+    }
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./modern": {
+      "types": "./dist/modern/index.d.ts",
+      "require": "./dist/modern/index.js",
+      "default": "./dist/modern/index.js"
+    },
+    "./high-level": {
+      "types": "./dist/high-level/index.d.ts",
+      "require": "./dist/high-level/index.js",
+      "default": "./dist/high-level/index.js"
+    },
+    "./keys": {
+      "types": "./dist/keys/index.d.ts",
+      "require": "./dist/keys/index.js",
+      "default": "./dist/keys/index.js"
+    },
+    "./streaming": {
+      "types": "./dist/streaming/index.d.ts",
+      "require": "./dist/streaming/index.js",
+      "default": "./dist/streaming/index.js"
+    },
+    "./protocols": {
+      "types": "./dist/protocols/index.d.ts",
+      "require": "./dist/protocols/index.js",
+      "default": "./dist/protocols/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "require": "./dist/tokens/index.js",
+      "default": "./dist/tokens/index.js"
+    },
+    "./accel": {
+      "types": "./dist/accel/index.d.ts",
+      "require": "./dist/accel/index.js",
+      "default": "./dist/accel/index.js"
+    },
+    "./pgp": {
+      "types": "./dist/bin/cryptolib.d.ts",
+      "require": "./dist/bin/cryptolib.js",
+      "default": "./dist/bin/cryptolib.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
   "files": [
     "dist/**/*.js",
     "dist/**/*.d.ts",
@@ -30,8 +104,8 @@
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
-    "lint": "eslint --ext .ts src __tests__",
-    "lint:fix": "eslint --cache --fix --ext .ts src __tests__",
+    "lint": "eslint src __tests__",
+    "lint:fix": "eslint --cache --fix src __tests__",
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/index.js",
@@ -48,15 +122,16 @@
     "openpgp": "^6.3.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.7",
+    "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
-    "@types/mocha": "^10.0.2",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.3",
     "c8": "^12.0.0",
-    "chai": "^4.5.0",
-    "chai-as-promised": "^7.1.2",
-    "mocha": "^10.8.2",
-    "prettier": "^3.9.8",
+    "chai": "^6.3.0",
+    "chai-as-promised": "^8.0.2",
+    "fast-check": "^4.10.2",
+    "mocha": "^12.0.3",
+    "prettier": "^3.9.9",
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
