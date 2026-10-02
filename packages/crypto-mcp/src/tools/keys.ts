@@ -11,7 +11,8 @@ export function publicPem(key: crypto.KeyObject): string {
   return key.export({ type: "spki", format: "pem" }) as string;
 }
 
-function asymmetric(
+/** Key material for an asymmetric pair, with its public key as SPKI PEM. */
+export function asymmetric(
   kind: KeyMaterial["kind"],
   pair: { privateKey: crypto.KeyObject; publicKey: crypto.KeyObject },
   info: Record<string, unknown>,

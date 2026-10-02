@@ -68,6 +68,7 @@ Add the server to your `claude_desktop_config.json` or `.cursor/mcp.json`:
 | `crypto_generate_key`    | Generate a key in the server; returns its handle and public key  | `type` (rsa, ecc, ed25519, ml-kem-768, symmetric-256, hmac-sha256), `modulusLength`, `curve` |
 | `crypto_key_list`        | List held key handles with type and public metadata              | none                                                                                         |
 | `crypto_key_destroy`     | Wipe a key and invalidate its handle                             | `keyHandle`                                                                                  |
+| `crypto_key_import`      | Load a key from a file in `CRYPTO_MCP_KEY_DIR` into a handle     | `path`, `kind` (symmetric-256, hmac-sha256; raw keys only)                                   |
 | `crypto_encrypt`         | AEAD-encrypt under a key handle (a new key if none is given)     | `plaintext`, `keyHandle`, `algorithm` (aes-256-gcm, chacha20-poly1305)                       |
 | `crypto_decrypt`         | Authenticate and decrypt an AEAD ciphertext                      | `ciphertext`, `keyHandle`, `iv`, `authTag`, `algorithm`                                      |
 | `crypto_sign`            | Sign with a key handle; the algorithm follows the key            | `data`, `keyHandle`                                                                          |
@@ -91,6 +92,42 @@ A typical session:
 1. `crypto_generate_key` with `type: "ed25519"` returns `keyHandle` and `publicKey`.
 2. `crypto_sign` with `data` and that `keyHandle` returns `algorithm: "ed25519"` and `signature`.
 3. Anyone can check the signature with `crypto_verify` and the `publicKey`.
+
+### Importing existing keys
+
+`crypto_key_import` brings in a key that already exists, for example to decrypt data encrypted outside the server, without the key passing through the conversation: the client names a file, and the server reads it into the key store and returns a handle.
+
+It is disabled unless the operator sets `CRYPTO_MCP_KEY_DIR` to a directory; without it the tool is still listed but every call returns `Key import is disabled`. Keeping it listed means a client sees why an import fails instead of a tool that is sometimes missing.
+
+```json
+{
+  "mcpServers": {
+    "crypto-service": {
+      "command": "npx",
+      "args": ["-y", "@sebastienrousseau/crypto-mcp"],
+      "env": { "CRYPTO_MCP_KEY_DIR": "/home/me/.config/crypto-mcp/keys" }
+    }
+  }
+}
+```
+
+Accepted files (at most 64 KiB):
+
+| File content                                                              | Imported as                                                                                               |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Unencrypted PKCS#8 PEM (`BEGIN PRIVATE KEY`), Ed25519                     | `ed25519`                                                                                                 |
+| Unencrypted PKCS#8 PEM, RSA 2048, 3072 or 4096 bits                       | `rsa`                                                                                                     |
+| Unencrypted PKCS#8 PEM, EC on P-256, P-384 or secp256k1                   | `ecc`                                                                                                     |
+| Exactly 32 bytes (binary), or 64 hex digits and optional final whitespace | `symmetric-256` (AES-256-GCM / ChaCha20-Poly1305, as `crypto_encrypt` uses), or `hmac-sha256` with `kind` |
+
+The key type and public key of a PEM file come from the key itself; `kind` is refused for PEM files. Refused: encrypted PKCS#8 (decrypt it first with `openssl pkcs8 -nocrypt`), PKCS#1 and SEC1 PEM (convert with `openssl pkcs8 -topk8 -nocrypt`), and public keys, which carry nothing secret and can be passed to `crypto_verify` as `publicKey` directly.
+
+Security model:
+
+- `path` is relative to `CRYPTO_MCP_KEY_DIR`. Absolute paths, `..` segments and control characters are refused. The path is resolved with `realpath`, so a symlink is followed, but a target outside the directory is refused; the last component is then opened with `O_NOFOLLOW` where the platform has it, and the file is checked again through the open descriptor. Only regular files are read.
+- The bytes read are overwritten with zeros once parsed; hex is decoded byte by byte, never into a string. The PEM text is parsed into a `KeyObject`, which cannot be wiped (see below).
+- Results carry the handle and public metadata (`source: "crypto_key_import"`, public key, size or curve) only. Errors never contain the file's contents or its absolute path.
+- Anyone who can call the server can import any key file in the directory, so put only keys meant for this server there.
 
 ---
 

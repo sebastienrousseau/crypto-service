@@ -29,6 +29,7 @@ async function buildFixtures(): Promise<void> {
     crypto_generate_key: { type: "ed25519" },
     crypto_key_list: {},
     crypto_key_destroy: { keyHandle: doomed.keyHandle },
+    crypto_key_import: { path: "absent.hex", kind: "symmetric-256" },
     crypto_inspect_key: { keyData: "x" },
     crypto_encrypt: {
       plaintext: "p",
