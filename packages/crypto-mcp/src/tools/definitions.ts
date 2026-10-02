@@ -19,6 +19,18 @@ export const RSA_MODULUS_LENGTHS = [2048, 3072, 4096];
 /** Elliptic curves accepted by `crypto_generate_key`. */
 export const EC_CURVES = ["prime256v1", "secp384r1", "secp256k1"];
 
+/** Environment variable naming the directory `crypto_key_import` reads. */
+export const KEY_DIR_ENV = "CRYPTO_MCP_KEY_DIR";
+
+/** Largest key file `crypto_key_import` reads, in bytes. */
+export const MAX_KEY_FILE_BYTES = 65_536;
+
+/** Longest `path` `crypto_key_import` accepts. */
+const MAX_KEY_PATH_LENGTH = 512;
+
+/** Kinds a raw 32-byte key file can be imported as. */
+const RAW_KEY_KINDS = ["symmetric-256", "hmac-sha256"];
+
 /** Digest algorithms accepted by `crypto_hash`. */
 export const HASH_ALGORITHMS = [
   "sha256",
@@ -148,6 +160,27 @@ const KEY_TOOLS: MCPTool[] = [
       additionalProperties: false,
       properties: { keyHandle: keyHandle("Handle of the key to destroy.") },
       required: ["keyHandle"],
+    },
+  },
+  {
+    name: "crypto_key_import",
+    description: `Import an existing key from a file in the directory the server operator set in ${KEY_DIR_ENV} (disabled when it is unset). Reads an unencrypted PKCS#8 PEM private key (Ed25519, RSA 2048/3072/4096, ECDSA P-256/P-384/secp256k1; the type comes from the key) or a raw 32-byte key, as 32 binary bytes or 64 hex digits, imported as 'symmetric-256' (default) or 'hmac-sha256'. Files over ${MAX_KEY_FILE_BYTES} bytes are refused. The key bytes never pass through the conversation. ${HANDLE_NOTE}`,
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        path: {
+          type: "string",
+          description: `Path of the key file, relative to ${KEY_DIR_ENV}. Absolute paths, '..' segments and symlinks that lead outside the directory are refused.`,
+          minLength: 1,
+          maxLength: MAX_KEY_PATH_LENGTH,
+        },
+        kind: oneOf(
+          "For a raw 32-byte key only: 'symmetric-256' (crypto_encrypt, crypto_decrypt, crypto_kms_wrap; default) or 'hmac-sha256' (crypto_sign, crypto_verify).",
+          RAW_KEY_KINDS,
+        ),
+      },
+      required: ["path"],
     },
   },
   {
