@@ -54,7 +54,7 @@
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
-    "typescript": "~5.9.3"
+    "typescript": "~7.0.2"
   },
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp",
   "repository": {
