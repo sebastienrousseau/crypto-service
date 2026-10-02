@@ -7,6 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { executeTool } from "../src";
 import { KEY_DIR_ENV, MAX_KEY_FILE_BYTES } from "../src/tools/definitions";
+import { readAtMost } from "../src/tools/keyimport";
 import { call, callError } from "./helpers";
 
 const IMPORT = "crypto_key_import";
@@ -339,5 +340,37 @@ describe("crypto_key_import", () => {
         expect(await refused(args)).to.include(message);
       }
     });
+  });
+});
+
+describe("readAtMost", () => {
+  /** A file handle that serves `data` in chunks of `chunk` bytes. */
+  function chunkedHandle(data: Buffer, chunk: number) {
+    let offset = 0;
+    return {
+      async read(buf: Buffer, at: number, length: number) {
+        const n = Math.min(chunk, length, data.length - offset);
+        data.copy(buf, at, offset, offset + n);
+        offset += n;
+        return { bytesRead: n, buffer: buf };
+      },
+    } as unknown as Parameters<typeof readAtMost>[0];
+  }
+
+  it("reads a file of exactly the limit through partial reads", async () => {
+    const data = crypto.randomBytes(10);
+    const out = await readAtMost(chunkedHandle(data, 3), 10);
+    expect(out.equals(data)).to.equal(true);
+  });
+
+  it("refuses a file that grew past the limit after the size check", async () => {
+    const data = crypto.randomBytes(11);
+    let error: Error | undefined;
+    try {
+      await readAtMost(chunkedHandle(data, 4), 10);
+    } catch (e) {
+      error = e as Error;
+    }
+    expect(error?.message).to.equal("Key file is larger than 10 bytes");
   });
 });

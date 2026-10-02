@@ -97,6 +97,30 @@ function checkFile(stats: fs.Stats): void {
 }
 
 /**
+ * Read at most `max` bytes through `handle`. One byte past the limit is
+ * requested so that a file which grew after the size check (a race the
+ * stat checks cannot close) is refused instead of read whole; the
+ * partial read is zeroed before refusing.
+ */
+export async function readAtMost(
+  handle: Pick<fs.promises.FileHandle, "read">,
+  max: number,
+): Promise<Buffer> {
+  const buf = Buffer.alloc(max + 1);
+  let length = 0;
+  for (;;) {
+    const { bytesRead } = await handle.read(buf, length, buf.length - length);
+    if (bytesRead === 0) break;
+    length += bytesRead;
+    if (length > max) {
+      buf.fill(0);
+      throw new Error(`Key file is larger than ${max} bytes`);
+    }
+  }
+  return buf.subarray(0, length);
+}
+
+/**
  * Read a resolved key file. It is checked before opening (a directory
  * cannot be opened everywhere) and again through the open descriptor, so
  * a file swapped after the first check is still refused.
@@ -106,7 +130,7 @@ async function readKeyFile(file: string): Promise<Buffer> {
   const handle = await fsStep(fs.promises.open(file, OPEN_FLAGS));
   try {
     checkFile(await fsStep(handle.stat()));
-    return await fsStep(handle.readFile());
+    return await readAtMost(handle, MAX_KEY_FILE_BYTES);
   } finally {
     await handle.close();
   }
