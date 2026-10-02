@@ -81,6 +81,14 @@ Run a subcommand, for scripts and CI:
 crypto-cli hash --json < file.txt
 crypto-cli hash --algorithm blake3 file.txt
 crypto-cli cbom scan src --output cbom.json
+
+openssl rand -hex 32 > secret.key && chmod 600 secret.key
+crypto-cli encrypt --key-file secret.key file.txt > file.txt.sealed
+crypto-cli decrypt --key-file secret.key file.txt.sealed > file.txt.out
+
+crypto-cli keygen --algorithm ed25519 --json > signer.json && chmod 600 signer.json
+crypto-cli sign --key-file signer.json file.txt > file.txt.sig
+crypto-cli verify --key-file signer.json --signature-file file.txt.sig file.txt
 ```
 
 Run it with no arguments in a terminal for the interactive menu:
@@ -142,9 +150,10 @@ crypto-cli is the command-line interface for the Crypto Service
 Suite. It offers both legacy OpenPGP commands (key generation,
 encryption, decryption, signing, verification, revocation) and
 modern v2 commands using `@noble/*` primitives with post-quantum
-algorithm support. Hashing, key generation and CBOM scan and audit
-also run as non-interactive subcommands with JSON output; every
-operation is available from the interactive menu.
+algorithm support. Hashing, key generation, symmetric encryption,
+signing, password hashing and CBOM scan and audit also run as
+non-interactive subcommands with JSON output; every operation is
+available from the interactive menu.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -183,12 +192,45 @@ With arguments, `crypto-cli` runs a subcommand instead of the menu:
   omitted or `-`.
 - Errors, usage and notes go to stderr.
 - Exit codes: `0` success, `1` the operation failed (unreadable input,
-  a cryptographic error, an invalid CBOM, a CBOM audit with status
-  `FAIL`), `2` usage error (unknown command or option, missing or
-  invalid argument).
+  a cryptographic error, a wrong key or modified ciphertext, a
+  signature or password that does not verify, an invalid CBOM, a CBOM
+  audit with status `FAIL`), `2` usage error (unknown command or
+  option, missing or invalid argument, no key or password source, key
+  and data both on standard input).
 - With no arguments, the interactive menu starts only when stdin and
   stdout are both terminals; otherwise usage goes to stderr and the
   exit code is `2`.
+
+Keys and passwords are never command-line values, which other users
+can see in the process list and shells keep in their history:
+
+- `encrypt`, `decrypt`, `sign` and `verify` read the key from
+  `--key-file <path>`, or from standard input with `--key-stdin`, in
+  which case the data must be a file argument (a run with both on
+  standard input exits `2`). `password hash` and `password verify`
+  take `--password-file <path>` or `--password-stdin` in the same way
+  (one trailing line break is ignored), and otherwise ask for the
+  password with a hidden prompt when standard input is a terminal
+  (twice for `password hash`).
+- `encrypt` and `decrypt` use XChaCha20-Poly1305 (crypto-lib's
+  secretbox). The key is 32 bytes, written as 64 hexadecimal
+  characters or raw. `encrypt` prints base64 of the 24-byte nonce,
+  the ciphertext and the 16-byte tag; `decrypt` reads that or the
+  `encrypt --json` line and writes the plaintext bytes unchanged
+  (base64 in its `--json` output).
+- `sign` reads a key pair saved from `keygen --json` (Ed25519,
+  Ed448, P-256, P-384 or ML-DSA) and prints the signature in hex.
+  `verify` reads the same file, or JSON with only `algorithm` and
+  `publicKey`, and prints `valid` or `invalid` (`{"valid": ...}` with
+  `--json`), exiting `1` when the signature does not verify.
+- `password hash` uses Argon2id with crypto-lib's defaults (t=3,
+  m=64 MiB, p=4) and prints a PHC string; `password verify` reads it
+  from a file or standard input.
+- On Linux and macOS, a secret file that its group or other users can
+  read gets a warning on stderr (`chmod 600` it); the command still
+  runs, because secrets mounted by container platforms are often
+  group- or world-readable. Windows has no such mode bits, so nothing
+  is checked there.
 
 The reference below is generated from the command definitions
 (`pnpm run readme:usage`); a test fails when it is out of date.
@@ -204,14 +246,23 @@ Cryptographic operations from the command line. Run without arguments in a
 terminal for the interactive menu.
 
 Options:
-  -V, --version          print the version
-  -h, --help             print help
+  -V, --version             print the version
+  -h, --help                print help
 
 Commands:
-  hash [options] [file]  Hash a file, or standard input when no file is given
-  keygen [options]       Generate a key pair (the private key is printed to
-                         stdout)
-  cbom                   Generate or audit a Cryptographic Bill of Materials
+  hash [options] [file]     Hash a file, or standard input when no file is given
+  keygen [options]          Generate a key pair (the private key is printed to
+                            stdout)
+  encrypt [options] [file]  Encrypt with XChaCha20-Poly1305 and print the sealed
+                            box as base64
+  decrypt [options] [file]  Decrypt the output of encrypt; exits 1 on a wrong
+                            key or modified input
+  sign [options] [file]     Sign a file with a key pair from keygen --json and
+                            print the signature in hex
+  verify [options] [file]   Verify a signature from sign; exits 1 when it is not
+                            valid
+  password                  Hash or verify a password (Argon2id)
+  cbom                      Generate or audit a Cryptographic Bill of Materials
 ```
 
 #### `crypto-cli hash`
@@ -246,6 +297,140 @@ Options:
   --kid <id>              key ID (default: thumbprint of the public key)
   --use <use>             intended key usage (choices: "sig", "enc")
   --json                  print the key pair as one line of JSON
+  -h, --help              print help
+```
+
+#### `crypto-cli encrypt`
+
+```text
+Usage: crypto-cli encrypt [options] [file]
+
+Encrypt with XChaCha20-Poly1305 and print the sealed box as base64
+
+Arguments:
+  file               file to encrypt; '-' or omitted reads standard input
+
+Options:
+  --key-file <path>  read the key from a file: 32 bytes, as 64 hex characters or
+                     raw
+  --key-stdin        read the key from standard input (the data must then be a
+                     file argument)
+  --json             print the result as one line of JSON
+  -h, --help         print help
+```
+
+#### `crypto-cli decrypt`
+
+```text
+Usage: crypto-cli decrypt [options] [file]
+
+Decrypt the output of encrypt; exits 1 on a wrong key or modified input
+
+Arguments:
+  file               output of encrypt (base64 or its --json line); '-' or
+                     omitted reads standard input
+
+Options:
+  --key-file <path>  read the key from a file: 32 bytes, as 64 hex characters or
+                     raw
+  --key-stdin        read the key from standard input (the data must then be a
+                     file argument)
+  --json             print the result as one line of JSON
+  -h, --help         print help
+```
+
+#### `crypto-cli sign`
+
+```text
+Usage: crypto-cli sign [options] [file]
+
+Sign a file with a key pair from keygen --json and print the signature in hex
+
+Arguments:
+  file               file to sign; '-' or omitted reads standard input
+
+Options:
+  --key-file <path>  read the key pair from a file: keygen --json output
+                     (ed25519, ed448, p256, p384, ml-dsa-44, ml-dsa-65,
+                     ml-dsa-87)
+  --key-stdin        read the key pair from standard input (the data must then
+                     be a file argument)
+  --json             print the result as one line of JSON
+  -h, --help         print help
+```
+
+#### `crypto-cli verify`
+
+```text
+Usage: crypto-cli verify [options] [file]
+
+Verify a signature from sign; exits 1 when it is not valid
+
+Arguments:
+  file                     file to verify; '-' or omitted reads standard input
+
+Options:
+  --key-file <path>        read the public key from a file: keygen --json
+                           output, or JSON with algorithm and publicKey
+  --key-stdin              read the public key from standard input (the data
+                           must then be a file argument)
+  --signature <hex>        the signature, in hex
+  --signature-file <path>  read the signature from a file (sign output or its
+                           --json line)
+  --json                   print the result as one line of JSON
+  -h, --help               print help
+```
+
+#### `crypto-cli password`
+
+```text
+Usage: crypto-cli password [options] [command]
+
+Hash or verify a password (Argon2id)
+
+Options:
+  -h, --help               print help
+
+Commands:
+  hash [options]           Hash a password with Argon2id (crypto-lib defaults:
+                           t=3, m=64 MiB, p=4) and print its PHC string
+  verify [options] [file]  Check a password against a PHC string; exits 1 when
+                           it does not match
+```
+
+#### `crypto-cli password hash`
+
+```text
+Usage: crypto-cli password hash [options]
+
+Hash a password with Argon2id (crypto-lib defaults: t=3, m=64 MiB, p=4) and
+print its PHC string
+
+Options:
+  --password-file <path>  read the password from a file: one trailing line break
+                          is ignored
+  --password-stdin        read the password from standard input
+  --json                  print the result as one line of JSON
+  -h, --help              print help
+```
+
+#### `crypto-cli password verify`
+
+```text
+Usage: crypto-cli password verify [options] [file]
+
+Check a password against a PHC string; exits 1 when it does not match
+
+Arguments:
+  file                    PHC string (password hash output or its --json line);
+                          '-' or omitted reads standard input
+
+Options:
+  --password-file <path>  read the password from a file: one trailing line break
+                          is ignored
+  --password-stdin        read the password from standard input (the data must
+                          then be a file argument)
+  --json                  print the result as one line of JSON
   -h, --help              print help
 ```
 

@@ -7,8 +7,11 @@ import { Command, CommanderError } from "commander";
 import { getVersion } from "../utils/version.utils";
 import { registerCbom } from "./cbom";
 import { registerHash } from "./hash";
-import { EXIT, type CliIO, type RunContext } from "./io";
+import { registerDecrypt, registerEncrypt } from "./encrypt";
+import { EXIT, UsageError, type CliIO, type RunContext } from "./io";
 import { registerKeygen } from "./keygen";
+import { registerPassword } from "./password";
+import { registerSign, registerVerify } from "./sign";
 
 export {
   EXIT,
@@ -39,6 +42,11 @@ export const buildProgram = (ctx: RunContext, version: string): Command => {
     .showSuggestionAfterError();
   registerHash(program, ctx);
   registerKeygen(program, ctx);
+  registerEncrypt(program, ctx);
+  registerDecrypt(program, ctx);
+  registerSign(program, ctx);
+  registerVerify(program, ctx);
+  registerPassword(program, ctx);
   registerCbom(program, ctx);
   return program;
 };
@@ -50,7 +58,7 @@ const exitCodeFor = (err: unknown, io: CliIO): number => {
     return err.exitCode === 0 ? EXIT.OK : EXIT.USAGE;
   }
   io.stderr(`crypto-cli: ${(err as Error).message}\n`);
-  return EXIT.FAILURE;
+  return err instanceof UsageError ? EXIT.USAGE : EXIT.FAILURE;
 };
 
 /**
