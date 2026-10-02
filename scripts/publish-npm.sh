@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
-# Publish every public workspace package to npm.
+# Stage every public workspace package for publishing on npm.
 #
 # Each package is packed with pnpm, which rewrites `workspace:*`
-# dependencies to real versions, and the tarball is published with the
-# npm CLI. npm (>= 11.5.1) authenticates through npm trusted publishing
-# (GitHub OIDC) when the package has a trusted publisher configured on
-# npmjs.com, and falls back to NODE_AUTH_TOKEN otherwise; pnpm 9's own
-# publish does neither the OIDC exchange nor provenance reliably.
+# dependencies to real versions, and the tarball is staged with
+# `npm stage publish`. npm (>= 11.5.1) authenticates through npm trusted
+# publishing (GitHub OIDC); every package's trusted publisher allows
+# staging only, so nothing goes public until a maintainer approves each
+# staged version with 2FA (`npm stage approve`, see DEVELOPMENT.md).
+# pnpm 9's own publish does neither the OIDC exchange nor staging.
 #
-# Versions already on the registry are skipped, so a re-run after a
-# partial failure publishes only what is missing.
+# Versions already published are skipped. A version that is already
+# staged cannot be staged again, so every package is attempted and the
+# script fails at the end, naming the packages that could not be staged.
 #
 # Usage: scripts/publish-npm.sh [--dry-run]
 set -euo pipefail
@@ -26,6 +28,7 @@ fi
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
+failed=()
 for dir in packages/crypto-*/; do
   read -r name version private < <(node -e '
     const p = require(process.argv[1]);
@@ -39,6 +42,14 @@ for dir in packages/crypto-*/; do
     continue
   fi
   tarball="$(cd "$dir" && pnpm pack --pack-destination "$work" | tail -n 1)"
-  npm publish "$tarball" --access public --provenance "${dry_run[@]}"
-  echo "publish-npm: ${name}@${version} published${dry_run:+ (dry run)}"
+  if npm stage publish "$tarball" --access public --provenance "${dry_run[@]}"; then
+    echo "publish-npm: ${name}@${version} staged${dry_run:+ (dry run)}"
+  else
+    failed+=("${name}@${version}")
+  fi
 done
+
+if ((${#failed[@]} > 0)); then
+  echo "publish-npm: could not stage: ${failed[*]}" >&2
+  exit 1
+fi

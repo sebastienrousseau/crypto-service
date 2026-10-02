@@ -51,19 +51,12 @@ jobs:
           generate_release_notes: true
 
       # Packs each package with pnpm (resolving workspace:* versions) and
-      # publishes the tarball with npm, which authenticates through the
-      # trusted publisher configured on npmjs.com and falls back to the
-      # NPM_TOKEN secret while that is not set up. Versions already on
-      # the registry are skipped.
-      - name: Publish to npm
+      # stages the tarball with `npm stage publish`, authenticated by npm
+      # trusted publishing (OIDC). The trusted publishers allow staging
+      # only: a maintainer approves each staged version with 2FA, then
+      # runs the "Verify npm release" workflow to check provenance.
+      - name: Stage npm releases
         run: scripts/publish-npm.sh
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # Read every published version back and fail if npm has no
-      # provenance attestation for it.
-      - name: Verify npm provenance
-        run: node scripts/check-provenance.mjs "${GITHUB_REF_NAME#v}"
 
       - name: Publish to GitHub Packages
         run: |
