@@ -73,3 +73,5 @@ crypto-service/
 - Active work for an upcoming version belongs on a dedicated branch named `feat/v<version>`.
 - All 18 packages move in lockstep.
 - Commits must follow Conventional Commits, be SSH-signed, and include DCO signoffs (`git commit -s -S`).
+- Pushing a signed `v<version>` tag runs `.github/workflows/release.yml`, which publishes all 18 packages to npm with `scripts/publish-npm.sh` and to GitHub Packages, then fails unless every npm version carries a provenance attestation (`scripts/check-provenance.mjs`).
+- npm authentication uses [trusted publishing](https://docs.npmjs.com/trusted-publishers): each package on npmjs.com names this repository and the `release.yml` workflow as its trusted publisher, so no long-lived token is needed. The `NPM_TOKEN` secret is only a fallback for a package without a trusted publisher.

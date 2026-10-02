@@ -50,20 +50,20 @@ jobs:
         with:
           generate_release_notes: true
 
-      # Fails rather than silently skipping when the token is missing.
-      # pnpm skips package versions that are already on the registry.
+      # npm trusted publishing (GitHub OIDC, provenance included) needs
+      # npm >= 11.5.1; Node 22's bundled npm is older.
+      - name: Install npm for trusted publishing
+        run: npm install -g npm@11.21.0
+
+      # Packs each package with pnpm (resolving workspace:* versions) and
+      # publishes the tarball with npm, which authenticates through the
+      # trusted publisher configured on npmjs.com and falls back to the
+      # NPM_TOKEN secret while that is not set up. Versions already on
+      # the registry are skipped.
       - name: Publish to npm
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::NPM_TOKEN secret is not set; cannot publish to npm."
-            exit 1
-          fi
-          pnpm -r publish --access public --no-git-checks
+        run: scripts/publish-npm.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # pnpm -r publish does not forward --provenance to npm (0.0.8
-          # shipped without attestations); npm reads it from the env.
-          NPM_CONFIG_PROVENANCE: "true"
 
       # Read every published version back and fail if npm has no
       # provenance attestation for it.
