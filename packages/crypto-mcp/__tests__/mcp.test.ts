@@ -45,7 +45,8 @@ describe("Crypto MCP Server Suite", () => {
         capabilities: { tools: unknown };
       };
       expect(initResult.serverInfo.name).to.equal("crypto-service");
-      expect(initResult.protocolVersion).to.equal("2024-11-05");
+      // No revision requested: the newest this server implements.
+      expect(initResult.protocolVersion).to.equal("2025-11-25");
       expect(initResult.capabilities.tools).to.exist;
     });
 
@@ -486,12 +487,13 @@ describe("Crypto MCP Server Suite", () => {
         (res.result as { content: Array<{ text: string }> }).content[0].text,
       ).to.include("sha256");
 
+      // A tools/call without a tool name is Invalid params (-32602).
       const noParamsRes = await server.handleRequest({
         jsonrpc: "2.0",
         id: 21,
         method: "tools/call",
       });
-      expect(noParamsRes.result).to.exist;
+      expect(noParamsRes.error?.code).to.equal(-32602);
 
       const noParamsResource = await server.handleRequest({
         jsonrpc: "2.0",

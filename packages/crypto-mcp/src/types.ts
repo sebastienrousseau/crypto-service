@@ -54,10 +54,21 @@ export interface MCPToolInputSchema {
   additionalProperties: false;
 }
 
+/** Tool behaviour hints (MCP 2025-03-26 and later). */
+export interface MCPToolAnnotations {
+  title?: string;
+  readOnlyHint?: boolean;
+  destructiveHint?: boolean;
+  idempotentHint?: boolean;
+  openWorldHint?: boolean;
+}
+
 export interface MCPTool {
   name: string;
+  title?: string;
   description: string;
   inputSchema: MCPToolInputSchema;
+  annotations?: MCPToolAnnotations;
 }
 
 export interface MCPTextContent {
@@ -123,4 +134,5 @@ export interface MCPInitializeResult {
   protocolVersion: string;
   capabilities: MCPServerCapabilities;
   serverInfo: MCPServerInfo;
+  instructions?: string;
 }

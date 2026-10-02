@@ -7,6 +7,21 @@ import { JSONRPCRequest, JSONRPCResponse, MCPInitializeResult } from "./types";
 import { TOOLS, executeTool } from "./tools";
 import { RESOURCES, readResource } from "./resources";
 import { PROMPTS, getPrompt } from "./prompts";
+import {
+  McpError,
+  isNotification,
+  negotiateProtocolVersion,
+  requireArguments,
+  requireName,
+  requirePromptArguments,
+} from "./protocol";
+
+/** Server instructions sent at initialize (MCP 2025-03-26 and later). */
+export const SERVER_INSTRUCTIONS =
+  "Cryptographic tools that keep key material inside this server: " +
+  "generate or import a key to get a handle, then pass the handle to " +
+  "encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private " +
+  "or secret key.";
 
 /**
  * Version of this package, read from its package.json at runtime so the
@@ -55,7 +70,9 @@ export class CryptoMcpServer {
         case "initialize": {
           this.initialized = true;
           const result: MCPInitializeResult = {
-            protocolVersion: "2024-11-05",
+            protocolVersion: negotiateProtocolVersion(
+              request.params?.protocolVersion,
+            ),
             capabilities: {
               tools: {},
               resources: {},
@@ -65,6 +82,7 @@ export class CryptoMcpServer {
               name: this.name,
               version: this.version,
             },
+            instructions: SERVER_INSTRUCTIONS,
           };
           return { jsonrpc: "2.0", id, result };
         }
@@ -78,12 +96,8 @@ export class CryptoMcpServer {
         }
 
         case "tools/call": {
-          const params = request.params;
-          const toolName = params ? String(params.name) : "";
-          const toolArgs =
-            params && params.arguments
-              ? (params.arguments as Record<string, unknown>)
-              : {};
+          const toolName = requireName(request.params, TOOLS, "tool");
+          const toolArgs = requireArguments(request.params);
           const result = await executeTool(toolName, toolArgs);
           return { jsonrpc: "2.0", id, result };
         }
@@ -104,12 +118,11 @@ export class CryptoMcpServer {
         }
 
         case "prompts/get": {
-          const params = request.params;
-          const promptName = params ? String(params.name) : "";
-          const promptArgs =
-            params && params.arguments
-              ? (params.arguments as Record<string, string>)
-              : {};
+          const promptName = requireName(request.params, PROMPTS, "prompt");
+          const promptArgs = requirePromptArguments(
+            PROMPTS.find((p) => p.name === promptName)?.arguments,
+            requireArguments(request.params),
+          );
           const result = await getPrompt(promptName, promptArgs);
           return { jsonrpc: "2.0", id, result };
         }
@@ -129,7 +142,7 @@ export class CryptoMcpServer {
         jsonrpc: "2.0",
         id,
         error: {
-          code: -32603,
+          code: err instanceof McpError ? err.code : -32603,
           message: (err as Error).message,
         },
       };
@@ -155,6 +168,8 @@ export class CryptoMcpServer {
       try {
         const req = JSON.parse(trimmed) as JSONRPCRequest;
         const res = await this.handleRequest(req);
+        // A notification (no id) is processed but never answered.
+        if (isNotification(req)) return;
         output.write(JSON.stringify(res) + "\n");
       } catch {
         const parseError: JSONRPCResponse = {

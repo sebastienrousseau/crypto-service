@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **crypto-mcp protocol conformance** (found by passmcp): `tools/call` without a valid tool name and `prompts/get` without a required argument now return JSON-RPC `-32602` instead of succeeding; notifications (`notifications/initialized`) are no longer answered; the server negotiates MCP 2025-11-25 (or the client's supported revision) instead of always 2024-11-05, sends `instructions`, and every tool declares a `title` and behaviour annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`). passmcp now scores the server 98/100 with no failures, up from 90 with two.
 - **crypto-server email validation (ReDoS)**: `validateEmail` used `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`, which backtracks polynomially (about 0.9 s for a 40 KB crafted string, flagged by CodeQL). It now checks the same strings in linear time.
 - **crypto-middleware on Fastify 5**: the Fastify plugin declared `fastify: "4.x"` to fastify-plugin, so registering it on Fastify 5 (the version crypto-server uses) threw "expected '4.x' fastify version". It now accepts 4.x and 5.x, and the peer dependency is `^4.0.0 || ^5.0.0`.
 - **crypto-cli closed pipes**: piping output into a reader that stops early (`crypto-cli cbom scan . --json | head`) crashed with an unhandled `EPIPE` stack trace and exit code 1. The CLI now stops quietly with exit code 0, as Unix tools do.

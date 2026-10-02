@@ -2,6 +2,7 @@
 
 import { MCPTool, MCPToolParameterProperty } from "../types";
 import { KEY_HANDLE_PATTERN, MAX_KEYS } from "./keystore";
+import { annotationsFor } from "./annotations";
 
 /** Key types accepted by `crypto_generate_key`. */
 export const KEY_TYPES = [
@@ -382,10 +383,13 @@ const KMS_AND_AUDIT_TOOLS: MCPTool[] = [
   },
 ];
 
-/** JSON-schema definitions of every tool exposed by the MCP server. */
+/**
+ * JSON-schema definitions of every tool exposed by the MCP server, with
+ * their titles and behaviour annotations (see annotations.ts).
+ */
 export const TOOLS: MCPTool[] = [
   ...KEY_TOOLS,
   ...CIPHER_TOOLS,
   ...SIGNATURE_TOOLS,
   ...KMS_AND_AUDIT_TOOLS,
-];
+].map((tool) => ({ ...tool, ...annotationsFor(tool.name) }));
