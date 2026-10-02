@@ -16,6 +16,9 @@ security vulnerability, please report it responsibly.
 
 **Email:** [security@crypto-service.co](mailto:security@crypto-service.co)
 
+**GitHub:** [report a vulnerability privately](https://github.com/sebastienrousseau/crypto-service/security/advisories/new)
+through GitHub's private vulnerability reporting.
+
 Please include:
 
 - A description of the vulnerability
