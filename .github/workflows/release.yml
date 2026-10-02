@@ -22,7 +22,7 @@ jobs:
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 24 # bundles npm >= 11.5.1, needed for npm trusted publishing
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
@@ -49,11 +49,6 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           generate_release_notes: true
-
-      # npm trusted publishing (GitHub OIDC, provenance included) needs
-      # npm >= 11.5.1; Node 22's bundled npm is older.
-      - name: Install npm for trusted publishing
-        run: npm install -g npm@11.21.0
 
       # Packs each package with pnpm (resolving workspace:* versions) and
       # publishes the tarball with npm, which authenticates through the
