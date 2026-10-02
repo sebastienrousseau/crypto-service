@@ -1,7 +1,8 @@
 name: Verify npm release
 
-# Run after approving the staged npm versions of a release: fails unless
-# every package is public at that version with a provenance attestation.
+# Re-check a released version on demand (the release workflow runs the
+# same check after publishing): fails unless every package is public at
+# that version with a provenance attestation.
 
 on:
   workflow_dispatch:

@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **One approval per npm release**: npm versions are no longer staged for per-package 2FA approval (18 approvals for 0.0.9). The release workflow packs the tarballs once after the tests; a separate `npm` job runs in the `npm` GitHub environment, which waits for a maintainer to approve the run once, then publishes those exact tarballs through npm trusted publishing (`scripts/pack-npm.sh`, `scripts/publish-npm.sh`) and checks provenance. Each package's trusted publisher accepts only that environment.
+
 ## [0.0.9] - 2026-10-02
 
 ### Security
