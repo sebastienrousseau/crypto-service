@@ -86,8 +86,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@sebastienrousseau/prettier-config':
         specifier: ^0.0.7
         version: 0.0.7(prettier@3.9.9)
@@ -278,8 +278,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@sebastienrousseau/prettier-config':
         specifier: ^0.0.7
         version: 0.0.7(prettier@3.9.9)
@@ -360,8 +360,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -611,8 +611,8 @@ importers:
         version: 6.0.0
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -700,8 +700,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -751,8 +751,8 @@ importers:
         specifier: workspace:*
         version: link:../crypto-server
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -921,8 +921,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -967,8 +967,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -1016,8 +1016,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -1323,8 +1323,16 @@ packages:
     resolution: {integrity: sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/helper-string-parser@7.29.7':
+    resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/helper-validator-identifier@7.28.5':
     resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-identifier@7.29.7':
+    resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/parser@7.29.3':
@@ -1332,8 +1340,17 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  '@babel/parser@7.29.9':
+    resolution: {integrity: sha512-CjXrNHTnvqBVqHgdBysY3vk2T8tpJHb5/RMeHJBTyVa9xgugCB0CJTx/3oO8RV2QRQP391RWpB7D6hLjm8V9uA==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
   '@babel/types@7.29.0':
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.29.8':
+    resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@1.0.2':
@@ -1958,8 +1975,11 @@ packages:
   '@sebastienrousseau/markdownlint-config@0.0.1':
     resolution: {integrity: sha512-mEQLTxoCWFPjM22misoFbJsQYBhnkD9umQZLBUBna3iVgItTK4t7rM7zFNxJTPTnmz21zbcr4CGqy9a4tiyRag==}
 
-  '@sebastienrousseau/mocha-config@0.0.5':
-    resolution: {integrity: sha512-r9UX5OOZJ95yCpTkqeT8808YQrnd/L1MFLN4uRfkeNrApPSYZRM8gJQCBiVAOYv+XsXZPUGTP0T2SEwezy76zw==}
+  '@sebastienrousseau/mocha-config@0.0.7':
+    resolution: {integrity: sha512-cBtTjlddn/Ki6/A+hKVI0uSGwfsEsmNEu/vXpqJ8x8aksmZ/BER3vY8EriTQ9jyEAH5nkEOXRpNUpgrS7C1PAQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      mocha: '>=10.0.0'
 
   '@sebastienrousseau/prettier-config@0.0.7':
     resolution: {integrity: sha512-TTp8tUBUQoUQDRz/GP6b+yDCk16+tlhqH+f2FZj5JBidvkvDC+loFdbTTObGfInxRMY0VDUBbJF5cxRXM3wPFg==}
@@ -5805,16 +5825,29 @@ snapshots:
 
   '@babel/helper-string-parser@7.27.1': {}
 
+  '@babel/helper-string-parser@7.29.7': {}
+
   '@babel/helper-validator-identifier@7.28.5': {}
+
+  '@babel/helper-validator-identifier@7.29.7': {}
 
   '@babel/parser@7.29.3':
     dependencies:
       '@babel/types': 7.29.0
 
+  '@babel/parser@7.29.9':
+    dependencies:
+      '@babel/types': 7.29.8
+
   '@babel/types@7.29.0':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
+
+  '@babel/types@7.29.8':
+    dependencies:
+      '@babel/helper-string-parser': 7.29.7
+      '@babel/helper-validator-identifier': 7.29.7
 
   '@bcoe/v8-coverage@1.0.2': {}
 
@@ -6578,7 +6611,9 @@ snapshots:
 
   '@sebastienrousseau/markdownlint-config@0.0.1': {}
 
-  '@sebastienrousseau/mocha-config@0.0.5': {}
+  '@sebastienrousseau/mocha-config@0.0.7(mocha@12.0.3)':
+    dependencies:
+      mocha: 12.0.3
 
   '@sebastienrousseau/prettier-config@0.0.7(prettier@3.9.9)':
     dependencies:
@@ -8297,7 +8332,7 @@ snapshots:
 
   jsdoc@4.0.5:
     dependencies:
-      '@babel/parser': 7.29.3
+      '@babel/parser': 7.29.9
       '@jsdoc/salty': 0.2.12
       '@types/markdown-it': 14.2.0
       bluebird: 3.7.2
