@@ -121,6 +121,15 @@ done
       process.exit(1);
     }
   '
+  # encrypt | decrypt with a key file returns the input byte for byte.
+  node -e 'process.stdout.write(require("crypto").randomBytes(32).toString("hex"))' >secret.key
+  chmod 600 secret.key
+  ./node_modules/.bin/crypto-cli encrypt --key-file secret.key input.txt |
+    ./node_modules/.bin/crypto-cli decrypt --key-file secret.key >roundtrip.txt
+  cmp -s input.txt roundtrip.txt || {
+    echo "pack-smoke: crypto-cli encrypt | decrypt changed the data" >&2
+    exit 1
+  }
 )
 
 cd "$work/crypto-server"
