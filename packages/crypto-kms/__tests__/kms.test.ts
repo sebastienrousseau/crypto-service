@@ -22,6 +22,9 @@ interface AwsInternals {
   getClient: () => Promise<unknown>;
 }
 
+// Disable AWS EC2 metadata lookup to avoid network timeouts in CI/sandboxes
+process.env.AWS_EC2_METADATA_DISABLED = "true";
+
 // ---------------------------------------------------------------------------
 // Types – compile-time shape verification
 // ---------------------------------------------------------------------------
@@ -1929,14 +1932,8 @@ describe("AwsKmsProvider", () => {
           secretAccessKey: "secret",
         },
       });
-      // getClient will create a real client via the AWS SDK since it's installed
-      // This exercises the credentials branch in getClient
-      try {
-        // Trigger getClient, which will set credentials in config
-        await p.listKeys();
-      } catch {
-        // Will fail on actual API call, but getClient code was exercised
-      }
+      const client = await (p as unknown as AwsInternals).getClient();
+      expect(client).to.exist;
     });
 
     it("getClient with endpoint sets config.endpoint", async () => {
@@ -1944,11 +1941,8 @@ describe("AwsKmsProvider", () => {
         region: "us-east-1",
         endpoint: "http://localhost:4566",
       });
-      try {
-        await p.listKeys();
-      } catch {
-        // Will fail on actual API call, but getClient code was exercised
-      }
+      const client = await (p as unknown as AwsInternals).getClient();
+      expect(client).to.exist;
     });
 
     it("getClient caches client on second call", async () => {
