@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-server",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Crypto Server is a Fastify web server that exposes easy consumable REST APIs to perform low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -84,7 +84,7 @@
     "chai-as-promised": "^8.0.2",
     "fast-check": "^4.10.2",
     "mocha": "^12.0.3",
-    "openpgp": "^6.3.1",
+    "openpgp": "^6.3.2",
     "prettier": "^3.9.9",
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",

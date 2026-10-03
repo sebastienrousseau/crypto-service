@@ -331,5 +331,230 @@ describe("Server-side key custody (F28, F29)", function () {
         expect(() => statSync(path.join(dir, `${key.keyId}.json`))).to.throw();
       });
     });
+
+    describe("at-rest envelope encryption", () => {
+      const storageKeyHex =
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+      it("encrypts private key material on disk with AES-256-GCM", async () => {
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        const stored = await store.put(KEY);
+        const fileContent = JSON.parse(
+          readFileSync(path.join(dir, `${stored.keyId}.json`), "utf8"),
+        ) as Record<string, unknown>;
+
+        expect(fileContent["privateParts"]).to.be.undefined;
+        expect(fileContent["encryptedPrivateParts"]).to.be.an("object");
+        const enc = fileContent["encryptedPrivateParts"] as Record<
+          string,
+          unknown
+        >;
+        expect(enc["alg"]).to.equal("aes-256-gcm");
+        expect(enc["ciphertext"]).to.be.a("string");
+        expect(enc["iv"]).to.be.a("string");
+        expect(enc["tag"]).to.be.a("string");
+
+        // Can read back after eviction or restart
+        const restarted = new KeyStore(dir, 10, storageKeyHex);
+        const retrieved = await restarted.get(stored.keyId, "alice");
+        expect(retrieved.privateParts).to.deep.equal({ privateKey: "bb" });
+      });
+
+      it("supports Buffer and passphrase strings as storage keys", async () => {
+        const bufKey = Buffer.alloc(32, 0x42);
+        const bufStore = new KeyStore(dir, 10, bufKey);
+        const k1 = await bufStore.put(KEY);
+        const restartedBuf = new KeyStore(dir, 10, bufKey);
+        expect(
+          (await restartedBuf.get(k1.keyId, "alice")).privateParts,
+        ).to.deep.equal({
+          privateKey: "bb",
+        });
+
+        const passphraseStore = new KeyStore(dir, 10, "my-secret-passphrase");
+        const k2 = await passphraseStore.put(KEY);
+        const restartedPass = new KeyStore(dir, 10, "my-secret-passphrase");
+        expect(
+          (await restartedPass.get(k2.keyId, "alice")).privateParts,
+        ).to.deep.equal({
+          privateKey: "bb",
+        });
+      });
+
+      it("fails with STORAGE_KEY_REQUIRED if reading encrypted key without storageKey", async () => {
+        const encryptedStore = new KeyStore(dir, 10, storageKeyHex);
+        const stored = await encryptedStore.put(KEY);
+
+        const unkeyedStore = new KeyStore(dir, 10, undefined);
+        let err: KeyStoreError | undefined;
+        try {
+          await unkeyedStore.get(stored.keyId, "alice");
+        } catch (e) {
+          err = e as KeyStoreError;
+        }
+        expect(err).to.be.instanceOf(KeyStoreError);
+        expect(err?.code).to.equal("STORAGE_KEY_REQUIRED");
+        expect(err?.statusCode).to.equal(500);
+      });
+
+      it("detects tampered ciphertext or auth tag (KEY_INTEGRITY_FAILED)", async () => {
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        const stored = await store.put(KEY);
+        const filePath = path.join(dir, `${stored.keyId}.json`);
+        const fileContent = JSON.parse(readFileSync(filePath, "utf8")) as {
+          encryptedPrivateParts: { ciphertext: string };
+        };
+
+        // Tamper with ciphertext
+        const rawCt = Buffer.from(
+          fileContent.encryptedPrivateParts.ciphertext,
+          "base64",
+        );
+        rawCt[0] ^= 0xff;
+        fileContent.encryptedPrivateParts.ciphertext = rawCt.toString("base64");
+        writeFileSync(filePath, JSON.stringify(fileContent));
+
+        const testStore = new KeyStore(dir, 10, storageKeyHex);
+        let err: KeyStoreError | undefined;
+        try {
+          await testStore.get(stored.keyId, "alice");
+        } catch (e) {
+          err = e as KeyStoreError;
+        }
+        expect(err).to.be.instanceOf(KeyStoreError);
+        expect(err?.code).to.equal("KEY_INTEGRITY_FAILED");
+        expect(err?.statusCode).to.equal(500);
+      });
+
+      it("detects ciphertext spliced into another key (AAD mismatch)", async () => {
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        const key1 = await store.put(KEY);
+        const key2 = await store.put({ ...KEY, owner: "bob" });
+
+        const path1 = path.join(dir, `${key1.keyId}.json`);
+        const path2 = path.join(dir, `${key2.keyId}.json`);
+
+        const content1 = JSON.parse(readFileSync(path1, "utf8")) as Record<
+          string,
+          unknown
+        >;
+        const content2 = JSON.parse(readFileSync(path2, "utf8")) as Record<
+          string,
+          unknown
+        >;
+
+        // Splice key1's encrypted ciphertext into key2's record
+        content2["encryptedPrivateParts"] = content1["encryptedPrivateParts"];
+        writeFileSync(path2, JSON.stringify(content2));
+
+        const testStore = new KeyStore(dir, 10, storageKeyHex);
+        let err: KeyStoreError | undefined;
+        try {
+          await testStore.get(key2.keyId, "bob");
+        } catch (e) {
+          err = e as KeyStoreError;
+        }
+        expect(err?.code).to.equal("KEY_INTEGRITY_FAILED");
+      });
+
+      it("reads legacy unencrypted keys transparently (backwards compatibility)", async () => {
+        const unencryptedStore = new KeyStore(dir, 10, undefined);
+        const stored = await unencryptedStore.put(KEY);
+
+        // Store with storageKey configured should still read legacy unencrypted file
+        const keyedStore = new KeyStore(dir, 10, storageKeyHex);
+        const retrieved = await keyedStore.get(stored.keyId, "alice");
+        expect(retrieved.privateParts).to.deep.equal({ privateKey: "bb" });
+      });
+
+      it("fails if key file is corrupted and has no private material", async () => {
+        const filePath = path.join(dir, `k_${"0".repeat(22)}.json`);
+        writeFileSync(
+          filePath,
+          JSON.stringify({
+            keyId: `k_${"0".repeat(22)}`,
+            algorithm: "ed25519",
+            owner: "alice",
+            createdAt: new Date().toISOString(),
+            publicParts: { publicKey: "aa" },
+          }),
+        );
+
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        let err: KeyStoreError | undefined;
+        try {
+          await store.get(`k_${"0".repeat(22)}`, "alice");
+        } catch (e) {
+          err = e as KeyStoreError;
+        }
+        expect(err?.code).to.equal("KEY_CORRUPTED");
+      });
+
+      it("fails if encrypted algorithm is unsupported", async () => {
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        const stored = await store.put(KEY);
+        const filePath = path.join(dir, `${stored.keyId}.json`);
+        const content = JSON.parse(readFileSync(filePath, "utf8")) as {
+          encryptedPrivateParts: { alg: string };
+        };
+        content.encryptedPrivateParts.alg = "unknown-cipher";
+        writeFileSync(filePath, JSON.stringify(content));
+
+        const testStore = new KeyStore(dir, 10, storageKeyHex);
+        let err: KeyStoreError | undefined;
+        try {
+          await testStore.get(stored.keyId, "alice");
+        } catch (e) {
+          err = e as KeyStoreError;
+        }
+        expect(err?.code).to.equal("UNSUPPORTED_STORAGE_ALGORITHM");
+      });
+
+      it("keyStoreFromEnv reads CRYPTO_KEY_STORAGE_KEY", async () => {
+        await withEnv(
+          { CRYPTO_KEY_OUT_DIR: dir, CRYPTO_KEY_STORAGE_KEY: storageKeyHex },
+          async () => {
+            const store = keyStoreFromEnv();
+            const key = await store.put(KEY);
+            const raw = JSON.parse(
+              readFileSync(path.join(dir, `${key.keyId}.json`), "utf8"),
+            ) as Record<string, unknown>;
+            expect(raw["encryptedPrivateParts"]).to.be.an("object");
+          },
+        );
+      });
+
+      it("handles non-32 byte Uint8Array and whitespace-only string storage keys", async () => {
+        const shortArray = new Uint8Array([1, 2, 3, 4]);
+        const shortStore = new KeyStore(dir, 10, shortArray);
+        const k1 = await shortStore.put(KEY);
+        const restartedShort = new KeyStore(dir, 10, shortArray);
+        expect(
+          (await restartedShort.get(k1.keyId, "alice")).privateParts,
+        ).to.deep.equal({
+          privateKey: "bb",
+        });
+
+        const emptyStore = new KeyStore(dir, 10, "   ");
+        const k2 = await emptyStore.put(KEY);
+        const raw = JSON.parse(
+          readFileSync(path.join(dir, `${k2.keyId}.json`), "utf8"),
+        ) as Record<string, unknown>;
+        expect(raw["privateParts"]).to.deep.equal({ privateKey: "bb" });
+      });
+
+      it("returns 404 when key file on disk contains malformed JSON", async () => {
+        const keyId = `k_${"A".repeat(22)}`;
+        writeFileSync(path.join(dir, `${keyId}.json`), "{invalid json");
+        const store = new KeyStore(dir, 10, storageKeyHex);
+        let status: number | undefined;
+        try {
+          await store.get(keyId, "alice");
+        } catch (e) {
+          status = (e as KeyStoreError).statusCode;
+        }
+        expect(status).to.equal(404);
+      });
+    });
   });
 });

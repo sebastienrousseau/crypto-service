@@ -2,7 +2,15 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { ed25519Sign, ed25519Verify } from "@sebastienrousseau/crypto-lib";
+import {
+  ed25519Sign,
+  ed25519Verify,
+  wipeMemory,
+} from "@sebastienrousseau/crypto-lib";
+import {
+  streamPqEncrypt,
+  streamPqDecrypt,
+} from "@sebastienrousseau/crypto-lib/streaming";
 import {
   verifyIso20022Payment,
   type Iso20022DualSignatureEnvelope,
@@ -159,6 +167,43 @@ const ISO20022_SCHEMA = {
   },
 };
 
+/** Request schema for `POST /v2/stream/pq-encrypt`. */
+const STREAM_PQ_ENCRYPT_SCHEMA = {
+  tags: ["Streaming"],
+  summary: "Encrypt stream with hybrid post-quantum AEAD",
+  description:
+    "Encrypts plaintext using chunked hybrid post-quantum STREAM (X25519 + ML-KEM-768 + XChaCha20-Poly1305).",
+  body: {
+    type: "object",
+    required: ["x25519PublicKey", "mlKemPublicKey", "plaintext"],
+    additionalProperties: false,
+    properties: {
+      x25519PublicKey: { type: "string", minLength: 64, maxLength: 64 },
+      mlKemPublicKey: { type: "string", minLength: 1 },
+      plaintext: { type: "string", minLength: 1 },
+      chunkSize: { type: "integer", minimum: 64, maximum: 1048576 },
+    },
+  },
+};
+
+/** Request schema for `POST /v2/stream/pq-decrypt`. */
+const STREAM_PQ_DECRYPT_SCHEMA = {
+  tags: ["Streaming"],
+  summary: "Decrypt stream with server-held hybrid post-quantum key",
+  description:
+    "Decrypts hybrid post-quantum STREAM ciphertext using a server-held x25519-ml-kem-768 key.",
+  body: {
+    type: "object",
+    required: ["keyId", "ciphertext"],
+    additionalProperties: false,
+    properties: {
+      keyId: KEY_ID_SCHEMA,
+      ciphertext: { type: "string", minLength: 1 },
+      chunkSize: { type: "integer", minimum: 64, maximum: 1048576 },
+    },
+  },
+};
+
 /**
  * Resolve every distinct `keyId` in a batch once, as server-held ed25519
  * keys of the requesting principal. Throws on the first unknown key.
@@ -278,9 +323,85 @@ function registerIso20022Verify(app: FastifyInstance): void {
   );
 }
 
+/** Hybrid post-quantum stream encryption endpoint. */
+function registerStreamPqEncrypt(app: FastifyInstance): void {
+  app.post(
+    "/v2/stream/pq-encrypt",
+    { schema: STREAM_PQ_ENCRYPT_SCHEMA },
+    async (request, reply) => {
+      try {
+        const { x25519PublicKey, mlKemPublicKey, plaintext, chunkSize } =
+          request.body as {
+            x25519PublicKey: string;
+            mlKemPublicKey: string;
+            plaintext: string;
+            chunkSize?: number;
+          };
+        const ptBytes = Buffer.from(plaintext, "utf8");
+        const res = streamPqEncrypt({
+          recipientX25519Public: x25519PublicKey,
+          recipientMlKemPublic: mlKemPublicKey,
+          plaintext: ptBytes,
+          ...(chunkSize !== undefined ? { chunkSize } : {}),
+        });
+        return reply.send({
+          data: {
+            ciphertext: Buffer.from(res.ciphertext).toString("base64"),
+            algorithm: res.algorithm,
+          },
+        });
+      } catch (error) {
+        return classifyCryptoError(
+          error,
+          request,
+          reply,
+          "PQ stream encryption",
+        );
+      }
+    },
+  );
+}
+
+/** Hybrid post-quantum stream decryption endpoint. */
+function registerStreamPqDecrypt(app: FastifyInstance): void {
+  app.post(
+    "/v2/stream/pq-decrypt",
+    { schema: STREAM_PQ_DECRYPT_SCHEMA },
+    async (request, reply) => {
+      const { keyId, ciphertext, chunkSize } = request.body as {
+        keyId: string;
+        ciphertext: string;
+        chunkSize?: number;
+      };
+      const key = await resolveKey(request, keyId, ["x25519-ml-kem-768"]);
+      try {
+        const ctBytes = Buffer.from(ciphertext, "base64");
+        const decrypted = streamPqDecrypt({
+          recipientX25519Secret: key.privateParts["x25519PrivateKey"],
+          recipientMlKemSecret: key.privateParts["mlKemSecretKey"],
+          ciphertext: ctBytes,
+          ...(chunkSize !== undefined ? { chunkSize } : {}),
+        });
+        const plaintext = Buffer.from(decrypted).toString("utf8");
+        wipeMemory(decrypted);
+        return reply.send({ data: { plaintext } });
+      } catch (error) {
+        return classifyCryptoError(
+          error,
+          request,
+          reply,
+          "PQ stream decryption",
+        );
+      }
+    },
+  );
+}
+
 /** Registers high-throughput streaming and batch cryptographic pipeline endpoints. */
 export default (app: FastifyInstance): void => {
   registerBatchSign(app);
   registerBatchVerify(app);
   registerIso20022Verify(app);
+  registerStreamPqEncrypt(app);
+  registerStreamPqDecrypt(app);
 };

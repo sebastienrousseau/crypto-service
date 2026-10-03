@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-vue",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Vue 3 composables for client-side cryptography — key generation, encryption, signing, and hashing with reactive state.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -47,10 +47,10 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.5.43"
   },
   "devDependencies": {
-    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/mocha-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
@@ -63,7 +63,7 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
     "typescript": "~5.9.3",
-    "vue": "^3.3.0"
+    "vue": "^3.5.43"
   },
   "keywords": [
     "vue",

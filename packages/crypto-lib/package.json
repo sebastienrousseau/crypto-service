@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -119,7 +119,7 @@
     "@noble/hashes": "^2.4.0",
     "@noble/post-quantum": "^0.7.1",
     "@openpgp/web-stream-tools": "^0.3.1",
-    "openpgp": "^6.3.1"
+    "openpgp": "^6.3.2"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

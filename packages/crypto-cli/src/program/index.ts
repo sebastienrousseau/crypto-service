@@ -12,6 +12,7 @@ import { EXIT, UsageError, type CliIO, type RunContext } from "./io";
 import { registerKeygen } from "./keygen";
 import { registerPassword } from "./password";
 import { registerSign, registerVerify } from "./sign";
+import { registerStream } from "./stream";
 
 export {
   EXIT,
@@ -48,6 +49,7 @@ export const buildProgram = (ctx: RunContext, version: string): Command => {
   registerVerify(program, ctx);
   registerPassword(program, ctx);
   registerCbom(program, ctx);
+  registerStream(program, ctx);
   return program;
 };
 

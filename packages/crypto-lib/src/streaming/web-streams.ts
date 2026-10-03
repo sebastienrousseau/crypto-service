@@ -20,6 +20,7 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
+import { streamPqEncrypt, streamPqDecrypt } from "./stream-pq-aead";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
 /** Reference to the global TransformStream constructor. */
@@ -269,6 +270,100 @@ export function createHashStream(
     flush(controller: { enqueue(v: HashStreamResult): void }) {
       const digest = Buffer.from(hasher.digest()).toString("hex");
       controller.enqueue({ digest, algorithm });
+    },
+  });
+}
+
+/** Options for creating a post-quantum hybrid encrypt transform stream. */
+export interface PqEncryptStreamOptions {
+  /** Recipient X25519 public key (32 bytes; hex string or Uint8Array). */
+  recipientX25519Public: string | Uint8Array;
+  /** Recipient ML-KEM-768 public key (1184 bytes; hex string or Uint8Array). */
+  recipientMlKemPublic: string | Uint8Array;
+  /** Chunk size in bytes (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
+}
+
+/** Options for creating a post-quantum hybrid decrypt transform stream. */
+export interface PqDecryptStreamOptions {
+  /** Recipient X25519 secret key (32 bytes; hex string or Uint8Array). */
+  recipientX25519Secret: string | Uint8Array;
+  /** Recipient ML-KEM-768 secret key (2400 bytes; hex string or Uint8Array). */
+  recipientMlKemSecret: string | Uint8Array;
+  /** Chunk size used during encryption (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
+}
+
+/**
+ * Create a TransformStream that encrypts data using hybrid post-quantum STREAM (X25519 + ML-KEM-768).
+ *
+ * Accumulates input chunks and on flush emits the post-quantum encrypted stream ciphertext.
+ *
+ * @param options - Encryption parameters including recipient public keys.
+ * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
+ */
+export function createPqEncryptStream(
+  options: PqEncryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  let totalLen = 0;
+
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      chunks.push(chunk);
+      totalLen += chunk.length;
+    },
+    flush(controller: { enqueue(v: Uint8Array): void }) {
+      const plaintext = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        plaintext.set(c, offset);
+        offset += c.length;
+      }
+      const encrypted = streamPqEncrypt({
+        recipientX25519Public: options.recipientX25519Public,
+        recipientMlKemPublic: options.recipientMlKemPublic,
+        plaintext,
+        chunkSize: options.chunkSize,
+      });
+      controller.enqueue(encrypted.ciphertext);
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that decrypts hybrid post-quantum STREAM ciphertext.
+ *
+ * Accumulates input chunks and on flush decapsulates and decrypts the stream to plaintext.
+ *
+ * @param options - Decryption parameters including recipient secret keys.
+ * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
+ */
+export function createPqDecryptStream(
+  options: PqDecryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  let totalLen = 0;
+
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      chunks.push(chunk);
+      totalLen += chunk.length;
+    },
+    flush(controller: { enqueue(v: Uint8Array): void }) {
+      const ciphertext = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        ciphertext.set(c, offset);
+        offset += c.length;
+      }
+      const decrypted = streamPqDecrypt({
+        recipientX25519Secret: options.recipientX25519Secret,
+        recipientMlKemSecret: options.recipientMlKemSecret,
+        ciphertext,
+        chunkSize: options.chunkSize,
+      });
+      controller.enqueue(decrypted);
     },
   });
 }

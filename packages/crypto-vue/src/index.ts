@@ -31,3 +31,11 @@ export type {
   UseSignatureReturn,
   SignAlgorithm,
 } from "./composables/useSignature";
+
+export { usePqStream } from "./composables/usePqStream";
+/** Re-exported PQ stream composable return and key types. */
+export type {
+  UsePqStreamReturn,
+  PqRecipientPublicKeys,
+  PqRecipientSecretKeys,
+} from "./composables/usePqStream";

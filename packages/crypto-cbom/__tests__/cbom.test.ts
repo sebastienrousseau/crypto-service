@@ -13,6 +13,7 @@ import {
   validateCbom,
   run,
   CryptoAsset,
+  classifyPrimitive,
 } from "../src";
 
 describe("Crypto CBOM Suite", () => {
@@ -36,10 +37,12 @@ describe("Crypto CBOM Suite", () => {
         'const s2 = "ml-dsa-65";',
         'const s3 = "ml-dsa-87";',
         'const s4 = "slh-dsa";',
+        'const s5 = "fn-dsa";',
+        'const k4 = "x25519-ml-kem-768";',
       ].join("\n");
 
       const assets = scanCode(source, "pqc.ts");
-      expect(assets).to.have.lengthOf(7);
+      expect(assets).to.have.lengthOf(9);
       for (const a of assets) {
         expect(a.quantumResistant).to.be.true;
         expect(a.resistanceLevel).to.equal("QUANTUM_SAFE");
@@ -70,6 +73,7 @@ describe("Crypto CBOM Suite", () => {
         'const sig1 = "ed25519";',
         'const sig2 = "ecdsa";',
         'const kex = "rsa";',
+        'const kex2 = "x25519";',
         'const h1 = "sha-256";',
         'const h2 = "sha-512";',
         'const h3 = "sha3-256";',
@@ -80,13 +84,16 @@ describe("Crypto CBOM Suite", () => {
       ].join("\n");
 
       const assets = scanCode(source, "crypto.ts");
-      expect(assets.length).to.be.greaterThanOrEqual(9);
+      expect(assets.length).to.be.greaterThanOrEqual(10);
 
       const md5 = assets.find((a) => a.name === "Broken Hash");
       expect(md5?.resistanceLevel).to.equal("DEPRECATED_BROKEN");
 
       const rsa = assets.find((a) => a.name === "RSA");
       expect(rsa?.resistanceLevel).to.equal("VULNERABLE_CRQC");
+
+      const x25519 = assets.find((a) => a.name === "X25519");
+      expect(x25519?.resistanceLevel).to.equal("VULNERABLE_CRQC");
 
       const cert = assets.find((a) => a.name === "X.509 Certificate");
       expect(cert).to.exist;
@@ -230,6 +237,17 @@ describe("Crypto CBOM Suite", () => {
       const audit = auditCbom([]);
       expect(audit.score).to.equal(100);
       expect(audit.quantumSafeRatio).to.equal(1);
+    });
+
+    it("classifies hybrid primitives as TRANSITIONAL_HYBRID and classical DH as VULNERABLE_CRQC", () => {
+      expect(classifyPrimitive("X25519+ML-KEM-768")).to.equal(
+        "TRANSITIONAL_HYBRID",
+      );
+      expect(classifyPrimitive("Hybrid-KEM")).to.equal("TRANSITIONAL_HYBRID");
+      expect(classifyPrimitive("PQ-STREAM")).to.equal("TRANSITIONAL_HYBRID");
+      expect(classifyPrimitive("X25519")).to.equal("VULNERABLE_CRQC");
+      expect(classifyPrimitive("X448")).to.equal("VULNERABLE_CRQC");
+      expect(classifyPrimitive("Diffie-Hellman")).to.equal("VULNERABLE_CRQC");
     });
 
     it("detects CRITICAL non-compliance when broken primitives are present", () => {

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-typeorm",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "TypeORM column-level encryption with a single decorator, powered by crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -41,7 +41,7 @@
     "typeorm": "^1.1.1"
   },
   "devDependencies": {
-    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/mocha-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",

@@ -16,7 +16,12 @@ import {
   computeHmac,
   verifyHmac,
   timingSafeEqual,
+  wipeMemory,
 } from "@sebastienrousseau/crypto-lib";
+import {
+  streamPqEncrypt,
+  streamPqDecrypt,
+} from "@sebastienrousseau/crypto-lib/streaming";
 import { CryptoMiddlewareError, JwtPayload, MiddlewareConfig } from "./types";
 
 /**
@@ -61,6 +66,69 @@ export function decryptPayload(key: string, sealed: string): unknown {
   } catch (err) {
     throw new CryptoMiddlewareError(
       `Decryption failed: ${(err as Error).message}`,
+      400,
+      "DECRYPTION_FAILED",
+    );
+  }
+}
+
+/**
+ * Encrypt a JSON-serialisable payload using hybrid post-quantum STREAM AEAD
+ * (X25519 + ML-KEM-768 + XChaCha20-Poly1305).
+ *
+ * @param recipientX25519Public Hex-encoded recipient X25519 public key.
+ * @param recipientMlKemPublic  Hex-encoded recipient ML-KEM-768 public key.
+ * @param data                  Plaintext payload.
+ * @param chunkSize             Optional chunk size in bytes.
+ * @returns                     Base64-encoded hybrid ciphertext.
+ */
+export function encryptPqPayload(
+  recipientX25519Public: string,
+  recipientMlKemPublic: string,
+  data: unknown,
+  chunkSize?: number,
+): string {
+  const plaintext = typeof data === "string" ? data : JSON.stringify(data);
+  const ptBytes = Buffer.from(plaintext, "utf8");
+  const res = streamPqEncrypt({
+    recipientX25519Public,
+    recipientMlKemPublic,
+    plaintext: ptBytes,
+    ...(chunkSize !== undefined ? { chunkSize } : {}),
+  });
+  return Buffer.from(res.ciphertext).toString("base64");
+}
+
+/**
+ * Decrypt a post-quantum hybrid STREAM payload back to its original JSON form.
+ *
+ * @param recipientX25519Secret Hex-encoded recipient X25519 secret key.
+ * @param recipientMlKemSecret  Hex-encoded recipient ML-KEM-768 secret key.
+ * @param sealed                Base64-encoded hybrid ciphertext.
+ * @param chunkSize             Optional chunk size in bytes.
+ * @returns                     The decrypted, JSON-parsed payload.
+ * @throws                      {CryptoMiddlewareError} If decryption or parsing fails.
+ */
+export function decryptPqPayload(
+  recipientX25519Secret: string,
+  recipientMlKemSecret: string,
+  sealed: string,
+  chunkSize?: number,
+): unknown {
+  try {
+    const ctBytes = Buffer.from(sealed, "base64");
+    const decrypted = streamPqDecrypt({
+      recipientX25519Secret,
+      recipientMlKemSecret,
+      ciphertext: ctBytes,
+      ...(chunkSize !== undefined ? { chunkSize } : {}),
+    });
+    const plaintext = Buffer.from(decrypted).toString("utf8");
+    wipeMemory(decrypted);
+    return JSON.parse(plaintext);
+  } catch (err) {
+    throw new CryptoMiddlewareError(
+      `PQ decryption failed: ${(err as Error).message}`,
       400,
       "DECRYPTION_FAILED",
     );

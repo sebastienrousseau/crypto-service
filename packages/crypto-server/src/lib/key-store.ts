@@ -22,9 +22,15 @@
  * files the server already writes there: protect the directory.
  */
 
-import { randomBytes } from "crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import * as path from "path";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
 /** Named hex-encoded key parts, e.g. `{ publicKey }` or `{ x25519PublicKey, mlKemPublicKey }`. */
 export type KeyParts = Readonly<Record<string, string>>;
@@ -74,24 +80,114 @@ export class KeyStoreError extends Error {
   }
 }
 
+/** Structure of encrypted private parts serialized to disk. */
+export interface EncryptedPartsPayload {
+  readonly ciphertext: string;
+  readonly iv: string;
+  readonly tag: string;
+  readonly alg: "aes-256-gcm";
+}
+
+/** Resolves an encryption key into a 32-byte Buffer. */
+function resolveStorageKey(
+  key: string | Uint8Array | undefined,
+): Buffer | undefined {
+  if (!key) return undefined;
+  if (typeof key !== "string") {
+    if (key.length === 32) return Buffer.from(key);
+    return createHash("sha256").update(key).digest();
+  }
+  const trimmed = key.trim();
+  if (!trimmed) return undefined;
+  if (/^[0-9a-fA-F]{64}$/.test(trimmed)) {
+    return Buffer.from(trimmed, "hex");
+  }
+  return createHash("sha256").update(trimmed, "utf8").digest();
+}
+
+/** Encrypts private parts with AES-256-GCM, binding keyId and owner as AAD. */
+function encryptPrivateParts(
+  privateParts: KeyParts,
+  keyId: string,
+  owner: string,
+  key: Buffer,
+): EncryptedPartsPayload {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  cipher.setAAD(Buffer.from(`${keyId}:${owner}`, "utf8"));
+  const plaintext = Buffer.from(JSON.stringify(privateParts), "utf8");
+  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  wipeMemory(plaintext);
+  return {
+    ciphertext: ciphertext.toString("base64"),
+    iv: iv.toString("base64"),
+    tag: tag.toString("base64"),
+    alg: "aes-256-gcm",
+  };
+}
+
+/** Decrypts private parts with AES-256-GCM, verifying AAD binding and auth tag. */
+function decryptPrivateParts(
+  encrypted: EncryptedPartsPayload,
+  keyId: string,
+  owner: string,
+  key: Buffer,
+): KeyParts {
+  if (encrypted.alg !== "aes-256-gcm") {
+    throw new KeyStoreError(
+      `Unsupported encryption algorithm: ${encrypted.alg}`,
+      500,
+      "UNSUPPORTED_STORAGE_ALGORITHM",
+    );
+  }
+  try {
+    const iv = Buffer.from(encrypted.iv, "base64");
+    const tag = Buffer.from(encrypted.tag, "base64");
+    const ciphertext = Buffer.from(encrypted.ciphertext, "base64");
+    const decipher = createDecipheriv("aes-256-gcm", key, iv);
+    decipher.setAAD(Buffer.from(`${keyId}:${owner}`, "utf8"));
+    decipher.setAuthTag(tag);
+    const decrypted = Buffer.concat([
+      decipher.update(ciphertext),
+      decipher.final(),
+    ]);
+    const parsed = JSON.parse(decrypted.toString("utf8")) as KeyParts;
+    wipeMemory(decrypted);
+    return parsed;
+  } catch {
+    throw new KeyStoreError(
+      "Failed to decrypt key material: invalid key or corrupted data",
+      500,
+      "KEY_INTEGRITY_FAILED",
+    );
+  }
+}
+
 /** The error for an unknown key, or one owned by someone else. */
 const notFound = (): KeyStoreError =>
   new KeyStoreError("Key not found", 404, "KEY_NOT_FOUND");
 
-/** In-memory key store, optionally persisted to a directory. */
+/** In-memory key store, optionally persisted and encrypted on disk. */
 export class KeyStore {
   private readonly keys = new Map<string, StoredKey>();
+  private readonly storageKey: Buffer | undefined;
 
   /**
-   * @param dir      Directory to persist keys to, or undefined for memory only.
-   * @param capacity Keys held in memory. Without a directory, generation
-   *                 fails with 503 once it is reached; with one, the oldest
-   *                 key leaves memory and is read back from disk on use.
+   * @param dir        Directory to persist keys to, or undefined for memory only.
+   * @param capacity   Keys held in memory. Without a directory, generation
+   *                   fails with 503 once it is reached; with one, the oldest
+   *                   key leaves memory and is read back from disk on use.
+   * @param storageKey Master key for encrypting private keys at rest (AES-256-GCM).
+   *                   Accepts a 32-byte Buffer, 64-char hex string, or secret passphrase.
    */
   constructor(
     private readonly dir: string | undefined,
     private readonly capacity: number = DEFAULT_KEY_CAPACITY,
-  ) {}
+    storageKey?: string | Uint8Array,
+  ) {
+    this.storageKey = resolveStorageKey(storageKey);
+  }
 
   /** Store a new key and return it with its `keyId`. */
   async put(key: NewKey): Promise<StoredKey> {
@@ -108,7 +204,26 @@ export class KeyStore {
       createdAt: new Date().toISOString(),
     });
     if (this.dir) {
-      await writeFile(this.file(stored.keyId), JSON.stringify(stored), {
+      const diskRecord: Record<string, unknown> = {
+        keyId: stored.keyId,
+        algorithm: stored.algorithm,
+        owner: stored.owner,
+        createdAt: stored.createdAt,
+        publicParts: stored.publicParts,
+      };
+
+      if (this.storageKey) {
+        diskRecord.encryptedPrivateParts = encryptPrivateParts(
+          stored.privateParts,
+          stored.keyId,
+          stored.owner,
+          this.storageKey,
+        );
+      } else {
+        diskRecord.privateParts = stored.privateParts;
+      }
+
+      await writeFile(this.file(stored.keyId), JSON.stringify(diskRecord), {
         encoding: "utf8",
         mode: 0o600,
         flag: "wx",
@@ -151,8 +266,47 @@ export class KeyStore {
     } catch {
       return undefined;
     }
-    const stored = Object.freeze(JSON.parse(raw) as StoredKey);
-    if (stored.keyId !== keyId) return undefined;
+    let record: Record<string, unknown>;
+    try {
+      record = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      return undefined;
+    }
+    if (record.keyId !== keyId) return undefined;
+
+    let privateParts: KeyParts;
+    if (record.encryptedPrivateParts) {
+      if (!this.storageKey) {
+        throw new KeyStoreError(
+          "Key is encrypted at rest; storage key required",
+          500,
+          "STORAGE_KEY_REQUIRED",
+        );
+      }
+      privateParts = decryptPrivateParts(
+        record.encryptedPrivateParts as EncryptedPartsPayload,
+        record.keyId as string,
+        record.owner as string,
+        this.storageKey,
+      );
+    } else if (record.privateParts) {
+      privateParts = record.privateParts as KeyParts;
+    } else {
+      throw new KeyStoreError(
+        "Key file contains no private key material",
+        500,
+        "KEY_CORRUPTED",
+      );
+    }
+
+    const stored: StoredKey = Object.freeze({
+      keyId: record.keyId as string,
+      algorithm: record.algorithm as string,
+      owner: record.owner as string,
+      createdAt: record.createdAt as string,
+      publicParts: record.publicParts as KeyParts,
+      privateParts,
+    });
     this.remember(stored);
     return stored;
   }
@@ -172,7 +326,11 @@ export class KeyStore {
   }
 }
 
-/** The key store configured by the environment (`CRYPTO_KEY_OUT_DIR`). */
+/** The key store configured by the environment (`CRYPTO_KEY_OUT_DIR` and `CRYPTO_KEY_STORAGE_KEY`). */
 export function keyStoreFromEnv(): KeyStore {
-  return new KeyStore(process.env["CRYPTO_KEY_OUT_DIR"] || undefined);
+  return new KeyStore(
+    process.env["CRYPTO_KEY_OUT_DIR"] || undefined,
+    DEFAULT_KEY_CAPACITY,
+    process.env["CRYPTO_KEY_STORAGE_KEY"] || undefined,
+  );
 }

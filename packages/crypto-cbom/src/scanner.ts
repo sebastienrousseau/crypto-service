@@ -31,7 +31,7 @@ const ASSET_RULES: AssetRule[] = [
     standard: "NIST FIPS 203",
   },
   {
-    pattern: /\bml[-_]?kem[-_]?768\b/i,
+    pattern: /(?<!(?:x25519|x448)[-_])\bml[-_]?kem[-_]?768\b/i,
     name: "ML-KEM-768",
     algorithm: "ML-KEM",
     type: "kem",
@@ -81,6 +81,22 @@ const ASSET_RULES: AssetRule[] = [
     type: "signature",
     resistanceLevel: "QUANTUM_SAFE",
     standard: "NIST FIPS 205",
+  },
+  {
+    pattern: /\bfn[-_]?dsa\b/i,
+    name: "FN-DSA",
+    algorithm: "FN-DSA",
+    type: "signature",
+    resistanceLevel: "QUANTUM_SAFE",
+    standard: "NIST FIPS 206",
+  },
+  {
+    pattern: /\bx25519[-_]ml[-_]?kem[-_]?768\b/i,
+    name: "X25519 + ML-KEM-768",
+    algorithm: "Hybrid KEM",
+    type: "kem",
+    resistanceLevel: "QUANTUM_SAFE",
+    standard: "IETF Hybrid / NIST IR 8547",
   },
 
   // Symmetric Ciphers
@@ -158,6 +174,15 @@ const ASSET_RULES: AssetRule[] = [
     keySize: 256,
     resistanceLevel: "VULNERABLE_CRQC",
     standard: "RFC 8032",
+  },
+  {
+    pattern: /\bx25519\b(?![-_]ml[-_]?kem)/i,
+    name: "X25519",
+    algorithm: "X25519",
+    type: "algorithm",
+    keySize: 256,
+    resistanceLevel: "VULNERABLE_CRQC",
+    standard: "RFC 7748",
   },
   {
     pattern: /\b(?:ecdsa|ecdh|prime256v1|secp256r1|secp384r1)\b/i,

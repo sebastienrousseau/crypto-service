@@ -20,7 +20,14 @@
  */
 
 import { negotiateAlgorithm } from "./negotiation";
-import { CryptoApiError, readProblem } from "./errors";
+import {
+  buildClientHeaders,
+  buildRequestInit,
+  executeRequest,
+  generateSdkTraceparent,
+  resolveRetryConfig,
+  type RetryConfig,
+} from "./request";
 import type {
   ClientOptions,
   ApiResponse,
@@ -43,6 +50,10 @@ import type {
   MacVerifyResult,
   Argon2Params,
   PasswordHashResult,
+  StreamPqEncryptParams,
+  StreamPqEncryptResult,
+  StreamPqDecryptParams,
+  StreamPqDecryptResult,
 } from "./types";
 import type {
   KeyAlgorithm,
@@ -77,18 +88,17 @@ export class CryptoClient {
   private baseUrl: string;
   private headers: Record<string, string>;
   private fetchFn: typeof globalThis.fetch;
+  private timeout: number | undefined;
+  private retry: RetryConfig;
+  private autoTraceparent = false;
 
   constructor(options: ClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
     this.fetchFn = options.fetch ?? globalThis.fetch;
-    this.headers = { "Content-Type": "application/json" };
-
-    if (options.apiKey) {
-      this.headers["x-api-key"] = options.apiKey;
-    }
-    if (options.token) {
-      this.headers["Authorization"] = `Bearer ${options.token}`;
-    }
+    this.headers = buildClientHeaders(options);
+    this.timeout = options.timeout;
+    this.retry = resolveRetryConfig(options.retry);
+    this.autoTraceparent = options.traceparent === true;
   }
 
   /** Send a request and return the parsed JSON body; throws on a non-OK status. */
@@ -97,18 +107,16 @@ export class CryptoClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const init: RequestInit = {
-      method,
-      headers: this.headers,
-    };
-    if (body) {
-      init.body = JSON.stringify(body);
-    }
-    const res = await this.fetchFn(`${this.baseUrl}${path}`, init);
-    if (!res.ok) {
-      throw new CryptoApiError(res.status, await readProblem(res));
-    }
-    return (await res.json()) as T;
+    const headers = this.autoTraceparent
+      ? { ...this.headers, traceparent: generateSdkTraceparent() }
+      : this.headers;
+    const init = buildRequestInit(method, headers, body, this.timeout);
+    return executeRequest<T>(
+      this.fetchFn,
+      `${this.baseUrl}${path}`,
+      init,
+      this.retry,
+    );
   }
 
   /** Send a request to a route that wraps its result in `{ data }`. */
@@ -414,6 +422,22 @@ export class CryptoClient {
     params: KeyIdParams & { sealed: string },
   ): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/sealedbox/open-pq", params);
+  }
+
+  // --- Streaming Post-Quantum AEAD ---
+
+  /** Encrypt plaintext using hybrid post-quantum STREAM (X25519 + ML-KEM-768 + XChaCha20-Poly1305). */
+  async streamPqEncrypt(
+    params: StreamPqEncryptParams,
+  ): Promise<ApiResponse<StreamPqEncryptResult>> {
+    return this.request("POST", "/v2/stream/pq-encrypt", params);
+  }
+
+  /** Decrypt hybrid post-quantum STREAM ciphertext using a server-held hybrid key. */
+  async streamPqDecrypt(
+    params: StreamPqDecryptParams,
+  ): Promise<ApiResponse<StreamPqDecryptResult>> {
+    return this.request("POST", "/v2/stream/pq-decrypt", params);
   }
 
   // --- High-Level: Password Encryption ---

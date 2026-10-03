@@ -340,6 +340,196 @@ describe("CryptoClient", () => {
         "API Error 502: The server answered 502 without a problem body",
       );
     });
+
+    it("should attach AbortSignal when timeout is configured", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { hash: ["sha256"] },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+        timeout: 5000,
+      });
+      await client.algorithms();
+      expect(calls[0].init?.signal).to.be.an.instanceOf(AbortSignal);
+    });
+
+    describe("retry on transient errors", () => {
+      it("should retry on 429 and succeed when retry succeeds", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          if (callCount === 1) {
+            return {
+              ok: false,
+              status: 429,
+              statusText: "Too Many Requests",
+              headers: new Headers({ "retry-after": "0.01" }),
+              json: async () => ({
+                type: "urn:crypto-service:problem:rate-limited",
+                title: "Too Many Requests",
+                status: 429,
+                detail: "Rate limit exceeded",
+              }),
+            } as unknown as Response;
+          }
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ data: { digest: "ok" } }),
+          } as unknown as Response;
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 2, initialDelayMs: 5, maxDelayMs: 20 },
+        });
+
+        const res = await client.hash({ algorithm: "sha256", data: "test" });
+        expect(callCount).to.equal(2);
+        expect(res.data.digest).to.equal("ok");
+      });
+
+      it("should handle non-numeric retry-after header gracefully", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          if (callCount === 1) {
+            return {
+              ok: false,
+              status: 429,
+              statusText: "Too Many Requests",
+              headers: new Headers({ "retry-after": "not-a-number" }),
+              json: async () => ({
+                type: "urn:crypto-service:problem:rate-limited",
+                title: "Too Many Requests",
+                status: 429,
+                detail: "Rate limit exceeded",
+              }),
+            } as unknown as Response;
+          }
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ data: { digest: "ok" } }),
+          } as unknown as Response;
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 1, initialDelayMs: 5 },
+        });
+
+        const res = await client.hash({ algorithm: "sha256", data: "test" });
+        expect(callCount).to.equal(2);
+        expect(res.data.digest).to.equal("ok");
+      });
+
+      it("should not retry on non-transient 400 errors", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          return {
+            ok: false,
+            status: 400,
+            statusText: "Bad Request",
+            json: async () => PROBLEM,
+          } as unknown as Response;
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 3, initialDelayMs: 5 },
+        });
+
+        const err = await client
+          .hash({ algorithm: "sha256", data: "test" })
+          .catch((e) => e);
+        expect(callCount).to.equal(1);
+        expect(err).to.be.an.instanceOf(CryptoApiError);
+        expect((err as CryptoApiError).status).to.equal(400);
+      });
+
+      it("should exhaust retries on persistent 503 and throw CryptoApiError", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          return {
+            ok: false,
+            status: 503,
+            statusText: "Service Unavailable",
+            json: async () => ({
+              type: "about:blank",
+              title: "Service Unavailable",
+              status: 503,
+              detail: "Service Unavailable",
+            }),
+          } as unknown as Response;
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 2, initialDelayMs: 5, maxDelayMs: 20 },
+        });
+
+        const err = await client
+          .hash({ algorithm: "sha256", data: "test" })
+          .catch((e) => e);
+        expect(callCount).to.equal(3);
+        expect(err).to.be.an.instanceOf(CryptoApiError);
+        expect((err as CryptoApiError).status).to.equal(503);
+      });
+
+      it("should retry on network fetch errors and succeed", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          if (callCount === 1) {
+            throw new TypeError("Failed to fetch");
+          }
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ data: { digest: "recovered" } }),
+          } as unknown as Response;
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 1, initialDelayMs: 5 },
+        });
+
+        const res = await client.hash({ algorithm: "sha256", data: "test" });
+        expect(callCount).to.equal(2);
+        expect(res.data.digest).to.equal("recovered");
+      });
+
+      it("should rethrow network error if retries are exhausted", async () => {
+        let callCount = 0;
+        const mockFetch = async () => {
+          callCount++;
+          throw new TypeError("Connection refused");
+        };
+
+        const client = new CryptoClient({
+          baseUrl: "http://localhost:3000",
+          fetch: mockFetch as typeof globalThis.fetch,
+          retry: { maxRetries: 2, initialDelayMs: 5 },
+        });
+
+        const err = await client
+          .hash({ algorithm: "sha256", data: "test" })
+          .catch((e) => e);
+        expect(callCount).to.equal(3);
+        expect(err).to.be.an.instanceOf(TypeError);
+        expect((err as TypeError).message).to.equal("Connection refused");
+      });
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -1082,6 +1272,62 @@ describe("CryptoClient", () => {
         "http://localhost:3000/v2/sealedbox/open-pq",
       );
       expect(result.data).to.equal("pt");
+    });
+  });
+
+  describe("streamPqEncrypt()", () => {
+    it("should call /v2/stream/pq-encrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          ciphertext: "ct",
+          algorithm: "x25519-ml-kem-768-xchacha20-poly1305-stream",
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      await client.streamPqEncrypt({
+        x25519PublicKey: "x",
+        mlKemPublicKey: "m",
+        plaintext: "p",
+        chunkSize: 128,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/pq-encrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        x25519PublicKey: "x",
+        mlKemPublicKey: "m",
+        plaintext: "p",
+        chunkSize: 128,
+      });
+    });
+  });
+
+  describe("streamPqDecrypt()", () => {
+    it("should call /v2/stream/pq-decrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { plaintext: "pt" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.streamPqDecrypt({
+        keyId: "k1",
+        ciphertext: "ct",
+        chunkSize: 128,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/pq-decrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        ciphertext: "ct",
+        chunkSize: 128,
+      });
+      expect(res.data.plaintext).to.equal("pt");
     });
   });
 

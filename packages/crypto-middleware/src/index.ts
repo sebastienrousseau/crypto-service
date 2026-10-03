@@ -9,7 +9,12 @@
 
 // Types
 /** Re-exported middleware configuration and JWT payload types. */
-export type { MiddlewareConfig, JwtPayload } from "./types";
+export type {
+  MiddlewareConfig,
+  JwtPayload,
+  PqKeysConfig,
+  PqStreamPluginConfig,
+} from "./types";
 export { CryptoMiddlewareError } from "./types";
 export type { JwtVerifyOptions } from "./common";
 
@@ -17,13 +22,15 @@ export type { JwtVerifyOptions } from "./common";
 export {
   encryptPayload,
   decryptPayload,
+  encryptPqPayload,
+  decryptPqPayload,
   verifyHmacSignature,
   verifyJwt,
   matchRoute,
 } from "./common";
 
 // Express middleware
-export { createCryptoMiddleware } from "./express";
+export { createCryptoMiddleware, createPqStreamMiddleware } from "./express";
 
 // Fastify plugin
-export { cryptoPlugin } from "./fastify";
+export { cryptoPlugin, pqStreamPlugin } from "./fastify";

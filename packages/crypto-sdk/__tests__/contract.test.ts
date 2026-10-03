@@ -282,6 +282,27 @@ describe("contract: CryptoClient against crypto-server", () => {
     expect(opened.data).to.equal("pq sealed");
   });
 
+  it("streamPqEncrypt -> streamPqDecrypt with a server-held hybrid key", async () => {
+    const { data: key } = await client.pqGenerateKeyPair();
+    const enc = await client.streamPqEncrypt({
+      x25519PublicKey: key.x25519PublicKey,
+      mlKemPublicKey: key.mlKemPublicKey,
+      plaintext: "stream contract test data",
+      chunkSize: 64,
+    });
+    expect(enc.data.algorithm).to.equal(
+      "x25519-ml-kem-768-xchacha20-poly1305-stream",
+    );
+    expect(enc.data.ciphertext).to.be.a("string");
+
+    const dec = await client.streamPqDecrypt({
+      keyId: key.keyId,
+      ciphertext: enc.data.ciphertext,
+      chunkSize: 64,
+    });
+    expect(dec.data.plaintext).to.equal("stream contract test data");
+  });
+
   it("compliance endpoints", async () => {
     const dora = await client.getDoraCompliance();
     expect(dora.data.standard).to.equal("DORA (EU 2022/2554)");

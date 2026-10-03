@@ -7,6 +7,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] - 2026-10-03
+
+### Added
+
+- **Edge post-quantum streaming adapters**: `@sebastienrousseau/crypto-edge` now provides `createEdgePqEncryptStream`, `createEdgePqDecryptStream`, `encryptEdgeResponse`, `decryptEdgeRequest`, and `createDecryptedEdgeRequest`, enabling Cloudflare Workers, Vercel Edge, Deno, and Bun runtimes to encrypt and decrypt post-quantum hybrid streaming AEAD payloads over standard WHATWG `Request` and `Response` streams with automated memory scrubbing.
+- **Streaming cryptography benchmarks**: `@sebastienrousseau/crypto-benchmarks` now features a dedicated `streaming` benchmark suite comparing symmetric STREAM AEAD (XChaCha20-Poly1305) against post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) across 64 KB encryption and decryption operations.
+- **React post-quantum streaming hook**: `@sebastienrousseau/crypto-react` now exports `usePqStream`, enabling client-side chunked post-quantum hybrid STREAM AEAD encryption, decryption, and WHATWG `TransformStream` pipelines (`createEncryptStream`, `createDecryptStream`) with reactive state management.
+- **Vue post-quantum streaming composable**: `@sebastienrousseau/crypto-vue` now exports `usePqStream`, exposing reactive refs (`ciphertext`, `plaintext`, `chunkCount`, `isProcessing`, `error`) and WHATWG `TransformStream` factory methods for chunked post-quantum hybrid streaming AEAD.
+- **MCP post-quantum streaming tools & X25519 key generation**: `@sebastienrousseau/crypto-mcp` now supports generating X25519 keypairs via `crypto_generate_key` returning server-held key handles, and adds `crypto_stream_encrypt` and `crypto_stream_decrypt` tools providing post-quantum hybrid streaming AEAD with automated intermediate memory zeroing.
+- **Fastify and Express post-quantum streaming middleware**: `@sebastienrousseau/crypto-middleware` now exports `pqStreamPlugin` for Fastify (supporting `pq-decrypt-request` and `pq-encrypt-response` hooks) and `createPqStreamMiddleware` for Express (transparent request body decryption and response streaming encryption) powered by chunked X25519 + ML-KEM-768 + XChaCha20-Poly1305, alongside standalone `encryptPqPayload` and `decryptPqPayload` helpers with automatic plaintext memory zeroing.
+- **CLI post-quantum streaming commands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli stream encrypt` and `crypto-cli stream decrypt` subcommands for chunked post-quantum hybrid streaming AEAD, accepting public and secret key files for X25519 and ML-KEM-768, custom chunk sizing, JSON-formatted output, and zeroed in-memory plaintext buffers.
+- **KeyStore at-rest envelope encryption**: `crypto-server` now supports encrypting server-persisted private keys on disk under `CRYPTO_KEY_OUT_DIR` using AES-256-GCM when `CRYPTO_KEY_STORAGE_KEY` is set. Nonces are generated per key, and `${keyId}:${owner}` is bound as authenticated additional data (AAD) to prevent ciphertext splicing and cross-tenant substitution attacks. Legacy unencrypted key files continue to be read transparently for backwards compatibility.
+- **CryptoClient timeout and automatic retries**: `crypto-sdk` now supports a configurable `timeout` option (via `AbortSignal.timeout`) and automated retry policies (`retry: { maxRetries, initialDelayMs, maxDelayMs }`) for transient HTTP failures (`429`, `503`, `504`) and network fetch errors, honoring server `Retry-After` headers.
+- **W3C Trace Context propagation**: `crypto-server` now validates incoming W3C `traceparent` (and `tracestate`) headers, generates compliant Level 1 traceparents when missing or invalid, propagates them on response headers, and decorates requests with `traceId`. `crypto-sdk` supports `traceparent` configuration (static header or per-request compliant traceparent generation).
+- **Post-quantum hybrid streaming AEAD**: `crypto-lib/streaming` now exports `streamPqEncrypt` and `streamPqDecrypt` for chunk-based authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 with per-chunk nonces and anti-truncation markers.
+- **WHATWG Web Streams post-quantum streaming adapters**: `crypto-lib/streaming` now exports `createPqEncryptStream` and `createPqDecryptStream`, providing standard WHATWG `TransformStream` pipelines for chunked post-quantum hybrid streaming AEAD.
+- **Post-quantum streaming REST endpoints**: `crypto-server` now exposes `POST /v2/stream/pq-encrypt` and `POST /v2/stream/pq-decrypt` with JSON schemas, scoped permissions (`crypto:encrypt`, `crypto:decrypt`), chunk size validation, anti-truncation protection, and automatic memory zeroing of intermediate plaintext.
+- **Post-quantum streaming SDK client methods**: `crypto-sdk` now exposes `streamPqEncrypt` and `streamPqDecrypt` methods on `CryptoClient` with end-to-end integration and contract test coverage.
+- **CBOM hybrid and post-quantum primitive audit rules**: `crypto-cbom` now detects FN-DSA (NIST FIPS 206), hybrid KEMs (X25519 + ML-KEM-768), and classical Diffie-Hellman / Montgomery curves (X25519, X448), classifying hybrid primitives into `TRANSITIONAL_HYBRID` and classical public-key algorithms into `VULNERABLE_CRQC`.
+
+### Security
+
+- **Zero-memory buffer scrubbing**: Systematically applied `wipeMemory()` to zero in-memory private key material, intermediate decrypted plaintext buffers, unwrapped Data Encryption Keys (DEKs), and decoded key import buffers across `@sebastienrousseau/crypto-server` and `@sebastienrousseau/crypto-mcp`.
+- **Vulnerability remediation (`braces <=3.0.3`)**: Overrode `chokidar` to `>=5.0.0` in `pnpm-workspace.yaml`, eliminating the transitive high-severity regex/stack exhaustion vulnerability (GHSA-vfj7-8cjw-p6xm) in the markdown tooling dependency graph.
+
+### Changed
+
+- **One approval per npm release**: npm versions are no longer staged for per-package 2FA approval (18 approvals for 0.0.9). The release workflow packs the tarballs once after the tests; a separate `npm` job runs in the `npm` GitHub environment, which waits for a maintainer to approve the run once, then publishes those exact tarballs through npm trusted publishing (`scripts/pack-npm.sh`, `scripts/publish-npm.sh`) and checks provenance. Each package's trusted publisher accepts only that environment.
+- **Mocha test timeout resilience**: Set `timeout: 60000` in `.mocharc.cjs` across `crypto-sdk`, `crypto-lib`, and `crypto-server` to allow compute-intensive cryptographic operations (Argon2id password hashing, large-key RSA, and SLH-DSA post-quantum key generation and signing) sufficient headroom on loaded multi-architecture CI runners.
+- **Dependency maintenance & branch funneling**: Consolidated 11 Dependabot updates into `feat/v0.0.10` per repository invariants: `actions/upload-pages-artifact@5.0.0`, `pnpm/action-setup@6.1.0`, `anchore/sbom-action@0.24.2`, `figlet@1.12.0`, `vue@3.5.43`, `lint-staged@17.6.0`, `openpgp@6.3.2`, `@sebastienrousseau/markdownlint-config@0.0.7`, `remark-preset-lint-markdown-style-guide@6.0.1`, `commander@15.0.0`, and `@sebastienrousseau/mocha-config@0.0.7`.
+- **Complexity baseline reduction**: Refactored `runSuite` in `@sebastienrousseau/crypto-benchmarks` and extracted stream factories in `@sebastienrousseau/crypto-react`, eliminating recorded offenders and shrinking the repository complexity baseline to 16 entries.
+- **Dependabot configuration**: Added ignore rule for TypeScript semver-major updates (`>= 7.0.0`) in `.github/dependabot.yml` until ecosystem tooling (typescript-eslint, TypeDoc, ts-node) adds support.
+
 ## [0.0.9] - 2026-10-02
 
 ### Security
@@ -209,6 +242,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.10]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.9...v0.0.10
+[0.0.9]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.5...v0.0.6

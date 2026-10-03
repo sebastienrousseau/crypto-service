@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-edge",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -47,7 +47,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "devDependencies": {
-    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/mocha-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",

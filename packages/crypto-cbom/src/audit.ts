@@ -21,8 +21,18 @@ interface AuditedAsset {
 
 /** Name fragments that mark a broken or disallowed primitive. */
 const BROKEN_MARKERS = ["MD5", "SHA-1", "DES", "RC4", "ECB"];
+/** Name fragments that mark a composite hybrid or post-quantum stream primitive. */
+const HYBRID_MARKERS = ["HYBRID", "+ML-KEM", "+ML-DSA", "PQ-STREAM"];
 /** Name fragments that mark a primitive breakable by a quantum computer. */
-const QUANTUM_VULNERABLE_MARKERS = ["RSA", "ECC", "ECDSA", "ED25519"];
+const QUANTUM_VULNERABLE_MARKERS = [
+  "RSA",
+  "ECC",
+  "ECDSA",
+  "ED25519",
+  "X25519",
+  "X448",
+  "DIFFIE-HELLMAN",
+];
 /** Name fragments that mark a reduced quantum security margin. */
 const TRANSITIONAL_MARKERS = ["AES-128", "CBC"];
 
@@ -31,6 +41,7 @@ export function classifyPrimitive(primitive: string): QuantumResistanceLevel {
   const upper = primitive.toUpperCase();
   const has = (markers: string[]) => markers.some((m) => upper.includes(m));
   if (has(BROKEN_MARKERS)) return "DEPRECATED_BROKEN";
+  if (has(HYBRID_MARKERS)) return "TRANSITIONAL_HYBRID";
   if (has(QUANTUM_VULNERABLE_MARKERS)) return "VULNERABLE_CRQC";
   if (has(TRANSITIONAL_MARKERS)) return "TRANSITIONAL_HYBRID";
   return "QUANTUM_SAFE";

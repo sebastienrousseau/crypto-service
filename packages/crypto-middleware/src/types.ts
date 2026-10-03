@@ -19,14 +19,45 @@
  * };
  * ```
  */
+/**
+ * Post-quantum key configuration for hybrid stream encryption/decryption.
+ */
+export interface PqKeysConfig {
+  /** Hex-encoded recipient X25519 secret key (for decryption). */
+  recipientX25519Secret?: string | undefined;
+  /** Hex-encoded recipient ML-KEM-768 secret key (for decryption). */
+  recipientMlKemSecret?: string | undefined;
+  /** Hex-encoded recipient X25519 public key (for encryption). */
+  recipientX25519Public?: string | undefined;
+  /** Hex-encoded recipient ML-KEM-768 public key (for encryption). */
+  recipientMlKemPublic?: string | undefined;
+}
+
+/**
+ * Options for dedicated post-quantum streaming plugins and middleware.
+ */
+export interface PqStreamPluginConfig {
+  /** Recipient key pairs for hybrid stream encryption/decryption. */
+  recipientKeys: PqKeysConfig;
+  /** Routes to apply middleware to (glob patterns). */
+  routes?: string[] | undefined;
+  /** Chunk size in bytes for streaming AEAD. */
+  chunkSize?: number | undefined;
+}
+
 export interface MiddlewareConfig {
   /** Hex-encoded key for payload encryption/decryption. */
-  key?: string;
+  key?: string | undefined;
   /** Routes to apply middleware to (glob patterns). */
-  routes?: string[];
+  routes?: string[] | undefined;
   /** Operations to perform. */
   operations?: Array<
-    "decrypt-request" | "encrypt-response" | "verify-signature" | "verify-jwt"
+    | "decrypt-request"
+    | "encrypt-response"
+    | "verify-signature"
+    | "verify-jwt"
+    | "pq-decrypt-request"
+    | "pq-encrypt-response"
   >;
   /** HMAC key for webhook signature verification (hex-encoded). */
   hmacKey?: string;
@@ -36,6 +67,10 @@ export interface MiddlewareConfig {
   jwtIssuer?: string;
   /** Required JWT audience (`aud` claim) for `verify-jwt`; unchecked when unset. */
   jwtAudience?: string;
+  /** Post-quantum key pair configuration for PQ stream operations. */
+  pqKeys?: PqKeysConfig | undefined;
+  /** Chunk size in bytes for streaming encryption/decryption. */
+  chunkSize?: number | undefined;
 }
 
 /**

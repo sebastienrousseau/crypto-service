@@ -21,3 +21,9 @@ export { useKeypair, type UseKeypairResult } from "./hooks/useKeypair";
 export { useEncrypt, type UseEncryptResult } from "./hooks/useEncrypt";
 export { useHash, type UseHashResult } from "./hooks/useHash";
 export { useSignature, type UseSignatureResult } from "./hooks/useSignature";
+export {
+  usePqStream,
+  type UsePqStreamResult,
+  type PqRecipientPublicKeys,
+  type PqRecipientSecretKeys,
+} from "./hooks/usePqStream";

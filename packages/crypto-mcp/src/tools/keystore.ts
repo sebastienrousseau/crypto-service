@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
 /*
  * Key handles. Secret key material created or recovered by a tool stays
@@ -13,7 +14,13 @@ import crypto from "node:crypto";
 
 /** Kinds of key the store holds. */
 export type KeyKind =
-  "ed25519" | "rsa" | "ecc" | "ml-kem-768" | "symmetric-256" | "hmac-sha256";
+  | "ed25519"
+  | "rsa"
+  | "ecc"
+  | "x25519"
+  | "ml-kem-768"
+  | "symmetric-256"
+  | "hmac-sha256";
 
 /** Key material handed to {@link KeyStore.add}. */
 export interface KeyMaterial {
@@ -56,7 +63,9 @@ export function symmetricKey(secret: Buffer, source: string): KeyMaterial {
 
 /** Overwrite raw secret bytes. KeyObjects cannot be wiped from JS. */
 function wipe(key: KeyMaterial): void {
-  key.secret?.fill(0);
+  if (key.secret) {
+    wipeMemory(key.secret);
+  }
 }
 
 /** A bounded, least-recently-used store of keys addressed by handle. */

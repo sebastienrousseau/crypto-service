@@ -22,6 +22,16 @@
  * ```
  */
 
+/** Options for configuring client-side retry behavior on transient errors. */
+export interface RetryOptions {
+  /** Maximum number of retries for transient errors (429, 503, 504). Default: 0 (disabled). */
+  maxRetries?: number;
+  /** Initial retry delay in milliseconds. Default: 200. */
+  initialDelayMs?: number;
+  /** Maximum retry delay in milliseconds. Default: 2000. */
+  maxDelayMs?: number;
+}
+
 export interface ClientOptions {
   /** Base URL of the crypto server (e.g., "http://localhost:3000"). */
   baseUrl: string;
@@ -31,6 +41,16 @@ export interface ClientOptions {
   token?: string;
   /** Custom fetch implementation (defaults to global fetch). */
   fetch?: typeof globalThis.fetch;
+  /** Request timeout in milliseconds. */
+  timeout?: number;
+  /** Automatic retry options for transient errors (429, 503, 504). */
+  retry?: RetryOptions;
+  /**
+   * Optional W3C Trace Context traceparent header or generation flag.
+   * If a string is provided, it is sent as the traceparent header.
+   * If `true`, a fresh compliant W3C traceparent is generated per request.
+   */
+  traceparent?: string | boolean;
 }
 
 /**
@@ -380,4 +400,40 @@ export interface PasswordHashResult {
   algorithm: string;
   /** PHC-format encoded hash string. */
   phc: string;
+}
+
+/** Parameters for hybrid post-quantum stream encryption. */
+export interface StreamPqEncryptParams {
+  /** Recipient X25519 public key (64 hex characters). */
+  x25519PublicKey: string;
+  /** Recipient ML-KEM-768 public key (hex string). */
+  mlKemPublicKey: string;
+  /** Plaintext data to encrypt. */
+  plaintext: string;
+  /** Chunk size in bytes (optional, default 65536). */
+  chunkSize?: number;
+}
+
+/** Result of hybrid post-quantum stream encryption. */
+export interface StreamPqEncryptResult {
+  /** Base64-encoded encrypted stream ciphertext. */
+  ciphertext: string;
+  /** Algorithm identifier. */
+  algorithm: "x25519-ml-kem-768-xchacha20-poly1305-stream";
+}
+
+/** Parameters for hybrid post-quantum stream decryption. */
+export interface StreamPqDecryptParams {
+  /** Server-held keyId of algorithm x25519-ml-kem-768. */
+  keyId: string;
+  /** Base64-encoded stream ciphertext. */
+  ciphertext: string;
+  /** Chunk size used during encryption (optional). */
+  chunkSize?: number;
+}
+
+/** Result of hybrid post-quantum stream decryption. */
+export interface StreamPqDecryptResult {
+  /** Recovered plaintext string. */
+  plaintext: string;
 }

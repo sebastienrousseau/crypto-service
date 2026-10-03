@@ -26,4 +26,5 @@ module.exports = {
   // default __tests__/** glob picks up and tries to require as JS.
   spec: ["./__tests__/**/*.test.ts", "./__tests__/**/*.test.js"],
   require: ["ts-node/register/transpile-only"],
+  timeout: 60000,
 };

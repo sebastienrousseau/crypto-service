@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-testing",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Deterministic keys, fast mocks, and test fixtures for crypto-lib — make your CI/CD pipeline fast and reproducible.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -47,7 +47,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "devDependencies": {
-    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/mocha-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",

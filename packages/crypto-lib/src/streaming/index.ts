@@ -19,6 +19,8 @@ export {
   createEncryptStream,
   createDecryptStream,
   createHashStream,
+  createPqEncryptStream,
+  createPqDecryptStream,
   WEB_STREAM_HASH_ALGORITHMS,
 } from "./web-streams";
 /** Re-exported web stream option and result types. */
@@ -27,5 +29,19 @@ export type {
   HashStreamResult,
   EncryptStreamOptions,
   DecryptStreamOptions,
+  PqEncryptStreamOptions,
+  PqDecryptStreamOptions,
   CryptoTransformStream,
 } from "./web-streams";
+
+export {
+  streamPqEncrypt,
+  streamPqDecrypt,
+  PQ_STREAM_HEADER_LEN,
+} from "./stream-pq-aead";
+/** Re-exported PQ stream AEAD option and result types. */
+export type {
+  StreamPqEncryptOptions,
+  StreamPqEncryptResult,
+  StreamPqDecryptOptions,
+} from "./stream-pq-aead";
