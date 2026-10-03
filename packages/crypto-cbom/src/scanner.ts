@@ -179,7 +179,7 @@ const ASSET_RULES: AssetRule[] = [
     pattern: /\bx25519\b(?![-_]ml[-_]?kem)/i,
     name: "X25519",
     algorithm: "X25519",
-    type: "kdf",
+    type: "algorithm",
     keySize: 256,
     resistanceLevel: "VULNERABLE_CRQC",
     standard: "RFC 7748",
