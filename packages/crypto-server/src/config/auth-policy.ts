@@ -170,14 +170,22 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/pq/hybrid/keygen": "crypto:keys",
   "POST /v2/pq/dsa/keygen": "crypto:keys",
   "POST /v2/pq/slh-dsa/keygen": "crypto:keys",
+  // OPAQUE authentication (RFC 9807 zero-knowledge PAKE)
+  "POST /v2/opaque/register/init": AUTHENTICATED,
+  "POST /v2/opaque/register/finish": AUTHENTICATED,
+  "POST /v2/opaque/login/init": AUTHENTICATED,
+  "POST /v2/opaque/login/finish": AUTHENTICATED,
 });
 
 /**
  * Whether a URL is public (no authentication, no authorization): the
- * health, liveness, readiness and metrics probes and the API docs.
+ * health, liveness, readiness and metrics probes, API docs, and OPAQUE
+ * handshake endpoints (where the client does not yet possess credentials).
  */
 export function isPublicRoute(url: string): boolean {
-  return isProbePath(url) || url.startsWith("/docs");
+  return (
+    isProbePath(url) || url.startsWith("/docs") || url.startsWith("/v2/opaque")
+  );
 }
 
 /**

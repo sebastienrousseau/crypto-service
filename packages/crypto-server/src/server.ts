@@ -41,6 +41,7 @@ import { keyStoreFromEnv } from "./lib/key-store";
 import { KdfRunner } from "./lib/kdf-runner";
 import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
+import { OpaqueStore } from "./lib/opaque-store";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -141,9 +142,11 @@ async function init(): Promise<fastify.FastifyInstance> {
   });
 
   // Server-side custody of generated key pairs (see lib/key-store.ts),
-  // and KDF / password hashing on worker threads (lib/kdf-runner.ts).
+  // KDF / password hashing on worker threads (lib/kdf-runner.ts),
+  // and OPAQUE authentication state (lib/opaque-store.ts).
   app.decorate("keyStore", keyStoreFromEnv());
   app.decorate("kdf", new KdfRunner());
+  app.decorate("opaqueStore", new OpaqueStore());
   app.addHook("onClose", () => app.kdf.close());
 
   // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after

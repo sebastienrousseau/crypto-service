@@ -122,6 +122,7 @@ describe("Route authorization policy (F05)", function () {
       expect(routeRequirement("HEAD", "/")).to.equal(AUTHENTICATED);
       expect(routeRequirement("POST", "/nope")).to.equal(undefined);
       expect(isPublicRoute("/health?x=1")).to.equal(true);
+      expect(isPublicRoute("/v2/opaque/login/init")).to.equal(true);
       expect(isPublicRoute("/v2/hash")).to.equal(false);
     });
 

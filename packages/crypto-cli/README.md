@@ -264,6 +264,8 @@ Commands:
   password                  Hash or verify a password (Argon2id)
   cbom                      Generate or audit a Cryptographic Bill of Materials
   stream                    Post-quantum hybrid streaming AEAD operations
+  opaque                    OPAQUE zero-knowledge password authentication (RFC
+                            9807)
 ```
 
 #### `crypto-cli hash`
@@ -584,6 +586,72 @@ Options:
   -c, --chunk-size <bytes>   chunk size in bytes
   --json                     print the result as one line of JSON
   -h, --help                 print help
+```
+
+#### `crypto-cli opaque`
+
+```text
+Usage: crypto-cli opaque [options] [command]
+
+OPAQUE zero-knowledge password authentication (RFC 9807)
+
+Options:
+  -h, --help               print help
+
+Commands:
+  setup [options]          Generate server long-term keys and fake record
+  register [options] <id>  Register a password with an OPAQUE server
+  login [options] <id>     Authenticate against an OPAQUE server
+```
+
+#### `crypto-cli opaque setup`
+
+```text
+Usage: crypto-cli opaque setup [options]
+
+Generate server long-term keys and fake record
+
+Options:
+  -s, --suite <name>  ciphersuite (choices: "P256-SHA256",
+                      "ristretto255-SHA512", default: "P256-SHA256")
+  --json              print result as JSON
+  -h, --help          print help
+```
+
+#### `crypto-cli opaque register`
+
+```text
+Usage: crypto-cli opaque register [options] <id>
+
+Register a password with an OPAQUE server
+
+Options:
+  -u, --server-url <url>  server base URL
+  -s, --suite <name>      ciphersuite (choices: "P256-SHA256",
+                          "ristretto255-SHA512", default: "P256-SHA256")
+  --json                  print result as JSON
+  --password-file <path>  read the password from a file: one trailing line break
+                          is ignored
+  --password-stdin        read the password from standard input
+  -h, --help              print help
+```
+
+#### `crypto-cli opaque login`
+
+```text
+Usage: crypto-cli opaque login [options] <id>
+
+Authenticate against an OPAQUE server
+
+Options:
+  -u, --server-url <url>  server base URL
+  -s, --suite <name>      ciphersuite (choices: "P256-SHA256",
+                          "ristretto255-SHA512", default: "P256-SHA256")
+  --json                  print result as JSON
+  --password-file <path>  read the password from a file: one trailing line break
+                          is ignored
+  --password-stdin        read the password from standard input
+  -h, --help              print help
 ```
 
 <!-- cli-usage:end -->
