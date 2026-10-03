@@ -27,7 +27,7 @@
     "@sebastienrousseau/crypto-cbom": "workspace:*",
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "commander": "^14.0.3",
-    "figlet": "^1.6.0",
+    "figlet": "^1.12.0",
     "kleur": "^4.1.5",
     "prompts": "^2.4.2"
   },
