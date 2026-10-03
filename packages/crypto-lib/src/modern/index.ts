@@ -324,6 +324,8 @@ export const SUPPORTED_ALGORITHMS = {
     "hpke-x25519-chacha20",
     "hpke-x25519-aes128gcm",
     "hpke-p256-aes128gcm",
+    "hpke-x25519-ml-kem-768-chacha20",
+    "hpke-x25519-ml-kem-768-aes128gcm",
   ],
   /** Supported post-quantum algorithms. */
   postQuantum: [

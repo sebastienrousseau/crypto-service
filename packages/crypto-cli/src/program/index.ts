@@ -13,6 +13,7 @@ import { registerKeygen } from "./keygen";
 import { registerPassword } from "./password";
 import { registerSign, registerVerify } from "./sign";
 import { registerStream } from "./stream";
+import { registerOpaque } from "./opaque";
 
 export {
   EXIT,
@@ -50,6 +51,7 @@ export const buildProgram = (ctx: RunContext, version: string): Command => {
   registerPassword(program, ctx);
   registerCbom(program, ctx);
   registerStream(program, ctx);
+  registerOpaque(program, ctx);
   return program;
 };
 

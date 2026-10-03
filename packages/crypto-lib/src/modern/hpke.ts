@@ -26,6 +26,7 @@ import { extract, expand } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { gcm } from "@noble/ciphers/aes.js";
+import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -35,6 +36,8 @@ import { gcm } from "@noble/ciphers/aes.js";
 const KEM_X25519 = 0x0020;
 /** KEM identifier for DHKEM(P-256, HKDF-SHA256). */
 const KEM_P256 = 0x0010;
+/** KEM identifier for Post-Quantum Hybrid DHKEM(X25519, HKDF-SHA256) + ML-KEM-768. */
+const KEM_X25519_MLKEM768 = 0x0030;
 /** KDF identifier for HKDF-SHA256. */
 const KDF_HKDF_SHA256 = 0x0001;
 /** AEAD identifier for AES-128-GCM. */
@@ -55,10 +58,10 @@ const MODE_PSK = 0x01;
  *
  * @example
  * ```ts
- * const kem: HpkeKem = "x25519";
+ * const kem: HpkeKem = "x25519-ml-kem-768";
  * ```
  */
-export type HpkeKem = "x25519" | "p256";
+export type HpkeKem = "x25519" | "p256" | "x25519-ml-kem-768";
 
 /**
  * AEAD algorithm identifier.
@@ -180,10 +183,14 @@ function i2osp2(n: number): Uint8Array {
 
 /** Concatenate multiple byte arrays into a single Uint8Array. */
 function concat(...arrays: Uint8Array[]): Uint8Array {
-  const len = arrays.reduce((s, a) => s + a.length, 0);
+  let len = 0;
+  for (let i = 0; i < arrays.length; i++) {
+    len += arrays[i].length;
+  }
   const result = new Uint8Array(len);
   let offset = 0;
-  for (const a of arrays) {
+  for (let i = 0; i < arrays.length; i++) {
+    const a = arrays[i];
     result.set(a, offset);
     offset += a.length;
   }
@@ -213,22 +220,28 @@ interface SuiteParams {
 
 /** Resolve numeric identifiers and size constants for a KEM+AEAD pair. */
 function suiteParams(kem: HpkeKem, aead: HpkeAead): SuiteParams {
-  const kemId = kem === "x25519" ? KEM_X25519 : KEM_P256;
+  let kemId: number;
+  let nEnc: number;
+  let nSk: number;
+  if (kem === "x25519") {
+    kemId = KEM_X25519;
+    nEnc = 32;
+    nSk = 32;
+  } else if (kem === "p256") {
+    kemId = KEM_P256;
+    nEnc = 65;
+    nSk = 32;
+  } else {
+    kemId = KEM_X25519_MLKEM768;
+    nEnc = 1120; // 32 bytes X25519 epk + 1088 bytes ML-KEM-768 ciphertext
+    nSk = 2432; // 32 bytes X25519 sk + 2400 bytes ML-KEM-768 sk
+  }
+
   const aeadId =
     aead === "chacha20-poly1305" ? AEAD_CHACHA20_POLY1305 : AEAD_AES_128_GCM;
   const nk = aead === "chacha20-poly1305" ? 32 : 16;
   const nn = 12;
-  const nSecret = 32; // both KEMs use SHA-256 → 32-byte shared secret
-
-  let nEnc: number;
-  let nSk: number;
-  if (kem === "x25519") {
-    nEnc = 32; // X25519 public key is 32 bytes
-    nSk = 32;
-  } else {
-    nEnc = 65; // P-256 uncompressed public key is 65 bytes
-    nSk = 32;
-  }
+  const nSecret = 32;
 
   return {
     kemId,
@@ -380,6 +393,63 @@ function dhkemDecap(
   return extractAndExpand(params, dh, concat(enc, recipientPub));
 }
 
+/** Encap for X25519-ML-KEM-768 hybrid KEM. */
+function hybridEncap(
+  recipientPub: Uint8Array,
+  ephemeralPrivateKey: Uint8Array,
+  params: SuiteParams,
+): { sharedSecret: Uint8Array; enc: Uint8Array } {
+  if (recipientPub.length !== 1216) {
+    throw new Error(
+      "Invalid recipient public key length for x25519-ml-kem-768",
+    );
+  }
+  const pkX = recipientPub.subarray(0, 32);
+  const pkMlKem = recipientPub.subarray(32);
+
+  const ephPrivX = ephemeralPrivateKey.subarray(0, 32);
+  const encX = x25519.getPublicKey(ephPrivX);
+  const ssClassical = x25519.getSharedSecret(ephPrivX, pkX);
+
+  const { cipherText: ctMlKem, sharedSecret: ssMlKem } =
+    ml_kem768.encapsulate(pkMlKem);
+  const enc = concat(encX, ctMlKem);
+  const ikm = concat(ssClassical, ssMlKem);
+  const sharedSecret = extractAndExpand(params, ikm, concat(enc, recipientPub));
+  return { sharedSecret, enc };
+}
+
+/** Decap for X25519-ML-KEM-768 hybrid KEM. */
+function hybridDecap(
+  enc: Uint8Array,
+  recipientPriv: Uint8Array,
+  params: SuiteParams,
+): Uint8Array {
+  if (recipientPriv.length !== 2432) {
+    throw new Error(
+      "Invalid recipient private key length for x25519-ml-kem-768",
+    );
+  }
+  if (enc.length !== 1120) {
+    throw new Error("Invalid encapsulated key length for x25519-ml-kem-768");
+  }
+  const skX = recipientPriv.subarray(0, 32);
+  const skMlKem = recipientPriv.subarray(32);
+
+  const encX = enc.subarray(0, 32);
+  const ctMlKem = enc.subarray(32);
+
+  const ssClassical = x25519.getSharedSecret(skX, encX);
+  const ssMlKem = ml_kem768.decapsulate(ctMlKem, skMlKem);
+
+  const pkX = x25519.getPublicKey(skX);
+  const pkMlKem = ml_kem768.getPublicKey(skMlKem);
+  const recipientPub = concat(pkX, pkMlKem);
+
+  const ikm = concat(ssClassical, ssMlKem);
+  return extractAndExpand(params, ikm, concat(enc, recipientPub));
+}
+
 // ---------------------------------------------------------------------------
 // Key Schedule (RFC 9180 § 5.1)
 // ---------------------------------------------------------------------------
@@ -505,6 +575,15 @@ function aeadOpen(
  * ```
  */
 export function hpkeGenerateKeyPair(kem: HpkeKem = "x25519"): HpkeKeyPair {
+  if (kem === "x25519-ml-kem-768") {
+    const skX = x25519.utils.randomSecretKey();
+    const pkX = x25519.getPublicKey(skX);
+    const { publicKey: pkMlKem, secretKey: skMlKem } = ml_kem768.keygen();
+    return {
+      publicKey: bytesToHex(concat(pkX, pkMlKem)),
+      privateKey: bytesToHex(concat(skX, skMlKem)),
+    };
+  }
   const privateKey = kemRandomPrivateKey(kem);
   return {
     publicKey: bytesToHex(kemPublicKey(kem, privateKey)),
@@ -548,7 +627,11 @@ export function hpkeSeal(options: {
   psk?: HpkePskOptions;
 }): HpkeSealResult {
   const kem = options.suite?.kem ?? "x25519";
-  const sealed = hpkeSealWithEphemeral(options, kemRandomPrivateKey(kem));
+  const ephemeralPrivateKey =
+    kem === "x25519-ml-kem-768"
+      ? x25519.utils.randomSecretKey()
+      : kemRandomPrivateKey(kem);
+  const sealed = hpkeSealWithEphemeral(options, ephemeralPrivateKey);
   return {
     ciphertext: sealed.ciphertext,
     encapsulatedKey: sealed.encapsulatedKey,
@@ -581,12 +664,10 @@ export function hpkeSealWithEphemeral(
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
   const inputs = scheduleInputs(options);
 
-  const { sharedSecret, enc } = dhkemEncap(
-    kem,
-    recipientPub,
-    ephemeralPrivateKey,
-    params,
-  );
+  const { sharedSecret, enc } =
+    kem === "x25519-ml-kem-768"
+      ? hybridEncap(recipientPub, ephemeralPrivateKey, params)
+      : dhkemEncap(kem, recipientPub, ephemeralPrivateKey, params);
   const ks = keySchedule(params, sharedSecret, inputs);
   const ct = aeadSeal(aead, ks.key, ks.baseNonce, aad, plaintext);
 
@@ -650,7 +731,10 @@ export function hpkeOpen(options: {
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
   const inputs = scheduleInputs(options);
 
-  const sharedSecret = dhkemDecap(kem, enc, recipientPriv, params);
+  const sharedSecret =
+    kem === "x25519-ml-kem-768"
+      ? hybridDecap(enc, recipientPriv, params)
+      : dhkemDecap(kem, enc, recipientPriv, params);
   const { key, baseNonce } = keySchedule(params, sharedSecret, inputs);
   const pt = aeadOpen(aead, key, baseNonce, aad, ciphertext);
 

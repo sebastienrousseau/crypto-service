@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import { expect } from "chai";
 import {
+  KmsError,
   LocalKmsProvider,
   AwsKmsProvider,
   GcpKmsProvider,
@@ -655,6 +656,28 @@ describe("LocalKmsProvider", () => {
       expect(dek.plaintext).to.have.length(32);
     });
   });
+
+  describe("wrapKey and unwrapKey", () => {
+    it("wraps and unwraps a key with context", async () => {
+      const kek = await provider.createKey("aes-256-gcm", "wrap");
+      const secret = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const wrapped = await provider.wrapKey(kek.keyId, secret, {
+        env: "prod",
+      });
+      expect(wrapped.wrappedKey).to.be.a("string");
+      expect(wrapped.keyId).to.equal(kek.keyId);
+
+      const unwrapped = await provider.unwrapKey(
+        kek.keyId,
+        wrapped.wrappedKey,
+        { env: "prod" },
+      );
+      expect(Array.from(unwrapped.unwrappedKey)).to.deep.equal([
+        1, 2, 3, 4, 5, 6, 7, 8,
+      ]);
+      expect(unwrapped.keyId).to.equal(kek.keyId);
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -880,78 +903,525 @@ describe("VaultKmsProvider", () => {
     expect(headers["Content-Type"]).to.equal("application/json");
   });
 
-  const methods: Array<{
-    name: string;
-    call: () => Promise<unknown>;
-  }> = [
-    { name: "listKeys", call: () => provider.listKeys() },
-    {
-      name: "listKeys (with filter)",
-      call: () => provider.listKeys({ usage: "sign" }),
-    },
-    { name: "getKey", call: () => provider.getKey("k1") },
-    {
-      name: "createKey",
-      call: () => provider.createKey("aes256-gcm96", "encrypt"),
-    },
-    {
-      name: "createKey (with metadata)",
-      call: () => provider.createKey("aes256-gcm96", "wrap", { env: "prod" }),
-    },
-    { name: "enableKey", call: () => provider.enableKey("k1") },
-    { name: "disableKey", call: () => provider.disableKey("k1") },
-    {
-      name: "scheduleKeyDeletion",
-      call: () => provider.scheduleKeyDeletion("k1"),
-    },
-    {
-      name: "scheduleKeyDeletion (with days)",
-      call: () => provider.scheduleKeyDeletion("k1", 3),
-    },
-    {
-      name: "encrypt",
-      call: () => provider.encrypt("k1", new Uint8Array(1)),
-    },
-    {
-      name: "encrypt (with context)",
-      call: () => provider.encrypt("k1", new Uint8Array(1), { a: "b" }),
-    },
-    { name: "decrypt", call: () => provider.decrypt("k1", "ct") },
-    {
-      name: "decrypt (with context)",
-      call: () => provider.decrypt("k1", "ct", { a: "b" }),
-    },
-    { name: "sign", call: () => provider.sign("k1", new Uint8Array(1)) },
-    {
-      name: "sign (with algorithm)",
-      call: () => provider.sign("k1", new Uint8Array(1), "hmac"),
-    },
-    {
-      name: "verify",
-      call: () => provider.verify("k1", new Uint8Array(1), "sig"),
-    },
-    {
-      name: "verify (with algorithm)",
-      call: () => provider.verify("k1", new Uint8Array(1), "sig", "hmac"),
-    },
-    { name: "rotateKey", call: () => provider.rotateKey("k1") },
-    { name: "generateDataKey", call: () => provider.generateDataKey("k1") },
-    {
-      name: "generateDataKey (with spec)",
-      call: () => provider.generateDataKey("k1", "AES_128"),
-    },
-  ];
+  describe("Vault operations", () => {
+    let origFetch: typeof globalThis.fetch;
 
-  for (const m of methods) {
-    it(`${m.name} throws "Not implemented"`, async () => {
+    before(() => {
+      origFetch = globalThis.fetch;
+    });
+
+    after(() => {
+      globalThis.fetch = origFetch;
+    });
+
+    function mockFetch(
+      fn: (url: string, init?: RequestInit) => Promise<Response> | Response,
+    ): void {
+      globalThis.fetch = ((url: unknown, init?: unknown) => {
+        return Promise.resolve(
+          fn(String(url), init as RequestInit | undefined),
+        );
+      }) as typeof globalThis.fetch;
+    }
+
+    it("buildHeaders includes namespace when configured", () => {
+      const p = new VaultKmsProvider({
+        address: "http://127.0.0.1:8200",
+        token: "tok",
+        namespace: "tenant-a",
+      });
+      const h = p.buildHeaders();
+      expect(h["X-Vault-Namespace"]).to.equal("tenant-a");
+    });
+
+    it("handles fetch network failure", async () => {
+      mockFetch(() => {
+        throw new Error("connection refused");
+      });
       try {
-        await m.call();
-        expect.fail("should have thrown");
+        await provider.getKey("k1");
+        expect.fail("should throw");
       } catch (err) {
-        expect((err as Error).message).to.include("Not implemented");
+        expect((err as KmsError).code).to.equal("INVALID_ARGUMENT");
+        expect((err as KmsError).message).to.include("connection refused");
       }
     });
-  }
+
+    it("handles 404 not found", async () => {
+      mockFetch(() => new Response("Not found", { status: 404 }));
+      try {
+        await provider.getKey("missing");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("NOT_FOUND");
+      }
+    });
+
+    it("handles 400 decryption failed", async () => {
+      mockFetch(
+        () =>
+          new Response(JSON.stringify({ errors: ["ciphertext is invalid"] }), {
+            status: 400,
+          }),
+      );
+      try {
+        await provider.decrypt("k1", "bad-ct");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("DECRYPTION_FAILED");
+      }
+    });
+
+    it("handles disabled key error", async () => {
+      mockFetch(
+        () =>
+          new Response(JSON.stringify({ errors: ["key is disabled"] }), {
+            status: 400,
+          }),
+      );
+      try {
+        await provider.encrypt("k1", new Uint8Array([1, 2]));
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("DISABLED");
+      }
+    });
+
+    it("handles generic HTTP error with JSON errors", async () => {
+      mockFetch(
+        () =>
+          new Response(JSON.stringify({ errors: ["permission denied"] }), {
+            status: 403,
+          }),
+      );
+      try {
+        await provider.getKey("k1");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("INVALID_ARGUMENT");
+        expect((err as KmsError).message).to.include("permission denied");
+      }
+    });
+
+    it("handles generic HTTP error with non-JSON text", async () => {
+      mockFetch(() => new Response("internal error", { status: 500 }));
+      try {
+        await provider.getKey("k1");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("INVALID_ARGUMENT");
+        expect((err as KmsError).message).to.include("HTTP 500");
+      }
+    });
+
+    it("handles empty response body text", async () => {
+      mockFetch(() => new Response("", { status: 200 }));
+      const meta = await provider.getKey("empty-key");
+      expect(meta.keyId).to.equal("empty-key");
+      expect(meta.algorithm).to.equal("aes256-gcm96");
+    });
+
+    it("getKey maps encryption key details", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              data: {
+                name: "enc-key",
+                type: "aes256-gcm96",
+                supports_signing: false,
+                latest_version: 2,
+                min_encryption_version: 1,
+              },
+            }),
+          ),
+      );
+      const meta = await provider.getKey("enc-key");
+      expect(meta.keyId).to.equal("enc-key");
+      expect(meta.algorithm).to.equal("aes256-gcm96");
+      expect(meta.usage).to.equal("encrypt");
+      expect(meta.enabled).to.be.true;
+      expect(meta.currentVersion).to.equal(2);
+    });
+
+    it("getKey maps signing key and disabled key details", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              data: {
+                name: "sig-key",
+                type: "ed25519",
+                supports_signing: true,
+                latest_version: 1,
+                min_encryption_version: 2,
+              },
+            }),
+          ),
+      );
+      const meta = await provider.getKey("sig-key");
+      expect(meta.usage).to.equal("sign");
+      expect(meta.enabled).to.be.false;
+    });
+
+    it("getKey handles missing optional fields and fallback data envelope", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              name: "sparse-key",
+            }),
+          ),
+      );
+      const meta = await provider.getKey("sparse-key");
+      expect(meta.algorithm).to.equal("aes256-gcm96");
+      expect(meta.enabled).to.be.true;
+      expect(meta.currentVersion).to.be.undefined;
+    });
+
+    it("listKeys retrieves and filters keys", async () => {
+      mockFetch((url) => {
+        if (url.includes("keys?list=true")) {
+          return new Response(
+            JSON.stringify({ data: { keys: ["k1", "k2", "bad"] } }),
+          );
+        }
+        if (url.includes("keys/k1")) {
+          return new Response(
+            JSON.stringify({
+              data: {
+                name: "k1",
+                type: "aes256-gcm96",
+                supports_signing: false,
+                latest_version: 1,
+                min_encryption_version: 0,
+              },
+            }),
+          );
+        }
+        if (url.includes("keys/k2")) {
+          return new Response(
+            JSON.stringify({
+              data: {
+                name: "k2",
+                type: "ed25519",
+                supports_signing: true,
+                latest_version: 1,
+                min_encryption_version: 0,
+              },
+            }),
+          );
+        }
+        return new Response("Not found", { status: 404 });
+      });
+
+      const all = await provider.listKeys();
+      expect(all.length).to.equal(2);
+
+      const signOnly = await provider.listKeys({ usage: "sign" });
+      expect(signOnly.length).to.equal(1);
+      expect(signOnly[0].keyId).to.equal("k2");
+
+      const encOnly = await provider.listKeys({
+        enabled: true,
+        usage: "encrypt",
+      });
+      expect(encOnly.length).to.equal(1);
+      expect(encOnly[0].keyId).to.equal("k1");
+
+      const disabledOnly = await provider.listKeys({
+        enabled: false,
+      });
+      expect(disabledOnly.length).to.equal(0);
+    });
+
+    it("listKeys handles empty keys response", async () => {
+      mockFetch(() => new Response(JSON.stringify({ data: {} })));
+      const all = await provider.listKeys();
+      expect(all).to.deep.equal([]);
+    });
+
+    it("createKey creates keys with various algorithm mappings", async () => {
+      let createdType = "";
+      mockFetch((url, init) => {
+        if (init?.method === "POST" && url.includes("keys/")) {
+          const body = JSON.parse(init.body as string);
+          createdType = body.type;
+          return new Response(JSON.stringify({}));
+        }
+        return new Response(
+          JSON.stringify({
+            data: {
+              name: "k",
+              type: createdType,
+              supports_signing: createdType === "ed25519",
+              latest_version: 1,
+            },
+          }),
+        );
+      });
+
+      await provider.createKey("ed25519", "sign", { keyId: "my-ed25519" });
+      expect(createdType).to.equal("ed25519");
+
+      await provider.createKey("chacha20-poly1305", "encrypt");
+      expect(createdType).to.equal("chacha20-poly1305");
+
+      await provider.createKey("rsa-4096", "encrypt");
+      expect(createdType).to.equal("rsa-4096");
+
+      await provider.createKey("rsa-2048", "encrypt");
+      expect(createdType).to.equal("rsa-2048");
+
+      await provider.createKey("ecdsa-p256", "sign");
+      expect(createdType).to.equal("ecdsa-p256");
+
+      await provider.createKey("custom-algo", "sign");
+      expect(createdType).to.equal("ed25519");
+
+      await provider.createKey("aes-256-gcm", "encrypt");
+      expect(createdType).to.equal("aes256-gcm96");
+    });
+
+    it("enableKey and disableKey update config", async () => {
+      let postedConfig: Record<string, unknown> = {};
+      mockFetch((url, init) => {
+        if (url.includes("/config") && init?.method === "POST") {
+          postedConfig = JSON.parse(init.body as string);
+          return new Response(JSON.stringify({}));
+        }
+        return new Response(
+          JSON.stringify({
+            data: { name: "k1", type: "aes256-gcm96", latest_version: 3 },
+          }),
+        );
+      });
+
+      await provider.enableKey("k1");
+      expect(postedConfig.min_encryption_version).to.equal(0);
+
+      await provider.disableKey("k1");
+      expect(postedConfig.min_encryption_version).to.equal(4);
+    });
+
+    it("disableKey uses default version 1 when currentVersion is absent", async () => {
+      let postedConfig: Record<string, unknown> = {};
+      mockFetch((url, init) => {
+        if (url.includes("/config") && init?.method === "POST") {
+          postedConfig = JSON.parse(init.body as string);
+          return new Response(JSON.stringify({}));
+        }
+        return new Response(
+          JSON.stringify({
+            data: { name: "k1", type: "aes256-gcm96" },
+          }),
+        );
+      });
+
+      await provider.disableKey("k1");
+      expect(postedConfig.min_encryption_version).to.equal(2);
+    });
+
+    it("scheduleKeyDeletion configures deletion and deletes key", async () => {
+      let deleted = false;
+      let deletionAllowed = false;
+      mockFetch((url, init) => {
+        if (url.includes("/config") && init?.method === "POST") {
+          const body = JSON.parse(init.body as string);
+          deletionAllowed = Boolean(body.deletion_allowed);
+          return new Response(JSON.stringify({}));
+        }
+        if (init?.method === "DELETE") {
+          deleted = true;
+          return new Response(JSON.stringify({}));
+        }
+        return new Response(JSON.stringify({}));
+      });
+
+      await provider.scheduleKeyDeletion("k1", 5);
+      expect(deletionAllowed).to.be.true;
+      expect(deleted).to.be.true;
+    });
+
+    it("encrypt and decrypt with and without context", async () => {
+      mockFetch((url, init) => {
+        if (url.includes("encrypt/k1")) {
+          const body = JSON.parse(init?.body as string);
+          return new Response(
+            JSON.stringify({
+              data: { ciphertext: `vault:v1:${body.plaintext}` },
+            }),
+          );
+        }
+        if (url.includes("decrypt/k1")) {
+          const body = JSON.parse(init?.body as string);
+          const raw = body.ciphertext.replace("vault:v1:", "");
+          return new Response(
+            JSON.stringify({
+              data: { plaintext: raw },
+            }),
+          );
+        }
+        return new Response("Not found", { status: 404 });
+      });
+
+      const enc = await provider.encrypt("k1", new Uint8Array([65, 66, 67]), {
+        session: "123",
+      });
+      expect(enc.ciphertext).to.include("vault:v1:");
+      expect(enc.context).to.deep.equal({ session: "123" });
+
+      const dec = await provider.decrypt("k1", enc.ciphertext, {
+        session: "123",
+      });
+      expect(Array.from(dec.plaintext)).to.deep.equal([65, 66, 67]);
+
+      const encNoCtx = await provider.encrypt(
+        "k1",
+        new Uint8Array([65, 66, 67]),
+      );
+      expect(encNoCtx.context).to.be.undefined;
+      const decNoCtx = await provider.decrypt("k1", encNoCtx.ciphertext);
+      expect(Array.from(decNoCtx.plaintext)).to.deep.equal([65, 66, 67]);
+    });
+
+    it("sign and verify operations", async () => {
+      mockFetch((url, init) => {
+        if (url.includes("sign/k1")) {
+          return new Response(
+            JSON.stringify({
+              data: { signature: "vault:v1:c2lnbmF0dXJl" },
+            }),
+          );
+        }
+        if (url.includes("verify/k1")) {
+          const body = JSON.parse(init?.body as string);
+          return new Response(
+            JSON.stringify({
+              data: { valid: body.signature === "vault:v1:c2lnbmF0dXJl" },
+            }),
+          );
+        }
+        return new Response("Not found", { status: 404 });
+      });
+
+      const sigResult = await provider.sign(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "sha2-512",
+      );
+      expect(sigResult.signature).to.equal("vault:v1:c2lnbmF0dXJl");
+      expect(sigResult.algorithm).to.equal("sha2-512");
+
+      const valid = await provider.verify(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "vault:v1:c2lnbmF0dXJl",
+      );
+      expect(valid).to.be.true;
+
+      const invalid = await provider.verify(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "wrong-sig",
+      );
+      expect(invalid).to.be.false;
+    });
+
+    it("verify returns false when request throws", async () => {
+      mockFetch(() => {
+        throw new Error("network error");
+      });
+      const valid = await provider.verify(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "sig",
+      );
+      expect(valid).to.be.false;
+    });
+
+    it("rotateKey rotates key and returns updated metadata", async () => {
+      let rotated = false;
+      mockFetch((url, init) => {
+        if (url.includes("keys/k1/rotate") && init?.method === "POST") {
+          rotated = true;
+          return new Response(JSON.stringify({}));
+        }
+        return new Response(
+          JSON.stringify({
+            data: { name: "k1", type: "aes256-gcm96", latest_version: 2 },
+          }),
+        );
+      });
+
+      const meta = await provider.rotateKey("k1");
+      expect(rotated).to.be.true;
+      expect(meta.currentVersion).to.equal(2);
+    });
+
+    it("generateDataKey generates wrapped keys with 256 and 128 bit specs", async () => {
+      let requestedBits = 0;
+      mockFetch((url, init) => {
+        if (url.includes("datakey/plaintext/k1")) {
+          const body = JSON.parse(init?.body as string);
+          requestedBits = body.bits;
+          return new Response(
+            JSON.stringify({
+              data: {
+                plaintext: Buffer.from("super-secret-key-material").toString(
+                  "base64",
+                ),
+                ciphertext: "vault:v1:wrapped-key-bytes",
+              },
+            }),
+          );
+        }
+        return new Response("Not found", { status: 404 });
+      });
+
+      const dek256 = await provider.generateDataKey("k1");
+      expect(requestedBits).to.equal(256);
+      expect(dek256.ciphertext).to.equal("vault:v1:wrapped-key-bytes");
+
+      const dek128 = await provider.generateDataKey("k1", "AES_128");
+      expect(requestedBits).to.equal(128);
+      expect(dek128.ciphertext).to.equal("vault:v1:wrapped-key-bytes");
+    });
+
+    it("wrapKey and unwrapKey operations", async () => {
+      mockFetch((url, init) => {
+        if (url.includes("encrypt/k1")) {
+          const body = JSON.parse(init?.body as string);
+          return new Response(
+            JSON.stringify({
+              data: { ciphertext: `wrapped:${body.plaintext}` },
+            }),
+          );
+        }
+        if (url.includes("decrypt/k1")) {
+          const body = JSON.parse(init?.body as string);
+          const raw = body.ciphertext.replace("wrapped:", "");
+          return new Response(
+            JSON.stringify({
+              data: { plaintext: raw },
+            }),
+          );
+        }
+        return new Response("Not found", { status: 404 });
+      });
+
+      const secret = new Uint8Array([10, 20, 30, 40]);
+      const wrapped = await provider.wrapKey("k1", secret);
+      expect(wrapped.wrappedKey).to.include("wrapped:");
+      expect(wrapped.keyId).to.equal("k1");
+
+      const unwrapped = await provider.unwrapKey("k1", wrapped.wrappedKey);
+      expect(Array.from(unwrapped.unwrappedKey)).to.deep.equal([
+        10, 20, 30, 40,
+      ]);
+      expect(unwrapped.keyId).to.equal("k1");
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1427,6 +1897,28 @@ describe("AwsKmsProvider", () => {
       });
       await p.generateDataKey("k1");
       expect(called).to.be.true;
+    });
+
+    it("wrapKey delegates to encrypt", async () => {
+      const p = createMocked(async () => ({
+        CiphertextBlob: Buffer.from("wrapped-key-bytes"),
+        KeyId: "arn:aws:kms:us-east-1:123:key/k1",
+      }));
+      const res = await p.wrapKey("k1", new Uint8Array([1, 2, 3]));
+      expect(res.wrappedKey).to.be.a("string");
+      expect(res.keyId).to.equal("arn:aws:kms:us-east-1:123:key/k1");
+    });
+
+    it("unwrapKey delegates to decrypt", async () => {
+      const p = createMocked(async () => ({
+        Plaintext: Buffer.from("secret-bytes"),
+        KeyId: "arn:aws:kms:us-east-1:123:key/k1",
+      }));
+      const res = await p.unwrapKey("k1", "wrapped-blob");
+      expect(Array.from(res.unwrappedKey)).to.deep.equal(
+        Array.from(Buffer.from("secret-bytes")),
+      );
+      expect(res.keyId).to.equal("arn:aws:kms:us-east-1:123:key/k1");
     });
 
     it("getClient with credentials sets config.credentials", async () => {

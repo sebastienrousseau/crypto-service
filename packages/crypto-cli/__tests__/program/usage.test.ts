@@ -33,6 +33,10 @@ const SUBCOMMANDS = [
   "crypto-cli stream decrypt",
   "crypto-cli stream multi-encrypt",
   "crypto-cli stream multi-decrypt",
+  "crypto-cli opaque",
+  "crypto-cli opaque setup",
+  "crypto-cli opaque register",
+  "crypto-cli opaque login",
 ];
 
 describe("README command reference", () => {

@@ -322,4 +322,24 @@ export class AwsKmsProvider implements KmsProvider {
       ciphertext: Buffer.from(result.CiphertextBlob!).toString("base64"),
     };
   }
+
+  /** Wrap an existing key with the managed key. */
+  async wrapKey(
+    keyId: string,
+    unwrappedKey: Uint8Array,
+    context?: Record<string, string>,
+  ): Promise<{ wrappedKey: string; keyId: string }> {
+    const enc = await this.encrypt(keyId, unwrappedKey, context);
+    return { wrappedKey: enc.ciphertext, keyId: enc.keyId };
+  }
+
+  /** Unwrap a wrapped key with the managed key. */
+  async unwrapKey(
+    keyId: string,
+    wrappedKey: string,
+    context?: Record<string, string>,
+  ): Promise<{ unwrappedKey: Uint8Array; keyId: string }> {
+    const dec = await this.decrypt(keyId, wrappedKey, context);
+    return { unwrappedKey: dec.plaintext, keyId: dec.keyId };
+  }
 }

@@ -197,4 +197,18 @@ export interface KmsProvider {
     /** Encrypted (wrapped) data key. */
     ciphertext: string;
   }>;
+
+  /** Wrap an existing key with the managed key. */
+  wrapKey?(
+    keyId: string,
+    unwrappedKey: Uint8Array,
+    context?: Record<string, string>,
+  ): Promise<{ wrappedKey: string; keyId: string }>;
+
+  /** Unwrap a wrapped key with the managed key. */
+  unwrapKey?(
+    keyId: string,
+    wrappedKey: string,
+    context?: Record<string, string>,
+  ): Promise<{ unwrappedKey: Uint8Array; keyId: string }>;
 }

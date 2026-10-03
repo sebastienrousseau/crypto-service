@@ -8,7 +8,6 @@ import {
   Pkcs11HsmProvider,
   GcpKmsProvider,
   AzureKmsProvider,
-  VaultKmsProvider,
 } from "../src/index";
 import type { KmsProvider } from "../src/index";
 import { ed25519Verify } from "@sebastienrousseau/crypto-lib";
@@ -265,7 +264,6 @@ describe("stub providers reject with NOT_IMPLEMENTED", () => {
   const stubs: KmsProvider[] = [
     new GcpKmsProvider({ projectId: "p", locationId: "l", keyRingId: "r" }),
     new AzureKmsProvider({ vaultUrl: "https://v.vault.azure.net" }),
-    new VaultKmsProvider({ address: "http://127.0.0.1:8200", token: "t" }),
   ];
   for (const stub of stubs) {
     it(`${stub.name}`, async () => {
