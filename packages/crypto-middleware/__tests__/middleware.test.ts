@@ -6,18 +6,28 @@
 import { expect } from "chai";
 import * as crypto from "node:crypto";
 
+import { generateKeyPair } from "@sebastienrousseau/crypto-lib/keys";
+
 // --- Types ---
 import { CryptoMiddlewareError } from "../src/types";
 import type { MiddlewareConfig } from "../src/types";
 
 // --- Framework adapters ---
-import { createCryptoMiddleware as createExpressMiddleware } from "../src/express";
-import { cryptoPlugin as fastifyCryptoPlugin } from "../src/fastify";
+import {
+  createCryptoMiddleware as createExpressMiddleware,
+  createPqStreamMiddleware,
+} from "../src/express";
+import {
+  cryptoPlugin as fastifyCryptoPlugin,
+  pqStreamPlugin,
+} from "../src/fastify";
 
 // --- Common functions ---
 import {
   encryptPayload,
   decryptPayload,
+  encryptPqPayload,
+  decryptPqPayload,
   verifyHmacSignature,
   verifyJwt,
   matchRoute,
@@ -177,6 +187,73 @@ describe("encryptPayload / decryptPayload", () => {
       const e = err as CryptoMiddlewareError;
       expect(e.code).to.equal("DECRYPTION_FAILED");
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests: encryptPqPayload / decryptPqPayload (common.ts)
+// ---------------------------------------------------------------------------
+
+describe("encryptPqPayload / decryptPqPayload", () => {
+  const xPair = generateKeyPair("x25519");
+  const kemPair = generateKeyPair("ml-kem-768");
+
+  it("should round-trip a JSON object with default chunk size", () => {
+    const payload = { hello: "world", count: 99 };
+    const sealed = encryptPqPayload(
+      xPair.publicKey,
+      kemPair.publicKey,
+      payload,
+    );
+    expect(sealed).to.be.a("string");
+    const decrypted = decryptPqPayload(
+      xPair.privateKey,
+      kemPair.privateKey,
+      sealed,
+    );
+    expect(decrypted).to.deep.equal(payload);
+  });
+
+  it("should round-trip with a custom chunk size", () => {
+    const payload = { data: "custom-chunk-size" };
+    const sealed = encryptPqPayload(
+      xPair.publicKey,
+      kemPair.publicKey,
+      payload,
+      512,
+    );
+    const decrypted = decryptPqPayload(
+      xPair.privateKey,
+      kemPair.privateKey,
+      sealed,
+      512,
+    );
+    expect(decrypted).to.deep.equal(payload);
+  });
+
+  it("should round-trip a stringified payload", () => {
+    const jsonString = JSON.stringify({ raw: true });
+    const sealed = encryptPqPayload(
+      xPair.publicKey,
+      kemPair.publicKey,
+      jsonString,
+    );
+    const decrypted = decryptPqPayload(
+      xPair.privateKey,
+      kemPair.privateKey,
+      sealed,
+    );
+    expect(decrypted).to.deep.equal({ raw: true });
+  });
+
+  it("should throw CryptoMiddlewareError on decryption failure", () => {
+    expect(() =>
+      decryptPqPayload(
+        xPair.privateKey,
+        kemPair.privateKey,
+        "invalid-base64-payload",
+      ),
+    ).to.throw(CryptoMiddlewareError);
   });
 });
 
@@ -745,6 +822,156 @@ describe("Express middleware (createCryptoMiddleware)", () => {
     expect(nextCalled).to.equal(false);
     expect(res.statusCode).to.equal(500);
     expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
+  });
+
+  // --- pq-decrypt-request ---
+
+  it("should decrypt a PQ encrypted request body", () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const original = { message: "pq-hello" };
+    const sealed = encryptPqPayload(
+      xPair.publicKey,
+      kemPair.publicKey,
+      original,
+    );
+    const mw = createCryptoMiddleware({
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+    });
+    const req = mockReq({ body: { encrypted: sealed } });
+    const res = mockRes();
+    let nextCalled = false;
+    mw(req, res, () => {
+      nextCalled = true;
+    });
+    expect(nextCalled).to.equal(true);
+    expect(req.body).to.deep.equal(original);
+  });
+
+  it("should return 500 when pq-decrypt-request is used without pqKeys secrets", () => {
+    const mw = createCryptoMiddleware({
+      operations: ["pq-decrypt-request"],
+    });
+    const req = mockReq({ body: { encrypted: "dummy" } });
+    const res = mockRes();
+    let nextCalled = false;
+    mw(req, res, () => {
+      nextCalled = true;
+    });
+    expect(nextCalled).to.equal(false);
+    expect(res.statusCode).to.equal(500);
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
+  });
+
+  // --- pq-encrypt-response ---
+
+  it("should intercept res.json and encrypt the response with PQ stream AEAD", () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const mw = createCryptoMiddleware({
+      operations: ["pq-encrypt-response"],
+      pqKeys: {
+        recipientX25519Public: xPair.publicKey,
+        recipientMlKemPublic: kemPair.publicKey,
+      },
+    });
+    const req = mockReq();
+    const res = mockRes();
+    let nextCalled = false;
+    mw(req, res, () => {
+      nextCalled = true;
+    });
+    expect(nextCalled).to.equal(true);
+
+    res.json({ secret: "quantum" });
+    const body = res._body as { encrypted: string; algorithm: string };
+    expect(body).to.have.property("encrypted");
+    expect(body.algorithm).to.equal("X25519-ML-KEM-768-XChaCha20-Poly1305");
+    const decrypted = decryptPqPayload(
+      xPair.privateKey,
+      kemPair.privateKey,
+      body.encrypted,
+    );
+    expect(decrypted).to.deep.equal({ secret: "quantum" });
+  });
+
+  it("should return 500 when pq-encrypt-response is used without public keys", () => {
+    const mw = createCryptoMiddleware({
+      operations: ["pq-encrypt-response"],
+    });
+    const req = mockReq();
+    const res = mockRes();
+    let nextCalled = false;
+    mw(req, res, () => {
+      nextCalled = true;
+    });
+    expect(nextCalled).to.equal(false);
+    expect(res.statusCode).to.equal(500);
+    expect((res._body as { code: string }).code).to.equal("MISSING_CONFIG");
+  });
+
+  it("should support createPqStreamMiddleware with partial or full keys", () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const mwFull = createPqStreamMiddleware({
+      recipientKeys: {
+        recipientX25519Public: xPair.publicKey,
+        recipientMlKemPublic: kemPair.publicKey,
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+      routes: ["/api/**"],
+      chunkSize: 1024,
+    });
+    const req = mockReq();
+    const res = mockRes();
+    let nextCalled = false;
+    mwFull(req, res, () => {
+      nextCalled = true;
+    });
+    expect(nextCalled).to.equal(true);
+
+    const mwNoChunk = createPqStreamMiddleware({
+      recipientKeys: {},
+    });
+    const req2 = mockReq();
+    const res2 = mockRes();
+    let nextCalled2 = false;
+    mwNoChunk(req2, res2, () => {
+      nextCalled2 = true;
+    });
+    expect(nextCalled2).to.equal(true);
+  });
+
+  it("should skip pq-decrypt-request when body has no encrypted field or is undefined", () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const mw = createCryptoMiddleware({
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+    });
+    const req1 = mockReq({ body: undefined });
+    const res1 = mockRes();
+    let next1 = false;
+    mw(req1, res1, () => {
+      next1 = true;
+    });
+    expect(next1).to.equal(true);
+
+    const req2 = mockReq({ body: { plain: "data" } });
+    const res2 = mockRes();
+    let next2 = false;
+    mw(req2, res2, () => {
+      next2 = true;
+    });
+    expect(next2).to.equal(true);
   });
 
   // --- verify-signature ---
@@ -1625,6 +1852,209 @@ describe("Fastify plugin (cryptoPlugin)", () => {
     expect(decrypted).to.deep.equal([1, 2, 3]);
   });
 
+  // --- Fastify PQ stream tests ---
+
+  it("should decrypt PQ request body in preHandler hook", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+    });
+
+    const original = { hello: "pq-fastify" };
+    const sealed = encryptPqPayload(
+      xPair.publicKey,
+      kemPair.publicKey,
+      original,
+    );
+    const req = mockRequest({ body: { encrypted: sealed } });
+    const reply = mockReply();
+    await fastify.hooks.preHandler[0](req, reply);
+    expect(req.body).to.deep.equal(original);
+  });
+
+  it("should return 500 in preHandler when pqKeys secrets are missing", async () => {
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-decrypt-request"],
+    });
+
+    const req = mockRequest({ body: { encrypted: "dummy" } });
+    const reply = mockReply();
+    await fastify.hooks.preHandler[0](req, reply);
+    expect(reply._sent).to.equal(true);
+    expect(reply._statusCode).to.equal(500);
+    expect((reply._body as { code: string }).code).to.equal("MISSING_CONFIG");
+  });
+
+  it("should encrypt PQ response payload in preSerialization hook", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-encrypt-response"],
+      pqKeys: {
+        recipientX25519Public: xPair.publicKey,
+        recipientMlKemPublic: kemPair.publicKey,
+      },
+    });
+
+    const req = mockRequest();
+    const reply = mockReply();
+    const result = await fastify.hooks.preSerialization[0](req, reply, {
+      secure: true,
+    });
+    expect(result).to.have.property("encrypted");
+    expect((result as { algorithm: string }).algorithm).to.equal(
+      "X25519-ML-KEM-768-XChaCha20-Poly1305",
+    );
+  });
+
+  it("should return payload unchanged when pqKeys public keys missing in preSerialization", async () => {
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-encrypt-response"],
+    });
+
+    const req = mockRequest();
+    const reply = mockReply();
+    const result = await fastify.hooks.preSerialization[0](req, reply, {
+      plain: 1,
+    });
+    expect(result).to.deep.equal({ plain: 1 });
+  });
+
+  it("should register pqStreamPlugin with recipient keys", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await pqStreamPlugin(fastify, {
+      recipientKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+        recipientX25519Public: xPair.publicKey,
+        recipientMlKemPublic: kemPair.publicKey,
+      },
+      chunkSize: 1024,
+    });
+    expect(fastify.hooks).to.have.property("preHandler");
+    expect(fastify.hooks).to.have.property("preSerialization");
+  });
+
+  it("should skip pq-decrypt-request when route does not match", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+      routes: ["/api/secret"],
+    });
+
+    const req = mockRequest({
+      url: "/api/public",
+      body: { encrypted: "dummy" },
+    });
+    const reply = mockReply();
+    await fastify.hooks.preHandler[0](req, reply);
+    expect(reply._sent).to.equal(false);
+  });
+
+  it("should skip pq-decrypt-request when body has no encrypted field or is undefined", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+    });
+
+    const req1 = mockRequest({ body: undefined });
+    const reply1 = mockReply();
+    await fastify.hooks.preHandler[0](req1, reply1);
+    expect(reply1._sent).to.equal(false);
+
+    const req2 = mockRequest({ body: { plain: true } });
+    const reply2 = mockReply();
+    await fastify.hooks.preHandler[0](req2, reply2);
+    expect(reply2._sent).to.equal(false);
+  });
+
+  it("should return error in preHandler for invalid encrypted PQ data", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-decrypt-request"],
+      pqKeys: {
+        recipientX25519Secret: xPair.privateKey,
+        recipientMlKemSecret: kemPair.privateKey,
+      },
+    });
+
+    const req = mockRequest({ body: { encrypted: "invalid-pq-ciphertext" } });
+    const reply = mockReply();
+    await fastify.hooks.preHandler[0](req, reply);
+    expect(reply._sent).to.equal(true);
+    expect(reply._statusCode).to.equal(400);
+    expect((reply._body as { code: string }).code).to.equal(
+      "DECRYPTION_FAILED",
+    );
+  });
+
+  it("should skip pq-encrypt-response when route does not match or payload is not object", async () => {
+    const xPair = generateKeyPair("x25519");
+    const kemPair = generateKeyPair("ml-kem-768");
+    const fastify = mockFastify();
+    await cryptoPlugin(fastify, {
+      operations: ["pq-encrypt-response"],
+      pqKeys: {
+        recipientX25519Public: xPair.publicKey,
+        recipientMlKemPublic: kemPair.publicKey,
+      },
+      routes: ["/api/secret"],
+    });
+
+    const req1 = mockRequest({ url: "/api/public" });
+    const reply1 = mockReply();
+    const res1 = await fastify.hooks.preSerialization[0](req1, reply1, {
+      plain: 1,
+    });
+    expect(res1).to.deep.equal({ plain: 1 });
+
+    const req2 = mockRequest({ url: "/api/secret" });
+    const reply2 = mockReply();
+    const res2 = await fastify.hooks.preSerialization[0](req2, reply2, null);
+    expect(res2).to.be.null;
+
+    const res3 = await fastify.hooks.preSerialization[0](
+      req2,
+      reply2,
+      "string",
+    );
+    expect(res3).to.equal("string");
+  });
+
+  it("should register pqStreamPlugin without explicit chunkSize or keys", async () => {
+    const fastify = mockFastify();
+    await pqStreamPlugin(fastify, {
+      recipientKeys: {},
+    });
+    expect(fastify.hooks).to.not.have.property("preHandler");
+    expect(fastify.hooks).to.not.have.property("preSerialization");
+  });
+
   // --- Default operations (empty) ---
 
   it("should only register onRequest with no decrypt/encrypt operations", async () => {
@@ -1662,6 +2092,14 @@ describe("barrel exports (index.ts)", () => {
     expect(barrel.decryptPayload).to.be.a("function");
   });
 
+  it("should export encryptPqPayload", () => {
+    expect(barrel.encryptPqPayload).to.be.a("function");
+  });
+
+  it("should export decryptPqPayload", () => {
+    expect(barrel.decryptPqPayload).to.be.a("function");
+  });
+
   it("should export verifyHmacSignature", () => {
     expect(barrel.verifyHmacSignature).to.be.a("function");
   });
@@ -1678,7 +2116,15 @@ describe("barrel exports (index.ts)", () => {
     expect(barrel.createCryptoMiddleware).to.be.a("function");
   });
 
+  it("should export createPqStreamMiddleware", () => {
+    expect(barrel.createPqStreamMiddleware).to.be.a("function");
+  });
+
   it("should export cryptoPlugin", () => {
     expect(barrel.cryptoPlugin).to.be.a("function");
+  });
+
+  it("should export pqStreamPlugin", () => {
+    expect(barrel.pqStreamPlugin).to.be.a("function");
   });
 });

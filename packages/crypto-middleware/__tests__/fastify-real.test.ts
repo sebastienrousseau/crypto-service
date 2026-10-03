@@ -9,8 +9,13 @@
 
 import { expect } from "chai";
 import Fastify from "fastify";
-import { cryptoPlugin } from "../src/fastify";
-import { decryptPayload } from "../src/common";
+import { generateKeyPair } from "@sebastienrousseau/crypto-lib/keys";
+import { cryptoPlugin, pqStreamPlugin } from "../src/fastify";
+import {
+  decryptPayload,
+  encryptPqPayload,
+  decryptPqPayload,
+} from "../src/common";
 
 const KEY = "aa".repeat(32);
 
@@ -32,5 +37,42 @@ describe("Fastify plugin on a real Fastify instance", () => {
     const { encrypted } = res.json<{ encrypted: string }>();
     const opened = decryptPayload(KEY, encrypted);
     expect(opened).to.deep.equal({ hello: "world" });
+  });
+
+  it("registers pqStreamPlugin and handles post-quantum hybrid request/response", async () => {
+    const x25519 = generateKeyPair("x25519");
+    const mlkem = generateKeyPair("ml-kem-768");
+
+    const app = Fastify();
+    await app.register(pqStreamPlugin, {
+      recipientKeys: {
+        recipientX25519Public: x25519.publicKey,
+        recipientMlKemPublic: mlkem.publicKey,
+        recipientX25519Secret: x25519.privateKey,
+        recipientMlKemSecret: mlkem.privateKey,
+      },
+      routes: ["/api/**"],
+    });
+    app.post("/api/echo", async (req) => req.body);
+
+    const ciphertext = encryptPqPayload(x25519.publicKey, mlkem.publicKey, {
+      secure: "quantum-payload",
+    });
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/echo",
+      payload: { encrypted: ciphertext },
+    });
+    await app.close();
+
+    expect(res.statusCode).to.equal(200);
+    const json = res.json<{ encrypted: string; algorithm: string }>();
+    expect(json.algorithm).to.equal("X25519-ML-KEM-768-XChaCha20-Poly1305");
+    const decrypted = decryptPqPayload(
+      x25519.privateKey,
+      mlkem.privateKey,
+      json.encrypted,
+    );
+    expect(decrypted).to.deep.equal({ secure: "quantum-payload" });
   });
 });

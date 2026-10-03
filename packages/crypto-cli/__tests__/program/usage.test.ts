@@ -28,6 +28,9 @@ const SUBCOMMANDS = [
   "crypto-cli cbom",
   "crypto-cli cbom scan",
   "crypto-cli cbom audit",
+  "crypto-cli stream",
+  "crypto-cli stream encrypt",
+  "crypto-cli stream decrypt",
 ];
 
 describe("README command reference", () => {

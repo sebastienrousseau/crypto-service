@@ -263,6 +263,7 @@ Commands:
                             valid
   password                  Hash or verify a password (Argon2id)
   cbom                      Generate or audit a Cryptographic Bill of Materials
+  stream                    Post-quantum hybrid streaming AEAD operations
 ```
 
 #### `crypto-cli hash`
@@ -482,6 +483,62 @@ Options:
   -o, --output <file>  write the audit report to a file, not stdout
   --json               print the audit report as one line of JSON
   -h, --help           print help
+```
+
+#### `crypto-cli stream`
+
+```text
+Usage: crypto-cli stream [options] [command]
+
+Post-quantum hybrid streaming AEAD operations
+
+Options:
+  -h, --help                print help
+
+Commands:
+  encrypt [options] [file]  Encrypt with post-quantum hybrid STREAM AEAD (X25519
+                            + ML-KEM-768)
+  decrypt [options] [file]  Decrypt post-quantum hybrid STREAM ciphertext; exits
+                            1 on error
+  help [command]            display help for command
+```
+
+#### `crypto-cli stream encrypt`
+
+```text
+Usage: crypto-cli stream encrypt [options] [file]
+
+Encrypt with post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768)
+
+Arguments:
+  file                       file to encrypt; '-' or omitted reads standard
+                             input
+
+Options:
+  -x, --x25519-public <hex>  recipient X25519 public key (hex)
+  -m, --ml-kem-public <hex>  recipient ML-KEM-768 public key (hex)
+  -c, --chunk-size <bytes>   chunk size in bytes (minimum 64, default 65536)
+  --json                     print the result as one line of JSON
+  -h, --help                 print help
+```
+
+#### `crypto-cli stream decrypt`
+
+```text
+Usage: crypto-cli stream decrypt [options] [file]
+
+Decrypt post-quantum hybrid STREAM ciphertext; exits 1 on error
+
+Arguments:
+  file                       output of stream encrypt (base64 or its --json
+                             line)
+
+Options:
+  -x, --x25519-secret <hex>  recipient X25519 secret key (hex)
+  -m, --ml-kem-secret <hex>  recipient ML-KEM-768 secret key (hex)
+  -c, --chunk-size <bytes>   chunk size in bytes
+  --json                     print the result as one line of JSON
+  -h, --help                 print help
 ```
 
 <!-- cli-usage:end -->

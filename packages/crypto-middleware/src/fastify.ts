@@ -18,10 +18,16 @@
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import fp from "fastify-plugin";
-import { MiddlewareConfig, CryptoMiddlewareError } from "./types";
+import {
+  MiddlewareConfig,
+  CryptoMiddlewareError,
+  PqStreamPluginConfig,
+} from "./types";
 import {
   decryptPayload,
   encryptPayload,
+  decryptPqPayload,
+  encryptPqPayload,
   verifyBearerJwt,
   verifyRequestSignature,
   matchRoute,
@@ -128,6 +134,74 @@ function registerEncryption(
   );
 }
 
+/** preHandler: decrypt an `{ encrypted }` request body using post-quantum hybrid STREAM AEAD. */
+function registerPqDecryption(
+  fastify: FastifyInstance,
+  opts: MiddlewareConfig,
+  routes: string[],
+): void {
+  fastify.addHook(
+    "preHandler",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      if (!matchRoute(request.url, routes)) return;
+      const xSecret = opts.pqKeys?.recipientX25519Secret;
+      const kemSecret = opts.pqKeys?.recipientMlKemSecret;
+      if (!xSecret || !kemSecret) {
+        reply.code(500).send({
+          error:
+            "recipientX25519Secret and recipientMlKemSecret are required for pq-decrypt-request operation",
+          code: "MISSING_CONFIG",
+        });
+        return;
+      }
+      try {
+        const body = request.body as Record<string, unknown> | undefined;
+        if (body && typeof body === "object" && "encrypted" in body) {
+          (request as unknown as Record<string, unknown>).body =
+            decryptPqPayload(
+              xSecret,
+              kemSecret,
+              body.encrypted as string,
+              opts.chunkSize,
+            );
+        }
+      } catch (err) {
+        sendMiddlewareError(reply, err);
+      }
+    },
+  );
+}
+
+/** preSerialization: encrypt object and array response bodies using post-quantum hybrid STREAM AEAD. */
+function registerPqEncryption(
+  fastify: FastifyInstance,
+  opts: MiddlewareConfig,
+  routes: string[],
+): void {
+  fastify.addHook(
+    "preSerialization",
+    async (request: FastifyRequest, _reply: FastifyReply, payload: unknown) => {
+      if (!matchRoute(request.url, routes)) return payload;
+      const xPublic = opts.pqKeys?.recipientX25519Public;
+      const kemPublic = opts.pqKeys?.recipientMlKemPublic;
+      if (!xPublic || !kemPublic) return payload;
+      if (payload !== null && typeof payload === "object") {
+        const sealed = encryptPqPayload(
+          xPublic,
+          kemPublic,
+          payload,
+          opts.chunkSize,
+        );
+        return {
+          encrypted: sealed,
+          algorithm: "X25519-ML-KEM-768-XChaCha20-Poly1305",
+        };
+      }
+      return payload;
+    },
+  );
+}
+
 /**
  * Fastify plugin that performs cryptographic operations on requests and
  * responses.
@@ -159,14 +233,55 @@ async function cryptoPluginImpl(
     registerDecryption(fastify, opts, routes);
   }
 
+  // --- preHandler: decrypt PQ request body ---
+  if (operations.includes("pq-decrypt-request")) {
+    registerPqDecryption(fastify, opts, routes);
+  }
+
   // --- preSerialization: encrypt response body ---
   if (operations.includes("encrypt-response")) {
     registerEncryption(fastify, opts, routes);
+  }
+
+  // --- preSerialization: encrypt PQ response body ---
+  if (operations.includes("pq-encrypt-response")) {
+    registerPqEncryption(fastify, opts, routes);
   }
 }
 
 /** Fastify plugin wrapping {@link cryptoPluginImpl} via `fastify-plugin`. */
 export const cryptoPlugin = fp(cryptoPluginImpl, {
   name: "crypto-middleware",
+  fastify: "4.x || 5.x",
+});
+
+/** Fastify plugin implementation dedicated to post-quantum hybrid stream encryption/decryption. */
+async function pqStreamPluginImpl(
+  fastify: FastifyInstance,
+  opts: PqStreamPluginConfig,
+): Promise<void> {
+  const routes = opts.routes ?? [];
+  const { recipientKeys, chunkSize } = opts;
+  const config: MiddlewareConfig = {
+    pqKeys: recipientKeys,
+    ...(chunkSize !== undefined ? { chunkSize } : {}),
+  };
+  if (
+    recipientKeys.recipientX25519Secret &&
+    recipientKeys.recipientMlKemSecret
+  ) {
+    registerPqDecryption(fastify, config, routes);
+  }
+  if (
+    recipientKeys.recipientX25519Public &&
+    recipientKeys.recipientMlKemPublic
+  ) {
+    registerPqEncryption(fastify, config, routes);
+  }
+}
+
+/** Fastify plugin dedicated to post-quantum hybrid stream encryption/decryption. */
+export const pqStreamPlugin = fp(pqStreamPluginImpl, {
+  name: "crypto-middleware-pq-stream",
   fastify: "4.x || 5.x",
 });
