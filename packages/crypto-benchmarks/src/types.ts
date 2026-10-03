@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-export type SuiteName = "all" | "symmetric" | "asymmetric" | "pqc" | "hash";
+export type SuiteName =
+  "all" | "symmetric" | "asymmetric" | "pqc" | "hash" | "streaming";
 export type OutputFormat = "table" | "json" | "markdown";
 
 export interface BenchmarkConfig {
@@ -24,7 +25,7 @@ export interface BenchmarkStats {
 
 export interface BenchmarkItemResult {
   name: string;
-  category: "symmetric" | "asymmetric" | "pqc" | "hash";
+  category: "symmetric" | "asymmetric" | "pqc" | "hash" | "streaming";
   algorithm: string;
   operation: string;
   quantumSafe: boolean;

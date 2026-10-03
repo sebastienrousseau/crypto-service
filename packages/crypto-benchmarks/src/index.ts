@@ -6,5 +6,6 @@ export * from "./benchmarks/symmetric";
 export * from "./benchmarks/asymmetric";
 export * from "./benchmarks/pqc";
 export * from "./benchmarks/hash";
+export * from "./benchmarks/streaming";
 export * from "./runner";
 export * from "./cli";

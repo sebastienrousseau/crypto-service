@@ -96,6 +96,28 @@ function executePqDecrypt(
   });
 }
 
+function createPqEncStream(
+  k: PqRecipientPublicKeys,
+  sz?: number,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  return createPqEncryptStream({
+    recipientX25519Public: k.x25519PublicKey,
+    recipientMlKemPublic: k.mlKemPublicKey,
+    chunkSize: sz,
+  });
+}
+
+function createPqDecStream(
+  k: PqRecipientSecretKeys,
+  sz?: number,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  return createPqDecryptStream({
+    recipientX25519Secret: k.x25519SecretKey,
+    recipientMlKemSecret: k.mlKemSecretKey,
+    chunkSize: sz,
+  });
+}
+
 /**
  * React hook for post-quantum hybrid streaming AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305).
  */
@@ -141,18 +163,8 @@ export function usePqStream(): UsePqStreamResult {
   return {
     encrypt,
     decrypt,
-    createEncryptStream: (k, sz) =>
-      createPqEncryptStream({
-        recipientX25519Public: k.x25519PublicKey,
-        recipientMlKemPublic: k.mlKemPublicKey,
-        chunkSize: sz,
-      }),
-    createDecryptStream: (k, sz) =>
-      createPqDecryptStream({
-        recipientX25519Secret: k.x25519SecretKey,
-        recipientMlKemSecret: k.mlKemSecretKey,
-        chunkSize: sz,
-      }),
+    createEncryptStream: createPqEncStream,
+    createDecryptStream: createPqDecStream,
     ciphertext,
     plaintext,
     chunkCount,

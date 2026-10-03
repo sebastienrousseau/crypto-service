@@ -11,6 +11,7 @@ const SUITES: readonly SuiteName[] = [
   "asymmetric",
   "pqc",
   "hash",
+  "streaming",
 ];
 const FORMATS: readonly OutputFormat[] = ["table", "json", "markdown"];
 
@@ -44,7 +45,7 @@ export async function run(
     process.stdout.write("Usage: crypto-benchmarks [options]\n");
     process.stdout.write("Options:\n");
     process.stdout.write(
-      "  --suite <all|symmetric|asymmetric|pqc|hash>  Benchmark suite to run (default: all)\n",
+      "  --suite <all|symmetric|asymmetric|pqc|hash|streaming>  Benchmark suite to run (default: all)\n",
     );
     process.stdout.write(
       "  --iterations <N>                             Number of iterations (default: 30)\n",

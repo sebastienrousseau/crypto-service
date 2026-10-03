@@ -71,3 +71,17 @@ export {
   atobPolyfill,
   _resetPolyfillState,
 } from "./polyfill";
+
+// Post-quantum streaming adapters
+export type {
+  EdgePqRecipientPublicKeys,
+  EdgePqRecipientSecretKeys,
+} from "./streaming";
+
+export {
+  createEdgePqEncryptStream,
+  createEdgePqDecryptStream,
+  encryptEdgeResponse,
+  decryptEdgeRequest,
+  createDecryptedEdgeRequest,
+} from "./streaming";

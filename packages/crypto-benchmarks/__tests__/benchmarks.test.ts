@@ -7,9 +7,11 @@ import {
   runAsymmetricBenchmarks,
   runPqcBenchmarks,
   runHashBenchmarks,
+  runStreamingBenchmarks,
   runSuite,
   run,
   createPqcOperations,
+  createStreamingOperations,
 } from "../src";
 import { mlKemDecap } from "@sebastienrousseau/crypto-lib";
 
@@ -137,6 +139,57 @@ describe("Crypto Benchmarks Suite", () => {
     });
   });
 
+  describe("Streaming Cryptography Benchmarking", () => {
+    it("creates streaming test operations with pre-encrypted payloads", () => {
+      const ops = createStreamingOperations();
+      expect(ops.payload64k.length).to.equal(64 * 1024);
+      expect(ops.symmetricKey.length).to.equal(32);
+      expect(ops.symmetricCiphertext64k.length).to.be.greaterThan(0);
+      expect(ops.x25519Public).to.be.a("string");
+      expect(ops.mlKemPublic).to.be.a("string");
+      expect(ops.pqCiphertext64k.length).to.be.greaterThan(0);
+    });
+
+    it("profiles symmetric and post-quantum streaming AEAD operations", async () => {
+      const results = await runStreamingBenchmarks(2);
+      expect(results).to.have.lengthOf(4);
+
+      const symEnc = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "encrypt" &&
+          r.algorithm === "XChaCha20-Poly1305",
+      );
+      expect(symEnc).to.exist;
+      expect(symEnc?.quantumSafe).to.be.true;
+
+      const symDec = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "decrypt" &&
+          r.algorithm === "XChaCha20-Poly1305",
+      );
+      expect(symDec).to.exist;
+
+      const pqEnc = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "encrypt" &&
+          r.algorithm === "X25519+ML-KEM-768",
+      );
+      expect(pqEnc).to.exist;
+      expect(pqEnc?.quantumSafe).to.be.true;
+
+      const pqDec = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "decrypt" &&
+          r.algorithm === "X25519+ML-KEM-768",
+      );
+      expect(pqDec).to.exist;
+    });
+  });
+
   describe("Suite Runner & Reporting (runSuite)", () => {
     it("executes individual benchmark suites and all", async () => {
       const symSuite = await runSuite({ suite: "symmetric", iterations: 2 });
@@ -151,8 +204,14 @@ describe("Crypto Benchmarks Suite", () => {
       const hashSuite = await runSuite({ suite: "hash", iterations: 2 });
       expect(hashSuite.results).to.have.lengthOf(3);
 
+      const streamingSuite = await runSuite({
+        suite: "streaming",
+        iterations: 2,
+      });
+      expect(streamingSuite.results).to.have.lengthOf(4);
+
       const allSuite = await runSuite({ suite: "all", iterations: 2 });
-      expect(allSuite.results.length).to.equal(13);
+      expect(allSuite.results.length).to.equal(17);
       expect(allSuite.summaryMarkdown).to.include(
         "Cryptographic Performance Benchmark Report",
       );
@@ -162,7 +221,7 @@ describe("Crypto Benchmarks Suite", () => {
 
     it("runs with default configuration if none provided", async () => {
       const defSuite = await runSuite({});
-      expect(defSuite.totalBenchmarks).to.equal(13);
+      expect(defSuite.totalBenchmarks).to.equal(17);
     });
   });
 
@@ -235,12 +294,26 @@ describe("Crypto Benchmarks Suite", () => {
         expect(tableCode).to.equal(0);
         expect(output).to.include("SHA-256");
 
-        // 4. Default run
+        // 4. Streaming suite CLI run
+        output = "";
+        const streamCode = await run([
+          "--suite",
+          "streaming",
+          "--iterations",
+          "2",
+          "--format",
+          "json",
+        ]);
+        expect(streamCode).to.equal(0);
+        const streamReport = JSON.parse(output);
+        expect(streamReport.totalBenchmarks).to.equal(4);
+
+        // 5. Default run
         output = "";
         const defCode = await run(["--iterations", "2"]);
         expect(defCode).to.equal(0);
 
-        // 5. A missing or non-positive --iterations falls back to 30
+        // 6. A missing or non-positive --iterations falls back to 30
         for (const extra of [[], ["--iterations", "0"]]) {
           output = "";
           await run(["--suite", "hash", "--format", "json", ...extra]);
