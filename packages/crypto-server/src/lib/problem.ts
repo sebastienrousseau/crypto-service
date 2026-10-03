@@ -136,6 +136,10 @@ const KEY_STORE_SLUGS: Readonly<Record<string, ProblemSlug>> = {
   KEY_NOT_FOUND: "key-not-found",
   KEY_ALGORITHM_MISMATCH: "key-algorithm-mismatch",
   KEY_STORE_FULL: "key-store-full",
+  STORAGE_KEY_REQUIRED: "internal-error",
+  KEY_INTEGRITY_FAILED: "internal-error",
+  KEY_CORRUPTED: "internal-error",
+  UNSUPPORTED_STORAGE_ALGORITHM: "internal-error",
 };
 
 /** What the error handler sends for a thrown error. */

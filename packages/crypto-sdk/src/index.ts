@@ -77,11 +77,23 @@ export class CryptoClient {
   private baseUrl: string;
   private headers: Record<string, string>;
   private fetchFn: typeof globalThis.fetch;
+  private timeout: number | undefined;
+  private retry: {
+    maxRetries: number;
+    initialDelayMs: number;
+    maxDelayMs: number;
+  };
 
   constructor(options: ClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
     this.fetchFn = options.fetch ?? globalThis.fetch;
     this.headers = { "Content-Type": "application/json" };
+    this.timeout = options.timeout;
+    this.retry = {
+      maxRetries: Math.max(0, options.retry?.maxRetries ?? 0),
+      initialDelayMs: Math.max(0, options.retry?.initialDelayMs ?? 200),
+      maxDelayMs: Math.max(0, options.retry?.maxDelayMs ?? 2000),
+    };
 
     if (options.apiKey) {
       this.headers["x-api-key"] = options.apiKey;
@@ -97,18 +109,67 @@ export class CryptoClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const init: RequestInit = {
-      method,
-      headers: this.headers,
-    };
-    if (body) {
-      init.body = JSON.stringify(body);
-    }
-    const res = await this.fetchFn(`${this.baseUrl}${path}`, init);
-    if (!res.ok) {
+    const maxAttempts = 1 + this.retry.maxRetries;
+    let attempt = 0;
+
+    while (true) {
+      const init: RequestInit = {
+        method,
+        headers: this.headers,
+      };
+      if (body) {
+        init.body = JSON.stringify(body);
+      }
+      if (
+        this.timeout !== undefined &&
+        this.timeout > 0 &&
+        typeof AbortSignal !== "undefined" &&
+        typeof AbortSignal.timeout === "function"
+      ) {
+        init.signal = AbortSignal.timeout(this.timeout);
+      }
+
+      let res: Response;
+      try {
+        res = await this.fetchFn(`${this.baseUrl}${path}`, init);
+      } catch (fetchErr) {
+        attempt++;
+        if (attempt < maxAttempts) {
+          const delay = Math.min(
+            this.retry.initialDelayMs * 2 ** (attempt - 1),
+            this.retry.maxDelayMs,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+        throw fetchErr;
+      }
+
+      if (res.ok) {
+        return (await res.json()) as T;
+      }
+
+      const isTransient =
+        res.status === 429 || res.status === 503 || res.status === 504;
+      attempt++;
+      if (isTransient && attempt < maxAttempts) {
+        const retryAfterHeader = res.headers?.get?.("retry-after");
+        let delayMs = Math.min(
+          this.retry.initialDelayMs * 2 ** (attempt - 1),
+          this.retry.maxDelayMs,
+        );
+        if (retryAfterHeader) {
+          const parsed = Number(retryAfterHeader);
+          if (!Number.isNaN(parsed) && parsed > 0) {
+            delayMs = Math.min(parsed * 1000, this.retry.maxDelayMs);
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+
       throw new CryptoApiError(res.status, await readProblem(res));
     }
-    return (await res.json()) as T;
   }
 
   /** Send a request to a route that wraps its result in `{ data }`. */

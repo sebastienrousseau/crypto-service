@@ -22,6 +22,16 @@
  * ```
  */
 
+/** Options for configuring client-side retry behavior on transient errors. */
+export interface RetryOptions {
+  /** Maximum number of retries for transient errors (429, 503, 504). Default: 0 (disabled). */
+  maxRetries?: number;
+  /** Initial retry delay in milliseconds. Default: 200. */
+  initialDelayMs?: number;
+  /** Maximum retry delay in milliseconds. Default: 2000. */
+  maxDelayMs?: number;
+}
+
 export interface ClientOptions {
   /** Base URL of the crypto server (e.g., "http://localhost:3000"). */
   baseUrl: string;
@@ -31,6 +41,10 @@ export interface ClientOptions {
   token?: string;
   /** Custom fetch implementation (defaults to global fetch). */
   fetch?: typeof globalThis.fetch;
+  /** Request timeout in milliseconds. */
+  timeout?: number;
+  /** Automatic retry options for transient errors (429, 503, 504). */
+  retry?: RetryOptions;
 }
 
 /**
