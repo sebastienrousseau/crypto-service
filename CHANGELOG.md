@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **OPAQUE protocol REST endpoints (RFC 9807)**: `@sebastienrousseau/crypto-server` now exposes zero-knowledge password-authenticated key exchange (PAKE) REST routes (`POST /v2/opaque/register/init`, `POST /v2/opaque/register/finish`, `POST /v2/opaque/login/init`, `POST /v2/opaque/login/finish`) supporting both `P256-SHA256` and `ristretto255-SHA512` suites. Features client enumeration resistance using RFC 9807 fake records for unknown users, transient single-use login handshake sessions with automated TTL expiration, and route-level rate limiting.
+- **OPAQUE CLI subcommands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli opaque setup`, `crypto-cli opaque register <id>`, and `crypto-cli opaque login <id>` subcommands, supporting terminal password prompts with confirmation, stdin and file-based password inputs, remote server URL configuration, and full end-to-end zero-knowledge authentication.
 - Initialized release iteration `v0.0.12`.
 
 ## [0.0.11] - 2026-10-03
