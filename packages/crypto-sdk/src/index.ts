@@ -20,7 +20,7 @@
  */
 
 import { negotiateAlgorithm } from "./negotiation";
-import { CryptoApiError, readProblem } from "./errors";
+import { buildRequestInit, executeRequest, type RetryConfig } from "./request";
 import type {
   ClientOptions,
   ApiResponse,
@@ -78,11 +78,7 @@ export class CryptoClient {
   private headers: Record<string, string>;
   private fetchFn: typeof globalThis.fetch;
   private timeout: number | undefined;
-  private retry: {
-    maxRetries: number;
-    initialDelayMs: number;
-    maxDelayMs: number;
-  };
+  private retry: RetryConfig;
 
   constructor(options: ClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
@@ -109,67 +105,13 @@ export class CryptoClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const maxAttempts = 1 + this.retry.maxRetries;
-    let attempt = 0;
-
-    while (true) {
-      const init: RequestInit = {
-        method,
-        headers: this.headers,
-      };
-      if (body) {
-        init.body = JSON.stringify(body);
-      }
-      if (
-        this.timeout !== undefined &&
-        this.timeout > 0 &&
-        typeof AbortSignal !== "undefined" &&
-        typeof AbortSignal.timeout === "function"
-      ) {
-        init.signal = AbortSignal.timeout(this.timeout);
-      }
-
-      let res: Response;
-      try {
-        res = await this.fetchFn(`${this.baseUrl}${path}`, init);
-      } catch (fetchErr) {
-        attempt++;
-        if (attempt < maxAttempts) {
-          const delay = Math.min(
-            this.retry.initialDelayMs * 2 ** (attempt - 1),
-            this.retry.maxDelayMs,
-          );
-          await new Promise((resolve) => setTimeout(resolve, delay));
-          continue;
-        }
-        throw fetchErr;
-      }
-
-      if (res.ok) {
-        return (await res.json()) as T;
-      }
-
-      const isTransient =
-        res.status === 429 || res.status === 503 || res.status === 504;
-      attempt++;
-      if (isTransient && attempt < maxAttempts) {
-        const retryAfterHeader = res.headers?.get?.("retry-after");
-        let delayMs = Math.min(
-          this.retry.initialDelayMs * 2 ** (attempt - 1),
-          this.retry.maxDelayMs,
-        );
-        if (retryAfterHeader) {
-          const parsed = Number(retryAfterHeader);
-          if (!Number.isNaN(parsed) && parsed > 0) {
-            delayMs = Math.min(parsed * 1000, this.retry.maxDelayMs);
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-        continue;
-      }
-
-      throw new CryptoApiError(res.status, await readProblem(res));
-    }
+    const init = buildRequestInit(method, this.headers, body, this.timeout);
+    return executeRequest<T>(
+      this.fetchFn,
+      `${this.baseUrl}${path}`,
+      init,
+      this.retry,
+    );
   }
 
   /** Send a request to a route that wraps its result in `{ data }`. */
