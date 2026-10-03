@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **W3C Trace Context propagation**: `crypto-server` now validates incoming W3C `traceparent` (and `tracestate`) headers, generates compliant Level 1 traceparents when missing or invalid, propagates them on response headers, and decorates requests with `traceId`. `crypto-sdk` supports `traceparent` configuration (static header or per-request compliant traceparent generation).
 - **Post-quantum hybrid streaming AEAD**: `crypto-lib/streaming` now exports `streamPqEncrypt` and `streamPqDecrypt` for chunk-based authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 with per-chunk nonces and anti-truncation markers.
 - **WHATWG Web Streams post-quantum streaming adapters**: `crypto-lib/streaming` now exports `createPqEncryptStream` and `createPqDecryptStream`, providing standard WHATWG `TransformStream` pipelines for chunked post-quantum hybrid streaming AEAD.
+- **Post-quantum streaming REST endpoints**: `crypto-server` now exposes `POST /v2/stream/pq-encrypt` and `POST /v2/stream/pq-decrypt` with JSON schemas, scoped permissions (`crypto:encrypt`, `crypto:decrypt`), chunk size validation, anti-truncation protection, and automatic memory zeroing of intermediate plaintext.
+- **Post-quantum streaming SDK client methods**: `crypto-sdk` now exposes `streamPqEncrypt` and `streamPqDecrypt` methods on `CryptoClient` with end-to-end integration and contract test coverage.
+- **CBOM hybrid and post-quantum primitive audit rules**: `crypto-cbom` now detects FN-DSA (NIST FIPS 206), hybrid KEMs (X25519 + ML-KEM-768), and classical Diffie-Hellman / Montgomery curves (X25519, X448), classifying hybrid primitives into `TRANSITIONAL_HYBRID` and classical public-key algorithms into `VULNERABLE_CRQC`.
 
 ### Security
 

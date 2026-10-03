@@ -50,6 +50,10 @@ import type {
   MacVerifyResult,
   Argon2Params,
   PasswordHashResult,
+  StreamPqEncryptParams,
+  StreamPqEncryptResult,
+  StreamPqDecryptParams,
+  StreamPqDecryptResult,
 } from "./types";
 import type {
   KeyAlgorithm,
@@ -418,6 +422,22 @@ export class CryptoClient {
     params: KeyIdParams & { sealed: string },
   ): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/sealedbox/open-pq", params);
+  }
+
+  // --- Streaming Post-Quantum AEAD ---
+
+  /** Encrypt plaintext using hybrid post-quantum STREAM (X25519 + ML-KEM-768 + XChaCha20-Poly1305). */
+  async streamPqEncrypt(
+    params: StreamPqEncryptParams,
+  ): Promise<ApiResponse<StreamPqEncryptResult>> {
+    return this.request("POST", "/v2/stream/pq-encrypt", params);
+  }
+
+  /** Decrypt hybrid post-quantum STREAM ciphertext using a server-held hybrid key. */
+  async streamPqDecrypt(
+    params: StreamPqDecryptParams,
+  ): Promise<ApiResponse<StreamPqDecryptResult>> {
+    return this.request("POST", "/v2/stream/pq-decrypt", params);
   }
 
   // --- High-Level: Password Encryption ---

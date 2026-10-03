@@ -401,3 +401,39 @@ export interface PasswordHashResult {
   /** PHC-format encoded hash string. */
   phc: string;
 }
+
+/** Parameters for hybrid post-quantum stream encryption. */
+export interface StreamPqEncryptParams {
+  /** Recipient X25519 public key (64 hex characters). */
+  x25519PublicKey: string;
+  /** Recipient ML-KEM-768 public key (hex string). */
+  mlKemPublicKey: string;
+  /** Plaintext data to encrypt. */
+  plaintext: string;
+  /** Chunk size in bytes (optional, default 65536). */
+  chunkSize?: number;
+}
+
+/** Result of hybrid post-quantum stream encryption. */
+export interface StreamPqEncryptResult {
+  /** Base64-encoded encrypted stream ciphertext. */
+  ciphertext: string;
+  /** Algorithm identifier. */
+  algorithm: "x25519-ml-kem-768-xchacha20-poly1305-stream";
+}
+
+/** Parameters for hybrid post-quantum stream decryption. */
+export interface StreamPqDecryptParams {
+  /** Server-held keyId of algorithm x25519-ml-kem-768. */
+  keyId: string;
+  /** Base64-encoded stream ciphertext. */
+  ciphertext: string;
+  /** Chunk size used during encryption (optional). */
+  chunkSize?: number;
+}
+
+/** Result of hybrid post-quantum stream decryption. */
+export interface StreamPqDecryptResult {
+  /** Recovered plaintext string. */
+  plaintext: string;
+}

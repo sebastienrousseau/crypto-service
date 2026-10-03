@@ -280,6 +280,162 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
     });
   });
 
+  describe("POST /v2/stream/pq-encrypt and /v2/stream/pq-decrypt", () => {
+    it("encrypts and decrypts stream data with a server-held hybrid key", async () => {
+      // 1. Generate server-held hybrid key
+      const kpRes = await app.inject({
+        method: "POST",
+        url: "/v2/pq/hybrid/keygen",
+        payload: {},
+      });
+      expect(kpRes.statusCode).to.equal(200);
+      const kp = JSON.parse(kpRes.payload).data as {
+        keyId: string;
+        x25519PublicKey: string;
+        mlKemPublicKey: string;
+      };
+
+      // 2. Encrypt stream
+      const plaintext = "High-throughput post-quantum payload data stream";
+      const encRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: kp.x25519PublicKey,
+          mlKemPublicKey: kp.mlKemPublicKey,
+          plaintext,
+          chunkSize: 64,
+        },
+      });
+      expect(encRes.statusCode).to.equal(200);
+      const encData = JSON.parse(encRes.payload).data;
+      expect(encData.algorithm).to.equal(
+        "x25519-ml-kem-768-xchacha20-poly1305-stream",
+      );
+      expect(encData.ciphertext).to.be.a("string");
+
+      // 3. Decrypt stream
+      const decRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-decrypt",
+        payload: {
+          keyId: kp.keyId,
+          ciphertext: encData.ciphertext,
+          chunkSize: 64,
+        },
+      });
+      expect(decRes.statusCode).to.equal(200);
+      const decData = JSON.parse(decRes.payload).data;
+      expect(decData.plaintext).to.equal(plaintext);
+    });
+
+    it("round-trips without specifying chunkSize (default chunk size)", async () => {
+      const kpRes = await app.inject({
+        method: "POST",
+        url: "/v2/pq/hybrid/keygen",
+        payload: {},
+      });
+      const kp = JSON.parse(kpRes.payload).data;
+      const plaintext = "Default chunk size stream";
+
+      const encRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: kp.x25519PublicKey,
+          mlKemPublicKey: kp.mlKemPublicKey,
+          plaintext,
+        },
+      });
+      expect(encRes.statusCode).to.equal(200);
+
+      const decRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-decrypt",
+        payload: {
+          keyId: kp.keyId,
+          ciphertext: JSON.parse(encRes.payload).data.ciphertext,
+        },
+      });
+      expect(decRes.statusCode).to.equal(200);
+      expect(JSON.parse(decRes.payload).data.plaintext).to.equal(plaintext);
+    });
+
+    it("fails decryption when ciphertext is tampered", async () => {
+      const kpRes = await app.inject({
+        method: "POST",
+        url: "/v2/pq/hybrid/keygen",
+        payload: {},
+      });
+      const kp = JSON.parse(kpRes.payload).data;
+
+      const encRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: kp.x25519PublicKey,
+          mlKemPublicKey: kp.mlKemPublicKey,
+          plaintext: "tamper test",
+        },
+      });
+      const rawCt = Buffer.from(
+        JSON.parse(encRes.payload).data.ciphertext,
+        "base64",
+      );
+      rawCt[rawCt.length - 1] ^= 0xff;
+
+      const decRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-decrypt",
+        payload: {
+          keyId: kp.keyId,
+          ciphertext: rawCt.toString("base64"),
+        },
+      });
+      expect(decRes.statusCode).to.be.greaterThanOrEqual(400);
+    });
+
+    it("returns 404 on decrypt when keyId does not exist", async () => {
+      const decRes = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-decrypt",
+        payload: {
+          keyId: `k_${"X".repeat(22)}`,
+          ciphertext: Buffer.from("randombytes").toString("base64"),
+        },
+      });
+      expect(decRes.statusCode).to.equal(404);
+    });
+
+    it("returns 400 on invalid encryption request schema", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: "short",
+          mlKemPublicKey: "short",
+          plaintext: "test",
+        },
+      });
+      expect(res.statusCode).to.equal(400);
+    });
+
+    it("returns 400 when encryption fails due to invalid hex key bytes", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: "z".repeat(64),
+          mlKemPublicKey: "00",
+          plaintext: "test",
+        },
+      });
+      expect(res.statusCode).to.equal(400);
+      const json = JSON.parse(res.payload);
+      expect(json.type).to.include("problem");
+    });
+  });
+
   describe("Authentication checks (401 when CRYPTO_API_KEY is configured)", () => {
     const savedKey = process.env["CRYPTO_API_KEY"];
 
@@ -344,6 +500,31 @@ describe("Streaming & Wholesale Payment Routes (v2)", function () {
           },
           payload: "test",
           trustedKeys: { classicalPublicKey: "p", postQuantumPublicKey: "p" },
+        },
+      });
+      expect(res.statusCode).to.equal(401);
+    });
+
+    it("returns 401 on /v2/stream/pq-encrypt without auth", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-encrypt",
+        payload: {
+          x25519PublicKey: "a".repeat(64),
+          mlKemPublicKey: "b".repeat(64),
+          plaintext: "test",
+        },
+      });
+      expect(res.statusCode).to.equal(401);
+    });
+
+    it("returns 401 on /v2/stream/pq-decrypt without auth", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/stream/pq-decrypt",
+        payload: {
+          keyId: `k_${"A".repeat(22)}`,
+          ciphertext: "dGVzdA==",
         },
       });
       expect(res.statusCode).to.equal(401);

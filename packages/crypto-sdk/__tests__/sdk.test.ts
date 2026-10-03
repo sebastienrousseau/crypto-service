@@ -1275,6 +1275,62 @@ describe("CryptoClient", () => {
     });
   });
 
+  describe("streamPqEncrypt()", () => {
+    it("should call /v2/stream/pq-encrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          ciphertext: "ct",
+          algorithm: "x25519-ml-kem-768-xchacha20-poly1305-stream",
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      await client.streamPqEncrypt({
+        x25519PublicKey: "x",
+        mlKemPublicKey: "m",
+        plaintext: "p",
+        chunkSize: 128,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/pq-encrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        x25519PublicKey: "x",
+        mlKemPublicKey: "m",
+        plaintext: "p",
+        chunkSize: 128,
+      });
+    });
+  });
+
+  describe("streamPqDecrypt()", () => {
+    it("should call /v2/stream/pq-decrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { plaintext: "pt" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.streamPqDecrypt({
+        keyId: "k1",
+        ciphertext: "ct",
+        chunkSize: 128,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/pq-decrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k1",
+        ciphertext: "ct",
+        chunkSize: 128,
+      });
+      expect(res.data.plaintext).to.equal("pt");
+    });
+  });
+
   describe("passwordEncrypt()", () => {
     it("should call /v2/password/encrypt", async () => {
       const { fetch, calls } = capturingFetch(200, {
