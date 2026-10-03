@@ -52,32 +52,40 @@ function toBytes(input: string | Uint8Array): Uint8Array {
   return Buffer.from(input, "utf8");
 }
 
-/** Map of hash algorithm names to their implementation functions. */
-const hashFunctions = new Map<HashAlgorithm, (data: Uint8Array) => Uint8Array>([
-  ["sha256", (d) => sha256(d)],
-  ["sha384", (d) => sha384(d)],
-  ["sha512", (d) => sha512(d)],
-  ["sha3-256", (d) => sha3_256(d)],
-  ["sha3-512", (d) => sha3_512(d)],
-  ["blake2b", (d) => blake2b(d)],
-  ["blake3", (d) => blake3(d)],
-]);
-
-/* c8 ignore start -- V8 phantom branch at JSDoc + unreachable !fn guard */
 /**
  * Compute a cryptographic hash digest.
  */
 export function hash(options: HashOptions): HashResult {
-  const fn = hashFunctions.get(options.algorithm);
-  if (!fn) {
-    throw new Error(
-      `Unsupported algorithm: ${options.algorithm}. Supported: ${HASH_ALGORITHMS.join(", ")}`,
-    );
-  }
-  /* c8 ignore stop */
-
   const data = toBytes(options.data);
-  const digest = fn(data);
+  let digest: Uint8Array;
+
+  switch (options.algorithm) {
+    case "sha256":
+      digest = sha256(data);
+      break;
+    case "sha384":
+      digest = sha384(data);
+      break;
+    case "sha512":
+      digest = sha512(data);
+      break;
+    case "sha3-256":
+      digest = sha3_256(data);
+      break;
+    case "sha3-512":
+      digest = sha3_512(data);
+      break;
+    case "blake2b":
+      digest = blake2b(data);
+      break;
+    case "blake3":
+      digest = blake3(data);
+      break;
+    default:
+      throw new Error(
+        `Unsupported algorithm: ${options.algorithm as string}. Supported: ${HASH_ALGORITHMS.join(", ")}`,
+      );
+  }
 
   return {
     digest: Buffer.from(digest).toString("hex"),
