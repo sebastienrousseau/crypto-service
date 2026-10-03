@@ -36,6 +36,14 @@ describe("HPKE (RFC 9180)", () => {
       expect(kp.publicKey.startsWith("04")).to.be.true;
     });
 
+    it("should generate an x25519-ml-kem-768 hybrid key pair", () => {
+      const kp = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      // 32 + 2400 = 2432 bytes private key = 4864 hex
+      expect(kp.privateKey).to.have.length(4864);
+      // 32 + 1184 = 1216 bytes public key = 2432 hex
+      expect(kp.publicKey).to.have.length(2432);
+    });
+
     it("should generate unique key pairs", () => {
       const kp1 = hpkeGenerateKeyPair();
       const kp2 = hpkeGenerateKeyPair();
@@ -542,7 +550,7 @@ describe("HPKE (RFC 9180)", () => {
   // All cipher suite combinations
   // -----------------------------------------------------------------------
   describe("all cipher suite combinations", () => {
-    const kems: HpkeKem[] = ["x25519", "p256"];
+    const kems: HpkeKem[] = ["x25519", "p256", "x25519-ml-kem-768"];
     const aeads: HpkeAead[] = ["chacha20-poly1305", "aes-128-gcm"];
     const modes: HpkeMode[] = ["base", "psk"];
 
@@ -588,6 +596,103 @@ describe("HPKE (RFC 9180)", () => {
         }
       }
     }
+  });
+
+  // -----------------------------------------------------------------------
+  // Post-Quantum Hybrid: X25519-ML-KEM-768 edge cases
+  // -----------------------------------------------------------------------
+  describe("Post-Quantum Hybrid: X25519-ML-KEM-768 edge cases", () => {
+    const suite: HpkeSuiteOptions = {
+      kem: "x25519-ml-kem-768",
+      aead: "chacha20-poly1305",
+    };
+
+    it("should reject invalid recipient public key length", () => {
+      expect(() =>
+        hpkeSeal({
+          recipientPublicKey: "aabbcc",
+          plaintext: "deadbeef",
+          suite,
+        }),
+      ).to.throw("Invalid recipient public key length for x25519-ml-kem-768");
+    });
+
+    it("should reject invalid recipient private key length on open", () => {
+      const kp = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      const sealed = hpkeSeal({
+        recipientPublicKey: kp.publicKey,
+        plaintext: "deadbeef",
+        suite,
+      });
+
+      expect(() =>
+        hpkeOpen({
+          recipientPrivateKey: "aabbcc",
+          encapsulatedKey: sealed.encapsulatedKey,
+          ciphertext: sealed.ciphertext,
+          suite,
+        }),
+      ).to.throw("Invalid recipient private key length for x25519-ml-kem-768");
+    });
+
+    it("should reject invalid encapsulated key length on open", () => {
+      const kp = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      const sealed = hpkeSeal({
+        recipientPublicKey: kp.publicKey,
+        plaintext: "deadbeef",
+        suite,
+      });
+
+      expect(() =>
+        hpkeOpen({
+          recipientPrivateKey: kp.privateKey,
+          encapsulatedKey: "aabbcc",
+          ciphertext: sealed.ciphertext,
+          suite,
+        }),
+      ).to.throw("Invalid encapsulated key length for x25519-ml-kem-768");
+    });
+
+    it("should fail when opening with wrong private key", () => {
+      const kp1 = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      const kp2 = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      const sealed = hpkeSeal({
+        recipientPublicKey: kp1.publicKey,
+        plaintext: "deadbeef",
+        suite,
+      });
+
+      expect(() =>
+        hpkeOpen({
+          recipientPrivateKey: kp2.privateKey,
+          encapsulatedKey: sealed.encapsulatedKey,
+          ciphertext: sealed.ciphertext,
+          suite,
+        }),
+      ).to.throw();
+    });
+
+    it("should fail when ciphertext is tampered", () => {
+      const kp = hpkeGenerateKeyPair("x25519-ml-kem-768");
+      const sealed = hpkeSeal({
+        recipientPublicKey: kp.publicKey,
+        plaintext: "deadbeef",
+        suite,
+      });
+
+      const tampered =
+        sealed.ciphertext.slice(0, -2) +
+        (sealed.ciphertext.slice(-2) === "00" ? "ff" : "00");
+
+      expect(() =>
+        hpkeOpen({
+          recipientPrivateKey: kp.privateKey,
+          encapsulatedKey: sealed.encapsulatedKey,
+          ciphertext: tampered,
+          suite,
+        }),
+      ).to.throw();
+    });
   });
 
   // -----------------------------------------------------------------------
