@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 import { keyStore, symmetricKey } from "./keystore";
 import { ToolArgs, ToolHandler, jsonResult } from "./result";
 
@@ -75,5 +76,7 @@ export const decrypt: ToolHandler = async (args) => {
     decipher.update(Buffer.from(String(args.ciphertext), "hex")),
     decipher.final(),
   ]);
-  return jsonResult({ algorithm, plaintext: decrypted.toString("utf8") });
+  const plaintext = decrypted.toString("utf8");
+  wipeMemory(decrypted);
+  return jsonResult({ algorithm, plaintext });
 };

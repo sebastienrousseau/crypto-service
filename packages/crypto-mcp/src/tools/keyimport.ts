@@ -12,6 +12,7 @@ import {
 import { asymmetric } from "./keys";
 import { KeyKind, KeyMaterial, keyStore, symmetricKey } from "./keystore";
 import { ToolArgs, ToolHandler, jsonResult } from "./result";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
 /*
  * `crypto_key_import`: load an existing key from a file into the key
@@ -155,7 +156,7 @@ function decodeHex(text: Buffer): Buffer | undefined {
     const high = hexDigit(text[2 * i]);
     const low = hexDigit(text[2 * i + 1]);
     if (high < 0 || low < 0) {
-      out.fill(0);
+      wipeMemory(out);
       return undefined;
     }
     out[i] = high * 16 + low;
@@ -293,6 +294,6 @@ export const importKey: ToolHandler = async (args: ToolArgs) => {
     const material = parseKey(bytes, args.kind);
     return jsonResult(keyStore.describe(keyStore.add(material)));
   } finally {
-    bytes.fill(0);
+    wipeMemory(bytes);
   }
 };

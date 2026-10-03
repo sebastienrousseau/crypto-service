@@ -19,6 +19,8 @@ export {
   createEncryptStream,
   createDecryptStream,
   createHashStream,
+  createPqEncryptStream,
+  createPqDecryptStream,
   WEB_STREAM_HASH_ALGORITHMS,
 } from "./web-streams";
 /** Re-exported web stream option and result types. */
@@ -27,6 +29,8 @@ export type {
   HashStreamResult,
   EncryptStreamOptions,
   DecryptStreamOptions,
+  PqEncryptStreamOptions,
+  PqDecryptStreamOptions,
   CryptoTransformStream,
 } from "./web-streams";
 

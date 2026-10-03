@@ -2,6 +2,8 @@ import { expect } from "chai";
 import {
   createEncryptStream,
   createDecryptStream,
+  createPqEncryptStream,
+  createPqDecryptStream,
   createHashStream,
   WEB_STREAM_HASH_ALGORITHMS,
 } from "../../src/streaming/web-streams";
@@ -10,6 +12,9 @@ import type {
   WebStreamHashAlgorithm,
 } from "../../src/streaming/web-streams";
 import { hash } from "../../src/modern/hash";
+import { x25519 } from "@noble/curves/ed25519.js";
+import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { randomBytes } from "@noble/ciphers/utils.js";
 
 /**
  * Helper: pipe Uint8Array chunks through a TransformStream, reading and
@@ -239,6 +244,132 @@ describe("Web Streams", () => {
 
     it("should reject unsupported algorithm", () => {
       expect(() => createHashStream("md5" as never)).to.throw(/Unsupported/);
+    });
+  });
+
+  describe("createPqEncryptStream + createPqDecryptStream", () => {
+    const x25519Priv = randomBytes(32);
+    const x25519Pub = x25519.getPublicKey(x25519Priv);
+    const { publicKey: mlKemPub, secretKey: mlKemPriv } = ml_kem768.keygen();
+
+    const x25519PubHex = Buffer.from(x25519Pub).toString("hex");
+    const mlKemPubHex = Buffer.from(mlKemPub).toString("hex");
+    const x25519PrivHex = Buffer.from(x25519Priv).toString("hex");
+    const mlKemPrivHex = Buffer.from(mlKemPriv).toString("hex");
+
+    it("should round-trip small data with hex keys", async () => {
+      const encStream = createPqEncryptStream({
+        recipientX25519Public: x25519PubHex,
+        recipientMlKemPublic: mlKemPubHex,
+      });
+      const input = [Buffer.from("Hello, Post-Quantum Web Streams!")];
+      const encChunks = await pipeThrough<Uint8Array>(input, encStream);
+      const ciphertext = Buffer.concat(encChunks);
+
+      const decStream = createPqDecryptStream({
+        recipientX25519Secret: x25519PrivHex,
+        recipientMlKemSecret: mlKemPrivHex,
+      });
+      const decChunks = await pipeThrough<Uint8Array>([ciphertext], decStream);
+      const decrypted = Buffer.concat(decChunks);
+      expect(decrypted.toString("utf8")).to.equal(
+        "Hello, Post-Quantum Web Streams!",
+      );
+    });
+
+    it("should round-trip empty data", async () => {
+      const encStream = createPqEncryptStream({
+        recipientX25519Public: x25519Pub,
+        recipientMlKemPublic: mlKemPub,
+      });
+      const encChunks = await pipeThrough<Uint8Array>(
+        [new Uint8Array(0)],
+        encStream,
+      );
+      const ciphertext = Buffer.concat(encChunks);
+
+      const decStream = createPqDecryptStream({
+        recipientX25519Secret: x25519Priv,
+        recipientMlKemSecret: mlKemPriv,
+      });
+      const decChunks = await pipeThrough<Uint8Array>([ciphertext], decStream);
+      const decrypted = Buffer.concat(decChunks);
+      expect(decrypted.length).to.equal(0);
+    });
+
+    it("should round-trip multi-chunk data with custom chunk size", async () => {
+      const chunkSize = 128;
+      const encStream = createPqEncryptStream({
+        recipientX25519Public: x25519Pub,
+        recipientMlKemPublic: mlKemPub,
+        chunkSize,
+      });
+      const inputChunks = [
+        Buffer.from("First chunk of stream data. "),
+        Buffer.from("Second chunk of stream data. "),
+        Buffer.from("Third chunk completing the stream."),
+      ];
+      const totalExpected = Buffer.concat(inputChunks);
+
+      const encChunks = await pipeThrough<Uint8Array>(inputChunks, encStream);
+      const ciphertext = Buffer.concat(encChunks);
+
+      const decStream = createPqDecryptStream({
+        recipientX25519Secret: x25519Priv,
+        recipientMlKemSecret: mlKemPriv,
+        chunkSize,
+      });
+      const decChunks = await pipeThrough<Uint8Array>([ciphertext], decStream);
+      const decrypted = Buffer.concat(decChunks);
+      expect(decrypted).to.deep.equal(totalExpected);
+    });
+
+    it("should fail decryption on tampered ciphertext", async () => {
+      const encStream = createPqEncryptStream({
+        recipientX25519Public: x25519Pub,
+        recipientMlKemPublic: mlKemPub,
+      });
+      const encChunks = await pipeThrough<Uint8Array>(
+        [Buffer.from("Sensitive PQ Payload")],
+        encStream,
+      );
+      const ciphertext = Buffer.concat(encChunks);
+      ciphertext[ciphertext.length - 1] ^= 0xff;
+
+      const decStream = createPqDecryptStream({
+        recipientX25519Secret: x25519Priv,
+        recipientMlKemSecret: mlKemPriv,
+      });
+      try {
+        await pipeThrough<Uint8Array>([ciphertext], decStream);
+        expect.fail("Expected decryption to fail");
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+      }
+    });
+
+    it("should fail decryption with wrong secret key", async () => {
+      const encStream = createPqEncryptStream({
+        recipientX25519Public: x25519Pub,
+        recipientMlKemPublic: mlKemPub,
+      });
+      const encChunks = await pipeThrough<Uint8Array>(
+        [Buffer.from("Secret PQ Payload")],
+        encStream,
+      );
+      const ciphertext = Buffer.concat(encChunks);
+
+      const wrongX25519Priv = randomBytes(32);
+      const decStream = createPqDecryptStream({
+        recipientX25519Secret: wrongX25519Priv,
+        recipientMlKemSecret: mlKemPriv,
+      });
+      try {
+        await pipeThrough<Uint8Array>([ciphertext], decStream);
+        expect.fail("Expected decryption to fail");
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+      }
     });
   });
 });

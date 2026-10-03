@@ -88,7 +88,7 @@ export interface StreamPqEncryptOptions {
   recipientX25519Public: string | Uint8Array;
   recipientMlKemPublic: string | Uint8Array;
   plaintext: Uint8Array;
-  chunkSize?: number;
+  chunkSize?: number | undefined;
 }
 
 /** Result of post-quantum streaming AEAD encryption. */
@@ -102,7 +102,7 @@ export interface StreamPqDecryptOptions {
   recipientX25519Secret: string | Uint8Array;
   recipientMlKemSecret: string | Uint8Array;
   ciphertext: Uint8Array;
-  chunkSize?: number;
+  chunkSize?: number | undefined;
 }
 
 /** Derives symmetric encryption key from combined X25519 and ML-KEM shared secrets. */

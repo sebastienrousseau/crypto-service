@@ -30,6 +30,7 @@ import {
 } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import * as path from "path";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
 /** Named hex-encoded key parts, e.g. `{ publicKey }` or `{ x25519PublicKey, mlKemPublicKey }`. */
 export type KeyParts = Readonly<Record<string, string>>;
@@ -117,6 +118,7 @@ function encryptPrivateParts(
   const plaintext = Buffer.from(JSON.stringify(privateParts), "utf8");
   const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
   const tag = cipher.getAuthTag();
+  wipeMemory(plaintext);
   return {
     ciphertext: ciphertext.toString("base64"),
     iv: iv.toString("base64"),
@@ -150,7 +152,9 @@ function decryptPrivateParts(
       decipher.update(ciphertext),
       decipher.final(),
     ]);
-    return JSON.parse(decrypted.toString("utf8")) as KeyParts;
+    const parsed = JSON.parse(decrypted.toString("utf8")) as KeyParts;
+    wipeMemory(decrypted);
+    return parsed;
   } catch {
     throw new KeyStoreError(
       "Failed to decrypt key material: invalid key or corrupted data",

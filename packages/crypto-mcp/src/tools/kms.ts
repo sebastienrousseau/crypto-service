@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import { LocalKmsProvider } from "@sebastienrousseau/crypto-kms";
+import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 import { keyStore, symmetricKey } from "./keystore";
 import { ToolArgs, ToolHandler, jsonResult } from "./result";
 import { symmetricSecret } from "./symmetric";
@@ -77,7 +78,7 @@ export const kmsWrap: ToolHandler = async (args) => {
       wrappedKey: Buffer.from(ciphertext, "base64").toString("hex"),
     });
   } finally {
-    dek.fill(0);
+    wipeMemory(dek);
   }
 };
 
@@ -98,7 +99,7 @@ export const kmsUnwrap: ToolHandler = async (args) => {
     wrapContext(keyId),
   );
   const dek = Buffer.from(plaintext);
-  plaintext.fill(0);
+  wipeMemory(plaintext);
   const keyHandle = keyStore.add(symmetricKey(dek, "crypto_kms_unwrap"));
   return jsonResult({ provider, keyId, status: "unwrapped", keyHandle });
 };

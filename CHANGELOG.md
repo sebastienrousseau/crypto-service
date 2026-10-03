@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CryptoClient timeout and automatic retries**: `crypto-sdk` now supports a configurable `timeout` option (via `AbortSignal.timeout`) and automated retry policies (`retry: { maxRetries, initialDelayMs, maxDelayMs }`) for transient HTTP failures (`429`, `503`, `504`) and network fetch errors, honoring server `Retry-After` headers.
 - **W3C Trace Context propagation**: `crypto-server` now validates incoming W3C `traceparent` (and `tracestate`) headers, generates compliant Level 1 traceparents when missing or invalid, propagates them on response headers, and decorates requests with `traceId`. `crypto-sdk` supports `traceparent` configuration (static header or per-request compliant traceparent generation).
 - **Post-quantum hybrid streaming AEAD**: `crypto-lib/streaming` now exports `streamPqEncrypt` and `streamPqDecrypt` for chunk-based authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 with per-chunk nonces and anti-truncation markers.
+- **WHATWG Web Streams post-quantum streaming adapters**: `crypto-lib/streaming` now exports `createPqEncryptStream` and `createPqDecryptStream`, providing standard WHATWG `TransformStream` pipelines for chunked post-quantum hybrid streaming AEAD.
 
 ### Security
 
+- **Zero-memory buffer scrubbing**: Systematically applied `wipeMemory()` to zero in-memory private key material, intermediate decrypted plaintext buffers, unwrapped Data Encryption Keys (DEKs), and decoded key import buffers across `@sebastienrousseau/crypto-server` and `@sebastienrousseau/crypto-mcp`.
 - **Vulnerability remediation (`braces <=3.0.3`)**: Overrode `chokidar` to `>=5.0.0` in `pnpm-workspace.yaml`, eliminating the transitive high-severity regex/stack exhaustion vulnerability (GHSA-vfj7-8cjw-p6xm) in the markdown tooling dependency graph.
 
 ### Changed
