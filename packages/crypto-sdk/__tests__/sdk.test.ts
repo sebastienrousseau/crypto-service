@@ -1331,6 +1331,88 @@ describe("CryptoClient", () => {
     });
   });
 
+  describe("streamMultiPqEncrypt()", () => {
+    it("should call /v2/stream/multi-pq-encrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          ciphertext: "multi-ct",
+          algorithm: "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
+          recipientCount: 2,
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.streamMultiPqEncrypt({
+        recipients: [
+          {
+            recipientId: "alice",
+            x25519PublicKey: "x1",
+            mlKemPublicKey: "m1",
+          },
+          {
+            recipientId: "bob",
+            x25519PublicKey: "x2",
+            mlKemPublicKey: "m2",
+          },
+        ],
+        plaintext: "broadcast data",
+        chunkSize: 1024,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/multi-pq-encrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        recipients: [
+          {
+            recipientId: "alice",
+            x25519PublicKey: "x1",
+            mlKemPublicKey: "m1",
+          },
+          {
+            recipientId: "bob",
+            x25519PublicKey: "x2",
+            mlKemPublicKey: "m2",
+          },
+        ],
+        plaintext: "broadcast data",
+        chunkSize: 1024,
+      });
+      expect(res.data.recipientCount).to.equal(2);
+      expect(res.data.ciphertext).to.equal("multi-ct");
+    });
+  });
+
+  describe("streamMultiPqDecrypt()", () => {
+    it("should call /v2/stream/multi-pq-decrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { plaintext: "recovered pt", recipientId: "alice" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.streamMultiPqDecrypt({
+        keyId: "k_hybrid",
+        recipientId: "alice",
+        ciphertext: "multi-ct",
+        chunkSize: 1024,
+      });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/stream/multi-pq-decrypt",
+      );
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        keyId: "k_hybrid",
+        recipientId: "alice",
+        ciphertext: "multi-ct",
+        chunkSize: 1024,
+      });
+      expect(res.data.plaintext).to.equal("recovered pt");
+      expect(res.data.recipientId).to.equal("alice");
+    });
+  });
+
   describe("passwordEncrypt()", () => {
     it("should call /v2/password/encrypt", async () => {
       const { fetch, calls } = capturingFetch(200, {

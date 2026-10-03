@@ -303,6 +303,52 @@ describe("contract: CryptoClient against crypto-server", () => {
     expect(dec.data.plaintext).to.equal("stream contract test data");
   });
 
+  it("streamMultiPqEncrypt -> streamMultiPqDecrypt with server-held hybrid keys", async () => {
+    const { data: key1 } = await client.pqGenerateKeyPair();
+    const { data: key2 } = await client.pqGenerateKeyPair();
+
+    const enc = await client.streamMultiPqEncrypt({
+      recipients: [
+        {
+          recipientId: "recipient-1",
+          x25519PublicKey: key1.x25519PublicKey,
+          mlKemPublicKey: key1.mlKemPublicKey,
+        },
+        {
+          recipientId: "recipient-2",
+          x25519PublicKey: key2.x25519PublicKey,
+          mlKemPublicKey: key2.mlKemPublicKey,
+        },
+      ],
+      plaintext: "multi-recipient contract broadcast payload",
+      chunkSize: 1024,
+    });
+    expect(enc.data.algorithm).to.equal(
+      "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
+    );
+    expect(enc.data.recipientCount).to.equal(2);
+    expect(enc.data.ciphertext).to.be.a("string");
+
+    const dec1 = await client.streamMultiPqDecrypt({
+      keyId: key1.keyId,
+      recipientId: "recipient-1",
+      ciphertext: enc.data.ciphertext,
+    });
+    expect(dec1.data.plaintext).to.equal(
+      "multi-recipient contract broadcast payload",
+    );
+    expect(dec1.data.recipientId).to.equal("recipient-1");
+
+    const dec2 = await client.streamMultiPqDecrypt({
+      keyId: key2.keyId,
+      ciphertext: enc.data.ciphertext,
+    });
+    expect(dec2.data.plaintext).to.equal(
+      "multi-recipient contract broadcast payload",
+    );
+    expect(dec2.data.recipientId).to.equal("recipient-2");
+  });
+
   it("compliance endpoints", async () => {
     const dora = await client.getDoraCompliance();
     expect(dora.data.standard).to.equal("DORA (EU 2022/2554)");

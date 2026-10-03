@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Multi-recipient post-quantum streaming AEAD in crypto-lib, crypto-server, and crypto-sdk.
+- **Multi-recipient post-quantum streaming AEAD**: Added multi-recipient post-quantum hybrid streaming authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 across `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, and `@sebastienrousseau/crypto-sdk`. Features content encryption key (CEK) wrapping per recipient slot with recipient ID and slot index authenticated additional data (AAD) binding, anti-truncation framing, automatic recipient slot discovery, zero-memory buffer scrubbing, WHATWG `TransformStream` pipelines (`createMultiPqEncryptStream`, `createMultiPqDecryptStream`), Fastify REST endpoints (`POST /v2/stream/multi-pq-encrypt`, `POST /v2/stream/multi-pq-decrypt`), and SDK client methods (`streamMultiPqEncrypt`, `streamMultiPqDecrypt`).
 
 ## [0.0.10] - 2026-10-03
 

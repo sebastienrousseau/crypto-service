@@ -130,6 +130,7 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/pq/encapsulate": "crypto:encrypt",
   "POST /v2/pq/hybrid/encapsulate": "crypto:encrypt",
   "POST /v2/stream/pq-encrypt": "crypto:encrypt",
+  "POST /v2/stream/multi-pq-encrypt": "crypto:encrypt",
   // Decryption
   "POST /v2/decrypt": "crypto:decrypt",
   "POST /v2/secretbox/open": "crypto:decrypt",
@@ -139,6 +140,7 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/pq/decapsulate": "crypto:decrypt",
   "POST /v2/pq/hybrid/decapsulate": "crypto:decrypt",
   "POST /v2/stream/pq-decrypt": "crypto:decrypt",
+  "POST /v2/stream/multi-pq-decrypt": "crypto:decrypt",
   // Signing (an HMAC is a symmetric authentication tag)
   "POST /v2/sign": "crypto:sign",
   "POST /v2/stream/sign": "crypto:sign",
