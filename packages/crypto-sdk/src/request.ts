@@ -4,12 +4,40 @@
  */
 
 import { CryptoApiError, readProblem } from "./errors";
+import type { ClientOptions, RetryOptions } from "./types";
 
 /** Internal normalized retry configuration. */
 export interface RetryConfig {
   maxRetries: number;
   initialDelayMs: number;
   maxDelayMs: number;
+}
+
+/** Resolves normalized retry options. */
+export function resolveRetryConfig(retry?: RetryOptions): RetryConfig {
+  return {
+    maxRetries: Math.max(0, retry?.maxRetries ?? 0),
+    initialDelayMs: Math.max(0, retry?.initialDelayMs ?? 200),
+    maxDelayMs: Math.max(0, retry?.maxDelayMs ?? 2000),
+  };
+}
+
+/** Builds initial base headers for the client. */
+export function buildClientHeaders(
+  options: ClientOptions,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (options.apiKey) headers["x-api-key"] = options.apiKey;
+  if (options.token) headers["Authorization"] = `Bearer ${options.token}`;
+  if (
+    typeof options.traceparent === "string" &&
+    options.traceparent.trim().length > 0
+  ) {
+    headers["traceparent"] = options.traceparent.trim();
+  }
+  return headers;
 }
 
 /** Determines whether an HTTP status code is transient. */
@@ -97,4 +125,37 @@ export async function executeRequest<T>(
 
     throw new CryptoApiError(res.status, await readProblem(res));
   }
+}
+
+/** Generates a compliant W3C traceparent Level 1 header. */
+export function generateSdkTraceparent(): string {
+  const bytes = new Uint8Array(24);
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.getRandomValues === "function"
+  ) {
+    globalThis.crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < 24; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  bytes[0] = ((bytes[0] as number) % 255) + 1;
+  bytes[16] = ((bytes[16] as number) % 255) + 1;
+
+  let hex = "";
+  for (let i = 0; i < 24; i++) {
+    hex += (bytes[i] as number).toString(16).padStart(2, "0");
+  }
+  return `00-${hex.slice(0, 32)}-${hex.slice(32, 48)}-01`;
+}
+
+/** Resolves static traceparent header value from string configuration. */
+export function resolveTraceparentHeader(
+  traceparent?: string | boolean,
+): string | undefined {
+  if (typeof traceparent === "string" && traceparent.trim().length > 0) {
+    return traceparent.trim();
+  }
+  return undefined;
 }

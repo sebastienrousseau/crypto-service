@@ -45,6 +45,12 @@ export interface ClientOptions {
   timeout?: number;
   /** Automatic retry options for transient errors (429, 503, 504). */
   retry?: RetryOptions;
+  /**
+   * Optional W3C Trace Context traceparent header or generation flag.
+   * If a string is provided, it is sent as the traceparent header.
+   * If `true`, a fresh compliant W3C traceparent is generated per request.
+   */
+  traceparent?: string | boolean;
 }
 
 /**

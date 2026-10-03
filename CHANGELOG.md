@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **KeyStore at-rest envelope encryption**: `crypto-server` now supports encrypting server-persisted private keys on disk under `CRYPTO_KEY_OUT_DIR` using AES-256-GCM when `CRYPTO_KEY_STORAGE_KEY` is set. Nonces are generated per key, and `${keyId}:${owner}` is bound as authenticated additional data (AAD) to prevent ciphertext splicing and cross-tenant substitution attacks. Legacy unencrypted key files continue to be read transparently for backwards compatibility.
 - **CryptoClient timeout and automatic retries**: `crypto-sdk` now supports a configurable `timeout` option (via `AbortSignal.timeout`) and automated retry policies (`retry: { maxRetries, initialDelayMs, maxDelayMs }`) for transient HTTP failures (`429`, `503`, `504`) and network fetch errors, honoring server `Retry-After` headers.
+- **W3C Trace Context propagation**: `crypto-server` now validates incoming W3C `traceparent` (and `tracestate`) headers, generates compliant Level 1 traceparents when missing or invalid, propagates them on response headers, and decorates requests with `traceId`. `crypto-sdk` supports `traceparent` configuration (static header or per-request compliant traceparent generation).
+- **Post-quantum hybrid streaming AEAD**: `crypto-lib/streaming` now exports `streamPqEncrypt` and `streamPqDecrypt` for chunk-based authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 with per-chunk nonces and anti-truncation markers.
 
 ### Security
 

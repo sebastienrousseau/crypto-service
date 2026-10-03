@@ -20,7 +20,14 @@
  */
 
 import { negotiateAlgorithm } from "./negotiation";
-import { buildRequestInit, executeRequest, type RetryConfig } from "./request";
+import {
+  buildClientHeaders,
+  buildRequestInit,
+  executeRequest,
+  generateSdkTraceparent,
+  resolveRetryConfig,
+  type RetryConfig,
+} from "./request";
 import type {
   ClientOptions,
   ApiResponse,
@@ -79,24 +86,15 @@ export class CryptoClient {
   private fetchFn: typeof globalThis.fetch;
   private timeout: number | undefined;
   private retry: RetryConfig;
+  private autoTraceparent = false;
 
   constructor(options: ClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
     this.fetchFn = options.fetch ?? globalThis.fetch;
-    this.headers = { "Content-Type": "application/json" };
+    this.headers = buildClientHeaders(options);
     this.timeout = options.timeout;
-    this.retry = {
-      maxRetries: Math.max(0, options.retry?.maxRetries ?? 0),
-      initialDelayMs: Math.max(0, options.retry?.initialDelayMs ?? 200),
-      maxDelayMs: Math.max(0, options.retry?.maxDelayMs ?? 2000),
-    };
-
-    if (options.apiKey) {
-      this.headers["x-api-key"] = options.apiKey;
-    }
-    if (options.token) {
-      this.headers["Authorization"] = `Bearer ${options.token}`;
-    }
+    this.retry = resolveRetryConfig(options.retry);
+    this.autoTraceparent = options.traceparent === true;
   }
 
   /** Send a request and return the parsed JSON body; throws on a non-OK status. */
@@ -105,7 +103,10 @@ export class CryptoClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const init = buildRequestInit(method, this.headers, body, this.timeout);
+    const headers = this.autoTraceparent
+      ? { ...this.headers, traceparent: generateSdkTraceparent() }
+      : this.headers;
+    const init = buildRequestInit(method, headers, body, this.timeout);
     return executeRequest<T>(
       this.fetchFn,
       `${this.baseUrl}${path}`,

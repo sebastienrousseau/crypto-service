@@ -40,6 +40,7 @@ import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
 import { KdfRunner } from "./lib/kdf-runner";
 import { registerProblemHandlers } from "./lib/problem";
+import { propagateTraceContext } from "./utils/trace";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -96,10 +97,11 @@ async function init(): Promise<fastify.FastifyInstance> {
   registerProblemHandlers(app);
 
   // Assign a unique request ID (or honour the upstream one) and propagate
-  // it as a response header for distributed tracing.
+  // W3C trace context headers for distributed tracing.
   app.addHook("onRequest", async (request, reply) => {
     const reqId = (request.headers["x-request-id"] as string) ?? randomUUID();
     reply.header("x-request-id", reqId);
+    propagateTraceContext(request, reply);
   });
 
   // Prevent caching of sensitive cryptographic responses.
