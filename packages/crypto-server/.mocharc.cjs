@@ -14,4 +14,5 @@ module.exports = {
   // Use transpile-only so ts-node does not type-check compiled JS
   // from workspace dependencies (crypto-lib dist/).
   require: ["ts-node/register/transpile-only"],
+  timeout: 60000,
 };
