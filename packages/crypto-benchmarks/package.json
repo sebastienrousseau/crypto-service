@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-benchmarks",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Performance benchmarking and latency profiling harness comparing classical vs post-quantum cryptographic primitives across JavaScript, WebAssembly, and native runtimes.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
