@@ -9,7 +9,12 @@ import { destroyKey, generateKey, inspectKey, listKeys } from "./keys";
 import { kmsUnwrap, kmsWrap } from "./kms";
 import { ToolHandler, errorResult } from "./result";
 import { hash, sign, verify } from "./signing";
-import { streamDecrypt, streamEncrypt } from "./stream";
+import {
+  streamDecrypt,
+  streamEncrypt,
+  streamMultiDecrypt,
+  streamMultiEncrypt,
+} from "./stream";
 import { decrypt, encrypt } from "./symmetric";
 import { validateArguments } from "./validate";
 
@@ -28,6 +33,8 @@ const HANDLERS: Record<string, ToolHandler> = {
   crypto_decrypt: decrypt,
   crypto_stream_encrypt: streamEncrypt,
   crypto_stream_decrypt: streamDecrypt,
+  crypto_stream_multi_encrypt: streamMultiEncrypt,
+  crypto_stream_multi_decrypt: streamMultiDecrypt,
   crypto_sign: sign,
   crypto_verify: verify,
   crypto_hash: hash,

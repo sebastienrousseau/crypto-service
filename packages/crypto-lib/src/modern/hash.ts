@@ -53,22 +53,22 @@ function toBytes(input: string | Uint8Array): Uint8Array {
 }
 
 /** Map of hash algorithm names to their implementation functions. */
-const hashFunctions: Record<HashAlgorithm, (data: Uint8Array) => Uint8Array> = {
-  sha256: (d) => sha256(d),
-  sha384: (d) => sha384(d),
-  sha512: (d) => sha512(d),
-  "sha3-256": (d) => sha3_256(d),
-  "sha3-512": (d) => sha3_512(d),
-  blake2b: (d) => blake2b(d),
-  blake3: (d) => blake3(d),
-};
+const hashFunctions = new Map<HashAlgorithm, (data: Uint8Array) => Uint8Array>([
+  ["sha256", (d) => sha256(d)],
+  ["sha384", (d) => sha384(d)],
+  ["sha512", (d) => sha512(d)],
+  ["sha3-256", (d) => sha3_256(d)],
+  ["sha3-512", (d) => sha3_512(d)],
+  ["blake2b", (d) => blake2b(d)],
+  ["blake3", (d) => blake3(d)],
+]);
 
 /* c8 ignore start -- V8 phantom branch at JSDoc + unreachable !fn guard */
 /**
  * Compute a cryptographic hash digest.
  */
 export function hash(options: HashOptions): HashResult {
-  const fn = hashFunctions[options.algorithm];
+  const fn = hashFunctions.get(options.algorithm);
   if (!fn) {
     throw new Error(
       `Unsupported algorithm: ${options.algorithm}. Supported: ${HASH_ALGORITHMS.join(", ")}`,

@@ -107,6 +107,7 @@ function registerVerify(app: FastifyInstance): void {
           },
         },
       },
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },
     async (request, reply) => {
       try {

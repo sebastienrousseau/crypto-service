@@ -326,6 +326,56 @@ const CIPHER_TOOLS: MCPTool[] = [
       required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
     },
   },
+  {
+    name: "crypto_stream_multi_encrypt",
+    description:
+      "Encrypt plaintext for multiple recipients using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation framing. Returns base64 ciphertext.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        plaintext: text("Plaintext string to encrypt."),
+        recipients: text(
+          "JSON-serialized array of recipient public key descriptors: [{ recipientId, recipientX25519Public, recipientMlKemPublic }].",
+        ),
+        chunkSize: {
+          type: "integer",
+          description:
+            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
+          minimum: 1024,
+          maximum: 16777216,
+        },
+      },
+      required: ["plaintext", "recipients"],
+    },
+  },
+  {
+    name: "crypto_stream_multi_decrypt",
+    description:
+      "Decrypt a multi-recipient post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        ciphertext: text("Base64-encoded multi-recipient STREAM ciphertext."),
+        x25519KeyHandle: keyHandle(
+          "Handle of the recipient X25519 key (or 32-byte symmetric-256 key).",
+        ),
+        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM-768 key."),
+        recipientId: text(
+          "Optional recipient identifier for direct slot lookup.",
+        ),
+        chunkSize: {
+          type: "integer",
+          description:
+            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
+          minimum: 1024,
+          maximum: 16777216,
+        },
+      },
+      required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
+    },
+  },
 ];
 
 const SIGNATURE_TOOLS: MCPTool[] = [

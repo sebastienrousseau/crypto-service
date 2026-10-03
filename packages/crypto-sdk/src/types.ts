@@ -437,3 +437,53 @@ export interface StreamPqDecryptResult {
   /** Recovered plaintext string. */
   plaintext: string;
 }
+
+/** Recipient public keys for multi-recipient post-quantum stream encryption. */
+export interface StreamMultiPqRecipient {
+  /** Unique recipient identifier (1 to 255 UTF-8 characters). */
+  recipientId: string;
+  /** Recipient X25519 public key (64 hex characters). */
+  x25519PublicKey: string;
+  /** Recipient ML-KEM-768 public key (hex string). */
+  mlKemPublicKey: string;
+}
+
+/** Parameters for multi-recipient hybrid post-quantum stream encryption. */
+export interface StreamMultiPqEncryptParams {
+  /** Array of recipients who can decrypt the stream. */
+  recipients: StreamMultiPqRecipient[];
+  /** Plaintext data to encrypt. */
+  plaintext: string;
+  /** Chunk size in bytes (optional, default 65536). */
+  chunkSize?: number;
+}
+
+/** Result of multi-recipient hybrid post-quantum stream encryption. */
+export interface StreamMultiPqEncryptResult {
+  /** Base64-encoded encrypted stream ciphertext. */
+  ciphertext: string;
+  /** Algorithm identifier. */
+  algorithm: "multi-x25519-ml-kem-768-xchacha20-poly1305-stream";
+  /** Number of recipient key slots encapsulated in header. */
+  recipientCount: number;
+}
+
+/** Parameters for multi-recipient hybrid post-quantum stream decryption. */
+export interface StreamMultiPqDecryptParams {
+  /** Server-held keyId of algorithm x25519-ml-kem-768. */
+  keyId: string;
+  /** Optional recipient identifier to locate slot directly. */
+  recipientId?: string;
+  /** Base64-encoded stream ciphertext. */
+  ciphertext: string;
+  /** Chunk size override (optional). */
+  chunkSize?: number;
+}
+
+/** Result of multi-recipient hybrid post-quantum stream decryption. */
+export interface StreamMultiPqDecryptResult {
+  /** Recovered plaintext string. */
+  plaintext: string;
+  /** Identifier of recipient slot that decrypted the stream. */
+  recipientId: string;
+}

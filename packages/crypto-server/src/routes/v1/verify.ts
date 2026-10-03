@@ -52,7 +52,10 @@ const verifySchema = {
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyVerify }>(
     "/v1/verify",
-    { schema: verifySchema },
+    {
+      schema: verifySchema,
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
+    },
     async (request, reply) => {
       try {
         const body = request.body as IBodyVerify;

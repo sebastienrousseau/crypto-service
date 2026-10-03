@@ -54,6 +54,10 @@ import type {
   StreamPqEncryptResult,
   StreamPqDecryptParams,
   StreamPqDecryptResult,
+  StreamMultiPqEncryptParams,
+  StreamMultiPqEncryptResult,
+  StreamMultiPqDecryptParams,
+  StreamMultiPqDecryptResult,
 } from "./types";
 import type {
   KeyAlgorithm,
@@ -438,6 +442,20 @@ export class CryptoClient {
     params: StreamPqDecryptParams,
   ): Promise<ApiResponse<StreamPqDecryptResult>> {
     return this.request("POST", "/v2/stream/pq-decrypt", params);
+  }
+
+  /** Encrypt plaintext for multiple recipients using hybrid post-quantum STREAM. */
+  async streamMultiPqEncrypt(
+    params: StreamMultiPqEncryptParams,
+  ): Promise<ApiResponse<StreamMultiPqEncryptResult>> {
+    return this.request("POST", "/v2/stream/multi-pq-encrypt", params);
+  }
+
+  /** Decrypt multi-recipient hybrid post-quantum STREAM ciphertext using a server-held hybrid key. */
+  async streamMultiPqDecrypt(
+    params: StreamMultiPqDecryptParams,
+  ): Promise<ApiResponse<StreamMultiPqDecryptResult>> {
+    return this.request("POST", "/v2/stream/multi-pq-decrypt", params);
   }
 
   // --- High-Level: Password Encryption ---

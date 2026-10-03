@@ -21,6 +21,11 @@ import { sha256, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 import { streamPqEncrypt, streamPqDecrypt } from "./stream-pq-aead";
+import {
+  streamMultiPqEncrypt,
+  streamMultiPqDecrypt,
+  type MultiPqRecipient,
+} from "./stream-multi-pq-aead";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
 /** Reference to the global TransformStream constructor. */
@@ -294,6 +299,26 @@ export interface PqDecryptStreamOptions {
   chunkSize?: number | undefined;
 }
 
+/** Options for creating a multi-recipient post-quantum encrypt transform stream. */
+export interface MultiPqEncryptStreamOptions {
+  /** List of recipients who will be able to decrypt the stream. */
+  recipients: MultiPqRecipient[];
+  /** Chunk size in bytes (optional, default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
+}
+
+/** Options for creating a multi-recipient post-quantum decrypt transform stream. */
+export interface MultiPqDecryptStreamOptions {
+  /** Optional recipient identifier to locate slot directly. */
+  recipientId?: string | undefined;
+  /** Recipient X25519 secret key (32 bytes; hex string or Uint8Array). */
+  recipientX25519Secret: string | Uint8Array;
+  /** Recipient ML-KEM-768 secret key (2400 bytes; hex string or Uint8Array). */
+  recipientMlKemSecret: string | Uint8Array;
+  /** Chunk size override (optional). */
+  chunkSize?: number | undefined;
+}
+
 /**
  * Create a TransformStream that encrypts data using hybrid post-quantum STREAM (X25519 + ML-KEM-768).
  *
@@ -364,6 +389,80 @@ export function createPqDecryptStream(
         chunkSize: options.chunkSize,
       });
       controller.enqueue(decrypted);
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that encrypts data for multiple recipients using hybrid post-quantum STREAM.
+ *
+ * Accumulates input chunks and on flush emits the multi-recipient encrypted stream ciphertext.
+ *
+ * @param options - Encryption parameters including recipients array and optional chunk size.
+ * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
+ */
+export function createMultiPqEncryptStream(
+  options: MultiPqEncryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  let totalLen = 0;
+
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      chunks.push(chunk);
+      totalLen += chunk.length;
+    },
+    flush(controller: { enqueue(v: Uint8Array): void }) {
+      const plaintext = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        plaintext.set(c, offset);
+        offset += c.length;
+      }
+      const encrypted = streamMultiPqEncrypt({
+        recipients: options.recipients,
+        plaintext,
+        chunkSize: options.chunkSize,
+      });
+      controller.enqueue(encrypted.ciphertext);
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that decrypts multi-recipient hybrid post-quantum STREAM ciphertext.
+ *
+ * Accumulates input chunks and on flush decapsulates and decrypts the stream to plaintext.
+ *
+ * @param options - Decryption parameters including recipient secret keys and optional recipient ID.
+ * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
+ */
+export function createMultiPqDecryptStream(
+  options: MultiPqDecryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  let totalLen = 0;
+
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      chunks.push(chunk);
+      totalLen += chunk.length;
+    },
+    flush(controller: { enqueue(v: Uint8Array): void }) {
+      const ciphertext = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        ciphertext.set(c, offset);
+        offset += c.length;
+      }
+      const decrypted = streamMultiPqDecrypt({
+        recipientId: options.recipientId,
+        recipientX25519Secret: options.recipientX25519Secret,
+        recipientMlKemSecret: options.recipientMlKemSecret,
+        ciphertext,
+        chunkSize: options.chunkSize,
+      });
+      controller.enqueue(decrypted.plaintext);
     },
   });
 }

@@ -21,6 +21,8 @@ export {
   createHashStream,
   createPqEncryptStream,
   createPqDecryptStream,
+  createMultiPqEncryptStream,
+  createMultiPqDecryptStream,
   WEB_STREAM_HASH_ALGORITHMS,
 } from "./web-streams";
 /** Re-exported web stream option and result types. */
@@ -31,6 +33,8 @@ export type {
   DecryptStreamOptions,
   PqEncryptStreamOptions,
   PqDecryptStreamOptions,
+  MultiPqEncryptStreamOptions,
+  MultiPqDecryptStreamOptions,
   CryptoTransformStream,
 } from "./web-streams";
 
@@ -45,3 +49,22 @@ export type {
   StreamPqEncryptResult,
   StreamPqDecryptOptions,
 } from "./stream-pq-aead";
+
+export {
+  streamMultiPqEncrypt,
+  streamMultiPqDecrypt,
+  MULTI_PQ_STREAM_MAGIC,
+  MULTI_PQ_STREAM_VERSION,
+  MULTI_PQ_PREFIX_LEN,
+  CEK_LEN,
+  WRAPPED_CEK_LEN,
+  SLOT_FIXED_OVERHEAD,
+} from "./stream-multi-pq-aead";
+/** Re-exported multi-recipient PQ stream AEAD option and result types. */
+export type {
+  MultiPqRecipient,
+  StreamMultiPqEncryptOptions,
+  StreamMultiPqEncryptResult,
+  StreamMultiPqDecryptOptions,
+  StreamMultiPqDecryptResult,
+} from "./stream-multi-pq-aead";

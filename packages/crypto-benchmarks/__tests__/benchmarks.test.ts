@@ -148,11 +148,14 @@ describe("Crypto Benchmarks Suite", () => {
       expect(ops.x25519Public).to.be.a("string");
       expect(ops.mlKemPublic).to.be.a("string");
       expect(ops.pqCiphertext64k.length).to.be.greaterThan(0);
+      expect(ops.multiRecipients).to.have.lengthOf(3);
+      expect(ops.multiPqCiphertext64k.length).to.be.greaterThan(0);
+      expect(ops.aliceId).to.equal("alice@example.com");
     });
 
-    it("profiles symmetric and post-quantum streaming AEAD operations", async () => {
+    it("profiles symmetric, post-quantum, and multi-recipient streaming AEAD operations", async () => {
       const results = await runStreamingBenchmarks(2);
-      expect(results).to.have.lengthOf(4);
+      expect(results).to.have.lengthOf(6);
 
       const symEnc = results.find(
         (r) =>
@@ -187,6 +190,24 @@ describe("Crypto Benchmarks Suite", () => {
           r.algorithm === "X25519+ML-KEM-768",
       );
       expect(pqDec).to.exist;
+
+      const multiEnc = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "encrypt" &&
+          r.algorithm === "Multi-X25519+ML-KEM-768",
+      );
+      expect(multiEnc).to.exist;
+      expect(multiEnc?.quantumSafe).to.be.true;
+
+      const multiDec = results.find(
+        (r) =>
+          r.category === "streaming" &&
+          r.operation === "decrypt" &&
+          r.algorithm === "Multi-X25519+ML-KEM-768",
+      );
+      expect(multiDec).to.exist;
+      expect(multiDec?.quantumSafe).to.be.true;
     });
   });
 
@@ -208,10 +229,10 @@ describe("Crypto Benchmarks Suite", () => {
         suite: "streaming",
         iterations: 2,
       });
-      expect(streamingSuite.results).to.have.lengthOf(4);
+      expect(streamingSuite.results).to.have.lengthOf(6);
 
       const allSuite = await runSuite({ suite: "all", iterations: 2 });
-      expect(allSuite.results.length).to.equal(17);
+      expect(allSuite.results.length).to.equal(19);
       expect(allSuite.summaryMarkdown).to.include(
         "Cryptographic Performance Benchmark Report",
       );
@@ -221,7 +242,7 @@ describe("Crypto Benchmarks Suite", () => {
 
     it("runs with default configuration if none provided", async () => {
       const defSuite = await runSuite({});
-      expect(defSuite.totalBenchmarks).to.equal(17);
+      expect(defSuite.totalBenchmarks).to.equal(19);
     });
   });
 
@@ -306,7 +327,7 @@ describe("Crypto Benchmarks Suite", () => {
         ]);
         expect(streamCode).to.equal(0);
         const streamReport = JSON.parse(output);
-        expect(streamReport.totalBenchmarks).to.equal(4);
+        expect(streamReport.totalBenchmarks).to.equal(6);
 
         // 5. Default run
         output = "";
