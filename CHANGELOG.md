@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Vulnerability remediation (`braces <=3.0.3`)**: Overrode `chokidar` to `>=5.0.0` in `pnpm-workspace.yaml`, eliminating the transitive high-severity regex/stack exhaustion vulnerability (GHSA-vfj7-8cjw-p6xm) in the markdown tooling dependency graph.
+
 ### Changed
 
 - **One approval per npm release**: npm versions are no longer staged for per-package 2FA approval (18 approvals for 0.0.9). The release workflow packs the tarballs once after the tests; a separate `npm` job runs in the `npm` GitHub environment, which waits for a maintainer to approve the run once, then publishes those exact tarballs through npm trusted publishing (`scripts/pack-npm.sh`, `scripts/publish-npm.sh`) and checks provenance. Each package's trusted publisher accepts only that environment.
+- **Mocha test timeout resilience**: Set `timeout: 60000` in `.mocharc.cjs` across `crypto-sdk`, `crypto-lib`, and `crypto-server` to allow compute-intensive cryptographic operations (Argon2id password hashing, large-key RSA, and SLH-DSA post-quantum key generation and signing) sufficient headroom on loaded multi-architecture CI runners.
+- **Dependency maintenance & branch funneling**: Consolidated 11 Dependabot updates into `feat/v0.0.10` per repository invariants: `actions/upload-pages-artifact@5.0.0`, `pnpm/action-setup@6.1.0`, `anchore/sbom-action@0.24.2`, `figlet@1.12.0`, `vue@3.5.43`, `lint-staged@17.6.0`, `openpgp@6.3.2`, `@sebastienrousseau/markdownlint-config@0.0.7`, `remark-preset-lint-markdown-style-guide@6.0.1`, `commander@15.0.0`, and `@sebastienrousseau/mocha-config@0.0.7`.
+- **Dependabot configuration**: Added ignore rule for TypeScript semver-major updates (`>= 7.0.0`) in `.github/dependabot.yml` until ecosystem tooling (typescript-eslint, TypeDoc, ts-node) adds support.
 
 ## [0.0.9] - 2026-10-02
 
