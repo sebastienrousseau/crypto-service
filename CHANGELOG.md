@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.12] - Unreleased
+
+### Added
+
+- Initialized release iteration `v0.0.12`.
+
 ## [0.0.11] - 2026-10-03
 
 ### Added
@@ -15,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI multi-recipient post-quantum streaming commands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli stream multi-encrypt` and `crypto-cli stream multi-decrypt` subcommands for chunked multi-recipient post-quantum hybrid streaming AEAD, supporting recipient public key lists via JSON string or file paths, custom chunk sizing (1024-16MB), automatic recipient slot detection or targeted recipient ID decryption, and zeroed in-memory plaintext buffers.
 - **MCP multi-recipient streaming tools**: `@sebastienrousseau/crypto-mcp` now provides `crypto_stream_multi_encrypt` and `crypto_stream_multi_decrypt` tools enabling MCP agents to encrypt and decrypt post-quantum hybrid streaming payloads for multiple recipients with server-held key handles and automatic plaintext memory scrubbing.
 - **Multi-recipient streaming benchmarks**: `@sebastienrousseau/crypto-benchmarks` now benchmarks multi-recipient post-quantum hybrid STREAM AEAD encryption and decryption across 3 recipients with 64 KB payloads.
+
+### Security
+
+- **Dependabot advisory 130**: Eliminated orphaned `braces@3.0.3` dependency from the workspace lockfile.
+- **CodeQL unvalidated dynamic method call**: Refactored `crypto-lib`'s `hash()` function dispatch from a plain object to a secure `Map` lookup, eliminating prototype pollution risks (CodeQL alert 35).
+- **CodeQL missing rate limiting**: Added explicit route-level rate limiting (`config: { rateLimit: { max: 100, timeWindow: "1 minute" } }`) across sensitive signature verification and decryption endpoints in `crypto-server` (CodeQL alerts 29-34).
 
 ## [0.0.10] - 2026-10-03
 
@@ -251,6 +263,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.12]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.8...v0.0.9
