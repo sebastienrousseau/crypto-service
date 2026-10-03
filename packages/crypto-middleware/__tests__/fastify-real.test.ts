@@ -53,7 +53,11 @@ describe("Fastify plugin on a real Fastify instance", () => {
       },
       routes: ["/api/**"],
     });
-    app.post("/api/echo", async (req) => req.body);
+    app.post("/api/echo", async (req, reply) => {
+      reply.header("content-type", "application/json");
+      const payload = req.body as { secure?: string };
+      return { secure: String(payload?.secure ?? "") };
+    });
 
     const ciphertext = encryptPqPayload(x25519.publicKey, mlkem.publicKey, {
       secure: "quantum-payload",
