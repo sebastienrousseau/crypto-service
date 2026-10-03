@@ -8,6 +8,9 @@ import {
   streamDecrypt,
   streamPqEncrypt,
   streamPqDecrypt,
+  streamMultiPqEncrypt,
+  streamMultiPqDecrypt,
+  type MultiPqRecipient,
 } from "@sebastienrousseau/crypto-lib";
 import { BenchmarkItemResult } from "../types";
 import { benchmarkOperation } from "../timer";
@@ -22,6 +25,51 @@ export interface StreamingOperations {
   mlKemPublic: string;
   mlKemSecret: string;
   pqCiphertext64k: Uint8Array;
+  multiRecipients: MultiPqRecipient[];
+  aliceId: string;
+  aliceX25519Secret: string;
+  aliceMlKemSecret: string;
+  multiPqCiphertext64k: Uint8Array;
+}
+
+/** Generates 3 recipient keypairs for multi-recipient streaming benchmarks. */
+function createMultiRecipients(): {
+  recipients: MultiPqRecipient[];
+  alice: { id: string; xSec: string; mlSec: string };
+} {
+  const aliceX = generateX25519KeyPair();
+  const aliceMl = mlKemKeygen(768);
+  const bobX = generateX25519KeyPair();
+  const bobMl = mlKemKeygen(768);
+  const charlieX = generateX25519KeyPair();
+  const charlieMl = mlKemKeygen(768);
+
+  const recipients: MultiPqRecipient[] = [
+    {
+      recipientId: "alice@example.com",
+      recipientX25519Public: aliceX.publicKey,
+      recipientMlKemPublic: aliceMl.publicKey,
+    },
+    {
+      recipientId: "bob@example.com",
+      recipientX25519Public: bobX.publicKey,
+      recipientMlKemPublic: bobMl.publicKey,
+    },
+    {
+      recipientId: "charlie@example.com",
+      recipientX25519Public: charlieX.publicKey,
+      recipientMlKemPublic: charlieMl.publicKey,
+    },
+  ];
+
+  return {
+    recipients,
+    alice: {
+      id: "alice@example.com",
+      xSec: aliceX.privateKey,
+      mlSec: aliceMl.secretKey,
+    },
+  };
 }
 
 /**
@@ -41,6 +89,12 @@ export function createStreamingOperations(): StreamingOperations {
     plaintext: payload64k,
   });
 
+  const { recipients, alice } = createMultiRecipients();
+  const multiPqEnc = streamMultiPqEncrypt({
+    recipients,
+    plaintext: payload64k,
+  });
+
   return {
     payload64k,
     symmetricKey,
@@ -50,6 +104,11 @@ export function createStreamingOperations(): StreamingOperations {
     mlKemPublic: mlkem.publicKey,
     mlKemSecret: mlkem.secretKey,
     pqCiphertext64k: pqEnc.ciphertext,
+    multiRecipients: recipients,
+    aliceId: alice.id,
+    aliceX25519Secret: alice.xSec,
+    aliceMlKemSecret: alice.mlSec,
+    multiPqCiphertext64k: multiPqEnc.ciphertext,
   };
 }
 
@@ -140,6 +199,52 @@ async function benchmarkPqStreaming(
   ];
 }
 
+async function benchmarkMultiPqStreaming(
+  ops: StreamingOperations,
+  iterations: number,
+): Promise<BenchmarkItemResult[]> {
+  const encStats = await benchmarkOperation(
+    () => {
+      streamMultiPqEncrypt({
+        recipients: ops.multiRecipients,
+        plaintext: ops.payload64k,
+      });
+    },
+    { iterations, warmup: 5 },
+  );
+
+  const decStats = await benchmarkOperation(
+    () => {
+      streamMultiPqDecrypt({
+        recipientId: ops.aliceId,
+        recipientX25519Secret: ops.aliceX25519Secret,
+        recipientMlKemSecret: ops.aliceMlKemSecret,
+        ciphertext: ops.multiPqCiphertext64k,
+      });
+    },
+    { iterations, warmup: 5 },
+  );
+
+  return [
+    {
+      name: "Multi-Recipient PQ Stream AEAD Encrypt (3 recipients, 64KB)",
+      category: "streaming",
+      algorithm: "Multi-X25519+ML-KEM-768",
+      operation: "encrypt",
+      quantumSafe: true,
+      stats: encStats,
+    },
+    {
+      name: "Multi-Recipient PQ Stream AEAD Decrypt (3 recipients, 64KB)",
+      category: "streaming",
+      algorithm: "Multi-X25519+ML-KEM-768",
+      operation: "decrypt",
+      quantumSafe: true,
+      stats: decStats,
+    },
+  ];
+}
+
 /**
  * Benchmarks symmetric STREAM AEAD against post-quantum hybrid STREAM AEAD
  * across encryption and decryption operations.
@@ -150,5 +255,6 @@ export async function runStreamingBenchmarks(
   const ops = createStreamingOperations();
   const symmetric = await benchmarkSymmetricStreaming(ops, iterations);
   const pq = await benchmarkPqStreaming(ops, iterations);
-  return [...symmetric, ...pq];
+  const multiPq = await benchmarkMultiPqStreaming(ops, iterations);
+  return [...symmetric, ...pq, ...multiPq];
 }

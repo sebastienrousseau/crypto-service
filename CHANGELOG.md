@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Multi-recipient post-quantum streaming AEAD**: Added multi-recipient post-quantum hybrid streaming authenticated encryption combining X25519, ML-KEM-768, and XChaCha20-Poly1305 across `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-server`, and `@sebastienrousseau/crypto-sdk`. Features content encryption key (CEK) wrapping per recipient slot with recipient ID and slot index authenticated additional data (AAD) binding, anti-truncation framing, automatic recipient slot discovery, zero-memory buffer scrubbing, WHATWG `TransformStream` pipelines (`createMultiPqEncryptStream`, `createMultiPqDecryptStream`), Fastify REST endpoints (`POST /v2/stream/multi-pq-encrypt`, `POST /v2/stream/multi-pq-decrypt`), and SDK client methods (`streamMultiPqEncrypt`, `streamMultiPqDecrypt`).
+- **CLI multi-recipient post-quantum streaming commands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli stream multi-encrypt` and `crypto-cli stream multi-decrypt` subcommands for chunked multi-recipient post-quantum hybrid streaming AEAD, supporting recipient public key lists via JSON string or file paths, custom chunk sizing (1024-16MB), automatic recipient slot detection or targeted recipient ID decryption, and zeroed in-memory plaintext buffers.
+- **MCP multi-recipient streaming tools**: `@sebastienrousseau/crypto-mcp` now provides `crypto_stream_multi_encrypt` and `crypto_stream_multi_decrypt` tools enabling MCP agents to encrypt and decrypt post-quantum hybrid streaming payloads for multiple recipients with server-held key handles and automatic plaintext memory scrubbing.
+- **Multi-recipient streaming benchmarks**: `@sebastienrousseau/crypto-benchmarks` now benchmarks multi-recipient post-quantum hybrid STREAM AEAD encryption and decryption across 3 recipients with 64 KB payloads.
 
 ## [0.0.10] - 2026-10-03
 

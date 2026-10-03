@@ -493,14 +493,18 @@ Usage: crypto-cli stream [options] [command]
 Post-quantum hybrid streaming AEAD operations
 
 Options:
-  -h, --help                print help
+  -h, --help                      print help
 
 Commands:
-  encrypt [options] [file]  Encrypt with post-quantum hybrid STREAM AEAD (X25519
-                            + ML-KEM-768)
-  decrypt [options] [file]  Decrypt post-quantum hybrid STREAM ciphertext; exits
-                            1 on error
-  help [command]            display help for command
+  encrypt [options] [file]        Encrypt with post-quantum hybrid STREAM AEAD
+                                  (X25519 + ML-KEM-768)
+  decrypt [options] [file]        Decrypt post-quantum hybrid STREAM ciphertext;
+                                  exits 1 on error
+  multi-encrypt [options] [file]  Encrypt for multiple recipients with
+                                  post-quantum hybrid STREAM AEAD
+  multi-decrypt [options] [file]  Decrypt multi-recipient post-quantum hybrid
+                                  STREAM ciphertext; exits 1 on error
+  help [command]                  display help for command
 ```
 
 #### `crypto-cli stream encrypt`
@@ -536,6 +540,47 @@ Arguments:
 Options:
   -x, --x25519-secret <hex>  recipient X25519 secret key (hex)
   -m, --ml-kem-secret <hex>  recipient ML-KEM-768 secret key (hex)
+  -c, --chunk-size <bytes>   chunk size in bytes
+  --json                     print the result as one line of JSON
+  -h, --help                 print help
+```
+
+#### `crypto-cli stream multi-encrypt`
+
+```text
+Usage: crypto-cli stream multi-encrypt [options] [file]
+
+Encrypt for multiple recipients with post-quantum hybrid STREAM AEAD
+
+Arguments:
+  file                             file to encrypt; '-' or omitted reads
+                                   standard input
+
+Options:
+  -r, --recipients <json-or-path>  JSON array string or file path containing
+                                   recipient public key descriptors
+  -c, --chunk-size <bytes>         chunk size in bytes (minimum 1024, default
+                                   65536)
+  --json                           print the result as one line of JSON
+  -h, --help                       print help
+```
+
+#### `crypto-cli stream multi-decrypt`
+
+```text
+Usage: crypto-cli stream multi-decrypt [options] [file]
+
+Decrypt multi-recipient post-quantum hybrid STREAM ciphertext; exits 1 on error
+
+Arguments:
+  file                       output of stream multi-encrypt (base64 or its
+                             --json line)
+
+Options:
+  -x, --x25519-secret <hex>  recipient X25519 secret key (hex)
+  -m, --ml-kem-secret <hex>  recipient ML-KEM-768 secret key (hex)
+  -i, --recipient-id <id>    optional recipient identifier for direct slot
+                             lookup
   -c, --chunk-size <bytes>   chunk size in bytes
   --json                     print the result as one line of JSON
   -h, --help                 print help

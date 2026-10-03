@@ -16,6 +16,7 @@ import {
   valueOrJsonField,
   type RunContext,
 } from "./io";
+import { registerStreamMulti } from "./stream-multi";
 
 /** Options of `stream encrypt`. */
 interface StreamEncryptOptions {
@@ -37,7 +38,7 @@ interface StreamDecryptOptions {
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
 /** Parse and validate optional chunk size argument. */
-const parseChunkSize = (value?: string): number | undefined => {
+export const parseChunkSize = (value?: string): number | undefined => {
   if (value === undefined) return undefined;
   const size = Number(value);
   if (!Number.isSafeInteger(size) || size < 64) {
@@ -47,7 +48,7 @@ const parseChunkSize = (value?: string): number | undefined => {
 };
 
 /** Parse sealed ciphertext from raw base64 or JSON input. */
-const parseCiphertext = (input: Buffer): Buffer => {
+export const parseCiphertext = (input: Buffer): Buffer => {
   const text = valueOrJsonField(input, "ciphertext");
   if (!BASE64.test(text)) {
     throw new Error("the input is not base64 from crypto-cli stream encrypt");
@@ -160,4 +161,5 @@ export const registerStream = (program: Command, ctx: RunContext): void => {
     .description("Post-quantum hybrid streaming AEAD operations");
   registerStreamEncrypt(stream, ctx);
   registerStreamDecrypt(stream, ctx);
+  registerStreamMulti(stream, ctx);
 };

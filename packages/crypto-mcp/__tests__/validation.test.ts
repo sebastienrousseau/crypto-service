@@ -59,6 +59,21 @@ async function buildFixtures(): Promise<void> {
       x25519KeyHandle: xKey.keyHandle,
       mlKemKeyHandle: kem.keyHandle,
     },
+    crypto_stream_multi_encrypt: {
+      plaintext: "p",
+      recipients: JSON.stringify([
+        {
+          recipientId: "alice",
+          recipientX25519Public: "00".repeat(32),
+          recipientMlKemPublic: "00".repeat(1184),
+        },
+      ]),
+    },
+    crypto_stream_multi_decrypt: {
+      ciphertext: "00",
+      x25519KeyHandle: xKey.keyHandle,
+      mlKemKeyHandle: kem.keyHandle,
+    },
     crypto_sign: { data: "d", keyHandle: mac.keyHandle },
     crypto_verify: { data: "d", signature: "00", keyHandle: UNISSUED },
     crypto_hash: { data: "d", algorithm: "sha256" },

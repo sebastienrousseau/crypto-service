@@ -452,6 +452,95 @@ describe("Crypto MCP Server Suite", () => {
       expect(corrupted).to.include("Tool error (crypto_stream_decrypt)");
     });
 
+    it("round-trips crypto_stream_multi_encrypt and crypto_stream_multi_decrypt across multiple recipients", async () => {
+      const aliceX = await newKey("x25519");
+      const aliceMl = await newKey("ml-kem-768");
+      const bobX = await newKey("x25519");
+      const bobMl = await newKey("ml-kem-768");
+      const message = "Multi-recipient stream over MCP protocol";
+
+      const enc = await call("crypto_stream_multi_encrypt", {
+        plaintext: message,
+        recipients: JSON.stringify([
+          {
+            recipientId: "alice",
+            recipientX25519Public: aliceX.publicKey,
+            recipientMlKemPublic: aliceMl.publicKey,
+          },
+          {
+            recipientId: "bob",
+            recipientX25519Public: bobX.publicKey,
+            recipientMlKemPublic: bobMl.publicKey,
+          },
+        ]),
+        chunkSize: 2048,
+      });
+
+      expect(enc.algorithm).to.equal(
+        "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
+      );
+      expect(enc.recipientCount).to.equal(2);
+      expect(enc.chunkSize).to.equal(2048);
+      expect(enc.ciphertext).to.be.a("string");
+
+      // Decrypt as Alice with explicit recipientId
+      const decAlice = await call("crypto_stream_multi_decrypt", {
+        ciphertext: enc.ciphertext,
+        x25519KeyHandle: aliceX.keyHandle,
+        mlKemKeyHandle: aliceMl.keyHandle,
+        recipientId: "alice",
+        chunkSize: 2048,
+      });
+      expect(decAlice.plaintext).to.equal(message);
+      expect(decAlice.recipientId).to.equal("alice");
+
+      // Decrypt as Bob without recipientId (auto-discovery)
+      const decBob = await call("crypto_stream_multi_decrypt", {
+        ciphertext: enc.ciphertext,
+        x25519KeyHandle: bobX.keyHandle,
+        mlKemKeyHandle: bobMl.keyHandle,
+      });
+      expect(decBob.plaintext).to.equal(message);
+      expect(decBob.recipientId).to.equal("bob");
+    });
+
+    it("crypto_stream_multi_encrypt supports JSON-serialized recipients and fails on invalid input", async () => {
+      const aliceX = await newKey("x25519");
+      const aliceMl = await newKey("ml-kem-768");
+      const recipientsJson = JSON.stringify([
+        {
+          recipientId: "alice",
+          recipientX25519Public: aliceX.publicKey,
+          recipientMlKemPublic: aliceMl.publicKey,
+        },
+      ]);
+
+      const enc = await call("crypto_stream_multi_encrypt", {
+        plaintext: "json serialized recipients test",
+        recipients: recipientsJson,
+      });
+      expect(enc.chunkSize).to.equal(65536);
+
+      const corrupted = await callError("crypto_stream_multi_decrypt", {
+        ciphertext: Buffer.from("bad-multi-stream-data").toString("base64"),
+        x25519KeyHandle: aliceX.keyHandle,
+        mlKemKeyHandle: aliceMl.keyHandle,
+      });
+      expect(corrupted).to.include("Tool error (crypto_stream_multi_decrypt)");
+
+      const nonArray = await callError("crypto_stream_multi_encrypt", {
+        plaintext: "test",
+        recipients: JSON.stringify({ not: "an array" }),
+      });
+      expect(nonArray).to.include("recipients must be a non-empty array");
+
+      const emptyArray = await callError("crypto_stream_multi_encrypt", {
+        plaintext: "test",
+        recipients: "[]",
+      });
+      expect(emptyArray).to.include("recipients must be a non-empty array");
+    });
+
     it("lists and destroys key handles", async () => {
       const key = await newKey("ed25519");
       const listed = await call("crypto_key_list", {});
