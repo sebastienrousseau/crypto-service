@@ -47,7 +47,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.5.43"
   },
   "devDependencies": {
     "@sebastienrousseau/mocha-config": "^0.0.5",
@@ -63,7 +63,7 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
     "typescript": "~5.9.3",
-    "vue": "^3.3.0"
+    "vue": "^3.5.43"
   },
   "keywords": [
     "vue",
