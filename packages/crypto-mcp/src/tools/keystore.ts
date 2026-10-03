@@ -14,7 +14,13 @@ import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
 /** Kinds of key the store holds. */
 export type KeyKind =
-  "ed25519" | "rsa" | "ecc" | "ml-kem-768" | "symmetric-256" | "hmac-sha256";
+  | "ed25519"
+  | "rsa"
+  | "ecc"
+  | "x25519"
+  | "ml-kem-768"
+  | "symmetric-256"
+  | "hmac-sha256";
 
 /** Key material handed to {@link KeyStore.add}. */
 export interface KeyMaterial {

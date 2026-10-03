@@ -45,6 +45,7 @@ import {
   useEncrypt,
   useHash,
   useSignature,
+  usePqStream,
 } from "../src/index";
 
 import type {
@@ -53,6 +54,7 @@ import type {
   UseEncryptReturn,
   UseHashReturn,
   UseSignatureReturn,
+  UsePqStreamReturn,
   HashAlgorithm,
   SignAlgorithm,
 } from "../src/index";
@@ -61,6 +63,8 @@ import type {
 import {
   crypto,
   generateKeyPair,
+  generateX25519KeyPair,
+  mlKemKeygen,
   type KeyAlgorithm,
 } from "@sebastienrousseau/crypto-lib";
 
@@ -113,6 +117,10 @@ describe("@sebastienrousseau/crypto-vue", () => {
       expect(useSignature).to.be.a("function");
     });
 
+    it("should export usePqStream", () => {
+      expect(usePqStream).to.be.a("function");
+    });
+
     it("should export CryptoPluginOptions type (verified by compilation)", () => {
       const opts: CryptoPluginOptions = {
         defaultKey: "aabb",
@@ -139,6 +147,11 @@ describe("@sebastienrousseau/crypto-vue", () => {
 
     it("should export UseSignatureReturn type (verified by compilation)", () => {
       const partial: Partial<UseSignatureReturn> = {};
+      expect(partial).to.be.an("object");
+    });
+
+    it("should export UsePqStreamReturn type (verified by compilation)", () => {
+      const partial: Partial<UsePqStreamReturn> = {};
       expect(partial).to.be.an("object");
     });
 
@@ -1176,6 +1189,115 @@ describe("@sebastienrousseau/crypto-vue", () => {
       const ct = await result.encrypt(key, new Uint8Array(0));
       const pt = await result.decrypt(key, ct);
       expect(pt.length).to.equal(0);
+    });
+  });
+
+  // ========================================================================
+  // usePqStream
+  // ========================================================================
+  describe("usePqStream composable", () => {
+    const xKey = generateX25519KeyPair();
+    const mlKey = mlKemKeygen(768);
+
+    const publicKeys = {
+      x25519PublicKey: xKey.publicKey,
+      mlKemPublicKey: mlKey.publicKey,
+    };
+
+    const secretKeys = {
+      x25519SecretKey: xKey.privateKey,
+      mlKemSecretKey: mlKey.secretKey,
+    };
+
+    it("should return initial reactive state and functions", () => {
+      const composable = usePqStream();
+      expect(composable.ciphertext.value).to.be.null;
+      expect(composable.plaintext.value).to.be.null;
+      expect(composable.chunkCount.value).to.be.null;
+      expect(composable.isProcessing.value).to.be.false;
+      expect(composable.error.value).to.be.null;
+      expect(composable.encrypt).to.be.a("function");
+      expect(composable.decrypt).to.be.a("function");
+      expect(composable.createEncryptStream).to.be.a("function");
+      expect(composable.createDecryptStream).to.be.a("function");
+      expect(composable.clear).to.be.a("function");
+    });
+
+    it("should encrypt string and decrypt back to plaintext", async () => {
+      const composable = usePqStream();
+      const message = "Post-quantum streaming message in Vue";
+
+      const ct = await composable.encrypt(message, publicKeys);
+      expect(ct).to.be.instanceOf(Uint8Array);
+      expect(ct.length).to.be.greaterThan(0);
+      expect(composable.ciphertext.value).to.equal(ct);
+      expect(composable.chunkCount.value).to.equal(1);
+
+      const pt = await composable.decrypt(ct, secretKeys);
+      expect(composable.plaintext.value).to.equal(pt);
+      expect(new TextDecoder().decode(pt)).to.equal(message);
+    });
+
+    it("should encrypt Uint8Array with custom chunk size", async () => {
+      const composable = usePqStream();
+      const rawBytes = new Uint8Array([42, 43, 44, 45, 46]);
+
+      const ct = await composable.encrypt(rawBytes, publicKeys, 64);
+      expect(ct).to.be.instanceOf(Uint8Array);
+
+      const pt = await composable.decrypt(ct, secretKeys, 64);
+      expect(pt).to.deep.equal(rawBytes);
+    });
+
+    it("should create encrypt and decrypt TransformStreams", () => {
+      const composable = usePqStream();
+      const encStream = composable.createEncryptStream(publicKeys);
+      const decStream = composable.createDecryptStream(secretKeys);
+
+      expect(encStream.readable).to.exist;
+      expect(encStream.writable).to.exist;
+      expect(decStream.readable).to.exist;
+      expect(decStream.writable).to.exist;
+    });
+
+    it("should clear reactive state", async () => {
+      const composable = usePqStream();
+      await composable.encrypt("hello-clear", publicKeys);
+      expect(composable.ciphertext.value).to.not.be.null;
+      expect(composable.chunkCount.value).to.not.be.null;
+
+      composable.clear();
+      expect(composable.ciphertext.value).to.be.null;
+      expect(composable.plaintext.value).to.be.null;
+      expect(composable.chunkCount.value).to.be.null;
+      expect(composable.error.value).to.be.null;
+    });
+
+    it("should set error ref and rethrow when encrypt fails", async () => {
+      const composable = usePqStream();
+      const badKeys = {
+        x25519PublicKey: "bad",
+        mlKemPublicKey: "bad",
+      };
+
+      try {
+        await composable.encrypt("fail", badKeys);
+        expect.fail("Should have thrown");
+      } catch (err) {
+        expect(err).to.exist;
+        expect(composable.error.value).to.exist;
+      }
+    });
+
+    it("should set error ref and rethrow when decrypt fails", async () => {
+      const composable = usePqStream();
+      try {
+        await composable.decrypt(new Uint8Array([1, 2, 3]), secretKeys);
+        expect.fail("Should have thrown");
+      } catch (err) {
+        expect(err).to.exist;
+        expect(composable.error.value).to.exist;
+      }
     });
   });
 });

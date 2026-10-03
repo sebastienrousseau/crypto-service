@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
-import { mlKemKeygen } from "@sebastienrousseau/crypto-lib";
+import {
+  generateX25519KeyPair,
+  mlKemKeygen,
+} from "@sebastienrousseau/crypto-lib";
 import { EC_CURVES, RSA_MODULUS_LENGTHS } from "./definitions";
 import { KeyMaterial, keyStore, symmetricKey } from "./keystore";
 import { ToolArgs, ToolHandler, errorResult, jsonResult } from "./result";
@@ -71,6 +74,20 @@ function generateSymmetric(): KeyMaterial {
   return symmetricKey(crypto.randomBytes(32), "generated");
 }
 
+function generateX25519(): KeyMaterial {
+  const pair = generateX25519KeyPair();
+  return {
+    kind: "x25519",
+    secret: Buffer.from(pair.privateKey, "hex"),
+    info: {
+      curve: "x25519",
+      quantumSafe: false,
+      encoding: "hex",
+      publicKey: pair.publicKey,
+    },
+  };
+}
+
 function generateHmac(): KeyMaterial {
   return {
     kind: "hmac-sha256",
@@ -81,6 +98,7 @@ function generateHmac(): KeyMaterial {
 
 const GENERATORS: Record<string, (args: ToolArgs) => KeyMaterial> = {
   ed25519: generateEd25519,
+  x25519: generateX25519,
   rsa: generateRsa,
   ecc: generateEcc,
   "ml-kem-768": generateMlKem768,

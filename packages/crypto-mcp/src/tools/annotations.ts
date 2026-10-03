@@ -44,6 +44,8 @@ const TOOL_BEHAVIOUR: Record<string, [title: string, behaviour: Behaviour]> = {
   crypto_decrypt: ["Decrypt data", "read"],
   crypto_kem_encapsulate: ["Encapsulate a shared secret", "add"],
   crypto_kem_decapsulate: ["Decapsulate a shared secret", "add"],
+  crypto_stream_encrypt: ["Stream encrypt data (post-quantum)", "read"],
+  crypto_stream_decrypt: ["Stream decrypt data (post-quantum)", "read"],
   crypto_sign: ["Sign data", "read"],
   crypto_verify: ["Verify a signature", "read"],
   crypto_hash: ["Hash data", "read"],

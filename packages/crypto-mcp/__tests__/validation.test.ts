@@ -25,6 +25,7 @@ async function buildFixtures(): Promise<void> {
   const mac = await newKey("hmac-sha256");
   const kem = await newKey("ml-kem-768");
   const doomed = await newKey("hmac-sha256");
+  const xKey = await newKey("x25519");
   Object.assign(VALID, {
     crypto_generate_key: { type: "ed25519" },
     crypto_key_list: {},
@@ -47,6 +48,16 @@ async function buildFixtures(): Promise<void> {
     crypto_kem_decapsulate: {
       keyHandle: kem.keyHandle,
       ciphertext: "00".repeat(1088),
+    },
+    crypto_stream_encrypt: {
+      plaintext: "p",
+      x25519PublicKey: "00".repeat(32),
+      mlKemPublicKey: "00".repeat(1184),
+    },
+    crypto_stream_decrypt: {
+      ciphertext: "00",
+      x25519KeyHandle: xKey.keyHandle,
+      mlKemKeyHandle: kem.keyHandle,
     },
     crypto_sign: { data: "d", keyHandle: mac.keyHandle },
     crypto_verify: { data: "d", signature: "00", keyHandle: UNISSUED },

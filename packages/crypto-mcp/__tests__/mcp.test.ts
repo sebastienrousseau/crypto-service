@@ -13,6 +13,8 @@ import {
   getPrompt,
   run,
 } from "../src";
+import { keyStore } from "../src/tools/keystore";
+import { x25519 } from "@noble/curves/ed25519.js";
 import { call, callError, newKey } from "./helpers";
 
 describe("Crypto MCP Server Suite", () => {
@@ -363,6 +365,91 @@ describe("Crypto MCP Server Suite", () => {
         authTag: enc.authTag,
       });
       expect(dec.plaintext).to.equal("pq hello");
+    });
+
+    it("generates an x25519 key and returns its handle and hex public key", async () => {
+      const key = await newKey("x25519");
+      expect(key.type).to.equal("x25519");
+      expect(key.keyHandle).to.match(/^kh_/);
+      expect(key.publicKey).to.match(/^[0-9a-f]{64}$/);
+      expect(key.curve).to.equal("x25519");
+      expect(key.quantumSafe).to.be.false;
+    });
+
+    it("round-trips crypto_stream_encrypt and crypto_stream_decrypt with x25519 and ml-kem-768", async () => {
+      const xKey = await newKey("x25519");
+      const mlKey = await newKey("ml-kem-768");
+      const plaintext = "Agentic post-quantum streaming payload via MCP";
+
+      const enc = await call("crypto_stream_encrypt", {
+        plaintext,
+        x25519PublicKey: xKey.publicKey,
+        mlKemPublicKey: mlKey.publicKey,
+        chunkSize: 128,
+      });
+      expect(enc.algorithm).to.equal(
+        "x25519-ml-kem-768-xchacha20-poly1305-stream",
+      );
+      expect(enc.ciphertext).to.be.a("string");
+      expect(enc.chunkSize).to.equal(128);
+
+      const dec = await call("crypto_stream_decrypt", {
+        ciphertext: enc.ciphertext,
+        x25519KeyHandle: xKey.keyHandle,
+        mlKemKeyHandle: mlKey.keyHandle,
+        chunkSize: 128,
+      });
+      expect(dec.plaintext).to.equal(plaintext);
+    });
+
+    it("crypto_stream_decrypt handles symmetric-256 key handle as x25519 scalar and default chunk size", async () => {
+      const symKey = await newKey("symmetric-256");
+      const mlKey = await newKey("ml-kem-768");
+      const plaintext = "Stream default chunk size";
+
+      // Derive X25519 public key corresponding to symKey secret bytes
+      const secret = keyStore.use(symKey.keyHandle, ["symmetric-256"]).secret;
+      const pubHex = Buffer.from(x25519.getPublicKey(secret)).toString("hex");
+
+      const enc = await call("crypto_stream_encrypt", {
+        plaintext,
+        x25519PublicKey: pubHex,
+        mlKemPublicKey: mlKey.publicKey,
+      });
+      expect(enc.chunkSize).to.equal(65536);
+
+      const dec = await call("crypto_stream_decrypt", {
+        ciphertext: enc.ciphertext,
+        x25519KeyHandle: symKey.keyHandle,
+        mlKemKeyHandle: mlKey.keyHandle,
+      });
+      expect(dec.plaintext).to.equal(plaintext);
+    });
+
+    it("crypto_stream_decrypt fails on corrupted ciphertext or incompatible key handle", async () => {
+      const xKey = await newKey("x25519");
+      const mlKey = await newKey("ml-kem-768");
+      const edKey = await newKey("ed25519");
+
+      const enc = await call("crypto_stream_encrypt", {
+        plaintext: "tamper test",
+        x25519PublicKey: xKey.publicKey,
+        mlKemPublicKey: mlKey.publicKey,
+      });
+
+      const badHandle = await callError("crypto_stream_decrypt", {
+        ciphertext: enc.ciphertext,
+        x25519KeyHandle: edKey.keyHandle,
+        mlKemKeyHandle: mlKey.keyHandle,
+      });
+      expect(badHandle).to.include("refers to a ed25519 key");
+
+      const corrupted = await callError("crypto_stream_decrypt", {
+        ciphertext: Buffer.from("bad-stream-data").toString("base64"),
+        x25519KeyHandle: xKey.keyHandle,
+        mlKemKeyHandle: mlKey.keyHandle,
+      });
+      expect(corrupted).to.include("Tool error (crypto_stream_decrypt)");
     });
 
     it("lists and destroys key handles", async () => {

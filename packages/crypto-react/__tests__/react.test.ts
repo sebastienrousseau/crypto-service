@@ -136,6 +136,7 @@ const {
   useEncrypt,
   useHash,
   useSignature,
+  usePqStream,
 } = indexModule;
 
 // Also import crypto-lib directly for integration verification
@@ -148,7 +149,12 @@ import {
   hash as computeHash,
   type HashAlgorithm,
 } from "@sebastienrousseau/crypto-lib/modern";
-import { crypto, type SignAlgorithm } from "@sebastienrousseau/crypto-lib";
+import {
+  crypto,
+  generateX25519KeyPair,
+  mlKemKeygen,
+  type SignAlgorithm,
+} from "@sebastienrousseau/crypto-lib";
 
 const { seal, open } = secretbox;
 
@@ -201,6 +207,10 @@ describe("@sebastienrousseau/crypto-react", () => {
       expect(useSignature).to.be.a("function");
     });
 
+    it("should export usePqStream as a function", () => {
+      expect(usePqStream).to.be.a("function");
+    });
+
     it("should export all named members from index", () => {
       const expectedExports = [
         "CryptoProvider",
@@ -209,6 +219,7 @@ describe("@sebastienrousseau/crypto-react", () => {
         "useEncrypt",
         "useHash",
         "useSignature",
+        "usePqStream",
       ];
       for (const name of expectedExports) {
         expect(indexModule).to.have.property(name);
@@ -866,6 +877,130 @@ describe("@sebastienrousseau/crypto-react", () => {
       const ct = seal(keyBytes, "bytes key test");
       const pt = open(keyBytes, ct.sealed);
       expect(Buffer.from(pt).toString("utf8")).to.equal("bytes key test");
+    });
+  });
+
+  // ========================================================================
+  // usePqStream
+  // ========================================================================
+  describe("usePqStream hook", () => {
+    const xKey = generateX25519KeyPair();
+    const mlKey = mlKemKeygen(768);
+
+    const publicKeys = {
+      x25519PublicKey: xKey.publicKey,
+      mlKemPublicKey: mlKey.publicKey,
+    };
+
+    const secretKeys = {
+      x25519SecretKey: xKey.privateKey,
+      mlKemSecretKey: mlKey.secretKey,
+    };
+
+    it("should return initial state and callbacks", () => {
+      resetHookState();
+      const hook = usePqStream();
+      expect(hook.ciphertext).to.be.null;
+      expect(hook.plaintext).to.be.null;
+      expect(hook.chunkCount).to.be.null;
+      expect(hook.isProcessing).to.be.false;
+      expect(hook.encrypt).to.be.a("function");
+      expect(hook.decrypt).to.be.a("function");
+      expect(hook.createEncryptStream).to.be.a("function");
+      expect(hook.createDecryptStream).to.be.a("function");
+      expect(hook.clear).to.be.a("function");
+    });
+
+    it("should encrypt string and decrypt back to plaintext", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      const message = "Post-quantum streaming secret message";
+
+      const ct = await hook.encrypt(message, publicKeys);
+      expect(ct).to.be.instanceOf(Uint8Array);
+      expect(ct.length).to.be.greaterThan(0);
+
+      stateIdx = 0;
+      const updated = usePqStream();
+      expect(updated.chunkCount).to.equal(1);
+      expect(updated.ciphertext).to.equal(ct);
+
+      const ptBytes = await hook.decrypt(ct, secretKeys);
+      expect(new TextDecoder().decode(ptBytes)).to.equal(message);
+
+      stateIdx = 0;
+      const decUpdated = usePqStream();
+      expect(decUpdated.plaintext).to.equal(ptBytes);
+    });
+
+    it("should encrypt Uint8Array with custom chunk size", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      const rawBytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+      const ct = await hook.encrypt(rawBytes, publicKeys, 128);
+      expect(ct).to.be.instanceOf(Uint8Array);
+
+      const pt = await hook.decrypt(ct, secretKeys, 128);
+      expect(pt).to.deep.equal(rawBytes);
+    });
+
+    it("should create encrypt and decrypt TransformStreams", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      const encStream = hook.createEncryptStream(publicKeys);
+      const decStream = hook.createDecryptStream(secretKeys);
+
+      expect(encStream.readable).to.exist;
+      expect(encStream.writable).to.exist;
+      expect(decStream.readable).to.exist;
+      expect(decStream.writable).to.exist;
+    });
+
+    it("should clear state properly", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      await hook.encrypt("test-clear", publicKeys);
+
+      stateIdx = 0;
+      const afterEnc = usePqStream();
+      expect(afterEnc.ciphertext).to.not.be.null;
+      expect(afterEnc.chunkCount).to.not.be.null;
+
+      hook.clear();
+
+      stateIdx = 0;
+      const afterClear = usePqStream();
+      expect(afterClear.ciphertext).to.be.null;
+      expect(afterClear.plaintext).to.be.null;
+      expect(afterClear.chunkCount).to.be.null;
+    });
+
+    it("should throw when encrypt fails", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      const invalidKeys = {
+        x25519PublicKey: "bad",
+        mlKemPublicKey: "bad",
+      };
+
+      try {
+        await hook.encrypt("fail", invalidKeys);
+        expect.fail("Should have thrown");
+      } catch (err) {
+        expect(err).to.exist;
+      }
+    });
+
+    it("should throw when decrypt fails", async () => {
+      resetHookState();
+      const hook = usePqStream();
+      try {
+        await hook.decrypt(new Uint8Array([0, 1, 2, 3]), secretKeys);
+        expect.fail("Should have thrown");
+      } catch (err) {
+        expect(err).to.exist;
+      }
     });
   });
 });
