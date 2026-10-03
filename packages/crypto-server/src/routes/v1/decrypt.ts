@@ -56,7 +56,10 @@ const decryptSchema = {
 export default (app: FastifyInstance): void => {
   app.post<{ Body: IBodyDecrypt }>(
     "/v1/decrypt",
-    { schema: decryptSchema },
+    {
+      schema: decryptSchema,
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
+    },
     async (request, reply) => {
       try {
         const body = request.body as IBodyDecrypt;

@@ -92,7 +92,10 @@ function registerBatchSign(app: FastifyInstance): void {
 function registerBatchVerify(app: FastifyInstance): void {
   app.post(
     "/v2/stream/verify",
-    { schema: VERIFY_SCHEMA },
+    {
+      schema: VERIFY_SCHEMA,
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
+    },
     async (request, reply) => {
       try {
         const { items } = request.body as { items: StreamVerifyItem[] };
@@ -132,7 +135,10 @@ function registerBatchVerify(app: FastifyInstance): void {
 function registerIso20022Verify(app: FastifyInstance): void {
   app.post(
     "/v2/stream/iso20022",
-    { schema: ISO20022_SCHEMA },
+    {
+      schema: ISO20022_SCHEMA,
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
+    },
     async (request, reply) => {
       try {
         const { envelope, payload, trustedKeys } = request.body as {
@@ -286,7 +292,10 @@ function registerStreamMultiPqEncrypt(app: FastifyInstance): void {
 function registerStreamMultiPqDecrypt(app: FastifyInstance): void {
   app.post(
     "/v2/stream/multi-pq-decrypt",
-    { schema: STREAM_MULTI_PQ_DECRYPT_SCHEMA },
+    {
+      schema: STREAM_MULTI_PQ_DECRYPT_SCHEMA,
+      config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
+    },
     async (request, reply) => {
       const { keyId, recipientId, ciphertext, chunkSize } = request.body as {
         keyId: string;
