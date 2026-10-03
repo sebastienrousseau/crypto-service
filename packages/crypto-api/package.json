@@ -24,7 +24,7 @@
     "@sebastienrousseau/eslint-config": "^0.0.7",
     "@sebastienrousseau/jsdoc-config": "^0.0.7",
     "@sebastienrousseau/markdownlint-config": "^0.0.7",
-    "@sebastienrousseau/mocha-config": "^0.0.5",
+    "@sebastienrousseau/mocha-config": "^0.0.7",
     "@sebastienrousseau/prettier-config": "^0.0.7",
     "@sebastienrousseau/remark-config": "^0.0.7",
     "@types/chai": "^5.2.3",

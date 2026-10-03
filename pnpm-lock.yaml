@@ -86,8 +86,8 @@ importers:
         specifier: ^0.0.7
         version: 0.0.7(markdownlint@0.41.1)
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@sebastienrousseau/prettier-config':
         specifier: ^0.0.7
         version: 0.0.7(prettier@3.9.9)
@@ -278,8 +278,8 @@ importers:
         specifier: ^0.0.7
         version: 0.0.7(markdownlint@0.41.1)
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@sebastienrousseau/prettier-config':
         specifier: ^0.0.7
         version: 0.0.7(prettier@3.9.9)
@@ -360,8 +360,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -611,8 +611,8 @@ importers:
         version: 6.0.0
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -700,8 +700,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -751,8 +751,8 @@ importers:
         specifier: workspace:*
         version: link:../crypto-server
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -921,8 +921,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -967,8 +967,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -1016,8 +1016,8 @@ importers:
         version: link:../crypto-lib
     devDependencies:
       '@sebastienrousseau/mocha-config':
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.7
+        version: 0.0.7(mocha@12.0.3)
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -1978,8 +1978,11 @@ packages:
     peerDependencies:
       markdownlint: '>=0.25.0'
 
-  '@sebastienrousseau/mocha-config@0.0.5':
-    resolution: {integrity: sha512-r9UX5OOZJ95yCpTkqeT8808YQrnd/L1MFLN4uRfkeNrApPSYZRM8gJQCBiVAOYv+XsXZPUGTP0T2SEwezy76zw==}
+  '@sebastienrousseau/mocha-config@0.0.7':
+    resolution: {integrity: sha512-cBtTjlddn/Ki6/A+hKVI0uSGwfsEsmNEu/vXpqJ8x8aksmZ/BER3vY8EriTQ9jyEAH5nkEOXRpNUpgrS7C1PAQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      mocha: '>=10.0.0'
 
   '@sebastienrousseau/prettier-config@0.0.7':
     resolution: {integrity: sha512-TTp8tUBUQoUQDRz/GP6b+yDCk16+tlhqH+f2FZj5JBidvkvDC+loFdbTTObGfInxRMY0VDUBbJF5cxRXM3wPFg==}
@@ -6350,7 +6353,9 @@ snapshots:
     dependencies:
       markdownlint: 0.41.1
 
-  '@sebastienrousseau/mocha-config@0.0.5': {}
+  '@sebastienrousseau/mocha-config@0.0.7(mocha@12.0.3)':
+    dependencies:
+      mocha: 12.0.3
 
   '@sebastienrousseau/prettier-config@0.0.7(prettier@3.9.9)':
     dependencies:
@@ -8024,7 +8029,7 @@ snapshots:
 
   jsdoc@4.0.5:
     dependencies:
-      '@babel/parser': 7.29.3
+      '@babel/parser': 7.29.9
       '@jsdoc/salty': 0.2.12
       '@types/markdown-it': 14.2.0
       bluebird: 3.7.2
