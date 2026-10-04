@@ -7,11 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.17] - Unreleased
+## [0.0.18] - Unreleased
 
 ### Added
 
-- Initialized release iteration `v0.0.17`.
+- Initialized release iteration `v0.0.18`.
+
+## [0.0.17] - 2026-10-04
+
+### Added
+
+- **Unified Key Management Service (KMS)**: Complete multi-provider KMS support (AWS KMS, GCP Cloud KMS, HashiCorp Vault, Azure Key Vault, and Local) across `crypto-server` REST endpoints (`/v2/kms/create-key`, `/v2/kms/wrap`, `/v2/kms/unwrap`, `/v2/kms/generate-data-key`, `/v2/kms/encrypt`, `/v2/kms/decrypt`), `crypto-cli` commands (`crypto-cli kms`), and `crypto-sdk` methods on `CryptoClient`.
+- **Post-Quantum Acceleration**: ML-KEM encapsulation/decapsulation and ML-DSA signing/verification accelerated via `crypto-wasm` with pure-JS fallback routing.
+- **Security Hardening**: Hardened GCP and Vault KMS providers against SSRF and directory traversal, with static provider instantiation eliminating CodeQL dynamic dispatch findings.
+- **Terminal Demo Animation**: Added refreshed VHS tape and generated demo animation showcasing the CLI surface and quantum-ready capabilities.
 
 ## [0.0.16] - 2026-10-04
 

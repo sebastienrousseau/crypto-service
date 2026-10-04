@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-kms",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
