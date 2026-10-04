@@ -7,7 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.16] - Unreleased
+## [0.0.17] - Unreleased
+
+### Added
+
+- Initialized release iteration `v0.0.17`.
+
+## [0.0.16] - 2026-10-04
+
+### Refactored
+
+- **Complexity baseline reduction**: Refactored 7 key functions across `@sebastienrousseau/crypto-react`, `@sebastienrousseau/crypto-benchmarks`, `@sebastienrousseau/crypto-wasm`, `@sebastienrousseau/crypto-lib`, and `@sebastienrousseau/crypto-edge`, shrinking the architectural complexity exemption list by 44% (from 16 to 9 functions) while maintaining 100% test coverage across all 18 monorepo packages.
 
 ### Added
 
