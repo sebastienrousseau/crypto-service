@@ -98,6 +98,53 @@ let cachedBackend: WasmBackend | undefined;
  * // "wasm-simd" | "wasm" | "js"
  * ```
  */
+// Minimal WASM module using v128 operations for SIMD validation
+const SIMD_TEST_BYTES = new Uint8Array([
+  0x00,
+  0x61,
+  0x73,
+  0x6d, // magic
+  0x01,
+  0x00,
+  0x00,
+  0x00, // version
+  0x01,
+  0x05,
+  0x01,
+  0x60,
+  0x00,
+  0x01,
+  0x7b, // type: () -> v128
+  0x03,
+  0x02,
+  0x01,
+  0x00, // function
+  0x0a,
+  0x0a,
+  0x01,
+  0x08,
+  0x00,
+  0xfd,
+  0x0c, // code: v128.const
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x0b, // end
+]);
+
 export function detectWasmBackend(): WasmBackend {
   if (cachedBackend !== undefined) return cachedBackend;
 
@@ -112,53 +159,7 @@ export function detectWasmBackend(): WasmBackend {
   }
 
   try {
-    // SIMD validation: a minimal WASM module using v128 operations
-    const simdTest = new Uint8Array([
-      0x00,
-      0x61,
-      0x73,
-      0x6d, // magic
-      0x01,
-      0x00,
-      0x00,
-      0x00, // version
-      0x01,
-      0x05,
-      0x01,
-      0x60,
-      0x00,
-      0x01,
-      0x7b, // type: () -> v128
-      0x03,
-      0x02,
-      0x01,
-      0x00, // function
-      0x0a,
-      0x0a,
-      0x01,
-      0x08,
-      0x00,
-      0xfd,
-      0x0c, // code: v128.const
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x0b, // end
-    ]);
-    const mod = new WA.Module(simdTest);
+    const mod = new WA.Module(SIMD_TEST_BYTES);
     if (mod) {
       cachedBackend = "wasm-simd";
       return cachedBackend;
