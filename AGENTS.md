@@ -29,7 +29,7 @@ automated change is most likely to get wrong.
 - When updating version, all package manifests (`packages/*/package.json`), root
   `package.json`, `CITATION.cff`, and `CHANGELOG.md` move together.
 - Published GitHub releases MUST follow the standard template
-  (<https://github.com/sebastienrousseau/passmcp/releases/tag/v0.0.5>),
+  (<https://github.com/sebastienrousseau/oxml/releases/tag/v0.0.9>),
   titled `<PROJECT_NAME> <VERSION>` with `## Highlights ⭐️`, `## What's Changed`,
   `## Checksums`, and `**Full Changelog**`.
 
