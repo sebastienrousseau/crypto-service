@@ -19,14 +19,14 @@
   <div class="container swift-hero-content">
     <div class="swift-hero-grid">
       <div class="hero-glass-card">
-        <div class="hero-badge font-mono">POST-QUANTUM CRYPTOGRAPHY • IMPLEMENTS FIPS 203 &amp; 204 ALGORITHMS</div>
-        <h1 class="swift-hero-title">The Developer-First Crypto as a Service Platform</h1>
+        <div class="hero-badge font-mono">DOCUMENTATION &amp; DEVELOPER PORTAL • v0.0.18</div>
+        <h1 class="swift-hero-title">Crypto Service Suite Documentation</h1>
         <p class="swift-hero-lead">
-          Self-host post-quantum encryption, a pluggable KMS interface, and transparent database field protection across our modular suite of 18 libraries.
+          Comprehensive developer guides, architectural blueprints, and interactive TypeDoc API references across all 18 lockstep packages.
         </p>
         <div class="swift-hero-cta-group">
-          <a class="btn-swift-hero-pill" href="{{site_path}}solutions/">Explore solutions</a>
-          <a class="btn-swift-hero-secondary" href="{{site_path}}contact/">Institutional Access &gt;</a>
+          <a class="btn-swift-hero-pill" href="#packages">Browse All 18 Package Docs &darr;</a>
+          <a class="btn-swift-hero-secondary" href="https://crypto-service.co" target="_blank" rel="noopener">Visit Main Website &gt;</a>
         </div>
       </div>
 
@@ -47,7 +47,7 @@
         </div>
         <div class="quickstart-footer">
           <span class="quickstart-stat">18 Packages in Lockstep</span>
-          <a href="{{site_path}}ecosystem/">Browse All 18 Packages &rarr;</a>
+          <a href="#packages">Explore API References &rarr;</a>
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
       </div>
       <div class="telemetry-item">
         <span class="telemetry-value font-mono">KMS</span>
-        <span class="telemetry-label">AWS KMS &amp; Local Providers</span>
+        <span class="telemetry-label">AWS, GCP, Azure, Vault, Local</span>
       </div>
       <div class="telemetry-item">
         <span class="telemetry-value font-mono">APACHE / MIT</span>
@@ -82,297 +82,484 @@
   </div>
 </section>
 
-<!-- Section: Latest news (SWIFT 3-Column Card Grid) -->
-<section class="swift-news-section">
+<!-- Section: The 18 Monorepo Workspace Package Documentation Matrix -->
+<section id="packages" class="ecosystem-section" style="padding: 5rem 0;">
   <div class="container">
-    <div class="swift-news-header">
-      <h2 class="swift-news-title">Latest news</h2>
-      <a class="btn-swift-news-pill" href="{{site_path}}news/">See more news &amp; events</a>
+    <div class="section-header-centered" style="text-align: center; max-width: 800px; margin: 0 auto 3.5rem;">
+      <span class="sub-headline font-mono" style="color: #005950; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.85rem;">Ecosystem API References</span>
+      <h2 style="font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0 1rem; letter-spacing: -0.02em;">All 18 Packages Documentation</h2>
+      <p style="font-size: 1.1rem; color: var(--fg-muted); line-height: 1.6;">
+        Explore full TypeDoc generated API references, function signatures, TypeScript interfaces, and integration examples for every package in the suite.
+      </p>
     </div>
 
-    <div class="swift-cards-grid">
-      <!-- Card 1 -->
-      <article class="swift-card">
-        <div class="swift-card-media">
-          <img
-            src="{{site_path}}images/news-pqc-lattice.webp"
-            alt="Luminous quantum lattice chip encapsulated in a floating clear liquid glass droplet"
-            loading="lazy"
-            width="640"
-            height="360"
-          />
+    <!-- Category 1: Core Cryptographic Primitives -->
+    <div class="ecosystem-category-block" style="margin-bottom: 3.5rem;">
+      <h3 style="font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: #005950;">01.</span> Core Cryptographic Primitives
+      </h3>
+      <div class="packages-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        
+        <!-- crypto-lib -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">FIPS 203 / 204</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-lib/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-lib</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              NIST FIPS 203 (ML-KEM-512/768/1024), FIPS 204 (ML-DSA-44/65/87), hybrid HPKE (RFC 9180 + ML-KEM-768), AES-256-GCM, and zero-copy streaming AEAD.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-lib</code>
+            </div>
+            <a href="/packages/crypto-lib/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
         </div>
-        <div class="swift-card-body">
-          <div class="swift-card-meta">28 September 2026 | 5 min read</div>
-          <h3 class="swift-card-title">
-            <a href="{{site_path}}standards/#fips203">NIST FIPS 203 &amp; 204 Are Final: What Changes for Financial Systems</a>
-          </h3>
-          <p class="swift-card-excerpt">
-            NIST has published ML-KEM (FIPS 203) and ML-DSA (FIPS 204). Crypto Service Suite implements both algorithms through @noble/post-quantum; it is not a validated cryptographic module.
-          </p>
-          <a class="swift-arrow-link" href="{{site_path}}standards/#fips203">Read more &gt;</a>
-        </div>
-      </article>
 
-      <!-- Card 2 -->
-      <article class="swift-card">
-        <div class="swift-card-media">
-          <img
-            src="{{site_path}}images/news-benchmark-speed.webp"
-            alt="High-speed light pulses refracting through clear liquid glass droplets"
-            loading="lazy"
-            width="640"
-            height="360"
-          />
+        <!-- crypto-wasm -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">WebAssembly Acceleration</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-wasm/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-wasm</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              WebAssembly-compiled lattice acceleration module providing native performance for post-quantum operations with pure JavaScript fallback.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-wasm</code>
+            </div>
+            <a href="/packages/crypto-wasm/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
         </div>
-        <div class="swift-card-body">
-          <div class="swift-card-meta">24 September 2026 | 4 min read</div>
-          <h3 class="swift-card-title">
-            <a href="{{site_path}}news/#benchmarks">Benchmarking Post-Quantum Operations in Crypto Service Suite</a>
-          </h3>
-          <p class="swift-card-excerpt">
-            How to measure ML-KEM and ML-DSA latency on your own hardware with the committed benchmark script. No timing figures are published yet.
-          </p>
-          <a class="swift-arrow-link" href="{{site_path}}news/#benchmarks">Read more &gt;</a>
-        </div>
-      </article>
 
-      <!-- Card 3 -->
-      <article class="swift-card">
-        <div class="swift-card-media">
-          <img
-            src="{{site_path}}images/news-hndl-shield.webp"
-            alt="Organic liquid glass orb protecting encrypted financial data streams"
-            loading="lazy"
-            width="640"
-            height="360"
-          />
+      </div>
+    </div>
+
+    <!-- Category 2: Service & Client Infrastructure -->
+    <div class="ecosystem-category-block" style="margin-bottom: 3.5rem;">
+      <h3 style="font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: #005950;">02.</span> Service &amp; Client Infrastructure
+      </h3>
+      <div class="packages-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        
+        <!-- crypto-server -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">CaaS REST Microservice</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-server/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-server</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              High-concurrency Fastify REST daemon providing centralized post-quantum cryptographic operations, OpenAPI documentation, and OpenTelemetry instrumentation.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-server</code>
+            </div>
+            <a href="/packages/crypto-server/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
         </div>
-        <div class="swift-card-body">
-          <div class="swift-card-meta">19 September 2026 | 6 min read</div>
-          <h3 class="swift-card-title">
-            <a href="{{site_path}}research/#threat-model">Mitigating Harvest-Now-Decrypt-Later Threats on Enterprise Data Lifespans</a>
-          </h3>
-          <p class="swift-card-excerpt">
-            Adversaries are actively archiving encrypted enterprise records. Discover why hybrid post-quantum key encapsulation must be integrated into cloud and database pipelines today.
-          </p>
-          <a class="swift-arrow-link" href="{{site_path}}research/#threat-model">Read more &gt;</a>
+
+        <!-- crypto-cli -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Command-Line Interface</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-cli/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-cli</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Interactive &amp; headless terminal tool for key generation, file encryption, envelope signing, CBOM generation, and cryptographic audits.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add -g @sebastienrousseau/crypto-cli</code>
+            </div>
+            <a href="/packages/crypto-cli/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
         </div>
-      </article>
+
+        <!-- crypto-sdk -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Universal Client SDK</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-sdk/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-sdk</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Zero-dependency multi-runtime TypeScript client with typed bindings, retry policies, and connection pooling for the CaaS daemon.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-sdk</code>
+            </div>
+            <a href="/packages/crypto-sdk/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-api -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">API Schema &amp; Types</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-api/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-api</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Shared high-level contracts, JSON schema specifications, and serialization definitions across the Crypto Service ecosystem.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-api</code>
+            </div>
+            <a href="/packages/crypto-api/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Category 3: Enterprise & Storage Integration -->
+    <div class="ecosystem-category-block" style="margin-bottom: 3.5rem;">
+      <h3 style="font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: #005950;">03.</span> Enterprise &amp; Storage Integration
+      </h3>
+      <div class="packages-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        
+        <!-- crypto-kms -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Multi-Cloud KMS</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-kms/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-kms</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Unified key management provider interface with envelope encryption drivers for AWS KMS, GCP Cloud KMS, Azure Key Vault, HashiCorp Vault, and Local.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-kms</code>
+            </div>
+            <a href="/packages/crypto-kms/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-prisma -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Database Field Encryption</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-prisma/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-prisma</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Transparent database column-level encryption middleware for Prisma ORM with key rotation, blind indexing, and AES-256-GCM authenticated encryption.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-prisma</code>
+            </div>
+            <a href="/packages/crypto-prisma/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-typeorm -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">TypeORM Encryption</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-typeorm/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-typeorm</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Column-level value transformers for TypeORM providing seamless encryption and decryption of entity fields across PostgreSQL, MySQL, and SQLite.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-typeorm</code>
+            </div>
+            <a href="/packages/crypto-typeorm/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-middleware -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">HTTP Middleware</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-middleware/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-middleware</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Express, Fastify, and Koa request/response body encryption and signature verification middleware for end-to-end payload protection.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-middleware</code>
+            </div>
+            <a href="/packages/crypto-middleware/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Category 4: Edge & Frontend Runtimes -->
+    <div class="ecosystem-category-block" style="margin-bottom: 3.5rem;">
+      <h3 style="font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: #005950;">04.</span> Edge &amp; Frontend Runtimes
+      </h3>
+      <div class="packages-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        
+        <!-- crypto-edge -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Edge Computing</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-edge/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-edge</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Universal runtime detector and WebCrypto abstractions for Cloudflare Workers, Vercel Edge, Deno, Bun, and browser environments.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-edge</code>
+            </div>
+            <a href="/packages/crypto-edge/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-react -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">React Integration</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-react/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-react</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              React hooks (`useCrypto`, `useKeyPair`) and context providers for client-side cryptographic key management, encryption, and digital signatures.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-react</code>
+            </div>
+            <a href="/packages/crypto-react/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-vue -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Vue 3 Integration</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-vue/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-vue</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Vue 3 composables and reactive plugins providing seamless cryptographic operations within Vue applications.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-vue</code>
+            </div>
+            <a href="/packages/crypto-vue/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Category 5: Tooling, Protocols & Standards -->
+    <div class="ecosystem-category-block" style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: #005950;">05.</span> Developer Tools, Protocols &amp; Standards
+      </h3>
+      <div class="packages-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        
+        <!-- crypto-cbom -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">DORA / CBOM</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-cbom/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-cbom</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              CycloneDX 1.6 Cryptographic Bill of Materials (CBOM) generator supporting DORA compliance, algorithm inventorying, and quantum readiness audits.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-cbom</code>
+            </div>
+            <a href="/packages/crypto-cbom/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-mcp -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">AI Model Context Protocol</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-mcp/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-mcp</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Model Context Protocol (MCP) server exposing post-quantum cryptographic primitives, hashing, and CBOM generation to AI coding assistants.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-mcp</code>
+            </div>
+            <a href="/packages/crypto-mcp/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-lsp -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Language Server Protocol</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-lsp/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-lsp</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Language Server Protocol (LSP) server providing real-time diagnostics, hover info, and automated refactoring for post-quantum migrations.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add @sebastienrousseau/crypto-lsp</code>
+            </div>
+            <a href="/packages/crypto-lsp/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-testing -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Test Vectors &amp; KATs</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-testing/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-testing</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Deterministic test fixtures, Known-Answer Tests (KATs), synthetic keys, and mock KMS providers for high-assurance cryptographic testing.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add -D @sebastienrousseau/crypto-testing</code>
+            </div>
+            <a href="/packages/crypto-testing/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+        <!-- crypto-benchmarks -->
+        <div class="package-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="package-badge font-mono" style="font-size: 0.75rem; background: rgba(0,89,80,0.1); color: #005950; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Benchmarking Harness</span>
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--fg-muted);">v0.0.18</span>
+            </div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;"><a href="/packages/crypto-benchmarks/index.html" style="color: var(--fg); text-decoration: none;">@sebastienrousseau/crypto-benchmarks</a></h4>
+            <p style="font-size: 0.925rem; color: var(--fg-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+              Automated latency and throughput benchmark suite evaluating post-quantum keygen, encapsulation, and signing across Node.js runtimes.
+            </p>
+          </div>
+          <div>
+            <div style="background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg); margin-bottom: 1rem;">
+              <code>pnpm add -D @sebastienrousseau/crypto-benchmarks</code>
+            </div>
+            <a href="/packages/crypto-benchmarks/index.html" class="btn-swift-news-pill" style="display: block; text-align: center; text-decoration: none;">View Documentation &rarr;</a>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Section: Our Solutions (SWIFT Tabbed Showcase with 3D Relief) -->
-<section class="swift-solutions-stage">
+<!-- Section: Cryptographic Algorithms Reference Table -->
+<section id="standards" style="padding: 4rem 0; background: var(--bg-subtle); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
   <div class="container">
-    <div class="swift-solutions-header">
-      <h2 class="swift-section-title">Core CaaS Architecture: The 5 Strategic Solutions</h2>
-      <div class="swift-tabs-nav" role="tablist" aria-label="Solutions Categories">
-        <button class="swift-tab-btn active" role="tab" aria-selected="true" data-tab="tab-pqc">POST-QUANTUM (PQC)</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-caas">SOVEREIGN CAAS</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-kms">KMS INTERFACE</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-field">FIELD ENCRYPTION</button>
-        <button class="swift-tab-btn" role="tab" aria-selected="false" data-tab="tab-wasm">EDGE RUNTIMES</button>
-      </div>
+    <div style="text-align: center; max-width: 700px; margin: 0 auto 2.5rem;">
+      <span class="sub-headline font-mono" style="color: #005950; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.85rem;">Cryptographic Specification</span>
+      <h2 style="font-size: 2.2rem; font-weight: 800; margin: 0.5rem 0;">Supported Algorithms &amp; Standards</h2>
+      <p style="color: var(--fg-muted);">Implemented in crypto-lib through noble primitives; not a validated module.</p>
     </div>
 
-    <!-- Tab 1: Post-Quantum (PQC) -->
-    <div class="swift-tab-content-panel active" id="tab-pqc">
-      <div class="swift-solution-split">
-        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
-        <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">NIST Standardized Core</span>
-          <h3 class="swift-solution-headline">Post-Quantum Cryptography</h3>
-          <p class="swift-solution-desc">
-            Protect sensitive data, credentials, and API communication channels against Harvest-Now-Decrypt-Later (HNDL) adversaries. Implements the NIST FIPS 203 (ML-KEM) key encapsulation and FIPS 204 (ML-DSA) signature algorithms via @noble/post-quantum (not a validated module), plus hybrid X25519 + ML-KEM key encapsulation for coexistence with classical cryptography.
-          </p>
-          <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#post-quantum">Explore PQC Infrastructure</a>
-          </div>
-        </div>
-
-        <div class="swift-solution-visual">
-          <img
-            src="{{site_path}}images/solution-glass-droplets.webp"
-            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
-            class="swift-relief-img"
-            width="600"
-            height="600"
-            loading="lazy"
-          />
-        </div>
-        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
-      </div>
-    </div>
-
-    <!-- Tab 2: Sovereign CaaS -->
-    <div class="swift-tab-content-panel" id="tab-caas">
-      <div class="swift-solution-split">
-        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
-        <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">Self-Hosted Microservice</span>
-          <h3 class="swift-solution-headline">Cryptography-as-a-Service Daemon</h3>
-          <p class="swift-solution-desc">
-            A Fastify REST microservice that exposes crypto-lib operations with rate limiting and OpenTelemetry instrumentation. Run it in your private cloud or on-premises data centre so keys you manage with it stay on infrastructure you control. No throughput figures are published yet.
-          </p>
-          <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#caas-server">Explore CaaS Daemon</a>
-          </div>
-        </div>
-
-        <div class="swift-solution-visual">
-          <img
-            src="{{site_path}}images/solution-glass-droplets.webp"
-            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
-            class="swift-relief-img"
-            width="600"
-            height="600"
-            loading="lazy"
-          />
-        </div>
-        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
-      </div>
-    </div>
-
-    <!-- Tab 3: KMS Interface -->
-    <div class="swift-tab-content-panel" id="tab-kms">
-      <div class="swift-solution-split">
-        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
-        <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">Key Management</span>
-          <h3 class="swift-solution-headline">KMS Provider Interface</h3>
-          <p class="swift-solution-desc">
-            One TypeScript interface for key management backends, with envelope encryption (DEK/KEK) through generateDataKey(). AWS KMS and a local in-memory provider are implemented; Google Cloud KMS, Azure Key Vault and HashiCorp Vault are stubs, and PKCS#11 is a software simulation with no HSM support.
-          </p>
-          <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#multi-cloud-kms">Explore KMS Interface</a>
-          </div>
-        </div>
-
-        <div class="swift-solution-visual">
-          <img
-            src="{{site_path}}images/solution-glass-droplets.webp"
-            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
-            class="swift-relief-img"
-            width="600"
-            height="600"
-            loading="lazy"
-          />
-        </div>
-        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
-      </div>
-    </div>
-
-    <!-- Tab 4: Field & DB Encryption -->
-    <div class="swift-tab-content-panel" id="tab-field">
-      <div class="swift-solution-split">
-        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
-        <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">Database &amp; Middleware Security</span>
-          <h3 class="swift-solution-headline">Zero-Trust Field &amp; Column Encryption</h3>
-          <p class="swift-solution-desc">
-            Transparent column encryption for Prisma and TypeORM. A Prisma Client extension and a TypeORM @EncryptedColumn() decorator encrypt configured fields with XChaCha20-Poly1305 before they are written, so database dumps hold only ciphertext for those fields, without schema rewrites.
-          </p>
-          <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#field-encryption">Explore Field Encryption</a>
-          </div>
-        </div>
-
-        <div class="swift-solution-visual">
-          <img
-            src="{{site_path}}images/solution-glass-droplets.webp"
-            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
-            class="swift-relief-img"
-            width="600"
-            height="600"
-            loading="lazy"
-          />
-        </div>
-        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
-      </div>
-    </div>
-
-    <!-- Tab 5: Edge Runtimes -->
-    <div class="swift-tab-content-panel" id="tab-wasm">
-      <div class="swift-solution-split">
-        <button class="swift-slider-btn swift-slider-prev" type="button" aria-label="Previous solution">&larr;</button>
-        <div class="swift-solution-info">
-          <span class="swift-solution-eyebrow">Runtime Portability</span>
-          <h3 class="swift-solution-headline">Edge Runtime Support</h3>
-          <p class="swift-solution-desc">
-            crypto-edge adapts crypto-lib to Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers, with runtime detection and text/base64 fallbacks. All operations run in JavaScript or the platform Web Crypto API: crypto-wasm is a placeholder with no WebAssembly module, and there is no constant-time guarantee.
-          </p>
-          <div class="swift-solution-action">
-            <a class="btn-swift-readmore" href="{{site_path}}solutions/#edge-wasm">Explore Edge Runtimes</a>
-          </div>
-        </div>
-
-        <div class="swift-solution-visual">
-          <img
-            src="{{site_path}}images/solution-glass-droplets.webp"
-            alt="Giant organic liquid glass droplets warping and magnifying pastel morphing fluid shapes in mint, peach, and lavender"
-            class="swift-relief-img"
-            width="600"
-            height="600"
-            loading="lazy"
-          />
-        </div>
-        <button class="swift-slider-btn swift-slider-next" type="button" aria-label="Next solution">&rarr;</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Section: Algorithm Reference (Scannable Data Matrix) -->
-<section class="swift-benchmarks-section">
-  <div class="container">
-    <div class="swift-solutions-header">
-      <div>
-        <span class="swift-solution-eyebrow">ALGORITHM REFERENCE // CRYPTO-LIB</span>
-        <h2 class="swift-section-title">Supported Algorithms and Standards</h2>
-      </div>
-      <a class="btn-swift-news-pill" href="{{site_path}}research/#benchmarks">Sizes &amp; Benchmarking</a>
-    </div>
-
-    <p class="swift-section-lead">
-      The algorithms below are implemented in crypto-lib on top of the @noble/* libraries; none is a validated cryptographic module. No timing figures are published yet: run <code>node benchmarks/crypto-bench.ts</code> from the repository to measure on your own hardware.
-    </p>
-
-    <div class="table-responsive">
-      <table class="comparison-table">
+    <div class="table-container" style="overflow-x: auto; background: var(--bg-surface); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid var(--border-subtle);">
+      <table class="standards-table" style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead>
-          <tr>
-            <th scope="col">Primitive</th>
-            <th scope="col">Mathematical Type</th>
-            <th scope="col">NIST Security Level</th>
-            <th scope="col">Package</th>
+          <tr style="border-bottom: 2px solid var(--border-subtle); background: var(--bg-subtle);">
+            <th style="padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Primitive</th>
+            <th style="padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Mathematical Basis</th>
+            <th style="padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">NIST Security Level</th>
+            <th style="padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Package</th>
+            <th style="padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">API Documentation</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>ML-KEM-768</strong></td>
-            <td>Module-LWE Lattice (FIPS 203)</td>
-            <td>Level 3 (AES-192)</td>
-            <td><code>@crypto-lib</code></td>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 1rem 1.5rem; font-weight: 700;">ML-KEM-768</td>
+            <td style="padding: 1rem 1.5rem;">Module-LWE Lattice (FIPS 203)</td>
+            <td style="padding: 1rem 1.5rem;"><span class="font-mono" style="background: rgba(0,89,80,0.1); color: #005950; padding: 2px 6px; border-radius: 4px;">Level 3 (AES-192)</span></td>
+            <td style="padding: 1rem 1.5rem;"><code>crypto-lib</code></td>
+            <td style="padding: 1rem 1.5rem;"><a href="/packages/crypto-lib/index.html" style="color: #005950; font-weight: 600;">View Functions &rarr;</a></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 1rem 1.5rem; font-weight: 700;">ML-DSA-65</td>
+            <td style="padding: 1rem 1.5rem;">Module-SIS Lattice (FIPS 204)</td>
+            <td style="padding: 1rem 1.5rem;"><span class="font-mono" style="background: rgba(0,89,80,0.1); color: #005950; padding: 2px 6px; border-radius: 4px;">Level 3 (AES-192)</span></td>
+            <td style="padding: 1rem 1.5rem;"><code>crypto-lib</code></td>
+            <td style="padding: 1rem 1.5rem;"><a href="/packages/crypto-lib/index.html" style="color: #005950; font-weight: 600;">View Functions &rarr;</a></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 1rem 1.5rem; font-weight: 700;">Hybrid HPKE</td>
+            <td style="padding: 1rem 1.5rem;">X25519 + ML-KEM-768 (RFC 9180)</td>
+            <td style="padding: 1rem 1.5rem;"><span class="font-mono" style="background: rgba(0,89,80,0.1); color: #005950; padding: 2px 6px; border-radius: 4px;">Dual Quantum + Classical</span></td>
+            <td style="padding: 1rem 1.5rem;"><code>crypto-lib</code></td>
+            <td style="padding: 1rem 1.5rem;"><a href="/packages/crypto-lib/index.html" style="color: #005950; font-weight: 600;">View Functions &rarr;</a></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 1rem 1.5rem; font-weight: 700;">AES-256-GCM</td>
+            <td style="padding: 1rem 1.5rem;">Authenticated Symmetric Cipher</td>
+            <td style="padding: 1rem 1.5rem;"><span class="font-mono" style="background: rgba(0,89,80,0.1); color: #005950; padding: 2px 6px; border-radius: 4px;">FIPS 197 / SP 800-38D</span></td>
+            <td style="padding: 1rem 1.5rem;"><code>crypto-lib</code></td>
+            <td style="padding: 1rem 1.5rem;"><a href="/packages/crypto-lib/index.html" style="color: #005950; font-weight: 600;">View Functions &rarr;</a></td>
           </tr>
           <tr>
-            <td><strong>ML-DSA-65</strong></td>
-            <td>Module-SIS Lattice (FIPS 204)</td>
-            <td>Level 3 (AES-192)</td>
-            <td><code>@crypto-lib</code></td>
-          </tr>
-          <tr>
-            <td><strong>Composite Hybrid</strong></td>
-            <td>X25519 + ML-KEM-768</td>
-            <td>Dual Quantum + Classical</td>
-            <td><code>@crypto-lib</code></td>
-          </tr>
-          <tr>
-            <td><strong>AES-256-GCM</strong></td>
-            <td>Authenticated Symmetric Cipher</td>
-            <td>FIPS 197 / SP 800-38D</td>
-            <td><code>@crypto-lib</code></td>
+            <td style="padding: 1rem 1.5rem; font-weight: 700;">CycloneDX 1.6 CBOM</td>
+            <td style="padding: 1rem 1.5rem;">Cryptographic Bill of Materials</td>
+            <td style="padding: 1rem 1.5rem;"><span class="font-mono" style="background: rgba(0,89,80,0.1); color: #005950; padding: 2px 6px; border-radius: 4px;">DORA Compliance</span></td>
+            <td style="padding: 1rem 1.5rem;"><code>crypto-cbom</code></td>
+            <td style="padding: 1rem 1.5rem;"><a href="/packages/crypto-cbom/index.html" style="color: #005950; font-weight: 600;">View Functions &rarr;</a></td>
           </tr>
         </tbody>
       </table>
@@ -380,106 +567,22 @@
   </div>
 </section>
 
-<!-- Section: Are you a customer? (SWIFT Full-Width Soft Aqua Banner) -->
-<section class="swift-banner-section">
-  <div class="container swift-banner-inner">
-    <div class="swift-banner-text">
-      <h2 class="swift-banner-title">Ready to future-proof your cryptographic architecture?</h2>
-      <p class="swift-banner-desc">
-        Crypto Service Suite is an open-source, self-hosted post-quantum toolkit for key management, database field protection, and CBOM generation that can support DORA work.
-      </p>
-    </div>
-    <div class="swift-banner-action">
-      <a class="swift-btn-banner-login" href="{{site_path}}contact/">
-        <svg class="swift-lock-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <span>Schedule Institutional Briefing &gt;</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- Section: 3-Card Resource & Assurance Grid (SWIFT Standard) -->
-<section class="swift-resources-section">
+<!-- Section: Main Corporate Site Redirect Callout -->
+<section style="padding: 4rem 0;">
   <div class="container">
-    <div class="swift-solutions-header swift-solutions-header-spaced">
-      <h2 class="swift-section-title">Cryptographic Architecture &amp; Standards Resources</h2>
-    </div>
-    <div class="swift-resource-grid">
-      <!-- Resource Card 1 -->
-      <div class="swift-resource-card">
-        <div class="resource-badge">Key Management</div>
-        <h3 class="resource-title">KMS Provider Interface</h3>
-        <p class="resource-desc">
-          Envelope encryption through one KMS interface. AWS KMS and a local provider are implemented; Google Cloud, Azure and Vault are stubs, and there is no HSM support.
+    <div style="background: linear-gradient(135deg, rgba(0,89,80,0.06) 0%, rgba(46,196,182,0.12) 100%); border: 1px solid rgba(0,89,80,0.2); border-radius: 16px; padding: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+      <div style="max-width: 650px;">
+        <span class="font-mono" style="font-size: 0.8rem; font-weight: 700; color: #005950; text-transform: uppercase;">Corporate Site &amp; Solutions</span>
+        <h3 style="font-size: 1.8rem; font-weight: 800; margin: 0.5rem 0 0.75rem; letter-spacing: -0.01em;">Looking for the Main Corporate Website?</h3>
+        <p style="color: var(--fg-muted); line-height: 1.6; margin: 0;">
+          Access institutional whitepapers, CaaS deployment blueprints, competitive comparisons, and executive compliance briefings at <strong>crypto-service.co</strong>.
         </p>
-        <a class="swift-arrow-link" href="{{site_path}}solutions/#multi-cloud-kms">Learn more &gt;</a>
       </div>
-
-      <!-- Resource Card 2 -->
-      <div class="swift-resource-card">
-        <div class="resource-badge">Standards</div>
-        <h3 class="resource-title">NIST FIPS, CNSA 2.0 &amp; DORA</h3>
-        <p class="resource-desc">
-          Which NIST FIPS 203/204/205 and CNSA 2.0 algorithms are implemented (none validated), and which tools can support EU DORA work (no compliance claim).
-        </p>
-        <a class="swift-arrow-link" href="{{site_path}}standards/">Find out more &gt;</a>
-      </div>
-
-      <!-- Resource Card 3 -->
-      <div class="swift-resource-card swift-search-card">
-        <div class="resource-badge">Registry</div>
-        <h3 class="resource-title">Cryptographic Directory (CBOM)</h3>
-        <form class="swift-bic-search-form" action="{{site_path}}compare/" method="get">
-          <label for="primitiveSearch" class="visually-hidden">Search Cryptographic Primitives</label>
-          <input
-            type="search"
-            id="primitiveSearch"
-            name="q"
-            placeholder="Search Primitives (e.g. ML-KEM, ML-DSA)"
-            class="swift-bic-input"
-          />
-          <button type="submit" class="swift-bic-btn" aria-label="Search">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </button>
-        </form>
-        <a class="swift-arrow-link" href="{{site_path}}compare/">Discover our reference data solutions &gt;</a>
+      <div>
+        <a href="https://crypto-service.co" target="_blank" rel="noopener" class="pill primary" style="font-size: 1rem; padding: 0.85rem 2rem;">Visit crypto-service.co &rarr;</a>
       </div>
     </div>
   </div>
 </section>
-
-<!-- Section: Stay Connected Banner (SWIFT Green/Teal Gradient Standard) -->
-<section class="swift-connect-section">
-  <div class="container swift-connect-inner">
-    <div class="swift-connect-left">
-      <h2 class="swift-connect-title">Get personalised insights straight to your inbox</h2>
-      <a class="btn-swift-signup" href="{{site_path}}contact/">Sign up now</a>
-    </div>
-
-    <div class="swift-connect-right">
-      <span class="swift-connect-label">Stay connected</span>
-      <div class="swift-social-links">
-        <a href="https://github.com/sebastienrousseau/crypto-service" class="swift-social-btn" aria-label="GitHub" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-        <a href="https://linkedin.com/company/sebastienrousseau" class="swift-social-btn" aria-label="LinkedIn" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-        </a>
-        <a href="https://x.com/sebastienrousseau" class="swift-social-btn" aria-label="X (formerly Twitter)" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </a>
-        <a href="{{site_path}}rss.xml" class="swift-social-btn" aria-label="RSS Feed">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05 0 10.96 4.91 10.96 10.96h4.811c0-8.71-7.06-15.771-15.771-15.771zm0-8.18v4.814c10.565 0 19.138 8.572 19.138 19.138h4.812c0-13.227-10.723-23.952-23.95-23.952z"/></svg>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
 {{/block}}
+{{/extends}}
