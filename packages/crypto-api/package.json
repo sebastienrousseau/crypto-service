@@ -109,5 +109,5 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "version": "0.0.14"
+  "version": "0.0.15"
 }
