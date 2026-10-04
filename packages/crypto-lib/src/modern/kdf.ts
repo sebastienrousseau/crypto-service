@@ -82,6 +82,43 @@ function toBytes(
   return Buffer.from(input, "utf8");
 }
 
+function deriveScrypt(
+  password: Uint8Array,
+  salt: Uint8Array,
+  keyLength: number,
+  params: NonNullable<KdfDeriveOptions["params"]>,
+): Uint8Array {
+  const N = params.N ?? 131072;
+  const r = params.r ?? 8;
+  const p = params.p ?? 1;
+  checkScryptCosts(N, r, p);
+  return scrypt(password, salt, { N, r, p, dkLen: keyLength });
+}
+
+function deriveHkdf(
+  password: Uint8Array,
+  salt: Uint8Array,
+  keyLength: number,
+  params: NonNullable<KdfDeriveOptions["params"]>,
+): Uint8Array {
+  const info = params.info ? toBytes(params.info, "utf8") : undefined;
+  return hkdf(sha256, password, salt, info, keyLength);
+}
+
+function derivePbkdf2(
+  password: Uint8Array,
+  salt: Uint8Array,
+  keyLength: number,
+  params: NonNullable<KdfDeriveOptions["params"]>,
+): Uint8Array {
+  const iterations = params.iterations ?? 600000;
+  checkPbkdf2Iterations(iterations);
+  return pbkdf2(sha256, password, salt, {
+    c: iterations,
+    dkLen: keyLength,
+  });
+}
+
 /**
  * Derive a cryptographic key from a password or input keying material.
  */
@@ -94,28 +131,15 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
   let derived: Uint8Array;
 
   switch (options.algorithm) {
-    case "scrypt": {
-      const N = params.N ?? 131072;
-      const r = params.r ?? 8;
-      const p = params.p ?? 1;
-      checkScryptCosts(N, r, p);
-      derived = scrypt(password, salt, { N, r, p, dkLen: keyLength });
+    case "scrypt":
+      derived = deriveScrypt(password, salt, keyLength, params);
       break;
-    }
-    case "hkdf-sha256": {
-      const info = params.info ? toBytes(params.info, "utf8") : undefined;
-      derived = hkdf(sha256, password, salt, info, keyLength);
+    case "hkdf-sha256":
+      derived = deriveHkdf(password, salt, keyLength, params);
       break;
-    }
-    case "pbkdf2-sha256": {
-      const iterations = params.iterations ?? 600000;
-      checkPbkdf2Iterations(iterations);
-      derived = pbkdf2(sha256, password, salt, {
-        c: iterations,
-        dkLen: keyLength,
-      });
+    case "pbkdf2-sha256":
+      derived = derivePbkdf2(password, salt, keyLength, params);
       break;
-    }
     default:
       throw new Error(`Unsupported KDF algorithm: ${options.algorithm}`);
   }

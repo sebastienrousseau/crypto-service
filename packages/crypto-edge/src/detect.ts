@@ -42,48 +42,48 @@ const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-
  * console.log(runtime); // "node", "cloudflare-workers", "deno", etc.
  * ```
  */
+function isCloudflareWorkers(): boolean {
+  return (
+    typeof g.navigator !== "undefined" &&
+    typeof g.navigator.userAgent === "string" &&
+    g.navigator.userAgent.includes("Cloudflare-Workers")
+  );
+}
+
+function isNodeRuntime(): boolean {
+  return (
+    typeof g.process !== "undefined" &&
+    typeof g.process.versions === "object" &&
+    typeof g.process.versions.node === "string"
+  );
+}
+
+function isBrowserEnvironment(): boolean {
+  return typeof g.window !== "undefined" && typeof g.document !== "undefined";
+}
+
 export function detectRuntime(): EdgeRuntime {
   // skipcq: JS-0067
   // Uses module-level `g` reference
 
-  // Cloudflare Workers: navigator.userAgent === "Cloudflare-Workers"
-  if (
-    typeof g.navigator !== "undefined" &&
-    typeof g.navigator.userAgent === "string" &&
-    g.navigator.userAgent.includes("Cloudflare-Workers")
-  ) {
+  if (isCloudflareWorkers()) {
     return "cloudflare-workers";
   }
-
-  // Vercel Edge Runtime sets a global `EdgeRuntime` string.
   if (typeof g.EdgeRuntime === "string") {
     return "vercel-edge";
   }
-
-  // Deno
   if (typeof g.Deno !== "undefined" && typeof g.Deno.version === "object") {
     return "deno";
   }
-
-  // Bun
   if (typeof g.Bun !== "undefined") {
     return "bun";
   }
-
-  // Browser (window + document)
-  if (typeof g.window !== "undefined" && typeof g.document !== "undefined") {
+  if (isBrowserEnvironment()) {
     return "browser";
   }
-
-  // Node.js
-  if (
-    typeof g.process !== "undefined" &&
-    typeof g.process.versions === "object" &&
-    typeof g.process.versions.node === "string"
-  ) {
+  if (isNodeRuntime()) {
     return "node";
   }
-
   return "unknown";
 }
 

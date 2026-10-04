@@ -50,6 +50,38 @@ export interface UseEncryptReturn {
  * </script>
  * ```
  */
+/** Execute an operation updating reactive processing and error state. */
+async function runWithState<T>(
+  isProcessing: Ref<boolean>,
+  error: Ref<Error | null>,
+  fn: () => T,
+): Promise<T> {
+  isProcessing.value = true;
+  error.value = null;
+
+  try {
+    return fn();
+    /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
+  } catch (err) {
+    error.value = err instanceof Error ? err : new Error(String(err));
+    throw error.value;
+  } finally {
+    isProcessing.value = false;
+  }
+  /* c8 ignore stop */
+}
+
+/** Resolve the encryption key from the argument or plugin defaults. */
+function resolveKey(key?: string, defaultKey?: string): string {
+  const resolved = key ?? defaultKey;
+  if (!resolved) {
+    throw new Error(
+      "No encryption key provided and no defaultKey configured in CryptoPlugin.",
+    );
+  }
+  return resolved;
+}
+
 export function useEncrypt(): UseEncryptReturn {
   const opts = inject<CryptoPluginOptions>(CryptoSymbol, {});
 
@@ -58,58 +90,24 @@ export function useEncrypt(): UseEncryptReturn {
   const isProcessing = ref(false);
   const error = ref<Error | null>(null);
 
-  /** Resolve the encryption key from the argument or plugin defaults. */
-  function resolveKey(key?: string): string {
-    const resolved = key ?? opts.defaultKey;
-    if (!resolved) {
-      throw new Error(
-        "No encryption key provided and no defaultKey configured in CryptoPlugin.",
-      );
-    }
-    return resolved;
-  }
-
   /** Encrypt plaintext using secretbox and update reactive state. */
-  async function encrypt(
-    key: string,
-    data: string | Uint8Array,
-  ): Promise<string> {
-    isProcessing.value = true;
-    error.value = null;
-
-    try {
-      const k = resolveKey(key);
+  function encrypt(key: string, data: string | Uint8Array): Promise<string> {
+    return runWithState(isProcessing, error, () => {
+      const k = resolveKey(key, opts.defaultKey);
       const ct = crypto.encrypt(k, data);
       ciphertext.value = ct;
       return ct;
-      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error(String(err));
-      throw error.value;
-    } finally {
-      isProcessing.value = false;
-    }
-    /* c8 ignore stop */
+    });
   }
 
   /** Decrypt ciphertext using secretbox and update reactive state. */
-  async function decrypt(key: string, data: string): Promise<Uint8Array> {
-    isProcessing.value = true;
-    error.value = null;
-
-    try {
-      const k = resolveKey(key);
+  function decrypt(key: string, data: string): Promise<Uint8Array> {
+    return runWithState(isProcessing, error, () => {
+      const k = resolveKey(key, opts.defaultKey);
       const pt = crypto.decrypt(k, data);
       plaintext.value = new TextDecoder().decode(pt);
       return pt;
-      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error(String(err));
-      throw error.value;
-    } finally {
-      isProcessing.value = false;
-    }
-    /* c8 ignore stop */
+    });
   }
 
   /** Generate a random 256-bit encryption key as a hex string. */

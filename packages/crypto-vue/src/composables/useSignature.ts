@@ -71,6 +71,27 @@ export interface UseSignatureReturn {
  * </script>
  * ```
  */
+/** Execute an operation updating reactive processing and error state. */
+async function runWithState<T>(
+  isProcessing: Ref<boolean>,
+  error: Ref<Error | null>,
+  fn: () => T,
+): Promise<T> {
+  isProcessing.value = true;
+  error.value = null;
+
+  try {
+    return fn();
+    /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
+  } catch (err) {
+    error.value = err instanceof Error ? err : new Error(String(err));
+    throw error.value;
+  } finally {
+    isProcessing.value = false;
+  }
+  /* c8 ignore stop */
+}
+
 export function useSignature(): UseSignatureReturn {
   const signature = ref<string | null>(null);
   const isValid = ref<boolean | null>(null);
@@ -79,52 +100,32 @@ export function useSignature(): UseSignatureReturn {
   const error = ref<Error | null>(null);
 
   /** Sign a message with the given algorithm and private key, updating reactive state. */
-  async function sign(
+  function sign(
     algo: SignAlgorithm,
     privateKeyHex: string,
     message: string | Uint8Array,
   ): Promise<string> {
-    isProcessing.value = true;
-    error.value = null;
-
-    try {
+    return runWithState(isProcessing, error, () => {
       const sig = crypto.sign(algo, privateKeyHex, message);
       signature.value = sig;
       algorithm.value = algo;
       return sig;
-      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error(String(err));
-      throw error.value;
-    } finally {
-      isProcessing.value = false;
-    }
-    /* c8 ignore stop */
+    });
   }
 
   /** Verify a signature with the given algorithm and public key, updating reactive state. */
-  async function verify(
+  function verify(
     algo: SignAlgorithm,
     publicKeyHex: string,
     message: string | Uint8Array,
     signatureHex: string,
   ): Promise<boolean> {
-    isProcessing.value = true;
-    error.value = null;
-
-    try {
+    return runWithState(isProcessing, error, () => {
       const valid = crypto.verify(algo, publicKeyHex, message, signatureHex);
       isValid.value = valid;
       algorithm.value = algo;
       return valid;
-      /* c8 ignore start -- V8 can't track ternary + finally-after-rethrow branches via source maps */
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error(String(err));
-      throw error.value;
-    } finally {
-      isProcessing.value = false;
-    }
-    /* c8 ignore stop */
+    });
   }
 
   /** Reset all reactive state to initial values. */
