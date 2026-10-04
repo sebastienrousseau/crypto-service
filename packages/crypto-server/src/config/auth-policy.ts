@@ -175,6 +175,10 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/opaque/register/finish": AUTHENTICATED,
   "POST /v2/opaque/login/init": AUTHENTICATED,
   "POST /v2/opaque/login/finish": AUTHENTICATED,
+  // HPKE (RFC 9180 classical and post-quantum hybrid)
+  "POST /v2/hpke/keygen": "crypto:keys",
+  "POST /v2/hpke/seal": "crypto:encrypt",
+  "POST /v2/hpke/open": "crypto:decrypt",
 });
 
 /**

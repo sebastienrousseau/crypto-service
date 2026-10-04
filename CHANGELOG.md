@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Native Google Cloud KMS Provider**: `@sebastienrousseau/crypto-kms` now provides a production native `GcpKmsProvider` backed by the Google Cloud KMS REST v1 API using native `fetch` with zero external SDK dependencies. Features key lifecycle management (`createKey`, `getKey`, `listKeys`, `enableKey`, `disableKey`, `scheduleKeyDeletion`, `rotateKey`), cryptographic operations (`encrypt`, `decrypt`, `sign`, `verify`), data encryption key (DEK) generation (`generateDataKey`), and key wrapping/unwrapping (`wrapKey`, `unwrapKey`).
+- **Post-Quantum Hybrid HPKE REST endpoints (RFC 9180)**: `@sebastienrousseau/crypto-server` now exposes `POST /v2/hpke/keygen`, `POST /v2/hpke/seal`, and `POST /v2/hpke/open` routes with strict server-side key custody (`keyId`). Supports quantum-safe hybrid (`x25519-ml-kem-768`) and classical (`x25519`, `p256`) KEMs, with `chacha20-poly1305` and `aes-128-gcm` AEADs across both Base and PSK modes.
+- **HPKE Client SDK methods**: `@sebastienrousseau/crypto-sdk` now provides `hpkeGenerateKeyPair`, `hpkeSeal`, and `hpkeOpen` on `CryptoClient`, exposing typed interfaces for RFC 9180 HPKE and PQ hybrid operations.
+- **HPKE CLI subcommands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli hpke keygen`, `crypto-cli hpke seal`, and `crypto-cli hpke open` commands supporting classical and post-quantum hybrid public-key encryption with stdin/file streaming, JSON formatting, and automated usage documentation.
 - Initialized release iteration `v0.0.15`.
 
 ## [0.0.14] - 2026-10-04

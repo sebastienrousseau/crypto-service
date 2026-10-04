@@ -247,3 +247,77 @@ export interface SealedboxSealResult {
   /** Sealed-box construction (e.g. `"x25519-xchacha20-poly1305"`). */
   algorithm: string;
 }
+
+/** Supported KEM algorithms for HPKE. */
+export type HpkeKem = "x25519" | "p256" | "x25519-ml-kem-768";
+
+/** Supported AEAD algorithms for HPKE. */
+export type HpkeAead = "chacha20-poly1305" | "aes-128-gcm";
+
+/** Parameters for `POST /v2/hpke/keygen`. */
+export interface HpkeGenerateKeyPairParams {
+  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  kem?: HpkeKem;
+}
+
+/** Result of `POST /v2/hpke/keygen`: server-held HPKE key pair. */
+export interface HpkeKeyPair extends ServerKey {
+  /** Hex-encoded HPKE public key. */
+  publicKey: string;
+}
+
+/** Parameters for `POST /v2/hpke/seal`. */
+export interface HpkeSealParams {
+  /** Hex-encoded recipient public key. */
+  recipientPublicKey: string;
+  /** Plaintext message (UTF-8 string or hex). */
+  plaintext: string;
+  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  kem?: HpkeKem;
+  /** AEAD algorithm (defaults to `"chacha20-poly1305"`). */
+  aead?: HpkeAead;
+  /** Optional application-specific info string. */
+  info?: string;
+  /** Optional additional authenticated data (AAD). */
+  aad?: string;
+  /** Optional pre-shared key (hex). */
+  psk?: string;
+  /** Optional pre-shared key identifier (hex or string). */
+  pskId?: string;
+}
+
+/** Result of `POST /v2/hpke/seal`. */
+export interface HpkeSealResult {
+  /** Hex-encoded ciphertext. */
+  ciphertext: string;
+  /** Hex-encoded encapsulated key. */
+  encapsulatedKey: string;
+}
+
+/** Parameters for `POST /v2/hpke/open`. */
+export interface HpkeOpenParams {
+  /** Identifier of the recipient server-held key. */
+  keyId: string;
+  /** Hex-encoded encapsulated key from sender. */
+  encapsulatedKey: string;
+  /** Hex-encoded ciphertext from sender. */
+  ciphertext: string;
+  /** AEAD algorithm (defaults to `"chacha20-poly1305"`). */
+  aead?: HpkeAead;
+  /** Optional application-specific info string. */
+  info?: string;
+  /** Optional additional authenticated data (AAD). */
+  aad?: string;
+  /** Optional pre-shared key (hex). */
+  psk?: string;
+  /** Optional pre-shared key identifier (hex or string). */
+  pskId?: string;
+}
+
+/** Result of `POST /v2/hpke/open`. */
+export interface HpkeOpenResult {
+  /** Decrypted plaintext decoded as UTF-8. */
+  plaintext: string;
+  /** Decrypted plaintext as raw hex string. */
+  hex: string;
+}

@@ -6,7 +6,6 @@ import {
   KmsError,
   LocalKmsProvider,
   Pkcs11HsmProvider,
-  GcpKmsProvider,
   AzureKmsProvider,
 } from "../src/index";
 import type { KmsProvider } from "../src/index";
@@ -262,7 +261,6 @@ for (const { label, make } of providers) {
 
 describe("stub providers reject with NOT_IMPLEMENTED", () => {
   const stubs: KmsProvider[] = [
-    new GcpKmsProvider({ projectId: "p", locationId: "l", keyRingId: "r" }),
     new AzureKmsProvider({ vaultUrl: "https://v.vault.azure.net" }),
   ];
   for (const stub of stubs) {

@@ -266,6 +266,8 @@ Commands:
   stream                    Post-quantum hybrid streaming AEAD operations
   opaque                    OPAQUE zero-knowledge password authentication (RFC
                             9807)
+  hpke                      Hybrid Public Key Encryption (HPKE RFC 9180 and PQ
+                            hybrid)
 ```
 
 #### `crypto-cli hash`
@@ -652,6 +654,80 @@ Options:
                           is ignored
   --password-stdin        read the password from standard input
   -h, --help              print help
+```
+
+#### `crypto-cli hpke`
+
+```text
+Usage: crypto-cli hpke [options] [command]
+
+Hybrid Public Key Encryption (HPKE RFC 9180 and PQ hybrid)
+
+Options:
+  -h, --help             print help
+
+Commands:
+  keygen [options]       Generate an HPKE key pair
+  seal [options] [file]  Encrypt a message using HPKE
+  open [options] [file]  Decrypt an HPKE ciphertext
+  help [command]         display help for command
+```
+
+#### `crypto-cli hpke keygen`
+
+```text
+Usage: crypto-cli hpke keygen [options]
+
+Generate an HPKE key pair
+
+Options:
+  -k, --kem <kem>  key encapsulation mechanism (choices: "x25519-ml-kem-768",
+                   "x25519", "p256", default: "x25519-ml-kem-768")
+  --json           print key pair as JSON
+  -h, --help       print help
+```
+
+#### `crypto-cli hpke seal`
+
+```text
+Usage: crypto-cli hpke seal [options] [file]
+
+Encrypt a message using HPKE
+
+Options:
+  -p, --public-key <hex>  recipient public key (hex)
+  -k, --kem <kem>         key encapsulation mechanism (choices:
+                          "x25519-ml-kem-768", "x25519", "p256", default:
+                          "x25519-ml-kem-768")
+  -a, --aead <aead>       authenticated encryption algorithm (choices:
+                          "chacha20-poly1305", "aes-128-gcm", default:
+                          "chacha20-poly1305")
+  --info <info>           application-supplied info string
+  --aad <aad>             additional authenticated data
+  --json                  print ciphertext and encapsulated key as JSON
+  -h, --help              print help
+```
+
+#### `crypto-cli hpke open`
+
+```text
+Usage: crypto-cli hpke open [options] [file]
+
+Decrypt an HPKE ciphertext
+
+Options:
+  -s, --secret-key <hex>        recipient private key (hex)
+  -e, --encapsulated-key <hex>  encapsulated key (hex)
+  -k, --kem <kem>               key encapsulation mechanism (choices:
+                                "x25519-ml-kem-768", "x25519", "p256", default:
+                                "x25519-ml-kem-768")
+  -a, --aead <aead>             authenticated encryption algorithm (choices:
+                                "chacha20-poly1305", "aes-128-gcm", default:
+                                "chacha20-poly1305")
+  --info <info>                 application-supplied info string
+  --aad <aad>                   additional authenticated data
+  --json                        print plaintext and hex as JSON
+  -h, --help                    print help
 ```
 
 <!-- cli-usage:end -->
