@@ -59,6 +59,17 @@ docs:
 	@pnpm -r run docs
 
 #
+# Demo tasks
+#
+
+# @HELP Render terminal demo animation with VHS
+demo:
+	@echo
+	@echo "Render terminal demo animation with VHS"
+	@command -v vhs >/dev/null 2>&1 || { echo "vhs not found. Install from https://github.com/charmbracelet/vhs"; exit 1; }
+	@export PATH="/Applications/Google Chrome.app/Contents/MacOS:$$PATH"; vhs .github/demo.tape
+
+#
 # Maintenance tasks
 #
 
@@ -216,4 +227,4 @@ help:
 	@ echo ''
 
 
-.PHONY: dev up dev-web build check clean docs lint lint-fix format start-crypto-server test install node_modules rsa-2048 rsa-4096 curve-25519 curve-p256 curve-p384 curve-p521 curve-secp256k1 curve-brainpoolP256r1 curve-brainpoolP384r1 curve-brainpoolP512r1 help
+.PHONY: dev up dev-web build check clean docs demo lint lint-fix format start-crypto-server test install node_modules rsa-2048 rsa-4096 curve-25519 curve-p256 curve-p384 curve-p521 curve-secp256k1 curve-brainpoolP256r1 curve-brainpoolP384r1 curve-brainpoolP512r1 help

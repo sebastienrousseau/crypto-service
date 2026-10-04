@@ -13,6 +13,7 @@
     "build": "pnpm -r run build",
     "check:packages": "node scripts/check-packages.mjs",
     "clean": "pnpm -r run clean",
+    "demo": "export PATH=\"/Applications/Google Chrome.app/Contents/MacOS:$PATH\"; vhs .github/demo.tape",
     "docs": "pnpm -r run docs",
     "docs:build": "node scripts/build-docs.mjs",
     "docs:portal": "node scripts/build-docs.mjs",
