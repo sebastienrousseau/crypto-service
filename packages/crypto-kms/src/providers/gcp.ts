@@ -158,14 +158,24 @@ export class GcpKmsProvider implements KmsProvider {
     return `${this.getParent()}/cryptoKeys/${keyId}`;
   }
 
+  /** Build a sanitized GCP Cloud KMS API URL. */
+  private buildUrl(path: string): string {
+    if (!/^[a-zA-Z0-9_\-/:.?=&]+$/.test(path) || path.includes("..")) {
+      throw new KmsError("INVALID_ARGUMENT", "Invalid GCP KMS path", path);
+    }
+    const endpoint =
+      this.options.endpoint ?? "https://cloudkms.googleapis.com/v1";
+    const base = `${endpoint.replace(/\/+$/, "")}/`;
+    return new URL(path, base).href;
+  }
+
   /** Send authenticated request to GCP Cloud KMS API. */
   private async request<T>(
     path: string,
     method = "GET",
     body?: Record<string, unknown>,
   ): Promise<T> {
-    const base = this.options.endpoint ?? "https://cloudkms.googleapis.com/v1";
-    const url = `${base}/${path}`;
+    const url = this.buildUrl(path);
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };

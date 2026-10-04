@@ -28,29 +28,41 @@ export function resetKmsProviders(): void {
   providerRegistry.set("local", new LocalKmsProvider());
 }
 
-const DEFAULT_FACTORIES: Record<string, () => KmsProvider> = {
-  aws: () =>
-    new AwsKmsProvider({
-      region: process.env["AWS_REGION"] ?? "us-east-1",
-    }),
-  gcp: () =>
-    new GcpKmsProvider({
-      projectId: process.env["GCP_PROJECT_ID"] ?? "test-project",
-      locationId: process.env["GCP_LOCATION_ID"] ?? "global",
-      keyRingId: process.env["GCP_KEY_RING_ID"] ?? "test-ring",
-      token: process.env["GCP_AUTH_TOKEN"] ?? "test-token",
-    }),
-  vault: () =>
-    new VaultKmsProvider({
-      address: process.env["VAULT_ADDR"] ?? "http://localhost:8200",
-      token: process.env["VAULT_TOKEN"] ?? "test-token",
-    }),
-  azure: () =>
-    new AzureKmsProvider({
-      vaultUrl:
-        process.env["AZURE_VAULT_URL"] ?? "https://my-vault.vault.azure.net",
-    }),
-};
+const DEFAULT_FACTORIES = new Map<string, () => KmsProvider>([
+  [
+    "aws",
+    () =>
+      new AwsKmsProvider({
+        region: process.env["AWS_REGION"] ?? "us-east-1",
+      }),
+  ],
+  [
+    "gcp",
+    () =>
+      new GcpKmsProvider({
+        projectId: process.env["GCP_PROJECT_ID"] ?? "test-project",
+        locationId: process.env["GCP_LOCATION_ID"] ?? "global",
+        keyRingId: process.env["GCP_KEY_RING_ID"] ?? "test-ring",
+        token: process.env["GCP_AUTH_TOKEN"] ?? "test-token",
+      }),
+  ],
+  [
+    "vault",
+    () =>
+      new VaultKmsProvider({
+        address: process.env["VAULT_ADDR"] ?? "http://localhost:8200",
+        token: process.env["VAULT_TOKEN"] ?? "test-token",
+      }),
+  ],
+  [
+    "azure",
+    () =>
+      new AzureKmsProvider({
+        vaultUrl:
+          process.env["AZURE_VAULT_URL"] ?? "https://my-vault.vault.azure.net",
+      }),
+  ],
+]);
 
 /** Resolve a KMS provider by name. */
 export function resolveKmsProvider(name?: string): KmsProvider {
@@ -58,7 +70,7 @@ export function resolveKmsProvider(name?: string): KmsProvider {
   const existing = providerRegistry.get(key);
   if (existing) return existing;
 
-  const factory = DEFAULT_FACTORIES[key];
+  const factory = DEFAULT_FACTORIES.get(key);
   if (factory) {
     const provider = factory();
     providerRegistry.set(key, provider);
@@ -72,6 +84,17 @@ function parseBytes(text: string): Uint8Array {
   return isHex
     ? new Uint8Array(Buffer.from(text, "hex"))
     : new Uint8Array(Buffer.from(text, "utf8"));
+}
+
+function sanitizeKeyId(id: unknown): string {
+  if (
+    typeof id !== "string" ||
+    !/^[a-zA-Z0-9_\-/:.]+$/.test(id) ||
+    id.includes("..")
+  ) {
+    throw new Error("Invalid keyId format");
+  }
+  return encodeURIComponent(id).replace(/%2F/g, "/").replace(/%3A/g, ":");
 }
 
 const CREATE_KEY_SCHEMA = {
@@ -206,9 +229,10 @@ function registerWrap(app: FastifyInstance): void {
         if (!provider.wrapKey) {
           throw new Error(`Provider ${provider.name} does not support wrapKey`);
         }
+        const keyId = sanitizeKeyId(b["keyId"]);
         const bytes = parseBytes(b["unwrappedKey"] as string);
         const res = await provider.wrapKey(
-          b["keyId"] as string,
+          keyId,
           bytes,
           b["context"] as Record<string, string>,
         );
@@ -238,8 +262,9 @@ function registerUnwrap(app: FastifyInstance): void {
             `Provider ${provider.name} does not support unwrapKey`,
           );
         }
+        const keyId = sanitizeKeyId(b["keyId"]);
         const res = await provider.unwrapKey(
-          b["keyId"] as string,
+          keyId,
           b["wrappedKey"] as string,
           b["context"] as Record<string, string>,
         );
@@ -268,15 +293,16 @@ function registerDataKey(app: FastifyInstance): void {
       const b = request.body as Record<string, unknown>;
       try {
         const provider = resolveKmsProvider(b["provider"] as string);
+        const keyId = sanitizeKeyId(b["keyId"]);
         const res = await provider.generateDataKey(
-          b["keyId"] as string,
+          keyId,
           b["keySpec"] as string,
         );
         return reply.send({
           data: {
             plaintext: Buffer.from(res.plaintext).toString("hex"),
             ciphertext: res.ciphertext,
-            keyId: b["keyId"],
+            keyId,
             provider: provider.name,
           },
         });
@@ -298,9 +324,10 @@ function registerEncrypt(app: FastifyInstance): void {
       const b = request.body as Record<string, unknown>;
       try {
         const provider = resolveKmsProvider(b["provider"] as string);
+        const keyId = sanitizeKeyId(b["keyId"]);
         const bytes = parseBytes(b["plaintext"] as string);
         const res = await provider.encrypt(
-          b["keyId"] as string,
+          keyId,
           bytes,
           b["context"] as Record<string, string>,
         );
@@ -325,8 +352,9 @@ function registerDecrypt(app: FastifyInstance): void {
       const b = request.body as Record<string, unknown>;
       try {
         const provider = resolveKmsProvider(b["provider"] as string);
+        const keyId = sanitizeKeyId(b["keyId"]);
         const res = await provider.decrypt(
-          b["keyId"] as string,
+          keyId,
           b["ciphertext"] as string,
           b["context"] as Record<string, string>,
         );

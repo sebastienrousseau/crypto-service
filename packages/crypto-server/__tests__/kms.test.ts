@@ -312,5 +312,17 @@ describe("KMS Routes (/v2/kms)", function () {
       });
       expect(res.statusCode).to.be.greaterThanOrEqual(400);
     });
+
+    it("returns error on invalid keyId format", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/v2/kms/decrypt",
+        payload: {
+          keyId: "../evil",
+          ciphertext: "1234",
+        },
+      });
+      expect(res.statusCode).to.be.greaterThanOrEqual(400);
+    });
   });
 });

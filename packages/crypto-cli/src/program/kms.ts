@@ -31,29 +31,41 @@ export function resetCliKmsProviders(): void {
   providerRegistry.set("local", new LocalKmsProvider());
 }
 
-const DEFAULT_FACTORIES: Record<string, () => KmsProvider> = {
-  aws: () =>
-    new AwsKmsProvider({
-      region: process.env["AWS_REGION"] ?? "us-east-1",
-    }),
-  gcp: () =>
-    new GcpKmsProvider({
-      projectId: process.env["GCP_PROJECT_ID"] ?? "test-project",
-      locationId: process.env["GCP_LOCATION_ID"] ?? "global",
-      keyRingId: process.env["GCP_KEY_RING_ID"] ?? "test-ring",
-      token: process.env["GCP_AUTH_TOKEN"] ?? "test-token",
-    }),
-  vault: () =>
-    new VaultKmsProvider({
-      address: process.env["VAULT_ADDR"] ?? "http://localhost:8200",
-      token: process.env["VAULT_TOKEN"] ?? "test-token",
-    }),
-  azure: () =>
-    new AzureKmsProvider({
-      vaultUrl:
-        process.env["AZURE_VAULT_URL"] ?? "https://my-vault.vault.azure.net",
-    }),
-};
+const DEFAULT_FACTORIES = new Map<string, () => KmsProvider>([
+  [
+    "aws",
+    () =>
+      new AwsKmsProvider({
+        region: process.env["AWS_REGION"] ?? "us-east-1",
+      }),
+  ],
+  [
+    "gcp",
+    () =>
+      new GcpKmsProvider({
+        projectId: process.env["GCP_PROJECT_ID"] ?? "test-project",
+        locationId: process.env["GCP_LOCATION_ID"] ?? "global",
+        keyRingId: process.env["GCP_KEY_RING_ID"] ?? "test-ring",
+        token: process.env["GCP_AUTH_TOKEN"] ?? "test-token",
+      }),
+  ],
+  [
+    "vault",
+    () =>
+      new VaultKmsProvider({
+        address: process.env["VAULT_ADDR"] ?? "http://localhost:8200",
+        token: process.env["VAULT_TOKEN"] ?? "test-token",
+      }),
+  ],
+  [
+    "azure",
+    () =>
+      new AzureKmsProvider({
+        vaultUrl:
+          process.env["AZURE_VAULT_URL"] ?? "https://my-vault.vault.azure.net",
+      }),
+  ],
+]);
 
 /** Resolve KMS provider for CLI execution. */
 export function resolveCliKmsProvider(name?: string): KmsProvider {
@@ -61,7 +73,7 @@ export function resolveCliKmsProvider(name?: string): KmsProvider {
   const existing = providerRegistry.get(key);
   if (existing) return existing;
 
-  const factory = DEFAULT_FACTORIES[key];
+  const factory = DEFAULT_FACTORIES.get(key);
   if (factory) {
     const provider = factory();
     providerRegistry.set(key, provider);
