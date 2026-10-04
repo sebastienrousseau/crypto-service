@@ -22,6 +22,9 @@ import {
   KemDecapsulateResult,
   MlKemKeyPair,
   SealedboxSealResult,
+  HpkeKeyPair,
+  HpkeSealResult,
+  HpkeOpenResult,
 } from "../src/index";
 
 // ---------------------------------------------------------------------------
@@ -1275,6 +1278,81 @@ describe("CryptoClient", () => {
     });
   });
 
+  describe("hpkeGenerateKeyPair()", () => {
+    it("should call /v2/hpke/keygen with default empty body", async () => {
+      const responseData: HpkeKeyPair = {
+        keyId: "k-hpke-1",
+        algorithm: "x25519-ml-kem-768",
+        publicKey: "pub123",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.hpkeGenerateKeyPair();
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/hpke/keygen");
+      expect(calls[0].init?.body).to.equal("{}");
+      expect(res.data.keyId).to.equal("k-hpke-1");
+    });
+
+    it("should call /v2/hpke/keygen with explicit kem", async () => {
+      const { fetch, calls } = capturingFetch(200, { data: {} });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      await client.hpkeGenerateKeyPair({ kem: "x25519" });
+      expect(JSON.parse(calls[0].init?.body as string)).to.deep.equal({
+        kem: "x25519",
+      });
+    });
+  });
+
+  describe("hpkeSeal()", () => {
+    it("should call /v2/hpke/seal with parameters", async () => {
+      const responseData: HpkeSealResult = {
+        ciphertext: "c1",
+        encapsulatedKey: "e1",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.hpkeSeal({
+        recipientPublicKey: "pk",
+        plaintext: "secret",
+        kem: "x25519-ml-kem-768",
+        aead: "chacha20-poly1305",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/hpke/seal");
+      expect(res.data.ciphertext).to.equal("c1");
+      expect(res.data.encapsulatedKey).to.equal("e1");
+    });
+  });
+
+  describe("hpkeOpen()", () => {
+    it("should call /v2/hpke/open with keyId and ciphertext", async () => {
+      const responseData: HpkeOpenResult = {
+        plaintext: "secret",
+        hex: "736563726574",
+      };
+      const { fetch, calls } = capturingFetch(200, { data: responseData });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.hpkeOpen({
+        keyId: "k-hpke-1",
+        encapsulatedKey: "e1",
+        ciphertext: "c1",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/hpke/open");
+      expect(res.data.plaintext).to.equal("secret");
+    });
+  });
+
   describe("streamPqEncrypt()", () => {
     it("should call /v2/stream/pq-encrypt", async () => {
       const { fetch, calls } = capturingFetch(200, {
@@ -1782,6 +1860,19 @@ describe("Exported interfaces (compile-time checks)", () => {
       sharedSecret: "g",
       algorithm: "x25519-ml-kem-768",
     };
+    const hpkeKp: HpkeKeyPair = {
+      keyId: "k",
+      publicKey: "p",
+      algorithm: "x25519-ml-kem-768",
+    };
+    const hpkeSealRes: HpkeSealResult = {
+      ciphertext: "c",
+      encapsulatedKey: "e",
+    };
+    const hpkeOpenRes: HpkeOpenResult = {
+      plaintext: "pt",
+      hex: "7074",
+    };
 
     // Just verify they are all defined (prevents dead-code elimination)
     expect(opts).to.exist;
@@ -1796,5 +1887,8 @@ describe("Exported interfaces (compile-time checks)", () => {
     expect(verifyRes).to.exist;
     expect(hybridKp).to.exist;
     expect(hybridEncap).to.exist;
+    expect(hpkeKp).to.exist;
+    expect(hpkeSealRes).to.exist;
+    expect(hpkeOpenRes).to.exist;
   });
 });

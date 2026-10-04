@@ -82,6 +82,12 @@ import type {
   SlhDsaSignResult,
   SlhDsaVerifyResult,
   SealedboxSealResult,
+  HpkeGenerateKeyPairParams,
+  HpkeKeyPair,
+  HpkeSealParams,
+  HpkeSealResult,
+  HpkeOpenParams,
+  HpkeOpenResult,
 } from "./key-types";
 
 export * from "./types";
@@ -477,6 +483,25 @@ export class CryptoClient {
     ciphertext: string;
   }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/password/decrypt", params);
+  }
+
+  // --- High-Level: HPKE (RFC 9180) & Post-Quantum Hybrid ---
+
+  /** Generate an HPKE key pair (classical or post-quantum hybrid). */
+  async hpkeGenerateKeyPair(
+    params: HpkeGenerateKeyPairParams = {},
+  ): Promise<ApiResponse<HpkeKeyPair>> {
+    return this.request("POST", "/v2/hpke/keygen", params);
+  }
+
+  /** Seal (encrypt) a message using HPKE. */
+  async hpkeSeal(params: HpkeSealParams): Promise<ApiResponse<HpkeSealResult>> {
+    return this.request("POST", "/v2/hpke/seal", params);
+  }
+
+  /** Open (decrypt) an HPKE ciphertext using a server-held key. */
+  async hpkeOpen(params: HpkeOpenParams): Promise<ApiResponse<HpkeOpenResult>> {
+    return this.request("POST", "/v2/hpke/open", params);
   }
 
   // --- High-Level: Key Wrapping ---

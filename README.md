@@ -20,6 +20,10 @@
   <a href="https://github.com/sebastienrousseau/crypto-service/blob/main/docs/POLICIES.md"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-93450a.svg?style=for-the-badge&logo=node.js" alt="Node.js 22 or newer" /></a>
 </p>
 
+<p align="center">
+  <img src=".github/demo.gif" alt="Crypto Service Suite Terminal Demo" width="100%" />
+</p>
+
 ---
 
 ## Contents

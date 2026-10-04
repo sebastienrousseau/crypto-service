@@ -7,7 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.14] - Unreleased
+## [0.0.15] - 2026-10-04
+
+### Added
+
+- **Native Google Cloud KMS Provider**: `@sebastienrousseau/crypto-kms` now provides a production native `GcpKmsProvider` backed by the Google Cloud KMS REST v1 API using native `fetch` with zero external SDK dependencies. Features key lifecycle management (`createKey`, `getKey`, `listKeys`, `enableKey`, `disableKey`, `scheduleKeyDeletion`, `rotateKey`), cryptographic operations (`encrypt`, `decrypt`, `sign`, `verify`), data encryption key (DEK) generation (`generateDataKey`), and key wrapping/unwrapping (`wrapKey`, `unwrapKey`).
+- **Post-Quantum Hybrid HPKE REST endpoints (RFC 9180)**: `@sebastienrousseau/crypto-server` now exposes `POST /v2/hpke/keygen`, `POST /v2/hpke/seal`, and `POST /v2/hpke/open` routes with strict server-side key custody (`keyId`). Supports quantum-safe hybrid (`x25519-ml-kem-768`) and classical (`x25519`, `p256`) KEMs, with `chacha20-poly1305` and `aes-128-gcm` AEADs across both Base and PSK modes.
+- **HPKE Client SDK methods**: `@sebastienrousseau/crypto-sdk` now provides `hpkeGenerateKeyPair`, `hpkeSeal`, and `hpkeOpen` on `CryptoClient`, exposing typed interfaces for RFC 9180 HPKE and PQ hybrid operations.
+- **HPKE CLI subcommands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli hpke keygen`, `crypto-cli hpke seal`, and `crypto-cli hpke open` commands supporting classical and post-quantum hybrid public-key encryption with stdin/file streaming, JSON formatting, and automated usage documentation.
+- **Terminal demo animation in README**: Root README includes an interactive terminal recording generated from `.github/demo.tape` via VHS demonstrating core CLI workflows.
+
+## [0.0.14] - 2026-10-04
 
 ### Added
 
@@ -280,7 +290,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.14]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.13...HEAD
+[0.0.15]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.14...HEAD
+[0.0.14]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.10...v0.0.11

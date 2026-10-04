@@ -684,91 +684,373 @@ describe("LocalKmsProvider", () => {
 });
 
 // ---------------------------------------------------------------------------
-// GcpKmsProvider – stub: all methods throw "Not implemented"
+// GcpKmsProvider – native Cloud KMS REST v1 API
 // ---------------------------------------------------------------------------
 describe("GcpKmsProvider", () => {
   const provider = new GcpKmsProvider({
     projectId: "test-project",
     locationId: "us-east1",
     keyRingId: "test-ring",
+    token: "ya29.test-token",
   });
 
   it("has name 'gcp'", () => {
     expect(provider.name).to.equal("gcp");
   });
 
-  const methods: Array<{
-    name: string;
-    call: () => Promise<unknown>;
-  }> = [
-    { name: "listKeys", call: () => provider.listKeys() },
-    {
-      name: "listKeys (with filter)",
-      call: () => provider.listKeys({ usage: "encrypt" }),
-    },
-    { name: "getKey", call: () => provider.getKey("k1") },
-    {
-      name: "createKey",
-      call: () => provider.createKey("aes-256-gcm", "encrypt"),
-    },
-    {
-      name: "createKey (with metadata)",
-      call: () => provider.createKey("aes-256-gcm", "encrypt", { a: "b" }),
-    },
-    { name: "enableKey", call: () => provider.enableKey("k1") },
-    { name: "disableKey", call: () => provider.disableKey("k1") },
-    {
-      name: "scheduleKeyDeletion",
-      call: () => provider.scheduleKeyDeletion("k1"),
-    },
-    {
-      name: "scheduleKeyDeletion (with days)",
-      call: () => provider.scheduleKeyDeletion("k1", 7),
-    },
-    {
-      name: "encrypt",
-      call: () => provider.encrypt("k1", new Uint8Array(1)),
-    },
-    {
-      name: "encrypt (with context)",
-      call: () => provider.encrypt("k1", new Uint8Array(1), { a: "b" }),
-    },
-    { name: "decrypt", call: () => provider.decrypt("k1", "ct") },
-    {
-      name: "decrypt (with context)",
-      call: () => provider.decrypt("k1", "ct", { a: "b" }),
-    },
-    { name: "sign", call: () => provider.sign("k1", new Uint8Array(1)) },
-    {
-      name: "sign (with algorithm)",
-      call: () => provider.sign("k1", new Uint8Array(1), "rsa"),
-    },
-    {
-      name: "verify",
-      call: () => provider.verify("k1", new Uint8Array(1), "sig"),
-    },
-    {
-      name: "verify (with algorithm)",
-      call: () => provider.verify("k1", new Uint8Array(1), "sig", "rsa"),
-    },
-    { name: "rotateKey", call: () => provider.rotateKey("k1") },
-    { name: "generateDataKey", call: () => provider.generateDataKey("k1") },
-    {
-      name: "generateDataKey (with spec)",
-      call: () => provider.generateDataKey("k1", "AES_256"),
-    },
-  ];
+  describe("GCP KMS operations", () => {
+    let origFetch: typeof globalThis.fetch;
 
-  for (const m of methods) {
-    it(`${m.name} throws "Not implemented"`, async () => {
+    before(() => {
+      origFetch = globalThis.fetch;
+    });
+
+    after(() => {
+      globalThis.fetch = origFetch;
+    });
+
+    function mockFetch(
+      fn: (url: string, init?: RequestInit) => Promise<Response> | Response,
+    ): void {
+      globalThis.fetch = ((url: unknown, init?: unknown) => {
+        return Promise.resolve(
+          fn(String(url), init as RequestInit | undefined),
+        );
+      }) as typeof globalThis.fetch;
+    }
+
+    it("handles fetch network failure", async () => {
+      mockFetch(() => {
+        throw new Error("connection failed");
+      });
       try {
-        await m.call();
-        expect.fail("should have thrown");
+        await provider.getKey("k1");
+        expect.fail("should throw");
       } catch (err) {
-        expect((err as Error).message).to.include("Not implemented");
+        expect((err as KmsError).code).to.equal("INVALID_ARGUMENT");
+        expect((err as KmsError).message).to.include("connection failed");
       }
     });
-  }
+
+    it("handles 404 not found", async () => {
+      mockFetch(() => new Response("Resource not found", { status: 404 }));
+      try {
+        await provider.getKey("missing-key");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("NOT_FOUND");
+      }
+    });
+
+    it("handles 400 decryption failed", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({ error: { message: "decryption error" } }),
+            { status: 400 },
+          ),
+      );
+      try {
+        await provider.decrypt("k1", "bad-ct");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("DECRYPTION_FAILED");
+      }
+    });
+
+    it("handles disabled or destroyed key error", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({ error: { message: "key is disabled" } }),
+            { status: 400 },
+          ),
+      );
+      try {
+        await provider.encrypt("k1", new Uint8Array([1, 2]));
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("DISABLED");
+      }
+    });
+
+    it("handles generic API error", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({ error: { message: "quota exceeded" } }),
+            { status: 429 },
+          ),
+      );
+      try {
+        await provider.getKey("k1");
+        expect.fail("should throw");
+      } catch (err) {
+        expect((err as KmsError).code).to.equal("INVALID_ARGUMENT");
+        expect((err as KmsError).message).to.include("quota exceeded");
+      }
+    });
+
+    it("handles empty response text", async () => {
+      mockFetch(() => new Response("", { status: 200 }));
+      const meta = await provider.getKey("empty-key");
+      expect(meta.keyId).to.equal("empty-key");
+    });
+
+    it("handles invalid JSON response text", async () => {
+      mockFetch(() => new Response("not-valid-json", { status: 200 }));
+      const meta = await provider.getKey("bad-json-key");
+      expect(meta.keyId).to.equal("bad-json-key");
+    });
+
+    it("getKey handles full resource name starting with projects/", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              name: "projects/p/locations/l/keyRings/r/cryptoKeys/full-key",
+            }),
+            { status: 200 },
+          ),
+      );
+      const meta = await provider.getKey(
+        "projects/p/locations/l/keyRings/r/cryptoKeys/full-key",
+      );
+      expect(meta.keyId).to.equal("full-key");
+    });
+
+    it("mapGcpKey handles empty or undefined name", async () => {
+      mockFetch(() => new Response(JSON.stringify({}), { status: 200 }));
+      const meta = await provider.getKey("fallback-key");
+      expect(meta.keyId).to.equal("fallback-key");
+    });
+
+    it("mapGcpKey handles short key name without slashes", async () => {
+      mockFetch(
+        () =>
+          new Response(JSON.stringify({ name: "short-key-id" }), {
+            status: 200,
+          }),
+      );
+      const meta = await provider.getKey("short-key-id");
+      expect(meta.keyId).to.equal("short-key-id");
+    });
+
+    it("listKeys retrieves and filters keys", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              cryptoKeys: [
+                {
+                  name: "projects/p/locations/l/keyRings/r/cryptoKeys/key-1",
+                  purpose: "ENCRYPT_DECRYPT",
+                  primary: {
+                    state: "ENABLED",
+                    algorithm: "GOOGLE_SYMMETRIC_ENCRYPTION",
+                  },
+                },
+                {
+                  name: "projects/p/locations/l/keyRings/r/cryptoKeys/key-2",
+                  purpose: "ASYMMETRIC_SIGN",
+                  primary: {
+                    state: "DISABLED",
+                    algorithm: "RSA_SIGN_PSS_2048_SHA256",
+                  },
+                },
+              ],
+            }),
+            { status: 200 },
+          ),
+      );
+      const all = await provider.listKeys();
+      expect(all).to.have.length(2);
+      expect(all[0].keyId).to.equal("key-1");
+      expect(all[0].usage).to.equal("encrypt");
+      expect(all[0].enabled).to.be.true;
+      expect(all[1].keyId).to.equal("key-2");
+      expect(all[1].usage).to.equal("sign");
+      expect(all[1].enabled).to.be.false;
+
+      const encryptOnly = await provider.listKeys({ usage: "encrypt" });
+      expect(encryptOnly).to.have.length(1);
+      expect(encryptOnly[0].keyId).to.equal("key-1");
+
+      const disabledOnly = await provider.listKeys({ enabled: false });
+      expect(disabledOnly).to.have.length(1);
+      expect(disabledOnly[0].keyId).to.equal("key-2");
+    });
+
+    it("listKeys handles empty cryptoKeys list", async () => {
+      mockFetch(() => new Response(JSON.stringify({}), { status: 200 }));
+      const keys = await provider.listKeys();
+      expect(keys).to.deep.equal([]);
+    });
+
+    it("createKey creates symmetric and asymmetric keys with metadata", async () => {
+      let reqBody: Record<string, unknown> | null = null;
+      mockFetch((_url, init) => {
+        reqBody = JSON.parse(init?.body as string);
+        return new Response(
+          JSON.stringify({
+            name: "projects/p/locations/l/keyRings/r/cryptoKeys/created-key",
+            purpose: reqBody?.purpose,
+            primary: {
+              state: "ENABLED",
+              algorithm: "GOOGLE_SYMMETRIC_ENCRYPTION",
+            },
+          }),
+          { status: 200 },
+        );
+      });
+
+      const symKey = await provider.createKey("aes-256-gcm", "encrypt", {
+        env: "test",
+      });
+      expect(symKey.keyId).to.equal("created-key");
+      expect(symKey.usage).to.equal("encrypt");
+
+      const ecKey = await provider.createKey("p256", "sign");
+      expect(ecKey.usage).to.equal("sign");
+
+      const rsaKey = await provider.createKey("rsa-2048", "sign");
+      expect(rsaKey.usage).to.equal("sign");
+    });
+
+    it("enableKey, disableKey, and scheduleKeyDeletion", async () => {
+      mockFetch(() => new Response("{}", { status: 200 }));
+      await provider.enableKey("k1");
+      await provider.disableKey("k1");
+      await provider.scheduleKeyDeletion("k1");
+    });
+
+    it("encrypt and decrypt roundtrip with and without context", async () => {
+      mockFetch((url) => {
+        if (url.includes(":encrypt")) {
+          return new Response(
+            JSON.stringify({
+              ciphertext: Buffer.from("cipher-bytes").toString("base64"),
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes(":decrypt")) {
+          return new Response(
+            JSON.stringify({
+              plaintext: Buffer.from("hello world").toString("base64"),
+            }),
+            { status: 200 },
+          );
+        }
+        return new Response("{}", { status: 200 });
+      });
+
+      const enc = await provider.encrypt("k1", new Uint8Array([1, 2, 3]));
+      expect(enc.ciphertext).to.be.a("string");
+      expect(enc.keyId).to.equal("k1");
+
+      const encWithContext = await provider.encrypt(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        { a: "b" },
+      );
+      expect(encWithContext.context).to.deep.equal({ a: "b" });
+
+      const dec = await provider.decrypt("k1", enc.ciphertext);
+      expect(Buffer.from(dec.plaintext).toString()).to.equal("hello world");
+
+      const decWithContext = await provider.decrypt("k1", enc.ciphertext, {
+        a: "b",
+      });
+      expect(Buffer.from(decWithContext.plaintext).toString()).to.equal(
+        "hello world",
+      );
+    });
+
+    it("sign and verify operations", async () => {
+      mockFetch((url) => {
+        if (url.includes(":asymmetricSign")) {
+          return new Response(JSON.stringify({ signature: "mock-sig" }), {
+            status: 200,
+          });
+        }
+        if (url.includes(":macVerify")) {
+          return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+          });
+        }
+        return new Response("{}", { status: 200 });
+      });
+
+      const res = await provider.sign("k1", new Uint8Array([1, 2, 3]));
+      expect(res.signature).to.equal("mock-sig");
+
+      const verified = await provider.verify(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "mock-sig",
+      );
+      expect(verified).to.be.true;
+    });
+
+    it("verify returns false when request throws", async () => {
+      mockFetch(() => new Response("Verify failed", { status: 400 }));
+      const verified = await provider.verify(
+        "k1",
+        new Uint8Array([1, 2, 3]),
+        "bad-sig",
+      );
+      expect(verified).to.be.false;
+    });
+
+    it("rotateKey and generateDataKey", async () => {
+      mockFetch(
+        () =>
+          new Response(
+            JSON.stringify({
+              name: "projects/p/locations/l/keyRings/r/cryptoKeys/k1",
+              purpose: "ENCRYPT_DECRYPT",
+              ciphertext: "wrapped-data-key",
+            }),
+            { status: 200 },
+          ),
+      );
+      const rotated = await provider.rotateKey("k1");
+      expect(rotated.keyId).to.equal("k1");
+
+      const dek256 = await provider.generateDataKey("k1");
+      expect(dek256.plaintext).to.have.length(32);
+      expect(dek256.ciphertext).to.equal("wrapped-data-key");
+
+      const dek128 = await provider.generateDataKey("k1", "AES_128");
+      expect(dek128.plaintext).to.have.length(16);
+    });
+
+    it("wrapKey and unwrapKey operations", async () => {
+      mockFetch((url) => {
+        if (url.includes(":encrypt")) {
+          return new Response(
+            JSON.stringify({ ciphertext: "wrapped-key-blob" }),
+            { status: 200 },
+          );
+        }
+        return new Response(
+          JSON.stringify({
+            plaintext: Buffer.from("unwrapped-key-bytes").toString("base64"),
+          }),
+          { status: 200 },
+        );
+      });
+
+      const wrapRes = await provider.wrapKey("k1", new Uint8Array([9, 8, 7]));
+      expect(wrapRes.wrappedKey).to.equal("wrapped-key-blob");
+
+      const unwrapRes = await provider.unwrapKey("k1", "wrapped-key-blob");
+      expect(Buffer.from(unwrapRes.unwrappedKey).toString()).to.equal(
+        "unwrapped-key-bytes",
+      );
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------

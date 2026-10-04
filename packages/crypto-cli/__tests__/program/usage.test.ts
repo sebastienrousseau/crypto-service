@@ -37,6 +37,10 @@ const SUBCOMMANDS = [
   "crypto-cli opaque setup",
   "crypto-cli opaque register",
   "crypto-cli opaque login",
+  "crypto-cli hpke",
+  "crypto-cli hpke keygen",
+  "crypto-cli hpke seal",
+  "crypto-cli hpke open",
 ];
 
 describe("README command reference", () => {

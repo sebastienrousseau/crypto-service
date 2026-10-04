@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-service",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": true,
   "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
   "engines": {
@@ -13,6 +13,7 @@
     "build": "pnpm -r run build",
     "check:packages": "node scripts/check-packages.mjs",
     "clean": "pnpm -r run clean",
+    "demo": "export PATH=\"/Applications/Google Chrome.app/Contents/MacOS:$PATH\"; vhs .github/demo.tape",
     "docs": "pnpm -r run docs",
     "docs:build": "node scripts/build-docs.mjs",
     "docs:portal": "node scripts/build-docs.mjs",
