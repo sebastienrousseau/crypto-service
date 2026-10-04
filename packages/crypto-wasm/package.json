@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-wasm",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "WebAssembly performance accelerator for crypto-lib — near-native speed for heavy cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -25,6 +25,9 @@
     "dist/**/*.d.ts.map",
     "wasm/"
   ],
+  "dependencies": {
+    "@sebastienrousseau/crypto-lib": "workspace:*"
+  },
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",

@@ -41,6 +41,13 @@ const SUBCOMMANDS = [
   "crypto-cli hpke keygen",
   "crypto-cli hpke seal",
   "crypto-cli hpke open",
+  "crypto-cli kms",
+  "crypto-cli kms create-key",
+  "crypto-cli kms generate-data-key",
+  "crypto-cli kms wrap",
+  "crypto-cli kms unwrap",
+  "crypto-cli kms encrypt",
+  "crypto-cli kms decrypt",
 ];
 
 describe("README command reference", () => {

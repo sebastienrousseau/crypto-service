@@ -1050,6 +1050,21 @@ describe("GcpKmsProvider", () => {
         "unwrapped-key-bytes",
       );
     });
+
+    it("rejects invalid path", async () => {
+      try {
+        await provider.getKey("../evil");
+        expect.fail("should have thrown");
+      } catch (err: unknown) {
+        expect((err as KmsError).message).to.equal("Invalid GCP KMS path");
+      }
+      try {
+        await provider.getKey("invalid space");
+        expect.fail("should have thrown");
+      } catch (err: unknown) {
+        expect((err as KmsError).message).to.equal("Invalid GCP KMS path");
+      }
+    });
   });
 });
 
@@ -1705,6 +1720,34 @@ describe("VaultKmsProvider", () => {
         10, 20, 30, 40,
       ]);
       expect(unwrapped.keyId).to.equal("k1");
+    });
+
+    it("rejects invalid path", async () => {
+      try {
+        await provider.getKey("../evil");
+        expect.fail("should have thrown");
+      } catch (err: unknown) {
+        expect((err as KmsError).message).to.equal("Invalid Vault path");
+      }
+      try {
+        await provider.getKey("invalid space");
+        expect.fail("should have thrown");
+      } catch (err: unknown) {
+        expect((err as KmsError).message).to.equal("Invalid Vault path");
+      }
+    });
+
+    it("handles addresses with https or without scheme", () => {
+      const p1 = new VaultKmsProvider({
+        address: "https://vault.example.com:8200",
+        token: "tok",
+      });
+      expect(p1.buildUrl("keys")).to.include("https://vault.example.com:8200");
+      const p2 = new VaultKmsProvider({
+        address: "vault.example.com:8200",
+        token: "tok",
+      });
+      expect(p2.buildUrl("keys")).to.include("http://vault.example.com:8200");
     });
   });
 });

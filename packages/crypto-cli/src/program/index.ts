@@ -15,6 +15,7 @@ import { registerSign, registerVerify } from "./sign";
 import { registerStream } from "./stream";
 import { registerOpaque } from "./opaque";
 import { registerHpke } from "./hpke";
+import { registerKms } from "./kms";
 
 export {
   EXIT,
@@ -54,6 +55,7 @@ export const buildProgram = (ctx: RunContext, version: string): Command => {
   registerStream(program, ctx);
   registerOpaque(program, ctx);
   registerHpke(program, ctx);
+  registerKms(program, ctx);
   return program;
 };
 

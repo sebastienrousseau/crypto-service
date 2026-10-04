@@ -1873,6 +1873,33 @@ describe("Exported interfaces (compile-time checks)", () => {
       plaintext: "pt",
       hex: "7074",
     };
+    const kmsWrapRes: KmsWrapResult = {
+      wrappedKey: "w",
+      keyId: "k",
+      provider: "local",
+    };
+    const kmsUnwrapRes: KmsUnwrapResult = {
+      unwrappedKey: "u",
+      keyId: "k",
+      provider: "local",
+    };
+    const kmsDataKeyRes: KmsGenerateDataKeyResult = {
+      plaintext: "p",
+      ciphertext: "c",
+      keyId: "k",
+      provider: "local",
+    };
+    const kmsEncryptRes: KmsEncryptResult = {
+      ciphertext: "c",
+      keyId: "k",
+      provider: "local",
+    };
+    const kmsDecryptRes: KmsDecryptResult = {
+      plaintext: "p",
+      hex: "h",
+      keyId: "k",
+      provider: "local",
+    };
 
     // Just verify they are all defined (prevents dead-code elimination)
     expect(opts).to.exist;
@@ -1890,5 +1917,124 @@ describe("Exported interfaces (compile-time checks)", () => {
     expect(hpkeKp).to.exist;
     expect(hpkeSealRes).to.exist;
     expect(hpkeOpenRes).to.exist;
+    expect(kmsWrapRes).to.exist;
+    expect(kmsUnwrapRes).to.exist;
+    expect(kmsDataKeyRes).to.exist;
+    expect(kmsEncryptRes).to.exist;
+    expect(kmsDecryptRes).to.exist;
+  });
+
+  describe("KMS methods", () => {
+    it("should call POST /v2/kms/create-key", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { keyId: "key-123", algorithm: "aes-256-gcm", usage: "encrypt" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsCreateKey({ algorithm: "aes-256-gcm" });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/kms/create-key");
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data).to.have.property("keyId", "key-123");
+    });
+
+    it("should call POST /v2/kms/wrap", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { wrappedKey: "wk-abc", keyId: "key-123", provider: "local" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsWrap({
+        keyId: "key-123",
+        unwrappedKey: "01020304",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/kms/wrap");
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data.wrappedKey).to.equal("wk-abc");
+    });
+
+    it("should call POST /v2/kms/unwrap", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: { unwrappedKey: "01020304", keyId: "key-123", provider: "local" },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsUnwrap({
+        keyId: "key-123",
+        wrappedKey: "wk-abc",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/kms/unwrap");
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data.unwrappedKey).to.equal("01020304");
+    });
+
+    it("should call POST /v2/kms/generate-data-key", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          plaintext: "pt-hex",
+          ciphertext: "ct-str",
+          keyId: "key-123",
+          provider: "local",
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsGenerateDataKey({ keyId: "key-123" });
+      expect(calls[0].url).to.equal(
+        "http://localhost:3000/v2/kms/generate-data-key",
+      );
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data.plaintext).to.equal("pt-hex");
+    });
+
+    it("should call POST /v2/kms/encrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          ciphertext: "encrypted-ct",
+          keyId: "key-123",
+          provider: "local",
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsEncrypt({
+        keyId: "key-123",
+        plaintext: "secret",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/kms/encrypt");
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data.ciphertext).to.equal("encrypted-ct");
+    });
+
+    it("should call POST /v2/kms/decrypt", async () => {
+      const { fetch, calls } = capturingFetch(200, {
+        data: {
+          plaintext: "secret",
+          hex: "736563726574",
+          keyId: "key-123",
+          provider: "local",
+        },
+      });
+      const client = new CryptoClient({
+        baseUrl: "http://localhost:3000",
+        fetch,
+      });
+      const res = await client.kmsDecrypt({
+        keyId: "key-123",
+        ciphertext: "encrypted-ct",
+      });
+      expect(calls[0].url).to.equal("http://localhost:3000/v2/kms/decrypt");
+      expect(calls[0].init?.method).to.equal("POST");
+      expect(res.data.plaintext).to.equal("secret");
+    });
   });
 });

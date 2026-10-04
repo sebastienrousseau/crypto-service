@@ -117,8 +117,17 @@ export class VaultKmsProvider implements KmsProvider {
 
   /** Build a Vault API URL for the transit engine. */
   buildUrl(path: string): string {
-    const base = this._address.replace(/\/+$/, "");
-    return `${base}/v1/${this._mount}/${path}`;
+    if (!/^[a-zA-Z0-9_\-/:.?=&]+$/.test(path) || path.includes("..")) {
+      throw new KmsError("INVALID_ARGUMENT", "Invalid Vault path", path);
+    }
+    const address =
+      this._address.startsWith("http://") ||
+      this._address.startsWith("https://")
+        ? this._address
+        : `http://${this._address}`;
+    const cleanMount = encodeURIComponent(this._mount);
+    const base = `${address.replace(/\/+$/, "")}/v1/${cleanMount}/`;
+    return new URL(path, base).href;
   }
 
   /** Common headers for Vault API requests. */

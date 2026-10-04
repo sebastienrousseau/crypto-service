@@ -218,6 +218,10 @@ describe("WasmAccelerator", () => {
           "ed25519-sign",
           "ed25519-verify",
           "x25519-exchange",
+          "ml-kem-encapsulate",
+          "ml-kem-decapsulate",
+          "ml-dsa-sign",
+          "ml-dsa-verify",
         ];
         expect(ops).to.deep.equal(expected);
       }
@@ -620,6 +624,133 @@ describe("WasmAccelerator — additional coverage", () => {
       }
     });
   });
+
+  describe("Post-Quantum Operations (ML-KEM & ML-DSA)", () => {
+    it("encapsulates and decapsulates with ML-KEM-768 via JS fallback", async () => {
+      const { mlKemGenerateKeyPair } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const kp = mlKemGenerateKeyPair();
+      const pkBytes = Buffer.from(kp.publicKey, "hex");
+      const skBytes = Buffer.from(kp.secretKey, "hex");
+
+      const accel = new WasmAccelerator();
+      await accel.init();
+
+      const encap = await accel.mlKemEncapsulate(pkBytes);
+      expect(encap.ciphertext).to.be.instanceOf(Uint8Array);
+      expect(encap.sharedSecret).to.be.instanceOf(Uint8Array);
+      expect(encap.ciphertext.length).to.be.greaterThan(0);
+
+      const decapSecret = await accel.mlKemDecapsulate(
+        skBytes,
+        encap.ciphertext,
+      );
+      expect(Buffer.from(decapSecret).toString("hex")).to.equal(
+        Buffer.from(encap.sharedSecret).toString("hex"),
+      );
+    });
+
+    it("signs and verifies with ML-DSA-65 via JS fallback", async () => {
+      const { mlDsaKeygen } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const kp = mlDsaKeygen(65);
+      const pkBytes = Buffer.from(kp.publicKey, "hex");
+      const skBytes = Buffer.from(kp.secretKey, "hex");
+      const msgBytes = Buffer.from(
+        "post-quantum wasm acceleration test",
+        "utf8",
+      );
+
+      const accel = new WasmAccelerator();
+      await accel.init();
+
+      const sig = await accel.mlDsaSign(skBytes, msgBytes);
+      expect(sig).to.be.instanceOf(Uint8Array);
+
+      const valid = await accel.mlDsaVerify(pkBytes, msgBytes, sig);
+      expect(valid).to.equal(true);
+
+      const invalidSig = new Uint8Array(sig);
+      invalidSig[0] ^= 0xff;
+      const invalid = await accel.mlDsaVerify(pkBytes, msgBytes, invalidSig);
+      expect(invalid).to.equal(false);
+    });
+
+    it("throws when WASM module has no matching PQ exports", async () => {
+      const accel = new WasmAccelerator();
+      await accel.init(minimalWasmWithMemory());
+      expect(accel.isAvailable).to.equal(true);
+
+      const dummy = new Uint8Array(32);
+      let err1 = "";
+      try {
+        await accel.mlKemEncapsulate(dummy);
+      } catch (e: unknown) {
+        err1 = (e as Error).message;
+      }
+      expect(err1).to.include(
+        'WASM module does not export "ml_kem_encapsulate"',
+      );
+
+      let err2 = "";
+      try {
+        await accel.mlKemDecapsulate(dummy, dummy);
+      } catch (e: unknown) {
+        err2 = (e as Error).message;
+      }
+      expect(err2).to.include(
+        'WASM module does not export "ml_kem_decapsulate"',
+      );
+
+      let err3 = "";
+      try {
+        await accel.mlDsaSign(dummy, dummy);
+      } catch (e: unknown) {
+        err3 = (e as Error).message;
+      }
+      expect(err3).to.include('WASM module does not export "ml_dsa_sign"');
+
+      let err4 = "";
+      try {
+        await accel.mlDsaVerify(dummy, dummy, dummy);
+      } catch (e: unknown) {
+        err4 = (e as Error).message;
+      }
+      expect(err4).to.include('WASM module does not export "ml_dsa_verify"');
+    });
+
+    it("routes through WASM PQ exports when available", async () => {
+      const accel = new WasmAccelerator();
+      const mockExports = {
+        memory: { buffer: new ArrayBuffer(65536) },
+        ml_kem_encapsulate: () => ({
+          ciphertext: new Uint8Array([0xaa]),
+          sharedSecret: new Uint8Array([0xbb]),
+        }),
+        ml_kem_decapsulate: () => new Uint8Array([0xbb]),
+        ml_dsa_sign: () => new Uint8Array([0xcc]),
+        ml_dsa_verify: () => true,
+      };
+      const internalAccel = accel as unknown as Record<string, unknown>;
+      internalAccel["_instance"] = { exports: mockExports };
+      internalAccel["_initialized"] = true;
+      expect(accel.isAvailable).to.equal(true);
+
+      const dummy = new Uint8Array(32);
+      const encap = await accel.mlKemEncapsulate(dummy);
+      expect(encap.ciphertext[0]).to.equal(0xaa);
+      expect(encap.sharedSecret[0]).to.equal(0xbb);
+
+      const decap = await accel.mlKemDecapsulate(dummy, dummy);
+      expect(decap[0]).to.equal(0xbb);
+
+      const sig = await accel.mlDsaSign(dummy, dummy);
+      expect(sig[0]).to.equal(0xcc);
+
+      const valid = await accel.mlDsaVerify(dummy, dummy, dummy);
+      expect(valid).to.equal(true);
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -630,6 +761,8 @@ describe("type exports", () => {
   it("AcceleratedOperation type is usable", () => {
     const op: AcceleratedOperation = "hash-sha256";
     expect(op).to.equal("hash-sha256");
+    const kemEncap: AcceleratedOperation = "ml-kem-encapsulate";
+    expect(kemEncap).to.equal("ml-kem-encapsulate");
   });
 
   it("WasmStatus interface is usable", () => {

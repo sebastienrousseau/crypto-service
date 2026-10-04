@@ -20,7 +20,11 @@ export type AcceleratedOperation =
   | "argon2-hash"
   | "ed25519-sign"
   | "ed25519-verify"
-  | "x25519-exchange";
+  | "x25519-exchange"
+  | "ml-kem-encapsulate"
+  | "ml-kem-decapsulate"
+  | "ml-dsa-sign"
+  | "ml-dsa-verify";
 
 /**
  * Performance comparison between JS and WASM implementations.
