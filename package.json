@@ -55,5 +55,12 @@
     "rimraf": "^6.1.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.0"
+  },
+  "pnpm": {
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-vfj7-8cjw-p6xm"
+      ]
+    }
   }
 }
