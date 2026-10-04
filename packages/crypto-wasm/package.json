@@ -25,6 +25,9 @@
     "dist/**/*.d.ts.map",
     "wasm/"
   ],
+  "dependencies": {
+    "@sebastienrousseau/crypto-lib": "workspace:*"
+  },
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",

@@ -28,6 +28,7 @@ import complianceRoute from "./compliance";
 import streamRoute from "./stream";
 import opaqueRoute from "./opaque";
 import hpkeRoute from "./hpke";
+import kmsRoute from "./kms";
 
 /** Registers all v2 modern cryptographic route handlers. */
 export default (app: FastifyInstance): void => {
@@ -51,4 +52,5 @@ export default (app: FastifyInstance): void => {
   multiRecipientRoute(app);
   opaqueRoute(app);
   hpkeRoute(app);
+  kmsRoute(app);
 };

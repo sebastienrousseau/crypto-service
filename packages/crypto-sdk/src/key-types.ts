@@ -321,3 +321,89 @@ export interface HpkeOpenResult {
   /** Decrypted plaintext as raw hex string. */
   hex: string;
 }
+
+// --- KMS Types ---
+
+/** KMS Key Create parameters. */
+export interface KmsCreateKeyParams {
+  provider?: string;
+  algorithm?: string;
+  usage?: "encrypt" | "sign" | "wrap";
+  metadata?: Record<string, string>;
+}
+
+/** KMS Key Wrap parameters. */
+export interface KmsWrapParams {
+  keyId: string;
+  unwrappedKey: string;
+  provider?: string;
+  context?: Record<string, string>;
+}
+
+/** KMS Key Wrap result. */
+export interface KmsWrapResult {
+  wrappedKey: string;
+  keyId: string;
+  provider: string;
+}
+
+/** KMS Key Unwrap parameters. */
+export interface KmsUnwrapParams {
+  keyId: string;
+  wrappedKey: string;
+  provider?: string;
+  context?: Record<string, string>;
+}
+
+/** KMS Key Unwrap result. */
+export interface KmsUnwrapResult {
+  unwrappedKey: string;
+  keyId: string;
+  provider: string;
+}
+
+/** KMS Generate Data Key parameters. */
+export interface KmsGenerateDataKeyParams {
+  keyId: string;
+  provider?: string;
+  keySpec?: string;
+}
+
+/** KMS Generate Data Key result. */
+export interface KmsGenerateDataKeyResult {
+  plaintext: string;
+  ciphertext: string;
+  keyId: string;
+  provider: string;
+}
+
+/** KMS Encrypt parameters. */
+export interface KmsEncryptParams {
+  keyId: string;
+  plaintext: string;
+  provider?: string;
+  context?: Record<string, string>;
+}
+
+/** KMS Encrypt result. */
+export interface KmsEncryptResult {
+  ciphertext: string;
+  keyId: string;
+  provider: string;
+}
+
+/** KMS Decrypt parameters. */
+export interface KmsDecryptParams {
+  keyId: string;
+  ciphertext: string;
+  provider?: string;
+  context?: Record<string, string>;
+}
+
+/** KMS Decrypt result. */
+export interface KmsDecryptResult {
+  plaintext: string;
+  hex: string;
+  keyId: string;
+  provider: string;
+}

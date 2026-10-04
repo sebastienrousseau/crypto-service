@@ -67,6 +67,7 @@
     "@opentelemetry/sdk-node": "^0.222.0",
     "@opentelemetry/sdk-trace-node": "^2.11.0",
     "@opentelemetry/semantic-conventions": "^1.43.0",
+    "@sebastienrousseau/crypto-kms": "workspace:*",
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "fastify": "^5.12.5",
     "fastify-healthcheck": "^5.1.0",

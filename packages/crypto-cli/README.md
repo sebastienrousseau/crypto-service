@@ -268,6 +268,8 @@ Commands:
                             9807)
   hpke                      Hybrid Public Key Encryption (HPKE RFC 9180 and PQ
                             hybrid)
+  kms                       Key Management Service (KMS) operations across
+                            native cloud providers
 ```
 
 #### `crypto-cli hash`
@@ -728,6 +730,118 @@ Options:
   --aad <aad>                   additional authenticated data
   --json                        print plaintext and hex as JSON
   -h, --help                    print help
+```
+
+#### `crypto-cli kms`
+
+```text
+Usage: crypto-cli kms [options] [command]
+
+Key Management Service (KMS) operations across native cloud providers
+
+Options:
+  -h, --help                   print help
+
+Commands:
+  create-key [options]         Create a new managed key in KMS
+  generate-data-key [options]  Generate a Data Encryption Key (DEK) via KMS
+  wrap [options] [file]        Wrap (encrypt) a key using a KMS key
+  unwrap [options] [file]      Unwrap a wrapped key using a KMS key
+  encrypt [options] [file]     Encrypt data using a KMS key
+  decrypt [options] [file]     Decrypt ciphertext using a KMS key
+  help [command]               display help for command
+```
+
+#### `crypto-cli kms create-key`
+
+```text
+Usage: crypto-cli kms create-key [options]
+
+Create a new managed key in KMS
+
+Options:
+  -a, --algorithm <alg>  Key algorithm (default: "aes-256-gcm")
+  -u, --usage <usage>    Key usage (choices: "encrypt", "sign", "wrap", default:
+                         "encrypt")
+  -p, --provider <name>  KMS provider (local, aws, gcp, vault, azure) (default:
+                         "local")
+  --json                 Emit output as JSON
+  -h, --help             print help
+```
+
+#### `crypto-cli kms generate-data-key`
+
+```text
+Usage: crypto-cli kms generate-data-key [options]
+
+Generate a Data Encryption Key (DEK) via KMS
+
+Options:
+  -k, --key-id <id>      Key ID
+  -s, --key-spec <spec>  Key spec (e.g. AES_256) (default: "AES_256")
+  -p, --provider <name>  KMS provider (default: "local")
+  --json                 Emit output as JSON
+  -h, --help             print help
+```
+
+#### `crypto-cli kms wrap`
+
+```text
+Usage: crypto-cli kms wrap [options] [file]
+
+Wrap (encrypt) a key using a KMS key
+
+Options:
+  -k, --key-id <id>      Wrapping Key ID
+  -w, --key <hex>        Raw key material to wrap
+  -p, --provider <name>  KMS provider (default: "local")
+  --json                 Emit output as JSON
+  -h, --help             print help
+```
+
+#### `crypto-cli kms unwrap`
+
+```text
+Usage: crypto-cli kms unwrap [options] [file]
+
+Unwrap a wrapped key using a KMS key
+
+Options:
+  -k, --key-id <id>        Wrapping Key ID
+  -w, --wrapped-key <str>  Wrapped key string
+  -p, --provider <name>    KMS provider (default: "local")
+  --json                   Emit output as JSON
+  -h, --help               print help
+```
+
+#### `crypto-cli kms encrypt`
+
+```text
+Usage: crypto-cli kms encrypt [options] [file]
+
+Encrypt data using a KMS key
+
+Options:
+  -k, --key-id <id>      Key ID
+  -d, --data <text>      Plaintext data to encrypt
+  -p, --provider <name>  KMS provider (default: "local")
+  --json                 Emit output as JSON
+  -h, --help             print help
+```
+
+#### `crypto-cli kms decrypt`
+
+```text
+Usage: crypto-cli kms decrypt [options] [file]
+
+Decrypt ciphertext using a KMS key
+
+Options:
+  -k, --key-id <id>       Key ID
+  -c, --ciphertext <str>  Ciphertext to decrypt
+  -p, --provider <name>   KMS provider (default: "local")
+  --json                  Emit output as JSON
+  -h, --help              print help
 ```
 
 <!-- cli-usage:end -->

@@ -179,6 +179,13 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/hpke/keygen": "crypto:keys",
   "POST /v2/hpke/seal": "crypto:encrypt",
   "POST /v2/hpke/open": "crypto:decrypt",
+  // KMS (native key management and wrapping)
+  "POST /v2/kms/create-key": "crypto:keys",
+  "POST /v2/kms/wrap": "crypto:keys",
+  "POST /v2/kms/unwrap": "crypto:keys",
+  "POST /v2/kms/generate-data-key": "crypto:keys",
+  "POST /v2/kms/encrypt": "crypto:encrypt",
+  "POST /v2/kms/decrypt": "crypto:decrypt",
 });
 
 /**

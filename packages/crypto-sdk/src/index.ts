@@ -88,6 +88,17 @@ import type {
   HpkeSealResult,
   HpkeOpenParams,
   HpkeOpenResult,
+  KmsCreateKeyParams,
+  KmsWrapParams,
+  KmsWrapResult,
+  KmsUnwrapParams,
+  KmsUnwrapResult,
+  KmsGenerateDataKeyParams,
+  KmsGenerateDataKeyResult,
+  KmsEncryptParams,
+  KmsEncryptResult,
+  KmsDecryptParams,
+  KmsDecryptResult,
 } from "./key-types";
 
 export * from "./types";
@@ -522,6 +533,48 @@ export class CryptoClient {
     algorithm?: KeyWrapAlgorithm;
   }): Promise<ApiResponse<string>> {
     return this.request("POST", "/v2/keys/unwrap", params);
+  }
+
+  // --- Enterprise Key Management Service (KMS) ---
+
+  /** Create a managed key via KMS provider. */
+  async kmsCreateKey(
+    params: KmsCreateKeyParams = {},
+  ): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request("POST", "/v2/kms/create-key", params);
+  }
+
+  /** Wrap (encrypt) an existing key using a managed KMS key. */
+  async kmsWrap(params: KmsWrapParams): Promise<ApiResponse<KmsWrapResult>> {
+    return this.request("POST", "/v2/kms/wrap", params);
+  }
+
+  /** Unwrap a wrapped key using a managed KMS key. */
+  async kmsUnwrap(
+    params: KmsUnwrapParams,
+  ): Promise<ApiResponse<KmsUnwrapResult>> {
+    return this.request("POST", "/v2/kms/unwrap", params);
+  }
+
+  /** Generate a Data Encryption Key (DEK) via KMS provider. */
+  async kmsGenerateDataKey(
+    params: KmsGenerateDataKeyParams,
+  ): Promise<ApiResponse<KmsGenerateDataKeyResult>> {
+    return this.request("POST", "/v2/kms/generate-data-key", params);
+  }
+
+  /** Encrypt plaintext data using a managed KMS key. */
+  async kmsEncrypt(
+    params: KmsEncryptParams,
+  ): Promise<ApiResponse<KmsEncryptResult>> {
+    return this.request("POST", "/v2/kms/encrypt", params);
+  }
+
+  /** Decrypt ciphertext using a managed KMS key. */
+  async kmsDecrypt(
+    params: KmsDecryptParams,
+  ): Promise<ApiResponse<KmsDecryptResult>> {
+    return this.request("POST", "/v2/kms/decrypt", params);
   }
 
   // --- Compliance & Regulatory Endpoints ---

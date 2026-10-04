@@ -19,6 +19,10 @@ const ALL_OPERATIONS: AcceleratedOperation[] = [
   "ed25519-sign",
   "ed25519-verify",
   "x25519-exchange",
+  "ml-kem-encapsulate",
+  "ml-kem-decapsulate",
+  "ml-dsa-sign",
+  "ml-dsa-verify",
 ];
 
 /**
@@ -139,6 +143,113 @@ export class WasmAccelerator {
       );
     }
     return hashFn(data) as Uint8Array;
+  }
+
+  /**
+   * ML-KEM-768 post-quantum key encapsulation.
+   *
+   * Routes to WebAssembly implementation when available; falls back transparently
+   * to pure-JS implementation.
+   */
+  async mlKemEncapsulate(
+    publicKey: Uint8Array,
+  ): Promise<{ ciphertext: Uint8Array; sharedSecret: Uint8Array }> {
+    if (!this.isAvailable) {
+      const { mlKemEncapsulate } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const hexKey = Buffer.from(publicKey).toString("hex");
+      const res = mlKemEncapsulate(hexKey);
+      return {
+        ciphertext: new Uint8Array(Buffer.from(res.ciphertext, "hex")),
+        sharedSecret: new Uint8Array(Buffer.from(res.sharedSecret, "hex")),
+      };
+    }
+    const exports = this._instance!.exports as Record<string, unknown>;
+    const fn = exports["ml_kem_encapsulate"];
+    if (typeof fn !== "function") {
+      throw new Error('WASM module does not export "ml_kem_encapsulate"');
+    }
+    return fn(publicKey) as {
+      ciphertext: Uint8Array;
+      sharedSecret: Uint8Array;
+    };
+  }
+
+  /**
+   * ML-KEM-768 post-quantum key decapsulation.
+   *
+   * Routes to WebAssembly implementation when available; falls back transparently
+   * to pure-JS implementation.
+   */
+  async mlKemDecapsulate(
+    secretKey: Uint8Array,
+    ciphertext: Uint8Array,
+  ): Promise<Uint8Array> {
+    if (!this.isAvailable) {
+      const { mlKemDecapsulate } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const hexCt = Buffer.from(ciphertext).toString("hex");
+      const hexSk = Buffer.from(secretKey).toString("hex");
+      const res = mlKemDecapsulate(hexSk, hexCt);
+      return new Uint8Array(Buffer.from(res.sharedSecret, "hex"));
+    }
+    const exports = this._instance!.exports as Record<string, unknown>;
+    const fn = exports["ml_kem_decapsulate"];
+    if (typeof fn !== "function") {
+      throw new Error('WASM module does not export "ml_kem_decapsulate"');
+    }
+    return fn(secretKey, ciphertext) as Uint8Array;
+  }
+
+  /**
+   * ML-DSA-65 post-quantum digital signature generation.
+   *
+   * Routes to WebAssembly implementation when available; falls back transparently
+   * to pure-JS implementation.
+   */
+  async mlDsaSign(
+    secretKey: Uint8Array,
+    message: Uint8Array,
+  ): Promise<Uint8Array> {
+    if (!this.isAvailable) {
+      const { mlDsaSign } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const hexSk = Buffer.from(secretKey).toString("hex");
+      const res = mlDsaSign(65, hexSk, message);
+      return new Uint8Array(Buffer.from(res.signature, "hex"));
+    }
+    const exports = this._instance!.exports as Record<string, unknown>;
+    const fn = exports["ml_dsa_sign"];
+    if (typeof fn !== "function") {
+      throw new Error('WASM module does not export "ml_dsa_sign"');
+    }
+    return fn(secretKey, message) as Uint8Array;
+  }
+
+  /**
+   * ML-DSA-65 post-quantum digital signature verification.
+   *
+   * Routes to WebAssembly implementation when available; falls back transparently
+   * to pure-JS implementation.
+   */
+  async mlDsaVerify(
+    publicKey: Uint8Array,
+    message: Uint8Array,
+    signature: Uint8Array,
+  ): Promise<boolean> {
+    if (!this.isAvailable) {
+      const { mlDsaVerify } =
+        await import("@sebastienrousseau/crypto-lib/modern");
+      const hexSig = Buffer.from(signature).toString("hex");
+      const hexPk = Buffer.from(publicKey).toString("hex");
+      return mlDsaVerify(65, hexPk, message, hexSig).valid;
+    }
+    const exports = this._instance!.exports as Record<string, unknown>;
+    const fn = exports["ml_dsa_verify"];
+    if (typeof fn !== "function") {
+      throw new Error('WASM module does not export "ml_dsa_verify"');
+    }
+    return fn(publicKey, message, signature) as boolean;
   }
 
   /**

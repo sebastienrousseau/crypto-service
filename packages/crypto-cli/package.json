@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@sebastienrousseau/crypto-cbom": "workspace:*",
+    "@sebastienrousseau/crypto-kms": "workspace:*",
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "commander": "^15.0.0",
     "figlet": "^1.12.0",
