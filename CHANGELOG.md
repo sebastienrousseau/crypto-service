@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.15] - Unreleased
+## [0.0.15] - 2026-10-04
 
 ### Added
 
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Post-Quantum Hybrid HPKE REST endpoints (RFC 9180)**: `@sebastienrousseau/crypto-server` now exposes `POST /v2/hpke/keygen`, `POST /v2/hpke/seal`, and `POST /v2/hpke/open` routes with strict server-side key custody (`keyId`). Supports quantum-safe hybrid (`x25519-ml-kem-768`) and classical (`x25519`, `p256`) KEMs, with `chacha20-poly1305` and `aes-128-gcm` AEADs across both Base and PSK modes.
 - **HPKE Client SDK methods**: `@sebastienrousseau/crypto-sdk` now provides `hpkeGenerateKeyPair`, `hpkeSeal`, and `hpkeOpen` on `CryptoClient`, exposing typed interfaces for RFC 9180 HPKE and PQ hybrid operations.
 - **HPKE CLI subcommands**: `@sebastienrousseau/crypto-cli` now features `crypto-cli hpke keygen`, `crypto-cli hpke seal`, and `crypto-cli hpke open` commands supporting classical and post-quantum hybrid public-key encryption with stdin/file streaming, JSON formatting, and automated usage documentation.
-- Initialized release iteration `v0.0.15`.
+- **Terminal demo animation in README**: Root README includes an interactive terminal recording generated from `.github/demo.tape` via VHS demonstrating core CLI workflows.
 
 ## [0.0.14] - 2026-10-04
 
