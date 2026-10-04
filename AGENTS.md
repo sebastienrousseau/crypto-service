@@ -28,6 +28,10 @@ automated change is most likely to get wrong.
   `@sebastienrousseau/crypto-cbom`, `@sebastienrousseau/crypto-benchmarks`.
 - When updating version, all package manifests (`packages/*/package.json`), root
   `package.json`, `CITATION.cff`, and `CHANGELOG.md` move together.
+- Published GitHub releases MUST follow the standard template
+  (<https://github.com/sebastienrousseau/passmcp/releases/tag/v0.0.5>),
+  titled `<PROJECT_NAME> <VERSION>` with `## Highlights ⭐️`, `## What's Changed`,
+  `## Checksums`, and `**Full Changelog**`.
 
 ## Commits and signing
 
