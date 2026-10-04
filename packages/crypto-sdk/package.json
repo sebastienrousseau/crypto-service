@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-sdk",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Type-safe TypeScript client for the Crypto Service Suite v2 API. Zero dependencies, fetch-based.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

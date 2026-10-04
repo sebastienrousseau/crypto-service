@@ -138,5 +138,29 @@ if (fs.existsSync(cryptoLibDocs)) {
   }
 }
 
+// Write root index.html as an instant redirect to https://crypto-service.co/ecosystem/
+const redirectHtml = `<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting to Crypto Service Ecosystem...</title>
+    <meta http-equiv="refresh" content="0; url=https://crypto-service.co/ecosystem/" />
+    <link rel="canonical" href="https://crypto-service.co/ecosystem/" />
+    <script>
+      window.location.replace("https://crypto-service.co/ecosystem/");
+    </script>
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #faf9f6; color: #005950;">
+    <div style="text-align: center; padding: 2rem;">
+      <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Redirecting to Ecosystem...</h1>
+      <p style="color: #4b635f;">If you are not redirected automatically, <a href="https://crypto-service.co/ecosystem/" style="color: #005950; font-weight: 700;">click here to visit the Crypto Service Ecosystem</a>.</p>
+    </div>
+  </body>
+</html>
+`;
+fs.writeFileSync(path.join(SITE_DIR, "index.html"), redirectHtml);
+
 console.log("==> Unified Crypto Service documentation portal assembled at _site!");
+console.log("==> Root index.html configured to redirect to https://crypto-service.co/ecosystem/");
 console.log(`==> Total workspace packages indexed: ${packageMeta.length}`);
