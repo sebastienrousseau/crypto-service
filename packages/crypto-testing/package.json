@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-testing",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Deterministic keys, fast mocks, and test fixtures for crypto-lib — make your CI/CD pipeline fast and reproducible.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
