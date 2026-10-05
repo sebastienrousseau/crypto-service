@@ -7,11 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.20] - Unreleased
+## [0.0.20] - 2026-10-05
 
-### Added
+### Security
 
-- Next iteration development cycle.
+- **Vulnerability Elimination & Dependency Purge**: Removed unused remark packages from `@sebastienrousseau/crypto-api` and `@sebastienrousseau/crypto-cli`, purging transitive dependency `braces` (GHSA-vfj7-8cjw-p6xm) and bringing `pnpm audit` to 0 vulnerabilities.
+
+### Documentation
+
+- **Release Standard Alignment**: Updated repository invariants and global template references to adhere strictly to `passmcp 0.0.5`.
+- **Terminal Demo Animation**: Re-recorded terminal demonstration animation using Charmbracelet VHS displaying `v0.0.20` CLI outputs.
 
 ## [0.0.19] - 2026-10-04
 
