@@ -7,7 +7,7 @@
 <h1 align="center">Crypto Service</h1>
 
 <p align="center">
-  A comprehensive TypeScript cryptography toolkit — 50+ algorithms, post-quantum ready, full-stack integration.
+  A comprehensive TypeScript cryptography toolkit: 50+ algorithms, post-quantum ready, full-stack integration.
 </p>
 
 <p align="center">

@@ -7,17 +7,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.19] - Unreleased
+## [0.0.20] - 2026-10-05
+
+### Security
+
+- **Vulnerability Elimination & Dependency Purge**: Removed unused remark packages from `@sebastienrousseau/crypto-api` and `@sebastienrousseau/crypto-cli`, purging transitive dependency `braces` (GHSA-vfj7-8cjw-p6xm) and bringing `pnpm audit` to 0 vulnerabilities.
+
+### Documentation
+
+- **Release Standard Alignment**: Updated repository invariants and global template references to adhere strictly to `passmcp 0.0.5`.
+- **Terminal Demo Animation**: Re-recorded terminal demonstration animation using Charmbracelet VHS displaying `v0.0.20` CLI outputs.
+
+## [0.0.19] - 2026-10-04
 
 ### Added
 
-- Next iteration development cycle.
+- **Ecosystem Documentation Separation**: Established `https://docs.crypto-service.co` as the dedicated TypeDoc monorepo documentation hub and `https://crypto-service.co` as the sovereign marketing and architecture web portal.
+- **Ecosystem Submenu & Zero-404 Navigation**: Connected all 18 workspace packages (Core, Enterprise & Frameworks, Developer Tools & AI Suite) across both web layouts with direct deep links into package API docs.
+- **Root Redirection Architecture**: Configured instant canonical redirection from `https://docs.crypto-service.co` root to `https://crypto-service.co/ecosystem/` with standalone per-package TypeDoc routing preserved.
 
-## [0.0.18] - Unreleased
+## [0.0.18] - 2026-10-04
 
 ### Added
 
-- Initialized release iteration `v0.0.18`.
+- **End-to-End Post-Quantum Hybrid HPKE (RFC 9180 + ML-KEM-768)**: Dual post-quantum hybrid envelope wrapping X25519 and ML-KEM-768 with zero-copy stream processing.
+- **Ultra-Performance Cryptographic Optimizations**: Zero-copy TypedArray slicing and buffer pooling across encryption and decryption streaming pipelines.
+- **Documentation & Ecosystem Portal Architecture**: Complete separation of `https://crypto-service.co` and `https://docs.crypto-service.co`.
 
 ## [0.0.17] - 2026-10-04
 
