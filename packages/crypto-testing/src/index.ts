@@ -9,7 +9,7 @@
  */
 
 // Deterministic test key fixtures
-export { TEST_KEYS, TEST_VECTORS } from "./keys";
+export { TEST_KEYS, TEST_VECTORS, RFC_VECTORS } from "./keys";
 
 // Mock crypto functions (fast, no real crypto)
 export {
@@ -29,11 +29,13 @@ export {
   createTestPasswordHash,
 } from "./fixtures";
 
-// Test assertion helpers
+// Test assertion and mutation helpers
 export {
   expectValidHex,
   expectValidBase64,
   expectKeyPair,
   expectEncryptDecryptRoundTrip,
   expectSignVerifyRoundTrip,
+  mutateBytes,
+  mutateHex,
 } from "./helpers";

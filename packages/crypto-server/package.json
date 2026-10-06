@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-server",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Crypto Server is a Fastify web server that exposes easy consumable REST APIs to perform low-level cryptographic operations.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lsp",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Language Server Protocol (LSP) providing real-time cryptographic static analysis, quantum-vulnerability flagging, PEM/OpenPGP validation, and automated quick fixes for IDEs.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

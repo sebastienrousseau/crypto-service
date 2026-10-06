@@ -2,7 +2,7 @@
 import { expect } from "chai";
 
 // -- keys.ts --
-import { TEST_KEYS, TEST_VECTORS } from "../src/keys";
+import { TEST_KEYS, TEST_VECTORS, RFC_VECTORS } from "../src/keys";
 
 // -- mock.ts --
 import {
@@ -29,6 +29,8 @@ import {
   expectKeyPair,
   expectEncryptDecryptRoundTrip,
   expectSignVerifyRoundTrip,
+  mutateBytes,
+  mutateHex,
 } from "../src/helpers";
 
 // -- index.ts barrel re-exports --
@@ -114,6 +116,36 @@ describe("keys", () => {
 
     it("should have blake3 hash as 64 hex chars", () => {
       expect(TEST_VECTORS.blake3).to.be.a("string").with.lengthOf(64);
+    });
+  });
+
+  describe("RFC_VECTORS", () => {
+    it("should include RFC 8439 ChaCha20-Poly1305 test vector with valid fields", () => {
+      const v = RFC_VECTORS.rfc8439_chacha20_poly1305;
+      expect(v.key).to.have.lengthOf(64);
+      expect(v.nonce).to.have.lengthOf(24);
+      expect(v.aad).to.have.lengthOf(24);
+      expect(v.plaintext).to.be.a("string");
+      expect(v.ciphertext).to.be.a("string");
+      expect(v.tag).to.have.lengthOf(32);
+    });
+
+    it("should include RFC 5869 HKDF-SHA256 test vector with valid fields", () => {
+      const v = RFC_VECTORS.rfc5869_hkdf_sha256;
+      expect(v.ikm).to.be.a("string");
+      expect(v.salt).to.be.a("string");
+      expect(v.info).to.be.a("string");
+      expect(v.l).to.equal(42);
+      expect(v.prk).to.have.lengthOf(64);
+      expect(v.okm).to.have.lengthOf(84);
+    });
+
+    it("should include NIST SP 800-38D AES-GCM test vector with valid fields", () => {
+      const v = RFC_VECTORS.nist_aes256_gcm;
+      expect(v.key).to.have.lengthOf(64);
+      expect(v.iv).to.have.lengthOf(24);
+      expect(v.plaintext).to.equal("");
+      expect(v.tag).to.have.lengthOf(32);
     });
   });
 });
@@ -747,6 +779,60 @@ describe("helpers", () => {
       }
     });
   });
+
+  describe("mutateBytes", () => {
+    it("should flip least significant bit at index 0 by default", () => {
+      const orig = new Uint8Array([0x00, 0xff]);
+      const mutated = mutateBytes(orig);
+      expect(mutated[0]).to.equal(0x01);
+      expect(mutated[1]).to.equal(0xff);
+      expect(orig[0]).to.equal(0x00); // immutable copy
+    });
+
+    it("should flip bit at specified byte index with wrap-around", () => {
+      const orig = new Uint8Array([0xaa, 0xbb, 0xcc]);
+      const mutated = mutateBytes(orig, 1);
+      expect(mutated[1]).to.equal(0xba);
+      const wrapped = mutateBytes(orig, -4);
+      expect(wrapped[1]).to.equal(0xba); // |-4| % 3 = 1
+    });
+
+    it("should throw for empty or null byte buffer", () => {
+      expect(() => mutateBytes(new Uint8Array([]))).to.throw(
+        "Expected a non-empty byte buffer",
+      );
+      expect(() => mutateBytes(null as never)).to.throw(
+        "Expected a non-empty byte buffer",
+      );
+    });
+  });
+
+  describe("mutateHex", () => {
+    it("should mutate hex string at default index", () => {
+      const orig = "00ff";
+      const mutated = mutateHex(orig);
+      expect(mutated).to.equal("01ff");
+    });
+
+    it("should mutate hex string at specified byte index", () => {
+      const orig = "aabbcc";
+      const mutated = mutateHex(orig, 2);
+      expect(mutated).to.equal("aabbcd");
+    });
+
+    it("should throw for invalid or too-short hex string", () => {
+      expect(() => mutateHex("")).to.throw(
+        "Expected a non-empty hex string with at least 2 characters",
+      );
+      expect(() => mutateHex("a")).to.throw(
+        "Expected a non-empty hex string with at least 2 characters",
+      );
+      expect(() => mutateHex(123 as never)).to.throw(
+        "Expected a non-empty hex string with at least 2 characters",
+      );
+      expect(() => mutateHex("zz")).to.throw("String is not valid hexadecimal");
+    });
+  });
 });
 
 // ============================================================================
@@ -760,6 +846,10 @@ describe("index barrel exports", () => {
 
   it("should export TEST_VECTORS", () => {
     expect(barrel.TEST_VECTORS).to.equal(TEST_VECTORS);
+  });
+
+  it("should export RFC_VECTORS", () => {
+    expect(barrel.RFC_VECTORS).to.equal(RFC_VECTORS);
   });
 
   it("should export mockHashPassword", () => {
@@ -826,5 +916,13 @@ describe("index barrel exports", () => {
     expect(barrel.expectSignVerifyRoundTrip).to.equal(
       expectSignVerifyRoundTrip,
     );
+  });
+
+  it("should export mutateBytes", () => {
+    expect(barrel.mutateBytes).to.equal(mutateBytes);
+  });
+
+  it("should export mutateHex", () => {
+    expect(barrel.mutateHex).to.equal(mutateHex);
   });
 });

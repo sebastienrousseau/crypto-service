@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-cbom",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Cryptographic Bill of Materials (CBOM) generator and auditor compliant with CycloneDX 1.6, SPDX 3.0, EU DORA Articles 9/13, and CRA Article 14.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

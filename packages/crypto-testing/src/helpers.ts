@@ -228,3 +228,45 @@ export function expectSignVerifyRoundTrip(algorithm: SignAlgorithm): void {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Fuzzing & Mutation Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Mutates a byte buffer by flipping bits in a byte.
+ * Useful for fuzzing and tamper-resistance testing.
+ *
+ * @param bytes - Uint8Array to mutate.
+ * @param byteIndex - Optional byte index to mutate.
+ * @returns Mutated Uint8Array.
+ */
+export function mutateBytes(bytes: Uint8Array, byteIndex?: number): Uint8Array {
+  if (!bytes || bytes.length === 0) {
+    throw new Error("Expected a non-empty byte buffer");
+  }
+  const copy = new Uint8Array(bytes);
+  const idx = byteIndex !== undefined ? Math.abs(byteIndex) % copy.length : 0;
+  copy[idx] ^= 0x01;
+  return copy;
+}
+
+/**
+ * Mutates a hex string by flipping bits in a byte at a specific or first position.
+ * Useful for fuzzing and tamper-resistance testing.
+ *
+ * @param hex - Hex string to mutate.
+ * @param byteIndex - Optional byte index to mutate.
+ * @returns Mutated hex string.
+ */
+export function mutateHex(hex: string, byteIndex?: number): string {
+  if (typeof hex !== "string" || hex.length < 2) {
+    throw new Error(
+      "Expected a non-empty hex string with at least 2 characters",
+    );
+  }
+  expectValidHex(hex);
+  const bytes = Buffer.from(hex, "hex");
+  const mutated = mutateBytes(bytes, byteIndex);
+  return Buffer.from(mutated).toString("hex");
+}
