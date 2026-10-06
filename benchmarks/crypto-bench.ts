@@ -193,6 +193,12 @@ function runBenchmarks(): BenchResult[] {
   console.log("\n=== POST-QUANTUM ===");
 
   add(
+    bench("ML-KEM-512 keygen", () => cryptoLib.mlKemKeygen(512), {
+      iters: 50,
+    }),
+  );
+
+  add(
     bench("ML-KEM-768 keygen", () => cryptoLib.mlKemKeygen(768), {
       iters: 50,
     }),
@@ -206,9 +212,68 @@ function runBenchmarks(): BenchResult[] {
       { iters: 50 },
     ),
   );
+  const kemEnc = cryptoLib.mlKemEncap(768, kemKP.publicKey);
+  add(
+    bench(
+      "ML-KEM-768 decapsulate",
+      () => cryptoLib.mlKemDecap(768, kemKP.secretKey, kemEnc.ciphertext),
+      { iters: 50 },
+    ),
+  );
 
   add(
+    bench("ML-KEM-1024 keygen", () => cryptoLib.mlKemKeygen(1024), {
+      iters: 50,
+    }),
+  );
+
+  add(
+    bench("ML-DSA-44 keygen", () => cryptoLib.mlDsaKeygen(44), { iters: 20 }),
+  );
+  add(
     bench("ML-DSA-65 keygen", () => cryptoLib.mlDsaKeygen(65), { iters: 20 }),
+  );
+  const dsaKP = cryptoLib.mlDsaKeygen(65);
+  add(
+    bench(
+      "ML-DSA-65 sign",
+      () => cryptoLib.mlDsaSign(65, dsaKP.secretKey, msgHex),
+      { iters: 20 },
+    ),
+  );
+  const dsaSig = cryptoLib.mlDsaSign(65, dsaKP.secretKey, msgHex);
+  add(
+    bench(
+      "ML-DSA-65 verify",
+      () =>
+        cryptoLib.mlDsaVerify(65, dsaKP.publicKey, msgHex, dsaSig.signature),
+      { iters: 20 },
+    ),
+  );
+  add(
+    bench("ML-DSA-87 keygen", () => cryptoLib.mlDsaKeygen(87), { iters: 20 }),
+  );
+
+  // Hybrid KEM (X25519 + ML-KEM-768)
+  add(
+    bench(
+      "Hybrid KEM (X25519+ML-KEM-768) keygen",
+      () => cryptoLib.hybridKemKeygen(768),
+      { iters: 30 },
+    ),
+  );
+  const hybKP = cryptoLib.hybridKemKeygen(768);
+  add(
+    bench(
+      "Hybrid KEM (X25519+ML-KEM-768) encap",
+      () =>
+        cryptoLib.hybridKemEncapsulate(
+          768,
+          hybKP.x25519PublicKey,
+          hybKP.mlKemPublicKey,
+        ),
+      { iters: 30 },
+    ),
   );
 
   // --- HPKE ---
@@ -439,6 +504,45 @@ function runBenchmarks(): BenchResult[] {
           h.digest();
         },
         { dataSize: 65536, iters: 100 },
+      ),
+    );
+
+    // 1 MB Stream AEAD throughput
+    const streamData1MB = nodeCrypto.randomBytes(1024 * 1024);
+    add(
+      bench(
+        "Stream AEAD encrypt (1 MB)",
+        () =>
+          streaming.streamEncrypt({ key: hexKey, plaintext: streamData1MB }),
+        { dataSize: 1048576, iters: 20 },
+      ),
+    );
+    const streamEnc1MB = streaming.streamEncrypt({
+      key: hexKey,
+      plaintext: streamData1MB,
+    });
+    add(
+      bench(
+        "Stream AEAD decrypt (1 MB)",
+        () =>
+          streaming.streamDecrypt({
+            key: hexKey,
+            ciphertext: streamEnc1MB.ciphertext,
+          }),
+        { dataSize: 1048576, iters: 20 },
+      ),
+    );
+
+    // 1 MB BLAKE3 streaming hash throughput
+    add(
+      bench(
+        "Stream hash BLAKE3 (1 MB)",
+        () => {
+          const h = streaming.createHasher("blake3");
+          h.update(streamData1MB);
+          h.digest();
+        },
+        { dataSize: 1048576, iters: 20 },
       ),
     );
   } catch (e: unknown) {
