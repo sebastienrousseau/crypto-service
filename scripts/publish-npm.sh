@@ -17,6 +17,11 @@
 set -euo pipefail
 
 dir="${1:?usage: scripts/publish-npm.sh <tarball-dir> [--dry-run]}"
+if [[ ! -d "$dir" ]]; then
+  echo "publish-npm: directory not found: $dir" >&2
+  exit 1
+fi
+dir="$(cd "$dir" && pwd)"
 dry_run=()
 if [[ "${2:-}" == "--dry-run" ]]; then
   dry_run=(--dry-run)

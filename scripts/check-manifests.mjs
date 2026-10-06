@@ -23,6 +23,12 @@ if (tag !== undefined && tag !== `v${rootVersion}`) {
   problems.push(`tag ${tag} does not match version v${rootVersion}`);
 }
 
+const cffContent = readFileSync(`${ROOT}CITATION.cff`, "utf8");
+const cffMatch = cffContent.match(/^version:\s*"?([^"\r\n]+)"?/m);
+if (cffMatch && cffMatch[1] !== rootVersion) {
+  problems.push(`CITATION.cff: version ${cffMatch[1]}, expected ${rootVersion}`);
+}
+
 const dirs = readdirSync(`${ROOT}packages`).filter((d) =>
   d.startsWith("crypto-"),
 );

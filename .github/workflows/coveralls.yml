@@ -159,6 +159,42 @@ jobs:
           parallel: true
           file: ./packages/crypto-wasm/coverage/lcov.info
 
+      - name: Coveralls Crypto-Benchmarks
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          base-path: packages/crypto-benchmarks
+          flag-name: crypto-benchmarks
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-benchmarks/coverage/lcov.info
+
+      - name: Coveralls Crypto-Cbom
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          base-path: packages/crypto-cbom
+          flag-name: crypto-cbom
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-cbom/coverage/lcov.info
+
+      - name: Coveralls Crypto-Lsp
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          base-path: packages/crypto-lsp
+          flag-name: crypto-lsp
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-lsp/coverage/lcov.info
+
+      - name: Coveralls Crypto-Mcp
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          base-path: packages/crypto-mcp
+          flag-name: crypto-mcp
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          file: ./packages/crypto-mcp/coverage/lcov.info
+
   finish:
     needs: build
     runs-on: ubuntu-latest
