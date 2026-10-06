@@ -13,11 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initialized release iteration `v0.0.22`.
 
+### Security
+
+- **Vulnerability Remediation**: Added workspace overrides for `proxy-addr` (`>=2.0.8`, GHSA-jqcg-44mw-7w3h) and `source-map-js` (`>=1.2.2`, GHSA-68fv-2mgg-jv7q) in `pnpm-workspace.yaml`, bringing `pnpm audit` to 0 high and critical vulnerabilities.
+
 ### Fixed
 
 - **NPM publish tarball path resolution**: Resolved tarball directory to an absolute path in `scripts/publish-npm.sh` to prevent `npm publish` from misinterpreting relative tarball paths (e.g. `npm-tarballs/*.tgz`) as GitHub repository shorthand URLs.
 - **Manifest and Citation synchronization**: Enhanced `scripts/check-manifests.mjs` to validate `CITATION.cff` version against root `package.json`, ensuring synchronization across all project metadata.
 - **Coveralls CI suite completeness**: Added missing packages (`@sebastienrousseau/crypto-benchmarks`, `@sebastienrousseau/crypto-cbom`, `@sebastienrousseau/crypto-lsp`, `@sebastienrousseau/crypto-mcp`) to `.github/workflows/coveralls.yml` for 100% coverage reporting across all 18 monorepo packages.
+- **CI Windows matrix resilience**: Added `fail-fast: false` to `build-windows` matrix in `.github/workflows/ci.yml`.
 
 ## [0.0.21] - 2026-10-05
 
