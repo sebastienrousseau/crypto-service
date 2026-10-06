@@ -7,11 +7,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.21] - Unreleased
+## [0.0.22] - Unreleased
 
 ### Added
 
-- Next iteration development cycle.
+- Initialized release iteration `v0.0.22`.
+
+### Fixed
+
+- **NPM publish tarball path resolution**: Resolved tarball directory to an absolute path in `scripts/publish-npm.sh` to prevent `npm publish` from misinterpreting relative tarball paths (e.g. `npm-tarballs/*.tgz`) as GitHub repository shorthand URLs.
+- **Manifest and Citation synchronization**: Enhanced `scripts/check-manifests.mjs` to validate `CITATION.cff` version against root `package.json`, ensuring synchronization across all project metadata.
+- **Coveralls CI suite completeness**: Added missing packages (`@sebastienrousseau/crypto-benchmarks`, `@sebastienrousseau/crypto-cbom`, `@sebastienrousseau/crypto-lsp`, `@sebastienrousseau/crypto-mcp`) to `.github/workflows/coveralls.yml` for 100% coverage reporting across all 18 monorepo packages.
+
+## [0.0.21] - 2026-10-05
+
+### Added
+
+- **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.21 in strict lockstep.
 
 ## [0.0.20] - 2026-10-05
 
