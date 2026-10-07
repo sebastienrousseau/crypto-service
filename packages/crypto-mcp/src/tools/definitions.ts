@@ -1,8 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import { MCPTool, MCPToolParameterProperty } from "../types";
-import { KEY_HANDLE_PATTERN, MAX_KEYS } from "./keystore";
+import { MAX_KEYS } from "./keystore";
 import { annotationsFor } from "./annotations";
+import { STREAM_TOOLS } from "./stream-definitions";
+import {
+  HANDLE_NOTE,
+  MAX_KEY_LENGTH,
+  MAX_TEXT_LENGTH,
+  X25519_PUBLIC_KEY_HEX,
+  hex,
+  keyHandle,
+  oneOf,
+  text,
+} from "./schema-helpers";
 
 /** Key types accepted by `crypto_generate_key`. */
 export const KEY_TYPES = [
@@ -52,63 +63,6 @@ const AEAD_ALGORITHMS = ["aes-256-gcm", "chacha20-poly1305"];
 
 /** KMS providers named by the KMS tools; only "local" is configured. */
 const KMS_PROVIDERS = ["aws", "gcp", "azure", "vault", "local"];
-
-/** Largest data, plaintext or algorithm-list string a tool accepts. */
-export const MAX_TEXT_LENGTH = 1_048_576;
-
-/** Largest PEM or armored key a tool accepts. */
-export const MAX_KEY_LENGTH = 16_384;
-
-/** Whole bytes, hex-encoded. */
-const HEX_BYTES = "^(?:[0-9a-fA-F]{2})*$";
-
-/** Hex characters of an X25519 public key (32 bytes). */
-const X25519_PUBLIC_KEY_HEX = 64;
-
-/** Hex characters of an ML-KEM-768 public key (1184 bytes). */
-const ML_KEM_768_PUBLIC_KEY_HEX = 2368;
-
-/** Sentence appended to every tool that issues a key handle. */
-const HANDLE_NOTE =
-  "Secret key material stays inside the server; only an opaque keyHandle is returned.";
-
-/** A key handle issued by this server. */
-function keyHandle(description: string): MCPToolParameterProperty {
-  return {
-    type: "string",
-    description: `${description} Key handles look like 'kh_' followed by 32 hex characters.`,
-    maxLength: 35,
-    pattern: KEY_HANDLE_PATTERN,
-  };
-}
-
-/** Free text up to {@link MAX_TEXT_LENGTH}. */
-function text(description: string): MCPToolParameterProperty {
-  return { type: "string", description, maxLength: MAX_TEXT_LENGTH };
-}
-
-/** Hex of exactly `length` characters, or up to `length` when `upTo`. */
-function hex(
-  description: string,
-  length: number,
-  upTo = false,
-): MCPToolParameterProperty {
-  return {
-    type: "string",
-    description,
-    minLength: upTo ? 2 : length,
-    maxLength: length,
-    pattern: HEX_BYTES,
-  };
-}
-
-/** A string restricted to `values`. */
-function oneOf(
-  description: string,
-  values: string[],
-): MCPToolParameterProperty {
-  return { type: "string", description, enum: values };
-}
 
 const KMS_PROVIDER = oneOf(
   "KMS provider ('aws', 'gcp', 'azure', 'vault', or 'local'). Only 'local' (random, in-process key material that does not survive a restart) is configured; the others return an error.",
@@ -353,104 +307,6 @@ const CIPHER_TOOLS: MCPTool[] = [
       ],
     },
   },
-  {
-    name: "crypto_stream_encrypt",
-    description:
-      "Encrypt plaintext using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation protection. Returns base64 ciphertext.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        plaintext: text("Plaintext string to encrypt."),
-        x25519PublicKey: hex(
-          "Hex-encoded X25519 public key (64 hex characters).",
-          X25519_PUBLIC_KEY_HEX,
-        ),
-        mlKemPublicKey: hex(
-          "Hex-encoded ML-KEM-768 public key (2368 hex characters).",
-          ML_KEM_768_PUBLIC_KEY_HEX,
-        ),
-        chunkSize: {
-          type: "integer",
-          description: "Chunk size in bytes (minimum 64, default 65536).",
-          minimum: 64,
-        },
-      },
-      required: ["plaintext", "x25519PublicKey", "mlKemPublicKey"],
-    },
-  },
-  {
-    name: "crypto_stream_decrypt",
-    description:
-      "Decrypt a post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        ciphertext: text("Base64-encoded STREAM ciphertext."),
-        x25519KeyHandle: keyHandle(
-          "Handle of the recipient X25519 key (or 32-byte symmetric-256 key).",
-        ),
-        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM-768 key."),
-        chunkSize: {
-          type: "integer",
-          description: "Chunk size used during encryption (default 65536).",
-          minimum: 64,
-        },
-      },
-      required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
-    },
-  },
-  {
-    name: "crypto_stream_multi_encrypt",
-    description:
-      "Encrypt plaintext for multiple recipients using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation framing. Returns base64 ciphertext.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        plaintext: text("Plaintext string to encrypt."),
-        recipients: text(
-          "JSON-serialized array of recipient public key descriptors: [{ recipientId, recipientX25519Public, recipientMlKemPublic }].",
-        ),
-        chunkSize: {
-          type: "integer",
-          description:
-            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
-          minimum: 1024,
-          maximum: 16777216,
-        },
-      },
-      required: ["plaintext", "recipients"],
-    },
-  },
-  {
-    name: "crypto_stream_multi_decrypt",
-    description:
-      "Decrypt a multi-recipient post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        ciphertext: text("Base64-encoded multi-recipient STREAM ciphertext."),
-        x25519KeyHandle: keyHandle(
-          "Handle of the recipient X25519 key (or 32-byte symmetric-256 key).",
-        ),
-        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM-768 key."),
-        recipientId: text(
-          "Optional recipient identifier for direct slot lookup.",
-        ),
-        chunkSize: {
-          type: "integer",
-          description:
-            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
-          minimum: 1024,
-          maximum: 16777216,
-        },
-      },
-      required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
-    },
-  },
 ];
 
 const SIGNATURE_TOOLS: MCPTool[] = [
@@ -567,6 +423,7 @@ const KMS_AND_AUDIT_TOOLS: MCPTool[] = [
 export const TOOLS: MCPTool[] = [
   ...KEY_TOOLS,
   ...CIPHER_TOOLS,
+  ...STREAM_TOOLS,
   ...SIGNATURE_TOOLS,
   ...KMS_AND_AUDIT_TOOLS,
 ].map((tool) => ({ ...tool, ...annotationsFor(tool.name) }));
