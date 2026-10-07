@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import {
   generateX25519KeyPair,
+  mlDsaKeygen,
   mlKemKeygen,
 } from "@sebastienrousseau/crypto-lib";
 import { EC_CURVES, RSA_MODULUS_LENGTHS } from "./definitions";
@@ -71,6 +72,23 @@ function generateMlKem(level: 512 | 768 | 1024): KeyMaterial {
   };
 }
 
+/** Real ML-DSA (FIPS 204) keypair from crypto-lib. */
+function generateMlDsa(level: 44 | 65 | 87): KeyMaterial {
+  const { publicKey, secretKey } = mlDsaKeygen(level);
+  const securityCategory = level === 44 ? 2 : level === 65 ? 3 : 5;
+  return {
+    kind: `ml-dsa-${level}` as KeyMaterial["kind"],
+    secret: Buffer.from(secretKey, "hex"),
+    info: {
+      standard: "NIST FIPS 204",
+      securityCategory,
+      quantumSafe: true,
+      encoding: "hex",
+      publicKey,
+    },
+  };
+}
+
 function generateSymmetric(): KeyMaterial {
   return symmetricKey(crypto.randomBytes(32), "generated");
 }
@@ -105,6 +123,9 @@ const GENERATORS: Record<string, (args: ToolArgs) => KeyMaterial> = {
   "ml-kem-512": () => generateMlKem(512),
   "ml-kem-768": () => generateMlKem(768),
   "ml-kem-1024": () => generateMlKem(1024),
+  "ml-dsa-44": () => generateMlDsa(44),
+  "ml-dsa-65": () => generateMlDsa(65),
+  "ml-dsa-87": () => generateMlDsa(87),
   "symmetric-256": generateSymmetric,
   "hmac-sha256": generateHmac,
 };

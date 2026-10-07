@@ -46,6 +46,14 @@ const TOOL_BEHAVIOUR: Record<string, [title: string, behaviour: Behaviour]> = {
   crypto_kem_decapsulate: ["Decapsulate a shared secret", "add"],
   crypto_hybrid_kem_encapsulate: ["Hybrid post-quantum KEM encapsulate", "add"],
   crypto_hybrid_kem_decapsulate: ["Hybrid post-quantum KEM decapsulate", "add"],
+  crypto_hybrid_kem_multi_encapsulate: [
+    "Multi-recipient hybrid KEM encapsulate",
+    "add",
+  ],
+  crypto_hybrid_kem_multi_decapsulate: [
+    "Multi-recipient hybrid KEM decapsulate",
+    "add",
+  ],
   crypto_stream_encrypt: ["Stream encrypt data (post-quantum)", "read"],
   crypto_stream_decrypt: ["Stream decrypt data (post-quantum)", "read"],
   crypto_stream_multi_encrypt: [

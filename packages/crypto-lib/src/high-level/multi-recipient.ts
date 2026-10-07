@@ -110,40 +110,10 @@ export function multiEncrypt(
         ephemeralPublicKey: result.ephemeralPublicKey,
       };
     } else {
-      // PQ hybrid: X25519 + ML-KEM-768
-      const x25519Pub = hexToBytes(r.x25519PublicKey);
-      const mlKemPub = hexToBytes(r.mlKemPublicKey);
-
-      // Ephemeral X25519
-      const ephPriv = randomBytes(32);
-      const ephPub = x25519.getPublicKey(ephPriv);
-      const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
-
-      // ML-KEM encapsulation
-      const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-        ml_kem768.encapsulate(mlKemPub);
-
-      // Combine via HKDF
-      const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-      combined.set(x25519Shared);
-      combined.set(mlKemShared, x25519Shared.length);
-      const kek = hkdf(
-        sha256,
-        combined,
-        ephPub,
-        new TextEncoder().encode("multi-recipient-pq-v1"),
-        32,
-      );
-
-      // AES-KW wrap the DEK
-      const cipher = aeskw(kek);
-      const wrapped = cipher.encrypt(dek);
-
+      const wrapped = wrapDekHybrid(dek, r.x25519PublicKey, r.mlKemPublicKey);
       return {
         type: "x25519-ml-kem-768" as const,
-        wrappedKey: Buffer.from(wrapped).toString("base64"),
-        ephemeralPublicKey: Buffer.from(ephPub).toString("hex"),
-        mlKemCiphertext: Buffer.from(mlKemCt).toString("hex"),
+        ...wrapped,
       };
     }
   });
@@ -176,18 +146,71 @@ export function multiDecryptClassical(
 }
 
 /**
- * Decrypt a multi-recipient message using PQ hybrid keys.
+ * Wrap a symmetric DEK for a hybrid post-quantum recipient (X25519 + ML-KEM-768).
  *
- * @param x25519SecretKey - Recipient's X25519 secret key (hex, 32 bytes).
- * @param mlKemSecretKey  - Recipient's ML-KEM-768 secret key (hex).
- * @param wrappedKey      - The wrapped key entry for this recipient.
- * @param ciphertext      - The encrypted ciphertext.
+ * @param dek - 32-byte symmetric data encryption key.
+ * @param x25519PublicKey - Hex-encoded recipient X25519 public key (64 hex characters).
+ * @param mlKemPublicKey - Hex-encoded recipient ML-KEM-768 public key (2368 hex characters).
  */
-export function multiDecryptPQ(
+export function wrapDekHybrid(
+  dek: Uint8Array,
+  x25519PublicKey: string,
+  mlKemPublicKey: string,
+): {
+  wrappedKey: string;
+  ephemeralPublicKey: string;
+  mlKemCiphertext: string;
+} {
+  const x25519Pub = hexToBytes(x25519PublicKey);
+  const mlKemPub = hexToBytes(mlKemPublicKey);
+
+  // Ephemeral X25519
+  const ephPriv = randomBytes(32);
+  const ephPub = x25519.getPublicKey(ephPriv);
+  const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
+
+  // ML-KEM encapsulation
+  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
+    ml_kem768.encapsulate(mlKemPub);
+
+  // Combine via HKDF
+  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
+  combined.set(x25519Shared);
+  combined.set(mlKemShared, x25519Shared.length);
+  const kek = hkdf(
+    sha256,
+    combined,
+    ephPub,
+    new TextEncoder().encode("multi-recipient-pq-v1"),
+    32,
+  );
+
+  // AES-KW wrap the DEK
+  const cipher = aeskw(kek);
+  const wrapped = cipher.encrypt(dek);
+
+  return {
+    wrappedKey: Buffer.from(wrapped).toString("base64"),
+    ephemeralPublicKey: Buffer.from(ephPub).toString("hex"),
+    mlKemCiphertext: Buffer.from(mlKemCt).toString("hex"),
+  };
+}
+
+/**
+ * Unwrap a symmetric DEK using hybrid post-quantum keys (X25519 + ML-KEM-768).
+ *
+ * @param x25519SecretKey - Recipient's X25519 secret key (hex or bytes, 32 bytes).
+ * @param mlKemSecretKey - Recipient's ML-KEM-768 secret key (hex or bytes).
+ * @param ephemeralPublicKey - Sender's ephemeral X25519 public key (hex, 32 bytes).
+ * @param mlKemCiphertext - ML-KEM-768 ciphertext (hex).
+ * @param wrappedKey - Base64-encoded wrapped DEK.
+ */
+export function unwrapDekHybrid(
   x25519SecretKey: string | Uint8Array,
   mlKemSecretKey: string | Uint8Array,
-  wrappedKey: WrappedKey,
-  ciphertext: string,
+  ephemeralPublicKey: string,
+  mlKemCiphertext: string,
+  wrappedKey: string,
 ): Uint8Array {
   const x25519Sec =
     typeof x25519SecretKey === "string"
@@ -198,12 +221,8 @@ export function multiDecryptPQ(
       ? hexToBytes(mlKemSecretKey)
       : mlKemSecretKey;
 
-  if (!wrappedKey.mlKemCiphertext) {
-    throw new Error("Missing ML-KEM ciphertext in wrapped key");
-  }
-
-  const ephPub = hexToBytes(wrappedKey.ephemeralPublicKey);
-  const mlKemCt = hexToBytes(wrappedKey.mlKemCiphertext);
+  const ephPub = hexToBytes(ephemeralPublicKey);
+  const mlKemCt = hexToBytes(mlKemCiphertext);
 
   // Recover shared secrets
   const x25519Shared = x25519.getSharedSecret(x25519Sec, ephPub);
@@ -222,9 +241,36 @@ export function multiDecryptPQ(
   );
 
   // Unwrap DEK
-  const wrapped = Buffer.from(wrappedKey.wrappedKey, "base64");
+  const wrapped = Buffer.from(wrappedKey, "base64");
   const cipher = aeskw(kek);
-  const dek = cipher.decrypt(wrapped);
+  return cipher.decrypt(wrapped);
+}
+
+/**
+ * Decrypt a multi-recipient message using PQ hybrid keys.
+ *
+ * @param x25519SecretKey - Recipient's X25519 secret key (hex, 32 bytes).
+ * @param mlKemSecretKey  - Recipient's ML-KEM-768 secret key (hex).
+ * @param wrappedKey      - The wrapped key entry for this recipient.
+ * @param ciphertext      - The encrypted ciphertext.
+ */
+export function multiDecryptPQ(
+  x25519SecretKey: string | Uint8Array,
+  mlKemSecretKey: string | Uint8Array,
+  wrappedKey: WrappedKey,
+  ciphertext: string,
+): Uint8Array {
+  if (!wrappedKey.mlKemCiphertext) {
+    throw new Error("Missing ML-KEM ciphertext in wrapped key");
+  }
+
+  const dek = unwrapDekHybrid(
+    x25519SecretKey,
+    mlKemSecretKey,
+    wrappedKey.ephemeralPublicKey,
+    wrappedKey.mlKemCiphertext,
+    wrappedKey.wrappedKey,
+  );
 
   return secretbox.open(dek, ciphertext);
 }

@@ -7,6 +7,8 @@ import { importKey } from "./keyimport";
 import {
   hybridKemDecapsulateHandler,
   hybridKemEncapsulateHandler,
+  hybridKemMultiDecapsulateHandler,
+  hybridKemMultiEncapsulateHandler,
   kemDecapsulate,
   kemEncapsulate,
 } from "./kem";
@@ -36,6 +38,8 @@ const HANDLERS: Record<string, ToolHandler> = {
   crypto_kem_decapsulate: kemDecapsulate,
   crypto_hybrid_kem_encapsulate: hybridKemEncapsulateHandler,
   crypto_hybrid_kem_decapsulate: hybridKemDecapsulateHandler,
+  crypto_hybrid_kem_multi_encapsulate: hybridKemMultiEncapsulateHandler,
+  crypto_hybrid_kem_multi_decapsulate: hybridKemMultiDecapsulateHandler,
   crypto_encrypt: encrypt,
   crypto_decrypt: decrypt,
   crypto_stream_encrypt: streamEncrypt,

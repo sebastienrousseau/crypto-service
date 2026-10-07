@@ -240,6 +240,52 @@ describe("Crypto MCP Server Suite", () => {
       expect(res.valid).to.be.false;
     });
 
+    it("signs and verifies with ML-DSA-44, ML-DSA-65, and ML-DSA-87 handles and hex keys", async () => {
+      const data = "Post-quantum attested instruction statement";
+      for (const level of [44, 65, 87] as const) {
+        const type = `ml-dsa-${level}`;
+        const key = await newKey(type);
+        expect(key.publicKey).to.be.a("string");
+        expect(key.standard).to.equal("NIST FIPS 204");
+        expect(key.quantumSafe).to.be.true;
+
+        const signed = await call("crypto_sign", {
+          data,
+          keyHandle: key.keyHandle,
+        });
+        expect(signed.algorithm).to.equal(type);
+        expect(signed.signature).to.be.a("string");
+
+        const byHandle = await call("crypto_verify", {
+          data,
+          signature: signed.signature,
+          keyHandle: key.keyHandle,
+        });
+        expect(byHandle).to.deep.equal({ algorithm: type, valid: true });
+
+        const byHex = await call("crypto_verify", {
+          data,
+          signature: signed.signature,
+          publicKey: key.publicKey,
+        });
+        expect(byHex).to.deep.equal({ algorithm: type, valid: true });
+
+        const tampered = await call("crypto_verify", {
+          data: `${data}tampered`,
+          signature: signed.signature,
+          keyHandle: key.keyHandle,
+        });
+        expect(tampered.valid).to.be.false;
+
+        const badSig = await call("crypto_verify", {
+          data,
+          signature: "00".repeat(32),
+          publicKey: key.publicKey,
+        });
+        expect(badSig.valid).to.be.false;
+      }
+    });
+
     it("refuses to sign with an ML-KEM or symmetric key handle", async () => {
       for (const type of ["ml-kem-768", "symmetric-256"]) {
         const { keyHandle } = await newKey(type);
@@ -486,6 +532,166 @@ describe("Crypto MCP Server Suite", () => {
         });
         expect(dec.plaintext).to.equal(msg);
       }
+    });
+
+    it("round-trips multi-recipient hybrid KEM encapsulation and decapsulation", async () => {
+      const aliceX = await newKey("x25519");
+      const aliceKem = await newKey("ml-kem-768");
+      const bobX = await newKey("x25519");
+      const bobKem = await newKey("ml-kem-768");
+
+      const encap = await call("crypto_hybrid_kem_multi_encapsulate", {
+        recipients: JSON.stringify([
+          {
+            id: "alice",
+            x25519PublicKey: aliceX.publicKey,
+            mlKemPublicKey: aliceKem.publicKey,
+          },
+          {
+            id: "bob",
+            x25519PublicKey: bobX.publicKey,
+            mlKemPublicKey: bobKem.publicKey,
+          },
+        ]),
+      });
+
+      expect(encap.algorithm).to.equal("multi-hybrid-kem-768-aes-256-gcm");
+      expect(encap.keyHandle).to.match(/^kh_/);
+      expect(encap.recipients).to.have.length(2);
+
+      // Decapsulate for Alice using direct parameters
+      const aliceDecap = await call("crypto_hybrid_kem_multi_decapsulate", {
+        x25519KeyHandle: aliceX.keyHandle,
+        mlKemKeyHandle: aliceKem.keyHandle,
+        ephemeralPublicKey: encap.recipients[0].ephemeralPublicKey,
+        mlKemCiphertext: encap.recipients[0].mlKemCiphertext,
+        encryptedKey: encap.recipients[0].encryptedKey,
+      });
+      expect(aliceDecap.keyHandle).to.match(/^kh_/);
+
+      // Decapsulate for Bob using recipients array and recipientId
+      const bobDecap = await call("crypto_hybrid_kem_multi_decapsulate", {
+        x25519KeyHandle: bobX.keyHandle,
+        mlKemKeyHandle: bobKem.keyHandle,
+        recipients: JSON.stringify(encap.recipients),
+        recipientId: "bob",
+      });
+      expect(bobDecap.keyHandle).to.match(/^kh_/);
+
+      // Verify mutual derived DEK encrypts/decrypts between sender, Alice, and Bob
+      const msg = "Multi-recipient broadcast message";
+      const enc = await call("crypto_encrypt", {
+        plaintext: msg,
+        keyHandle: encap.keyHandle,
+      });
+
+      const decAlice = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: aliceDecap.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+      });
+      expect(decAlice.plaintext).to.equal(msg);
+
+      const decBob = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: bobDecap.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+      });
+      expect(decBob.plaintext).to.equal(msg);
+    });
+
+    it("encapsulates an existing keyHandle and decapsulates using recipientIndex", async () => {
+      const existingKey = await newKey("symmetric-256");
+      const aliceX = await newKey("x25519");
+      const aliceKem = await newKey("ml-kem-768");
+
+      const encap = await call("crypto_hybrid_kem_multi_encapsulate", {
+        keyHandle: existingKey.keyHandle,
+        recipients: JSON.stringify([
+          {
+            x25519PublicKey: aliceX.publicKey,
+            mlKemPublicKey: aliceKem.publicKey,
+          },
+        ]),
+      });
+
+      const decap = await call("crypto_hybrid_kem_multi_decapsulate", {
+        x25519KeyHandle: aliceX.keyHandle,
+        mlKemKeyHandle: aliceKem.keyHandle,
+        recipients: JSON.stringify(encap.recipients),
+      });
+
+      const msg = "Existing key test";
+      const enc = await call("crypto_encrypt", {
+        plaintext: msg,
+        keyHandle: existingKey.keyHandle,
+      });
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: decap.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+      });
+      expect(dec.plaintext).to.equal(msg);
+    });
+
+    it("rejects invalid inputs in multi-recipient hybrid KEM", async () => {
+      const aliceX = await newKey("x25519");
+      const aliceKem = await newKey("ml-kem-768");
+
+      const emptyRes = await executeTool(
+        "crypto_hybrid_kem_multi_encapsulate",
+        { recipients: JSON.stringify([]) },
+      );
+      expect(emptyRes.isError).to.be.true;
+      expect(emptyRes.content[0]?.text).to.match(/non-empty array/);
+
+      const notArrayRes = await executeTool(
+        "crypto_hybrid_kem_multi_encapsulate",
+        { recipients: JSON.stringify({ invalid: true }) },
+      );
+      expect(notArrayRes.isError).to.be.true;
+
+      const missingRes = await executeTool(
+        "crypto_hybrid_kem_multi_decapsulate",
+        {
+          x25519KeyHandle: aliceX.keyHandle,
+          mlKemKeyHandle: aliceKem.keyHandle,
+        },
+      );
+      expect(missingRes.isError).to.be.true;
+      expect(missingRes.content[0]?.text).to.match(
+        /Missing recipient encryption details/,
+      );
+
+      const notFoundRes = await executeTool(
+        "crypto_hybrid_kem_multi_decapsulate",
+        {
+          x25519KeyHandle: aliceX.keyHandle,
+          mlKemKeyHandle: aliceKem.keyHandle,
+          recipients: JSON.stringify([{ id: "bob" }]),
+          recipientId: "alice",
+        },
+      );
+      expect(notFoundRes.isError).to.be.true;
+
+      const noKeyRes = await executeTool(
+        "crypto_hybrid_kem_multi_decapsulate",
+        {
+          x25519KeyHandle: aliceX.keyHandle,
+          mlKemKeyHandle: aliceKem.keyHandle,
+          recipients: JSON.stringify([
+            {
+              ephemeralPublicKey: "00".repeat(32),
+              mlKemCiphertext: "00".repeat(1088),
+            },
+          ]),
+          recipientIndex: 0,
+        },
+      );
+      expect(noKeyRes.isError).to.be.true;
     });
 
     it("generates an x25519 key and returns its handle and hex public key", async () => {

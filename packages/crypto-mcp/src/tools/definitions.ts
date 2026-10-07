@@ -24,6 +24,9 @@ export const KEY_TYPES = [
   "ml-kem-512",
   "ml-kem-768",
   "ml-kem-1024",
+  "ml-dsa-44",
+  "ml-dsa-65",
+  "ml-dsa-87",
   "symmetric-256",
   "hmac-sha256",
 ];
@@ -80,13 +83,13 @@ const KEK_LABEL: MCPToolParameterProperty = {
 const KEY_TOOLS: MCPTool[] = [
   {
     name: "crypto_generate_key",
-    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM 512/768/1024, FIPS 203) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
+    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM 512/768/1024 FIPS 203, ML-DSA 44/65/87 FIPS 204) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         type: oneOf(
-          "Key type: 'rsa', 'ecc', 'ed25519', 'x25519', 'ml-kem-512', 'ml-kem-768', 'ml-kem-1024', 'symmetric-256' (for crypto_encrypt, crypto_decrypt and crypto_kms_wrap), or 'hmac-sha256'.",
+          "Key type: 'rsa', 'ecc', 'ed25519', 'x25519', 'ml-kem-512', 'ml-kem-768', 'ml-kem-1024', 'ml-dsa-44', 'ml-dsa-65', 'ml-dsa-87', 'symmetric-256', or 'hmac-sha256'.",
           KEY_TYPES,
         ),
         modulusLength: {
@@ -313,14 +316,14 @@ const SIGNATURE_TOOLS: MCPTool[] = [
   {
     name: "crypto_sign",
     description:
-      "Sign data with a key handle. The algorithm follows the key: Ed25519, RSASSA-PSS (SHA-256), ECDSA (SHA-256; SHA-384 on P-384), or HMAC-SHA256.",
+      "Sign data with a key handle. The algorithm follows the key: Ed25519, RSASSA-PSS (SHA-256), ECDSA (SHA-256; SHA-384 on P-384), ML-DSA (44, 65, 87, FIPS 204), or HMAC-SHA256.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         data: text("Data string to sign."),
         keyHandle: keyHandle(
-          "Handle of an ed25519, rsa, ecc, or hmac-sha256 key.",
+          "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key.",
         ),
       },
       required: ["data", "keyHandle"],
@@ -329,22 +332,22 @@ const SIGNATURE_TOOLS: MCPTool[] = [
   {
     name: "crypto_verify",
     description:
-      "Verify a signature against a public key PEM (Ed25519, RSA-PSS, ECDSA) or a key handle (also HMAC-SHA256). Pass exactly one of publicKey or keyHandle.",
+      "Verify a signature against a public key (SPKI PEM or ML-DSA hex) or a key handle (also HMAC-SHA256). Pass exactly one of publicKey or keyHandle.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         data: text("Original data string."),
-        signature: hex("Hex-encoded signature.", 1024, true),
+        signature: hex("Hex-encoded signature.", MAX_KEY_LENGTH, true),
         publicKey: {
           type: "string",
           description:
-            "Public key in SPKI PEM format. Private keys are refused.",
+            "Public key in SPKI PEM format or ML-DSA hex format. Private keys are refused.",
           minLength: 1,
           maxLength: MAX_KEY_LENGTH,
         },
         keyHandle: keyHandle(
-          "Handle of an ed25519, rsa, ecc, or hmac-sha256 key.",
+          "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key.",
         ),
       },
       required: ["data", "signature"],

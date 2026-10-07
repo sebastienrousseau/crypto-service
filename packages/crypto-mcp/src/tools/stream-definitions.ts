@@ -108,4 +108,59 @@ export const STREAM_TOOLS: MCPTool[] = [
       required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
     },
   },
+  {
+    name: "crypto_hybrid_kem_multi_encapsulate",
+    description:
+      "Encapsulate a symmetric key for multiple recipients using post-quantum hybrid KEM (X25519 + ML-KEM-768 + AES-256-GCM key wrapping). Returns recipient ciphertexts and a symmetric-256 keyHandle.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        recipients: text(
+          "JSON-serialized array of recipient public key objects: [{ id?, x25519PublicKey, mlKemPublicKey }].",
+        ),
+        keyHandle: keyHandle(
+          "Optional handle of an existing symmetric-256 key to encapsulate. If omitted, a fresh 256-bit DEK is generated.",
+        ),
+      },
+      required: ["recipients"],
+    },
+  },
+  {
+    name: "crypto_hybrid_kem_multi_decapsulate",
+    description:
+      "Decapsulate a multi-recipient post-quantum hybrid KEM key using server-held x25519 and ml-kem-768 key handles. Returns a symmetric-256 keyHandle for the recovered DEK.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        x25519KeyHandle: keyHandle("Handle of recipient X25519 key."),
+        mlKemKeyHandle: keyHandle("Handle of recipient ML-KEM-768 key."),
+        ephemeralPublicKey: hex(
+          "Hex-encoded sender ephemeral X25519 public key (64 hex characters).",
+          X25519_PUBLIC_KEY_HEX,
+        ),
+        mlKemCiphertext: hex(
+          "Hex-encoded ML-KEM-768 ciphertext (2176 hex characters).",
+          2176,
+          true,
+        ),
+        wrappedKey: text("Base64-encoded wrapped DEK (RFC 3394 AES Key Wrap)."),
+        encryptedKey: text("Alias for wrappedKey."),
+        recipients: text(
+          "Optional JSON-serialized array of encrypted recipient objects: [{ id?, ephemeralPublicKey, mlKemCiphertext, encryptedKey }].",
+        ),
+        recipientId: text(
+          "Optional recipient ID to select from recipients array.",
+        ),
+        recipientIndex: {
+          type: "integer",
+          description:
+            "Optional index to select from recipients array (default 0).",
+          minimum: 0,
+        },
+      },
+      required: ["x25519KeyHandle", "mlKemKeyHandle"],
+    },
+  },
 ];

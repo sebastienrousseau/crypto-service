@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+import crypto from "node:crypto";
 import {
   MlKemLevel,
   hybridKemDecapsulate,
   hybridKemEncapsulate,
   mlKemDecap,
   mlKemEncap,
+  unwrapDekHybrid,
+  wrapDekHybrid,
 } from "@sebastienrousseau/crypto-lib";
 import { keyStore, symmetricKey } from "./keystore";
 import { ToolHandler, jsonResult } from "./result";
@@ -120,4 +123,144 @@ export const hybridKemDecapsulateHandler: ToolHandler = async (args) => {
     ),
   );
   return jsonResult({ algorithm, keyHandle });
+};
+
+interface HybridRecipientInput {
+  id?: string;
+  x25519PublicKey: string;
+  mlKemPublicKey: string;
+}
+
+function parseHybridRecipients(raw: unknown): HybridRecipientInput[] {
+  const parsed = JSON.parse(String(raw));
+  if (!Array.isArray(parsed) || parsed.length === 0) {
+    throw new Error(
+      "recipients must be a non-empty array of recipient objects",
+    );
+  }
+  return parsed as HybridRecipientInput[];
+}
+
+/** `crypto_hybrid_kem_multi_encapsulate`: multi-recipient post-quantum hybrid KEM encapsulation. */
+export const hybridKemMultiEncapsulateHandler: ToolHandler = async (args) => {
+  const recipients = parseHybridRecipients(args.recipients);
+  let dek: Buffer;
+  let keyHandle: string;
+
+  if (args.keyHandle !== undefined && args.keyHandle !== null) {
+    keyHandle = String(args.keyHandle);
+    const stored = keyStore.use(keyHandle, ["symmetric-256"]);
+    dek = Buffer.from(stored.secret as Buffer);
+  } else {
+    dek = crypto.randomBytes(32);
+    keyHandle = keyStore.add(
+      symmetricKey(dek, "multi-recipient hybrid KEM DEK"),
+    );
+  }
+
+  const encryptedRecipients = recipients.map((r) => {
+    const wrapped = wrapDekHybrid(
+      dek,
+      String(r.x25519PublicKey),
+      String(r.mlKemPublicKey),
+    );
+    return {
+      ...(r.id !== undefined ? { id: String(r.id) } : {}),
+      ephemeralPublicKey: wrapped.ephemeralPublicKey,
+      mlKemCiphertext: wrapped.mlKemCiphertext,
+      wrappedKey: wrapped.wrappedKey,
+      encryptedKey: wrapped.wrappedKey,
+    };
+  });
+
+  return jsonResult({
+    algorithm: "multi-hybrid-kem-768-aes-256-gcm",
+    keyHandle,
+    recipients: encryptedRecipients,
+  });
+};
+
+interface EncryptedRecipientEntry {
+  id?: string;
+  ephemeralPublicKey: string;
+  mlKemCiphertext: string;
+  wrappedKey?: string;
+  encryptedKey?: string;
+}
+
+interface ResolvedRecipient {
+  ephemeralPublicKey: string;
+  mlKemCiphertext: string;
+  wrappedKey: string;
+}
+
+function resolveDirectRecipient(
+  args: Record<string, unknown>,
+): ResolvedRecipient | undefined {
+  const encKey = args.wrappedKey ?? args.encryptedKey;
+  if (!args.ephemeralPublicKey || !args.mlKemCiphertext || !encKey) {
+    return undefined;
+  }
+  return {
+    ephemeralPublicKey: String(args.ephemeralPublicKey),
+    mlKemCiphertext: String(args.mlKemCiphertext),
+    wrappedKey: String(encKey),
+  };
+}
+
+function resolveListRecipient(
+  args: Record<string, unknown>,
+): ResolvedRecipient | undefined {
+  if (args.recipients === undefined) return undefined;
+  const list: EncryptedRecipientEntry[] = JSON.parse(String(args.recipients));
+  const item =
+    args.recipientId !== undefined
+      ? list.find((e) => e.id === String(args.recipientId))
+      : list[
+          args.recipientIndex !== undefined ? Number(args.recipientIndex) : 0
+        ];
+  if (!item) return undefined;
+  const key = item.wrappedKey ?? item.encryptedKey;
+  if (!key) return undefined;
+  return {
+    ephemeralPublicKey: item.ephemeralPublicKey,
+    mlKemCiphertext: item.mlKemCiphertext,
+    wrappedKey: String(key),
+  };
+}
+
+function resolveRecipientEntry(
+  args: Record<string, unknown>,
+): ResolvedRecipient {
+  const resolved = resolveDirectRecipient(args) ?? resolveListRecipient(args);
+  if (!resolved) {
+    throw new Error(
+      "Missing recipient encryption details (ephemeralPublicKey, mlKemCiphertext, wrappedKey)",
+    );
+  }
+  return resolved;
+}
+
+/** `crypto_hybrid_kem_multi_decapsulate`: multi-recipient post-quantum hybrid KEM decapsulation. */
+export const hybridKemMultiDecapsulateHandler: ToolHandler = async (args) => {
+  const xKey = keyStore.use(String(args.x25519KeyHandle), ["x25519"]);
+  const kemKey = keyStore.use(String(args.mlKemKeyHandle), ["ml-kem-768"]);
+  const entry = resolveRecipientEntry(args);
+
+  const dek = unwrapDekHybrid(
+    xKey.secret as Buffer,
+    kemKey.secret as Buffer,
+    entry.ephemeralPublicKey,
+    entry.mlKemCiphertext,
+    entry.wrappedKey,
+  );
+
+  const keyHandle = keyStore.add(
+    symmetricKey(Buffer.from(dek), "multi-recipient hybrid KEM DEK"),
+  );
+
+  return jsonResult({
+    algorithm: "multi-hybrid-kem-768-aes-256-gcm",
+    keyHandle,
+  });
 };
