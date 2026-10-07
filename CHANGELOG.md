@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initialized release iteration `v0.0.23`.
 
+### Security
+
+- **Vulnerability Remediation**: Added workspace override for `katex` (`>=0.18.2`, GHSA-238p-pmpm-9mq7) in `pnpm-workspace.yaml`, bringing `pnpm audit` to 0 vulnerabilities.
+
 ## [0.0.22] - 2026-10-06
 
 ### Added
