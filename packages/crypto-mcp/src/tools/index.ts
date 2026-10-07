@@ -4,7 +4,12 @@ import { MCPCallToolResult, MCPToolInputSchema } from "../types";
 import { auditCbom } from "./cbom";
 import { TOOLS } from "./definitions";
 import { importKey } from "./keyimport";
-import { kemDecapsulate, kemEncapsulate } from "./kem";
+import {
+  hybridKemDecapsulateHandler,
+  hybridKemEncapsulateHandler,
+  kemDecapsulate,
+  kemEncapsulate,
+} from "./kem";
 import { destroyKey, generateKey, inspectKey, listKeys } from "./keys";
 import { kmsUnwrap, kmsWrap } from "./kms";
 import { ToolHandler, errorResult } from "./result";
@@ -29,6 +34,8 @@ const HANDLERS: Record<string, ToolHandler> = {
   crypto_key_import: importKey,
   crypto_kem_encapsulate: kemEncapsulate,
   crypto_kem_decapsulate: kemDecapsulate,
+  crypto_hybrid_kem_encapsulate: hybridKemEncapsulateHandler,
+  crypto_hybrid_kem_decapsulate: hybridKemDecapsulateHandler,
   crypto_encrypt: encrypt,
   crypto_decrypt: decrypt,
   crypto_stream_encrypt: streamEncrypt,

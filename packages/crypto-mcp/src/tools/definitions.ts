@@ -10,10 +10,15 @@ export const KEY_TYPES = [
   "ecc",
   "ed25519",
   "x25519",
+  "ml-kem-512",
   "ml-kem-768",
+  "ml-kem-1024",
   "symmetric-256",
   "hmac-sha256",
 ];
+
+/** ML-KEM security levels accepted by KEM tools. */
+export const ML_KEM_LEVELS = [512, 768, 1024];
 
 /** RSA modulus lengths accepted by `crypto_generate_key`. */
 export const RSA_MODULUS_LENGTHS = [2048, 3072, 4096];
@@ -62,9 +67,6 @@ const X25519_PUBLIC_KEY_HEX = 64;
 
 /** Hex characters of an ML-KEM-768 public key (1184 bytes). */
 const ML_KEM_768_PUBLIC_KEY_HEX = 2368;
-
-/** Hex characters of an ML-KEM-768 ciphertext (1088 bytes). */
-const ML_KEM_768_CIPHERTEXT_HEX = 2176;
 
 /** Sentence appended to every tool that issues a key handle. */
 const HANDLE_NOTE =
@@ -124,13 +126,13 @@ const KEK_LABEL: MCPToolParameterProperty = {
 const KEY_TOOLS: MCPTool[] = [
   {
     name: "crypto_generate_key",
-    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM-768, FIPS 203) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
+    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM 512/768/1024, FIPS 203) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         type: oneOf(
-          "Key type: 'rsa', 'ecc', 'ed25519', 'ml-kem-768', 'symmetric-256' (for crypto_encrypt, crypto_decrypt and crypto_kms_wrap), or 'hmac-sha256'.",
+          "Key type: 'rsa', 'ecc', 'ed25519', 'x25519', 'ml-kem-512', 'ml-kem-768', 'ml-kem-1024', 'symmetric-256' (for crypto_encrypt, crypto_decrypt and crypto_kms_wrap), or 'hmac-sha256'.",
           KEY_TYPES,
         ),
         modulusLength: {
@@ -249,33 +251,106 @@ const CIPHER_TOOLS: MCPTool[] = [
   },
   {
     name: "crypto_kem_encapsulate",
-    description: `Encapsulate a shared secret to an ML-KEM-768 (FIPS 203) public key. Returns the KEM ciphertext for the recipient and a symmetric-256 keyHandle for the shared secret, usable with crypto_encrypt. ${HANDLE_NOTE}`,
+    description: `Encapsulate a shared secret to an ML-KEM (FIPS 203) public key (512, 768, 1024). Returns the KEM ciphertext for the recipient and a symmetric-256 keyHandle for the shared secret, usable with crypto_encrypt. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         publicKey: hex(
-          "Hex-encoded ML-KEM-768 public key (2368 hex characters).",
-          ML_KEM_768_PUBLIC_KEY_HEX,
+          "Hex-encoded ML-KEM public key (1600, 2368, or 3136 hex characters).",
+          3136,
+          true,
         ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is 768.",
+          enum: ML_KEM_LEVELS,
+        },
       },
       required: ["publicKey"],
     },
   },
   {
     name: "crypto_kem_decapsulate",
-    description: `Recover an ML-KEM-768 shared secret with an ml-kem-768 key handle. Returns a symmetric-256 keyHandle for the shared secret. ${HANDLE_NOTE}`,
+    description: `Recover an ML-KEM shared secret with an ml-kem key handle (512, 768, 1024). Returns a symmetric-256 keyHandle for the shared secret. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
-        keyHandle: keyHandle("Handle of the ml-kem-768 key."),
+        keyHandle: keyHandle("Handle of the ml-kem key."),
         ciphertext: hex(
-          "Hex-encoded ML-KEM-768 ciphertext (2176 hex characters).",
-          ML_KEM_768_CIPHERTEXT_HEX,
+          "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+          3136,
+          true,
         ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+          enum: ML_KEM_LEVELS,
+        },
       },
       required: ["keyHandle", "ciphertext"],
+    },
+  },
+  {
+    name: "crypto_hybrid_kem_encapsulate",
+    description: `Encapsulate a shared secret using Post-Quantum Hybrid KEM (X25519 + ML-KEM, RFC 9180/10024). Returns the classical ephemeral public key, ML-KEM ciphertext, and a symmetric-256 keyHandle for the combined shared secret. ${HANDLE_NOTE}`,
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        x25519PublicKey: hex(
+          "Hex-encoded recipient X25519 public key (64 hex characters).",
+          X25519_PUBLIC_KEY_HEX,
+        ),
+        mlKemPublicKey: hex(
+          "Hex-encoded recipient ML-KEM public key (1600, 2368, or 3136 hex characters).",
+          3136,
+          true,
+        ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is 768.",
+          enum: ML_KEM_LEVELS,
+        },
+      },
+      required: ["x25519PublicKey", "mlKemPublicKey"],
+    },
+  },
+  {
+    name: "crypto_hybrid_kem_decapsulate",
+    description: `Recover a Post-Quantum Hybrid KEM shared secret (X25519 + ML-KEM) using server-held x25519 and ml-kem key handles. Returns a symmetric-256 keyHandle for the combined shared secret. ${HANDLE_NOTE}`,
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        x25519KeyHandle: keyHandle("Handle of the recipient X25519 key."),
+        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM key."),
+        x25519EphemeralPublic: hex(
+          "Hex-encoded sender ephemeral X25519 public key (64 hex characters).",
+          X25519_PUBLIC_KEY_HEX,
+        ),
+        mlKemCiphertext: hex(
+          "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+          3136,
+          true,
+        ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+          enum: ML_KEM_LEVELS,
+        },
+      },
+      required: [
+        "x25519KeyHandle",
+        "mlKemKeyHandle",
+        "x25519EphemeralPublic",
+        "mlKemCiphertext",
+      ],
     },
   },
   {

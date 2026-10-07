@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initialized release iteration `v0.0.24`.
+- **Post-Quantum Hybrid KEM in MCP**: Added `crypto_hybrid_kem_encapsulate` and `crypto_hybrid_kem_decapsulate` tool handlers to `@sebastienrousseau/crypto-mcp`, providing dual-envelope encapsulation (X25519 + ML-KEM) per RFC 9180 and RFC 10024.
+- **Multi-Level ML-KEM Support in MCP**: Expanded `crypto_generate_key`, `crypto_kem_encapsulate`, and `crypto_kem_decapsulate` to support ML-KEM-512, ML-KEM-768, and ML-KEM-1024 (NIST FIPS 203 Categories 1, 3, and 5) with automatic level inference from held key handles.
 
 ## [0.0.23] - 2026-10-07
 

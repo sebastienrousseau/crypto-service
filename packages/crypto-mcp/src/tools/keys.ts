@@ -54,15 +54,16 @@ function generateEcc(args: ToolArgs): KeyMaterial {
   return asymmetric("ecc", pair, { curve: namedCurve });
 }
 
-/** Real ML-KEM-768 (FIPS 203) keypair from crypto-lib. */
-function generateMlKem768(): KeyMaterial {
-  const { publicKey, secretKey } = mlKemKeygen(768);
+/** Real ML-KEM (FIPS 203) keypair from crypto-lib. */
+function generateMlKem(level: 512 | 768 | 1024): KeyMaterial {
+  const { publicKey, secretKey } = mlKemKeygen(level);
+  const securityCategory = level === 512 ? 1 : level === 768 ? 3 : 5;
   return {
-    kind: "ml-kem-768",
+    kind: `ml-kem-${level}` as KeyMaterial["kind"],
     secret: Buffer.from(secretKey, "hex"),
     info: {
       standard: "NIST FIPS 203",
-      securityCategory: 3,
+      securityCategory,
       quantumSafe: true,
       encoding: "hex",
       publicKey,
@@ -101,7 +102,9 @@ const GENERATORS: Record<string, (args: ToolArgs) => KeyMaterial> = {
   x25519: generateX25519,
   rsa: generateRsa,
   ecc: generateEcc,
-  "ml-kem-768": generateMlKem768,
+  "ml-kem-512": () => generateMlKem(512),
+  "ml-kem-768": () => generateMlKem(768),
+  "ml-kem-1024": () => generateMlKem(1024),
   "symmetric-256": generateSymmetric,
   "hmac-sha256": generateHmac,
 };

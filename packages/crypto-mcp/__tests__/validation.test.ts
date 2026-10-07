@@ -49,6 +49,16 @@ async function buildFixtures(): Promise<void> {
       keyHandle: kem.keyHandle,
       ciphertext: "00".repeat(1088),
     },
+    crypto_hybrid_kem_encapsulate: {
+      x25519PublicKey: "00".repeat(32),
+      mlKemPublicKey: "00".repeat(1184),
+    },
+    crypto_hybrid_kem_decapsulate: {
+      x25519KeyHandle: xKey.keyHandle,
+      mlKemKeyHandle: kem.keyHandle,
+      x25519EphemeralPublic: "00".repeat(32),
+      mlKemCiphertext: "00".repeat(1088),
+    },
     crypto_stream_encrypt: {
       plaintext: "p",
       x25519PublicKey: "00".repeat(32),

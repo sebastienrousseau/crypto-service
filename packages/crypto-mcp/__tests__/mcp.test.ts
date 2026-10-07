@@ -98,9 +98,17 @@ describe("Crypto MCP Server Suite", () => {
       expect(ecc.curve).to.equal("prime256v1");
       expect((await newKey("ecc")).curve).to.equal("prime256v1");
 
+      const pqc512 = await newKey("ml-kem-512");
+      expect(pqc512.type).to.equal("ml-kem-512");
+      expect(pqc512.publicKey).to.match(/^[0-9a-f]{1600}$/);
+
       const pqc = await newKey("ml-kem-768");
       expect(pqc.type).to.equal("ml-kem-768");
       expect(pqc.publicKey).to.match(/^[0-9a-f]{2368}$/);
+
+      const pqc1024 = await newKey("ml-kem-1024");
+      expect(pqc1024.type).to.equal("ml-kem-1024");
+      expect(pqc1024.publicKey).to.match(/^[0-9a-f]{3136}$/);
 
       const sym = await newKey("symmetric-256");
       expect(sym).to.include({ type: "symmetric-256", bits: 256 });
@@ -108,7 +116,7 @@ describe("Crypto MCP Server Suite", () => {
       const mac = await newKey("hmac-sha256");
       expect(mac).to.include({ type: "hmac-sha256", bits: 256 });
 
-      for (const key of [ed, ecc, pqc, sym, mac]) {
+      for (const key of [ed, ecc, pqc512, pqc, pqc1024, sym, mac]) {
         expect(key).to.not.have.property("privateKey");
         expect(key).to.not.have.property("secret");
       }
@@ -365,6 +373,119 @@ describe("Crypto MCP Server Suite", () => {
         authTag: enc.authTag,
       });
       expect(dec.plaintext).to.equal("pq hello");
+    });
+
+    it("supports ML-KEM-512 and ML-KEM-1024 encapsulation and decapsulation", async () => {
+      for (const level of [512, 1024] as const) {
+        const recipient = await newKey(`ml-kem-${level}`);
+        const sender = await call("crypto_kem_encapsulate", {
+          publicKey: recipient.publicKey,
+          level,
+        });
+        expect(sender.algorithm).to.equal(`ml-kem-${level}`);
+        const received = await call("crypto_kem_decapsulate", {
+          keyHandle: recipient.keyHandle,
+          ciphertext: sender.ciphertext,
+          level,
+        });
+        expect(received.algorithm).to.equal(`ml-kem-${level}`);
+
+        // Also test inferred level (omitting level parameter)
+        const receivedInferred = await call("crypto_kem_decapsulate", {
+          keyHandle: recipient.keyHandle,
+          ciphertext: sender.ciphertext,
+        });
+        expect(receivedInferred.algorithm).to.equal(`ml-kem-${level}`);
+
+        const enc = await call("crypto_encrypt", {
+          plaintext: `payload for ${level}`,
+          keyHandle: sender.keyHandle,
+        });
+        const dec = await call("crypto_decrypt", {
+          ciphertext: enc.ciphertext,
+          keyHandle: received.keyHandle,
+          iv: enc.iv,
+          authTag: enc.authTag,
+        });
+        expect(dec.plaintext).to.equal(`payload for ${level}`);
+      }
+    });
+
+    it("round-trips post-quantum hybrid KEM (X25519 + ML-KEM) encapsulation and decapsulation", async () => {
+      const xRecipient = await newKey("x25519");
+      const mlRecipient = await newKey("ml-kem-768");
+
+      const encap = await call("crypto_hybrid_kem_encapsulate", {
+        x25519PublicKey: xRecipient.publicKey,
+        mlKemPublicKey: mlRecipient.publicKey,
+        level: 768,
+      });
+
+      expect(encap.algorithm).to.equal("x25519-ml-kem-768");
+      expect(encap.x25519EphemeralPublic).to.match(/^[0-9a-f]{64}$/);
+      expect(encap.mlKemCiphertext).to.match(/^[0-9a-f]{2176}$/);
+      expect(encap.keyHandle).to.match(/^kh_/);
+
+      const decap = await call("crypto_hybrid_kem_decapsulate", {
+        x25519KeyHandle: xRecipient.keyHandle,
+        mlKemKeyHandle: mlRecipient.keyHandle,
+        x25519EphemeralPublic: encap.x25519EphemeralPublic,
+        mlKemCiphertext: encap.mlKemCiphertext,
+        level: 768,
+      });
+
+      expect(decap.algorithm).to.equal("x25519-ml-kem-768");
+      expect(decap.keyHandle).to.match(/^kh_/);
+
+      // Verify mutual derived shared secret encrypts and decrypts
+      const secretMessage = "Hybrid Post-Quantum Envelope Authenticated";
+      const enc = await call("crypto_encrypt", {
+        plaintext: secretMessage,
+        keyHandle: encap.keyHandle,
+      });
+      const dec = await call("crypto_decrypt", {
+        ciphertext: enc.ciphertext,
+        keyHandle: decap.keyHandle,
+        iv: enc.iv,
+        authTag: enc.authTag,
+      });
+      expect(dec.plaintext).to.equal(secretMessage);
+    });
+
+    it("supports hybrid KEM with ML-KEM-512 and ML-KEM-1024 with inferred level", async () => {
+      for (const level of [512, 1024] as const) {
+        const xKey = await newKey("x25519");
+        const mlKey = await newKey(`ml-kem-${level}`);
+
+        const encap = await call("crypto_hybrid_kem_encapsulate", {
+          x25519PublicKey: xKey.publicKey,
+          mlKemPublicKey: mlKey.publicKey,
+          level,
+        });
+
+        const decap = await call("crypto_hybrid_kem_decapsulate", {
+          x25519KeyHandle: xKey.keyHandle,
+          mlKemKeyHandle: mlKey.keyHandle,
+          x25519EphemeralPublic: encap.x25519EphemeralPublic,
+          mlKemCiphertext: encap.mlKemCiphertext,
+        });
+
+        expect(encap.algorithm).to.equal(`x25519-ml-kem-${level}`);
+        expect(decap.algorithm).to.equal(`x25519-ml-kem-${level}`);
+
+        const msg = `hybrid test ${level}`;
+        const enc = await call("crypto_encrypt", {
+          plaintext: msg,
+          keyHandle: encap.keyHandle,
+        });
+        const dec = await call("crypto_decrypt", {
+          ciphertext: enc.ciphertext,
+          keyHandle: decap.keyHandle,
+          iv: enc.iv,
+          authTag: enc.authTag,
+        });
+        expect(dec.plaintext).to.equal(msg);
+      }
     });
 
     it("generates an x25519 key and returns its handle and hex public key", async () => {
