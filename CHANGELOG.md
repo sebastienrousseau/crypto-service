@@ -7,11 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.22] - Unreleased
+## [0.0.23] - Unreleased
 
 ### Added
 
-- Initialized release iteration `v0.0.22`.
+- Initialized release iteration `v0.0.23`.
+
+## [0.0.22] - 2026-10-06
+
+### Added
+
+- **Fuzz Testing with fast-check**: Comprehensive generative property-based fuzz testing across RFC 9180 HPKE seal/open roundtrips, context/info/aad handling, bit-flip tamper rejection, streaming AEAD chunk boundaries, single-bit corruption detection, truncated stream detection, and Shamir Secret Sharing threshold schemes.
+- **Official Standards Regression Testing**: Comprehensive test suites verifying official CAVP/KAT test vectors for RFC 8439 (ChaCha20-Poly1305), RFC 5869 (HKDF-SHA256), and NIST SP 800-38D (AES-256-GCM).
+- **Post-Quantum Benchmark Suite**: Expanded benchmark coverage measuring key generation, encapsulation/decapsulation, signing, and verification across ML-KEM-512, ML-KEM-768, ML-KEM-1024, ML-DSA-44, ML-DSA-65, ML-DSA-87, and Hybrid KEM, alongside high-throughput 1 MB streaming AEAD (>165 MB/s).
+- **Testing Package Enrichment**: Exported `mutateBytes`, `mutateHex`, and standard `RFC_VECTORS` in `@sebastienrousseau/crypto-testing`.
 
 ### Security
 
@@ -359,6 +368,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
+[0.0.23]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.22...HEAD
+[0.0.22]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.21...v0.0.22
+[0.0.21]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.20...v0.0.21
+[0.0.20]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.19...v0.0.20
+[0.0.19]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.18...v0.0.19
+[0.0.18]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.17...v0.0.18
+[0.0.17]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.16...v0.0.17
+[0.0.16]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.14...HEAD
 [0.0.14]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.12...v0.0.13
