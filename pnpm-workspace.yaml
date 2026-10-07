@@ -14,6 +14,7 @@ overrides:
   "form-data": ">=2.5.6"
   "ip-address": ">=10.5.1"
   "js-yaml": ">=3.15.2"
+  "katex": ">=0.18.2"
   "markdown-it": "^14.3.1"
   "minimatch": ">=9.0.7"
   "nanoid": ">=3.3.18"
