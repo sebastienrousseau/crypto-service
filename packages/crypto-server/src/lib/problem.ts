@@ -42,6 +42,7 @@ export const PROBLEM_TITLES = Object.freeze({
   "rate-limited": "Too Many Requests",
   "request-error": "Bad Request",
   "internal-error": "Internal Server Error",
+  conflict: "Conflict",
 });
 
 /** A problem type slug. */

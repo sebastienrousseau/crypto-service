@@ -152,6 +152,15 @@ function registerRegisterFinish(app: FastifyInstance): void {
         };
         const suite = body.suite ?? "P256-SHA256";
         const store = request.server.opaqueStore;
+        if (store.hasRecord(body.credentialIdentifier)) {
+          return sendProblem(
+            reply,
+            409,
+            "conflict",
+            "Credential identifier is already registered",
+            { code: "CREDENTIAL_EXISTS" },
+          );
+        }
         const recBytes = parseHex(body.record);
         const record = pake.deserializeRegistrationRecord(recBytes, suite);
         store.setRecord(body.credentialIdentifier, record);

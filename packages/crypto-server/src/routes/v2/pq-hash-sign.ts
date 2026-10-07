@@ -37,6 +37,7 @@ function registerKeygen(app: FastifyInstance): void {
   app.post(
     "/v2/pq/slh-dsa/keygen",
     {
+      config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
       schema: {
         tags: ["Post-Quantum Hash-Based Signatures"],
         summary: "Generate a server-held SLH-DSA key pair (FIPS 205)",
@@ -73,6 +74,7 @@ function registerSign(app: FastifyInstance): void {
   app.post(
     "/v2/pq/slh-dsa/sign",
     {
+      config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
       schema: {
         tags: ["Post-Quantum Hash-Based Signatures"],
         summary: "Sign with SLH-DSA (FIPS 205)",

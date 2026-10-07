@@ -184,6 +184,63 @@ describe("OPAQUE Authentication (RFC 9807)", function () {
       expect(secondConsumeRes.statusCode).to.equal(400);
     });
 
+    it("rejects duplicate registration for an already registered credential identifier", async () => {
+      const id = "duplicate-user@example.com";
+      const password = "initial-password";
+
+      const { request, blind } = pake.createRegistrationRequest(password);
+      const regInitRes = await app.inject({
+        method: "POST",
+        url: "/v2/opaque/register/init",
+        payload: {
+          credentialIdentifier: id,
+          request: Buffer.from(
+            pake.serializeRegistrationRequest(request),
+          ).toString("hex"),
+        },
+      });
+      expect(regInitRes.statusCode).to.equal(200);
+
+      const serverRegRes = pake.deserializeRegistrationResponse(
+        new Uint8Array(
+          Buffer.from(JSON.parse(regInitRes.payload).data.response, "hex"),
+        ),
+      );
+      const { record } = pake.finalizeRegistrationRequest(
+        password,
+        blind,
+        serverRegRes,
+      );
+
+      const regFinishRes = await app.inject({
+        method: "POST",
+        url: "/v2/opaque/register/finish",
+        payload: {
+          credentialIdentifier: id,
+          record: Buffer.from(
+            pake.serializeRegistrationRecord(record),
+          ).toString("hex"),
+        },
+      });
+      expect(regFinishRes.statusCode).to.equal(200);
+
+      // Attempting to re-register the same credentialIdentifier must be rejected with 409 Conflict
+      const dupFinishRes = await app.inject({
+        method: "POST",
+        url: "/v2/opaque/register/finish",
+        payload: {
+          credentialIdentifier: id,
+          record: Buffer.from(
+            pake.serializeRegistrationRecord(record),
+          ).toString("hex"),
+        },
+      });
+      expect(dupFinishRes.statusCode).to.equal(409);
+      const body = JSON.parse(dupFinishRes.payload);
+      expect(body.code).to.equal("CREDENTIAL_EXISTS");
+      expect(body.status).to.equal(409);
+    });
+
     it("completes full registration and login handshake for ristretto255-SHA512", async () => {
       const suite = "ristretto255-SHA512";
       const id = "bob@example.com";

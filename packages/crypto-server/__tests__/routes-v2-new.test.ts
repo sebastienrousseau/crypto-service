@@ -435,6 +435,7 @@ describe("V2 New Routes", function () {
         payload: { variant: "shake-128f" },
       });
       expect(keyRes.statusCode).to.equal(200);
+      expect(keyRes.headers["x-ratelimit-limit"]).to.equal("10");
       const keys = JSON.parse(keyRes.payload).data;
 
       const signRes = await app.inject({
@@ -446,6 +447,7 @@ describe("V2 New Routes", function () {
         },
       });
       expect(signRes.statusCode).to.equal(200);
+      expect(signRes.headers["x-ratelimit-limit"]).to.equal("10");
       const sigData = JSON.parse(signRes.payload).data;
 
       const verifyRes = await app.inject({

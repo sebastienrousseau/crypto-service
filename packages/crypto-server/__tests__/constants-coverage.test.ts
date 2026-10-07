@@ -68,6 +68,13 @@ describe("Constants coverage", () => {
         "https://other.com",
       ]);
     });
+
+    it("should include Authorization, traceparent, and custom headers in allowedHeaders", () => {
+      const { corsOptions } = load("../src/config/constants");
+      expect(corsOptions.allowedHeaders).to.include("Authorization");
+      expect(corsOptions.allowedHeaders).to.include("x-request-id");
+      expect(corsOptions.allowedHeaders).to.include("traceparent");
+    });
   });
 
   describe("Logger production format", () => {

@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **MCP Schema Modularization**: Extracted reusable schema helpers and bounds into `schema-helpers.ts` in `@sebastienrousseau/crypto-mcp`, eliminating circular temporal-dead-zone import cycles and maintaining strict line length and complexity standards.
 
+### Security
+
+- **OPAQUE Registration Collision Check (CWE-287 / CWE-306)**: Added verification in `registerRegisterFinish` rejecting registration attempts for pre-existing credential identifiers with `409 Conflict` (`CREDENTIAL_EXISTS`), preventing unauthenticated registration overwrite and account takeover.
+- **SLH-DSA Route Rate Limiting (CWE-400 / CWE-770)**: Configured route-level rate limiting (`10 req/min`) on CPU-intensive `POST /v2/pq/slh-dsa/keygen` and `POST /v2/pq/slh-dsa/sign`, preventing event loop starvation and denial-of-service from synchronous hash-based signature generation.
+- **CORS Allowed Headers Expansion (CWE-16 / CWE-942)**: Included `"Authorization"`, `"x-request-id"`, and `"traceparent"` in `corsOptions.allowedHeaders`, enabling preflight authorization for browser-based JWT bearer authentication without relaxing origin restrictions.
+
 ## [0.0.23] - 2026-10-07
 
 ### Added
