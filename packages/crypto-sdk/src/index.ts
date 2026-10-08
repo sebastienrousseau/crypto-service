@@ -68,11 +68,17 @@ import type {
   KeyExportResult,
   SignResult,
   VerifyResult,
+  MlKemLevel,
+  MlKemKeygenParams,
   MlKemKeyPair,
+  MlKemEncapsulateParams,
   MlKemEncapsulateResult,
+  MlKemDecapsulateParams,
   KemDecapsulateResult,
   HybridKeyPair,
+  HybridEncapsulateParams,
   HybridEncapsulateResult,
+  HybridDecapsulateParams,
   MlDsaLevel,
   MlDsaKeyPair,
   MlDsaSignResult,
@@ -302,44 +308,44 @@ export class CryptoClient {
 
   // --- Post-Quantum KEM ---
 
-  /** Generate a server-held ML-KEM-768 key pair. */
-  async mlKemGenerateKeyPair(): Promise<ApiResponse<MlKemKeyPair>> {
-    return this.request("POST", "/v2/pq/keygen", {});
+  /** Generate a server-held ML-KEM key pair (512, 768, or 1024; default 768). */
+  async mlKemGenerateKeyPair(
+    params: MlKemKeygenParams = {},
+  ): Promise<ApiResponse<MlKemKeyPair>> {
+    return this.request("POST", "/v2/pq/keygen", params);
   }
 
-  /** Encapsulate a shared secret to an ML-KEM-768 public key. */
-  async mlKemEncapsulate(params: {
-    publicKey: string;
-  }): Promise<ApiResponse<MlKemEncapsulateResult>> {
+  /** Encapsulate a shared secret to an ML-KEM public key (512, 768, or 1024). */
+  async mlKemEncapsulate(
+    params: MlKemEncapsulateParams,
+  ): Promise<ApiResponse<MlKemEncapsulateResult>> {
     return this.request("POST", "/v2/pq/encapsulate", params);
   }
 
-  /** Recover an ML-KEM-768 shared secret with a server-held key. */
+  /** Recover an ML-KEM shared secret with a server-held key. */
   async mlKemDecapsulate(
-    params: KeyIdParams & { ciphertext: string },
+    params: MlKemDecapsulateParams,
   ): Promise<ApiResponse<KemDecapsulateResult>> {
     return this.request("POST", "/v2/pq/decapsulate", params);
   }
 
-  /** Generate a server-held hybrid X25519 + ML-KEM-768 key pair. */
-  async pqGenerateKeyPair(): Promise<ApiResponse<HybridKeyPair>> {
-    return this.request("POST", "/v2/pq/hybrid/keygen", {});
+  /** Generate a server-held hybrid X25519 + ML-KEM key pair. */
+  async pqGenerateKeyPair(
+    params: { level?: MlKemLevel } = {},
+  ): Promise<ApiResponse<HybridKeyPair>> {
+    return this.request("POST", "/v2/pq/hybrid/keygen", params);
   }
 
   /** Encapsulate a shared secret using hybrid KEM. */
-  async pqEncapsulate(params: {
-    x25519PublicKey: string;
-    mlKemPublicKey: string;
-  }): Promise<ApiResponse<HybridEncapsulateResult>> {
+  async pqEncapsulate(
+    params: HybridEncapsulateParams,
+  ): Promise<ApiResponse<HybridEncapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/encapsulate", params);
   }
 
   /** Recover a hybrid KEM shared secret with a server-held key. */
   async pqDecapsulate(
-    params: KeyIdParams & {
-      x25519EphemeralPublic: string;
-      mlKemCiphertext: string;
-    },
+    params: HybridDecapsulateParams,
   ): Promise<ApiResponse<KemDecapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/decapsulate", params);
   }

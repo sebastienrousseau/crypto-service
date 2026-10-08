@@ -33,6 +33,8 @@ export {
   multiEncrypt,
   multiDecryptClassical,
   multiDecryptPQ,
+  wrapDekHybrid,
+  unwrapDekHybrid,
 } from "./multi-recipient";
 /** Re-exported multi-recipient encryption types. */
 export type {

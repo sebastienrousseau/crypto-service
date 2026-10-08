@@ -7,11 +7,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.23] - Unreleased
+## [0.0.24] - Unreleased
 
 ### Added
 
-- Initialized release iteration `v0.0.23`.
+- **Post-Quantum Digital Signatures (FIPS 204 ML-DSA) in MCP**: Added support for ML-DSA-44, ML-DSA-65, and ML-DSA-87 digital signatures in `@sebastienrousseau/crypto-mcp` across key generation (`crypto_generate_key`), message signing (`crypto_sign`), and verification (`crypto_verify`) by key handle or raw hex public key.
+- **Multi-Recipient Hybrid KEM in MCP**: Added `crypto_hybrid_kem_multi_encapsulate` and `crypto_hybrid_kem_multi_decapsulate` tool handlers to `@sebastienrousseau/crypto-mcp`, providing post-quantum broadcast key encapsulation combining X25519, ML-KEM-768, and RFC 3394 AES Key Wrap.
+- **Client SDK Multi-Level PQ Parameters**: Added typed parameter interfaces (`MlKemKeygenParams`, `MlKemEncapsulateParams`, `MlKemDecapsulateParams`, `HybridEncapsulateParams`, `HybridDecapsulateParams`) and `MlKemLevel` to `@sebastienrousseau/crypto-sdk`, enabling typed security level configuration across client KEM workflows.
+- **Reusable Hybrid DEK Wrapping in Core Library**: Exported `wrapDekHybrid` and `unwrapDekHybrid` in `@sebastienrousseau/crypto-lib`, providing modular hybrid DEK wrapping for multi-recipient data protection.
+- **Post-Quantum Hybrid KEM in MCP**: Added `crypto_hybrid_kem_encapsulate` and `crypto_hybrid_kem_decapsulate` tool handlers to `@sebastienrousseau/crypto-mcp`, providing dual-envelope encapsulation (X25519 + ML-KEM) per RFC 9180 and RFC 10024.
+- **Expanded Security Property & Fuzz Testing**: Added fast-check property tests in `@sebastienrousseau/crypto-lib` covering SLH-DSA message invariance, single-nibble signature and public key tamper rejection, non-hex input safety, and truncated boundary handling. Added property fuzz tests in `@sebastienrousseau/crypto-server` verifying OPAQUE single-use session consumption, TTL expiration bounds, and multi-tenant token bucket burst and sliding window invariants.
+- **Multi-Level ML-KEM Support in MCP**: Expanded `crypto_generate_key`, `crypto_kem_encapsulate`, and `crypto_kem_decapsulate` to support ML-KEM-512, ML-KEM-768, and ML-KEM-1024 (NIST FIPS 203 Categories 1, 3, and 5) with automatic level inference from held key handles.
+
+### Refactored
+
+- **MCP Schema Modularization**: Extracted reusable schema helpers and bounds into `schema-helpers.ts` in `@sebastienrousseau/crypto-mcp`, eliminating circular temporal-dead-zone import cycles and maintaining strict line length and complexity standards.
+
+### Security
+
+- **OPAQUE Registration Collision Check (CWE-287 / CWE-306)**: Added verification in `registerRegisterFinish` rejecting registration attempts for pre-existing credential identifiers with `409 Conflict` (`CREDENTIAL_EXISTS`), preventing unauthenticated registration overwrite and account takeover.
+- **SLH-DSA Route Rate Limiting (CWE-400 / CWE-770)**: Configured route-level rate limiting (`10 req/min`) on CPU-intensive `POST /v2/pq/slh-dsa/keygen` and `POST /v2/pq/slh-dsa/sign`, preventing event loop starvation and denial-of-service from synchronous hash-based signature generation.
+- **CORS Allowed Headers Expansion (CWE-16 / CWE-942)**: Included `"Authorization"`, `"x-request-id"`, and `"traceparent"` in `corsOptions.allowedHeaders`, enabling preflight authorization for browser-based JWT bearer authentication without relaxing origin restrictions.
+
+## [0.0.23] - 2026-10-07
+
+### Added
+
+- **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.23 in strict lockstep.
 
 ### Security
 
@@ -372,7 +394,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.23]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.22...HEAD
+[0.0.24]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.23...HEAD
+[0.0.23]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.22...v0.0.23
 [0.0.22]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.21...v0.0.22
 [0.0.21]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.20...v0.0.21
 [0.0.20]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.19...v0.0.20

@@ -3,6 +3,8 @@ import {
   multiEncrypt,
   multiDecryptClassical,
   multiDecryptPQ,
+  wrapDekHybrid,
+  unwrapDekHybrid,
 } from "../../src/high-level/multi-recipient";
 import { generateX25519KeyPair } from "../../src/modern/ecdh";
 import { hybridKemKeygen } from "../../src/modern/pq-kem";
@@ -139,5 +141,23 @@ describe("Multi-Recipient Encryption", () => {
       result.ciphertext,
     );
     expect(Buffer.from(pt).toString("utf8")).to.equal("");
+  });
+
+  it("should roundtrip wrapDekHybrid and unwrapDekHybrid with Uint8Array keys", () => {
+    const alice = hybridKemKeygen();
+    const dek = new Uint8Array(32).fill(42);
+    const wrapped = wrapDekHybrid(
+      dek,
+      alice.x25519PublicKey,
+      alice.mlKemPublicKey,
+    );
+    const unwrapped = unwrapDekHybrid(
+      Buffer.from(alice.x25519PrivateKey, "hex"),
+      Buffer.from(alice.mlKemSecretKey, "hex"),
+      wrapped.ephemeralPublicKey,
+      wrapped.mlKemCiphertext,
+      wrapped.wrappedKey,
+    );
+    expect(unwrapped).to.deep.equal(dek);
   });
 });

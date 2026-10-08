@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import crypto from "node:crypto";
+import {
+  MlDsaLevel,
+  mlDsaSign,
+  mlDsaVerify,
+} from "@sebastienrousseau/crypto-lib";
 import { EC_CURVES, HASH_ALGORITHMS } from "./definitions";
 import { KeyKind, keyStore } from "./keystore";
 import { ToolArgs, ToolHandler, jsonResult } from "./result";
@@ -10,6 +15,9 @@ const SIGNING_KINDS: readonly KeyKind[] = [
   "ed25519",
   "rsa",
   "ecc",
+  "ml-dsa-44",
+  "ml-dsa-65",
+  "ml-dsa-87",
   "hmac-sha256",
 ];
 
@@ -68,6 +76,12 @@ export const sign: ToolHandler = async (args) => {
     const signature = hmac(key.secret as Buffer, data).toString("hex");
     return jsonResult({ algorithm: "hmac-sha256", signature });
   }
+  if (key.kind.startsWith("ml-dsa-")) {
+    const level = Number(key.kind.slice(7)) as MlDsaLevel;
+    const secretKeyHex = (key.secret as Buffer).toString("hex");
+    const { signature, algorithm } = mlDsaSign(level, secretKeyHex, data);
+    return jsonResult({ algorithm, signature });
+  }
   const privateKey = key.privateKey as crypto.KeyObject;
   const scheme = schemeFor(privateKey);
   const signature = crypto
@@ -103,39 +117,79 @@ function verifyHmac(
   return { algorithm: "hmac-sha256", valid };
 }
 
-/** What a signature is checked with: a public key or an HMAC secret. */
-type Verifier = { publicKey: crypto.KeyObject } | { secret: Buffer };
+/** What a signature is checked with: a public key, an HMAC secret, or ML-DSA public key. */
+type Verifier =
+  | { kind: "asymmetric"; publicKey: crypto.KeyObject }
+  | { kind: "hmac"; secret: Buffer }
+  | { kind: "ml-dsa"; level: MlDsaLevel; publicKeyHex: string };
+
+const ML_DSA_LEVELS_BY_LEN: Record<number, MlDsaLevel> = {
+  2624: 44,
+  3904: 65,
+  5184: 87,
+};
+
+function verifierFromPublic(raw: string): Verifier {
+  const pub = raw.trim();
+  if (pub.includes("PRIVATE KEY")) {
+    throw new Error("publicKey must be a public key, not a private key");
+  }
+  const mlDsaLevel = /^[0-9a-fA-F]+$/.test(pub)
+    ? ML_DSA_LEVELS_BY_LEN[pub.length]
+    : undefined;
+  if (mlDsaLevel) {
+    return { kind: "ml-dsa", level: mlDsaLevel, publicKeyHex: pub };
+  }
+  return { kind: "asymmetric", publicKey: crypto.createPublicKey(pub) };
+}
+
+function verifierFromKey(handle: string): Verifier {
+  const key = keyStore.use(handle, SIGNING_KINDS);
+  if (key.kind === "hmac-sha256") {
+    return { kind: "hmac", secret: key.secret as Buffer };
+  }
+  if (key.kind.startsWith("ml-dsa-")) {
+    const level = Number(key.kind.slice(7)) as MlDsaLevel;
+    return { kind: "ml-dsa", level, publicKeyHex: String(key.info.publicKey) };
+  }
+  return { kind: "asymmetric", publicKey: key.publicKey as crypto.KeyObject };
+}
 
 /**
- * The public key to verify against: a PEM from the caller, or the key a
- * handle refers to. A private key PEM is refused rather than reduced to
+ * The public key to verify against: a PEM or ML-DSA hex string from the caller,
+ * or the key a handle refers to. A private key PEM is refused rather than reduced to
  * its public half, so this tool never takes secret material.
  */
 function verifierFor(args: ToolArgs): Verifier {
-  const hasPem = args.publicKey !== undefined;
-  if (hasPem === (args.keyHandle !== undefined)) {
+  const hasPub = args.publicKey !== undefined;
+  if (hasPub === (args.keyHandle !== undefined)) {
     throw new Error("Pass exactly one of publicKey or keyHandle");
   }
-  if (hasPem) {
-    const pem = String(args.publicKey);
-    if (pem.includes("PRIVATE KEY")) {
-      throw new Error("publicKey must be a public key, not a private key");
-    }
-    return { publicKey: crypto.createPublicKey(pem) };
-  }
-  const key = keyStore.use(String(args.keyHandle), SIGNING_KINDS);
-  return key.kind === "hmac-sha256"
-    ? { secret: key.secret as Buffer }
-    : { publicKey: key.publicKey as crypto.KeyObject };
+  return hasPub
+    ? verifierFromPublic(String(args.publicKey))
+    : verifierFromKey(String(args.keyHandle));
 }
 
 /** `crypto_verify`: check a signature against a public key or handle. */
 export const verify: ToolHandler = async (args) => {
   const verifier = verifierFor(args);
   const data = Buffer.from(String(args.data), "utf8");
-  const signature = Buffer.from(String(args.signature), "hex");
+  const signatureHex = String(args.signature);
+  if (verifier.kind === "ml-dsa") {
+    const res = mlDsaVerify(
+      verifier.level,
+      verifier.publicKeyHex,
+      data,
+      signatureHex,
+    );
+    return jsonResult({
+      algorithm: `ml-dsa-${verifier.level}`,
+      valid: res.valid,
+    });
+  }
+  const signature = Buffer.from(signatureHex, "hex");
   const result =
-    "secret" in verifier
+    verifier.kind === "hmac"
       ? verifyHmac(verifier.secret, data, signature)
       : verifyAsymmetric(verifier.publicKey, data, signature);
   return jsonResult(result);

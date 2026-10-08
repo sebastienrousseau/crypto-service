@@ -28,6 +28,9 @@ export type KeyAlgorithm =
   | "ml-dsa-65"
   | "ml-dsa-87";
 
+/** ML-KEM (FIPS 203) security levels. */
+export type MlKemLevel = 512 | 768 | 1024;
+
 /** ML-DSA (FIPS 204) security levels. */
 export type MlDsaLevel = 44 | 65 | 87;
 
@@ -139,7 +142,49 @@ export interface MlKemKeyPair extends ServerKey {
   publicKey: string;
 }
 
-/** Result of `POST /v2/pq/encapsulate` (ML-KEM-768). */
+/** Parameters for ML-KEM key generation. */
+export interface MlKemKeygenParams {
+  /** ML-KEM security level (512, 768, or 1024; default: 768). */
+  level?: MlKemLevel;
+}
+
+/** Parameters for ML-KEM encapsulation. */
+export interface MlKemEncapsulateParams {
+  /** Hex-encoded ML-KEM public key. */
+  publicKey: string;
+  /** Optional security level. */
+  level?: MlKemLevel;
+}
+
+/** Parameters for ML-KEM decapsulation. */
+export interface MlKemDecapsulateParams extends KeyIdParams {
+  /** Hex-encoded ciphertext. */
+  ciphertext: string;
+  /** Optional security level. */
+  level?: MlKemLevel;
+}
+
+/** Parameters for Hybrid KEM encapsulation. */
+export interface HybridEncapsulateParams {
+  /** Hex-encoded recipient X25519 public key. */
+  x25519PublicKey: string;
+  /** Hex-encoded recipient ML-KEM public key. */
+  mlKemPublicKey: string;
+  /** Optional ML-KEM security level. */
+  level?: MlKemLevel;
+}
+
+/** Parameters for Hybrid KEM decapsulation. */
+export interface HybridDecapsulateParams extends KeyIdParams {
+  /** Hex-encoded ephemeral X25519 public key. */
+  x25519EphemeralPublic: string;
+  /** Hex-encoded ML-KEM ciphertext. */
+  mlKemCiphertext: string;
+  /** Optional ML-KEM security level. */
+  level?: MlKemLevel;
+}
+
+/** Result of `POST /v2/pq/encapsulate` (ML-KEM). */
 export interface MlKemEncapsulateResult {
   /** Hex-encoded ciphertext for the key holder. */
   ciphertext: string;

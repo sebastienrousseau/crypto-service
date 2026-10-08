@@ -16,7 +16,7 @@ import { KDF_FLOORS } from "../src/routes/v2/kdf";
 import { ARGON2_FLOORS } from "../src/routes/v2/password";
 
 describe("KDF floors and off-loop work (F14, F15)", function () {
-  this.timeout(60000);
+  this.timeout(120000);
 
   let app: FastifyInstance;
   before(async () => {

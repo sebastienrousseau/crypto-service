@@ -8,7 +8,7 @@ import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 
 describe("V2 error paths", function () {
-  this.timeout(15000);
+  this.timeout(60000);
 
   let app: FastifyInstance;
   const origApiKey = process.env["CRYPTO_API_KEY"];

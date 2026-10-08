@@ -18,7 +18,12 @@ export type KeyKind =
   | "rsa"
   | "ecc"
   | "x25519"
+  | "ml-kem-512"
   | "ml-kem-768"
+  | "ml-kem-1024"
+  | "ml-dsa-44"
+  | "ml-dsa-65"
+  | "ml-dsa-87"
   | "symmetric-256"
   | "hmac-sha256";
 

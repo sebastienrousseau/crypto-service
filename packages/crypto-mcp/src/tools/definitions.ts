@@ -1,8 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import { MCPTool, MCPToolParameterProperty } from "../types";
-import { KEY_HANDLE_PATTERN, MAX_KEYS } from "./keystore";
+import { MAX_KEYS } from "./keystore";
 import { annotationsFor } from "./annotations";
+import { STREAM_TOOLS } from "./stream-definitions";
+import {
+  HANDLE_NOTE,
+  MAX_KEY_LENGTH,
+  MAX_TEXT_LENGTH,
+  X25519_PUBLIC_KEY_HEX,
+  hex,
+  keyHandle,
+  oneOf,
+  text,
+} from "./schema-helpers";
 
 /** Key types accepted by `crypto_generate_key`. */
 export const KEY_TYPES = [
@@ -10,10 +21,18 @@ export const KEY_TYPES = [
   "ecc",
   "ed25519",
   "x25519",
+  "ml-kem-512",
   "ml-kem-768",
+  "ml-kem-1024",
+  "ml-dsa-44",
+  "ml-dsa-65",
+  "ml-dsa-87",
   "symmetric-256",
   "hmac-sha256",
 ];
+
+/** ML-KEM security levels accepted by KEM tools. */
+export const ML_KEM_LEVELS = [512, 768, 1024];
 
 /** RSA modulus lengths accepted by `crypto_generate_key`. */
 export const RSA_MODULUS_LENGTHS = [2048, 3072, 4096];
@@ -48,66 +67,6 @@ const AEAD_ALGORITHMS = ["aes-256-gcm", "chacha20-poly1305"];
 /** KMS providers named by the KMS tools; only "local" is configured. */
 const KMS_PROVIDERS = ["aws", "gcp", "azure", "vault", "local"];
 
-/** Largest data, plaintext or algorithm-list string a tool accepts. */
-export const MAX_TEXT_LENGTH = 1_048_576;
-
-/** Largest PEM or armored key a tool accepts. */
-export const MAX_KEY_LENGTH = 16_384;
-
-/** Whole bytes, hex-encoded. */
-const HEX_BYTES = "^(?:[0-9a-fA-F]{2})*$";
-
-/** Hex characters of an X25519 public key (32 bytes). */
-const X25519_PUBLIC_KEY_HEX = 64;
-
-/** Hex characters of an ML-KEM-768 public key (1184 bytes). */
-const ML_KEM_768_PUBLIC_KEY_HEX = 2368;
-
-/** Hex characters of an ML-KEM-768 ciphertext (1088 bytes). */
-const ML_KEM_768_CIPHERTEXT_HEX = 2176;
-
-/** Sentence appended to every tool that issues a key handle. */
-const HANDLE_NOTE =
-  "Secret key material stays inside the server; only an opaque keyHandle is returned.";
-
-/** A key handle issued by this server. */
-function keyHandle(description: string): MCPToolParameterProperty {
-  return {
-    type: "string",
-    description: `${description} Key handles look like 'kh_' followed by 32 hex characters.`,
-    maxLength: 35,
-    pattern: KEY_HANDLE_PATTERN,
-  };
-}
-
-/** Free text up to {@link MAX_TEXT_LENGTH}. */
-function text(description: string): MCPToolParameterProperty {
-  return { type: "string", description, maxLength: MAX_TEXT_LENGTH };
-}
-
-/** Hex of exactly `length` characters, or up to `length` when `upTo`. */
-function hex(
-  description: string,
-  length: number,
-  upTo = false,
-): MCPToolParameterProperty {
-  return {
-    type: "string",
-    description,
-    minLength: upTo ? 2 : length,
-    maxLength: length,
-    pattern: HEX_BYTES,
-  };
-}
-
-/** A string restricted to `values`. */
-function oneOf(
-  description: string,
-  values: string[],
-): MCPToolParameterProperty {
-  return { type: "string", description, enum: values };
-}
-
 const KMS_PROVIDER = oneOf(
   "KMS provider ('aws', 'gcp', 'azure', 'vault', or 'local'). Only 'local' (random, in-process key material that does not survive a restart) is configured; the others return an error.",
   KMS_PROVIDERS,
@@ -124,13 +83,13 @@ const KEK_LABEL: MCPToolParameterProperty = {
 const KEY_TOOLS: MCPTool[] = [
   {
     name: "crypto_generate_key",
-    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM-768, FIPS 203) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
+    description: `Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM 512/768/1024 FIPS 203, ML-DSA 44/65/87 FIPS 204) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         type: oneOf(
-          "Key type: 'rsa', 'ecc', 'ed25519', 'ml-kem-768', 'symmetric-256' (for crypto_encrypt, crypto_decrypt and crypto_kms_wrap), or 'hmac-sha256'.",
+          "Key type: 'rsa', 'ecc', 'ed25519', 'x25519', 'ml-kem-512', 'ml-kem-768', 'ml-kem-1024', 'ml-dsa-44', 'ml-dsa-65', 'ml-dsa-87', 'symmetric-256', or 'hmac-sha256'.",
           KEY_TYPES,
         ),
         modulusLength: {
@@ -249,131 +208,106 @@ const CIPHER_TOOLS: MCPTool[] = [
   },
   {
     name: "crypto_kem_encapsulate",
-    description: `Encapsulate a shared secret to an ML-KEM-768 (FIPS 203) public key. Returns the KEM ciphertext for the recipient and a symmetric-256 keyHandle for the shared secret, usable with crypto_encrypt. ${HANDLE_NOTE}`,
+    description: `Encapsulate a shared secret to an ML-KEM (FIPS 203) public key (512, 768, 1024). Returns the KEM ciphertext for the recipient and a symmetric-256 keyHandle for the shared secret, usable with crypto_encrypt. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         publicKey: hex(
-          "Hex-encoded ML-KEM-768 public key (2368 hex characters).",
-          ML_KEM_768_PUBLIC_KEY_HEX,
+          "Hex-encoded ML-KEM public key (1600, 2368, or 3136 hex characters).",
+          3136,
+          true,
         ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is 768.",
+          enum: ML_KEM_LEVELS,
+        },
       },
       required: ["publicKey"],
     },
   },
   {
     name: "crypto_kem_decapsulate",
-    description: `Recover an ML-KEM-768 shared secret with an ml-kem-768 key handle. Returns a symmetric-256 keyHandle for the shared secret. ${HANDLE_NOTE}`,
+    description: `Recover an ML-KEM shared secret with an ml-kem key handle (512, 768, 1024). Returns a symmetric-256 keyHandle for the shared secret. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
-        keyHandle: keyHandle("Handle of the ml-kem-768 key."),
+        keyHandle: keyHandle("Handle of the ml-kem key."),
         ciphertext: hex(
-          "Hex-encoded ML-KEM-768 ciphertext (2176 hex characters).",
-          ML_KEM_768_CIPHERTEXT_HEX,
+          "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+          3136,
+          true,
         ),
+        level: {
+          type: "integer",
+          description:
+            "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+          enum: ML_KEM_LEVELS,
+        },
       },
       required: ["keyHandle", "ciphertext"],
     },
   },
   {
-    name: "crypto_stream_encrypt",
-    description:
-      "Encrypt plaintext using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation protection. Returns base64 ciphertext.",
+    name: "crypto_hybrid_kem_encapsulate",
+    description: `Encapsulate a shared secret using Post-Quantum Hybrid KEM (X25519 + ML-KEM, RFC 9180/10024). Returns the classical ephemeral public key, ML-KEM ciphertext, and a symmetric-256 keyHandle for the combined shared secret. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
-        plaintext: text("Plaintext string to encrypt."),
         x25519PublicKey: hex(
-          "Hex-encoded X25519 public key (64 hex characters).",
+          "Hex-encoded recipient X25519 public key (64 hex characters).",
           X25519_PUBLIC_KEY_HEX,
         ),
         mlKemPublicKey: hex(
-          "Hex-encoded ML-KEM-768 public key (2368 hex characters).",
-          ML_KEM_768_PUBLIC_KEY_HEX,
+          "Hex-encoded recipient ML-KEM public key (1600, 2368, or 3136 hex characters).",
+          3136,
+          true,
         ),
-        chunkSize: {
-          type: "integer",
-          description: "Chunk size in bytes (minimum 64, default 65536).",
-          minimum: 64,
-        },
-      },
-      required: ["plaintext", "x25519PublicKey", "mlKemPublicKey"],
-    },
-  },
-  {
-    name: "crypto_stream_decrypt",
-    description:
-      "Decrypt a post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        ciphertext: text("Base64-encoded STREAM ciphertext."),
-        x25519KeyHandle: keyHandle(
-          "Handle of the recipient X25519 key (or 32-byte symmetric-256 key).",
-        ),
-        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM-768 key."),
-        chunkSize: {
-          type: "integer",
-          description: "Chunk size used during encryption (default 65536).",
-          minimum: 64,
-        },
-      },
-      required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
-    },
-  },
-  {
-    name: "crypto_stream_multi_encrypt",
-    description:
-      "Encrypt plaintext for multiple recipients using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation framing. Returns base64 ciphertext.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        plaintext: text("Plaintext string to encrypt."),
-        recipients: text(
-          "JSON-serialized array of recipient public key descriptors: [{ recipientId, recipientX25519Public, recipientMlKemPublic }].",
-        ),
-        chunkSize: {
+        level: {
           type: "integer",
           description:
-            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
-          minimum: 1024,
-          maximum: 16777216,
+            "ML-KEM security level (512, 768, or 1024). Default is 768.",
+          enum: ML_KEM_LEVELS,
         },
       },
-      required: ["plaintext", "recipients"],
+      required: ["x25519PublicKey", "mlKemPublicKey"],
     },
   },
   {
-    name: "crypto_stream_multi_decrypt",
-    description:
-      "Decrypt a multi-recipient post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
+    name: "crypto_hybrid_kem_decapsulate",
+    description: `Recover a Post-Quantum Hybrid KEM shared secret (X25519 + ML-KEM) using server-held x25519 and ml-kem key handles. Returns a symmetric-256 keyHandle for the combined shared secret. ${HANDLE_NOTE}`,
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
-        ciphertext: text("Base64-encoded multi-recipient STREAM ciphertext."),
-        x25519KeyHandle: keyHandle(
-          "Handle of the recipient X25519 key (or 32-byte symmetric-256 key).",
+        x25519KeyHandle: keyHandle("Handle of the recipient X25519 key."),
+        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM key."),
+        x25519EphemeralPublic: hex(
+          "Hex-encoded sender ephemeral X25519 public key (64 hex characters).",
+          X25519_PUBLIC_KEY_HEX,
         ),
-        mlKemKeyHandle: keyHandle("Handle of the recipient ML-KEM-768 key."),
-        recipientId: text(
-          "Optional recipient identifier for direct slot lookup.",
+        mlKemCiphertext: hex(
+          "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+          3136,
+          true,
         ),
-        chunkSize: {
+        level: {
           type: "integer",
           description:
-            "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
-          minimum: 1024,
-          maximum: 16777216,
+            "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+          enum: ML_KEM_LEVELS,
         },
       },
-      required: ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"],
+      required: [
+        "x25519KeyHandle",
+        "mlKemKeyHandle",
+        "x25519EphemeralPublic",
+        "mlKemCiphertext",
+      ],
     },
   },
 ];
@@ -382,14 +316,14 @@ const SIGNATURE_TOOLS: MCPTool[] = [
   {
     name: "crypto_sign",
     description:
-      "Sign data with a key handle. The algorithm follows the key: Ed25519, RSASSA-PSS (SHA-256), ECDSA (SHA-256; SHA-384 on P-384), or HMAC-SHA256.",
+      "Sign data with a key handle. The algorithm follows the key: Ed25519, RSASSA-PSS (SHA-256), ECDSA (SHA-256; SHA-384 on P-384), ML-DSA (44, 65, 87, FIPS 204), or HMAC-SHA256.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         data: text("Data string to sign."),
         keyHandle: keyHandle(
-          "Handle of an ed25519, rsa, ecc, or hmac-sha256 key.",
+          "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key.",
         ),
       },
       required: ["data", "keyHandle"],
@@ -398,22 +332,22 @@ const SIGNATURE_TOOLS: MCPTool[] = [
   {
     name: "crypto_verify",
     description:
-      "Verify a signature against a public key PEM (Ed25519, RSA-PSS, ECDSA) or a key handle (also HMAC-SHA256). Pass exactly one of publicKey or keyHandle.",
+      "Verify a signature against a public key (SPKI PEM or ML-DSA hex) or a key handle (also HMAC-SHA256). Pass exactly one of publicKey or keyHandle.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         data: text("Original data string."),
-        signature: hex("Hex-encoded signature.", 1024, true),
+        signature: hex("Hex-encoded signature.", MAX_KEY_LENGTH, true),
         publicKey: {
           type: "string",
           description:
-            "Public key in SPKI PEM format. Private keys are refused.",
+            "Public key in SPKI PEM format or ML-DSA hex format. Private keys are refused.",
           minLength: 1,
           maxLength: MAX_KEY_LENGTH,
         },
         keyHandle: keyHandle(
-          "Handle of an ed25519, rsa, ecc, or hmac-sha256 key.",
+          "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key.",
         ),
       },
       required: ["data", "signature"],
@@ -492,6 +426,7 @@ const KMS_AND_AUDIT_TOOLS: MCPTool[] = [
 export const TOOLS: MCPTool[] = [
   ...KEY_TOOLS,
   ...CIPHER_TOOLS,
+  ...STREAM_TOOLS,
   ...SIGNATURE_TOOLS,
   ...KMS_AND_AUDIT_TOOLS,
 ].map((tool) => ({ ...tool, ...annotationsFor(tool.name) }));

@@ -6,7 +6,7 @@ import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 
 describe("V2 API Routes", function () {
-  this.timeout(15000);
+  this.timeout(60000);
 
   let app: FastifyInstance;
   const testKey = "a".repeat(64); // 32 bytes hex

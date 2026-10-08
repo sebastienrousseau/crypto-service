@@ -119,7 +119,13 @@ export const corsOptions: FastifyCorsOptions = {
     ? process.env["CORS_ORIGIN"].split(",").map((o) => o.trim())
     : false,
   methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "x-api-key"],
+  allowedHeaders: [
+    "Content-Type",
+    "x-api-key",
+    "Authorization",
+    "x-request-id",
+    "traceparent",
+  ],
   credentials: true,
 };
 
