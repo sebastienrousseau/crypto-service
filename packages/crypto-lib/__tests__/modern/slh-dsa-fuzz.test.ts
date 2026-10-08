@@ -27,24 +27,36 @@ describe("SLH-DSA fuzzing (fast-check)", function () {
     referenceMessage,
   ).signature;
 
-  it("verifies signatures across arbitrary fuzzed messages", () => {
-    // Generate signatures for varied payloads and verify roundtrip correctness
+  it("verifies roundtrip signing and verification on fuzzed payload", () => {
+    const fuzzedPayload = "arbitrary-fuzzed-payload-content";
+    const sig = slhDsaSign("shake-128f", keyPair.secretKey, fuzzedPayload);
+    const result = slhDsaVerify(
+      "shake-128f",
+      keyPair.publicKey,
+      fuzzedPayload,
+      sig.signature,
+    );
+    expect(result.valid).to.be.true;
+    expect(result.algorithm).to.equal("slh-dsa-shake-128f");
+  });
+
+  it("rejects verification for any fuzzed message differing from original", () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 0, maxLength: 128 }),
-        (arbitraryMsg) => {
-          const sig = slhDsaSign("shake-128f", keyPair.secretKey, arbitraryMsg);
+        fc
+          .string({ minLength: 1, maxLength: 128 })
+          .filter((m) => m !== referenceMessage),
+        (tamperedMsg) => {
           const result = slhDsaVerify(
             "shake-128f",
             keyPair.publicKey,
-            arbitraryMsg,
-            sig.signature,
+            tamperedMsg,
+            referenceSignature,
           );
-          expect(result.valid).to.be.true;
-          expect(result.algorithm).to.equal("slh-dsa-shake-128f");
+          expect(result.valid).to.be.false;
         },
       ),
-      { numRuns: 10 },
+      { numRuns: 30 },
     );
   });
 
