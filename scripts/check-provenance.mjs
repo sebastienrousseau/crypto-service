@@ -34,10 +34,16 @@ async function problem(name) {
 }
 
 let problems = [];
-for (let attempt = 1; attempt <= 10; attempt++) {
+const maxAttempts = 24;
+for (let attempt = 1; attempt <= maxAttempts; attempt++) {
   problems = (await Promise.all(names.map(problem))).filter(Boolean);
   if (problems.length === 0) break;
-  await new Promise((r) => setTimeout(r, 15_000));
+  if (attempt < maxAttempts) {
+    console.log(
+      `provenance: attempt ${attempt}/${maxAttempts} - ${problems.length} package(s) propagating on npm, retrying in 15s...`,
+    );
+    await new Promise((r) => setTimeout(r, 15_000));
+  }
 }
 
 if (problems.length > 0) {
