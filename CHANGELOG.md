@@ -7,10 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.25] - Unreleased
+## [0.0.26] - Unreleased
 
 ### Added
 
+- **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.26 in strict lockstep.
+
+## [0.0.25] - 2026-10-08
+
+### Added
+
+- **OpenSSF Best Practices 100% Full Tier Certification**: Completed 100% Passing, 100% Silver, and 100% Gold badge certification on OpenSSF Best Practices BadgeApp (Project #15153). Added official status badges to repository root README.
+- **CI Provenance Verification Hardening**: Extended npm package provenance retry window to 24 attempts (6 minutes) with logging to absorb registry CDN propagation delays.
 - **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.25 in strict lockstep.
 
 ## [0.0.24] - 2026-10-08

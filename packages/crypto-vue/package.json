@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-vue",
-  "version": "0.0.25",
-  "description": "Vue 3 composables for client-side cryptography — key generation, encryption, signing, and hashing with reactive state.",
+  "version": "0.0.26",
+  "description": "Vue 3 composables for client-side cryptography \u2014 key generation, encryption, signing, and hashing with reactive state.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
