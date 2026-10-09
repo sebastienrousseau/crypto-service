@@ -218,5 +218,74 @@ describe("Property-based fuzzing (fast-check)", () => {
         { numRuns: 30 },
       );
     });
+
+    it("handles backward clock drift (negative delta t) without token overflow or crash", () => {
+      fc.assert(
+        fc.property(
+          tierArbitrary,
+          fc.string({ minLength: 1, maxLength: 16 }),
+          fc.integer({ min: 1, max: 1_000_000 }),
+          (tier, tenantId, clockDrift) => {
+            const engine = new MeteringEngine();
+            const quota = TIER_QUOTAS[tier];
+            const baseTime = 1_700_000_000_000;
+
+            // Consume one token at baseTime
+            const first = engine.checkRequest(
+              tenantId,
+              tier,
+              undefined,
+              baseTime,
+            );
+            expect(first.allowed).to.be.true;
+
+            // Clock jumps backwards
+            const driftTime = baseTime - clockDrift;
+            const second = engine.checkRequest(
+              tenantId,
+              tier,
+              undefined,
+              driftTime,
+            );
+            // Must not crash and remaining must not exceed capacity
+            expect(second.remaining).to.be.at.most(quota.maxRequestsPerMinute);
+          },
+        ),
+        { numRuns: 30 },
+      );
+    });
+
+    it("caps token replenishment at maxRequestsPerMinute after massive time jumps", () => {
+      fc.assert(
+        fc.property(
+          tierArbitrary,
+          fc.string({ minLength: 1, maxLength: 16 }),
+          fc.integer({ min: 100_000_000, max: 1_000_000_000 }),
+          (tier, tenantId, largeJumpMs) => {
+            const engine = new MeteringEngine();
+            const quota = TIER_QUOTAS[tier];
+            const baseTime = 1_700_000_000_000;
+
+            // Exhaust bucket
+            for (let i = 0; i < quota.maxRequestsPerMinute; i++) {
+              engine.checkRequest(tenantId, tier, undefined, baseTime);
+            }
+
+            // Advance by years
+            const futureTime = baseTime + largeJumpMs;
+            const res = engine.checkRequest(
+              tenantId,
+              tier,
+              undefined,
+              futureTime,
+            );
+            expect(res.allowed).to.be.true;
+            // After consuming 1, remaining must be exactly max - 1
+            expect(res.remaining).to.equal(quota.maxRequestsPerMinute - 1);
+          },
+        ),
+        { numRuns: 30 },
+      );
+    });
   });
 });

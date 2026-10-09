@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-prisma",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Prisma ORM integration for transparent field-level encryption using crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
