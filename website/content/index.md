@@ -3,7 +3,7 @@ form_origin: "https://docs.crypto-service.co"
 layout: index
 title: "Crypto Service Documentation — Developer & API Reference"
 description: "Interactive TypeDoc API references, guides, and architectural blueprints across all 18 lockstep packages of the Crypto Service Suite."
-eyebrow: "Documentation & Developer Portal · v0.0.26"
+eyebrow: "Documentation & Developer Portal · v0.0.27"
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 headline: "Crypto Service Suite Developer Documentation"

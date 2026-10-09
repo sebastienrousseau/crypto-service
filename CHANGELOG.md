@@ -7,10 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.26] - Unreleased
+## [0.0.27] - Unreleased
 
 ### Added
 
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.27 in strict lockstep.
+
+## [0.0.26] - 2026-10-09
+
+### Added
+
+- **Core Cryptographic Property Fuzzing Expansion**: Implemented fast-check property test suites across FIPS 204 ML-DSA-44, 65, and 87 verifying message roundtrip invariance, nibble tampering rejection, and hybrid Ed25519+ML-DSA dual verification.
+- **Metering Engine Resilience**: Added backward clock drift (negative delta t) resilience and massive time jump token replenishment tests in the REST server.
+- **OpenSSF Best Practices 100% Gold Badge**: Maintained 100% Passing, 100% Silver, and 100% Gold tier certification on OpenSSF Best Practices (Project #15153).
+- **100% Quality Verification Floor**: 100.0% statement, branch, function, and line coverage floor verified across all 18 packages with zero lint warnings and zero build errors.
 - **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.26 in strict lockstep.
 
 ## [0.0.25] - 2026-10-08
@@ -408,7 +418,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.25]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.24...HEAD
+[0.0.27]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.26...HEAD
+[0.0.26]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.25...v0.0.26
+[0.0.25]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.24...v0.0.25
 [0.0.24]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.23...v0.0.24
 [0.0.23]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.22...v0.0.23
 [0.0.22]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.21...v0.0.22
