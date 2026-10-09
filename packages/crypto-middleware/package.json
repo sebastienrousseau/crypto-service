@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-middleware",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Plug-and-play cryptographic middleware for Express and Fastify -- auto-decrypt requests, verify signatures, and encrypt responses.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
