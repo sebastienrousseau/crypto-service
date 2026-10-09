@@ -11,6 +11,7 @@ overrides:
   "body-parser": ">=1.20.8"
   "brace-expansion": ">=1.1.17"
   "chokidar": ">=5.0.0"
+  "fast-jwt": ">=6.3.4"
   "form-data": ">=2.5.6"
   "ip-address": ">=10.5.1"
   "js-yaml": ">=3.15.2"
