@@ -13,8 +13,8 @@ authors:
   - family-names: Rousseau
     given-names: Sebastien
     email: sebastian.rousseau@gmail.com
-version: "0.0.30"
-date-released: "2026-10-09"
+version: "0.0.31"
+date-released: "2026-10-10"
 license: "Apache-2.0 OR MIT"
 repository-code: "https://github.com/sebastienrousseau/crypto-service"
 url: "https://crypto-service.co"
