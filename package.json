@@ -54,6 +54,6 @@
     "publint": "^0.3.25",
     "rimraf": "^6.1.3",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.71.0"
+    "typescript-eslint": "^8.71.1"
   }
 }
