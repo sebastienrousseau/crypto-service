@@ -41,7 +41,7 @@
     "@prisma/client": "^5.0.0 || ^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.4",
     "c8": "^12.0.0",
     "chai": "^6.3.0",
     "mocha": "^12.0.3",
