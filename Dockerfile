@@ -13,7 +13,7 @@
 # ============================================================================
 # Stage 1: Build the server and produce a pruned, production-only deployment
 # ============================================================================
-FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS build
 
 # Skip the root `prepare` (husky) hook: there is no .git in the build context.
 ENV HUSKY=0
@@ -37,7 +37,7 @@ RUN pnpm install --offline --frozen-lockfile \
 # ============================================================================
 # Stage 2: Production image (production dependencies only, non-root, tini)
 # ============================================================================
-FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS production
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS production
 
 RUN apk add --no-cache tini && \
     addgroup -g 1001 -S crypto && \
