@@ -48,7 +48,7 @@
     "fastify-plugin": "^6.0.0"
   },
   "peerDependencies": {
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "fastify": "^4.0.0 || ^5.0.0"
   },
   "peerDependenciesMeta": {
@@ -69,7 +69,7 @@
     "c8": "^12.0.0",
     "chai": "^6.3.0",
     "chai-as-promised": "^8.0.2",
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "fastify": "^5.12.5",
     "mocha": "^12.0.3",
     "rimraf": "^6.1.3",
