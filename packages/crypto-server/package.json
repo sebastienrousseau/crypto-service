@@ -71,7 +71,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "fastify": "^5.12.5",
     "fastify-healthcheck": "^5.1.0",
-    "uuid": "^14.0.2",
+    "uuid": "^14.0.3",
     "winston": "^3.17.0"
   },
   "devDependencies": {
