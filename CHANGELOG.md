@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.33 in strict lockstep.
 
+### Fixed
+
+- **Dependency overrides now apply**: Moved the 22 security overrides from `pnpm-workspace.yaml` to `package.json` `pnpm.overrides`, where the pinned pnpm 9 reads them. Resolves `katex` 0.19.0 (GHSA-238p-pmpm-9mq7).
+
+### Changed
+
+- **Dependencies**: fastify, opentelemetry, express, typeorm, uuid, vue, @types/node, eslint, prettier and typescript-eslint updates; CodeQL, Scorecard and cargo-binstall action updates.
+
 ## [0.0.32] - 2026-10-13
 
 ### Added
