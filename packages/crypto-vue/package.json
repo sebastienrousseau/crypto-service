@@ -47,14 +47,14 @@
     "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.5.43"
+    "vue": "^3.5.44"
   },
   "devDependencies": {
     "@sebastienrousseau/mocha-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.5",
     "c8": "^12.0.0",
     "chai": "^6.3.0",
     "chai-as-promised": "^8.0.2",
@@ -63,7 +63,7 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
     "typescript": "~5.9.3",
-    "vue": "^3.5.43"
+    "vue": "^3.5.44"
   },
   "keywords": [
     "vue",
