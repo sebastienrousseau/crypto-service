@@ -101,7 +101,7 @@ crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 ## Requirements
 
 Node.js **>= 22.0.0** (CI tests Node.js 22 and 24 on Ubuntu and macOS).
-Package manager: **pnpm >= 9.0.0** (monorepo workspaces).
+Package manager: **pnpm 11.9.0** (pinned in `packageManager`; needs Node.js >= 22.13 for development).
 TypeScript: **~5.9.3** for development.
 Docker images require Docker 20.10+ or a compatible OCI runtime.
 See [toolchain policy](docs/POLICIES.md).

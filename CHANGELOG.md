@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Dependency overrides now apply**: Moved the 22 security overrides from `pnpm-workspace.yaml` to `package.json` `pnpm.overrides`, where the pinned pnpm 9 reads them. Resolves `katex` 0.19.0 (GHSA-238p-pmpm-9mq7).
+- **Dependency overrides now apply**: The 22 security overrides in `pnpm-workspace.yaml` were ignored by the pinned pnpm 9, which only reads `package.json`. With pnpm 11 they apply, and `katex` resolves 0.19.0 (GHSA-238p-pmpm-9mq7).
+- **Undeclared `prettier`**: Declared `prettier` at the workspace root; the package `format` scripts relied on pnpm 9 hoisting it.
 
 ### Changed
 
+- **pnpm 11.9.0**: `packageManager` moves from pnpm 9.15.9 to 11.9.0; workspace settings live in `pnpm-workspace.yaml`. The install scripts of `@prisma/client` (`prisma generate`) and `protobufjs` (a version-scheme warning), which pnpm 9 ran, are now denied in `allowBuilds`; nothing in the workspace needs them. Development needs Node.js >= 22.13.
 - **Dependencies**: fastify, opentelemetry, express, typeorm, uuid, vue, @types/node, eslint, prettier and typescript-eslint updates; CodeQL, Scorecard and cargo-binstall action updates.
 
 ## [0.0.32] - 2026-10-13
