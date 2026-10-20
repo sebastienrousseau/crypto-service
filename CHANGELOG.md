@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.33 in strict lockstep.
+- **Cognitive complexity and Halstead difficulty in the complexity gate**: `scripts/complexity-check.mjs` now also enforces cognitive complexity <= 15 per function (`sonarjs/cognitive-complexity`) and Halstead difficulty <= 30 (`scripts/halstead.mjs`, measured on the TypeScript AST after type erasure). The 14 existing offenders are recorded in `complexity-baseline.json`, which may only shrink.
 
 ### Fixed
 
