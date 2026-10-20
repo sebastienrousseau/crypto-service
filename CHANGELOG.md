@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Docker image builds on pnpm 11**: The build stage runs `pnpm deploy --legacy`; pnpm 10+ refuses a plain deploy from a workspace without `inject-workspace-packages`.
 - **Dependency overrides now apply**: The 22 security overrides in `pnpm-workspace.yaml` were ignored by the pinned pnpm 9, which only reads `package.json`. With pnpm 11 they apply, and `katex` resolves 0.19.0 (GHSA-238p-pmpm-9mq7).
 - **Undeclared `prettier`**: Declared `prettier` at the workspace root; the package `format` scripts relied on pnpm 9 hoisting it.
 - **Dead audit suppression removed**: Dropped the `ignoreGhsas` entry for GHSA-vfj7-8cjw-p6xm (`braces`), which no longer appears in the dependency tree.

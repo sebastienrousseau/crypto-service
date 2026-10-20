@@ -9,6 +9,10 @@
 # The runtime stage needs @sebastienrousseau/crypto-lib in crypto-server's
 # `dependencies` (not `devDependencies`): `pnpm deploy --prod` installs
 # production dependencies only.
+#
+# `--legacy` keeps the deploy mode pnpm 9 used: pnpm 10+ otherwise deploys
+# only from workspaces with inject-workspace-packages=true, which would
+# change how every package links its workspace dependencies in development.
 
 # ============================================================================
 # Stage 1: Build the server and produce a pruned, production-only deployment
@@ -32,7 +36,7 @@ COPY . .
 RUN pnpm install --offline --frozen-lockfile \
       --filter "@sebastienrousseau/crypto-server..." && \
     pnpm --filter "@sebastienrousseau/crypto-server..." run build && \
-    pnpm --filter @sebastienrousseau/crypto-server deploy --prod /out
+    pnpm --filter @sebastienrousseau/crypto-server deploy --prod --legacy /out
 
 # ============================================================================
 # Stage 2: Production image (production dependencies only, non-root, tini)
