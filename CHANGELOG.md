@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`markdown-it` 14.3.3**: Raised the override from `^14.3.1` to `^14.3.3`, outside GHSA-gfr2-rv44-r23c (high) and GHSA-vfgh-jcmw-g37q (low). Dev-only, through TypeDoc and JSDoc.
 - **No Fastify deprecation warning at startup**: `crypto-server` no longer sets `disableRequestLogging` (FSTDEP023); request logging stays on through Fastify's default.
 - **Docker image builds on pnpm 11**: The build stage runs `pnpm deploy --legacy`; pnpm 10+ refuses a plain deploy from a workspace without `inject-workspace-packages`.
 - **Dependency overrides now apply**: The 22 security overrides in `pnpm-workspace.yaml` were ignored by the pinned pnpm 9, which only reads `package.json`. With pnpm 11 they apply, and `katex` resolves 0.19.0 (GHSA-238p-pmpm-9mq7).
