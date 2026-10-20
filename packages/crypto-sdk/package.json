@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-sdk",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "description": "Type-safe TypeScript client for the Crypto Service Suite v2 API. Zero dependencies, fetch-based.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -41,7 +41,7 @@
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.5",
     "c8": "^12.0.0",
     "chai": "^6.3.0",
     "chai-as-promised": "^8.0.2",

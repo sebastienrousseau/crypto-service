@@ -9,6 +9,7 @@
 import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
 import chaiFriendly from "eslint-plugin-chai-friendly";
+import sonarjs from "eslint-plugin-sonarjs";
 import tseslint from "typescript-eslint";
 
 // A deep import into another workspace package's build output. Slashes
@@ -19,6 +20,11 @@ const DIST_IMPORT_MESSAGE =
 
 export default defineConfig(
   { ignores: ["**/dist/", "**/node_modules/", "**/examples/", "**/docs/"] },
+  // Registered for the complexity gate, which enables only its
+  // cognitive-complexity rule through --rule; that applies to every file,
+  // so the plugin is registered without a files filter. No sonarjs rule
+  // runs in plain lint.
+  { plugins: { sonarjs } },
   {
     files: ["**/*.ts"],
     extends: [js.configs.recommended, tseslint.configs.recommended],

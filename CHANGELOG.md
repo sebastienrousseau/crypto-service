@@ -7,11 +7,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.32] - Unreleased
+## [0.0.33] - Unreleased
 
 ### Added
 
-- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.32 in strict lockstep.
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.33 in strict lockstep.
+- **Cognitive complexity and Halstead difficulty in the complexity gate**: `scripts/complexity-check.mjs` now also enforces cognitive complexity <= 15 per function (`sonarjs/cognitive-complexity`) and Halstead difficulty <= 30 (`scripts/halstead.mjs`, measured on the TypeScript AST after type erasure). The 14 existing offenders are recorded in `complexity-baseline.json`, which may only shrink.
+
+### Fixed
+
+- **No Fastify deprecation warning at startup**: `crypto-server` no longer sets `disableRequestLogging` (FSTDEP023); request logging stays on through Fastify's default.
+- **Docker image builds on pnpm 11**: The build stage runs `pnpm deploy --legacy`; pnpm 10+ refuses a plain deploy from a workspace without `inject-workspace-packages`.
+- **Dependency overrides now apply**: The 22 security overrides in `pnpm-workspace.yaml` were ignored by the pinned pnpm 9, which only reads `package.json`. With pnpm 11 they apply, and `katex` resolves 0.19.0 (GHSA-238p-pmpm-9mq7).
+- **Undeclared `prettier`**: Declared `prettier` at the workspace root; the package `format` scripts relied on pnpm 9 hoisting it.
+- **Dead audit suppression removed**: Dropped the `ignoreGhsas` entry for GHSA-vfj7-8cjw-p6xm (`braces`), which no longer appears in the dependency tree.
+
+### Changed
+
+- **pnpm 11.9.0**: `packageManager` moves from pnpm 9.15.9 to 11.9.0; workspace settings live in `pnpm-workspace.yaml`. The install scripts of `@prisma/client` (`prisma generate`) and `protobufjs` (a version-scheme warning), which pnpm 9 ran, are now denied in `allowBuilds`; nothing in the workspace needs them. Development needs Node.js >= 22.13.
+- **Dependencies**: fastify, opentelemetry, express, typeorm, uuid, vue, @types/node, eslint, prettier and typescript-eslint updates; CodeQL, Scorecard and cargo-binstall action updates.
+
+## [0.0.32] - 2026-10-13
+
+### Added
+
+- **Lockstep release iteration**: Advanced monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.32 in strict lockstep.
 
 ## [0.0.31] - 2026-10-10
 
@@ -449,7 +469,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.32]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.31...HEAD
+[0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...HEAD
+[0.0.32]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.30...v0.0.31
 [0.0.30]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.29...v0.0.30
 [0.0.29]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.28...v0.0.29

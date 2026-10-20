@@ -112,8 +112,10 @@ describe("Crypto Server", () => {
         expect(fastifyOptions.caseSensitive).to.be.true;
       });
 
-      it("should have request logging enabled", () => {
-        expect(fastifyOptions.disableRequestLogging).to.be.false;
+      it("should leave request logging at Fastify's default (enabled)", () => {
+        // Setting disableRequestLogging at all, even to false, emits
+        // Fastify's FSTDEP023 deprecation warning at startup.
+        expect(fastifyOptions.disableRequestLogging).to.be.undefined;
       });
 
       it("should have keepAliveTimeout configured", () => {

@@ -1,12 +1,12 @@
 {
   "name": "@sebastienrousseau/crypto-service",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "private": true,
   "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
   "engines": {
     "node": ">=22.0.0"
   },
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@11.9.0",
   "homepage": "https://crypto-service.co",
   "license": "Apache-2.0 OR MIT",
   "scripts": {
@@ -46,14 +46,16 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.11.0",
+    "eslint": "^10.12.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
-    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-prettier": "^5.5.7",
+    "eslint-plugin-sonarjs": "^4.2.2",
     "husky": "^9.1.0",
     "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
     "publint": "^0.3.25",
     "rimraf": "^6.1.3",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.71.0"
+    "typescript-eslint": "^8.71.2"
   }
 }

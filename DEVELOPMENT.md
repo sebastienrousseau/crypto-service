@@ -10,7 +10,7 @@ how to reproduce every CI gate locally, monorepo test layout, and the release mo
 | Tool       | Version         | Where it is configured                                                        |
 | :--------- | :-------------- | :---------------------------------------------------------------------------- |
 | Node.js    | >= 22.0.0 (LTS) | `package.json` (`engines.node`), `.devcontainer/devcontainer.json`, CI matrix |
-| pnpm       | >= 9.0.0        | `package.json` (`packageManager`), root workspace                             |
+| pnpm       | 11.9.0          | `package.json` (`packageManager`), `pnpm-workspace.yaml` (settings)           |
 | TypeScript | ~5.9.3          | `tsconfig.base.json`, workspace root & packages                               |
 
 ### Setup

@@ -75,7 +75,6 @@ export const fastifyOptions: FastifyServerOptions = {
   bodyLimit: 256 * 1024,
   caseSensitive: true,
   connectionTimeout: 30_000,
-  disableRequestLogging: false,
   ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
   logger: true,
