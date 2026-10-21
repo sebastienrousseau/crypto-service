@@ -32,6 +32,7 @@ import {
   derivePqChunkNonce,
   toBytes,
 } from "./stream-pq-aead";
+import { assertChunkSize } from "./chunks";
 
 /** Magic bytes identifying multi-recipient post-quantum stream format ("MSPQ"). */
 export const MULTI_PQ_STREAM_MAGIC = new Uint8Array([0x4d, 0x53, 0x50, 0x51]);
@@ -293,6 +294,7 @@ export function streamMultiPqEncrypt(
     throw new Error("Recipient count exceeds maximum limit of 1000");
   }
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   if (chunkSize < 1024 || chunkSize > 16 * 1024 * 1024) {
     throw new Error("Chunk size must be between 1024 and 16777216 bytes");
   }

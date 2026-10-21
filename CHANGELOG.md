@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Invalid stream chunk sizes in crypto-lib**: `streamEncrypt` and `streamPqEncrypt` accepted any `chunkSize`. Zero made encryption loop forever, and `NaN` or a negative size returned a stream header with no chunks, silently dropping the plaintext. Both functions and their decrypt counterparts (and the Web Streams wrappers that call them) now throw unless `chunkSize` is a positive integer. Decryption already failed closed. The crypto-server routes were not affected: their JSON schemas only accept integer chunk sizes in range.
+- **Non-integer chunk sizes in the multi-recipient stream**: `streamMultiPqEncrypt` range-checked `chunkSize` but not that it was an integer. `NaN` passed the check and dropped the plaintext, and a size such as 1024.5 produced a stream whose header says 1024, so it could never be decrypted. It now throws unless `chunkSize` is a positive integer, before the existing 1024 to 16 MiB range check.
 
 ## [0.0.34] - 2026-10-21
 
