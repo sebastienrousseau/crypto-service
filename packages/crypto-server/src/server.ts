@@ -40,7 +40,11 @@ import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
 import { KmsRegistry } from "./lib/kms-providers";
 import { KmsOwners } from "./lib/kms-owners";
-import { KdfRunner } from "./lib/kdf-runner";
+import {
+  CryptoWorkers,
+  KDF_LIMITS,
+  SIGNING_LIMITS,
+} from "./lib/crypto-workers";
 import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
 import { OpaqueStore } from "./lib/opaque-store";
@@ -149,7 +153,8 @@ async function init(
   });
 
   // Server-side custody of generated key pairs (see lib/key-store.ts),
-  // KDF / password hashing on worker threads (lib/kdf-runner.ts),
+  // KDF / password hashing and post-quantum signing on worker threads
+  // (lib/crypto-workers.ts),
   // and OPAQUE authentication state (lib/opaque-store.ts).
   app.decorate("keyStore", keyStoreFromEnv());
   // KMS providers from the KMS_PROVIDERS allowlist (throws on invalid
@@ -160,9 +165,12 @@ async function init(
     "kmsOwners",
     new KmsOwners(process.env["CRYPTO_KEY_OUT_DIR"] || undefined),
   );
-  app.decorate("kdf", new KdfRunner());
+  app.decorate("kdf", new CryptoWorkers(KDF_LIMITS));
+  app.decorate("signer", new CryptoWorkers(SIGNING_LIMITS));
   app.decorate("opaqueStore", new OpaqueStore());
-  app.addHook("onClose", () => app.kdf.close());
+  app.addHook("onClose", async () => {
+    await Promise.all([app.kdf.close(), app.signer.close()]);
+  });
 
   // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
   // every onRequest hook, so the tenant is the authenticated principal.

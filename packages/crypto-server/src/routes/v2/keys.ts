@@ -4,7 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { KEY_ALGORITHMS } from "@sebastienrousseau/crypto-lib/keys";
+import {
+  KEY_ALGORITHMS,
+  type generateKeyPair,
+} from "@sebastienrousseau/crypto-lib/keys";
 import {
   KEY_ID_SCHEMA,
   publicView,
@@ -45,13 +48,22 @@ function registerGenerate(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { generateKeyPair } =
-        await import("@sebastienrousseau/crypto-lib/keys");
       const { algorithm, metadata } = request.body as {
         algorithm: (typeof KEY_ALGORITHMS)[number];
         metadata?: { kid?: string; use?: "sig" | "enc"; exp?: string };
       };
-      const pair = generateKeyPair(algorithm, metadata);
+      // ML-DSA key generation is CPU-bound; it runs on the signing pool.
+      const pair = algorithm.startsWith("ml-dsa-")
+        ? await request.server.signer.run<ReturnType<typeof generateKeyPair>>(
+            "keys",
+            "generateKeyPair",
+            algorithm,
+            metadata,
+          )
+        : (await import("@sebastienrousseau/crypto-lib/keys")).generateKeyPair(
+            algorithm,
+            metadata,
+          );
       const stored = await storeKey(
         request,
         pair.algorithm,

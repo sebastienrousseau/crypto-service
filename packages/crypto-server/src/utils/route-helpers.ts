@@ -12,7 +12,13 @@
  */
 
 import type { FastifyReply } from "fastify";
-import { cryptoErrorStatus, isCryptoError, sendProblem } from "../lib/problem";
+import {
+  busy,
+  cryptoErrorStatus,
+  isCryptoError,
+  isWorkerOverload,
+  sendProblem,
+} from "../lib/problem";
 import {
   sendValidationError,
   ValidationError,
@@ -78,6 +84,10 @@ export function classifyCryptoError(
   reply: FastifyReply,
   operation: string,
 ): FastifyReply {
+  if (isWorkerOverload(error)) {
+    const spec = busy();
+    return sendProblem(reply, spec.status, spec.slug, spec.detail);
+  }
   const msg = error instanceof Error ? error.message : String(error);
   // A crypto-lib CryptoError carries a code; anything else is classified
   // by its message.

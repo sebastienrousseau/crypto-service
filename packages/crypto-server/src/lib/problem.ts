@@ -20,6 +20,10 @@
 import { STATUS_CODES } from "http";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { CryptoError } from "@sebastienrousseau/crypto-lib";
+import {
+  WorkerPoolBusyError,
+  WorkerTaskTimeoutError,
+} from "@sebastienrousseau/crypto-lib/accel";
 import { KeyStoreError } from "./key-store";
 
 /** Media type of every error response. */
@@ -151,6 +155,7 @@ const KEY_STORE_SLUGS: Readonly<Record<string, ProblemSlug>> = {
   KEY_INTEGRITY_FAILED: "internal-error",
   KEY_CORRUPTED: "internal-error",
   UNSUPPORTED_STORAGE_ALGORITHM: "internal-error",
+  PLAINTEXT_KEY_REFUSED: "internal-error",
 };
 
 /** What the error handler sends for a thrown error. */
@@ -184,6 +189,25 @@ function fieldOf(issue: Issue): string {
   const missing = issue.params.missingProperty;
   return missing ? `${issue.instancePath}/${missing}` : issue.instancePath;
 }
+
+/**
+ * Whether an error means a worker pool could not take or finish the work:
+ * its queue was full or the task overran its deadline.
+ */
+export function isWorkerOverload(error: unknown): boolean {
+  return (
+    error instanceof WorkerPoolBusyError ||
+    error instanceof WorkerTaskTimeoutError
+  );
+}
+
+/** 503 for work the server cannot take on now. */
+export const busy = (): ProblemSpec => ({
+  status: 503,
+  slug: "service-unavailable",
+  detail: "The server is busy; retry later",
+  extensions: {},
+});
 
 /** The fixed 500 problem: internal messages never reach the client. */
 const internal = (extensions: Record<string, unknown> = {}): ProblemSpec => ({
@@ -252,6 +276,7 @@ function clientProblem(status: number, error: ThrownError): ProblemSpec {
  * messages and stacks never reach the client.
  */
 export function classifyThrown(error: unknown): ProblemSpec {
+  if (isWorkerOverload(error)) return busy();
   if (isCryptoError(error)) return cryptoProblem(error);
   if (error instanceof KeyStoreError) return keyStoreProblem(error);
   const thrown = (error ?? {}) as ThrownError;
