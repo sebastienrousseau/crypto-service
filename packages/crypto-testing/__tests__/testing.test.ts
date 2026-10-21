@@ -94,7 +94,7 @@ describe("keys", () => {
       // The 'as const' ensures values are readonly at compile time.
       // At runtime we verify structural integrity.
       expect(TEST_KEYS.ed25519.publicKey).to.equal(
-        "d75a980182b10ab7d54bfed3c964073a0ee172f3daa3f4a18446b7e8c38f1dd5",
+        "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
       );
     });
   });
