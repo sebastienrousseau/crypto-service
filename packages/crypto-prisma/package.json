@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-prisma",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Prisma Client extension for transparent field-level encryption with XChaCha20-Poly1305: encrypt chosen model fields before they reach the database.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

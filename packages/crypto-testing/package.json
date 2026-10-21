@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-testing",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Test utilities for crypto-lib: deterministic keys, known-answer test vectors, mocks and fixtures for fast, reproducible CI.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

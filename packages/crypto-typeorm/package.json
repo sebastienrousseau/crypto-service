@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-typeorm",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "TypeORM column-level encryption with a single decorator: transparent XChaCha20-Poly1305 encryption of entity columns, powered by crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

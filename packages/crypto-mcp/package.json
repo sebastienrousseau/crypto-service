@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-mcp",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Model Context Protocol (MCP) server that gives AI assistants and agents cryptography tools: key generation, encryption, ML-KEM, ML-DSA signing, hashing, streaming encryption, KMS and CBOM.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
