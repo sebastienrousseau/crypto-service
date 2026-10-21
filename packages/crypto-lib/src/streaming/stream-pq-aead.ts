@@ -20,7 +20,18 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
-import { assertChunkSize } from "./chunks";
+import {
+  CHUNK_TAG_FINAL,
+  CHUNK_TAG_MESSAGE,
+  TAG_LEN,
+  assertChunkSize,
+  encryptChunksInto,
+  streamSize,
+} from "./chunks";
+
+// The chunk tags and Poly1305 tag length are shared with the other
+// streams; re-exported for existing importers of this module.
+export { CHUNK_TAG_FINAL, CHUNK_TAG_MESSAGE, TAG_LEN };
 
 /** X25519 public key length in bytes. */
 export const EPHEMERAL_LEN = 32;
@@ -28,16 +39,10 @@ export const EPHEMERAL_LEN = 32;
 export const ML_KEM_CT_LEN = 1088;
 /** XChaCha20 nonce length in bytes. */
 export const NONCE_LEN = 24;
-/** Poly1305 authentication tag length in bytes. */
-export const TAG_LEN = 16;
 /** Total header length for post-quantum hybrid streaming AEAD. */
 export const PQ_STREAM_HEADER_LEN = EPHEMERAL_LEN + ML_KEM_CT_LEN + NONCE_LEN;
 /** Default chunk size for streaming encryption (64 KiB). */
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
-/** Chunk tag byte for intermediate chunks. */
-export const CHUNK_TAG_MESSAGE = 0x00;
-/** Chunk tag byte for the final chunk. */
-export const CHUNK_TAG_FINAL = 0x01;
 
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
@@ -152,53 +157,6 @@ function decapsulateKeyMaterial(
   return deriveSharedKey(x25519Shared, mlKemShared, ephPub);
 }
 
-/** Computes chunk count and total output size for encrypted stream. */
-function computeStreamOutputSize(ptLen: number, chunkSize: number): number {
-  const numFullChunks = Math.floor(ptLen / chunkSize);
-  const lastChunkLen = ptLen - numFullChunks * chunkSize;
-  const hasExtraChunk = lastChunkLen > 0 || ptLen === 0;
-  const totalChunks = hasExtraChunk ? numFullChunks + 1 : numFullChunks;
-
-  let totalSize = PQ_STREAM_HEADER_LEN;
-  for (let i = 0; i < totalChunks; i++) {
-    const len =
-      i < numFullChunks ? chunkSize : lastChunkLen > 0 ? lastChunkLen : 0;
-    totalSize += 1 + len + TAG_LEN;
-  }
-  return totalSize;
-}
-
-/** Encrypts plaintext chunks into the output buffer. */
-function encryptChunks(
-  plaintext: Uint8Array,
-  key: Uint8Array,
-  baseNonce: Uint8Array,
-  chunkSize: number,
-  output: Uint8Array,
-): void {
-  const numFullChunks = Math.floor(plaintext.length / chunkSize);
-  const hasExtra = plaintext.length % chunkSize > 0 || plaintext.length === 0;
-  const totalChunks = hasExtra ? numFullChunks + 1 : numFullChunks;
-
-  let offset = PQ_STREAM_HEADER_LEN;
-  for (let i = 0; i < totalChunks; i++) {
-    const isFinal = i === totalChunks - 1;
-    const chunkTag = isFinal ? CHUNK_TAG_FINAL : CHUNK_TAG_MESSAGE;
-    const start = i * chunkSize;
-    const end = isFinal ? plaintext.length : start + chunkSize;
-    const chunk = plaintext.subarray(start, end);
-
-    const nonce = derivePqChunkNonce(baseNonce, i, chunkTag);
-    const cipher = xchacha20poly1305(key, nonce);
-    const encrypted = cipher.encrypt(chunk);
-
-    output[offset] = chunkTag;
-    offset += 1;
-    output.set(encrypted, offset);
-    offset += encrypted.length;
-  }
-}
-
 /**
  * Encrypt data using hybrid post-quantum STREAM construction.
  *
@@ -228,14 +186,23 @@ export function streamPqEncrypt(
   );
   const baseNonce = randomBytes(NONCE_LEN);
 
-  const totalSize = computeStreamOutputSize(plaintext.length, chunkSize);
-  const output = new Uint8Array(totalSize);
+  const output = new Uint8Array(
+    streamSize(PQ_STREAM_HEADER_LEN, plaintext.length, chunkSize),
+  );
 
   output.set(ephPub, 0);
   output.set(mlKemCt, EPHEMERAL_LEN);
   output.set(baseNonce, EPHEMERAL_LEN + ML_KEM_CT_LEN);
 
-  encryptChunks(plaintext, key, baseNonce, chunkSize, output);
+  encryptChunksInto(
+    plaintext,
+    key,
+    baseNonce,
+    chunkSize,
+    output,
+    PQ_STREAM_HEADER_LEN,
+    derivePqChunkNonce,
+  );
 
   return {
     ciphertext: output,
