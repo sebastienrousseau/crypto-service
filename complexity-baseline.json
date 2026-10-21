@@ -1,5 +1,4 @@
 {
-  "packages/crypto-benchmarks/src/timer.ts :: halstead-difficulty :: benchmarkOperation": 50.8,
   "packages/crypto-cbom/src/validator.ts :: complexity :: validateCbom": 18,
   "packages/crypto-cbom/src/validator.ts :: sonarjs/cognitive-complexity :: validateCbom": 26,
   "packages/crypto-cli/src/commands/help.command.ts :: halstead-difficulty :: handleHelp": 40.6,
