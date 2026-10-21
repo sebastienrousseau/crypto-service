@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.35] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.35 in strict lockstep.
+
 ## [0.0.34] - 2026-10-21
 
 ### Added
@@ -486,7 +492,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...HEAD
+[0.0.35]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.34...HEAD
+[0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.30...v0.0.31

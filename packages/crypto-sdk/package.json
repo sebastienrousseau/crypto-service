@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-sdk",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Typed TypeScript client for the crypto-server REST API: post-quantum, encryption, signing and hashing calls. Zero dependencies, built on fetch.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

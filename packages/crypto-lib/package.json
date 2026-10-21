@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Post-quantum cryptography library for TypeScript and Node.js: ML-KEM, ML-DSA, SLH-DSA, HPKE, AES-GCM, XChaCha20-Poly1305, Ed25519, X25519, SHA-3, BLAKE3, Argon2id and OpenPGP.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-kms",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Key management interface for envelope encryption and key rotation, with AWS KMS and local providers. Google Cloud KMS, Azure Key Vault and HashiCorp Vault providers are stubs.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
