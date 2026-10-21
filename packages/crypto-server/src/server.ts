@@ -83,9 +83,14 @@ async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
  * limiting, ETags and content negotiation apply to every route. The
  * previous ordering (routes first) silently disabled all of these
  * plugins for every registered route.
+ *
+ * `overrides.logger` replaces the logger configuration, so tests can
+ * capture what the server logs.
  */
-async function init(): Promise<fastify.FastifyInstance> {
-  const app = fastify.fastify(fastifyOptions);
+async function init(
+  overrides: Pick<fastify.FastifyServerOptions, "logger"> = {},
+): Promise<fastify.FastifyInstance> {
+  const app = fastify.fastify({ ...fastifyOptions, ...overrides });
 
   // Record every route, including those plugins add, so the boot check
   // can prove each one is covered by the authorization policy.

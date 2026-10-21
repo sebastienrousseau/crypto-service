@@ -70,7 +70,7 @@ export default (app: FastifyInstance): void => {
           reply,
         );
         /* c8 ignore next -- Fastify schema already validates all fields */
-        if (!v) return;
+        if (!v) return reply;
 
         const revocationData = await revoke({
           passphrase: v.passphrase as string,

@@ -103,7 +103,7 @@ export default (app: FastifyInstance): void => {
     async (request, reply) => {
       try {
         const v = validateGenerateBody(request.body as IBodyGenerate, reply);
-        if (!v) return;
+        if (!v) return reply;
 
         const generated = (await generate({
           date: new Date(),

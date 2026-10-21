@@ -71,7 +71,7 @@ export default (app: FastifyInstance): void => {
           },
           reply,
         );
-        if (!v) return;
+        if (!v) return reply;
 
         const decryptedData = await decrypt({
           passphrase: v.passphrase,

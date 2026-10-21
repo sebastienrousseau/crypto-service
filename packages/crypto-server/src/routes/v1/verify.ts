@@ -70,7 +70,7 @@ export default (app: FastifyInstance): void => {
           },
           reply,
         );
-        if (!v) return;
+        if (!v) return reply;
 
         const verifyData = await verify({
           date: v.date as Date,
