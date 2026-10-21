@@ -1,24 +1,29 @@
-# VHS tape recipe for Crypto Service Suite demo
+# VHS tape recipe for the Crypto Service Suite demo
 # Render with: make demo or vhs .github/demo.tape
+# Needs a built CLI first: pnpm -r run build
 
 Output .github/demo.gif
 
 Set Shell "zsh"
 Set FontSize 14
-Set Width 960
-Set Height 600
+Set Width 1200
+Set Height 460
 Set Padding 20
 Set Framerate 30
 Set Theme "Catppuccin Mocha"
 Set WindowBar Colorful
 Set WindowBarSize 40
 Set TypingSpeed 35ms
+Set WaitPattern /❯$/
+Set WaitTimeout 20s
 
-# Setup local alias and clean prompt
+# Work in a throwaway directory; keys are created mode 600.
 Hide
-Type "export PS1='%F{cyan}crypto-service%f %F{yellow}❯%f '"
+Type `alias crypto-cli="node $PWD/packages/crypto-cli/dist/cli.js"`
 Enter
-Type "alias crypto-cli='node packages/crypto-cli/dist/cli.js'"
+Type `cd "$(mktemp -d)" && umask 077`
+Enter
+Type "export PS1='%F{cyan}crypto-service%f %F{yellow}❯%f '"
 Enter
 Type "clear"
 Enter
@@ -28,24 +33,50 @@ Sleep 600ms
 Type "crypto-cli --version"
 Sleep 400ms
 Enter
+Wait
 Sleep 1.2s
 
-Type "crypto-cli keygen -a ed25519"
+Type "echo 'hello, post-quantum world' > note.txt"
+Enter
+Wait
+Sleep 400ms
+Type "crypto-cli hash -a blake3 note.txt"
 Sleep 400ms
 Enter
+Wait
 Sleep 1.5s
 
-Type "crypto-cli hpke keygen -k x25519-ml-kem-768"
+Type "crypto-cli keygen -a ml-dsa-65 --json > signer.json"
 Sleep 400ms
 Enter
+Wait
+Sleep 1.2s
+Type "crypto-cli sign --key-file signer.json note.txt > note.sig"
+Sleep 400ms
+Enter
+Wait
+Sleep 1.2s
+Type "crypto-cli verify --key-file signer.json --signature-file note.sig note.txt"
+Sleep 400ms
+Enter
+Wait
+Sleep 1.5s
+Type "echo tampered | crypto-cli verify --key-file signer.json --signature-file note.sig; echo exit=$?"
+Sleep 400ms
+Enter
+Wait
 Sleep 1.8s
 
-Type "crypto-cli hash -a sha256 packages/crypto-lib/package.json"
+Type "head -c 32 /dev/urandom | xxd -p -c 64 > key.hex"
+Enter
+Wait
+Sleep 400ms
+Type "crypto-cli encrypt --key-file key.hex note.txt | tee box.b64 | crypto-cli decrypt --key-file key.hex"
 Sleep 400ms
 Enter
-Sleep 1.5s
-
-Type "crypto-cli --help"
-Sleep 400ms
+Wait
+Sleep 1.8s
+Type "cat box.b64"
 Enter
+Wait
 Sleep 2.5s

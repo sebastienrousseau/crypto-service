@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependency overrides now apply**: The 22 security overrides in `pnpm-workspace.yaml` were ignored by the pinned pnpm 9, which only reads `package.json`. With pnpm 11 they apply, and `katex` resolves 0.19.0 (GHSA-238p-pmpm-9mq7).
 - **Undeclared `prettier`**: Declared `prettier` at the workspace root; the package `format` scripts relied on pnpm 9 hoisting it.
 - **Dead audit suppression removed**: Dropped the `ignoreGhsas` entry for GHSA-vfj7-8cjw-p6xm (`braces`), which no longer appears in the dependency tree.
+- **README matches the CLI and the published packages**: The README said `crypto-cli` takes no subcommands; it documents the real ones (`hash`, `keygen`, `encrypt`/`decrypt`, `sign`/`verify`, `password`, `hpke`, `stream`, `opaque`, `kms`, `cbom`). The registry badge pointed at the private root package (stuck at 0.0.2 on npm) and now shows `crypto-lib`; a stale "npm has 0.0.3" note is gone. The crypto-server configuration table gains the variables the server reads but did not list (`ALLOW_ANONYMOUS`, `RATE_LIMIT_MAX`, `CRYPTO_KEY_STORAGE_KEY`, `OTEL_EXPORTER_OTLP_ENDPOINT` and the KMS provider settings).
+- **Demo re-rendered for 0.0.33**: `.github/demo.tape` now waits for each command to finish instead of typing ahead, and shows a BLAKE3 hash, an ML-DSA-65 sign and verify (including a rejected tampered input) and an XChaCha20-Poly1305 round trip.
 
 ### Changed
 
