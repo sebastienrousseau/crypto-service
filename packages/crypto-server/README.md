@@ -294,7 +294,9 @@ curl -H "x-api-key: your-secret-api-key" ...
 curl -H "Authorization: Bearer eyJhbGciOi..." ...
 ```
 
-A JWT must be HS256 and carry `exp` and `iat`; it is refused once it
+A JWT must be HS256 and carry `sub`, `exp` and `iat`. Its `sub` must be
+a non-empty string other than `api-key` and `anonymous` (the built-in
+principals), because server-held keys belong to the subject. It is refused once it
 is older than `JWT_MAX_AGE` seconds (default 3600) or if it declares a
 longer lifetime (`exp - iat`). When `JWT_ISSUER` / `JWT_AUDIENCE` are
 set, its `iss` must equal the issuer and its `aud` must contain the
@@ -310,6 +312,10 @@ gets `403`. The server refuses to start if a route has no entry.
 JWT principals carry their scopes in a `scopes` array claim; API-key
 and anonymous principals hold `crypto:admin`, which satisfies every
 scope except `crypto:keys:export`.
+
+Anonymous access (`ALLOW_ANONYMOUS=1`) is single-tenant: every caller is
+the same principal, holds `crypto:admin`, and can use every key the
+server holds. Use it only for local development.
 
 | Scope                | Routes                                                                                                               |
 | :------------------- | :------------------------------------------------------------------------------------------------------------------- |
