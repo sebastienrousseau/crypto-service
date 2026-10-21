@@ -27,7 +27,11 @@ export type {
   WebCryptoHashResult,
 } from "./webcrypto-bridge";
 
-export { WorkerPool } from "./worker-pool";
+export {
+  WorkerPool,
+  WorkerPoolBusyError,
+  WorkerTaskTimeoutError,
+} from "./worker-pool";
 /** Re-exported worker pool option and task types. */
 export type { WorkerPoolOptions, WorkerTask } from "./worker-pool";
 

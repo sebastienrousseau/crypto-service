@@ -13,6 +13,11 @@
  * Each worker runs a generic executor that accepts a task module path and
  * function name, deserializes the arguments, runs the function, and returns
  * the serialized result.
+ *
+ * A worker that crashes, exits or overruns `taskTimeoutMs` is replaced and
+ * its task rejected, so the pool keeps its size. `maxQueue` bounds the
+ * tasks waiting for a worker; beyond it `execute` rejects at once with
+ * {@link WorkerPoolBusyError}.
  */
 
 import { Worker, isMainThread } from "node:worker_threads";
@@ -26,6 +31,28 @@ export interface WorkerPoolOptions {
   size?: number;
   /** Path to the worker script. Default: built-in generic executor. */
   workerScript?: string;
+  /**
+   * Tasks that may wait for a worker; further tasks are rejected with
+   * {@link WorkerPoolBusyError}. Default: unbounded.
+   */
+  maxQueue?: number;
+  /**
+   * Milliseconds a task may run before it is rejected with
+   * {@link WorkerTaskTimeoutError} and its worker replaced. Default: none.
+   */
+  taskTimeoutMs?: number;
+  /** Resource limits for each worker thread (heap sizes, stack size). */
+  resourceLimits?: import("node:worker_threads").ResourceLimits;
+}
+
+/** Raised by `execute` when `maxQueue` tasks are already waiting. */
+export class WorkerPoolBusyError extends Error {
+  override readonly name = "WorkerPoolBusyError";
+}
+
+/** Raised for a task that ran longer than `taskTimeoutMs`. */
+export class WorkerTaskTimeoutError extends Error {
+  override readonly name = "WorkerTaskTimeoutError";
 }
 
 /** Descriptor for a task to be executed in a worker thread. */
@@ -45,10 +72,15 @@ interface PendingTask {
   reject: (reason: unknown) => void;
 }
 
-/** Internal wrapper tracking a Worker instance and its busy state. */
+/** Internal wrapper tracking a Worker instance and the task it runs. */
 interface WorkerEntry {
   worker: Worker;
-  busy: boolean;
+  /** The task in progress, if any. */
+  current: PendingTask | undefined;
+  /** Timer that fails `current` after `taskTimeoutMs`. */
+  timer: ReturnType<typeof setTimeout> | undefined;
+  /** Set once the worker has failed and been replaced. */
+  retired: boolean;
 }
 
 // --- Worker Executor (inline script) ---
@@ -105,6 +137,10 @@ export class WorkerPool {
   private workers: WorkerEntry[] = [];
   private queue: PendingTask[] = [];
   private terminated = false;
+  private readonly script: string | undefined;
+  private readonly maxQueue: number;
+  private readonly taskTimeoutMs: number | undefined;
+  private readonly resourceLimits: WorkerPoolOptions["resourceLimits"];
   /** Number of worker threads in the pool. */
   public readonly size: number;
 
@@ -115,15 +151,13 @@ export class WorkerPool {
     }
 
     this.size = Math.max(1, options.size ?? Math.floor(cpus().length / 2));
-
-    const script = options.workerScript ?? undefined;
+    this.script = options.workerScript;
+    this.maxQueue = options.maxQueue ?? Number.POSITIVE_INFINITY;
+    this.taskTimeoutMs = options.taskTimeoutMs;
+    this.resourceLimits = options.resourceLimits;
 
     for (let i = 0; i < this.size; i++) {
-      const worker = script
-        ? new Worker(script)
-        : new Worker(WORKER_SCRIPT, { eval: true });
-
-      this.workers.push({ worker, busy: false });
+      this.workers.push(this.spawn());
     }
   }
 
@@ -141,6 +175,12 @@ export class WorkerPool {
     if (this.terminated) {
       return Promise.reject(new Error("WorkerPool has been shut down"));
     }
+    const available = this.workers.find((w) => !w.current);
+    if (!available && this.queue.length >= this.maxQueue) {
+      return Promise.reject(
+        new WorkerPoolBusyError("WorkerPool queue is full"),
+      );
+    }
 
     return new Promise<T>((resolve, reject) => {
       const pending: PendingTask = {
@@ -148,8 +188,6 @@ export class WorkerPool {
         resolve: resolve as (value: unknown) => void,
         reject,
       };
-
-      const available = this.workers.find((w) => !w.busy);
       if (available) {
         this.dispatch(available, pending);
       } else {
@@ -159,21 +197,22 @@ export class WorkerPool {
   }
 
   /**
-   * Shut down all workers and reject any pending tasks.
+   * Shut down all workers and reject queued and running tasks.
    *
-   * After calling shutdown, the pool cannot be reused. Any tasks still
-   * in the queue will be rejected with an error.
+   * After calling shutdown, the pool cannot be reused.
    */
   async shutdown(): Promise<void> {
     this.terminated = true;
+    const stopping = new Error("WorkerPool is shutting down");
 
-    // Reject pending tasks
-    for (const pending of this.queue) {
-      pending.reject(new Error("WorkerPool is shutting down"));
-    }
+    for (const pending of this.queue) pending.reject(stopping);
     this.queue = [];
+    for (const entry of this.workers) {
+      this.clearTimer(entry);
+      entry.current?.reject(stopping);
+      entry.current = undefined;
+    }
 
-    // Terminate all workers
     const terminations = this.workers.map((entry) => entry.worker.terminate());
     await Promise.all(terminations);
     this.workers = [];
@@ -190,51 +229,89 @@ export class WorkerPool {
    * Get the number of workers currently processing a task.
    */
   get active(): number {
-    return this.workers.filter((w) => w.busy).length;
+    return this.workers.filter((w) => w.current).length;
+  }
+
+  /** Start a worker and listen for its answers and its failure. */
+  private spawn(): WorkerEntry {
+    const options = this.resourceLimits
+      ? { resourceLimits: this.resourceLimits }
+      : {};
+    const worker = this.script
+      ? new Worker(this.script, options)
+      : new Worker(WORKER_SCRIPT, { ...options, eval: true });
+    const entry: WorkerEntry = {
+      worker,
+      current: undefined,
+      timer: undefined,
+      retired: false,
+    };
+    worker.on("message", (msg) => this.settle(entry, msg));
+    worker.on("error", (err: Error) => this.fail(entry, err));
+    worker.on("exit", (code: number) =>
+      this.fail(entry, new Error(`Worker exited with code ${code}`)),
+    );
+    return entry;
   }
 
   private dispatch(entry: WorkerEntry, pending: PendingTask): void {
-    entry.busy = true;
-
-    const handler = (msg: {
-      success: boolean;
-      result?: unknown;
-      error?: string;
-    }) => {
-      entry.worker.off("message", handler);
-      entry.worker.off("error", errorHandler);
-      entry.busy = false;
-
-      if (msg.success) {
-        pending.resolve(msg.result);
-      } else {
-        /* c8 ignore next -- worker error messages always include .error */
-        pending.reject(new Error(msg.error ?? "Worker task failed"));
-      }
-
-      // Process next queued task
-      this.processQueue(entry);
-    };
-
-    const errorHandler = (err: Error) => {
-      entry.worker.off("message", handler);
-      entry.worker.off("error", errorHandler);
-      entry.busy = false;
-      pending.reject(err);
-
-      // Process next queued task
-      this.processQueue(entry);
-    };
-
-    entry.worker.on("message", handler);
-    entry.worker.on("error", errorHandler);
+    entry.current = pending;
+    if (this.taskTimeoutMs !== undefined) {
+      const ms = this.taskTimeoutMs;
+      entry.timer = setTimeout(
+        () =>
+          this.fail(
+            entry,
+            new WorkerTaskTimeoutError(`Worker task timed out after ${ms} ms`),
+          ),
+        ms,
+      );
+    }
     entry.worker.postMessage(pending.task);
   }
 
-  private processQueue(entry: WorkerEntry): void {
-    if (this.queue.length > 0) {
-      const next = this.queue.shift()!;
-      this.dispatch(entry, next);
+  /** A worker answered its task. */
+  private settle(
+    entry: WorkerEntry,
+    msg: { success: boolean; result?: unknown; error?: string },
+  ): void {
+    const pending = entry.current;
+    /* c8 ignore next -- a worker only answers the task it was given */
+    if (!pending) return;
+    this.clearTimer(entry);
+    entry.current = undefined;
+    if (msg.success) {
+      pending.resolve(msg.result);
+    } else {
+      /* c8 ignore next -- worker error messages always include .error */
+      pending.reject(new Error(msg.error ?? "Worker task failed"));
     }
+    this.processQueue(entry);
+  }
+
+  /**
+   * A worker crashed, exited or overran its deadline: reject its task,
+   * stop it, and put a fresh worker in its place. Runs once per worker.
+   */
+  private fail(entry: WorkerEntry, err: Error): void {
+    if (entry.retired || this.terminated) return;
+    entry.retired = true;
+    this.clearTimer(entry);
+    entry.current?.reject(err);
+    entry.current = undefined;
+    void entry.worker.terminate();
+    const replacement = this.spawn();
+    this.workers[this.workers.indexOf(entry)] = replacement;
+    this.processQueue(replacement);
+  }
+
+  private clearTimer(entry: WorkerEntry): void {
+    if (entry.timer !== undefined) clearTimeout(entry.timer);
+    entry.timer = undefined;
+  }
+
+  private processQueue(entry: WorkerEntry): void {
+    const next = this.queue.shift();
+    if (next) this.dispatch(entry, next);
   }
 }
