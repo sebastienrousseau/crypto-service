@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-testing",
   "version": "0.0.34",
-  "description": "Deterministic keys, fast mocks, and test fixtures for crypto-lib — make your CI/CD pipeline fast and reproducible.",
+  "description": "Test utilities for crypto-lib: deterministic keys, known-answer test vectors, mocks and fixtures for fast, reproducible CI.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-testing",
@@ -62,10 +62,13 @@
     "typescript": "~5.9.3"
   },
   "keywords": [
-    "crypto-testing",
+    "testing",
     "test-fixtures",
+    "test-vectors",
+    "known-answer-tests",
     "deterministic-keys",
     "mock-crypto",
+    "cryptography",
     "crypto-lib"
   ],
   "publishConfig": {

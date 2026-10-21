@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-middleware",
   "version": "0.0.34",
-  "description": "Plug-and-play cryptographic middleware for Express and Fastify -- auto-decrypt requests, verify signatures, and encrypt responses.",
+  "description": "Express and Fastify middleware that decrypts requests, encrypts responses and verifies HMAC signatures and JWTs on matching routes.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
@@ -78,14 +78,15 @@
     "typescript": "~5.9.3"
   },
   "keywords": [
-    "crypto-middleware",
-    "cryptography",
     "express",
     "fastify",
+    "middleware",
     "encryption",
+    "payload-encryption",
     "hmac",
     "jwt",
-    "middleware"
+    "cryptography",
+    "xchacha20-poly1305"
   ],
   "publishConfig": {
     "access": "public"

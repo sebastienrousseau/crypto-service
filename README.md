@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src=".github/demo.gif" alt="crypto-cli 0.0.33 printing its version, hashing a file with BLAKE3, signing and verifying it with ML-DSA-65, and round-tripping it through XChaCha20-Poly1305" width="100%" />
+  <img src=".github/demo.gif" alt="crypto-cli 0.0.34 printing its version, hashing a file with BLAKE3, signing and verifying it with ML-DSA-65, and round-tripping it through XChaCha20-Poly1305" width="100%" />
 </p>
 
 ---
@@ -93,7 +93,7 @@ pnpm add @sebastienrousseau/crypto-server
 pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-All 18 packages share one version: this tree is 0.0.33. Releases
+All 18 packages share one version: this tree is 0.0.34. Releases
 before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
 crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 

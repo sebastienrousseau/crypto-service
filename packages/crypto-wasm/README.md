@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-wasm</h1>
 
 <p align="center">
-  WebAssembly performance accelerator for crypto-lib — near-native speed for SHA-256, AES-GCM, Argon2, Ed25519, and X25519.
+  Placeholder for a WebAssembly accelerator for crypto-lib: runtime detection and a loader for a caller-supplied module. No WebAssembly module ships yet; every operation runs in JavaScript.
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 **The Crypto Service ecosystem**
 
-- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — full 14-package suite overview
+- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — full 18-package suite overview
 
 **Package reference**
 
@@ -97,22 +97,26 @@ console.log(Buffer.from(digest).toString("hex"));
 
 Crypto Service provides a complete cryptography stack across 14 specialized packages:
 
-| Package                                                                 | Role             | Description                                                                                                                            |
-| :---------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](../crypto-api)                        | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                                |
-| [`@sebastienrousseau/crypto-cli`](../crypto-cli)                        | Terminal CLI     | An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms. |
-| [`@sebastienrousseau/crypto-edge`](../crypto-edge)                      | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.               |
-| [`@sebastienrousseau/crypto-kms`](../crypto-kms)                        | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
-| [`@sebastienrousseau/crypto-lib`](../crypto-lib)                        | Core Library     | A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.            |
-| [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)          | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
-| [`@sebastienrousseau/crypto-react`](../crypto-react)                    | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
-| [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                        | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
-| [`@sebastienrousseau/crypto-server`](../crypto-server)                  | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
-| [`@sebastienrousseau/crypto-testing`](../crypto-testing)                | Test Support     | Deterministic keys, fast mocks, and test fixtures for crypto-lib                                                                       |
-| [`@sebastienrousseau/crypto-typeorm`](../crypto-typeorm)                | ORM Adapter      | TypeORM column-level encryption with a single decorator, powered by crypto-lib.                                                        |
-| [`@sebastienrousseau/crypto-vue`](../crypto-vue)                        | Vue Composables  | Vue 3 composables for client-side cryptography                                                                                         |
-| **[`@sebastienrousseau/crypto-wasm`](../crypto-wasm)** _(this package)_ | **Acceleration** | **WebAssembly performance accelerator for crypto-lib**                                                                                 |
+| Package                                                                                                                                     | Role             | Description                                                                                                                    |
+| :------------------------------------------------------------------------------------------------------------------------------------------ | :--------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                        | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)          | Benchmarks       | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
+| [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                      | CBOM             | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
+| [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                        | Terminal CLI     | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
+| [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                      | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                        | Cloud KMS        | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                        | Core Library     | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
+| [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                        | IDE Analysis     | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
+| [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                        | AI Agents        | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
+| [`@sebastienrousseau/crypto-middleware`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-middleware)          | Middleware       | Cryptographic middleware for Express and Fastify: decrypt requests, encrypt responses, verify HMAC signatures and JWTs.        |
+| [`@sebastienrousseau/crypto-prisma`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-prisma)                  | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                      |
+| [`@sebastienrousseau/crypto-react`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-react)                    | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                               |
+| [`@sebastienrousseau/crypto-sdk`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-sdk)                        | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                          |
+| [`@sebastienrousseau/crypto-server`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server)                  | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.     |
+| [`@sebastienrousseau/crypto-testing`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-testing)                | Test Support     | Deterministic keys, fast mocks, and test fixtures for crypto-lib                                                               |
+| [`@sebastienrousseau/crypto-typeorm`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-typeorm)                | ORM Adapter      | TypeORM column-level encryption with a single decorator, powered by crypto-lib.                                                |
+| [`@sebastienrousseau/crypto-vue`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-vue)                        | Vue Composables  | Vue 3 composables for client-side cryptography                                                                                 |
+| **[`@sebastienrousseau/crypto-wasm`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-wasm)** _(this package)_ | **Acceleration** | **Placeholder for a WebAssembly accelerator; no WebAssembly module ships yet.**                                                |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -120,40 +124,30 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 ## Overview
 
-crypto-wasm is an optional performance accelerator for the Crypto
-Service Suite. When installed alongside crypto-lib, heavy
-cryptographic operations are automatically routed through a
-WebAssembly module compiled from Rust, delivering near-native speed
-for hashing, AES-GCM encryption, Argon2 password hashing, and
-Ed25519/X25519 operations. If the WASM module is unavailable, every
-operation transparently falls back to the equivalent pure-JavaScript
-implementation.
+crypto-wasm is a placeholder. It ships WebAssembly runtime detection
+and a `WasmAccelerator` class that can load a `.wasm` module you
+supply, but the package contains no WebAssembly module, and no Rust
+or other source for one exists in this repository. crypto-lib does
+not use it. Without a module, every method runs the JavaScript
+implementation, so there is no speed-up today.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ## How It Works
 
-### Auto-Detection
+### Loading a module
 
-When crypto-lib detects `@sebastienrousseau/crypto-wasm` as an
-installed dependency, it automatically routes heavy cryptographic
-operations through the WASM module. No configuration is needed.
+`init()` with no argument looks for `wasm/crypto_accel.wasm` inside
+the package, which is not shipped. `init(source)` instantiates a
+module from a `BufferSource` or a `Response`. A failed load is not an
+error: `isAvailable` stays `false` and the JavaScript path is used.
 
-```
-crypto-lib  -->  crypto-wasm installed?
-                   |               |
-                  YES              NO
-                   |               |
-              WASM path       JS fallback
-              (near-native)   (pure JS)
-```
+### JavaScript fallback
 
-### Transparent Fallback
-
-If the WASM module is not compiled or not available in the current
-runtime, every operation falls back to the equivalent
-pure-JavaScript implementation. Your application code does not need
-to handle either case differently.
+While no module is loaded, `hash()` uses Node.js `crypto`, and the
+ML-KEM-768 and ML-DSA-65 methods call crypto-lib. When a module is
+loaded, each method calls the matching export and throws if the
+module does not provide it.
 
 ### Runtime Detection
 
@@ -168,69 +162,20 @@ const caps = detectCapabilities();
 
 ## Supported Operations
 
-| Operation       | ID                | Description                          |
-| :-------------- | :---------------- | :----------------------------------- |
-| SHA-256         | `hash-sha256`     | SHA-256 hash computation             |
-| SHA-512         | `hash-sha512`     | SHA-512 hash computation             |
-| BLAKE3          | `hash-blake3`     | BLAKE3 hash computation              |
-| AES-GCM Encrypt | `aes-gcm-encrypt` | AES-256-GCM authenticated encryption |
-| AES-GCM Decrypt | `aes-gcm-decrypt` | AES-256-GCM authenticated decryption |
-| Argon2          | `argon2-hash`     | Argon2id/i/d password hashing        |
-| Ed25519 Sign    | `ed25519-sign`    | Ed25519 signature generation         |
-| Ed25519 Verify  | `ed25519-verify`  | Ed25519 signature verification       |
-| X25519          | `x25519-exchange` | X25519 Diffie-Hellman key exchange   |
-
-<p align="right"><a href="#contents">Back to Top</a></p>
-
-## Building from Source
-
-The WASM module is compiled from Rust. A Rust toolchain with
-`wasm32-unknown-unknown` target is required.
-
-```bash
-# Install Rust (if not already installed)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Add the WASM target
-rustup target add wasm32-unknown-unknown
-
-# Install wasm-pack
-cargo install wasm-pack
-
-# Build the WASM module
-pnpm run build:wasm
-```
-
-The compiled `.wasm` file is placed in `wasm/crypto_accel.wasm`.
+| Method                                  | Fallback without a module | Export expected from a module               |
+| :-------------------------------------- | :------------------------ | :------------------------------------------ |
+| `hash(algorithm, data)`                 | Node.js `crypto`          | `hash_<algorithm>`                          |
+| `mlKemEncapsulate` / `mlKemDecapsulate` | crypto-lib ML-KEM-768     | `ml_kem_encapsulate` / `ml_kem_decapsulate` |
+| `mlDsaSign` / `mlDsaVerify`             | crypto-lib ML-DSA-65      | `ml_dsa_sign` / `ml_dsa_verify`             |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ## Benchmarks
 
-Run the built-in benchmark to compare JS and WASM performance:
-
-```ts
-import { WasmAccelerator } from "@sebastienrousseau/crypto-wasm";
-
-const accel = new WasmAccelerator();
-await accel.init();
-
-const result = await accel.benchmark("hash-sha256", 10000);
-console.log(`JS:      ${result.jsTimeMs.toFixed(2)} ms`);
-console.log(`WASM:    ${result.wasmTimeMs.toFixed(2)} ms`);
-console.log(`Speedup: ${result.speedup.toFixed(2)}x`);
-```
-
-**Expected speedups** (once Rust WASM module is compiled):
-
-| Operation             | Expected Speedup |
-| :-------------------- | :--------------- |
-| SHA-256 (large input) | 2-5x             |
-| AES-GCM               | 3-8x             |
-| Argon2                | 5-15x            |
-| Ed25519 Sign          | 2-4x             |
-| Ed25519 Verify        | 2-4x             |
-| X25519                | 2-4x             |
+`benchmark()` times SHA-256 hashing of a 1 KiB buffer through Node.js
+`crypto` and through `hash()`. Without a module both paths are
+JavaScript, so it measures no acceleration. No benchmark results are
+published.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-benchmarks",
   "version": "0.0.34",
-  "description": "Performance benchmarking and latency profiling harness comparing classical vs post-quantum cryptographic primitives across JavaScript, WebAssembly, and native runtimes.",
+  "description": "Benchmarks comparing classical and post-quantum cryptography in JavaScript: ops/sec, latency and throughput for RSA, ECDSA, AES, SHA-2, ML-KEM and ML-DSA.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
@@ -65,5 +65,16 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "benchmark",
+    "performance",
+    "cryptography",
+    "post-quantum",
+    "pqc",
+    "ml-kem",
+    "ml-dsa",
+    "latency",
+    "throughput"
+  ]
 }

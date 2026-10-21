@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-lib</h1>
 
 <p align="center">
-  A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.
+  Post-quantum cryptography for TypeScript and Node.js: ML-KEM, ML-DSA, SLH-DSA and HPKE, alongside AES-GCM, XChaCha20-Poly1305, Ed25519, X25519, SHA-3, BLAKE3, Argon2id and OpenPGP.
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 **The Crypto Service ecosystem**
 
-- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — full 14-package suite overview
+- [The Crypto Service ecosystem](#the-crypto-service-ecosystem) — full 18-package suite overview
 
 **Package reference**
 
@@ -106,22 +106,26 @@ const ok = crypto.verify("ed25519", kp.publicKey, "message", sig);
 
 Crypto Service provides a complete cryptography stack across 14 specialized packages:
 
-| Package                                                               | Role             | Description                                                                                                                            |
-| :-------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](../crypto-api)                      | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                                |
-| [`@sebastienrousseau/crypto-cli`](../crypto-cli)                      | Terminal CLI     | An interactive command-line interface for cryptographic operations, supporting both legacy OpenPGP and modern post-quantum algorithms. |
-| [`@sebastienrousseau/crypto-edge`](../crypto-edge)                    | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.               |
-| [`@sebastienrousseau/crypto-kms`](../crypto-kms)                      | Cloud KMS        | Unified Key Management Service interface for AWS KMS, GCP Cloud KMS, Azure Key Vault, and HashiCorp Vault.                             |
-| **[`@sebastienrousseau/crypto-lib`](../crypto-lib)** _(this package)_ | **Core Library** | **A modern cryptographic library for TypeScript, with post-quantum support, zero unsafe dependencies, and 100% test coverage.**        |
-| [`@sebastienrousseau/crypto-middleware`](../crypto-middleware)        | Middleware       | Framework-agnostic cryptographic middleware for Express, Fastify, and Koa applications.                                                |
-| [`@sebastienrousseau/crypto-prisma`](../crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                              |
-| [`@sebastienrousseau/crypto-react`](../crypto-react)                  | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                                       |
-| [`@sebastienrousseau/crypto-sdk`](../crypto-sdk)                      | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                                  |
-| [`@sebastienrousseau/crypto-server`](../crypto-server)                | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.             |
-| [`@sebastienrousseau/crypto-testing`](../crypto-testing)              | Test Support     | Deterministic keys, fast mocks, and test fixtures for crypto-lib                                                                       |
-| [`@sebastienrousseau/crypto-typeorm`](../crypto-typeorm)              | ORM Adapter      | TypeORM column-level encryption with a single decorator, powered by crypto-lib.                                                        |
-| [`@sebastienrousseau/crypto-vue`](../crypto-vue)                      | Vue Composables  | Vue 3 composables for client-side cryptography                                                                                         |
-| [`@sebastienrousseau/crypto-wasm`](../crypto-wasm)                    | Acceleration     | WebAssembly performance accelerator for crypto-lib                                                                                     |
+| Package                                                                                                                                   | Role             | Description                                                                                                                    |
+| :---------------------------------------------------------------------------------------------------------------------------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks       | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
+| [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM             | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
+| [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                      | Terminal CLI     | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
+| [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS        | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| **[`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)** _(this package)_ | **Core Library** | **Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.**     |
+| [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis     | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
+| [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents        | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
+| [`@sebastienrousseau/crypto-middleware`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-middleware)        | Middleware       | Cryptographic middleware for Express and Fastify: decrypt requests, encrypt responses, verify HMAC signatures and JWTs.        |
+| [`@sebastienrousseau/crypto-prisma`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-prisma)                | ORM Adapter      | Transparent field-level encryption extension for Prisma Client, using XChaCha20-Poly1305.                                      |
+| [`@sebastienrousseau/crypto-react`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-react)                  | React Hooks      | React hooks and context provider for client-side cryptographic operations with zero boilerplate.                               |
+| [`@sebastienrousseau/crypto-sdk`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-sdk)                      | Client SDK       | A zero-dependency, typed HTTP client for the Crypto Service REST API, with full post-quantum support.                          |
+| [`@sebastienrousseau/crypto-server`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-server)                | HTTP API         | A hardened Fastify REST API for cryptographic operations, with rate limiting, OpenAPI schemas, and post-quantum endpoints.     |
+| [`@sebastienrousseau/crypto-testing`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-testing)              | Test Support     | Deterministic keys, fast mocks, and test fixtures for crypto-lib                                                               |
+| [`@sebastienrousseau/crypto-typeorm`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-typeorm)              | ORM Adapter      | TypeORM column-level encryption with a single decorator, powered by crypto-lib.                                                |
+| [`@sebastienrousseau/crypto-vue`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-vue)                      | Vue Composables  | Vue 3 composables for client-side cryptography                                                                                 |
+| [`@sebastienrousseau/crypto-wasm`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-wasm)                    | Acceleration     | Placeholder for a WebAssembly accelerator; no WebAssembly module ships yet.                                                    |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

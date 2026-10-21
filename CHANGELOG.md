@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.34 in strict lockstep.
+- **npm descriptions and keywords for all 18 packages**: Each `package.json` description now leads with what the package does and the terms people search for (post-quantum, ML-KEM, ML-DSA, SLH-DSA, HPKE), and every package has `keywords`; eight had none.
+
+### Fixed
+
+- **Package descriptions that overstated the code**: `crypto-wasm` claimed near-native WebAssembly speed but ships no WebAssembly module, and crypto-lib does not use it; its README no longer describes auto-detection, a Rust build or expected speed-ups. `crypto-kms` listed four cloud providers where three are stubs; `crypto-cbom` claimed DORA and CRA compliance; `crypto-benchmarks` claimed WebAssembly and native runtimes; `crypto-api` described REST endpoints rather than shared types; `crypto-middleware` claimed Koa support. crypto-lib no longer claims 100% test coverage (its branch floor is 99.5%).
+- **Ecosystem table in the package READMEs**: The table copied into 14 package READMEs listed 14 of the 18 packages; `crypto-benchmarks`, `crypto-cbom`, `crypto-lsp` and `crypto-mcp` are added, and the `crypto-cli`, `crypto-lib`, `crypto-kms`, `crypto-wasm` and `crypto-middleware` rows match the code.
 
 ## [0.0.33] - 2026-10-21
 

@@ -2,7 +2,7 @@
 
 # `@sebastienrousseau/crypto-benchmarks`
 
-> Performance benchmarking and latency profiling harness comparing classical vs post-quantum cryptographic primitives across JavaScript, WebAssembly, and native runtimes.
+> Benchmarks comparing classical and post-quantum cryptography in JavaScript: ops/sec, latency and throughput for RSA, ECDSA, AES, SHA-2, ML-KEM and ML-DSA.
 
 [![Version](https://img.shields.io/npm/v/@sebastienrousseau/crypto-benchmarks.svg)](https://www.npmjs.com/package/@sebastienrousseau/crypto-benchmarks)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
