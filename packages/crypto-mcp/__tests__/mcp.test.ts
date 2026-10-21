@@ -603,6 +603,8 @@ describe("Crypto MCP Server Suite", () => {
     });
 
     it("encapsulates an existing keyHandle and decapsulates using recipientIndex", async () => {
+      // Exporting an existing key needs the operator's opt-in.
+      process.env["MCP_ALLOW_KEY_EXPORT"] = "1";
       const existingKey = await newKey("symmetric-256");
       const aliceX = await newKey("x25519");
       const aliceKem = await newKey("ml-kem-768");
@@ -635,6 +637,7 @@ describe("Crypto MCP Server Suite", () => {
         authTag: enc.authTag,
       });
       expect(dec.plaintext).to.equal(msg);
+      delete process.env["MCP_ALLOW_KEY_EXPORT"];
     });
 
     it("rejects invalid inputs in multi-recipient hybrid KEM", async () => {

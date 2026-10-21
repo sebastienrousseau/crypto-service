@@ -148,6 +148,13 @@ export const hybridKemMultiEncapsulateHandler: ToolHandler = async (args) => {
   let keyHandle: string;
 
   if (args.keyHandle !== undefined && args.keyHandle !== null) {
+    // Wrapping an existing key to caller-chosen public keys would send
+    // it out of the process; only the operator can allow that.
+    if (process.env["MCP_ALLOW_KEY_EXPORT"] !== "1") {
+      throw new Error(
+        "Wrapping an existing keyHandle exports the key; omit keyHandle to wrap a fresh key, or set MCP_ALLOW_KEY_EXPORT=1 on the server to allow it",
+      );
+    }
     keyHandle = String(args.keyHandle);
     const stored = keyStore.use(keyHandle, ["symmetric-256"]);
     dek = Buffer.from(stored.secret as Buffer);

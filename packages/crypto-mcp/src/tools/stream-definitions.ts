@@ -120,7 +120,7 @@ export const STREAM_TOOLS: MCPTool[] = [
           "JSON-serialized array of recipient public key objects: [{ id?, x25519PublicKey, mlKemPublicKey }].",
         ),
         keyHandle: keyHandle(
-          "Optional handle of an existing symmetric-256 key to encapsulate. If omitted, a fresh 256-bit DEK is generated.",
+          "Optional handle of an existing symmetric-256 key to encapsulate. Refused unless the server sets MCP_ALLOW_KEY_EXPORT=1, since it sends the key to the recipients. If omitted, a fresh 256-bit DEK is generated.",
         ),
       },
       required: ["recipients"],

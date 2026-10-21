@@ -672,7 +672,7 @@
                 },
                 "keyHandle": {
                   "type": "string",
-                  "description": "Optional handle of an existing symmetric-256 key to encapsulate. If omitted, a fresh 256-bit DEK is generated. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "description": "Optional handle of an existing symmetric-256 key to encapsulate. Refused unless the server sets MCP_ALLOW_KEY_EXPORT=1, since it sends the key to the recipients. If omitted, a fresh 256-bit DEK is generated. Key handles look like 'kh_' followed by 32 hex characters.",
                   "maxLength": 35,
                   "pattern": "^kh_[0-9a-f]{32}$"
                 }
