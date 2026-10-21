@@ -32,10 +32,13 @@ function findSsgBinary() {
   }
 
   const candidatePaths = [
-    path.join(process.env.HOME || "", ".local/share/mise/installs/cargo-ssg/0.0.63/bin/ssg"),
+    path.join(
+      process.env.HOME || "",
+      ".local/share/mise/installs/cargo-ssg/0.0.63/bin/ssg",
+    ),
     path.join(process.env.HOME || "", ".cargo/bin/ssg"),
     "/usr/local/bin/ssg",
-    "/opt/homebrew/bin/ssg"
+    "/opt/homebrew/bin/ssg",
   ];
 
   for (const candidate of candidatePaths) {
@@ -47,7 +50,9 @@ function findSsgBinary() {
   return "ssg";
 }
 
-console.log("==> 1. Building TypeDoc documentation for all workspace packages...");
+console.log(
+  "==> 1. Building TypeDoc documentation for all workspace packages...",
+);
 execSync("pnpm -r run docs", { cwd: ROOT_DIR, stdio: "inherit" });
 
 console.log("==> 2. Compiling Crypto Service theme with local SSG...");
@@ -55,7 +60,10 @@ const ssgBin = findSsgBinary();
 console.log(`Using SSG binary: ${ssgBin}`);
 
 try {
-  execSync(`${ssgBin} build -f website/ssg.toml`, { cwd: ROOT_DIR, stdio: "inherit" });
+  execSync(`${ssgBin} build -f website/ssg.toml`, {
+    cwd: ROOT_DIR,
+    stdio: "inherit",
+  });
 } catch (error) {
   console.error("Failed to compile with SSG:", error);
   process.exit(1);
@@ -128,11 +136,16 @@ const cryptoLibDocs = path.join(PACKAGES_DIR, "crypto-lib", "docs");
 if (fs.existsSync(cryptoLibDocs)) {
   for (const item of fs.readdirSync(cryptoLibDocs)) {
     if (item === "index.html") {
-      fs.copyFileSync(path.join(cryptoLibDocs, item), path.join(SITE_DIR, "crypto-lib.html"));
+      fs.copyFileSync(
+        path.join(cryptoLibDocs, item),
+        path.join(SITE_DIR, "crypto-lib.html"),
+      );
     } else {
       const destPath = path.join(SITE_DIR, item);
       if (!fs.existsSync(destPath)) {
-        fs.cpSync(path.join(cryptoLibDocs, item), destPath, { recursive: true });
+        fs.cpSync(path.join(cryptoLibDocs, item), destPath, {
+          recursive: true,
+        });
       }
     }
   }
@@ -161,6 +174,10 @@ const redirectHtml = `<!DOCTYPE html>
 `;
 fs.writeFileSync(path.join(SITE_DIR, "index.html"), redirectHtml);
 
-console.log("==> Unified Crypto Service documentation portal assembled at _site!");
-console.log("==> Root index.html configured to redirect to https://crypto-service.co/ecosystem/");
+console.log(
+  "==> Unified Crypto Service documentation portal assembled at _site!",
+);
+console.log(
+  "==> Root index.html configured to redirect to https://crypto-service.co/ecosystem/",
+);
 console.log(`==> Total workspace packages indexed: ${packageMeta.length}`);

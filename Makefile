@@ -117,6 +117,7 @@ check:
 	@pnpm -r run build
 	@pnpm -r run lint
 	@pnpm -r run format:check
+	@pnpm run format:root
 	@node scripts/complexity-check.mjs
 	@pnpm -r run test
 	@pnpm -r run docs

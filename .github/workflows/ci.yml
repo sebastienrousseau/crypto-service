@@ -28,6 +28,7 @@ jobs:
       - run: pnpm -r run build
       - run: pnpm -r run lint
       - run: pnpm -r run format:check
+      - run: pnpm run format:root
       - name: Complexity gate (baseline may only shrink)
         run: node scripts/complexity-check.mjs
       - run: pnpm -r run test
