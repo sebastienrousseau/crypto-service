@@ -32,6 +32,7 @@ import {
   derivePqChunkNonce,
   toBytes,
 } from "./stream-pq-aead";
+import { assertChunkSize, encryptChunksInto, streamSize } from "./chunks";
 
 /** Magic bytes identifying multi-recipient post-quantum stream format ("MSPQ"). */
 export const MULTI_PQ_STREAM_MAGIC = new Uint8Array([0x4d, 0x53, 0x50, 0x51]);
@@ -209,58 +210,6 @@ function serializeSlot(
   return out;
 }
 
-/** Computes total output size for encrypted multi-recipient stream. */
-function computeMultiStreamOutputSize(
-  headerLen: number,
-  ptLen: number,
-  chunkSize: number,
-): number {
-  const numFullChunks = Math.floor(ptLen / chunkSize);
-  const lastChunkLen = ptLen - numFullChunks * chunkSize;
-  const hasExtra = lastChunkLen > 0 || ptLen === 0;
-  const totalChunks = hasExtra ? numFullChunks + 1 : numFullChunks;
-
-  let totalSize = headerLen;
-  for (let i = 0; i < totalChunks; i++) {
-    const len =
-      i < numFullChunks ? chunkSize : lastChunkLen > 0 ? lastChunkLen : 0;
-    totalSize += 1 + len + TAG_LEN;
-  }
-  return totalSize;
-}
-
-/** Encrypts plaintext chunks into the stream output buffer. */
-function encryptStreamChunks(
-  plaintext: Uint8Array,
-  cek: Uint8Array,
-  baseNonce: Uint8Array,
-  chunkSize: number,
-  output: Uint8Array,
-  headerLen: number,
-): void {
-  const numFullChunks = Math.floor(plaintext.length / chunkSize);
-  const hasExtra = plaintext.length % chunkSize > 0 || plaintext.length === 0;
-  const totalChunks = hasExtra ? numFullChunks + 1 : numFullChunks;
-
-  let offset = headerLen;
-  for (let i = 0; i < totalChunks; i++) {
-    const isFinal = i === totalChunks - 1;
-    const chunkTag = isFinal ? CHUNK_TAG_FINAL : CHUNK_TAG_MESSAGE;
-    const start = i * chunkSize;
-    const end = isFinal ? plaintext.length : start + chunkSize;
-    const chunk = plaintext.subarray(start, end);
-
-    const nonce = derivePqChunkNonce(baseNonce, i, chunkTag);
-    const cipher = xchacha20poly1305(cek, nonce);
-    const encrypted = cipher.encrypt(chunk);
-
-    output[offset] = chunkTag;
-    offset += 1;
-    output.set(encrypted, offset);
-    offset += encrypted.length;
-  }
-}
-
 /** Writes header prefix fields: magic, version, chunkSize, baseNonce, count. */
 function writeHeaderPrefix(
   out: Uint8Array,
@@ -276,6 +225,26 @@ function writeHeaderPrefix(
   view.setUint16(33, count, false);
 }
 
+/** Recipients (1 to 1000) and a chunk size (1 KiB to 16 MiB), checked. */
+function checkEncryptOptions(options: StreamMultiPqEncryptOptions): {
+  recipients: MultiPqRecipient[];
+  chunkSize: number;
+} {
+  const recipients = options.recipients;
+  if (!Array.isArray(recipients) || recipients.length === 0) {
+    throw new Error("At least one recipient is required");
+  }
+  if (recipients.length > 1000) {
+    throw new Error("Recipient count exceeds maximum limit of 1000");
+  }
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  if (chunkSize < 1024 || chunkSize > 16 * 1024 * 1024) {
+    throw new Error("Chunk size must be between 1024 and 16777216 bytes");
+  }
+  return { recipients, chunkSize };
+}
+
 /**
  * Encrypt data for multiple recipients using hybrid post-quantum STREAM AEAD.
  *
@@ -285,51 +254,33 @@ function writeHeaderPrefix(
 export function streamMultiPqEncrypt(
   options: StreamMultiPqEncryptOptions,
 ): StreamMultiPqEncryptResult {
-  const recipients = options.recipients;
-  if (!Array.isArray(recipients) || recipients.length === 0) {
-    throw new Error("At least one recipient is required");
-  }
-  if (recipients.length > 1000) {
-    throw new Error("Recipient count exceeds maximum limit of 1000");
-  }
-  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
-  if (chunkSize < 1024 || chunkSize > 16 * 1024 * 1024) {
-    throw new Error("Chunk size must be between 1024 and 16777216 bytes");
-  }
+  const { recipients, chunkSize } = checkEncryptOptions(options);
 
   const cek = randomBytes(CEK_LEN);
   const baseNonce = randomBytes(NONCE_LEN);
 
-  const serializedSlots: Uint8Array[] = [];
-  let slotsTotalLen = 0;
-  for (let i = 0; i < recipients.length; i++) {
-    const slotBytes = createSlot(cek, i, recipients[i] as MultiPqRecipient);
-    serializedSlots.push(slotBytes);
-    slotsTotalLen += slotBytes.length;
-  }
-
-  const headerLen = MULTI_PQ_PREFIX_LEN + slotsTotalLen;
-  const totalSize = computeMultiStreamOutputSize(
-    headerLen,
-    options.plaintext.length,
-    chunkSize,
+  const slots = recipients.map((r, i) => createSlot(cek, i, r));
+  const headerLen =
+    MULTI_PQ_PREFIX_LEN + slots.reduce((sum, slot) => sum + slot.length, 0);
+  const output = new Uint8Array(
+    streamSize(headerLen, options.plaintext.length, chunkSize),
   );
-  const output = new Uint8Array(totalSize);
 
   writeHeaderPrefix(output, chunkSize, baseNonce, recipients.length);
   let slotOffset = MULTI_PQ_PREFIX_LEN;
-  for (const s of serializedSlots) {
-    output.set(s, slotOffset);
-    slotOffset += s.length;
+  for (const slot of slots) {
+    output.set(slot, slotOffset);
+    slotOffset += slot.length;
   }
 
-  encryptStreamChunks(
+  encryptChunksInto(
     options.plaintext,
     cek,
     baseNonce,
     chunkSize,
     output,
     headerLen,
+    derivePqChunkNonce,
   );
   wipeMemory(cek);
 

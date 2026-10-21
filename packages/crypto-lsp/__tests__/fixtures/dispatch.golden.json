@@ -1,0 +1,471 @@
+[
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "error": {
+        "code": -32600,
+        "message": "Invalid Request: jsonrpc must be '2.0'"
+      }
+    },
+    "document": null,
+    "initialized": false
+  },
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "error": {
+        "code": -32600,
+        "message": "Invalid Request: jsonrpc must be '2.0'"
+      }
+    },
+    "document": null,
+    "initialized": false
+  },
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "textDocumentSync": 1,
+          "hoverProvider": true,
+          "codeActionProvider": true,
+          "completionProvider": {
+            "resolveProvider": false,
+            "triggerCharacters": ["\"", "'", "-"]
+          }
+        },
+        "serverInfo": {
+          "name": "crypto-lsp",
+          "version": "0.0.35"
+        }
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "initialized",
+    "response": null,
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didOpen",
+    "response": null,
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didOpen",
+    "response": null,
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didOpen",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "result": {
+        "uri": "file:///workspace/a.ts",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 29
+              },
+              "end": {
+                "line": 0,
+                "character": 32
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ]
+      }
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/hover",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": null
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/hover",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "contents": {
+          "kind": "markdown",
+          "value": "### MD5 (Message Digest Algorithm 5)\n\n**Category:** Cryptographic Hash Function (DEPRECATED)\n\n**Security:** 0-bit collision resistance (Cryptographically Broken)\n\n**Quantum Resistant:** ❌ No (Vulnerable to Shor's Algorithm)\n\n**Standard:** DEPRECATED (RFC 6151 / NIST SP 800-131A)\n\n\n\nSeverely vulnerable to practical collision attacks. Must never be used for security-sensitive operations or signatures."
+        },
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 29
+          },
+          "end": {
+            "line": 0,
+            "character": 32
+          }
+        }
+      }
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/codeAction",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "title": "Replace with secure SHA-256",
+          "kind": "quickfix",
+          "diagnostics": [
+            {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 29
+                },
+                "end": {
+                  "line": 0,
+                  "character": 32
+                }
+              },
+              "severity": 1,
+              "code": "CRYPTO-001",
+              "source": "crypto-lsp",
+              "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+            }
+          ],
+          "isPreferred": true,
+          "edit": {
+            "changes": {
+              "file:///workspace/a.ts": [
+                {
+                  "range": {
+                    "start": {
+                      "line": 0,
+                      "character": 29
+                    },
+                    "end": {
+                      "line": 0,
+                      "character": 32
+                    }
+                  },
+                  "newText": "sha256"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Replace with high-security SHA-512",
+          "kind": "quickfix",
+          "diagnostics": [
+            {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 29
+                },
+                "end": {
+                  "line": 0,
+                  "character": 32
+                }
+              },
+              "severity": 1,
+              "code": "CRYPTO-001",
+              "source": "crypto-lsp",
+              "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+            }
+          ],
+          "edit": {
+            "changes": {
+              "file:///workspace/a.ts": [
+                {
+                  "range": {
+                    "start": {
+                      "line": 0,
+                      "character": 29
+                    },
+                    "end": {
+                      "line": 0,
+                      "character": 32
+                    }
+                  },
+                  "newText": "sha512"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/codeAction",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": []
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/codeAction",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": []
+    },
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didChange",
+    "response": null,
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didChange",
+    "response": null,
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didChange",
+    "response": null,
+    "document": "const h = crypto.createHash(\"md5\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didChange",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "result": {
+        "uri": "file:///workspace/a.ts",
+        "diagnostics": []
+      }
+    },
+    "document": "const h = crypto.createHash(\"sha256\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/completion",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": "c",
+      "result": [
+        {
+          "label": "ML-KEM-512",
+          "kind": 12,
+          "detail": "NIST FIPS 203 Category 1 Key Encapsulation",
+          "documentation": "Post-quantum lattice KEM for 128-bit quantum security.",
+          "insertText": "ml-kem-512"
+        },
+        {
+          "label": "ML-KEM-768",
+          "kind": 12,
+          "detail": "NIST FIPS 203 Category 3 Key Encapsulation (Recommended)",
+          "documentation": "Standard post-quantum lattice KEM for general security.",
+          "insertText": "ml-kem-768"
+        },
+        {
+          "label": "ML-KEM-1024",
+          "kind": 12,
+          "detail": "NIST FIPS 203 Category 5 Key Encapsulation (CNSA 2.0)",
+          "documentation": "High-security post-quantum lattice KEM.",
+          "insertText": "ml-kem-1024"
+        },
+        {
+          "label": "ML-DSA-44",
+          "kind": 12,
+          "detail": "NIST FIPS 204 Category 2 Digital Signature",
+          "documentation": "Lattice-based deterministic digital signature.",
+          "insertText": "ml-dsa-44"
+        },
+        {
+          "label": "ML-DSA-65",
+          "kind": 12,
+          "detail": "NIST FIPS 204 Category 3 Digital Signature (Recommended)",
+          "documentation": "Standard lattice-based digital signature.",
+          "insertText": "ml-dsa-65"
+        },
+        {
+          "label": "ML-DSA-87",
+          "kind": 12,
+          "detail": "NIST FIPS 204 Category 5 Digital Signature (CNSA 2.0)",
+          "documentation": "High-security lattice-based digital signature.",
+          "insertText": "ml-dsa-87"
+        },
+        {
+          "label": "aes-256-gcm",
+          "kind": 12,
+          "detail": "NIST SP 800-38D AEAD",
+          "documentation": "256-bit AES in Galois/Counter Mode with 128-bit authentication tag.",
+          "insertText": "aes-256-gcm"
+        },
+        {
+          "label": "chacha20-poly1305",
+          "kind": 12,
+          "detail": "RFC 8439 AEAD",
+          "documentation": "High-performance authenticated cipher immune to cache-timing attacks.",
+          "insertText": "chacha20-poly1305"
+        },
+        {
+          "label": "sha256",
+          "kind": 12,
+          "detail": "NIST FIPS 180-4 Secure Hash",
+          "documentation": "256-bit cryptographic hash function.",
+          "insertText": "sha256"
+        },
+        {
+          "label": "sha384",
+          "kind": 12,
+          "detail": "NIST FIPS 180-4 Secure Hash (CNSA 2.0)",
+          "documentation": "384-bit cryptographic hash function.",
+          "insertText": "sha384"
+        },
+        {
+          "label": "sha512",
+          "kind": 12,
+          "detail": "NIST FIPS 180-4 Secure Hash",
+          "documentation": "512-bit cryptographic hash function.",
+          "insertText": "sha512"
+        }
+      ]
+    },
+    "document": "const h = crypto.createHash(\"sha256\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didClose",
+    "response": null,
+    "document": "const h = crypto.createHash(\"sha256\");",
+    "initialized": true
+  },
+  {
+    "method": "textDocument/didClose",
+    "response": null,
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "textDocument/hover",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": null
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "toString",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: toString"
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "constructor",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: constructor"
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "__proto__",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: __proto__"
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "hasOwnProperty",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 12,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: hasOwnProperty"
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "custom/unknown",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: custom/unknown"
+      }
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "shutdown",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 13,
+      "result": null
+    },
+    "document": null,
+    "initialized": true
+  },
+  {
+    "method": "exit",
+    "response": null,
+    "document": null,
+    "initialized": true
+  }
+]

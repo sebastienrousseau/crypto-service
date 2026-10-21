@@ -1,0 +1,1603 @@
+[
+  {
+    "value": "undefined",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "undefined",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "undefined",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "undefined",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "undefined",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "null",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "null",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "null",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "null",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "null",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n is required"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    },
+    "optional": {
+      "valid": true,
+      "value": 3
+    }
+  },
+  {
+    "value": " ",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": " ",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": " ",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": " ",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": " ",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    }
+  },
+  {
+    "value": "12",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 12
+    },
+    "optional": {
+      "valid": true,
+      "value": 12
+    }
+  },
+  {
+    "value": "12",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 12
+    },
+    "optional": {
+      "valid": true,
+      "value": 12
+    }
+  },
+  {
+    "value": "12",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 12
+    },
+    "optional": {
+      "valid": true,
+      "value": 12
+    }
+  },
+  {
+    "value": "12",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "12",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "1e3",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 1000
+    },
+    "optional": {
+      "valid": true,
+      "value": 1000
+    }
+  },
+  {
+    "value": "1e3",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 1000
+    },
+    "optional": {
+      "valid": true,
+      "value": 1000
+    }
+  },
+  {
+    "value": "1e3",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 1000
+    },
+    "optional": {
+      "valid": true,
+      "value": 1000
+    }
+  },
+  {
+    "value": "1e3",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "1e3",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "abc",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "abc",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "abc",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "abc",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "abc",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "0",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "0",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "0",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "0",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "0",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    }
+  },
+  {
+    "value": "-1",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": -1
+    },
+    "optional": {
+      "valid": true,
+      "value": -1
+    }
+  },
+  {
+    "value": "-1",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": -1
+    },
+    "optional": {
+      "valid": true,
+      "value": -1
+    }
+  },
+  {
+    "value": "-1",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 0"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 0"
+      }
+    }
+  },
+  {
+    "value": "-1",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": -1
+    },
+    "optional": {
+      "valid": true,
+      "value": -1
+    }
+  },
+  {
+    "value": "-1",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    }
+  },
+  {
+    "value": "5",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 5
+    },
+    "optional": {
+      "valid": true,
+      "value": 5
+    }
+  },
+  {
+    "value": "5",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 5
+    },
+    "optional": {
+      "valid": true,
+      "value": 5
+    }
+  },
+  {
+    "value": "5",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 5
+    },
+    "optional": {
+      "valid": true,
+      "value": 5
+    }
+  },
+  {
+    "value": "5",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 5
+    },
+    "optional": {
+      "valid": true,
+      "value": 5
+    }
+  },
+  {
+    "value": "5",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 5
+    },
+    "optional": {
+      "valid": true,
+      "value": 5
+    }
+  },
+  {
+    "value": "10",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 10
+    },
+    "optional": {
+      "valid": true,
+      "value": 10
+    }
+  },
+  {
+    "value": "10",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 10
+    },
+    "optional": {
+      "valid": true,
+      "value": 10
+    }
+  },
+  {
+    "value": "10",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 10
+    },
+    "optional": {
+      "valid": true,
+      "value": 10
+    }
+  },
+  {
+    "value": "10",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 10
+    },
+    "optional": {
+      "valid": true,
+      "value": 10
+    }
+  },
+  {
+    "value": "10",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 10
+    },
+    "optional": {
+      "valid": true,
+      "value": 10
+    }
+  },
+  {
+    "value": "10.5",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 10.5
+    },
+    "optional": {
+      "valid": true,
+      "value": 10.5
+    }
+  },
+  {
+    "value": "10.5",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 10.5
+    },
+    "optional": {
+      "valid": true,
+      "value": 10.5
+    }
+  },
+  {
+    "value": "10.5",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 10.5
+    },
+    "optional": {
+      "valid": true,
+      "value": 10.5
+    }
+  },
+  {
+    "value": "10.5",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "10.5",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "11",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 11
+    },
+    "optional": {
+      "valid": true,
+      "value": 11
+    }
+  },
+  {
+    "value": "11",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 11
+    },
+    "optional": {
+      "valid": true,
+      "value": 11
+    }
+  },
+  {
+    "value": "11",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 11
+    },
+    "optional": {
+      "valid": true,
+      "value": 11
+    }
+  },
+  {
+    "value": "11",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "11",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at most 10"
+      }
+    }
+  },
+  {
+    "value": "NaN",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "NaN",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "NaN",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "NaN",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "NaN",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "Infinity",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "Infinity",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "Infinity",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "Infinity",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "Infinity",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "-Infinity",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "-Infinity",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "-Infinity",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "-Infinity",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "-Infinity",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "true",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 1
+    },
+    "optional": {
+      "valid": true,
+      "value": 1
+    }
+  },
+  {
+    "value": "true",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 1
+    },
+    "optional": {
+      "valid": true,
+      "value": 1
+    }
+  },
+  {
+    "value": "true",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 1
+    },
+    "optional": {
+      "valid": true,
+      "value": 1
+    }
+  },
+  {
+    "value": "true",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 1
+    },
+    "optional": {
+      "valid": true,
+      "value": 1
+    }
+  },
+  {
+    "value": "true",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 1
+    },
+    "optional": {
+      "valid": true,
+      "value": 1
+    }
+  },
+  {
+    "value": "",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 0
+    },
+    "optional": {
+      "valid": true,
+      "value": 0
+    }
+  },
+  {
+    "value": "",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be at least 1"
+      }
+    }
+  },
+  {
+    "value": "7",
+    "bounds": null,
+    "required": {
+      "valid": true,
+      "value": 7
+    },
+    "optional": {
+      "valid": true,
+      "value": 7
+    }
+  },
+  {
+    "value": "7",
+    "bounds": {},
+    "required": {
+      "valid": true,
+      "value": 7
+    },
+    "optional": {
+      "valid": true,
+      "value": 7
+    }
+  },
+  {
+    "value": "7",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": true,
+      "value": 7
+    },
+    "optional": {
+      "valid": true,
+      "value": 7
+    }
+  },
+  {
+    "value": "7",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 7
+    },
+    "optional": {
+      "valid": true,
+      "value": 7
+    }
+  },
+  {
+    "value": "7",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": true,
+      "value": 7
+    },
+    "optional": {
+      "valid": true,
+      "value": 7
+    }
+  },
+  {
+    "value": "[object Object]",
+    "bounds": null,
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "[object Object]",
+    "bounds": {},
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "[object Object]",
+    "bounds": {
+      "min": 0
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "[object Object]",
+    "bounds": {
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  },
+  {
+    "value": "[object Object]",
+    "bounds": {
+      "min": 1,
+      "max": 10
+    },
+    "required": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    },
+    "optional": {
+      "valid": false,
+      "error": {
+        "field": "n",
+        "message": "n must be a valid number"
+      }
+    }
+  }
+]

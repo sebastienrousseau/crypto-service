@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-wasm",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Placeholder for a WebAssembly accelerator for crypto-lib. It ships runtime detection and an accelerator interface only; no WebAssembly module yet, so operations run in JavaScript.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

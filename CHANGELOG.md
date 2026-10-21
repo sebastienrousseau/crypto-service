@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.35] - 2026-10-21
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.35 in strict lockstep.
+- **Characterisation tests for every refactored function**: recorded-output tests for the crypto-lsp and crypto-mcp request dispatchers, crypto-lsp diagnostics and code actions, `benchmarkOperation` (with a deterministic clock), the CLI help pages, `validateCbom`, crypto-server metering and number validation, and the wire layout of the three STREAM encryptors. Each was generated from the code before its refactor and checked to fail when the behaviour changes.
+
+### Changed
+
+- **Complexity baseline cleared**: all 23 recorded offenders are refactored, so `complexity-baseline.json` is empty and every function meets cyclomatic ≤ 10, cognitive ≤ 15, Halstead difficulty ≤ 30 and ≤ 60 lines. The largest were the crypto-lsp request switch (cyclomatic 35, 132 lines), crypto-mcp `readResource` (196 lines) and the CLI `handleHelp` (193 lines). Request dispatch now uses a `Map`, so method names such as `toString` still answer "Method not found"; the three STREAM encryptors share one chunk layout module. Behaviour is unchanged.
+
+### Fixed
+
+- **Invalid stream chunk sizes in crypto-lib**: `streamEncrypt` and `streamPqEncrypt` accepted any `chunkSize`. Zero made encryption loop forever, and `NaN` or a negative size returned a stream header with no chunks, silently dropping the plaintext. Both functions and their decrypt counterparts (and the Web Streams wrappers that call them) now throw unless `chunkSize` is a positive integer. Decryption already failed closed. The crypto-server routes were not affected: their JSON schemas only accept integer chunk sizes in range.
+- **Non-integer chunk sizes in the multi-recipient stream**: `streamMultiPqEncrypt` range-checked `chunkSize` but not that it was an integer. `NaN` passed the check and dropped the plaintext, and a size such as 1024.5 produced a stream whose header says 1024, so it could never be decrypted. It now throws unless `chunkSize` is a positive integer, before the existing 1024 to 16 MiB range check.
+
 ## [0.0.34] - 2026-10-21
 
 ### Added
@@ -486,7 +502,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...HEAD
+[0.0.35]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.34...HEAD
+[0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.30...v0.0.31

@@ -34,6 +34,29 @@ export const SERVER_VERSION: string = (
   ) as { version: string }
 ).version;
 
+type Params = JSONRPCRequest["params"];
+type Handler = (params: Params) => Promise<unknown>;
+
+const fail = (
+  id: string | number | null,
+  code: number,
+  message: string,
+): JSONRPCResponse => ({ jsonrpc: "2.0", id, error: { code, message } });
+
+async function callTool(params: Params): Promise<unknown> {
+  const toolName = requireName(params, TOOLS, "tool");
+  return executeTool(toolName, requireArguments(params));
+}
+
+async function promptFor(params: Params): Promise<unknown> {
+  const promptName = requireName(params, PROMPTS, "prompt");
+  const promptArgs = requirePromptArguments(
+    PROMPTS.find((p) => p.name === promptName)?.arguments,
+    requireArguments(params),
+  );
+  return getPrompt(promptName, promptArgs);
+}
+
 export class CryptoMcpServer {
   private initialized = false;
   private readonly name = "crypto-service";
@@ -47,106 +70,61 @@ export class CryptoMcpServer {
   }
 
   /**
+   * Request handlers by method name. A Map, not an object literal, so a
+   * method named after an Object.prototype member ("toString",
+   * "__proto__") is not found rather than dispatched.
+   */
+  private readonly handlers = new Map<string, Handler>([
+    ["initialize", (params) => this.initialize(params)],
+    ["ping", async () => ({})],
+    ["tools/list", async () => ({ tools: TOOLS })],
+    ["tools/call", callTool],
+    ["resources/list", async () => ({ resources: RESOURCES })],
+    [
+      "resources/read",
+      (params) => readResource(params ? String(params.uri) : ""),
+    ],
+    ["prompts/list", async () => ({ prompts: PROMPTS })],
+    ["prompts/get", promptFor],
+  ]);
+
+  /**
    * Process a single JSON-RPC 2.0 request and return the appropriate response.
    */
   public async handleRequest(
     request: JSONRPCRequest,
   ): Promise<JSONRPCResponse> {
     const id = request.id ?? null;
-
     if (!request.jsonrpc || request.jsonrpc !== "2.0") {
-      return {
-        jsonrpc: "2.0",
-        id,
-        error: {
-          code: -32600,
-          message: "Invalid Request: jsonrpc must be '2.0'",
-        },
-      };
+      return fail(id, -32600, "Invalid Request: jsonrpc must be '2.0'");
     }
-
+    const handler = this.handlers.get(request.method);
+    if (!handler) {
+      return fail(id, -32601, `Method not found: ${request.method}`);
+    }
     try {
-      switch (request.method) {
-        case "initialize": {
-          this.initialized = true;
-          const result: MCPInitializeResult = {
-            protocolVersion: negotiateProtocolVersion(
-              request.params?.protocolVersion,
-            ),
-            capabilities: {
-              tools: {},
-              resources: {},
-              prompts: {},
-            },
-            serverInfo: {
-              name: this.name,
-              version: this.version,
-            },
-            instructions: SERVER_INSTRUCTIONS,
-          };
-          return { jsonrpc: "2.0", id, result };
-        }
-
-        case "ping": {
-          return { jsonrpc: "2.0", id, result: {} };
-        }
-
-        case "tools/list": {
-          return { jsonrpc: "2.0", id, result: { tools: TOOLS } };
-        }
-
-        case "tools/call": {
-          const toolName = requireName(request.params, TOOLS, "tool");
-          const toolArgs = requireArguments(request.params);
-          const result = await executeTool(toolName, toolArgs);
-          return { jsonrpc: "2.0", id, result };
-        }
-
-        case "resources/list": {
-          return { jsonrpc: "2.0", id, result: { resources: RESOURCES } };
-        }
-
-        case "resources/read": {
-          const params = request.params;
-          const uri = params ? String(params.uri) : "";
-          const result = await readResource(uri);
-          return { jsonrpc: "2.0", id, result };
-        }
-
-        case "prompts/list": {
-          return { jsonrpc: "2.0", id, result: { prompts: PROMPTS } };
-        }
-
-        case "prompts/get": {
-          const promptName = requireName(request.params, PROMPTS, "prompt");
-          const promptArgs = requirePromptArguments(
-            PROMPTS.find((p) => p.name === promptName)?.arguments,
-            requireArguments(request.params),
-          );
-          const result = await getPrompt(promptName, promptArgs);
-          return { jsonrpc: "2.0", id, result };
-        }
-
-        default:
-          return {
-            jsonrpc: "2.0",
-            id,
-            error: {
-              code: -32601,
-              message: `Method not found: ${request.method}`,
-            },
-          };
-      }
+      return { jsonrpc: "2.0", id, result: await handler(request.params) };
     } catch (err: unknown) {
-      return {
-        jsonrpc: "2.0",
-        id,
-        error: {
-          code: err instanceof McpError ? err.code : -32603,
-          message: (err as Error).message,
-        },
-      };
+      const code = err instanceof McpError ? err.code : -32603;
+      return fail(id, code, (err as Error).message);
     }
+  }
+
+  private async initialize(params: Params): Promise<MCPInitializeResult> {
+    this.initialized = true;
+    return {
+      protocolVersion: negotiateProtocolVersion(params?.protocolVersion),
+      capabilities: {
+        tools: {},
+        resources: {},
+        prompts: {},
+      },
+      serverInfo: {
+        name: this.name,
+        version: this.version,
+      },
+      instructions: SERVER_INSTRUCTIONS,
+    };
   }
 
   /**

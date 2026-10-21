@@ -1,0 +1,1265 @@
+[
+  {
+    "method": "ping",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "error": {
+        "code": -32600,
+        "message": "Invalid Request: jsonrpc must be '2.0'"
+      }
+    },
+    "initialized": false
+  },
+  {
+    "method": "ping",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32600,
+        "message": "Invalid Request: jsonrpc must be '2.0'"
+      }
+    },
+    "initialized": false
+  },
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {},
+          "resources": {},
+          "prompts": {}
+        },
+        "serverInfo": {
+          "name": "crypto-service",
+          "version": "0.0.35"
+        },
+        "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "protocolVersion": "2025-03-26",
+        "capabilities": {
+          "tools": {},
+          "resources": {},
+          "prompts": {}
+        },
+        "serverInfo": {
+          "name": "crypto-service",
+          "version": "0.0.35"
+        },
+        "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "initialize",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {},
+          "resources": {},
+          "prompts": {}
+        },
+        "serverInfo": {
+          "name": "crypto-service",
+          "version": "0.0.35"
+        },
+        "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "ping",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": {}
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/list",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": {
+        "tools": [
+          {
+            "name": "crypto_generate_key",
+            "description": "Generate a key inside the server: a classical (RSA, ECC, Ed25519) or post-quantum (ML-KEM 512/768/1024 FIPS 203, ML-DSA 44/65/87 FIPS 204) keypair, a 256-bit symmetric key, or an HMAC-SHA256 key. Returns a keyHandle and, for keypairs, the public key. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Key type: 'rsa', 'ecc', 'ed25519', 'x25519', 'ml-kem-512', 'ml-kem-768', 'ml-kem-1024', 'ml-dsa-44', 'ml-dsa-65', 'ml-dsa-87', 'symmetric-256', or 'hmac-sha256'.",
+                  "enum": [
+                    "rsa",
+                    "ecc",
+                    "ed25519",
+                    "x25519",
+                    "ml-kem-512",
+                    "ml-kem-768",
+                    "ml-kem-1024",
+                    "ml-dsa-44",
+                    "ml-dsa-65",
+                    "ml-dsa-87",
+                    "symmetric-256",
+                    "hmac-sha256"
+                  ]
+                },
+                "modulusLength": {
+                  "type": "integer",
+                  "description": "Modulus length for RSA (2048, 3072, 4096). Default is 2048.",
+                  "enum": [2048, 3072, 4096]
+                },
+                "curve": {
+                  "type": "string",
+                  "description": "Elliptic curve for 'ecc': 'prime256v1' (P-256), 'secp384r1' (P-384), or 'secp256k1'. Default is 'prime256v1'.",
+                  "enum": ["prime256v1", "secp384r1", "secp256k1"]
+                }
+              },
+              "required": ["type"]
+            },
+            "title": "Generate a key",
+            "annotations": {
+              "title": "Generate a key",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_key_list",
+            "description": "List the key handles this server holds, with each key's type and public metadata. At most 64 keys are held; beyond that the least recently used key is destroyed.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {}
+            },
+            "title": "List key handles",
+            "annotations": {
+              "title": "List key handles",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_key_destroy",
+            "description": "Destroy a key: overwrite its secret bytes where the runtime allows and invalidate its handle.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of the key to destroy. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["keyHandle"]
+            },
+            "title": "Destroy a key",
+            "annotations": {
+              "title": "Destroy a key",
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_key_import",
+            "description": "Import an existing key from a file in the directory the server operator set in CRYPTO_MCP_KEY_DIR (disabled when it is unset). Reads an unencrypted PKCS#8 PEM private key (Ed25519, RSA 2048/3072/4096, ECDSA P-256/P-384/secp256k1; the type comes from the key) or a raw 32-byte key, as 32 binary bytes or 64 hex digits, imported as 'symmetric-256' (default) or 'hmac-sha256'. Files over 65536 bytes are refused. The key bytes never pass through the conversation. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path of the key file, relative to CRYPTO_MCP_KEY_DIR. Absolute paths, '..' segments and symlinks that lead outside the directory are refused.",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "kind": {
+                  "type": "string",
+                  "description": "For a raw 32-byte key only: 'symmetric-256' (crypto_encrypt, crypto_decrypt, crypto_kms_wrap; default) or 'hmac-sha256' (crypto_sign, crypto_verify).",
+                  "enum": ["symmetric-256", "hmac-sha256"]
+                }
+              },
+              "required": ["path"]
+            },
+            "title": "Import a key from a file",
+            "annotations": {
+              "title": "Import a key from a file",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_inspect_key",
+            "description": "Inspect and parse PEM certificate, public key, or OpenPGP armored block.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "keyData": {
+                  "type": "string",
+                  "description": "PEM or armored key string.",
+                  "maxLength": 16384
+                }
+              },
+              "required": ["keyData"]
+            },
+            "title": "Inspect a public key",
+            "annotations": {
+              "title": "Inspect a public key",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_encrypt",
+            "description": "Encrypt plaintext with authenticated encryption (AES-256-GCM or ChaCha20-Poly1305) under a symmetric-256 key handle. Without keyHandle, a new key is generated and its handle returned. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "plaintext": {
+                  "type": "string",
+                  "description": "Plaintext string to encrypt.",
+                  "maxLength": 1048576
+                },
+                "algorithm": {
+                  "type": "string",
+                  "description": "Encryption algorithm ('aes-256-gcm' or 'chacha20-poly1305'). Default is 'aes-256-gcm'.",
+                  "enum": ["aes-256-gcm", "chacha20-poly1305"]
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of a symmetric-256 key. If omitted, a new key is generated. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["plaintext"]
+            },
+            "title": "Encrypt data",
+            "annotations": {
+              "title": "Encrypt data",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_decrypt",
+            "description": "Decrypt and authenticate an AES-256-GCM or ChaCha20-Poly1305 ciphertext with a symmetric-256 key handle.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ciphertext": {
+                  "type": "string",
+                  "description": "Hex-encoded ciphertext.",
+                  "minLength": 2,
+                  "maxLength": 2097152,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "algorithm": {
+                  "type": "string",
+                  "description": "Algorithm used for encryption ('aes-256-gcm' or 'chacha20-poly1305'). Default is 'aes-256-gcm'.",
+                  "enum": ["aes-256-gcm", "chacha20-poly1305"]
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of the symmetric-256 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "iv": {
+                  "type": "string",
+                  "description": "Hex-encoded 96-bit nonce (24 hex characters).",
+                  "minLength": 24,
+                  "maxLength": 24,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "authTag": {
+                  "type": "string",
+                  "description": "Hex-encoded 128-bit authentication tag.",
+                  "minLength": 32,
+                  "maxLength": 32,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                }
+              },
+              "required": ["ciphertext", "keyHandle", "iv", "authTag"]
+            },
+            "title": "Decrypt data",
+            "annotations": {
+              "title": "Decrypt data",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_kem_encapsulate",
+            "description": "Encapsulate a shared secret to an ML-KEM (FIPS 203) public key (512, 768, 1024). Returns the KEM ciphertext for the recipient and a symmetric-256 keyHandle for the shared secret, usable with crypto_encrypt. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "publicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded ML-KEM public key (1600, 2368, or 3136 hex characters).",
+                  "minLength": 2,
+                  "maxLength": 3136,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "level": {
+                  "type": "integer",
+                  "description": "ML-KEM security level (512, 768, or 1024). Default is 768.",
+                  "enum": [512, 768, 1024]
+                }
+              },
+              "required": ["publicKey"]
+            },
+            "title": "Encapsulate a shared secret",
+            "annotations": {
+              "title": "Encapsulate a shared secret",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_kem_decapsulate",
+            "description": "Recover an ML-KEM shared secret with an ml-kem key handle (512, 768, 1024). Returns a symmetric-256 keyHandle for the shared secret. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of the ml-kem key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "ciphertext": {
+                  "type": "string",
+                  "description": "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+                  "minLength": 2,
+                  "maxLength": 3136,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "level": {
+                  "type": "integer",
+                  "description": "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+                  "enum": [512, 768, 1024]
+                }
+              },
+              "required": ["keyHandle", "ciphertext"]
+            },
+            "title": "Decapsulate a shared secret",
+            "annotations": {
+              "title": "Decapsulate a shared secret",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_hybrid_kem_encapsulate",
+            "description": "Encapsulate a shared secret using Post-Quantum Hybrid KEM (X25519 + ML-KEM, RFC 9180/10024). Returns the classical ephemeral public key, ML-KEM ciphertext, and a symmetric-256 keyHandle for the combined shared secret. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "x25519PublicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded recipient X25519 public key (64 hex characters).",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "mlKemPublicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded recipient ML-KEM public key (1600, 2368, or 3136 hex characters).",
+                  "minLength": 2,
+                  "maxLength": 3136,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "level": {
+                  "type": "integer",
+                  "description": "ML-KEM security level (512, 768, or 1024). Default is 768.",
+                  "enum": [512, 768, 1024]
+                }
+              },
+              "required": ["x25519PublicKey", "mlKemPublicKey"]
+            },
+            "title": "Hybrid post-quantum KEM encapsulate",
+            "annotations": {
+              "title": "Hybrid post-quantum KEM encapsulate",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_hybrid_kem_decapsulate",
+            "description": "Recover a Post-Quantum Hybrid KEM shared secret (X25519 + ML-KEM) using server-held x25519 and ml-kem key handles. Returns a symmetric-256 keyHandle for the combined shared secret. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "x25519KeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient X25519 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "mlKemKeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient ML-KEM key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "x25519EphemeralPublic": {
+                  "type": "string",
+                  "description": "Hex-encoded sender ephemeral X25519 public key (64 hex characters).",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "mlKemCiphertext": {
+                  "type": "string",
+                  "description": "Hex-encoded ML-KEM ciphertext (1536, 2176, or 3136 hex characters).",
+                  "minLength": 2,
+                  "maxLength": 3136,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "level": {
+                  "type": "integer",
+                  "description": "ML-KEM security level (512, 768, or 1024). Default is inferred from key or 768.",
+                  "enum": [512, 768, 1024]
+                }
+              },
+              "required": [
+                "x25519KeyHandle",
+                "mlKemKeyHandle",
+                "x25519EphemeralPublic",
+                "mlKemCiphertext"
+              ]
+            },
+            "title": "Hybrid post-quantum KEM decapsulate",
+            "annotations": {
+              "title": "Hybrid post-quantum KEM decapsulate",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_stream_encrypt",
+            "description": "Encrypt plaintext using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation protection. Returns base64 ciphertext.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "plaintext": {
+                  "type": "string",
+                  "description": "Plaintext string to encrypt.",
+                  "maxLength": 1048576
+                },
+                "x25519PublicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded X25519 public key (64 hex characters).",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "mlKemPublicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded ML-KEM-768 public key (2368 hex characters).",
+                  "minLength": 2368,
+                  "maxLength": 2368,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "description": "Chunk size in bytes (minimum 64, default 65536).",
+                  "minimum": 64
+                }
+              },
+              "required": ["plaintext", "x25519PublicKey", "mlKemPublicKey"]
+            },
+            "title": "Stream encrypt data (post-quantum)",
+            "annotations": {
+              "title": "Stream encrypt data (post-quantum)",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_stream_decrypt",
+            "description": "Decrypt a post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ciphertext": {
+                  "type": "string",
+                  "description": "Base64-encoded STREAM ciphertext.",
+                  "maxLength": 1048576
+                },
+                "x25519KeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient X25519 key (or 32-byte symmetric-256 key). Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "mlKemKeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient ML-KEM-768 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "description": "Chunk size used during encryption (default 65536).",
+                  "minimum": 64
+                }
+              },
+              "required": ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"]
+            },
+            "title": "Stream decrypt data (post-quantum)",
+            "annotations": {
+              "title": "Stream decrypt data (post-quantum)",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_stream_multi_encrypt",
+            "description": "Encrypt plaintext for multiple recipients using post-quantum hybrid STREAM AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305) with anti-truncation framing. Returns base64 ciphertext.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "plaintext": {
+                  "type": "string",
+                  "description": "Plaintext string to encrypt.",
+                  "maxLength": 1048576
+                },
+                "recipients": {
+                  "type": "string",
+                  "description": "JSON-serialized array of recipient public key descriptors: [{ recipientId, recipientX25519Public, recipientMlKemPublic }].",
+                  "maxLength": 1048576
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "description": "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
+                  "minimum": 1024,
+                  "maximum": 16777216
+                }
+              },
+              "required": ["plaintext", "recipients"]
+            },
+            "title": "Multi-recipient stream encrypt data (post-quantum)",
+            "annotations": {
+              "title": "Multi-recipient stream encrypt data (post-quantum)",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_stream_multi_decrypt",
+            "description": "Decrypt a multi-recipient post-quantum hybrid STREAM AEAD ciphertext using server-held x25519 and ml-kem-768 key handles. Plaintext memory is wiped after decoding.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ciphertext": {
+                  "type": "string",
+                  "description": "Base64-encoded multi-recipient STREAM ciphertext.",
+                  "maxLength": 1048576
+                },
+                "x25519KeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient X25519 key (or 32-byte symmetric-256 key). Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "mlKemKeyHandle": {
+                  "type": "string",
+                  "description": "Handle of the recipient ML-KEM-768 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "recipientId": {
+                  "type": "string",
+                  "description": "Optional recipient identifier for direct slot lookup.",
+                  "maxLength": 1048576
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "description": "Chunk size in bytes (minimum 1024, maximum 16777216, default 65536).",
+                  "minimum": 1024,
+                  "maximum": 16777216
+                }
+              },
+              "required": ["ciphertext", "x25519KeyHandle", "mlKemKeyHandle"]
+            },
+            "title": "Multi-recipient stream decrypt data (post-quantum)",
+            "annotations": {
+              "title": "Multi-recipient stream decrypt data (post-quantum)",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_hybrid_kem_multi_encapsulate",
+            "description": "Encapsulate a symmetric key for multiple recipients using post-quantum hybrid KEM (X25519 + ML-KEM-768 + AES-256-GCM key wrapping). Returns recipient ciphertexts and a symmetric-256 keyHandle.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "recipients": {
+                  "type": "string",
+                  "description": "JSON-serialized array of recipient public key objects: [{ id?, x25519PublicKey, mlKemPublicKey }].",
+                  "maxLength": 1048576
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Optional handle of an existing symmetric-256 key to encapsulate. If omitted, a fresh 256-bit DEK is generated. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["recipients"]
+            },
+            "title": "Multi-recipient hybrid KEM encapsulate",
+            "annotations": {
+              "title": "Multi-recipient hybrid KEM encapsulate",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_hybrid_kem_multi_decapsulate",
+            "description": "Decapsulate a multi-recipient post-quantum hybrid KEM key using server-held x25519 and ml-kem-768 key handles. Returns a symmetric-256 keyHandle for the recovered DEK.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "x25519KeyHandle": {
+                  "type": "string",
+                  "description": "Handle of recipient X25519 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "mlKemKeyHandle": {
+                  "type": "string",
+                  "description": "Handle of recipient ML-KEM-768 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                },
+                "ephemeralPublicKey": {
+                  "type": "string",
+                  "description": "Hex-encoded sender ephemeral X25519 public key (64 hex characters).",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "mlKemCiphertext": {
+                  "type": "string",
+                  "description": "Hex-encoded ML-KEM-768 ciphertext (2176 hex characters).",
+                  "minLength": 2,
+                  "maxLength": 2176,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "wrappedKey": {
+                  "type": "string",
+                  "description": "Base64-encoded wrapped DEK (RFC 3394 AES Key Wrap).",
+                  "maxLength": 1048576
+                },
+                "encryptedKey": {
+                  "type": "string",
+                  "description": "Alias for wrappedKey.",
+                  "maxLength": 1048576
+                },
+                "recipients": {
+                  "type": "string",
+                  "description": "Optional JSON-serialized array of encrypted recipient objects: [{ id?, ephemeralPublicKey, mlKemCiphertext, encryptedKey }].",
+                  "maxLength": 1048576
+                },
+                "recipientId": {
+                  "type": "string",
+                  "description": "Optional recipient ID to select from recipients array.",
+                  "maxLength": 1048576
+                },
+                "recipientIndex": {
+                  "type": "integer",
+                  "description": "Optional index to select from recipients array (default 0).",
+                  "minimum": 0
+                }
+              },
+              "required": ["x25519KeyHandle", "mlKemKeyHandle"]
+            },
+            "title": "Multi-recipient hybrid KEM decapsulate",
+            "annotations": {
+              "title": "Multi-recipient hybrid KEM decapsulate",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_sign",
+            "description": "Sign data with a key handle. The algorithm follows the key: Ed25519, RSASSA-PSS (SHA-256), ECDSA (SHA-256; SHA-384 on P-384), ML-DSA (44, 65, 87, FIPS 204), or HMAC-SHA256.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "data": {
+                  "type": "string",
+                  "description": "Data string to sign.",
+                  "maxLength": 1048576
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["data", "keyHandle"]
+            },
+            "title": "Sign data",
+            "annotations": {
+              "title": "Sign data",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_verify",
+            "description": "Verify a signature against a public key (SPKI PEM or ML-DSA hex) or a key handle (also HMAC-SHA256). Pass exactly one of publicKey or keyHandle.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "data": {
+                  "type": "string",
+                  "description": "Original data string.",
+                  "maxLength": 1048576
+                },
+                "signature": {
+                  "type": "string",
+                  "description": "Hex-encoded signature.",
+                  "minLength": 2,
+                  "maxLength": 16384,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "description": "Public key in SPKI PEM format or ML-DSA hex format. Private keys are refused.",
+                  "minLength": 1,
+                  "maxLength": 16384
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of an ed25519, rsa, ecc, ml-dsa, or hmac-sha256 key. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["data", "signature"]
+            },
+            "title": "Verify a signature",
+            "annotations": {
+              "title": "Verify a signature",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_hash",
+            "description": "Compute cryptographic digest (SHA-256, SHA-384, SHA-512, SHA3-256, BLAKE2b512).",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "data": {
+                  "type": "string",
+                  "description": "Data string to hash.",
+                  "maxLength": 1048576
+                },
+                "algorithm": {
+                  "type": "string",
+                  "description": "Hash algorithm.",
+                  "enum": [
+                    "sha256",
+                    "sha384",
+                    "sha512",
+                    "sha3-256",
+                    "blake2b512"
+                  ]
+                }
+              },
+              "required": ["data"]
+            },
+            "title": "Hash data",
+            "annotations": {
+              "title": "Hash data",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_kms_wrap",
+            "description": "Wrap the Data Encryption Key (DEK) a symmetric-256 key handle refers to under a Key Encryption Key held by a KMS provider. Only the 'local' provider is configured.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "description": "KMS provider ('aws', 'gcp', 'azure', 'vault', or 'local'). Only 'local' (random, in-process key material that does not survive a restart) is configured; the others return an error.",
+                  "enum": ["aws", "gcp", "azure", "vault", "local"]
+                },
+                "keyId": {
+                  "type": "string",
+                  "description": "Label of the Key Encryption Key (KEK). It names the key; it is never used to derive it.",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "keyHandle": {
+                  "type": "string",
+                  "description": "Handle of the symmetric-256 DEK to wrap. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "maxLength": 35,
+                  "pattern": "^kh_[0-9a-f]{32}$"
+                }
+              },
+              "required": ["provider", "keyId", "keyHandle"]
+            },
+            "title": "Wrap a key (KMS)",
+            "annotations": {
+              "title": "Wrap a key (KMS)",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_kms_unwrap",
+            "description": "Unwrap a DEK previously wrapped by crypto_kms_wrap in this server process into a symmetric-256 key handle. Only the 'local' provider is configured. Secret key material stays inside the server; only an opaque keyHandle is returned.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "description": "KMS provider ('aws', 'gcp', 'azure', 'vault', or 'local'). Only 'local' (random, in-process key material that does not survive a restart) is configured; the others return an error.",
+                  "enum": ["aws", "gcp", "azure", "vault", "local"]
+                },
+                "keyId": {
+                  "type": "string",
+                  "description": "Label of the Key Encryption Key (KEK). It names the key; it is never used to derive it.",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "wrappedKey": {
+                  "type": "string",
+                  "description": "Hex-encoded wrapped key payload.",
+                  "minLength": 2,
+                  "maxLength": 1024,
+                  "pattern": "^(?:[0-9a-fA-F]{2})*$"
+                }
+              },
+              "required": ["provider", "keyId", "wrappedKey"]
+            },
+            "title": "Unwrap a key (KMS)",
+            "annotations": {
+              "title": "Unwrap a key (KMS)",
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "crypto_audit_cbom",
+            "description": "Generate a Cryptographic Bill of Materials (CBOM) inventory from cryptographic identifiers.",
+            "inputSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "algorithms": {
+                  "type": "string",
+                  "description": "Comma-separated list of algorithm names to evaluate (e.g. 'RSA-2048,AES-256-GCM,ML-KEM-768,SHA-1').",
+                  "maxLength": 4096
+                }
+              },
+              "required": ["algorithms"]
+            },
+            "title": "Audit a CBOM",
+            "annotations": {
+              "title": "Audit a CBOM",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/call",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "error": {
+        "code": -32602,
+        "message": "Invalid params: tool name is required"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/call",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "error": {
+        "code": -32602,
+        "message": "Invalid params: unknown tool: no_such_tool"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/call",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "Invalid arguments for crypto_hash: missing required property \"data\""
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/call",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"algorithm\": \"sha256\",\n  \"digest\": \"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\",\n  \"bytes\": 32\n}"
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "tools/call",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "Invalid arguments for crypto_hash: \"algorithm\" must be one of: sha256, sha384, sha512, sha3-256, blake2b512"
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "resources/list",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 12,
+      "result": {
+        "resources": [
+          {
+            "uri": "crypto://standards/pqc",
+            "name": "NIST Post-Quantum Cryptography Standards & Parameters",
+            "description": "Specification parameters for FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA), and FIPS 206 (FN-DSA).",
+            "mimeType": "application/json"
+          },
+          {
+            "uri": "crypto://algorithms/matrix",
+            "name": "Cryptographic Algorithm Security & Deprecation Matrix",
+            "description": "Comprehensive security strength, key size, and deprecation schedule for enterprise cryptography.",
+            "mimeType": "application/json"
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "resources/read",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 13,
+      "error": {
+        "code": -32603,
+        "message": "Resource not found: "
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "resources/read",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 14,
+      "result": {
+        "contents": [
+          {
+            "uri": "crypto://standards/pqc",
+            "mimeType": "application/json",
+            "text": "{\n  \"standards\": [\n    {\n      \"name\": \"ML-KEM\",\n      \"fips\": 203,\n      \"type\": \"Key Encapsulation Mechanism\",\n      \"basis\": \"Module Learning with Errors (M-LWE)\",\n      \"variants\": [\n        {\n          \"level\": 1,\n          \"name\": \"ML-KEM-512\",\n          \"publicKeyBytes\": 800,\n          \"ciphertextBytes\": 768,\n          \"sharedSecretBytes\": 32\n        },\n        {\n          \"level\": 3,\n          \"name\": \"ML-KEM-768\",\n          \"publicKeyBytes\": 1184,\n          \"ciphertextBytes\": 1088,\n          \"sharedSecretBytes\": 32\n        },\n        {\n          \"level\": 5,\n          \"name\": \"ML-KEM-1024\",\n          \"publicKeyBytes\": 1568,\n          \"ciphertextBytes\": 1568,\n          \"sharedSecretBytes\": 32\n        }\n      ]\n    },\n    {\n      \"name\": \"ML-DSA\",\n      \"fips\": 204,\n      \"type\": \"Digital Signature\",\n      \"basis\": \"Module Learning with Errors (M-LWE)\",\n      \"variants\": [\n        {\n          \"level\": 2,\n          \"name\": \"ML-DSA-44\",\n          \"publicKeyBytes\": 1312,\n          \"signatureBytes\": 2420\n        },\n        {\n          \"level\": 3,\n          \"name\": \"ML-DSA-65\",\n          \"publicKeyBytes\": 1952,\n          \"signatureBytes\": 3309\n        },\n        {\n          \"level\": 5,\n          \"name\": \"ML-DSA-87\",\n          \"publicKeyBytes\": 2592,\n          \"signatureBytes\": 4627\n        }\n      ]\n    },\n    {\n      \"name\": \"SLH-DSA\",\n      \"fips\": 205,\n      \"type\": \"Stateless Hash-Based Digital Signature\",\n      \"basis\": \"Hash Trees (SPHINCS+)\",\n      \"variants\": [\n        {\n          \"level\": 1,\n          \"name\": \"SLH-DSA-128s\",\n          \"publicKeyBytes\": 32,\n          \"signatureBytes\": 7856\n        },\n        {\n          \"level\": 5,\n          \"name\": \"SLH-DSA-256s\",\n          \"publicKeyBytes\": 64,\n          \"signatureBytes\": 29792\n        }\n      ]\n    }\n  ],\n  \"timelines\": {\n    \"nsaCnsa2\": {\n      \"softwareTransition\": 2027,\n      \"webAndProtocols\": 2030,\n      \"legacyDeprecation\": 2033\n    },\n    \"doraEnforcement\": 2025,\n    \"cyberResilienceAct\": 2027\n  }\n}"
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "resources/read",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 15,
+      "result": {
+        "contents": [
+          {
+            "uri": "crypto://algorithms/matrix",
+            "mimeType": "application/json",
+            "text": "{\n  \"symmetric\": [\n    {\n      \"name\": \"AES-256-GCM\",\n      \"securityBits\": 256,\n      \"quantumSafe\": true,\n      \"recommended\": true\n    },\n    {\n      \"name\": \"ChaCha20-Poly1305\",\n      \"securityBits\": 256,\n      \"quantumSafe\": true,\n      \"recommended\": true\n    },\n    {\n      \"name\": \"3DES\",\n      \"securityBits\": 112,\n      \"quantumSafe\": false,\n      \"recommended\": false,\n      \"status\": \"DEPRECATED\"\n    }\n  ],\n  \"asymmetric\": [\n    {\n      \"name\": \"ML-KEM-768\",\n      \"securityBits\": 192,\n      \"quantumSafe\": true,\n      \"recommended\": true,\n      \"standard\": \"FIPS 203\"\n    },\n    {\n      \"name\": \"RSA-2048\",\n      \"securityBits\": 112,\n      \"quantumSafe\": false,\n      \"recommended\": false,\n      \"status\": \"PHASING_OUT\"\n    },\n    {\n      \"name\": \"RSA-4096\",\n      \"securityBits\": 128,\n      \"quantumSafe\": false,\n      \"recommended\": false,\n      \"status\": \"PHASING_OUT\"\n    },\n    {\n      \"name\": \"ECDSA (P-256)\",\n      \"securityBits\": 128,\n      \"quantumSafe\": false,\n      \"recommended\": false,\n      \"status\": \"PHASING_OUT\"\n    },\n    {\n      \"name\": \"Ed25519\",\n      \"securityBits\": 128,\n      \"quantumSafe\": false,\n      \"recommended\": false,\n      \"status\": \"PHASING_OUT\"\n    }\n  ],\n  \"hashes\": [\n    {\n      \"name\": \"SHA-256\",\n      \"securityBits\": 256,\n      \"quantumSafe\": true,\n      \"status\": \"SECURE\"\n    },\n    {\n      \"name\": \"SHA-512\",\n      \"securityBits\": 512,\n      \"quantumSafe\": true,\n      \"status\": \"SECURE\"\n    },\n    {\n      \"name\": \"SHA-1\",\n      \"securityBits\": 0,\n      \"quantumSafe\": false,\n      \"status\": \"BROKEN\"\n    },\n    {\n      \"name\": \"MD5\",\n      \"securityBits\": 0,\n      \"quantumSafe\": false,\n      \"status\": \"BROKEN\"\n    }\n  ]\n}"
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "resources/read",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 16,
+      "error": {
+        "code": -32603,
+        "message": "Resource not found: crypto://nothing"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "prompts/list",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 17,
+      "result": {
+        "prompts": [
+          {
+            "name": "pqc-migration-plan",
+            "description": "Generate a phased Post-Quantum Cryptography (PQC) migration roadmap tailored to an enterprise repository or architecture.",
+            "arguments": [
+              {
+                "name": "targetSystem",
+                "description": "Name or architecture description of the system being migrated (e.g. 'Wholesale Payment Gateway' or 'API Microservices').",
+                "required": true
+              }
+            ]
+          },
+          {
+            "name": "dora-compliance-check",
+            "description": "Generate a fiduciary audit checklist for DORA Articles 9 and 13 cryptographic resilience and CBOM tracking.",
+            "arguments": [
+              {
+                "name": "organizationType",
+                "description": "Type of financial entity (e.g. 'Credit Institution', 'Payment Service Provider', 'Investment Firm').",
+                "required": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "prompts/get",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 18,
+      "error": {
+        "code": -32602,
+        "message": "Invalid params: prompt name is required"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "prompts/get",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 19,
+      "error": {
+        "code": -32602,
+        "message": "Invalid params: unknown prompt: no-such-prompt"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "prompts/get",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 20,
+      "error": {
+        "code": -32602,
+        "message": "Invalid params: missing required argument targetSystem"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "prompts/get",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 21,
+      "result": {
+        "description": "Post-Quantum Cryptography Migration Plan for payments",
+        "messages": [
+          {
+            "role": "user",
+            "content": {
+              "type": "text",
+              "text": "Please design a 4-phase Post-Quantum Cryptography (PQC) migration plan for payments in accordance with NIST FIPS 203/204/205 standards and NSA CNSA 2.0 timelines:\n\n1. Cryptographic Asset Discovery & CBOM Generation\n2. Hybrid Key Exchange (X25519MLKEM768 in TLS 1.3 per RFC 10024; hybrid X25519 + ML-KEM-768 for data at rest)\n3. Hardware & Memory Zeroization Audit (Wasm linear memory vs V8 GC heap)\n4. Complete Deprecation of Classical Public Key Infrastructure."
+            }
+          }
+        ]
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "toString",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 22,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: toString"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "constructor",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 23,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: constructor"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "__proto__",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 24,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: __proto__"
+      }
+    },
+    "initialized": true
+  },
+  {
+    "method": "notifications/initialized",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": null,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: notifications/initialized"
+      }
+    },
+    "initialized": true
+  }
+]

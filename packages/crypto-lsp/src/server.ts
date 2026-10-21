@@ -17,6 +17,22 @@ import { getCodeActions } from "./code-action";
 import { getCompletions } from "./completion";
 import { VERSION } from "./version";
 
+type RequestId = number | string | null;
+type Params = JSONRPCRequest["params"];
+type Handler = (id: RequestId, params: Params) => JSONRPCResponse | null;
+
+const respond = (id: RequestId, result: unknown): JSONRPCResponse => ({
+  jsonrpc: "2.0",
+  id,
+  result,
+});
+
+const fail = (
+  id: RequestId,
+  code: number,
+  message: string,
+): JSONRPCResponse => ({ jsonrpc: "2.0", id, error: { code, message } });
+
 /**
  * Crypto Language Server Protocol (LSP 3.17) implementation.
  */
@@ -32,149 +48,108 @@ export class CryptoLspServer {
     return this.documents.get(uri);
   }
 
+  /**
+   * Request handlers by method name. A Map, not an object literal, so a
+   * method named after an Object.prototype member ("toString",
+   * "__proto__") is not found rather than dispatched.
+   */
+  private readonly handlers = new Map<string, Handler>([
+    ["initialize", (id) => this.initialize(id)],
+    ["initialized", () => null],
+    ["textDocument/didOpen", (_id, params) => this.didOpen(params)],
+    ["textDocument/didChange", (_id, params) => this.didChange(params)],
+    ["textDocument/didClose", (_id, params) => this.didClose(params)],
+    ["textDocument/hover", (id, params) => this.hover(id, params)],
+    ["textDocument/codeAction", (id, params) => this.codeAction(id, params)],
+    ["textDocument/completion", (id) => respond(id, getCompletions())],
+    ["shutdown", (id) => respond(id, null)],
+    ["exit", () => null],
+  ]);
+
   public async handleRequest(
     request: JSONRPCRequest,
   ): Promise<JSONRPCResponse | null> {
-    if (request.jsonrpc !== "2.0") {
-      return {
-        jsonrpc: "2.0",
-        id: request.id ?? null,
-        error: {
-          code: -32600,
-          message: "Invalid Request: jsonrpc must be '2.0'",
-        },
-      };
-    }
-
     const id = request.id ?? null;
-    const params = request.params;
-
-    switch (request.method) {
-      case "initialize": {
-        this.initialized = true;
-        const result: InitializeResult = {
-          capabilities: {
-            textDocumentSync: 1, // Full sync
-            hoverProvider: true,
-            codeActionProvider: true,
-            completionProvider: {
-              resolveProvider: false,
-              triggerCharacters: ['"', "'", "-"],
-            },
-          },
-          serverInfo: {
-            name: "crypto-lsp",
-            version: VERSION,
-          },
-        };
-        return { jsonrpc: "2.0", id, result };
-      }
-
-      case "initialized": {
-        return null; // Notification, no response
-      }
-
-      case "textDocument/didOpen": {
-        const td = params
-          ? (params.textDocument as { uri: string; text: string })
-          : null;
-        if (td) {
-          this.documents.set(td.uri, td.text);
-          const diagnostics = analyzeDocument(td.uri, td.text);
-          const publishParams: PublishDiagnosticsParams = {
-            uri: td.uri,
-            diagnostics,
-          };
-          return {
-            jsonrpc: "2.0",
-            id: null,
-            result: publishParams,
-          };
-        }
-        return null;
-      }
-
-      case "textDocument/didChange": {
-        const td = params ? (params.textDocument as { uri: string }) : null;
-        const changes = params
-          ? (params.contentChanges as Array<{ text: string }>)
-          : null;
-        if (td && changes && changes.length > 0) {
-          const newText = changes[0].text;
-          this.documents.set(td.uri, newText);
-          const diagnostics = analyzeDocument(td.uri, newText);
-          const publishParams: PublishDiagnosticsParams = {
-            uri: td.uri,
-            diagnostics,
-          };
-          return {
-            jsonrpc: "2.0",
-            id: null,
-            result: publishParams,
-          };
-        }
-        return null;
-      }
-
-      case "textDocument/didClose": {
-        const td = params ? (params.textDocument as { uri: string }) : null;
-        if (td) {
-          this.documents.delete(td.uri);
-        }
-        return null;
-      }
-
-      case "textDocument/hover": {
-        const td = params ? (params.textDocument as { uri: string }) : null;
-        const pos = params ? (params.position as Position) : null;
-        if (td && pos) {
-          const text = this.documents.get(td.uri) || "";
-          const hover = getHover(text, pos);
-          return { jsonrpc: "2.0", id, result: hover };
-        }
-        return { jsonrpc: "2.0", id, result: null };
-      }
-
-      case "textDocument/codeAction": {
-        const td = params ? (params.textDocument as { uri: string }) : null;
-        const range = params ? (params.range as Range) : null;
-        const context = params
-          ? (params.context as { diagnostics: Diagnostic[] })
-          : null;
-        if (td && range) {
-          const text = this.documents.get(td.uri) || "";
-          const diags = context
-            ? context.diagnostics
-            : analyzeDocument(td.uri, text);
-          const actions = getCodeActions(td.uri, text, range, diags);
-          return { jsonrpc: "2.0", id, result: actions };
-        }
-        return { jsonrpc: "2.0", id, result: [] };
-      }
-
-      case "textDocument/completion": {
-        const items = getCompletions();
-        return { jsonrpc: "2.0", id, result: items };
-      }
-
-      case "shutdown": {
-        return { jsonrpc: "2.0", id, result: null };
-      }
-
-      case "exit": {
-        return null;
-      }
-
-      default:
-        return {
-          jsonrpc: "2.0",
-          id,
-          error: {
-            code: -32601,
-            message: `Method not found: ${request.method}`,
-          },
-        };
+    if (request.jsonrpc !== "2.0") {
+      return fail(id, -32600, "Invalid Request: jsonrpc must be '2.0'");
     }
+    const handler = this.handlers.get(request.method);
+    if (!handler) {
+      return fail(id, -32601, `Method not found: ${request.method}`);
+    }
+    return handler(id, request.params);
+  }
+
+  private initialize(id: RequestId): JSONRPCResponse {
+    this.initialized = true;
+    const result: InitializeResult = {
+      capabilities: {
+        textDocumentSync: 1, // Full sync
+        hoverProvider: true,
+        codeActionProvider: true,
+        completionProvider: {
+          resolveProvider: false,
+          triggerCharacters: ['"', "'", "-"],
+        },
+      },
+      serverInfo: {
+        name: "crypto-lsp",
+        version: VERSION,
+      },
+    };
+    return respond(id, result);
+  }
+
+  /** Store `text` for `uri` and publish its diagnostics. */
+  private publish(uri: string, text: string): JSONRPCResponse {
+    this.documents.set(uri, text);
+    const publishParams: PublishDiagnosticsParams = {
+      uri,
+      diagnostics: analyzeDocument(uri, text),
+    };
+    return respond(null, publishParams);
+  }
+
+  private didOpen(params: Params): JSONRPCResponse | null {
+    const td = params?.textDocument as
+      { uri: string; text: string } | undefined;
+    return td ? this.publish(td.uri, td.text) : null;
+  }
+
+  private didChange(params: Params): JSONRPCResponse | null {
+    const td = params?.textDocument as { uri: string } | undefined;
+    const changes = params?.contentChanges as
+      Array<{ text: string }> | undefined;
+    if (!td || !changes || changes.length === 0) return null;
+    return this.publish(td.uri, changes[0].text);
+  }
+
+  private didClose(params: Params): null {
+    const td = params?.textDocument as { uri: string } | undefined;
+    if (td) this.documents.delete(td.uri);
+    return null;
+  }
+
+  private hover(id: RequestId, params: Params): JSONRPCResponse {
+    const td = params?.textDocument as { uri: string } | undefined;
+    const pos = params?.position as Position | undefined;
+    if (!td || !pos) return respond(id, null);
+    return respond(id, getHover(this.textOf(td.uri), pos));
+  }
+
+  private codeAction(id: RequestId, params: Params): JSONRPCResponse {
+    const td = params?.textDocument as { uri: string } | undefined;
+    const range = params?.range as Range | undefined;
+    if (!td || !range) return respond(id, []);
+    const text = this.textOf(td.uri);
+    const context = params?.context as
+      { diagnostics: Diagnostic[] } | undefined;
+    const diags = context ? context.diagnostics : analyzeDocument(td.uri, text);
+    return respond(id, getCodeActions(td.uri, text, range, diags));
+  }
+
+  private textOf(uri: string): string {
+    return this.documents.get(uri) || "";
   }
 
   /**

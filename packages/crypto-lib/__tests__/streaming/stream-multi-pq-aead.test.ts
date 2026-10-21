@@ -338,6 +338,21 @@ describe("Multi-Recipient Post-Quantum Streaming AEAD", () => {
       ).to.throw("Chunk size must be between 1024 and 16777216 bytes");
     });
 
+    // NaN passed the range check and produced no chunks (the plaintext
+    // was dropped); 1024.5 passed it and produced a stream whose header
+    // says 1024, so it could never be decrypted.
+    for (const chunkSize of [NaN, 1024.5]) {
+      it(`should reject chunkSize ${chunkSize}`, () => {
+        expect(() =>
+          streamMultiPqEncrypt({
+            recipients: [recipients[0] as MultiPqRecipient],
+            plaintext: new Uint8Array(5000),
+            chunkSize,
+          }),
+        ).to.throw(/chunkSize must be a positive integer/);
+      });
+    }
+
     it("should throw when recipientId is not found in slots", () => {
       const encResult = streamMultiPqEncrypt({
         recipients: [recipients[0] as MultiPqRecipient],

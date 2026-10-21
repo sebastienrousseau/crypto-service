@@ -304,4 +304,31 @@ describe("Post-Quantum Streaming AEAD", () => {
       ).to.throw(/Ciphertext truncated — final chunk missing/);
     });
   });
+
+  // Same validation as the symmetric stream: 0 looped forever, NaN and
+  // negative sizes dropped the plaintext.
+  for (const chunkSize of [0, -1, 0.5, NaN, Infinity]) {
+    it(`rejects chunkSize ${chunkSize}`, () => {
+      const plaintext = new Uint8Array(100);
+      const encryptWith = (size: number) =>
+        streamPqEncrypt({
+          recipientX25519Public: x25519PubHex,
+          recipientMlKemPublic: mlKemPubHex,
+          plaintext,
+          chunkSize: size,
+        });
+      expect(() => encryptWith(chunkSize)).to.throw(
+        /chunkSize must be a positive integer/,
+      );
+      const { ciphertext } = encryptWith(64);
+      expect(() =>
+        streamPqDecrypt({
+          recipientX25519Secret: x25519PrivHex,
+          recipientMlKemSecret: mlKemPrivHex,
+          ciphertext,
+          chunkSize,
+        }),
+      ).to.throw(/chunkSize must be a positive integer/);
+    });
+  }
 });

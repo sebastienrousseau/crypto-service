@@ -22,17 +22,19 @@
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import {
+  CHUNK_TAG_FINAL,
+  CHUNK_TAG_MESSAGE,
+  TAG_LEN,
+  assertChunkSize,
+  encryptChunksInto,
+  streamSize,
+} from "./chunks";
 
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
-/** Poly1305 authentication tag length in bytes. */
-const TAG_LEN = 16;
 /** Default chunk size for streaming encryption (64 KiB). */
 const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
-/** Chunk tag byte for intermediate (non-final) chunks. */
-const CHUNK_TAG_MESSAGE = 0x00;
-/** Chunk tag byte for the final chunk. */
-const CHUNK_TAG_FINAL = 0x01;
 
 /**
  * Derive a per-chunk nonce by XORing the base nonce with the chunk counter.
@@ -121,44 +123,23 @@ export function streamEncrypt(
 ): StreamEncryptResult {
   const key = toKey(options.key);
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const plaintext = options.plaintext;
 
   const baseNonce = randomBytes(NONCE_LEN);
-
-  // Calculate total output size
-  const numFullChunks = Math.floor(plaintext.length / chunkSize);
-  const lastChunkLen = plaintext.length - numFullChunks * chunkSize;
-  const hasExtraChunk = lastChunkLen > 0 || plaintext.length === 0;
-  const totalChunks = hasExtraChunk ? numFullChunks + 1 : numFullChunks;
-
-  // Each chunk: tag (1B) + ciphertext + poly1305 tag (16B)
-  let outputSize = NONCE_LEN; // header
-  for (let i = 0; i < totalChunks; i++) {
-    const ptLen =
-      i < numFullChunks ? chunkSize : lastChunkLen > 0 ? lastChunkLen : 0;
-    outputSize += 1 + ptLen + TAG_LEN; // tag byte + ciphertext + auth tag
-  }
-
-  const output = new Uint8Array(outputSize);
+  const output = new Uint8Array(
+    streamSize(NONCE_LEN, plaintext.length, chunkSize),
+  );
   output.set(baseNonce);
-  let offset = NONCE_LEN;
-
-  for (let i = 0; i < totalChunks; i++) {
-    const isFinal = i === totalChunks - 1;
-    const chunkTag = isFinal ? CHUNK_TAG_FINAL : CHUNK_TAG_MESSAGE;
-    const start = i * chunkSize;
-    const end = isFinal ? plaintext.length : start + chunkSize;
-    const chunk = plaintext.subarray(start, end);
-
-    const nonce = deriveChunkNonce(baseNonce, i, chunkTag);
-    const cipher = xchacha20poly1305(key, nonce);
-    const encrypted = cipher.encrypt(chunk);
-
-    output[offset] = chunkTag;
-    offset += 1;
-    output.set(encrypted, offset);
-    offset += encrypted.length;
-  }
+  encryptChunksInto(
+    plaintext,
+    key,
+    baseNonce,
+    chunkSize,
+    output,
+    NONCE_LEN,
+    deriveChunkNonce,
+  );
 
   return {
     ciphertext: output,
@@ -205,6 +186,7 @@ function readChunkHeader(
 export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
   const key = toKey(options.key);
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < NONCE_LEN + 1 + TAG_LEN) {

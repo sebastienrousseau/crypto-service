@@ -56,6 +56,25 @@ export const DEFAULT_MAX_TENANTS = 10_000;
 /** Tenant key used when a request carries no authenticated principal. */
 const ANONYMOUS_TENANT = "anonymous";
 
+/** Whole tokens left in the bucket. */
+const remainingTokens = (usage: TenantUsage): number =>
+  Math.floor(Math.max(0, usage.tokens));
+
+/** Seconds until the current one-minute window ends, at least 1. */
+function secondsToReset(usage: TenantUsage, nowMs: number): number {
+  const msIntoWindow = (nowMs - usage.lastRefillMs) % 60000;
+  return Math.max(1, Math.ceil((60000 - msIntoWindow) / 1000));
+}
+
+/** Deducts a token and records the request and its payload size. */
+function recordRequest(usage: TenantUsage, contentLength?: number): void {
+  usage.tokens -= 1;
+  usage.totalRequests += 1;
+  if (contentLength !== undefined && contentLength > 0) {
+    usage.totalBytes += contentLength;
+  }
+}
+
 /**
  * In-memory tenant store using a sliding-window token bucket algorithm.
  *
@@ -151,20 +170,18 @@ export class MeteringEngine {
     const quota = TIER_QUOTAS[tier];
     const usage = this.getUsage(tenantKey, tier, nowMs);
     this.refillTokens(usage, quota, nowMs);
+    const status = { limit: quota.maxRequestsPerMinute, tier };
+
     // Payload size validation
     if (
       contentLength !== undefined &&
       contentLength > quota.maxBytesPerPayload
     ) {
-      const resetSeconds = Math.ceil(
-        (60000 - ((nowMs - usage.lastRefillMs) % 60000)) / 1000,
-      );
       return {
         allowed: false,
-        limit: quota.maxRequestsPerMinute,
-        remaining: Math.floor(Math.max(0, usage.tokens)),
-        resetSeconds: Math.max(1, resetSeconds),
-        tier,
+        ...status,
+        remaining: remainingTokens(usage),
+        resetSeconds: secondsToReset(usage, nowMs),
         error: `Payload size (${contentLength} bytes) exceeds tier limit of ${quota.maxBytesPerPayload} bytes`,
         statusCode: 413,
       };
@@ -172,37 +189,22 @@ export class MeteringEngine {
 
     // Rate limiting check
     if (usage.tokens < 1) {
-      const resetSeconds = Math.ceil(
-        (60000 - ((nowMs - usage.lastRefillMs) % 60000)) / 1000,
-      );
       return {
         allowed: false,
-        limit: quota.maxRequestsPerMinute,
+        ...status,
         remaining: 0,
-        resetSeconds: Math.max(1, resetSeconds),
-        tier,
+        resetSeconds: secondsToReset(usage, nowMs),
         error: `Tenant rate limit exceeded for tier '${tier}'. Limit: ${quota.maxRequestsPerMinute} req/min.`,
         statusCode: 429,
       };
     }
 
-    // Deduct token and record usage
-    usage.tokens -= 1;
-    usage.totalRequests += 1;
-    if (contentLength !== undefined && contentLength > 0) {
-      usage.totalBytes += contentLength;
-    }
-
-    const resetSeconds = Math.ceil(
-      (60000 - ((nowMs - usage.lastRefillMs) % 60000)) / 1000,
-    );
-
+    recordRequest(usage, contentLength);
     return {
       allowed: true,
-      limit: quota.maxRequestsPerMinute,
-      remaining: Math.floor(Math.max(0, usage.tokens)),
-      resetSeconds: Math.max(1, resetSeconds),
-      tier,
+      ...status,
+      remaining: remainingTokens(usage),
+      resetSeconds: secondsToReset(usage, nowMs),
     };
   }
 

@@ -1,0 +1,126 @@
+[
+  {
+    "valid": false,
+    "errors": ["Document must be a non-null object"]
+  },
+  {
+    "valid": false,
+    "errors": ["Document must be a non-null object"]
+  },
+  {
+    "valid": false,
+    "errors": ["Document must be a non-null object"]
+  },
+  {
+    "valid": false,
+    "errors": ["Document must be a non-null object"]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Unsupported document format. Expected CycloneDX 1.6 or SPDX 3.0"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Unsupported document format. Expected CycloneDX 1.6 or SPDX 3.0"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Unsupported document format. Expected CycloneDX 1.6 or SPDX 3.0"
+    ]
+  },
+  {
+    "valid": true,
+    "errors": []
+  },
+  {
+    "valid": true,
+    "errors": []
+  },
+  {
+    "valid": false,
+    "errors": ["Expected specVersion '1.6', got '1.5'"]
+  },
+  {
+    "valid": false,
+    "errors": ["Expected specVersion '1.6', got 'undefined'"]
+  },
+  {
+    "valid": false,
+    "errors": ["Missing or invalid 'serialNumber'"]
+  },
+  {
+    "valid": false,
+    "errors": ["Missing or invalid 'serialNumber'"]
+  },
+  {
+    "valid": false,
+    "errors": ["Missing or invalid 'components' array"]
+  },
+  {
+    "valid": false,
+    "errors": ["Missing or invalid 'components' array"]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Component at index 0 must have type 'cryptographic-asset'",
+      "Component at index 0 is missing 'name'",
+      "Component at index 1 must have type 'cryptographic-asset'",
+      "Component at index 1 is missing 'name'",
+      "Component at index 2 must have type 'cryptographic-asset'",
+      "Component at index 2 is missing 'name'",
+      "Component at index 3 must have type 'cryptographic-asset'"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": ["Component at index 0 is missing 'name'"]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Expected specVersion '1.6', got 'undefined'",
+      "Missing or invalid 'serialNumber'",
+      "Missing or invalid 'components' array"
+    ]
+  },
+  {
+    "valid": true,
+    "errors": []
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Missing or invalid 'spdxId'",
+      "Missing or invalid 'elements' array"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Missing or invalid 'spdxId'",
+      "Missing or invalid 'elements' array"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Unsupported document format. Expected CycloneDX 1.6 or SPDX 3.0"
+    ]
+  },
+  {
+    "valid": false,
+    "errors": [
+      "Unsupported document format. Expected CycloneDX 1.6 or SPDX 3.0"
+    ]
+  },
+  {
+    "valid": true,
+    "errors": []
+  }
+]

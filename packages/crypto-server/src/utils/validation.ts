@@ -68,6 +68,22 @@ export function validateRequiredString(
   return { valid: true, value };
 }
 
+/** A failed validation of `field`. */
+const invalid = (field: string, message: string): ValidationResult<never> => ({
+  valid: false,
+  error: { field, message },
+});
+
+/** Why `n` is outside `min`..`max`, or undefined when it is inside. */
+function rangeProblem(
+  n: number,
+  { min, max }: { min?: number; max?: number },
+): string | undefined {
+  if (min !== undefined && n < min) return `must be at least ${min}`;
+  if (max !== undefined && n > max) return `must be at most ${max}`;
+  return undefined;
+}
+
 /**
  * Validates that a required number field is present and in range.
  */
@@ -77,40 +93,14 @@ export function validateRequiredNumber(
   options?: { min?: number; max?: number },
 ): ValidationResult<number> {
   if (value === undefined || value === null) {
-    return {
-      valid: false,
-      error: { field: fieldName, message: `${fieldName} is required` },
-    };
+    return invalid(fieldName, `${fieldName} is required`);
   }
   const numValue = typeof value === "number" ? value : Number(value);
-  const { min, max } = options ?? {};
   if (!Number.isFinite(numValue)) {
-    return {
-      valid: false,
-      error: {
-        field: fieldName,
-        message: `${fieldName} must be a valid number`,
-      },
-    };
+    return invalid(fieldName, `${fieldName} must be a valid number`);
   }
-  if (min !== undefined && numValue < min) {
-    return {
-      valid: false,
-      error: {
-        field: fieldName,
-        message: `${fieldName} must be at least ${min}`,
-      },
-    };
-  }
-  if (max !== undefined && numValue > max) {
-    return {
-      valid: false,
-      error: {
-        field: fieldName,
-        message: `${fieldName} must be at most ${max}`,
-      },
-    };
-  }
+  const problem = rangeProblem(numValue, options ?? {});
+  if (problem) return invalid(fieldName, `${fieldName} ${problem}`);
   return { valid: true, value: numValue };
 }
 

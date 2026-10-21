@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src=".github/demo.gif" alt="crypto-cli 0.0.34 printing its version, hashing a file with BLAKE3, signing and verifying it with ML-DSA-65, and round-tripping it through XChaCha20-Poly1305" width="100%" />
+  <img src=".github/demo.gif" alt="crypto-cli 0.0.35 printing its version, hashing a file with BLAKE3, signing and verifying it with ML-DSA-65, and round-tripping it through XChaCha20-Poly1305" width="100%" />
 </p>
 
 ---
@@ -93,7 +93,7 @@ pnpm add @sebastienrousseau/crypto-server
 pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-All 18 packages share one version: this tree is 0.0.34. Releases
+All 18 packages share one version: this tree is 0.0.35. Releases
 before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
 crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 
@@ -369,9 +369,9 @@ pnpm -r run docs
 `make check` runs the local gate: build, lint, format, the complexity
 gate, tests, TypeDoc, manifest checks and a pack smoke test. The
 complexity gate holds every function to cyclomatic ≤ 10, cognitive ≤ 15,
-Halstead difficulty ≤ 30 and ≤ 60 lines (≤ 500 lines per file); existing
-offenders are recorded in `complexity-baseline.json`, which may only
-shrink.
+Halstead difficulty ≤ 30 and ≤ 60 lines (≤ 500 lines per file). Every
+function meets them, so `complexity-baseline.json` is empty and any new
+offender fails the gate.
 CI enforces 100% line and function coverage in every package, and 100% branch coverage in every package except crypto-lib (99.5%).
 Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md](DEVELOPMENT.md) for local gate reproduction and [CONTRIBUTING.md](CONTRIBUTING.md) for commit and PR guidelines.
 
