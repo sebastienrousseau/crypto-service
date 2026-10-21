@@ -13,6 +13,7 @@
 
 import { authConfigError } from "./auth-policy";
 import { kmsConfigError } from "../lib/kms-providers";
+import { keyStoreConfigError } from "../lib/key-store";
 
 /** Server configuration loaded from environment variables. */
 export interface Config {
@@ -101,7 +102,7 @@ export function loadConfig(): Config {
   const logLevel = optional("LOG_LEVEL", "info") as Config["logLevel"];
 
   errors.push(...enumErrors(protocol, nodeEnv, logLevel));
-  for (const check of [authConfigError, kmsConfigError]) {
+  for (const check of [authConfigError, kmsConfigError, keyStoreConfigError]) {
     const error = check(process.env);
     if (error) errors.push(error);
   }
