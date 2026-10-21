@@ -21,7 +21,8 @@
  *   context, or tampered ciphertext.
  * - `VERSION_DESTROYED`: the ciphertext was produced by a key version whose
  *   material has been destroyed.
- * - `NOT_IMPLEMENTED`: the provider is a stub.
+ * - `NOT_IMPLEMENTED`: the provider is a stub (Azure), or its backend
+ *   has no such operation (Vault Transit cannot disable a key).
  * - `DEPENDENCY_MISSING`: an optional peer dependency is not installed.
  */
 export type KmsErrorCode =

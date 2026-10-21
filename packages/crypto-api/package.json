@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/sebastienrousseau/crypto-service/issues"
   },
-  "description": "Shared TypeScript types for the crypto-server REST API: request and response contracts used by the server and the SDK.",
+  "description": "TypeScript types for Postman collections and a converter that turns a Postman collection into Markdown API documentation. Not the crypto-server request/response contract: that is the server's OpenAPI document.",
   "dependencies": {
     "minimist": "^1.2.8"
   },
@@ -71,12 +71,12 @@
     "directory": "packages/crypto-api"
   },
   "keywords": [
+    "postman",
+    "postman-collection",
+    "markdown",
+    "api-documentation",
     "typescript",
-    "types",
-    "rest-api",
-    "api-contract",
-    "cryptography",
-    "post-quantum"
+    "types"
   ],
   "license": "MIT OR Apache-2.0",
   "license_URI": "http://www.opensource.org/licenses/mit-license.php",

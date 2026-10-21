@@ -173,26 +173,26 @@ All 18 packages follow a coordinated versioning policy with automated CI enforce
 > [!NOTE]
 > **Registry availability**: from 0.0.8 every package is published to npm and GitHub Packages on each tagged release. Earlier npm versions of `@sebastienrousseau/crypto-service`, `crypto-lib`, `crypto-server` and `crypto-cli` predate this repository's fixes; use 0.0.8 or later.
 
-| Component                                                            | Purpose                                                              | Use case                                             | Registry Availability |
-| :------------------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------- | :-------------------- |
-| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms   | Standalone library for Node.js, browsers, and Edge   | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                             | Cryptography-as-a-service microservice               | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                             | DevOps automation, local keygen, and file encryption | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                         | Client applications consuming the REST service       | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Shared TypeScript types for the REST API surface                     | Shared HTTP contract                                 | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware         | Automated payload encryption in HTTP pipelines       | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                    | Web application client-side cryptography             | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                          | Vue/Nuxt client-side encryption and hashing          | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters           | Serverless and edge cryptographic processing         | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | KMS interface: AWS and local providers; GCP/Azure/Vault are stubs    | Envelope encryption and key rotation                 | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption             | Field-level encryption before data reaches the DB    | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                 | Transparent database column encryption               | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | Placeholder: contains no WebAssembly code yet                        | None yet; operations run in JavaScript               | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks          | Testing downstream applications using crypto-service | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts        | AI agent integration (Claude, Cursor, Antigravity)   | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration   | IDE real-time analysis, PEM linting, quick fixes     | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0) | Cryptographic inventory tracking                     | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)           | Performance regression testing and throughput checks | npm (0.0.8+)          |
+| Component                                                            | Purpose                                                                              | Use case                                             | Registry Availability |
+| :------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------- | :-------------------- |
+| [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms                   | Standalone library for Node.js, browsers, and Edge   | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                                             | Cryptography-as-a-service microservice               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                                             | DevOps automation, local keygen, and file encryption | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                                         | Client applications consuming the REST service       | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Postman collection types and a Postman-to-Markdown converter                         | API documentation tooling                            | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware                         | Automated payload encryption in HTTP pipelines       | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-react`](packages/crypto-react)           | React hooks (`useEncryption`, `useKeypair`, etc.)                                    | Web application client-side cryptography             | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-vue`](packages/crypto-vue)               | Vue 3 composables for reactive cryptography                                          | Vue/Nuxt client-side encryption and hashing          | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-edge`](packages/crypto-edge)             | Cloudflare Workers, Vercel Edge, and Deno runtime adapters                           | Serverless and edge cryptographic processing         | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-kms`](packages/crypto-kms)               | KMS interface: AWS, Google Cloud, Vault Transit and local providers; Azure is a stub | Envelope encryption and key rotation                 | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-prisma`](packages/crypto-prisma)         | Prisma client extension for transparent field encryption                             | Field-level encryption before data reaches the DB    | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-typeorm`](packages/crypto-typeorm)       | TypeORM column transformer for encrypted persistence                                 | Transparent database column encryption               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-wasm`](packages/crypto-wasm)             | Placeholder: contains no WebAssembly code yet                                        | None yet; operations run in JavaScript               | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-testing`](packages/crypto-testing)       | Cryptographic test utilities, known-answer tests, and mocks                          | Testing downstream applications using crypto-service | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-mcp`](packages/crypto-mcp)               | Model Context Protocol server exposing crypto tools & prompts                        | AI agent integration (Claude, Cursor, Antigravity)   | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration                   | IDE real-time analysis, PEM linting, quick fixes     | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0)                 | Cryptographic inventory tracking                     | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)                           | Performance regression testing and throughput checks | npm (0.0.8+)          |
 
 ---
 
@@ -349,7 +349,7 @@ const prisma = new PrismaClient().$extends(
 ## When not to use Crypto Service
 
 - **You need a FIPS 140-3 validated module**: nothing in this suite is validated. The FIPS 203/204/205 algorithms come from `@noble/post-quantum`, which is not a validated module.
-- **You need an HSM or PKCS#11**: there is no PKCS#11 binding. The crypto-kms `Pkcs11HsmProvider` is an in-memory software simulation for tests; the GCP, Azure and Vault KMS providers are stubs.
+- **You need an HSM or PKCS#11**: there is no PKCS#11 binding. The crypto-kms `Pkcs11HsmProvider` is an in-memory software simulation for tests; the Azure KMS provider is a stub.
 - **You need audited or guaranteed constant-time post-quantum code**: `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution.
 - **Embedded bare-metal microcontrollers**: devices without a Node.js or browser JavaScript runtime.
 

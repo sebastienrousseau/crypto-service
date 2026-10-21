@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
-/** @remarks Azure Key Vault adapter. Requires `@azure/keyvault-keys` as a peer dependency. */
+/**
+ * @remarks Azure Key Vault adapter: a stub. Every method rejects with
+ * `NOT_IMPLEMENTED`; no Azure SDK is used, so installing one changes
+ * nothing.
+ */
 
 import type {
   KmsProvider,
@@ -27,11 +31,15 @@ export interface AzureKmsOptions {
   vaultUrl: string;
 }
 
+/** Message every method rejects with. */
+const NOT_IMPLEMENTED_MESSAGE =
+  "Not implemented: the Azure Key Vault provider is a stub";
+
 /**
  * Azure Key Vault adapter.
  *
- * Wraps the `@azure/keyvault-keys` SDK to provide the unified KmsProvider
- * interface. Install `@azure/keyvault-keys` as a peer dependency.
+ * A stub that implements the KmsProvider interface so callers can be
+ * written against it; every method rejects with `NOT_IMPLEMENTED`.
  *
  * @example
  * ```ts
@@ -63,20 +71,14 @@ export class AzureKmsProvider implements KmsProvider {
     enabled?: boolean;
   }): Promise<KmsKeyMetadata[]> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
   /** Retrieve metadata for a specific key by ID. */
   getKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -87,30 +89,21 @@ export class AzureKmsProvider implements KmsProvider {
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
   /** Enable a previously disabled key. */
   enableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
   /** Disable a key so it cannot be used for operations. */
   disableKey(_keyId: string): Promise<void> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -120,10 +113,7 @@ export class AzureKmsProvider implements KmsProvider {
     _pendingWindowDays?: number,
   ): Promise<void> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -134,10 +124,7 @@ export class AzureKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -148,10 +135,7 @@ export class AzureKmsProvider implements KmsProvider {
     _context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -162,10 +146,7 @@ export class AzureKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<KmsSignResult> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -177,20 +158,14 @@ export class AzureKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
   /** Rotate a key to a new version. */
   rotateKey(_keyId: string): Promise<KmsKeyMetadata> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 
@@ -205,10 +180,7 @@ export class AzureKmsProvider implements KmsProvider {
     ciphertext: string;
   }> {
     return Promise.reject(
-      new KmsError(
-        "NOT_IMPLEMENTED",
-        "Not implemented: install @azure/keyvault-keys",
-      ),
+      new KmsError("NOT_IMPLEMENTED", NOT_IMPLEMENTED_MESSAGE),
     );
   }
 }
