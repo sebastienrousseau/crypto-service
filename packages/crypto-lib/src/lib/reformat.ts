@@ -4,7 +4,7 @@
  */
 
 import * as openpgp from "openpgp";
-import { writeKeyOutputs } from "./key-output";
+import { writeKeyOutputs, type KeyOutputOptions } from "./key-output";
 import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
@@ -42,10 +42,13 @@ export interface ArmoredKeyResult {
  * @param {String} data.name         - New user name.
  * @param {String} data.passphrase   - Passphrase that unlocks the private key.
  * @param {Number} data.expiration   - New key expiration time in seconds.
+ * @param {KeyOutputOptions} output  - `persist: false` skips writing the
+ *                                     key files to `CRYPTO_KEY_OUT_DIR`.
  * @returns {Promise<unknown>}       - The result of `openpgp.reformatKey`.
  */
 export const reformat = async (
   data: types.dataReformat,
+  output: KeyOutputOptions = {},
 ): Promise<ArmoredKeyResult> => {
   const { expiration, passphrase } = data;
 
@@ -64,15 +67,18 @@ export const reformat = async (
   const pubArmored = reformatted.publicKey as string;
   const privArmored = reformatted.privateKey as string;
 
-  await writeKeyOutputs([
-    { name: "rsa-reformat.pub", content: pubArmored, secret: false },
-    { name: "rsa-reformat.key", content: privArmored, secret: true },
-    {
-      name: "rsa-reformat.cert",
-      content: reformatted.revocationCertificate,
-      secret: false,
-    },
-  ]);
+  await writeKeyOutputs(
+    [
+      { name: "rsa-reformat.pub", content: pubArmored, secret: false },
+      { name: "rsa-reformat.key", content: privArmored, secret: true },
+      {
+        name: "rsa-reformat.cert",
+        content: reformatted.revocationCertificate,
+        secret: false,
+      },
+    ],
+    output,
+  );
 
   return reformatted;
 };

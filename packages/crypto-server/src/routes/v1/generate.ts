@@ -105,18 +105,24 @@ export default (app: FastifyInstance): void => {
         const v = validateGenerateBody(request.body as IBodyGenerate, reply);
         if (!v) return reply;
 
-        const generated = (await generate({
-          date: new Date(),
-          name: v.name,
-          email: v.email,
-          userIDs: [{ name: v.name, email: v.email }],
-          type: v.type as KeyType,
-          passphrase: v.passphrase,
-          rsaBits: v.rsaBits as number,
-          curve: v.curve as CurveType,
-          keyExpirationTime: v.keyExpirationTime as number,
-          format: v.format as FormatType,
-        })) as {
+        const generated = (await generate(
+          {
+            date: new Date(),
+            name: v.name,
+            email: v.email,
+            userIDs: [{ name: v.name, email: v.email }],
+            type: v.type as KeyType,
+            passphrase: v.passphrase,
+            rsaBits: v.rsaBits as number,
+            curve: v.curve as CurveType,
+            keyExpirationTime: v.keyExpirationTime as number,
+            format: v.format as FormatType,
+            // The private key is not returned and no route reads it back:
+            // writing it to CRYPTO_KEY_OUT_DIR (under a fixed name, in
+            // plaintext) would only leave it on disk.
+          },
+          { persist: false },
+        )) as {
           privateKey: string;
           publicKey: string;
           revocationCertificate: string;

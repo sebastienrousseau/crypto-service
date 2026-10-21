@@ -72,11 +72,16 @@ export default (app: FastifyInstance): void => {
         /* c8 ignore next -- Fastify schema already validates all fields */
         if (!v) return reply;
 
-        const revocationData = await revoke({
-          passphrase: v.passphrase as string,
-          flag: v.flag as number,
-          reason: v.reason as string,
-        });
+        // persist: false: the revoked key is the server's own private key;
+        // it must not be written to CRYPTO_KEY_OUT_DIR.
+        const revocationData = await revoke(
+          {
+            passphrase: v.passphrase as string,
+            flag: v.flag as number,
+            reason: v.reason as string,
+          },
+          { persist: false },
+        );
 
         // Never return the (unlocked) private key.
         return reply.send({ data: { publicKey: revocationData.publicKey } });

@@ -5,7 +5,7 @@
 
 import * as path from "path";
 import * as openpgp from "openpgp";
-import { writeKeyOutputs } from "./key-output";
+import { writeKeyOutputs, type KeyOutputOptions } from "./key-output";
 import * as types from "../types/types";
 
 /**
@@ -62,10 +62,15 @@ function validateGenerateInput(data: types.dataGenerate): {
  *                                          disables expiration. Must be
  *                                          >= 0.
  * @param {String} data.format      - Output format.
+ * @param {KeyOutputOptions} output - `persist: false` skips writing the
+ *                                    key files to `CRYPTO_KEY_OUT_DIR`.
  * @returns {Promise<object>}       - Armored public/private key and
  *                                    revocation certificate.
  */
-export async function generate(data: types.dataGenerate): Promise<object> {
+export async function generate(
+  data: types.dataGenerate,
+  output: KeyOutputOptions = {},
+): Promise<object> {
   const { rsaBits, keyExpirationTime } = validateGenerateInput(data);
 
   const options = {
@@ -92,11 +97,14 @@ export async function generate(data: types.dataGenerate): Promise<object> {
     typeof privateKey === "string" ? privateKey : privateKey.armor();
 
   const base = path.basename(data.type);
-  await writeKeyOutputs([
-    { name: `${base}.pub`, content: publicKeyString, secret: false },
-    { name: `${base}.key`, content: privateKeyString, secret: true },
-    { name: `${base}.cert`, content: revocationCertificate, secret: false },
-  ]);
+  await writeKeyOutputs(
+    [
+      { name: `${base}.pub`, content: publicKeyString, secret: false },
+      { name: `${base}.key`, content: privateKeyString, secret: true },
+      { name: `${base}.cert`, content: revocationCertificate, secret: false },
+    ],
+    output,
+  );
 
   return { publicKey, privateKey, revocationCertificate };
 }

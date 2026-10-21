@@ -11,6 +11,10 @@ import {
 } from "../types/types";
 
 import type { ArmoredKeyResult } from "../lib/reformat.js";
+import type { KeyOutputOptions } from "../lib/key-output.js";
+
+/** Options of generate, reformat and revoke: `persist: false` writes no files. */
+export type { KeyOutputOptions };
 
 /**
  * Decrypts a message for the given data object.
@@ -58,6 +62,7 @@ export async function encrypt(data: dataEncrypt) {
  * Generates a key pair for the given data object.
  *
  * @param data - Data used to generate a key pair.
+ * @param output - `{ persist: false }` writes no files to `CRYPTO_KEY_OUT_DIR`.
  * @public
  *
  * @example
@@ -76,14 +81,20 @@ export async function encrypt(data: dataEncrypt) {
  *
  */
 
-export async function generate(data: dataGenerate) {
-  const generate = await key.generate.default(data);
+export async function generate(
+  data: dataGenerate,
+  output: KeyOutputOptions = {},
+) {
+  const generate = await key.generate.default(data, output);
   return generate;
 }
 
 /** Reformat an existing OpenPGP key with new parameters. */
-export async function reformat(data: dataReformat): Promise<ArmoredKeyResult> {
-  const reformat = await key.reformat.default(data);
+export async function reformat(
+  data: dataReformat,
+  output: KeyOutputOptions = {},
+): Promise<ArmoredKeyResult> {
+  const reformat = await key.reformat.default(data, output);
   return reformat;
 }
 
@@ -114,6 +125,7 @@ export async function session(data: dataSessionKey) {
  * Revokes a key pair for the given data object.
  *
  * @param data - Data used to revoke a key pair.
+ * @param output - `{ persist: false }` writes no files to `CRYPTO_KEY_OUT_DIR`.
  * @public
  *
  * @example
@@ -124,8 +136,11 @@ export async function session(data: dataSessionKey) {
  * ```
  */
 
-export async function revoke(data: dataRevoke): Promise<ArmoredKeyResult> {
-  const revoke = await key.revoke.default(data);
+export async function revoke(
+  data: dataRevoke,
+  output: KeyOutputOptions = {},
+): Promise<ArmoredKeyResult> {
+  const revoke = await key.revoke.default(data, output);
   return revoke;
 }
 
