@@ -2,6 +2,5 @@
   "packages/crypto-lib/src/streaming/stream-aead.ts :: halstead-difficulty :: streamEncrypt": 37.1,
   "packages/crypto-lib/src/streaming/stream-multi-pq-aead.ts :: halstead-difficulty :: computeMultiStreamOutputSize": 30.9,
   "packages/crypto-lib/src/streaming/stream-multi-pq-aead.ts :: halstead-difficulty :: streamMultiPqEncrypt": 33.1,
-  "packages/crypto-lib/src/streaming/stream-pq-aead.ts :: halstead-difficulty :: computeStreamOutputSize": 30.2,
-  "packages/crypto-server/src/enterprise/metering.ts :: halstead-difficulty :: checkRequest": 31.4
+  "packages/crypto-lib/src/streaming/stream-pq-aead.ts :: halstead-difficulty :: computeStreamOutputSize": 30.2
 }
