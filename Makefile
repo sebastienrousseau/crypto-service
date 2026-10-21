@@ -122,6 +122,7 @@ check:
 	@pnpm -r run test
 	@pnpm -r run docs
 	@node scripts/check-manifests.mjs
+	@node scripts/packages-index.mjs --check
 	@node scripts/check-packages.mjs
 	@./scripts/pack-smoke.sh
 

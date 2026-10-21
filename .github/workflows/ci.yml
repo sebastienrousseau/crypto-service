@@ -107,6 +107,8 @@ jobs:
         run: pnpm --filter @sebastienrousseau/crypto-sdk run examples:check
       - name: Check publishable manifests
         run: node scripts/check-manifests.mjs
+      - name: Package index is generated from the manifests
+        run: node scripts/packages-index.mjs --check
       # publint on each manifest, attw on each packed tarball.
       - name: Check package exports and types
         run: pnpm run check:packages
