@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.35 in strict lockstep.
+- **Characterisation tests for every refactored function**: recorded-output tests for the crypto-lsp and crypto-mcp request dispatchers, crypto-lsp diagnostics and code actions, `benchmarkOperation` (with a deterministic clock), the CLI help pages, `validateCbom`, crypto-server metering and number validation, and the wire layout of the three STREAM encryptors. Each was generated from the code before its refactor and checked to fail when the behaviour changes.
+
+### Changed
+
+- **Complexity baseline cleared**: all 23 recorded offenders are refactored, so `complexity-baseline.json` is empty and every function meets cyclomatic ≤ 10, cognitive ≤ 15, Halstead difficulty ≤ 30 and ≤ 60 lines. The largest were the crypto-lsp request switch (cyclomatic 35, 132 lines), crypto-mcp `readResource` (196 lines) and the CLI `handleHelp` (193 lines). Request dispatch now uses a `Map`, so method names such as `toString` still answer "Method not found"; the three STREAM encryptors share one chunk layout module. Behaviour is unchanged.
 
 ### Fixed
 
