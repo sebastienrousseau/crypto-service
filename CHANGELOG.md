@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.34] - Unreleased
+## [0.0.34] - 2026-10-21
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Package descriptions that overstated the code**: `crypto-wasm` claimed near-native WebAssembly speed but ships no WebAssembly module, and crypto-lib does not use it; its README no longer describes auto-detection, a Rust build or expected speed-ups. `crypto-kms` listed four cloud providers where three are stubs; `crypto-cbom` claimed DORA and CRA compliance; `crypto-benchmarks` claimed WebAssembly and native runtimes; `crypto-api` described REST endpoints rather than shared types; `crypto-middleware` claimed Koa support. crypto-lib no longer claims 100% test coverage (its branch floor is 99.5%).
 - **Ecosystem table in the package READMEs**: The table copied into 14 package READMEs listed 14 of the 18 packages; `crypto-benchmarks`, `crypto-cbom`, `crypto-lsp` and `crypto-mcp` are added, and the `crypto-cli`, `crypto-lib`, `crypto-kms`, `crypto-wasm` and `crypto-middleware` rows match the code.
+- **Stale `date-released` in `CITATION.cff`**: It still read 2026-10-10 (0.0.31). `scripts/check-manifests.mjs` now requires it to equal the date on this version's CHANGELOG heading, and the release workflow (`--tag`) fails while that heading says "Unreleased".
+- **Markdown and scripts outside the format gate**: `format:check` covered only package TypeScript, so eight Markdown files (the code of conduct, issue templates, commit guide and four asset READMEs) and two files in `scripts/` had drifted from Prettier. They are reformatted (whitespace only), and `pnpm run format:root` now checks every Markdown file and `scripts/` in `make check` and CI.
 
 ## [0.0.33] - 2026-10-21
 
