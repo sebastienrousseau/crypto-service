@@ -110,6 +110,31 @@ export const SESSION: JSONRPCRequest[] = [
   { jsonrpc: "2.0", method: "notifications/initialized" },
 ];
 
+/** The package version, which changes every release. */
+const PACKAGE_VERSION = (
+  JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8")) as {
+    version: string;
+  }
+).version;
+
+/**
+ * The response with `result.serverInfo.version` replaced by a
+ * placeholder, after checking it is the package version, so the recording
+ * does not change with every release.
+ */
+function withoutVersion<T>(response: T): T {
+  const info = (response as { result?: { serverInfo?: { version?: string } } })
+    ?.result?.serverInfo;
+  if (info?.version === undefined) return response;
+  expect(info.version).to.equal(PACKAGE_VERSION);
+  return JSON.parse(
+    JSON.stringify(response).replace(
+      `"version":"${PACKAGE_VERSION}"`,
+      '"version":"<package version>"',
+    ),
+  ) as T;
+}
+
 export async function runSession(): Promise<unknown[]> {
   const server = new CryptoMcpServer();
   const steps: unknown[] = [];
@@ -117,7 +142,7 @@ export async function runSession(): Promise<unknown[]> {
     const response = await server.handleRequest(request);
     steps.push({
       method: request.method,
-      response,
+      response: withoutVersion(response),
       initialized: server.isInitialized(),
     });
   }

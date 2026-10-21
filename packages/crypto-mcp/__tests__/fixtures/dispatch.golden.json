@@ -37,7 +37,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
@@ -58,7 +58,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
@@ -79,7 +79,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
