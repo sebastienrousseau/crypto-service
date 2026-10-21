@@ -967,40 +967,17 @@ describe("GcpKmsProvider", () => {
       );
     });
 
-    it("sign and verify operations", async () => {
-      mockFetch((url) => {
-        if (url.includes(":asymmetricSign")) {
-          return new Response(JSON.stringify({ signature: "mock-sig" }), {
-            status: 200,
-          });
-        }
-        if (url.includes(":macVerify")) {
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-          });
-        }
-        return new Response("{}", { status: 200 });
-      });
-
-      const res = await provider.sign("k1", new Uint8Array([1, 2, 3]));
-      expect(res.signature).to.equal("mock-sig");
-
-      const verified = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "mock-sig",
-      );
-      expect(verified).to.be.true;
-    });
-
-    it("verify returns false when request throws", async () => {
+    // Signing, local verification and version handling are covered
+    // against a model of Cloud KMS in gcp-versions.test.ts.
+    it("verify throws on an API error instead of returning false", async () => {
       mockFetch(() => new Response("Verify failed", { status: 400 }));
-      const verified = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "bad-sig",
-      );
-      expect(verified).to.be.false;
+      let err: unknown;
+      try {
+        await provider.verify("k1", new Uint8Array([1, 2, 3]), "bad-sig");
+      } catch (e) {
+        err = e;
+      }
+      expect(err).to.be.instanceOf(KmsError);
     });
 
     it("rotateKey and generateDataKey", async () => {

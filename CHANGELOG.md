@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.36 in strict lockstep.
 
+### Fixed
+
+- **Google Cloud KMS signing in crypto-kms**: `GcpKmsProvider.verify` called `:macVerify`, which only exists for MAC keys, and turned every error into `false`, so asymmetric signatures never verified; `sign`, `enableKey`, `disableKey` and `scheduleKeyDeletion` acted on version 1 only, so signing broke after `rotateKey` and disabling a rotated key left newer versions usable. Signing now uses the newest enabled version and sends a digest (or the message, for Ed25519) as Cloud KMS expects, and reports that version's algorithm; verification is done locally against the public key of every enabled version, as Cloud KMS has no remote asymmetric verify; state changes apply to every version, across list pages. Transport and lookup errors are now thrown rather than reported as a failed verification.
+
 ## [0.0.35] - 2026-10-21
 
 ### Added
