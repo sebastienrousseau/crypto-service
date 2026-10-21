@@ -1,0 +1,155 @@
+{
+  "1": [
+    [""],
+    [
+      "This function decrypts a message with the user's private key, a session key or a password. One of decryptionKeys, session keys or passwords must be specified (passing a combination of these options is not supported)."
+    ],
+    [""],
+    ["Usage: decrypt [options]"],
+    [""],
+    ["Options:"],
+    [""],
+    ["  <encryptedMessage> - The message object with the encrypted data."],
+    [""],
+    ["  <passphrase> - Passphrase / Passwords to decrypt the message"],
+    [""],
+    ["  <publicKey> - Public key enumeration base64 encoded."],
+    [""]
+  ],
+  "2": [
+    [""],
+    [
+      "This function encrypts a message using public keys, passwords or both at once. At least one of encryptionKeys or passwords must be specified. If signing keys are specified, those will be used to sign the message."
+    ],
+    [""],
+    ["Usage: encrypt [options]"],
+    [""],
+    ["Options:"],
+    [""],
+    ["  <message> - The message to be encrypted."],
+    [""],
+    ["  <passphrase> - Passphrase to encrypt the message."],
+    [""],
+    ["  <publicKey> - Public key enumeration base64 encoded."],
+    [""]
+  ],
+  "3": [
+    [""],
+    [
+      "This function generates a new OpenPGP key pair. Supports RSA and ECC keys. By default, primary and subkeys will be of same type. The generated primary key will have signing capabilities. By default, one subkey with encryption capabilities is also generated."
+    ],
+    [""],
+    ["Usage: generate [options]"],
+    [""],
+    ["Options:"],
+    [""],
+    ["  <name> - Name of the user."],
+    [""],
+    ["  <email> - Email of the user."],
+    [""],
+    [
+      "  <passphrase> - The passphrase used to encrypt the generated private key. If omitted or empty, the key won't be encrypted."
+    ],
+    [""],
+    ["  <type> - The primary key algorithm type: ECC (default) or RSA."],
+    [""],
+    [
+      "  <curve> - Elliptic curve for ECC keys: curve25519 (default), p256, p384, p521, secp256k1, brainpoolP256r1, brainpoolP384r1, or brainpoolP512r1."
+    ],
+    [""],
+    ["  <rsaBits> - Number of bits for RSA keys."],
+    [""],
+    [
+      "  <keyExpirationTime> - Number of seconds from the key creation time after which the key expires."
+    ],
+    [""],
+    ["  <format> - Format of the output keys: 'armored' | 'binary' | 'object'"],
+    [""]
+  ],
+  "4": [
+    [""],
+    [
+      "This function reformats signature packets for a key and rewraps key object."
+    ],
+    [""],
+    ["Usage: reformat [options]"],
+    [""],
+    ["Options:"],
+    [""],
+    ["  <email> - Email of the user."],
+    [""],
+    [
+      "  <expirationTime> - Number of seconds from the key creation time after which the key expires."
+    ],
+    [""],
+    ["  <name> - Name of the user."],
+    [""],
+    [
+      "  <passphrase> - The passphrase used to encrypt the reformatted private key. If omitted or empty, the key won't be encrypted."
+    ],
+    [""],
+    ["  <publicKey> - Public key enumeration base64 encoded."],
+    [""]
+  ],
+  "5": [
+    [""],
+    [
+      "This function revokes a key. Requires either a private key or a revocation certificate. If a revocation certificate is passed, the reasonForRevocation parameter will be ignored."
+    ],
+    [""],
+    ["Usage: revoke [options]"],
+    [""],
+    ["Options:"],
+    [""],
+    ["  <flags> - Flag indicating the reason for revocation."],
+    [""],
+    ["  <passphrase> - Passphrase to decrypt the private key."],
+    [""],
+    ["  <reasonForRevocation> - Reason for revocation."],
+    [""]
+  ],
+  "6": [
+    [""],
+    [
+      "This function generates a new session key object, taking the algorithm preferences of the passed public keys into account."
+    ],
+    [""],
+    ["Usage: session [options]"],
+    [""],
+    [" <name> - Name of the user."],
+    [""],
+    [" <publicKey> - Public key enumeration base64 encoded."],
+    [""]
+  ],
+  "7": [
+    [""],
+    ["This function signs a message."],
+    [""],
+    ["Usage: sign [options]"],
+    [""],
+    [" <passphrase> - Passphrase to sign the message."],
+    [""],
+    [" <message> - The message to be signed."],
+    [""],
+    [
+      " <detach> - If true, the signature is detached. If false, the signature is embedded."
+    ],
+    [""],
+    [" <publicKey> - Public key enumeration base64 encoded."],
+    [""],
+    [" <privateKey> - Private key enumeration base64 encoded."],
+    [""]
+  ],
+  "8": [
+    [""],
+    ["This function verifies signatures of cleartext signed message."],
+    [""],
+    ["Usage: verify [options]"],
+    [""],
+    [" <message> - The message to be verified."],
+    [""],
+    [" <publicKey> - Public key enumeration base64 encoded."],
+    [""]
+  ],
+  "9": [["🔔 You must select a valid option."]]
+}
