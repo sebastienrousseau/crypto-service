@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-mcp",
-  "version": "0.0.33",
-  "description": "Model Context Protocol (MCP) server for the Crypto Service Suite — exposing cryptographic operations, post-quantum primitives, and key management to AI assistants and agentic workflows.",
+  "version": "0.0.34",
+  "description": "Model Context Protocol (MCP) server that gives AI assistants and agents cryptography tools: key generation, encryption, ML-KEM, ML-DSA signing, hashing, streaming encryption, KMS and CBOM.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "engines": {
@@ -65,5 +65,19 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false
+  "private": false,
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "ai-agents",
+    "llm",
+    "claude",
+    "cryptography",
+    "encryption",
+    "post-quantum",
+    "pqc",
+    "ml-kem",
+    "ml-dsa"
+  ]
 }

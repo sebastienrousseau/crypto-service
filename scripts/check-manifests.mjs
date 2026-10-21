@@ -26,7 +26,31 @@ if (tag !== undefined && tag !== `v${rootVersion}`) {
 const cffContent = readFileSync(`${ROOT}CITATION.cff`, "utf8");
 const cffMatch = cffContent.match(/^version:\s*"?([^"\r\n]+)"?/m);
 if (cffMatch && cffMatch[1] !== rootVersion) {
-  problems.push(`CITATION.cff: version ${cffMatch[1]}, expected ${rootVersion}`);
+  problems.push(
+    `CITATION.cff: version ${cffMatch[1]}, expected ${rootVersion}`,
+  );
+}
+
+// date-released must name the day this version shipped: the date on its
+// CHANGELOG heading. A release must carry that date, not "Unreleased".
+const cffDate = cffContent.match(/^date-released:\s*"?([^"\r\n]+)"?/m)?.[1];
+const changelog = readFileSync(`${ROOT}CHANGELOG.md`, "utf8");
+const heading = changelog.match(
+  new RegExp(`^## \\[${rootVersion.replaceAll(".", "\\.")}\\] - (.+)$`, "m"),
+);
+const releaseDate = heading?.[1].trim();
+if (releaseDate === undefined) {
+  problems.push(`CHANGELOG.md: no "## [${rootVersion}]" heading`);
+} else if (/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) {
+  if (cffDate !== releaseDate) {
+    problems.push(
+      `CITATION.cff: date-released ${cffDate}, expected ${releaseDate} (CHANGELOG)`,
+    );
+  }
+} else if (tag !== undefined) {
+  problems.push(
+    `CHANGELOG.md: [${rootVersion}] is "${releaseDate}", not a date`,
+  );
 }
 
 const dirs = readdirSync(`${ROOT}packages`).filter((d) =>

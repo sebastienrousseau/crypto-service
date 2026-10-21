@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-edge",
-  "version": "0.0.33",
-  "description": "Edge and serverless runtime adapter for crypto-lib -- runs on Cloudflare Workers, Vercel Edge, Deno, Bun, and browsers.",
+  "version": "0.0.34",
+  "description": "Edge and serverless cryptography for Cloudflare Workers, Vercel Edge, Deno, Bun and browsers, with runtime detection and a Web Crypto API adapter for crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
@@ -62,14 +62,15 @@
     "typescript": "~5.9.3"
   },
   "keywords": [
-    "crypto",
     "edge",
+    "serverless",
     "cloudflare-workers",
     "vercel-edge",
     "deno",
     "bun",
     "webcrypto",
-    "serverless",
+    "cryptography",
+    "encryption",
     "runtime-detection"
   ],
   "publishConfig": {

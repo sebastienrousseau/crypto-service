@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-kms",
-  "version": "0.0.33",
-  "description": "Enterprise key management adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, and HashiCorp Vault.",
+  "version": "0.0.34",
+  "description": "Key management interface for envelope encryption and key rotation, with AWS KMS and local providers. Google Cloud KMS, Azure Key Vault and HashiCorp Vault providers are stubs.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "engines": {
@@ -74,5 +74,15 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false
+  "private": false,
+  "keywords": [
+    "kms",
+    "key-management",
+    "aws-kms",
+    "envelope-encryption",
+    "key-rotation",
+    "cryptography",
+    "encryption",
+    "typescript"
+  ]
 }

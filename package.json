@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-service",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "private": true,
   "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
   "engines": {
@@ -21,6 +21,7 @@
     "lint": "pnpm -r run lint",
     "lint:fix": "pnpm -r run lint:fix",
     "format": "pnpm -r run format",
+    "format:root": "prettier --check \"**/*.md\" \"scripts/**/*.{mjs,js}\"",
     "test": "pnpm -r run test",
     "start": "pnpm --filter @sebastienrousseau/crypto-server run start",
     "start:server": "pnpm --filter @sebastienrousseau/crypto-server run start",

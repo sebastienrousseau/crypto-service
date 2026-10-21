@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-react",
-  "version": "0.0.33",
-  "description": "React hooks for client-side cryptography -- key generation, encryption, signing, and hashing in a single import.",
+  "version": "0.0.34",
+  "description": "React hooks for client-side cryptography: key generation, encryption, signing, hashing and post-quantum hybrid streaming encryption (ML-KEM-768).",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-react",
@@ -68,13 +68,15 @@
   },
   "keywords": [
     "react",
+    "react-hooks",
     "hooks",
     "cryptography",
     "encryption",
     "signing",
     "hashing",
     "keygen",
-    "crypto"
+    "post-quantum",
+    "webcrypto"
   ],
   "publishConfig": {
     "access": "public"

@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-sdk",
-  "version": "0.0.33",
-  "description": "Type-safe TypeScript client for the Crypto Service Suite v2 API. Zero dependencies, fetch-based.",
+  "version": "0.0.34",
+  "description": "Typed TypeScript client for the crypto-server REST API: post-quantum, encryption, signing and hashing calls. Zero dependencies, built on fetch.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "engines": {
@@ -60,5 +60,18 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false
+  "private": false,
+  "keywords": [
+    "sdk",
+    "client",
+    "typescript",
+    "fetch",
+    "rest-api",
+    "cryptography",
+    "encryption",
+    "post-quantum",
+    "pqc",
+    "ml-kem",
+    "ml-dsa"
+  ]
 }

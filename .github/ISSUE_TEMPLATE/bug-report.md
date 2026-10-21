@@ -10,10 +10,10 @@ A clear and concise description of what the bug is.
 
 Steps to reproduce the behavior:
 
--   Go to '...'
--   Click on '....'
--   Scroll down to '....'
--   See error
+- Go to '...'
+- Click on '....'
+- Scroll down to '....'
+- See error
 
 ## Expected behavior
 
@@ -25,16 +25,17 @@ If applicable, add screenshots to help explain your problem.
 
 ### Desktop (please complete the following information)
 
--   OS
--   Browser
--   Version
+- OS
+- Browser
+- Version
 
 ### Smartphone (please complete the following information)
 
--   Device
--   OS
--   Browser
--   Version
+- Device
+- OS
+- Browser
+- Version
+
 ### Additional context
 
 Add any other context about the problem here.

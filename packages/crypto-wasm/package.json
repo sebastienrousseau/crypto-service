@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-wasm",
-  "version": "0.0.33",
-  "description": "WebAssembly performance accelerator for crypto-lib — near-native speed for heavy cryptographic operations.",
+  "version": "0.0.34",
+  "description": "Placeholder for a WebAssembly accelerator for crypto-lib. It ships runtime detection and an accelerator interface only; no WebAssembly module yet, so operations run in JavaScript.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "engines": {
@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "build:wasm": "echo 'WASM build requires Rust toolchain — see README'",
+    "build:wasm": "echo 'No WebAssembly module source exists yet; see README'",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "docs": "typedoc",
@@ -62,5 +62,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false
+  "private": false,
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "cryptography",
+    "crypto-lib"
+  ]
 }

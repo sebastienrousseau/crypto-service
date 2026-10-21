@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-vue",
-  "version": "0.0.33",
-  "description": "Vue 3 composables for client-side cryptography — key generation, encryption, signing, and hashing with reactive state.",
+  "version": "0.0.34",
+  "description": "Vue 3 composables for client-side cryptography: key generation, encryption, signing, hashing and post-quantum hybrid streaming encryption (ML-KEM-768), with reactive state.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
@@ -68,6 +68,7 @@
   "keywords": [
     "vue",
     "vue3",
+    "nuxt",
     "composables",
     "cryptography",
     "encryption",

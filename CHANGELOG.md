@@ -7,7 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.33] - Unreleased
+## [0.0.34] - 2026-10-21
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.34 in strict lockstep.
+- **npm descriptions and keywords for all 18 packages**: Each `package.json` description now leads with what the package does and the terms people search for (post-quantum, ML-KEM, ML-DSA, SLH-DSA, HPKE), and every package has `keywords`; eight had none.
+
+### Fixed
+
+- **Package descriptions that overstated the code**: `crypto-wasm` claimed near-native WebAssembly speed but ships no WebAssembly module, and crypto-lib does not use it; its README no longer describes auto-detection, a Rust build or expected speed-ups. `crypto-kms` listed four cloud providers where three are stubs; `crypto-cbom` claimed DORA and CRA compliance; `crypto-benchmarks` claimed WebAssembly and native runtimes; `crypto-api` described REST endpoints rather than shared types; `crypto-middleware` claimed Koa support. crypto-lib no longer claims 100% test coverage (its branch floor is 99.5%).
+- **Ecosystem table in the package READMEs**: The table copied into 14 package READMEs listed 14 of the 18 packages; `crypto-benchmarks`, `crypto-cbom`, `crypto-lsp` and `crypto-mcp` are added, and the `crypto-cli`, `crypto-lib`, `crypto-kms`, `crypto-wasm` and `crypto-middleware` rows match the code.
+- **Stale `date-released` in `CITATION.cff`**: It still read 2026-10-10 (0.0.31). `scripts/check-manifests.mjs` now requires it to equal the date on this version's CHANGELOG heading, and the release workflow (`--tag`) fails while that heading says "Unreleased".
+- **Markdown and scripts outside the format gate**: `format:check` covered only package TypeScript, so eight Markdown files (the code of conduct, issue templates, commit guide and four asset READMEs) and two files in `scripts/` had drifted from Prettier. They are reformatted (whitespace only), and `pnpm run format:root` now checks every Markdown file and `scripts/` in `make check` and CI.
+
+## [0.0.33] - 2026-10-21
 
 ### Added
 
@@ -472,7 +486,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...HEAD
+[0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...HEAD
+[0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.30...v0.0.31
 [0.0.30]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.29...v0.0.30

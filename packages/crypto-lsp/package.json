@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-lsp",
-  "version": "0.0.33",
-  "description": "Language Server Protocol (LSP) providing real-time cryptographic static analysis, quantum-vulnerability flagging, PEM/OpenPGP validation, and automated quick fixes for IDEs.",
+  "version": "0.0.34",
+  "description": "Language Server Protocol (LSP) server for cryptography: flags broken hashes, weak ciphers, short keys, quantum-vulnerable algorithms, hardcoded secrets and malformed PEM, with quick fixes.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-service.co",
@@ -65,5 +65,18 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "lsp",
+    "language-server",
+    "static-analysis",
+    "linter",
+    "cryptography",
+    "post-quantum",
+    "pqc",
+    "quantum-safe",
+    "pem",
+    "vscode",
+    "neovim"
+  ]
 }

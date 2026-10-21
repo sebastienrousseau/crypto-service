@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.33",
-  "description": "Crypto Lib is a powerful intuitive cryptographic JavaScript library that encapsulates common algorithms, functions and provides an interface for low-level cryptographic operations.",
+  "version": "0.0.34",
+  "description": "Post-quantum cryptography library for TypeScript and Node.js: ML-KEM, ML-DSA, SLH-DSA, HPKE, AES-GCM, XChaCha20-Poly1305, Ed25519, X25519, SHA-3, BLAKE3, Argon2id and OpenPGP.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-lib.io",
@@ -138,13 +138,28 @@
     "typescript": "~5.9.3"
   },
   "keywords": [
-    "crypto-library",
     "cryptography",
-    "openpgp",
     "encryption",
-    "decryption",
-    "ecc",
-    "rsa"
+    "post-quantum",
+    "pqc",
+    "quantum-safe",
+    "ml-kem",
+    "ml-dsa",
+    "slh-dsa",
+    "kyber",
+    "dilithium",
+    "fips-203",
+    "fips-204",
+    "fips-205",
+    "hpke",
+    "aes-gcm",
+    "xchacha20-poly1305",
+    "ed25519",
+    "x25519",
+    "argon2",
+    "blake3",
+    "openpgp",
+    "typescript"
   ],
   "publishConfig": {
     "access": "public"

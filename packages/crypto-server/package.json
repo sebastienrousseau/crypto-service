@@ -1,7 +1,7 @@
 {
   "name": "@sebastienrousseau/crypto-server",
-  "version": "0.0.33",
-  "description": "Crypto Server is a Fastify web server that exposes easy consumable REST APIs to perform low-level cryptographic operations.",
+  "version": "0.0.34",
+  "description": "Fastify REST API for cryptography as a service: post-quantum ML-KEM and ML-DSA, encryption, signing, hashing and KMS endpoints, with OpenAPI docs, API key or JWT auth, rate limiting and OpenTelemetry.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
   "homepage": "https://crypto-server.io",
@@ -93,13 +93,20 @@
     "typescript": "~5.9.3"
   },
   "keywords": [
-    "crypto-service",
+    "fastify",
+    "rest-api",
     "cryptography",
     "encryption",
-    "decryption",
-    "openpgp",
-    "fastify",
-    "rest-api"
+    "post-quantum",
+    "pqc",
+    "ml-kem",
+    "ml-dsa",
+    "openapi",
+    "microservice",
+    "opentelemetry",
+    "jwt",
+    "kms",
+    "openpgp"
   ],
   "publishConfig": {
     "access": "public"
