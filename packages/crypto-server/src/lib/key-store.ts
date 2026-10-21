@@ -29,7 +29,7 @@
  */
 
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
-import { readFile, writeFile } from "fs/promises";
+import { readFile, unlink, writeFile } from "fs/promises";
 import * as path from "path";
 import { wipeMemory } from "@sebastienrousseau/crypto-lib";
 
@@ -65,6 +65,9 @@ const KEY_ID_RE = new RegExp(KEY_ID_PATTERN);
 
 /** Default number of keys held in memory. */
 export const DEFAULT_KEY_CAPACITY = 10_000;
+
+/** Default number of keys one principal may hold. */
+export const DEFAULT_KEYS_PER_OWNER = 1_000;
 
 /** A key-store failure that maps to an HTTP status. */
 export class KeyStoreError extends Error {
@@ -221,12 +224,22 @@ export interface KeyStoreOptions {
    * existing keys are migrated to encrypted records. Default false.
    */
   readonly acceptPlaintext?: boolean;
+  /**
+   * Keys one principal may create ({@link DEFAULT_KEYS_PER_OWNER} by
+   * default), so one principal cannot fill the store for everyone. Keys
+   * are counted from when this store was created; deleting one frees its
+   * place.
+   */
+  readonly maxKeysPerOwner?: number;
 }
 
 export class KeyStore {
   private readonly keys = new Map<string, StoredKey>();
   private readonly storageKey: Buffer | undefined;
   private readonly acceptPlaintext: boolean;
+  private readonly maxKeysPerOwner: number;
+  /** Keys created per owner since this store was created. */
+  private readonly ownerCounts = new Map<string, number>();
 
   /**
    * @param dir        Directory to persist keys to, or undefined for memory only.
@@ -246,10 +259,19 @@ export class KeyStore {
   ) {
     this.storageKey = resolveStorageKey(storageKey);
     this.acceptPlaintext = options.acceptPlaintext ?? false;
+    this.maxKeysPerOwner = options.maxKeysPerOwner ?? DEFAULT_KEYS_PER_OWNER;
   }
 
   /** Store a new key and return it with its `keyId`. */
   async put(key: NewKey): Promise<StoredKey> {
+    const owned = this.ownerCounts.get(key.owner) ?? 0;
+    if (owned >= this.maxKeysPerOwner) {
+      throw new KeyStoreError(
+        `Key quota of ${this.maxKeysPerOwner} reached; delete keys to create more`,
+        429,
+        "KEY_QUOTA_EXCEEDED",
+      );
+    }
     if (!this.dir && this.keys.size >= this.capacity) {
       throw new KeyStoreError(
         "Key store is full; set CRYPTO_KEY_OUT_DIR to persist keys",
@@ -288,7 +310,20 @@ export class KeyStore {
       });
     }
     this.remember(stored);
+    this.ownerCounts.set(key.owner, owned + 1);
     return stored;
+  }
+
+  /**
+   * Delete the key `keyId` owned by `owner`, from memory and disk. Throws
+   * 404 for an unknown key or another owner's, as {@link get} does.
+   */
+  async delete(keyId: string, owner: string): Promise<void> {
+    await this.get(keyId, owner);
+    this.keys.delete(keyId);
+    if (this.dir) await unlink(this.file(keyId));
+    const owned = this.ownerCounts.get(owner) ?? 0;
+    if (owned > 0) this.ownerCounts.set(owner, owned - 1);
   }
 
   /**
@@ -317,7 +352,11 @@ export class KeyStore {
   private async lookup(keyId: string): Promise<StoredKey | undefined> {
     if (!KEY_ID_RE.test(keyId)) return undefined;
     const cached = this.keys.get(keyId);
-    if (cached || !this.dir) return cached;
+    if (cached) {
+      this.remember(cached); // most recently used
+      return cached;
+    }
+    if (!this.dir) return undefined;
     const record = await this.readRecord(keyId);
     if (!record) return undefined;
     const stored: StoredKey = Object.freeze({
@@ -382,8 +421,12 @@ export class KeyStore {
     return record.privateParts as KeyParts;
   }
 
-  /** Cache a key, evicting the oldest beyond capacity (persisted stores only). */
+  /**
+   * Cache a key as the most recently used, evicting the least recently
+   * used beyond capacity (persisted stores only; they can read it back).
+   */
   private remember(key: StoredKey): void {
+    this.keys.delete(key.keyId);
     this.keys.set(key.keyId, key);
     if (this.keys.size > this.capacity) {
       const oldest = this.keys.keys().next().value as string;
@@ -418,10 +461,16 @@ export function keyStoreConfigError(env: NodeJS.ProcessEnv): string | null {
 export function keyStoreFromEnv(): KeyStore {
   const error = keyStoreConfigError(process.env);
   if (error) throw new Error(error);
+  const perOwner = Number(process.env["KEY_STORE_MAX_PER_PRINCIPAL"]);
   return new KeyStore(
     process.env["CRYPTO_KEY_OUT_DIR"] || undefined,
     DEFAULT_KEY_CAPACITY,
     process.env["CRYPTO_KEY_STORAGE_KEY"] || undefined,
-    { acceptPlaintext: process.env["CRYPTO_KEY_ALLOW_PLAINTEXT"] === "1" },
+    {
+      acceptPlaintext: process.env["CRYPTO_KEY_ALLOW_PLAINTEXT"] === "1",
+      ...(Number.isSafeInteger(perOwner) && perOwner > 0
+        ? { maxKeysPerOwner: perOwner }
+        : {}),
+    },
   );
 }

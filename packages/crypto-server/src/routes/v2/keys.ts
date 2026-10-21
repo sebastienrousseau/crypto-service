@@ -10,6 +10,7 @@ import {
 } from "@sebastienrousseau/crypto-lib/keys";
 import {
   KEY_ID_SCHEMA,
+  deleteKey,
   publicView,
   storeKey,
   resolveKey,
@@ -111,8 +112,39 @@ function registerExport(app: FastifyInstance): void {
   );
 }
 
-/** Registers the v2 key-generation and key-export endpoints. */
+/**
+ * `POST /v2/keys/delete`: delete a server-held key of this principal,
+ * freeing its place in the per-principal quota.
+ */
+function registerDelete(app: FastifyInstance): void {
+  app.post(
+    "/v2/keys/delete",
+    {
+      schema: {
+        tags: ["Key Management"],
+        summary: "Delete a server-held key",
+        description:
+          "Deletes a key pair this principal generated, from memory and from disk. Another principal's key answers 404.",
+        body: {
+          type: "object",
+          required: ["keyId"],
+          additionalProperties: false,
+          properties: { keyId: KEY_ID_SCHEMA },
+        },
+      },
+    },
+    async (request, reply) => {
+      const { keyId } = request.body as { keyId: string };
+      await deleteKey(request, keyId);
+      request.log.info({ keyId }, "Key deleted");
+      return reply.send({ data: { keyId, deleted: true } });
+    },
+  );
+}
+
+/** Registers the v2 key-generation, key-export and key-deletion endpoints. */
 export default (app: FastifyInstance): void => {
   registerGenerate(app);
   registerExport(app);
+  registerDelete(app);
 };

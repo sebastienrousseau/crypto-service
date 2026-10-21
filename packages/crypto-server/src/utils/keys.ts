@@ -54,6 +54,14 @@ export function resolveKey(
   return request.server.keyStore.get(keyId, principalOf(request), algorithms);
 }
 
+/** Delete a key of the requesting principal (404 for any other key). */
+export function deleteKey(
+  request: FastifyRequest,
+  keyId: string,
+): Promise<void> {
+  return request.server.keyStore.delete(keyId, principalOf(request));
+}
+
 /** Store a generated key pair for the requesting principal. */
 export function storeKey(
   request: FastifyRequest,

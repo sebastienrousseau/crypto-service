@@ -179,6 +179,7 @@ requests must include an `x-api-key` header (or
 | `POST` | `/v2/password/decrypt`        | Decrypt with password                                                |
 | `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key        |
 | `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)               |
+| `POST` | `/v2/keys/delete`             | Delete one of the caller's keys, freeing quota                       |
 | `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                    |
 | `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                         |
 | `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                          |
@@ -255,10 +256,14 @@ decapsulation routes take that `keyId`. A key belongs to the principal
 (token `sub`) that generated it; for anyone else it does not exist
 (`404`).
 
-Keys live in memory (at most 10,000 without persistence). Set
-`CRYPTO_KEY_OUT_DIR` to also write each key to `<keyId>.json` there
-(mode `0600`, never overwritten) so keys survive a restart; those files
-hold the private key unencrypted, so protect the directory.
+Keys live in memory (at most 10,000 without persistence, and 1,000 per
+principal by default). Set `CRYPTO_KEY_OUT_DIR` to also write each key
+to `<keyId>.json` there (mode `0600`, never overwritten) so keys survive
+a restart. With `CRYPTO_KEY_STORAGE_KEY` the private parts are encrypted
+and the whole record authenticated; without it they are written in
+plaintext, which a production server refuses unless
+`CRYPTO_KEY_ALLOW_PLAINTEXT=1`. `POST /v2/keys/delete` removes one of
+the caller's keys.
 
 `POST /v2/keys/export` returns a key's private parts. It needs the
 `crypto:keys:export` scope, granted explicitly in a JWT: `crypto:admin`
@@ -369,6 +374,7 @@ authentication but no scope.
 | `RATE_LIMIT_MAX`                                                         | `10`          | Requests per client per minute (probes are exempt)                                                                                                                                                                                       |
 | `CRYPTO_KEY_STORAGE_KEY`                                                 | --            | Encrypts the private parts of persisted keys (AES-256-GCM, authenticated with the whole record): exactly 64 hex characters; a passphrase is refused. Required in production when `CRYPTO_KEY_OUT_DIR` is set                             |
 | `CRYPTO_KEY_ALLOW_PLAINTEXT`                                             | --            | `1` accepts plaintext key files: writing them in production, or reading old ones after `CRYPTO_KEY_STORAGE_KEY` was set                                                                                                                  |
+| `KEY_STORE_MAX_PER_PRINCIPAL`                                            | `1000`        | Keys one principal may hold; more answer `429` until it deletes some                                                                                                                                                                     |
 | `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --            | OpenTelemetry OTLP collector endpoint (export disabled when unset)                                                                                                                                                                       |
 | `KMS_PROVIDERS`                                                          | `local`       | Comma-separated KMS providers requests may use: `local`, `aws`, `gcp`, `vault`. Any other provider is refused with `400`; an enabled provider with a missing setting, an unknown name or `azure` (a stub) stops the server from starting |
 | `AWS_REGION`                                                             | --            | Required when `aws` is enabled; credentials come from the AWS default credential chain                                                                                                                                                   |

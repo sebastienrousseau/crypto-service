@@ -171,6 +171,7 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/keys/generate": "crypto:keys",
   // The only route that returns private key material; crypto:admin does
   // not imply this scope.
+  "POST /v2/keys/delete": "crypto:keys",
   "POST /v2/keys/export": "crypto:keys:export",
   "POST /v2/keys/wrap": "crypto:keys",
   "POST /v2/keys/unwrap": "crypto:keys",
