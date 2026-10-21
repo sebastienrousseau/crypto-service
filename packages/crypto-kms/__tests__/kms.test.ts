@@ -1136,7 +1136,8 @@ describe("AzureKmsProvider", () => {
 });
 
 // ---------------------------------------------------------------------------
-// VaultKmsProvider – stub: all methods throw "Not implemented"
+// VaultKmsProvider – Transit REST API. Transit semantics (context binding,
+// signing, disable and delete) are tested in vault-transit.test.ts.
 // ---------------------------------------------------------------------------
 describe("VaultKmsProvider", () => {
   const provider = new VaultKmsProvider({
@@ -1460,66 +1461,6 @@ describe("VaultKmsProvider", () => {
       expect(createdType).to.equal("aes256-gcm96");
     });
 
-    it("enableKey and disableKey update config", async () => {
-      let postedConfig: Record<string, unknown> = {};
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          postedConfig = JSON.parse(init.body as string);
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(
-          JSON.stringify({
-            data: { name: "k1", type: "aes256-gcm96", latest_version: 3 },
-          }),
-        );
-      });
-
-      await provider.enableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(0);
-
-      await provider.disableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(4);
-    });
-
-    it("disableKey uses default version 1 when currentVersion is absent", async () => {
-      let postedConfig: Record<string, unknown> = {};
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          postedConfig = JSON.parse(init.body as string);
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(
-          JSON.stringify({
-            data: { name: "k1", type: "aes256-gcm96" },
-          }),
-        );
-      });
-
-      await provider.disableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(2);
-    });
-
-    it("scheduleKeyDeletion configures deletion and deletes key", async () => {
-      let deleted = false;
-      let deletionAllowed = false;
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          const body = JSON.parse(init.body as string);
-          deletionAllowed = Boolean(body.deletion_allowed);
-          return new Response(JSON.stringify({}));
-        }
-        if (init?.method === "DELETE") {
-          deleted = true;
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(JSON.stringify({}));
-      });
-
-      await provider.scheduleKeyDeletion("k1", 5);
-      expect(deletionAllowed).to.be.true;
-      expect(deleted).to.be.true;
-    });
-
     it("encrypt and decrypt with and without context", async () => {
       mockFetch((url, init) => {
         if (url.includes("encrypt/k1")) {
@@ -1603,18 +1544,6 @@ describe("VaultKmsProvider", () => {
         "wrong-sig",
       );
       expect(invalid).to.be.false;
-    });
-
-    it("verify returns false when request throws", async () => {
-      mockFetch(() => {
-        throw new Error("network error");
-      });
-      const valid = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "sig",
-      );
-      expect(valid).to.be.false;
     });
 
     it("rotateKey rotates key and returns updated metadata", async () => {
