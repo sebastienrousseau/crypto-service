@@ -12,6 +12,7 @@
  */
 
 import { authConfigError } from "./auth-policy";
+import { kmsConfigError } from "../lib/kms-providers";
 
 /** Server configuration loaded from environment variables. */
 export interface Config {
@@ -63,19 +64,13 @@ function parseCsvList(val: string | undefined): string[] | false {
   return entries.length > 0 ? entries : false;
 }
 
-/**
- * Loads and validates all configuration from environment variables.
- * Call once at startup — the returned object is frozen and immutable.
- */
-export function loadConfig(): Config {
+/** Errors for PROTOCOL, NODE_ENV and LOG_LEVEL values out of range. */
+function enumErrors(
+  protocol: string,
+  nodeEnv: string,
+  logLevel: string,
+): string[] {
   const errors: string[] = [];
-
-  const host = optional("HOST", "localhost");
-  const portStr = optional("PORT", "3000");
-  const protocol = optional("PROTOCOL", "http") as Config["protocol"];
-  const nodeEnv = optional("NODE_ENV", "development") as Config["nodeEnv"];
-  const logLevel = optional("LOG_LEVEL", "info") as Config["logLevel"];
-
   if (!["http", "https"].includes(protocol)) {
     errors.push(`PROTOCOL must be "http" or "https", got "${protocol}"`);
   }
@@ -89,9 +84,27 @@ export function loadConfig(): Config {
       `LOG_LEVEL must be one of error|warn|info|debug, got "${logLevel}"`,
     );
   }
+  return errors;
+}
 
-  const authError = authConfigError(process.env);
-  if (authError) errors.push(authError);
+/**
+ * Loads and validates all configuration from environment variables.
+ * Call once at startup — the returned object is frozen and immutable.
+ */
+export function loadConfig(): Config {
+  const errors: string[] = [];
+
+  const host = optional("HOST", "localhost");
+  const portStr = optional("PORT", "3000");
+  const protocol = optional("PROTOCOL", "http") as Config["protocol"];
+  const nodeEnv = optional("NODE_ENV", "development") as Config["nodeEnv"];
+  const logLevel = optional("LOG_LEVEL", "info") as Config["logLevel"];
+
+  errors.push(...enumErrors(protocol, nodeEnv, logLevel));
+  for (const check of [authConfigError, kmsConfigError]) {
+    const error = check(process.env);
+    if (error) errors.push(error);
+  }
 
   let port = 3000;
   try {

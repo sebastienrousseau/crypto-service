@@ -3,84 +3,105 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
+  KmsError,
+  type KmsErrorCode,
   type KmsProvider,
-  LocalKmsProvider,
-  AwsKmsProvider,
-  GcpKmsProvider,
-  VaultKmsProvider,
-  AzureKmsProvider,
 } from "@sebastienrousseau/crypto-kms";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { hasScope, type AuthPayload } from "../../lib/auth";
+import { sendProblem, type ProblemSlug } from "../../lib/problem";
+import {
+  KmsProviderNotEnabledError,
+  type KmsRegistry,
+} from "../../lib/kms-providers";
+import type { KmsOwners } from "../../lib/kms-owners";
 
-const providerRegistry = new Map<string, KmsProvider>();
-providerRegistry.set("local", new LocalKmsProvider());
-
-/** Register or replace a KMS provider for route handling. */
-export function registerKmsProvider(name: string, provider: KmsProvider): void {
-  providerRegistry.set(name.toLowerCase(), provider);
-}
-
-/** Clear all registered providers back to defaults. */
-export function resetKmsProviders(): void {
-  providerRegistry.clear();
-  providerRegistry.set("local", new LocalKmsProvider());
-}
-
-function createAwsProvider(): KmsProvider {
-  return new AwsKmsProvider({
-    region: process.env["AWS_REGION"] ?? "us-east-1",
-  });
-}
-
-function createGcpProvider(): KmsProvider {
-  return new GcpKmsProvider({
-    projectId: process.env["GCP_PROJECT_ID"] ?? "test-project",
-    locationId: process.env["GCP_LOCATION_ID"] ?? "global",
-    keyRingId: process.env["GCP_KEY_RING_ID"] ?? "test-ring",
-    token: process.env["GCP_AUTH_TOKEN"] ?? "test-token",
-  });
-}
-
-function createVaultProvider(): KmsProvider {
-  return new VaultKmsProvider({
-    address: process.env["VAULT_ADDR"] ?? "http://localhost:8200",
-    token: process.env["VAULT_TOKEN"] ?? "test-token",
-  });
-}
-
-function createAzureProvider(): KmsProvider {
-  return new AzureKmsProvider({
-    vaultUrl:
-      process.env["AZURE_VAULT_URL"] ?? "https://my-vault.vault.azure.net",
-  });
-}
-
-function createDefaultProvider(key: string, name?: string): KmsProvider {
-  switch (key) {
-    case "aws":
-      return createAwsProvider();
-    case "gcp":
-      return createGcpProvider();
-    case "vault":
-      return createVaultProvider();
-    case "azure":
-      return createAzureProvider();
-    default:
-      throw new Error(`Unsupported KMS provider: ${name}`);
+declare module "fastify" {
+  interface FastifyInstance {
+    /** KMS providers enabled by KMS_PROVIDERS (see lib/kms-providers.ts). */
+    kms: KmsRegistry;
+    /** Owner of each KMS key created through the API (lib/kms-owners.ts). */
+    kmsOwners: KmsOwners;
   }
 }
 
-/** Resolve a KMS provider by name. */
-export function resolveKmsProvider(name?: string): KmsProvider {
-  const key = (name ?? "local").toLowerCase();
-  const existing = providerRegistry.get(key);
-  if (existing) return existing;
+/** Raised when the requesting principal may not use a KMS key. */
+class KmsKeyNotOwnedError extends Error {
+  override readonly name = "KmsKeyNotOwnedError";
+}
 
-  const provider = createDefaultProvider(key, name);
-  providerRegistry.set(key, provider);
-  return provider;
+/** HTTP status and problem type for each crypto-kms error code. */
+const KMS_PROBLEMS: Readonly<Record<KmsErrorCode, [number, ProblemSlug]>> = {
+  NOT_FOUND: [404, "kms-key-not-found"],
+  DISABLED: [409, "kms-key-disabled"],
+  INVALID_USAGE: [400, "invalid-input"],
+  INVALID_ARGUMENT: [400, "invalid-input"],
+  INVALID_CIPHERTEXT: [400, "invalid-input"],
+  DECRYPTION_FAILED: [400, "invalid-input"],
+  VERSION_DESTROYED: [400, "invalid-input"],
+  NOT_IMPLEMENTED: [501, "not-implemented"],
+  DEPENDENCY_MISSING: [503, "service-unavailable"],
+};
+
+/**
+ * Answer a failed KMS operation: a disabled provider is a 400, another
+ * principal's key is a 404 indistinguishable from a missing one, and a
+ * crypto-kms error maps by its code. Provider messages are logged, not
+ * returned, as they can describe the backend.
+ */
+function kmsFailure(
+  err: unknown,
+  request: FastifyRequest,
+  reply: FastifyReply,
+  operation: string,
+): FastifyReply {
+  if (err instanceof KmsProviderNotEnabledError) {
+    return sendProblem(reply, 400, "kms-provider-not-enabled", err.message);
+  }
+  if (err instanceof KmsKeyNotOwnedError) {
+    return sendProblem(reply, 404, "kms-key-not-found", "Unknown KMS key");
+  }
+  if (err instanceof KmsError) {
+    const [status, slug] = KMS_PROBLEMS[err.code];
+    request.log.warn(err, `${operation} failed`);
+    return sendProblem(reply, status, slug, `${operation} failed`, {
+      code: err.code,
+    });
+  }
+  return classifyCryptoError(err, request, reply, operation);
+}
+
+/** The authenticated principal (set by the server-wide auth hook). */
+const authOf = (request: FastifyRequest): AuthPayload =>
+  (request as unknown as { auth: AuthPayload }).auth;
+
+/** The enabled provider a request names (default `local`). */
+function providerFor(
+  request: FastifyRequest,
+  b: Record<string, unknown>,
+): { name: string; provider: KmsProvider } {
+  const name = ((b["provider"] as string | undefined) ?? "local").toLowerCase();
+  return { name, provider: request.server.kms.get(name) };
+}
+
+/**
+ * The provider and key a request names, if the principal may use it: its
+ * owner, or `crypto:admin` for a key the API did not create.
+ */
+function ownedKey(
+  request: FastifyRequest,
+  b: Record<string, unknown>,
+): { provider: KmsProvider; keyId: string } {
+  const { name, provider } = providerFor(request, b);
+  const keyId = sanitizeKeyId(b["keyId"]);
+  const auth = authOf(request);
+  const owner = request.server.kmsOwners.ownerOf(name, keyId);
+  const allowed =
+    owner === undefined ? hasScope(auth, "crypto:admin") : owner === auth.sub;
+  if (!allowed) throw new KmsKeyNotOwnedError();
+  return { provider, keyId };
 }
 
 function parseBytes(text: string): Uint8Array {
@@ -96,7 +117,7 @@ function sanitizeKeyId(id: unknown): string {
     !/^[a-zA-Z0-9_\-/:.]+$/.test(id) ||
     id.includes("..")
   ) {
-    throw new Error("Invalid keyId format");
+    throw new KmsError("INVALID_ARGUMENT", "Invalid keyId format");
   }
   return encodeURIComponent(id).replace(/%2F/g, "/").replace(/%3A/g, ":");
 }
@@ -205,15 +226,16 @@ function registerCreateKey(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
+        const { name, provider } = providerFor(request, b);
         const meta = await provider.createKey(
           (b["algorithm"] as string) ?? "aes-256-gcm",
           (b["usage"] as "encrypt" | "sign" | "wrap") ?? "encrypt",
           b["metadata"] as Record<string, string>,
         );
+        request.server.kmsOwners.bind(name, meta.keyId, authOf(request).sub);
         return reply.send({ data: meta });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS CreateKey");
+        return kmsFailure(err, request, reply, "KMS CreateKey");
       }
     },
   );
@@ -229,11 +251,10 @@ function registerWrap(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
+        const { provider, keyId } = ownedKey(request, b);
         if (!provider.wrapKey) {
-          throw new Error(`Provider ${provider.name} does not support wrapKey`);
+          throw new KmsError("NOT_IMPLEMENTED", "wrapKey is not supported");
         }
-        const keyId = sanitizeKeyId(b["keyId"]);
         const bytes = parseBytes(b["unwrappedKey"] as string);
         const res = await provider.wrapKey(
           keyId,
@@ -244,7 +265,7 @@ function registerWrap(app: FastifyInstance): void {
           data: { ...res, provider: provider.name },
         });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS Wrap");
+        return kmsFailure(err, request, reply, "KMS Wrap");
       }
     },
   );
@@ -260,13 +281,10 @@ function registerUnwrap(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
+        const { provider, keyId } = ownedKey(request, b);
         if (!provider.unwrapKey) {
-          throw new Error(
-            `Provider ${provider.name} does not support unwrapKey`,
-          );
+          throw new KmsError("NOT_IMPLEMENTED", "unwrapKey is not supported");
         }
-        const keyId = sanitizeKeyId(b["keyId"]);
         const res = await provider.unwrapKey(
           keyId,
           b["wrappedKey"] as string,
@@ -280,7 +298,7 @@ function registerUnwrap(app: FastifyInstance): void {
           },
         });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS Unwrap");
+        return kmsFailure(err, request, reply, "KMS Unwrap");
       }
     },
   );
@@ -296,8 +314,7 @@ function registerDataKey(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
-        const keyId = sanitizeKeyId(b["keyId"]);
+        const { provider, keyId } = ownedKey(request, b);
         const res = await provider.generateDataKey(
           keyId,
           b["keySpec"] as string,
@@ -311,7 +328,7 @@ function registerDataKey(app: FastifyInstance): void {
           },
         });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS GenerateDataKey");
+        return kmsFailure(err, request, reply, "KMS GenerateDataKey");
       }
     },
   );
@@ -327,8 +344,7 @@ function registerEncrypt(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
-        const keyId = sanitizeKeyId(b["keyId"]);
+        const { provider, keyId } = ownedKey(request, b);
         const bytes = parseBytes(b["plaintext"] as string);
         const res = await provider.encrypt(
           keyId,
@@ -339,7 +355,7 @@ function registerEncrypt(app: FastifyInstance): void {
           data: { ...res, provider: provider.name },
         });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS Encrypt");
+        return kmsFailure(err, request, reply, "KMS Encrypt");
       }
     },
   );
@@ -355,8 +371,7 @@ function registerDecrypt(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as Record<string, unknown>;
       try {
-        const provider = resolveKmsProvider(b["provider"] as string);
-        const keyId = sanitizeKeyId(b["keyId"]);
+        const { provider, keyId } = ownedKey(request, b);
         const res = await provider.decrypt(
           keyId,
           b["ciphertext"] as string,
@@ -373,7 +388,7 @@ function registerDecrypt(app: FastifyInstance): void {
           },
         });
       } catch (err) {
-        return classifyCryptoError(err, request, reply, "KMS Decrypt");
+        return kmsFailure(err, request, reply, "KMS Decrypt");
       }
     },
   );

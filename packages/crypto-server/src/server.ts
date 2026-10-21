@@ -38,6 +38,8 @@ import {
 } from "./config/auth-policy";
 import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
+import { KmsRegistry } from "./lib/kms-providers";
+import { KmsOwners } from "./lib/kms-owners";
 import { KdfRunner } from "./lib/kdf-runner";
 import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
@@ -145,6 +147,14 @@ async function init(): Promise<fastify.FastifyInstance> {
   // KDF / password hashing on worker threads (lib/kdf-runner.ts),
   // and OPAQUE authentication state (lib/opaque-store.ts).
   app.decorate("keyStore", keyStoreFromEnv());
+  // KMS providers from the KMS_PROVIDERS allowlist (throws on invalid
+  // settings, so the server does not start) and the owner of each key
+  // created through the API (lib/kms-providers.ts, lib/kms-owners.ts).
+  app.decorate("kms", new KmsRegistry(process.env));
+  app.decorate(
+    "kmsOwners",
+    new KmsOwners(process.env["CRYPTO_KEY_OUT_DIR"] || undefined),
+  );
   app.decorate("kdf", new KdfRunner());
   app.decorate("opaqueStore", new OpaqueStore());
   app.addHook("onClose", () => app.kdf.close());

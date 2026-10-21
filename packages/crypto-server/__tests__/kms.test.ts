@@ -6,11 +6,6 @@
 import { expect } from "chai";
 import type { FastifyInstance } from "fastify";
 import { init } from "../src/server";
-import {
-  registerKmsProvider,
-  resetKmsProviders,
-  resolveKmsProvider,
-} from "../src/routes/v2/kms";
 import type { KmsProvider } from "@sebastienrousseau/crypto-kms";
 
 describe("KMS Routes (/v2/kms)", function () {
@@ -22,30 +17,21 @@ describe("KMS Routes (/v2/kms)", function () {
   });
 
   after(async () => {
-    resetKmsProviders();
     await app.close();
   });
 
   describe("Provider resolution and registration", () => {
-    it("resolves default local provider", () => {
-      const p = resolveKmsProvider();
-      expect(p.name).to.equal("local");
+    it("enables the local provider by default", () => {
+      expect(app.kms.get().name).to.equal("local");
     });
 
-    it("resolves aws, gcp, vault, and azure providers", () => {
-      expect(resolveKmsProvider("aws").name).to.equal("aws");
-      expect(resolveKmsProvider("gcp").name).to.equal("gcp");
-      expect(resolveKmsProvider("vault").name).to.equal("vault");
-      expect(resolveKmsProvider("azure").name).to.equal("azure");
+    it("does not enable a provider KMS_PROVIDERS does not list", () => {
+      for (const name of ["aws", "gcp", "vault", "azure", "unknown-cloud"]) {
+        expect(() => app.kms.get(name), name).to.throw(/not enabled/);
+      }
     });
 
-    it("throws on unsupported provider", () => {
-      expect(() => resolveKmsProvider("unknown-cloud")).to.throw(
-        "Unsupported KMS provider: unknown-cloud",
-      );
-    });
-
-    it("allows registering and resetting custom provider", () => {
+    it("lets an embedder register a provider", () => {
       const mock: KmsProvider = {
         name: "mock-provider",
         listKeys: async () => [],
@@ -61,10 +47,8 @@ describe("KMS Routes (/v2/kms)", function () {
         rotateKey: async () => ({}) as never,
         generateDataKey: async () => ({}) as never,
       };
-      registerKmsProvider("mock", mock);
-      expect(resolveKmsProvider("mock").name).to.equal("mock-provider");
-      resetKmsProviders();
-      expect(resolveKmsProvider().name).to.equal("local");
+      app.kms.register("Mock", mock);
+      expect(app.kms.get("mock").name).to.equal("mock-provider");
     });
   });
 
@@ -190,7 +174,7 @@ describe("KMS Routes (/v2/kms)", function () {
         rotateKey: async () => ({}) as never,
         generateDataKey: async () => ({}) as never,
       };
-      registerKmsProvider("no-wrap", mock);
+      app.kms.register("no-wrap", mock);
 
       const wrapRes = await app.inject({
         method: "POST",
@@ -201,7 +185,7 @@ describe("KMS Routes (/v2/kms)", function () {
           unwrappedKey: "1234",
         },
       });
-      expect(wrapRes.statusCode).to.be.greaterThanOrEqual(400);
+      expect(wrapRes.statusCode).to.equal(501);
 
       const unwrapRes = await app.inject({
         method: "POST",
@@ -212,8 +196,7 @@ describe("KMS Routes (/v2/kms)", function () {
           wrappedKey: "1234",
         },
       });
-      expect(unwrapRes.statusCode).to.be.greaterThanOrEqual(400);
-      resetKmsProviders();
+      expect(unwrapRes.statusCode).to.equal(501);
     });
   });
 

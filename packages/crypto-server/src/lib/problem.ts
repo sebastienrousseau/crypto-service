@@ -43,6 +43,11 @@ export const PROBLEM_TITLES = Object.freeze({
   "request-error": "Bad Request",
   "internal-error": "Internal Server Error",
   conflict: "Conflict",
+  "kms-provider-not-enabled": "KMS provider not enabled",
+  "kms-key-not-found": "KMS key not found",
+  "kms-key-disabled": "KMS key disabled",
+  "not-implemented": "Not Implemented",
+  "service-unavailable": "Service Unavailable",
 });
 
 /** A problem type slug. */
