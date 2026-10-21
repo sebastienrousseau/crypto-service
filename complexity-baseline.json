@@ -1,6 +1,4 @@
 {
-  "packages/crypto-cbom/src/validator.ts :: complexity :: validateCbom": 18,
-  "packages/crypto-cbom/src/validator.ts :: sonarjs/cognitive-complexity :: validateCbom": 26,
   "packages/crypto-lib/src/streaming/stream-aead.ts :: halstead-difficulty :: streamEncrypt": 37.1,
   "packages/crypto-lib/src/streaming/stream-multi-pq-aead.ts :: halstead-difficulty :: computeMultiStreamOutputSize": 30.9,
   "packages/crypto-lib/src/streaming/stream-multi-pq-aead.ts :: halstead-difficulty :: streamMultiPqEncrypt": 33.1,
