@@ -18,6 +18,21 @@ import type {
 import { KmsError } from "../errors";
 import { AWS_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
+/** Signing algorithm used by default for each AWS key spec. */
+const DEFAULT_SIGNING_ALGORITHM: Readonly<Record<string, string>> = {
+  ECC_NIST_P256: "ECDSA_SHA_256",
+  ECC_NIST_P384: "ECDSA_SHA_384",
+  ECC_NIST_P521: "ECDSA_SHA_512",
+  ECC_SECG_P256K1: "ECDSA_SHA_256",
+  ECC_NIST_EDWARDS25519: "ED25519_SHA_512",
+  RSA_2048: "RSASSA_PSS_SHA_256",
+  RSA_3072: "RSASSA_PSS_SHA_256",
+  RSA_4096: "RSASSA_PSS_SHA_256",
+  ML_DSA_44: "ML_DSA_SHAKE_256",
+  ML_DSA_65: "ML_DSA_SHAKE_256",
+  ML_DSA_87: "ML_DSA_SHAKE_256",
+};
+
 /** Message raised when the optional AWS SDK peer dependency is absent. */
 const AWS_SDK_MISSING =
   "AWS KMS requires @aws-sdk/client-kms. Install it: npm install @aws-sdk/client-kms";
@@ -253,12 +268,36 @@ export class AwsKmsProvider implements KmsProvider {
     };
   }
 
+  /**
+   * The signing algorithm for a key: the caller's, or the one matching
+   * the key spec reported by DescribeKey (ECDSA with the curve's hash,
+   * Ed25519, RSA-PSS SHA-256, ML-DSA), else the first the key lists.
+   */
+  private async signingAlgorithm(
+    keyId: string,
+    algorithm: string | undefined,
+  ): Promise<string> {
+    if (algorithm) return algorithm;
+    const client = await this.getClient();
+    const { DescribeKeyCommand } = await import("@aws-sdk/client-kms");
+    const res = await client.send(new DescribeKeyCommand({ KeyId: keyId }));
+    const meta = res.KeyMetadata;
+    const chosen =
+      DEFAULT_SIGNING_ALGORITHM[meta?.KeySpec ?? ""] ??
+      meta?.SigningAlgorithms?.[0];
+    if (!chosen) {
+      throw new KmsError("INVALID_USAGE", `Key ${keyId} cannot sign`, keyId);
+    }
+    return chosen;
+  }
+
   /** Sign data using a KMS signing key. */
   async sign(
     keyId: string,
     data: Uint8Array,
-    algorithm = "RSASSA_PSS_SHA_256",
+    algorithm?: string,
   ): Promise<KmsSignResult> {
+    const signingAlgorithm = await this.signingAlgorithm(keyId, algorithm);
     const client = await this.getClient();
     const { SignCommand } = await import("@aws-sdk/client-kms");
     const result = await client.send(
@@ -266,42 +305,57 @@ export class AwsKmsProvider implements KmsProvider {
         KeyId: keyId,
         Message: data,
         MessageType: "RAW",
-        SigningAlgorithm: algorithm as SigningAlgorithmSpec,
+        SigningAlgorithm: signingAlgorithm as SigningAlgorithmSpec,
       }),
     );
     return {
       signature: Buffer.from(result.Signature!).toString("base64"),
       keyId: result.KeyId ?? keyId,
-      algorithm: result.SigningAlgorithm ?? algorithm,
+      algorithm: result.SigningAlgorithm ?? signingAlgorithm,
     };
   }
 
-  /** Verify a signature against data using a KMS signing key. */
+  /**
+   * Verify a signature. AWS KMS reports a signature that does not match
+   * by throwing KMSInvalidSignatureException; that is returned as false.
+   * Other errors are thrown.
+   */
   async verify(
     keyId: string,
     data: Uint8Array,
     signature: string,
-    algorithm = "RSASSA_PSS_SHA_256",
+    algorithm?: string,
   ): Promise<boolean> {
+    const signingAlgorithm = await this.signingAlgorithm(keyId, algorithm);
     const client = await this.getClient();
     const { VerifyCommand } = await import("@aws-sdk/client-kms");
-    const result = await client.send(
-      new VerifyCommand({
-        KeyId: keyId,
-        Message: data,
-        MessageType: "RAW",
-        Signature: Buffer.from(signature, "base64"),
-        SigningAlgorithm: algorithm as SigningAlgorithmSpec,
-      }),
-    );
-    return result.SignatureValid ?? false;
+    try {
+      const result = await client.send(
+        new VerifyCommand({
+          KeyId: keyId,
+          Message: data,
+          MessageType: "RAW",
+          Signature: Buffer.from(signature, "base64"),
+          SigningAlgorithm: signingAlgorithm as SigningAlgorithmSpec,
+        }),
+      );
+      return result.SignatureValid === true;
+    } catch (err) {
+      if ((err as Error).name === "KMSInvalidSignatureException") return false;
+      throw err;
+    }
   }
 
-  /** Enable automatic key rotation and return updated metadata. */
+  /**
+   * Rotate a key now with RotateKeyOnDemand: AWS creates new key material
+   * and keeps earlier material for decryption. (EnableKeyRotation would
+   * only schedule automatic yearly rotation.) AWS supports on-demand
+   * rotation for symmetric keys only.
+   */
   async rotateKey(keyId: string): Promise<KmsKeyMetadata> {
     const client = await this.getClient();
-    const { EnableKeyRotationCommand } = await import("@aws-sdk/client-kms");
-    await client.send(new EnableKeyRotationCommand({ KeyId: keyId }));
+    const { RotateKeyOnDemandCommand } = await import("@aws-sdk/client-kms");
+    await client.send(new RotateKeyOnDemandCommand({ KeyId: keyId }));
     return this.getKey(keyId);
   }
 

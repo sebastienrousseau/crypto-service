@@ -2031,7 +2031,11 @@ describe("AwsKmsProvider", () => {
         KeyId: "k-sig",
         SigningAlgorithm: "RSASSA_PSS_SHA_256",
       }));
-      const result = await p.sign("k1", new Uint8Array([1, 2]));
+      const result = await p.sign(
+        "k1",
+        new Uint8Array([1, 2]),
+        "RSASSA_PSS_SHA_256",
+      );
       expect(result.signature).to.be.a("string");
       expect(result.keyId).to.equal("k-sig");
       expect(result.algorithm).to.equal("RSASSA_PSS_SHA_256");
@@ -2046,20 +2050,16 @@ describe("AwsKmsProvider", () => {
       expect(result.algorithm).to.equal("ECDSA_SHA_256");
     });
 
-    it("sign uses default algorithm RSASSA_PSS_SHA_256", async () => {
-      const p = createMocked(async () => ({
-        Signature: Buffer.from("sig"),
-        SigningAlgorithm: "RSASSA_PSS_SHA_256",
-      }));
-      const result = await p.sign("k1", new Uint8Array(1));
-      expect(result.algorithm).to.equal("RSASSA_PSS_SHA_256");
-    });
-
     it("verify returns true for valid signature", async () => {
       const p = createMocked(async () => ({
         SignatureValid: true,
       }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.true;
     });
 
@@ -2067,28 +2067,32 @@ describe("AwsKmsProvider", () => {
       const p = createMocked(async () => ({
         SignatureValid: false,
       }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.false;
     });
 
     it("verify defaults to false when SignatureValid is missing", async () => {
       const p = createMocked(async () => ({}));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.false;
     });
 
-    it("verify uses default algorithm", async () => {
-      const p = createMocked(async () => ({ SignatureValid: true }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
-      expect(valid).to.be.true;
-    });
-
-    it("rotateKey calls EnableKeyRotation then getKey", async () => {
+    it("rotateKey calls RotateKeyOnDemand then getKey", async () => {
       let callCount = 0;
       const p = createMocked(async () => {
         callCount++;
         if (callCount === 1) {
-          // EnableKeyRotationCommand
+          // RotateKeyOnDemandCommand
           return {};
         }
         // DescribeKeyCommand (from getKey)
