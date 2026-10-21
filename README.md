@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?branch=main&style=for-the-badge&logo=github" alt="Build" /></a>
   <a href="https://coveralls.io/github/sebastienrousseau/crypto-service?branch=main"><img src="https://img.shields.io/coveralls/github/sebastienrousseau/crypto-service?branch=main&style=for-the-badge" alt="Coverage" /></a>
-  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-service"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-service.svg?style=for-the-badge&color=f14041&logo=npm" alt="Registry" /></a>
+  <a href="https://www.npmjs.com/package/@sebastienrousseau/crypto-lib"><img src="https://img.shields.io/npm/v/@sebastienrousseau/crypto-lib.svg?style=for-the-badge&color=f14041&logo=npm" alt="Registry" /></a>
   <a href="https://docs.crypto-service.co"><img src="https://img.shields.io/badge/docs-TypeDoc-blue.svg?style=for-the-badge&labelColor=555555&logo=typescript" alt="Docs" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/crypto-service" title="ossf-scorecard"><img src="https://img.shields.io/badge/OpenSSF-Scorecard-blue?style=for-the-badge&logo=openssf" alt="OpenSSF Scorecard" /></a>
   <a href="https://www.bestpractices.dev/projects/15153"><img src="https://www.bestpractices.dev/projects/15153/badge" alt="OpenSSF Best Practices" /></a>
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src=".github/demo.gif" alt="Crypto Service Suite Terminal Demo" width="100%" />
+  <img src=".github/demo.gif" alt="crypto-cli 0.0.33 printing its version, hashing a file with BLAKE3, signing and verifying it with ML-DSA-65, and round-tripping it through XChaCha20-Poly1305" width="100%" />
 </p>
 
 ---
@@ -72,7 +72,7 @@ you need, or clone the entire monorepo for full-stack development.
 
 | Method                 | Command / Steps                                                                                                               |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **pnpm** (recommended) | `pnpm add @sebastienrousseau/crypto-lib` (npm has 0.0.3; see note below)                                                      |
+| **pnpm** (recommended) | `pnpm add @sebastienrousseau/crypto-lib`                                                                                      |
 | **npm**                | `npm install @sebastienrousseau/crypto-lib`                                                                                   |
 | **yarn**               | `yarn add @sebastienrousseau/crypto-lib`                                                                                      |
 | **From source**        | `git clone https://github.com/sebastienrousseau/crypto-service.git && cd crypto-service && pnpm install && pnpm -r run build` |
@@ -93,7 +93,8 @@ pnpm add @sebastienrousseau/crypto-server
 pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-Releases before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
+All 18 packages share one version: this tree is 0.0.33. Releases
+before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
 crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 
 ---
@@ -153,11 +154,14 @@ The post-quantum algorithms come from `@noble/post-quantum`, which has not
 been independently audited and does not guarantee constant-time execution.
 No module in this suite is FIPS 140-3 validated.
 
-The CLI is interactive: run it with no arguments and pick an operation from
-the menu.
+The CLI runs one operation per subcommand, or opens an interactive menu
+when started with no arguments in a terminal:
 
 ```bash
-crypto-cli
+crypto-cli hash -a blake3 note.txt
+crypto-cli keygen -a ml-dsa-65 --json > signer.json
+crypto-cli sign --key-file signer.json note.txt > note.sig
+crypto-cli verify --key-file signer.json --signature-file note.sig note.txt
 ```
 
 ---
@@ -266,12 +270,20 @@ your own hardware; CI runs the same script on pull requests to `main`. See
 
 ### Command-Line Interface (`crypto-cli`)
 
-`crypto-cli` takes no subcommands or flags. Run it and choose an operation
-from the interactive menu:
+| Command                             | What it does                                                                   |
+| :---------------------------------- | :----------------------------------------------------------------------------- |
+| `hash [file]`                       | Hash a file or stdin (SHA-2, SHA-3, BLAKE2b, BLAKE3)                           |
+| `keygen -a <algorithm>`             | Generate an Ed25519, X25519, Ed448, X448, P-256/384, ML-KEM or ML-DSA key pair |
+| `encrypt` / `decrypt [file]`        | XChaCha20-Poly1305 sealed box with a 32-byte key file                          |
+| `sign` / `verify [file]`            | Sign and verify with a key pair from `keygen --json`                           |
+| `password hash` / `password verify` | Argon2id password hashing (PHC string)                                         |
+| `hpke keygen` / `seal` / `open`     | HPKE (RFC 9180), including the X25519 + ML-KEM-768 hybrid                      |
+| `stream`, `opaque`, `kms`, `cbom`   | Streaming AEAD, OPAQUE (RFC 9807), KMS operations, CBOM scan/audit             |
 
-```bash
-crypto-cli
-```
+Every command takes `--help`, and most take `--json` for one line of
+machine-readable output. `decrypt` and `verify` exit 1 on a wrong key, a
+modified input or an invalid signature. Run `crypto-cli` with no arguments
+in a terminal for the interactive menu.
 
 ### Server Configuration (`crypto-server`)
 
@@ -293,6 +305,10 @@ The REST API server is configured via environment variables:
 | `CRYPTO_KEY_OUT_DIR`          | Where generated keys are persisted              | None (memory only)     |
 
 With neither `CRYPTO_API_KEY` nor `JWT_SECRET` set, every request except `/health`, `/live`, `/ready`, `/metrics` and `/docs` gets `401`. In production (`NODE_ENV=production`) the server refuses to start without a credential unless `ALLOW_ANONYMOUS=1` is set (for example behind an authenticating gateway), rejects a `JWT_SECRET` shorter than 32 bytes or set without `JWT_ISSUER` and `JWT_AUDIENCE`, and refuses the bundled test keys unless `CRYPTO_KEY_DIR` is set.
+
+The full list, including CORS, rate limiting, trusted proxies, key
+encryption at rest and the KMS providers, is in the
+[crypto-server README](packages/crypto-server/README.md#configuration).
 
 ---
 
@@ -350,6 +366,12 @@ pnpm -r run test
 pnpm -r run docs
 ```
 
+`make check` runs the local gate: build, lint, format, the complexity
+gate, tests, TypeDoc, manifest checks and a pack smoke test. The
+complexity gate holds every function to cyclomatic ≤ 10, cognitive ≤ 15,
+Halstead difficulty ≤ 30 and ≤ 60 lines (≤ 500 lines per file); existing
+offenders are recorded in `complexity-baseline.json`, which may only
+shrink.
 CI enforces 100% line and function coverage in every package, and 100% branch coverage in every package except crypto-lib (99.5%).
 Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md](DEVELOPMENT.md) for local gate reproduction and [CONTRIBUTING.md](CONTRIBUTING.md) for commit and PR guidelines.
 
@@ -360,8 +382,6 @@ Pull requests must pass the complete CI matrix before merge. See [DEVELOPMENT.md
 Report vulnerabilities privately according to [`SECURITY.md`](SECURITY.md). Never file public issues for security vulnerabilities.
 
 Cryptographic operations use `@noble/hashes`, `@noble/curves`, `@noble/ciphers`, `@noble/post-quantum`, Node.js `crypto` and OpenPGP.js. `@noble/post-quantum` has not been independently audited and does not guarantee constant-time execution. No module in this suite is FIPS 140-3 validated. Key zeroization is limited: JavaScript strings and garbage-collected buffers cannot be reliably wiped. Not every secret comparison is constant-time (see [`SECURITY.md`](SECURITY.md)). CI runs `pnpm audit`, CodeQL analysis and SBOM generation.
-
-Report vulnerabilities according to [`SECURITY.md`](SECURITY.md).
 
 ---
 

@@ -326,23 +326,31 @@ authentication but no scope.
 
 ## Configuration
 
-| Variable              | Default       | Description                                          |
-| :-------------------- | :------------ | :--------------------------------------------------- |
-| `PORT`                | `3000`        | TCP port to listen on                                |
-| `HOST`                | `localhost`   | Bind address                                         |
-| `PROTOCOL`            | `http`        | `http` or `https`                                    |
-| `NODE_ENV`            | `development` | `development`, `production`, or `test`               |
-| `LOG_LEVEL`           | `info`        | `error`, `warn`, `info`, or `debug`                  |
-| `CRYPTO_API_KEY`      | --            | Static API key for `x-api-key` authentication        |
-| `JWT_SECRET`          | --            | HMAC secret for HS256 JWT validation                 |
-| `JWT_MAX_AGE`         | `3600`        | Maximum JWT lifetime in seconds                      |
-| `JWT_ISSUER`          | --            | Required JWT `iss` (required in production)          |
-| `JWT_AUDIENCE`        | --            | Required JWT `aud` (required in production)          |
-| `CORS_ORIGIN`         | --            | Comma-separated allowed origins (empty = disabled)   |
-| `TRUSTED_PROXY_CIDRS` | --            | Comma-separated trusted proxy CIDRs                  |
-| `CRYPTO_KEY_DIR`      | --            | Directory for key storage                            |
-| `CRYPTO_KEY_OUT_DIR`  | --            | Where generated keys are persisted (see Key custody) |
-| `SHUTDOWN_TIMEOUT_MS` | `30000`       | Graceful shutdown timeout in milliseconds            |
+| Variable                                                                 | Default                              | Description                                                                                                   |
+| :----------------------------------------------------------------------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| `PORT`                                                                   | `3000`                               | TCP port to listen on                                                                                         |
+| `HOST`                                                                   | `localhost`                          | Bind address                                                                                                  |
+| `PROTOCOL`                                                               | `http`                               | `http` or `https`                                                                                             |
+| `NODE_ENV`                                                               | `development`                        | `development`, `production`, or `test`                                                                        |
+| `LOG_LEVEL`                                                              | `info`                               | `error`, `warn`, `info`, or `debug`                                                                           |
+| `CRYPTO_API_KEY`                                                         | --                                   | Static API key for `x-api-key` authentication                                                                 |
+| `JWT_SECRET`                                                             | --                                   | HMAC secret for HS256 JWT validation                                                                          |
+| `JWT_MAX_AGE`                                                            | `3600`                               | Maximum JWT lifetime in seconds                                                                               |
+| `JWT_ISSUER`                                                             | --                                   | Required JWT `iss` (required in production)                                                                   |
+| `JWT_AUDIENCE`                                                           | --                                   | Required JWT `aud` (required in production)                                                                   |
+| `CORS_ORIGIN`                                                            | --                                   | Comma-separated allowed origins (empty = disabled)                                                            |
+| `TRUSTED_PROXY_CIDRS`                                                    | --                                   | Comma-separated trusted proxy CIDRs                                                                           |
+| `CRYPTO_KEY_DIR`                                                         | --                                   | Directory for key storage                                                                                     |
+| `CRYPTO_KEY_OUT_DIR`                                                     | --                                   | Where generated keys are persisted (see Key custody)                                                          |
+| `SHUTDOWN_TIMEOUT_MS`                                                    | `30000`                              | Graceful shutdown timeout in milliseconds                                                                     |
+| `ALLOW_ANONYMOUS`                                                        | --                                   | `1` allows unauthenticated requests                                                                           |
+| `RATE_LIMIT_MAX`                                                         | `10`                                 | Requests per client per minute (probes are exempt)                                                            |
+| `CRYPTO_KEY_STORAGE_KEY`                                                 | --                                   | Encrypts persisted private keys at rest (AES-256-GCM): 64 hex characters, or a passphrase hashed with SHA-256 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --                                   | OpenTelemetry OTLP collector endpoint (export disabled when unset)                                            |
+| `AWS_REGION`                                                             | `us-east-1`                          | Region for the AWS KMS provider                                                                               |
+| `GCP_PROJECT_ID`, `GCP_LOCATION_ID`, `GCP_KEY_RING_ID`, `GCP_AUTH_TOKEN` | placeholders                         | GCP KMS provider settings (the provider is a stub)                                                            |
+| `VAULT_ADDR`, `VAULT_TOKEN`                                              | `http://localhost:8200`, placeholder | Vault KMS provider settings (the provider is a stub)                                                          |
+| `AZURE_VAULT_URL`                                                        | placeholder                          | Azure Key Vault provider setting (the provider is a stub)                                                     |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
