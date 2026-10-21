@@ -22,6 +22,7 @@
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { assertChunkSize } from "./chunks";
 
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
@@ -121,6 +122,7 @@ export function streamEncrypt(
 ): StreamEncryptResult {
   const key = toKey(options.key);
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const plaintext = options.plaintext;
 
   const baseNonce = randomBytes(NONCE_LEN);
@@ -205,6 +207,7 @@ function readChunkHeader(
 export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
   const key = toKey(options.key);
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < NONCE_LEN + 1 + TAG_LEN) {

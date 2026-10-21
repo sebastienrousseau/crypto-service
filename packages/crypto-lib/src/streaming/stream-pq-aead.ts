@@ -20,6 +20,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { assertChunkSize } from "./chunks";
 
 /** X25519 public key length in bytes. */
 export const EPHEMERAL_LEN = 32;
@@ -218,6 +219,7 @@ export function streamPqEncrypt(
     "recipientMlKemPublic",
   );
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const plaintext = options.plaintext;
 
   const { ephPub, mlKemCt, key } = encapsulateKeyMaterial(
@@ -328,6 +330,7 @@ export function streamPqDecrypt(options: StreamPqDecryptOptions): Uint8Array {
     "recipientMlKemSecret",
   );
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < PQ_STREAM_HEADER_LEN + 1 + TAG_LEN) {

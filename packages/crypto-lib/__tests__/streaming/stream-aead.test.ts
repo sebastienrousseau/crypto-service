@@ -150,4 +150,19 @@ describe("Streaming AEAD", () => {
     const decrypted = streamDecrypt({ key, ciphertext: encrypted.ciphertext });
     expect(Buffer.from(decrypted)).to.deep.equal(Buffer.from(plaintext));
   });
+
+  // 0 made encryption loop forever; NaN and negative sizes produced a
+  // header with no chunks, silently dropping the plaintext.
+  for (const chunkSize of [0, -1, 0.5, NaN, Infinity]) {
+    it(`rejects chunkSize ${chunkSize}`, () => {
+      const plaintext = new Uint8Array(100);
+      expect(() => streamEncrypt({ key, plaintext, chunkSize })).to.throw(
+        /chunkSize must be a positive integer/,
+      );
+      const { ciphertext } = streamEncrypt({ key, plaintext, chunkSize: 64 });
+      expect(() => streamDecrypt({ key, ciphertext, chunkSize })).to.throw(
+        /chunkSize must be a positive integer/,
+      );
+    });
+  }
 });

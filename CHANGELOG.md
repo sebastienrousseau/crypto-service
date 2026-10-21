@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.35 in strict lockstep.
 
+### Fixed
+
+- **Invalid stream chunk sizes in crypto-lib**: `streamEncrypt` and `streamPqEncrypt` accepted any `chunkSize`. Zero made encryption loop forever, and `NaN` or a negative size returned a stream header with no chunks, silently dropping the plaintext. Both functions and their decrypt counterparts (and the Web Streams wrappers that call them) now throw unless `chunkSize` is a positive integer. Decryption already failed closed. The crypto-server routes were not affected: their JSON schemas only accept integer chunk sizes in range.
+
 ## [0.0.34] - 2026-10-21
 
 ### Added
