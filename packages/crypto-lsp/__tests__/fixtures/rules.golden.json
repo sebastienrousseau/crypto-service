@@ -1,0 +1,2184 @@
+{
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 29
+        },
+        "end": {
+          "line": 0,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 58
+        },
+        "end": {
+          "line": 0,
+          "character": 62
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 12
+        },
+        "end": {
+          "line": 1,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 33
+        },
+        "end": {
+          "line": 1,
+          "character": 36
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 52
+        },
+        "end": {
+          "line": 1,
+          "character": 61
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 23
+        },
+        "end": {
+          "line": 2,
+          "character": 34
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 50
+        },
+        "end": {
+          "line": 2,
+          "character": 53
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 61
+        },
+        "end": {
+          "line": 2,
+          "character": 65
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 5
+        },
+        "end": {
+          "line": 3,
+          "character": 13
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 17
+        },
+        "end": {
+          "line": 3,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 24
+        },
+        "end": {
+          "line": 3,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 36
+        },
+        "end": {
+          "line": 3,
+          "character": 47
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-002",
+      "source": "crypto-lsp",
+      "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 29
+        },
+        "end": {
+          "line": 4,
+          "character": 48
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-003",
+      "source": "crypto-lsp",
+      "message": "RSA key length below 2048 bits provides insufficient security margin. (1024 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 53
+        },
+        "end": {
+          "line": 4,
+          "character": 63
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-003",
+      "source": "crypto-lsp",
+      "message": "RSA key length below 2048 bits provides insufficient security margin. (512 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 21
+        },
+        "end": {
+          "line": 4,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 21
+        },
+        "end": {
+          "line": 5,
+          "character": 38
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-003",
+      "source": "crypto-lsp",
+      "message": "RSA key length below 2048 bits provides insufficient security margin. (512 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 18
+        },
+        "end": {
+          "line": 6,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (EC detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 37
+        },
+        "end": {
+          "line": 6,
+          "character": 44
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ED25519 detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 60
+        },
+        "end": {
+          "line": 6,
+          "character": 64
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDH detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 11
+        },
+        "end": {
+          "line": 7,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 29
+        },
+        "end": {
+          "line": 7,
+          "character": 34
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-004",
+      "source": "crypto-lsp",
+      "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 20
+        },
+        "end": {
+          "line": 8,
+          "character": 52
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-005",
+      "source": "crypto-lsp",
+      "message": "Hardcoded secret or private cryptographic key detected in source code. Store keys in environment variables, hardware security modules (HSM), or KMS."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 9
+        },
+        "end": {
+          "line": 9,
+          "character": 43
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-005",
+      "source": "crypto-lsp",
+      "message": "Hardcoded secret or private cryptographic key detected in source code. Store keys in environment variables, hardware security modules (HSM), or KMS."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 13
+        },
+        "end": {
+          "line": 10,
+          "character": 45
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-005",
+      "source": "crypto-lsp",
+      "message": "Hardcoded secret or private cryptographic key detected in source code. Store keys in environment variables, hardware security modules (HSM), or KMS."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 61
+        },
+        "end": {
+          "line": 10,
+          "character": 93
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-005",
+      "source": "crypto-lsp",
+      "message": "Hardcoded secret or private cryptographic key detected in source code. Store keys in environment variables, hardware security modules (HSM), or KMS."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 0
+        },
+        "end": {
+          "line": 12,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-006",
+      "source": "crypto-lsp",
+      "message": "Malformed or unterminated PEM header structure. Ensure valid RFC 7468 PEM encapsulation with matching BEGIN and END boundaries."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 10
+        },
+        "end": {
+          "line": 13,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "code": "CRYPTO-006",
+      "source": "crypto-lsp",
+      "message": "Malformed or unterminated PEM header structure. Ensure valid RFC 7468 PEM encapsulation with matching BEGIN and END boundaries."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 12
+        },
+        "end": {
+          "line": 16,
+          "character": 15
+        }
+      },
+      "severity": 1,
+      "code": "CRYPTO-001",
+      "source": "crypto-lsp",
+      "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+    }
+  ],
+  "actions": [
+    [
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 29
+              },
+              "end": {
+                "line": 0,
+                "character": 32
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 29
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 32
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 29
+              },
+              "end": {
+                "line": 0,
+                "character": 32
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 29
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 32
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 58
+              },
+              "end": {
+                "line": 0,
+                "character": 62
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 58
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 62
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 58
+              },
+              "end": {
+                "line": 0,
+                "character": 62
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 58
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 62
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 12
+              },
+              "end": {
+                "line": 1,
+                "character": 17
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 12
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 17
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 12
+              },
+              "end": {
+                "line": 1,
+                "character": 17
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 12
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 17
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 33
+              },
+              "end": {
+                "line": 1,
+                "character": 36
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 33
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 36
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 33
+              },
+              "end": {
+                "line": 1,
+                "character": 36
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 33
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 36
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 52
+              },
+              "end": {
+                "line": 1,
+                "character": 61
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 52
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 61
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 52
+              },
+              "end": {
+                "line": 1,
+                "character": 61
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 52
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 61
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 23
+              },
+              "end": {
+                "line": 2,
+                "character": 34
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 23
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 34
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 23
+              },
+              "end": {
+                "line": 2,
+                "character": 34
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 23
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 34
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 50
+              },
+              "end": {
+                "line": 2,
+                "character": 53
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 50
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 53
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 50
+              },
+              "end": {
+                "line": 2,
+                "character": 53
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 50
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 53
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 61
+              },
+              "end": {
+                "line": 2,
+                "character": 65
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 61
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 65
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 61
+              },
+              "end": {
+                "line": 2,
+                "character": 65
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 61
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 65
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 5
+              },
+              "end": {
+                "line": 3,
+                "character": 13
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 5
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 13
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 5
+              },
+              "end": {
+                "line": 3,
+                "character": 13
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 5
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 13
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 17
+              },
+              "end": {
+                "line": 3,
+                "character": 20
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 20
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 17
+              },
+              "end": {
+                "line": 3,
+                "character": 20
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 20
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 24
+              },
+              "end": {
+                "line": 3,
+                "character": 32
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 24
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 32
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 24
+              },
+              "end": {
+                "line": 3,
+                "character": 32
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 24
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 32
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to authenticated AES-256-GCM",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 36
+              },
+              "end": {
+                "line": 3,
+                "character": 47
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 36
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 47
+                  }
+                },
+                "newText": "aes-256-gcm"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade to ChaCha20-Poly1305 (zero-latency AEAD)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 36
+              },
+              "end": {
+                "line": 3,
+                "character": 47
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-002",
+            "source": "crypto-lsp",
+            "message": "Use of deprecated cipher (DES, 3DES, RC4) or ECB mode which leaks plaintext patterns. Migrate to AES-256-GCM or ChaCha20-Poly1305 with unique 96-bit nonce."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 36
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 47
+                  }
+                },
+                "newText": "chacha20-poly1305"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Upgrade key length to 3072 bits (CNSA compliant)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 29
+              },
+              "end": {
+                "line": 4,
+                "character": 48
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-003",
+            "source": "crypto-lsp",
+            "message": "RSA key length below 2048 bits provides insufficient security margin. (1024 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 4,
+                    "character": 29
+                  },
+                  "end": {
+                    "line": 4,
+                    "character": 48
+                  }
+                },
+                "newText": "modulusLength: 3072"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Upgrade key length to 3072 bits (CNSA compliant)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 53
+              },
+              "end": {
+                "line": 4,
+                "character": 63
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-003",
+            "source": "crypto-lsp",
+            "message": "RSA key length below 2048 bits provides insufficient security margin. (512 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 4,
+                    "character": 53
+                  },
+                  "end": {
+                    "line": 4,
+                    "character": 63
+                  }
+                },
+                "newText": "modulusLength: 3072"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 21
+              },
+              "end": {
+                "line": 4,
+                "character": 24
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 4,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 4,
+                    "character": 24
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 21
+              },
+              "end": {
+                "line": 4,
+                "character": 24
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 4,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 4,
+                    "character": 24
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Upgrade key length to 3072 bits (CNSA compliant)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 21
+              },
+              "end": {
+                "line": 5,
+                "character": 38
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-003",
+            "source": "crypto-lsp",
+            "message": "RSA key length below 2048 bits provides insufficient security margin. (512 bits detected). Use RSA with >= 2048 bits (3072+ recommended) or migrate to Ed25519 / ML-DSA."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 5,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 5,
+                    "character": 38
+                  }
+                },
+                "newText": "modulusLength: 3072"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 18
+              },
+              "end": {
+                "line": 6,
+                "character": 20
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (EC detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 18
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 20
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 18
+              },
+              "end": {
+                "line": 6,
+                "character": 20
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (EC detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 18
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 20
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 37
+              },
+              "end": {
+                "line": 6,
+                "character": 44
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ED25519 detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 44
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 37
+              },
+              "end": {
+                "line": 6,
+                "character": 44
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ED25519 detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 44
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 60
+              },
+              "end": {
+                "line": 6,
+                "character": 64
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDH detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 60
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 64
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 60
+              },
+              "end": {
+                "line": 6,
+                "character": 64
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDH detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 60
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 64
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 11
+              },
+              "end": {
+                "line": 7,
+                "character": 14
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 11
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 14
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 11
+              },
+              "end": {
+                "line": 7,
+                "character": 14
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (RSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 11
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 14
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-KEM-768 (NIST FIPS 203)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 29
+              },
+              "end": {
+                "line": 7,
+                "character": 34
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 29
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 34
+                  }
+                },
+                "newText": "ml-kem-768"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Migrate to Post-Quantum ML-DSA-65 (NIST FIPS 204)",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 29
+              },
+              "end": {
+                "line": 7,
+                "character": 34
+              }
+            },
+            "severity": 2,
+            "code": "CRYPTO-004",
+            "source": "crypto-lsp",
+            "message": "Classical public key algorithm is vulnerable to Shor's algorithm on a Cryptanalytically Relevant Quantum Computer (CRQC). (ECDSA detected). Transition to NIST FIPS 203 (ML-KEM) for KEM and FIPS 204 (ML-DSA) for digital signatures."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 29
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 34
+                  }
+                },
+                "newText": "ml-dsa-65"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      {
+        "title": "Replace with secure SHA-256",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 12
+              },
+              "end": {
+                "line": 16,
+                "character": 15
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "isPreferred": true,
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 16,
+                    "character": 12
+                  },
+                  "end": {
+                    "line": 16,
+                    "character": 15
+                  }
+                },
+                "newText": "sha256"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Replace with high-security SHA-512",
+        "kind": "quickfix",
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 12
+              },
+              "end": {
+                "line": 16,
+                "character": 15
+              }
+            },
+            "severity": 1,
+            "code": "CRYPTO-001",
+            "source": "crypto-lsp",
+            "message": "Use of broken cryptographic hash function (MD5, SHA-1, MD4, RIPEMD160) vulnerable to collision attacks. Migrate to SHA-256, SHA-384, SHA-512, or SHA3-256."
+          }
+        ],
+        "edit": {
+          "changes": {
+            "file:///workspace/corpus.ts": [
+              {
+                "range": {
+                  "start": {
+                    "line": 16,
+                    "character": 12
+                  },
+                  "end": {
+                    "line": 16,
+                    "character": 15
+                  }
+                },
+                "newText": "sha512"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    []
+  ]
+}
