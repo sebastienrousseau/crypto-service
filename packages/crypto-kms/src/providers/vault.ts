@@ -12,6 +12,7 @@ import type {
 } from "../types";
 import { KmsError } from "../errors";
 import { canonicalContext } from "./versioned-key";
+import { VAULT_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /**
  * Configuration for the HashiCorp Vault provider.
@@ -254,18 +255,6 @@ export class VaultKmsProvider implements KmsProvider {
     return this.mapMetadata(keyId, details);
   }
 
-  /** Resolve internal Vault key type from algorithm and usage. */
-  private resolveVaultType(algorithm: string, usage: string): string {
-    const lower = algorithm.toLowerCase();
-    if (lower.includes("p256") || lower.includes("ecdsa")) return "ecdsa-p256";
-    if (lower.includes("rsa-4096")) return "rsa-4096";
-    if (lower.includes("rsa")) return "rsa-2048";
-    if (lower.includes("chacha")) return "chacha20-poly1305";
-    if (lower.includes("ed25519")) return "ed25519";
-    if (usage === "sign") return "ed25519";
-    return "aes256-gcm96";
-  }
-
   /** Create a new key with the given algorithm and usage. */
   async createKey(
     algorithm: string,
@@ -275,7 +264,12 @@ export class VaultKmsProvider implements KmsProvider {
     const keyId =
       metadata?.["keyId"] ??
       `vault-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
-    const vaultType = this.resolveVaultType(algorithm, usage);
+    const vaultType = resolveAlgorithm(
+      "VaultKmsProvider",
+      VAULT_ALGORITHMS,
+      algorithm,
+      usage,
+    );
     await this.request(`keys/${keyId}`, "POST", { type: vaultType }, keyId);
     return this.getKey(keyId);
   }

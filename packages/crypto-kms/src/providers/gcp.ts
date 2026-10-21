@@ -12,6 +12,7 @@ import type {
   KmsSignResult,
 } from "../types";
 import { KmsError } from "../errors";
+import { GCP_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /**
  * Configuration for the Google Cloud KMS provider.
@@ -136,21 +137,6 @@ function handleGcpError(
     throw new KmsError("DISABLED", errMsg, keyId);
   }
   throw new KmsError("INVALID_ARGUMENT", `GCP KMS error: ${errMsg}`, keyId);
-}
-
-/** Map algorithm and usage to GCP KMS version template algorithm. */
-function mapGcpAlgorithm(
-  algorithm: string,
-  usage: "encrypt" | "sign" | "wrap",
-): string {
-  const upper = algorithm.toUpperCase();
-  if (usage === "sign") {
-    if (upper.includes("EC") || upper.includes("P256")) {
-      return "EC_SIGN_P256_SHA256";
-    }
-    return "RSA_SIGN_PSS_2048_SHA256";
-  }
-  return "GOOGLE_SYMMETRIC_ENCRYPTION";
 }
 
 /** Extract short key identifier from GCP resource name. */
@@ -317,7 +303,12 @@ export class GcpKmsProvider implements KmsProvider {
     const body: Record<string, unknown> = {
       purpose,
       versionTemplate: {
-        algorithm: mapGcpAlgorithm(algorithm, usage),
+        algorithm: resolveAlgorithm(
+          "GcpKmsProvider",
+          GCP_ALGORITHMS,
+          algorithm,
+          usage,
+        ),
       },
       ...(metadata ? { labels: metadata } : {}),
     };

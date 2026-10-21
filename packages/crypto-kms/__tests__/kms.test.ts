@@ -1454,9 +1454,6 @@ describe("VaultKmsProvider", () => {
       await provider.createKey("ecdsa-p256", "sign");
       expect(createdType).to.equal("ecdsa-p256");
 
-      await provider.createKey("custom-algo", "sign");
-      expect(createdType).to.equal("ed25519");
-
       await provider.createKey("aes-256-gcm", "encrypt");
       expect(createdType).to.equal("aes256-gcm96");
     });
@@ -1917,7 +1914,7 @@ describe("AwsKmsProvider", () => {
       }));
       const meta = await p.createKey("aes-256-gcm", "encrypt");
       expect(meta.keyId).to.equal("new-key-id");
-      expect(meta.algorithm).to.equal("aes-256-gcm");
+      expect(meta.algorithm).to.equal("SYMMETRIC_DEFAULT");
       expect(meta.usage).to.equal("encrypt");
       expect(meta.createdAt).to.equal("2025-03-15T12:00:00.000Z");
     });

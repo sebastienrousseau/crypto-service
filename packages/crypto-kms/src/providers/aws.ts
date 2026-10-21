@@ -16,6 +16,7 @@ import type {
   SigningAlgorithmSpec,
 } from "@aws-sdk/client-kms";
 import { KmsError } from "../errors";
+import { AWS_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /** Message raised when the optional AWS SDK peer dependency is absent. */
 const AWS_SDK_MISSING =
@@ -143,9 +144,14 @@ export class AwsKmsProvider implements KmsProvider {
     usage: "encrypt" | "sign" | "wrap",
     metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
+    const keySpec = resolveAlgorithm(
+      "AwsKmsProvider",
+      AWS_ALGORITHMS,
+      algorithm,
+      usage,
+    );
     const client = await this.getClient();
     const { CreateKeyCommand } = await import("@aws-sdk/client-kms");
-    const keySpec = algorithm.toUpperCase().replace(/-/g, "_");
     const result = await client.send(
       new CreateKeyCommand({
         KeyUsage: usage === "sign" ? "SIGN_VERIFY" : "ENCRYPT_DECRYPT",
@@ -162,7 +168,7 @@ export class AwsKmsProvider implements KmsProvider {
     );
     return {
       keyId: result.KeyMetadata?.KeyId ?? "",
-      algorithm,
+      algorithm: keySpec,
       usage,
       createdAt:
         result.KeyMetadata?.CreationDate?.toISOString() ??

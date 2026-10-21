@@ -9,6 +9,7 @@
  */
 
 import { randomBytes } from "node:crypto";
+import { LOCAL_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 import {
   bytesToHex,
   bytesToBase64,
@@ -147,10 +148,16 @@ export class LocalKmsProvider implements KmsProvider {
     usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
+    const resolved = resolveAlgorithm(
+      "LocalKmsProvider",
+      LOCAL_ALGORITHMS,
+      algorithm,
+      usage,
+    );
     const keyId = generateId();
     const metadata: KmsKeyMetadata = {
       keyId,
-      algorithm,
+      algorithm: resolved,
       usage,
       createdAt: new Date().toISOString(),
       enabled: true,
