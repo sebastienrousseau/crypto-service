@@ -304,7 +304,7 @@ The REST API server is configured via environment variables:
 | `CRYPTO_KEY_DIR`              | Keystore for the v1 PGP routes                  | Bundled test keys      |
 | `CRYPTO_KEY_OUT_DIR`          | Where generated keys are persisted              | None (memory only)     |
 
-With neither `CRYPTO_API_KEY` nor `JWT_SECRET` set, every request except `/health`, `/live`, `/ready`, `/metrics` and `/docs` gets `401`. In production (`NODE_ENV=production`) the server refuses to start without a credential unless `ALLOW_ANONYMOUS=1` is set (for example behind an authenticating gateway), rejects a `JWT_SECRET` shorter than 32 bytes or set without `JWT_ISSUER` and `JWT_AUDIENCE`, and refuses the bundled test keys unless `CRYPTO_KEY_DIR` is set.
+With neither `CRYPTO_API_KEY` nor `JWT_SECRET` set, every request except `/health`, `/live`, `/ready`, `/metrics`, `/docs` and the OPAQUE login steps (`/v2/opaque/login/init` and `/login/finish`, metered per client address) gets `401`. OPAQUE registration needs credentials: a caller registers its own subject, and `crypto:admin` can provision any identifier. In production (`NODE_ENV=production`) the server refuses to start without a credential unless `ALLOW_ANONYMOUS=1` is set (for example behind an authenticating gateway), rejects a `JWT_SECRET` shorter than 32 bytes or set without `JWT_ISSUER` and `JWT_AUDIENCE`, and refuses the bundled test keys unless `CRYPTO_KEY_DIR` is set.
 
 The full list, including CORS, rate limiting, trusted proxies, key
 encryption at rest and the KMS providers, is in the

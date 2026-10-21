@@ -255,7 +255,9 @@ export const registerMetering = (
 
       const auth = (request as { auth?: MeteredPrincipal }).auth;
       const result = engine.checkRequest(
-        auth?.sub ?? ANONYMOUS_TENANT,
+        // Unauthenticated callers (public routes) are metered per address,
+        // so one client cannot exhaust the quota of every other.
+        auth?.sub ?? `${ANONYMOUS_TENANT}:${request.ip}`,
         engine.resolveTier(auth?.tier),
         parseContentLength(request.headers["content-length"]),
       );

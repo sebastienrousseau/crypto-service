@@ -142,7 +142,7 @@ async function init(
   // credential configured, only ALLOW_ANONYMOUS=1 lets requests in, and a
   // route without a policy entry answers 403.
   app.addHook("onRequest", async (request, reply) => {
-    if (isPublicRoute(request.url)) return;
+    if (isPublicRoute(request.routeOptions.url ?? request.url)) return;
     const auth = await authenticate(request, reply);
     if (!auth || !authorizeRoute(request, reply, auth)) return reply;
     (request as { auth?: unknown }).auth = auth;
