@@ -3,115 +3,113 @@
 import { Diagnostic, Range } from "./types";
 import { CRYPTO_RULES } from "./rules";
 
+/** One rule violation on a line, before it becomes a Diagnostic. */
+interface Finding {
+  rule: string;
+  start: number;
+  end: number;
+  /** Shown in brackets between the rule's description and recommendation. */
+  detail?: string | undefined;
+}
+
+type Check = (line: string) => Finding[];
+type Span = (match: RegExpExecArray, line: string) => [number, number];
+
+/** The first capture group, inside the quotes the pattern matched. */
+const quoted: Span = (m) => [m.index + 1, m.index + 1 + m[1].length];
+/** The whole match. */
+const whole: Span = (m) => [m.index, m.index + m[0].length];
+/** The first capture group, wherever it sits in the match. */
+const group: Span = (m, line) => {
+  const start = line.indexOf(m[1], m.index);
+  return [start, start + m[1].length];
+};
+
+/** A finding for every match of `pattern` (global) on a line. */
+function scan(
+  rule: string,
+  pattern: RegExp,
+  span: Span,
+  detail?: (match: RegExpExecArray) => string,
+): Check {
+  return (line) => {
+    const findings: Finding[] = [];
+    const re = new RegExp(pattern.source, pattern.flags);
+    let match: RegExpExecArray | null;
+    while ((match = re.exec(line)) !== null) {
+      const [start, end] = span(match, line);
+      findings.push({ rule, start, end, detail: detail?.(match) });
+    }
+    return findings;
+  };
+}
+
+/** CRYPTO-006: a BEGIN boundary that is not `-----BEGIN LABEL-----`. */
+const malformedPem: Check = (line) => {
+  const start = line.indexOf("-----BEGIN");
+  if (start === -1 || /-----BEGIN [A-Z0-9 ]+-----/.test(line)) return [];
+  return [{ rule: "CRYPTO-006", start, end: line.length }];
+};
+
+/** Every check, in the order its diagnostics are reported on a line. */
+const CHECKS: Check[] = [
+  // CRYPTO-001: Broken Hash Functions (MD5, SHA-1, MD4, RIPEMD160)
+  scan("CRYPTO-001", /["'](md5|sha1|sha-1|md4|ripemd160)["']/gi, quoted),
+  // CRYPTO-002: Insecure Symmetric Cipher or Mode (DES, 3DES, RC4, ECB mode)
+  scan(
+    "CRYPTO-002",
+    /["'](aes-(?:128|192|256)-ecb|des|3des|des-ede3|rc4|blowfish)["']/gi,
+    quoted,
+  ),
+  // CRYPTO-003: Inadequate Key Size (RSA < 2048)
+  scan(
+    "CRYPTO-003",
+    /(?:modulusLength|bits)\s*[:=]\s*(512|1024)\b/gi,
+    whole,
+    (m) => `${m[1]} bits detected`,
+  ),
+  // CRYPTO-004: Quantum Vulnerable Public-Key Cryptography
+  scan(
+    "CRYPTO-004",
+    /(?:algorithm\s*[:=]\s*|generateKeyPair(?:Sync)?\s*\(\s*)["'](rsa|ec|ecdsa|ecdh|ed25519)["']/gi,
+    group,
+    (m) => `${m[1].toUpperCase()} detected`,
+  ),
+  // CRYPTO-005: Hardcoded Secret Material
+  scan(
+    "CRYPTO-005",
+    /(?:secret_key|private_key|apiKey|cryptoKey)\s*[:=]\s*["']([0-9a-fA-F]{32,})["']/gi,
+    group,
+  ),
+  // CRYPTO-006: Malformed PEM Block
+  malformedPem,
+];
+
+function toDiagnostic(finding: Finding, line: number): Diagnostic {
+  const rule = CRYPTO_RULES[finding.rule];
+  const message = finding.detail
+    ? `${rule.description} (${finding.detail}). ${rule.recommendation}`
+    : `${rule.description} ${rule.recommendation}`;
+  return {
+    range: createRange(line, finding.start, line, finding.end),
+    severity: rule.severity,
+    code: rule.id,
+    source: "crypto-lsp",
+    message,
+  };
+}
+
 /**
  * Analyzes a text document and produces LSP diagnostics for cryptographic vulnerabilities.
  */
 export function analyzeDocument(_uri: string, text: string): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  const lines = text.split(/\r?\n/);
-
-  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-    const line = lines[lineIndex];
-
-    // CRYPTO-001: Broken Hash Functions (MD5, SHA-1, MD4, RIPEMD160)
-    const brokenHashRegex = /["'](md5|sha1|sha-1|md4|ripemd160)["']/gi;
-    let match: RegExpExecArray | null;
-    while ((match = brokenHashRegex.exec(line)) !== null) {
-      const startChar = match.index + 1;
-      const endChar = startChar + match[1].length;
-      const rule = CRYPTO_RULES["CRYPTO-001"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} ${rule.recommendation}`,
-      });
-    }
-
-    // CRYPTO-002: Insecure Symmetric Cipher or Mode (DES, 3DES, RC4, ECB mode)
-    const insecureCipherRegex =
-      /["'](aes-(?:128|192|256)-ecb|des|3des|des-ede3|rc4|blowfish)["']/gi;
-    while ((match = insecureCipherRegex.exec(line)) !== null) {
-      const startChar = match.index + 1;
-      const endChar = startChar + match[1].length;
-      const rule = CRYPTO_RULES["CRYPTO-002"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} ${rule.recommendation}`,
-      });
-    }
-
-    // CRYPTO-003: Inadequate Key Size (RSA < 2048)
-    const weakRsaRegex = /(?:modulusLength|bits)\s*[:=]\s*(512|1024)\b/gi;
-    while ((match = weakRsaRegex.exec(line)) !== null) {
-      const startChar = match.index;
-      const endChar = match.index + match[0].length;
-      const rule = CRYPTO_RULES["CRYPTO-003"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} (${match[1]} bits detected). ${rule.recommendation}`,
-      });
-    }
-
-    // CRYPTO-004: Quantum Vulnerable Public-Key Cryptography
-    const classicalPqRegex =
-      /(?:algorithm\s*[:=]\s*|generateKeyPair(?:Sync)?\s*\(\s*)["'](rsa|ec|ecdsa|ecdh|ed25519)["']/gi;
-    while ((match = classicalPqRegex.exec(line)) !== null) {
-      const alg = match[1];
-      const startChar = line.indexOf(alg, match.index);
-      const endChar = startChar + alg.length;
-      const rule = CRYPTO_RULES["CRYPTO-004"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} (${alg.toUpperCase()} detected). ${rule.recommendation}`,
-      });
-    }
-
-    // CRYPTO-005: Hardcoded Secret Material
-    const hardcodedKeyRegex =
-      /(?:secret_key|private_key|apiKey|cryptoKey)\s*[:=]\s*["']([0-9a-fA-F]{32,})["']/gi;
-    while ((match = hardcodedKeyRegex.exec(line)) !== null) {
-      const startChar = line.indexOf(match[1], match.index);
-      const endChar = startChar + match[1].length;
-      const rule = CRYPTO_RULES["CRYPTO-005"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} ${rule.recommendation}`,
-      });
-    }
-
-    // CRYPTO-006: Malformed PEM Block
-    if (
-      line.includes("-----BEGIN") &&
-      !line.match(/-----BEGIN [A-Z0-9 ]+-----/)
-    ) {
-      const startChar = line.indexOf("-----BEGIN");
-      const endChar = line.length;
-      const rule = CRYPTO_RULES["CRYPTO-006"];
-      diagnostics.push({
-        range: createRange(lineIndex, startChar, lineIndex, endChar),
-        severity: rule.severity,
-        code: rule.id,
-        source: "crypto-lsp",
-        message: `${rule.description} ${rule.recommendation}`,
-      });
-    }
-  }
-
-  return diagnostics;
+  return text
+    .split(/\r?\n/)
+    .flatMap((line, lineIndex) =>
+      CHECKS.flatMap((check) => check(line)).map((finding) =>
+        toDiagnostic(finding, lineIndex),
+      ),
+    );
 }
 
 function createRange(
