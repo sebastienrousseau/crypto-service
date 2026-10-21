@@ -12,7 +12,6 @@
   "packages/crypto-lsp/src/code-action.ts :: max-lines-per-function :: getCodeActions": 136,
   "packages/crypto-lsp/src/diagnostics.ts :: halstead-difficulty :: analyzeDocument": 53.5,
   "packages/crypto-lsp/src/diagnostics.ts :: max-lines-per-function :: analyzeDocument": 93,
-  "packages/crypto-mcp/src/resources/index.ts :: max-lines-per-function :: readResource": 196,
   "packages/crypto-server/src/enterprise/metering.ts :: halstead-difficulty :: checkRequest": 31.4,
   "packages/crypto-server/src/utils/validation.ts :: halstead-difficulty :: validateRequiredNumber": 33
 }
