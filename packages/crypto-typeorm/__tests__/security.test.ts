@@ -88,18 +88,27 @@ describe("transformer: ciphertexts are bound to their column (F22)", () => {
     );
   });
 
-  it("still reads legacy (pre-v2) ciphertexts by default", () => {
+  // Legacy values carry no associated data, so anyone able to write the
+  // database could move one into any encrypted column and have it decrypt.
+  // They are refused unless acceptLegacyCiphertext is set for a migration.
+  it("refuses legacy (pre-v2) ciphertexts by default", () => {
     const legacy = secretbox.seal(TEST_KEY, "legacy").sealed;
-    expect(ssn.from(legacy)).to.equal("legacy");
+    expect(thrown(() => ssn.from(legacy)).name).to.equal(
+      "FieldDecryptionError",
+    );
+    const bare = new EncryptionTransformer({ key: TEST_KEY });
+    expect(thrown(() => bare.from(legacy)).message).to.equal(
+      "Cannot decrypt column: not a valid ciphertext",
+    );
   });
 
-  it("acceptLegacyCiphertext: false rejects legacy ciphertexts", () => {
+  it("acceptLegacyCiphertext: true reads legacy ciphertexts", () => {
     const t = new EncryptionTransformer({
       key: TEST_KEY,
-      acceptLegacyCiphertext: false,
+      acceptLegacyCiphertext: true,
     });
     const legacy = secretbox.seal(TEST_KEY, "legacy").sealed;
-    expect(thrown(() => t.from(legacy)).name).to.equal("FieldDecryptionError");
+    expect(t.from(legacy)).to.equal("legacy");
   });
 
   it("seals v2 values with an HKDF subkey, not the configured key", () => {
@@ -229,11 +238,16 @@ describe("subscriber: fail closed and bound to entity and field (F21/F22)", () =
     expect(user.ssn).to.equal("123-45-6789");
   });
 
-  it("still reads legacy (pre-v2) ciphertexts", () => {
+  it("reads legacy (pre-v2) ciphertexts when acceptLegacyCiphertext is set", () => {
+    const migrating = new EncryptionSubscriber({
+      key: TEST_KEY,
+      fields: new Map([["User", ["ssn", "email"]]]),
+      acceptLegacyCiphertext: true,
+    });
     const user = new User();
     user.ssn = secretbox.seal(TEST_KEY, "legacy-ssn").sealed;
     user.email = secretbox.seal(TEST_KEY, "legacy-email").sealed;
-    sub.afterLoad(user as unknown as Entity);
+    migrating.afterLoad(user as unknown as Entity);
     expect(user.ssn).to.equal("legacy-ssn");
     expect(user.email).to.equal("legacy-email");
   });

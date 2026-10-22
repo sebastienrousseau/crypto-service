@@ -221,24 +221,25 @@ describe("security: ciphertexts are bound to model and field (F22)", () => {
     expect(row["email"]).to.equal("shared@example.com");
   });
 
-  it("still reads legacy (pre-v2) ciphertexts by default", async () => {
-    const legacy = secretbox.seal(TEST_KEY, "legacy@example.com").sealed;
-    const row = await readThroughExtension(BASE, "user", {
-      id: 1,
-      email: legacy,
-    });
-    expect(row["email"]).to.equal("legacy@example.com");
-  });
-
-  it("acceptLegacyCiphertext: false rejects legacy ciphertexts", async () => {
+  // Legacy values carry no associated data, so anyone able to write the
+  // database could move one into any encrypted field and have it decrypt.
+  // They are refused unless acceptLegacyCiphertext is set for a migration.
+  it("refuses legacy (pre-v2) ciphertexts by default", async () => {
     const legacy = secretbox.seal(TEST_KEY, "legacy@example.com").sealed;
     const err = await rejection(
-      readThroughExtension({ ...BASE, acceptLegacyCiphertext: false }, "user", {
-        id: 1,
-        email: legacy,
-      }),
+      readThroughExtension(BASE, "user", { id: 1, email: legacy }),
     );
     expect(err.name).to.equal("FieldDecryptionError");
+  });
+
+  it("acceptLegacyCiphertext: true reads legacy ciphertexts", async () => {
+    const legacy = secretbox.seal(TEST_KEY, "legacy@example.com").sealed;
+    const row = await readThroughExtension(
+      { ...BASE, acceptLegacyCiphertext: true },
+      "user",
+      { id: 1, email: legacy },
+    );
+    expect(row["email"]).to.equal("legacy@example.com");
   });
 });
 

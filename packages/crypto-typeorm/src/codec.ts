@@ -16,8 +16,9 @@
  * is `Entity.property`. A value moved to another column fails to decrypt.
  *
  * Legacy format (written before `v2`): the bare base64 sealed box under
- * the configured key, with no associated data. It is still read (unless
- * `acceptLegacyCiphertext` is `false`) and never written.
+ * the configured key, with no associated data. It is read only when
+ * `acceptLegacyCiphertext` is `true`, during a migration, and never
+ * written.
  */
 
 import { secretbox, kdfDerive } from "@sebastienrousseau/crypto-lib";
@@ -78,7 +79,7 @@ export function createColumnCodec(
       params: { info: "crypto-typeorm/enc/v2" },
     }).derivedKey,
     allowPlaintextFallback: config.allowPlaintextFallback === true,
-    acceptLegacyCiphertext: config.acceptLegacyCiphertext !== false,
+    acceptLegacyCiphertext: config.acceptLegacyCiphertext === true,
   };
 }
 

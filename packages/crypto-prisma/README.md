@@ -186,7 +186,7 @@ modern `$extends()` Client Extension API are supported.
 | `algorithm`               | `string`               | No       | `"xchacha20-poly1305"` | Accepted for forward compatibility; only XChaCha20-Poly1305 is implemented                        |
 | `deterministicFields`     | `string[]`             | No       | `[]`                   | Fields stored as an HMAC-SHA-256 blind index for exact-match search (reads return the MAC)        |
 | `allowPlaintextFallback`  | `boolean`              | No       | `false`                | Return values that are not ciphertexts as-is instead of throwing; for plaintext migrations only   |
-| `acceptLegacyCiphertext`  | `boolean`              | No       | `true`                 | Read ciphertexts written before the `v2:` format; turn off once every row has been re-written     |
+| `acceptLegacyCiphertext`  | `boolean`              | No       | `false`                | Read ciphertexts written before the `v2:` format, only while re-writing them                      |
 | `blindIndexKeyDerivation` | `"legacy"` \| `"hkdf"` | No       | `"legacy"`             | `"hkdf"` computes the blind index with a derived subkey; existing index values must be recomputed |
 
 ## Stored format and compatibility
@@ -210,10 +210,10 @@ New values are written as `v2:` followed by the Base64 sealed box
   plaintext migration; a `v2:` value that fails authentication is
   rejected even then.
 - **Legacy values.** Ciphertexts written by earlier versions (bare
-  Base64, sealed with `key` and no associated data) are still read,
-  and never written. They are not bound to a model or field. Re-write
+  Base64, sealed with `key` and no associated data) are refused
+  unless `acceptLegacyCiphertext: true`, and never written. They are not bound to a model or field. Re-write
   them by reading each row and updating the field with the value read,
-  then set `acceptLegacyCiphertext: false`.
+  then remove `acceptLegacyCiphertext`.
 - **Blind index.** `deterministicFields` keep using `key` for
   HMAC-SHA-256 by default, so existing index values keep matching.
   `blindIndexKeyDerivation: "hkdf"` uses a separate subkey (info

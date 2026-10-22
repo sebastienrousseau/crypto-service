@@ -152,7 +152,7 @@ All APIs accept an `EncryptionConfig` object:
 | `fields`                 | `Map<string, string[]>` | `undefined`            | Per-entity field list (used by `EncryptionSubscriber`)                                          |
 | `context`                | `string`                | `""`                   | Column context bound into each ciphertext (`Entity.property`); set by `@EncryptedColumn`        |
 | `allowPlaintextFallback` | `boolean`               | `false`                | Return values that are not ciphertexts as-is instead of throwing; for plaintext migrations only |
-| `acceptLegacyCiphertext` | `boolean`               | `true`                 | Read ciphertexts written before the `v2:` format; turn off once every row has been re-written   |
+| `acceptLegacyCiphertext` | `boolean`               | `false`                | Read ciphertexts written before the `v2:` format, only while re-writing them                    |
 
 `@EncryptedColumn` reads `process.env.TYPEORM_ENCRYPTION_KEY` when
 no key is provided in decorator options.
@@ -186,11 +186,11 @@ New values are written as `v2:` followed by the Base64 sealed box
   duration of a plaintext migration; a `v2:` value that fails
   authentication is rejected even then.
 - **Legacy values.** Ciphertexts written by earlier versions (bare
-  Base64, sealed with `key` and no associated data) are still read,
-  and never written. They are not bound to a column. Rewrite them in
+  Base64, sealed with `key` and no associated data) are refused
+  unless `acceptLegacyCiphertext: true`, and never written. They are not bound to a column. Rewrite them in
   the `v2:` format (as `examples/migration.ts` does for plaintext:
   read each value, write it back through the transformer), then set
-  `acceptLegacyCiphertext: false`.
+  remove `acceptLegacyCiphertext`.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

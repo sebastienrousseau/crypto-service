@@ -60,11 +60,12 @@ export interface EncryptionConfig {
   allowPlaintextFallback?: boolean;
   /**
    * Accept legacy ciphertexts written before the `v2:` format (sealed
-   * with the configured key and no associated data). Turn this off once
-   * every row has been re-written, so that legacy values, which are not
-   * bound to their model and field, can no longer be swapped in.
+   * with the configured key and no associated data). Legacy values are not
+   * bound to their model and field, so anyone able to write the database could
+   * move one into another encrypted field. Set this only while
+   * re-writing old rows, then remove it.
    *
-   * @default true
+   * @default false
    */
   acceptLegacyCiphertext?: boolean;
   /**

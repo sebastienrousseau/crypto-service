@@ -5,7 +5,6 @@ import { EncryptionSubscriber } from "../src/subscriber";
 import { EncryptedColumn } from "../src/decorator";
 import type { EncryptionConfig } from "../src/types";
 import type { InsertEvent, LoadEvent, UpdateEvent } from "typeorm";
-import { secretbox } from "@sebastienrousseau/crypto-lib";
 
 /** Entity shape the subscriber operates on. */
 type Entity = Record<string, unknown>;
@@ -35,6 +34,11 @@ describe("EncryptionConfig type", () => {
     expect(cfg.fields!.get("User")).to.deep.equal(["ssn"]);
   });
 });
+
+/** A value as EncryptionSubscriber stores it for `context` (v2 format). */
+function v2(context: string, value: string): string {
+  return new EncryptionTransformer({ key: TEST_KEY, context }).to(value)!;
+}
 
 // ────────────────────────────────────────────────────────────────────
 // EncryptionTransformer
@@ -337,8 +341,8 @@ describe("EncryptionSubscriber", () => {
         name = "Alice";
 
         constructor() {
-          this.email = secretbox.seal(TEST_KEY, "alice@example.com").sealed;
-          this.ssn = secretbox.seal(TEST_KEY, "123-45-6789").sealed;
+          this.email = v2("User.email", "alice@example.com");
+          this.ssn = v2("User.ssn", "123-45-6789");
         }
       }
 
@@ -406,7 +410,7 @@ describe("EncryptionSubscriber", () => {
       });
 
       class User {
-        email = secretbox.seal(TEST_KEY, "alice@test.com").sealed;
+        email = v2("User.email", "alice@test.com");
       }
 
       const entity = new User();
