@@ -11,10 +11,13 @@ import {
 } from "@sebastienrousseau/crypto-lib/modern";
 import { emit, readInput, valueOrJsonField, type RunContext } from "./io";
 
-type KemChoice = "x25519-ml-kem-768" | "x25519" | "p256";
+type KemChoice = "x-wing" | "x25519-ml-kem-768" | "x25519" | "p256";
 type AeadChoice = "chacha20-poly1305" | "aes-128-gcm";
 
+// "x25519-ml-kem-768" is crypto-service's pre-0.0.36 hybrid, kept to open
+// earlier messages; "x-wing" is the registered one (KEM 0x647A).
 const KEM_CHOICES: readonly KemChoice[] = [
+  "x-wing",
   "x25519-ml-kem-768",
   "x25519",
   "p256",
@@ -125,7 +128,7 @@ export function registerHpke(program: Command, ctx: RunContext): void {
     .addOption(
       new Option("-k, --kem <kem>", "key encapsulation mechanism")
         .choices(KEM_CHOICES)
-        .default("x25519-ml-kem-768"),
+        .default("x-wing"),
     )
     .option("--json", "print key pair as JSON")
     .action((opts: HpkeKeygenOptions) => executeKeygen(opts, ctx));
@@ -137,7 +140,7 @@ export function registerHpke(program: Command, ctx: RunContext): void {
     .addOption(
       new Option("-k, --kem <kem>", "key encapsulation mechanism")
         .choices(KEM_CHOICES)
-        .default("x25519-ml-kem-768"),
+        .default("x-wing"),
     )
     .addOption(
       new Option("-a, --aead <aead>", "authenticated encryption algorithm")
@@ -159,7 +162,7 @@ export function registerHpke(program: Command, ctx: RunContext): void {
     .addOption(
       new Option("-k, --kem <kem>", "key encapsulation mechanism")
         .choices(KEM_CHOICES)
-        .default("x25519-ml-kem-768"),
+        .default("x-wing"),
     )
     .addOption(
       new Option("-a, --aead <aead>", "authenticated encryption algorithm")

@@ -309,15 +309,19 @@ export interface SealedboxSealResult {
   algorithm: string;
 }
 
-/** Supported KEM algorithms for HPKE. */
-export type HpkeKem = "x25519" | "p256" | "x25519-ml-kem-768";
+/**
+ * Supported KEM algorithms for HPKE. `"x-wing"` is X-Wing (KEM 0x647A);
+ * `"x25519-ml-kem-768"` is the pre-0.0.36 hybrid, kept to open earlier
+ * messages.
+ */
+export type HpkeKem = "x25519" | "p256" | "x-wing" | "x25519-ml-kem-768";
 
 /** Supported AEAD algorithms for HPKE. */
 export type HpkeAead = "chacha20-poly1305" | "aes-128-gcm";
 
 /** Parameters for `POST /v2/hpke/keygen`. */
 export interface HpkeGenerateKeyPairParams {
-  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  /** KEM algorithm (defaults to `"x-wing"`). */
   kem?: HpkeKem;
 }
 
@@ -333,7 +337,7 @@ export interface HpkeSealParams {
   recipientPublicKey: string;
   /** Plaintext message (UTF-8 string or hex). */
   plaintext: string;
-  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  /** KEM algorithm (defaults to `"x-wing"`). */
   kem?: HpkeKem;
   /** AEAD algorithm (defaults to `"chacha20-poly1305"`). */
   aead?: HpkeAead;

@@ -687,8 +687,8 @@ Usage: crypto-cli hpke keygen [options]
 Generate an HPKE key pair
 
 Options:
-  -k, --kem <kem>  key encapsulation mechanism (choices: "x25519-ml-kem-768",
-                   "x25519", "p256", default: "x25519-ml-kem-768")
+  -k, --kem <kem>  key encapsulation mechanism (choices: "x-wing",
+                   "x25519-ml-kem-768", "x25519", "p256", default: "x-wing")
   --json           print key pair as JSON
   -h, --help       print help
 ```
@@ -702,9 +702,9 @@ Encrypt a message using HPKE
 
 Options:
   -p, --public-key <hex>  recipient public key (hex)
-  -k, --kem <kem>         key encapsulation mechanism (choices:
+  -k, --kem <kem>         key encapsulation mechanism (choices: "x-wing",
                           "x25519-ml-kem-768", "x25519", "p256", default:
-                          "x25519-ml-kem-768")
+                          "x-wing")
   -a, --aead <aead>       authenticated encryption algorithm (choices:
                           "chacha20-poly1305", "aes-128-gcm", default:
                           "chacha20-poly1305")
@@ -724,9 +724,9 @@ Decrypt an HPKE ciphertext
 Options:
   -s, --secret-key <hex>        recipient private key (hex)
   -e, --encapsulated-key <hex>  encapsulated key (hex)
-  -k, --kem <kem>               key encapsulation mechanism (choices:
+  -k, --kem <kem>               key encapsulation mechanism (choices: "x-wing",
                                 "x25519-ml-kem-768", "x25519", "p256", default:
-                                "x25519-ml-kem-768")
+                                "x-wing")
   -a, --aead <aead>             authenticated encryption algorithm (choices:
                                 "chacha20-poly1305", "aes-128-gcm", default:
                                 "chacha20-poly1305")

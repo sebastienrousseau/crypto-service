@@ -49,6 +49,10 @@ detail.
   writes. Decrypt output from earlier versions with
   `createDecryptStream({ key, format: "single-message" })`, and re-encrypt
   it if you can.
+- **HPKE's post-quantum suite** is `"x-wing"` (KEM `0x647A`) and is the
+  default of `/v2/hpke/keygen`, `/v2/hpke/seal` and the CLI. Generate new
+  X-Wing key pairs for recipients; `"x25519-ml-kem-768"` still seals and
+  opens with its existing keys but is deprecated.
 - **License tiers are removed**: every tenant has the same quota, 60
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry
