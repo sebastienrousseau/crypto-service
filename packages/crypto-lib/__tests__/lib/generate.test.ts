@@ -1,4 +1,3 @@
-// import config from '../../src/config/config';
 import { generate } from "../../src/lib/generate";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
