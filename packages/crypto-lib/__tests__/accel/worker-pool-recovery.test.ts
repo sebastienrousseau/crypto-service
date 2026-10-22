@@ -132,21 +132,30 @@ describe("WorkerPool recovery and limits", function () {
   // of a fresh worker (tens of milliseconds, more under load): a task
   // sent to a replacement worker could time out before the worker ran,
   // and its own replacement then started just as slowly. The deadline now
-  // starts when the worker is online. A worker takes over 10 ms to start
-  // but answers within a few once online, so with a 10 ms deadline every
-  // task here failed before.
+  // starts when the worker is online. A worker cannot come online in the
+  // tick that created it, so no deadline may exist straight after the
+  // first execute(); once the worker is online, the next task gets one at
+  // once. (A version of this test that raced a 10 ms deadline against a
+  // worker's start failed under load either way.)
   it("does not count a worker's start-up against the task deadline", async () => {
-    for (let i = 0; i < 5; i++) {
-      const pool = new WorkerPool({
-        size: 1,
-        workerScript: script,
-        taskTimeoutMs: 10,
-      });
-      try {
-        expect(await pool.execute(task("work"))).to.equal("ok");
-      } finally {
-        await pool.shutdown();
-      }
+    const pool = new WorkerPool({
+      size: 1,
+      workerScript: script,
+      taskTimeoutMs: 60000,
+    });
+    const entry = () =>
+      (pool as unknown as { workers: { timer: unknown }[] }).workers[0]!;
+    try {
+      const first = pool.execute(task("work"));
+      expect(entry().timer, "deadline before the worker runs").to.equal(
+        undefined,
+      );
+      expect(await first).to.equal("ok");
+      const second = pool.execute(task("work"));
+      expect(entry().timer, "deadline once online").to.not.equal(undefined);
+      expect(await second).to.equal("ok");
+    } finally {
+      await pool.shutdown();
     }
   });
 
