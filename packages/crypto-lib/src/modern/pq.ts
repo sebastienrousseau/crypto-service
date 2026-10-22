@@ -131,6 +131,8 @@ export interface HybridDecapsulateResult {
 
 /**
  * Generate a hybrid X25519 + ML-KEM-768 key pair.
+ * @deprecated Use `hybridKemKeygen(768)` from the `pq-kem` module; the key
+ *   fields are the same.
  */
 export function hybridGenerateKeyPair(): HybridKeyPair {
   const x25519Priv = randomBytes(32);
@@ -152,6 +154,9 @@ export function hybridGenerateKeyPair(): HybridKeyPair {
  *
  * @param theirX25519Public - Recipient's X25519 public key (hex).
  * @param theirMlKemPublic - Recipient's ML-KEM public key (hex).
+ * @deprecated Uses the unbound pre-0.0.7 combiner, whose secrets do not
+ *   match `hybridKemEncapsulate` (v2), which also binds the ciphertexts
+ *   and public keys. Use `hybridKemEncapsulate(768, ...)`.
  */
 export function hybridEncapsulate(
   theirX25519Public: string,
@@ -199,6 +204,8 @@ export function hybridEncapsulate(
  * @param ourMlKemSecret - Our ML-KEM secret key (hex).
  * @param theirX25519Ephemeral - Sender's ephemeral X25519 public key (hex).
  * @param mlKemCiphertext - ML-KEM ciphertext from the sender (hex).
+ * @deprecated Uses the unbound pre-0.0.7 combiner; use
+ *   `hybridKemDecapsulate(768, ...)`.
  */
 export function hybridDecapsulate(
   ourX25519Private: string,

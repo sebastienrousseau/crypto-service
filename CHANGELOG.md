@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.36 in strict lockstep.
 
+### Changed
+
+- **Hybrid KEM routes use crypto-lib's v2 combiner (breaking)**: `/v2/pq/hybrid/encapsulate` and `/decapsulate` derived shared secrets with the pre-0.0.7 combiner (HKDF over the two shared secrets only), while crypto-lib's `hybridKemEncapsulate`/`hybridKemDecapsulate` and crypto-mcp use v2, which also binds the ciphertexts and public keys; all were labelled `x25519-ml-kem-768`, but their secrets never matched. The routes now use v2, so a client using crypto-lib's current functions gets the same secret as the server, and each response carries `combiner: "crypto-service/hybrid-kem/v2"`. A client still deriving secrets with the old combiner must switch. crypto-lib's `hybridGenerateKeyPair`, `hybridEncapsulate` and `hybridDecapsulate` (the old combiner) are deprecated; the SDK gains `HybridDecapsulateResult` and the `combiner` field.
+
 ### Fixed
 
 - **One principal could exhaust the key store**: server-held keys had one global cap of 10,000 in memory (after which key generation failed with `503` for everyone) and none on disk, and no key could be deleted. Each principal may now hold 1,000 keys by default (`KEY_STORE_MAX_PER_PRINCIPAL`; more answer `429 KEY_QUOTA_EXCEEDED`), `POST /v2/keys/delete` removes one of the caller's keys from memory and disk, and the memory cache evicts the least recently used key instead of the oldest.

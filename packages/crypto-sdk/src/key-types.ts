@@ -230,6 +230,22 @@ export interface HybridEncapsulateResult {
   sharedSecret: string;
   /** Hybrid KEM algorithm identifier. */
   algorithm: string;
+  /**
+   * Combiner the secret was derived with, `"crypto-service/hybrid-kem/v2"`
+   * (crypto-lib's hybridKemEncapsulate). Servers before 0.0.36 omit it
+   * and used the unbound pre-0.0.7 combiner, whose secrets differ.
+   */
+  combiner?: string;
+}
+
+/** Result of `POST /v2/pq/hybrid/decapsulate`. */
+export interface HybridDecapsulateResult {
+  /** Hex-encoded combined shared secret. */
+  sharedSecret: string;
+  /** Hybrid KEM algorithm identifier. */
+  algorithm: string;
+  /** Combiner the secret was derived with; see {@link HybridEncapsulateResult}. */
+  combiner?: string;
 }
 
 /** Result of `POST /v2/pq/dsa/keygen`: a server-held ML-DSA key. */

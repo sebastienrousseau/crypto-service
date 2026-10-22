@@ -79,6 +79,7 @@ import type {
   HybridEncapsulateParams,
   HybridEncapsulateResult,
   HybridDecapsulateParams,
+  HybridDecapsulateResult,
   MlDsaLevel,
   MlDsaKeyPair,
   MlDsaSignResult,
@@ -346,7 +347,7 @@ export class CryptoClient {
   /** Recover a hybrid KEM shared secret with a server-held key. */
   async pqDecapsulate(
     params: HybridDecapsulateParams,
-  ): Promise<ApiResponse<KemDecapsulateResult>> {
+  ): Promise<ApiResponse<HybridDecapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/decapsulate", params);
   }
 

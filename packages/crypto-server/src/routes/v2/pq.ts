@@ -16,9 +16,9 @@ import {
   mlKemGenerateKeyPair,
   mlKemEncapsulate,
   mlKemDecapsulate,
-  hybridGenerateKeyPair,
-  hybridEncapsulate,
-  hybridDecapsulate,
+  hybridKemKeygen,
+  hybridKemEncapsulate,
+  hybridKemDecapsulate,
 } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import {
@@ -133,6 +133,13 @@ function registerMlKemDecapsulate(app: FastifyInstance): void {
   );
 }
 
+/**
+ * The combiner the hybrid routes derive shared secrets with: crypto-lib's
+ * v2 (HKDF over both shared secrets, binding the ciphertexts and public
+ * keys). Secrets from the pre-0.0.7 combiner do not match it.
+ */
+const COMBINER = "crypto-service/hybrid-kem/v2";
+
 /** `POST /v2/pq/hybrid/keygen`: generate and store a hybrid key pair. */
 function registerHybridKeygen(app: FastifyInstance): void {
   app.post(
@@ -147,7 +154,7 @@ function registerHybridKeygen(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const kp = hybridGenerateKeyPair();
+      const kp = hybridKemKeygen(768);
       const stored = await storeKey(
         request,
         kp.algorithm,
@@ -174,7 +181,7 @@ function registerHybridEncapsulate(app: FastifyInstance): void {
         tags: ["Post-Quantum"],
         summary: "Hybrid encapsulate (X25519 + ML-KEM-768)",
         description:
-          "Performs X25519 ECDH + ML-KEM encapsulation, derives a combined shared secret via HKDF-SHA256.",
+          "Performs X25519 ECDH + ML-KEM-768 encapsulation and derives the shared secret with crypto-lib's v2 combiner (HKDF-SHA256 binding both shared secrets, ciphertexts and public keys). The response names the combiner.",
         body: {
           type: "object",
           required: ["x25519PublicKey", "mlKemPublicKey"],
@@ -192,8 +199,12 @@ function registerHybridEncapsulate(app: FastifyInstance): void {
           x25519PublicKey: string;
           mlKemPublicKey: string;
         };
-        const result = hybridEncapsulate(x25519PublicKey, mlKemPublicKey);
-        return reply.send({ data: result });
+        const result = hybridKemEncapsulate(
+          768,
+          x25519PublicKey,
+          mlKemPublicKey,
+        );
+        return reply.send({ data: { ...result, combiner: COMBINER } });
       } catch (error) {
         return classifyCryptoError(
           error,
@@ -241,13 +252,14 @@ function registerHybridDecapsulate(app: FastifyInstance): void {
       const key = await resolveKey(request, body.keyId, ["x25519-ml-kem-768"]);
       try {
         const { x25519PrivateKey, mlKemSecretKey } = key.privateParts;
-        const result = hybridDecapsulate(
+        const result = hybridKemDecapsulate(
+          768,
           x25519PrivateKey,
           mlKemSecretKey,
           body.x25519EphemeralPublic,
           body.mlKemCiphertext,
         );
-        return reply.send({ data: result });
+        return reply.send({ data: { ...result, combiner: COMBINER } });
       } catch (error) {
         return classifyCryptoError(
           error,
