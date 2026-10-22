@@ -222,7 +222,9 @@ export function p256Verify(
   const key = assertHex(publicKeyHex, "publicKey");
   const msg = toBytes(message);
   const sig = assertHex(signatureHex, "signature");
-  const valid = p256.verify(sig, msg, key);
+  // ECDSA accepts any s in [1, n-1] (FIPS 186-5); low-S is a malleability
+  // convention OpenSSL and WebCrypto signers do not follow.
+  const valid = p256.verify(sig, msg, key, { lowS: false });
 
   return { valid, algorithm: "ecdsa-p256" };
 }
@@ -271,7 +273,8 @@ export function p384Verify(
   const key = assertHex(publicKeyHex, "publicKey");
   const msg = toBytes(message);
   const sig = assertHex(signatureHex, "signature");
-  const valid = p384.verify(sig, msg, key);
+  // Any s in [1, n-1], as for P-256 above.
+  const valid = p384.verify(sig, msg, key, { lowS: false });
 
   return { valid, algorithm: "ecdsa-p384" };
 }

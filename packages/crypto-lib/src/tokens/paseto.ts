@@ -498,7 +498,8 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
   // m2 = PAE(header, message, footer, implicit)
   const m2 = pae(header, message, footerBytes, implicitBytes);
 
-  const valid = ed25519.verify(sig, m2, pkBytes);
+  // RFC 8032 decoding, as PASETO v4.public specifies Ed25519.
+  const valid = ed25519.verify(sig, m2, pkBytes, { zip215: false });
   if (!valid) {
     throw new Error("Invalid signature");
   }

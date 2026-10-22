@@ -219,7 +219,9 @@ export function hybridVerify(
   const ed25519Sig = assertHex(sigEd25519Hex, "sigEd25519");
   const mlDsaSig = assertHex(sigMlDsaHex, "sigMlDsa");
 
-  const ed25519Valid = ed25519.verify(ed25519Sig, msg, ed25519Pub);
+  const ed25519Valid = ed25519.verify(ed25519Sig, msg, ed25519Pub, {
+    zip215: false,
+  });
   const mlDsaValid = dsa.verify(mlDsaSig, msg, mlDsaPub);
 
   return {

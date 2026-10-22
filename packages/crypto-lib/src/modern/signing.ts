@@ -90,7 +90,9 @@ export function ed25519Verify(
   const sig =
     typeof signature === "string" ? Buffer.from(signature, "hex") : signature;
 
-  const valid = ed25519.verify(sig, msg, key);
+  // RFC 8032 decoding (as OpenSSL), not ZIP-215, which accepts some
+  // non-canonical encodings of R and the public key.
+  const valid = ed25519.verify(sig, msg, key, { zip215: false });
 
   return { valid, algorithm: "ed25519" };
 }
