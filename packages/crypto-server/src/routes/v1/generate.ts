@@ -33,6 +33,7 @@ import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 /** Fastify JSON Schema for the v1 key-generation endpoint. */
 const generateSchema = {
   tags: ["Key Management"],
+  deprecated: true,
   summary: "Generate a key pair",
   description:
     "Generates an OpenPGP key pair (RSA or ECC). The private key is NOT returned for security.",

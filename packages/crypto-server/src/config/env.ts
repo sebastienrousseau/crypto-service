@@ -50,11 +50,18 @@ export interface Config {
   readonly rateLimitMax: number;
   /** Whether /docs serves the API documentation (`DOCS_ENABLED`). */
   readonly docsEnabled: boolean;
+  /** Whether the deprecated v1 routes are served (`V1_ENABLED`). */
+  readonly v1Enabled: boolean;
 }
 
 /** Whether /docs serves the API documentation: `DOCS_ENABLED`, default on. */
 export function docsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   return flagSetting(env, "DOCS_ENABLED", true);
+}
+
+/** Whether the deprecated v1 routes are served: `V1_ENABLED`, default on. */
+export function v1Enabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return flagSetting(env, "V1_ENABLED", true);
 }
 
 /** Runs a parser, recording its error and returning `fallback` on failure. */
@@ -111,6 +118,7 @@ function checkedSettings(env: NodeJS.ProcessEnv, errors: string[]) {
     ),
     rateLimitMax: attempt(errors, 0, () => resolveRateLimitMax(env)),
     docsEnabled: attempt(errors, true, () => docsEnabled(env)),
+    v1Enabled: attempt(errors, true, () => v1Enabled(env)),
   };
 }
 

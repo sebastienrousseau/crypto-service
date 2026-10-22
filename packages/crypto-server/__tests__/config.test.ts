@@ -183,6 +183,14 @@ describe("DOCS_ENABLED", function () {
     );
   });
 
+  it("V1_ENABLED is on by default and refuses anything but 0 or 1", () => {
+    expect(loadConfig(BASE).v1Enabled).to.equal(true);
+    expect(loadConfig({ ...BASE, V1_ENABLED: "0" }).v1Enabled).to.equal(false);
+    expect(configError({ ...BASE, V1_ENABLED: "off" }).message).to.include(
+      'V1_ENABLED must be "0" or "1", got "off"',
+    );
+  });
+
   it("removes /docs and the OpenAPI document when 0", async () => {
     await withEnv({ DOCS_ENABLED: "0" }, async () => {
       const app = await init({ logger: false });

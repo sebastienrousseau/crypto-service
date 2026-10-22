@@ -24,6 +24,7 @@ import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 /** Fastify JSON Schema for the v1 signature-verification endpoint. */
 const verifySchema = {
   tags: ["Signing"],
+  deprecated: true,
   summary: "Verify a signed message",
   description:
     "Verifies a clear-signed PGP message, or a message and its base64-encoded detached signature, against the supplied verification keys. `verified` is true only when every signature found verifies; input that carries no signature answers 400.",
