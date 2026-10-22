@@ -11,12 +11,10 @@
 // against every key given, returns `verified`, and refuses input that
 // carries no signature.
 import { expect } from "chai";
-import * as fs from "fs";
-import * as path from "path";
 import * as openpgp from "openpgp";
 import { sign } from "../../src/lib/sign";
 import { verify } from "../../src/lib/verify";
-import { _resetKeystoreForTests } from "../../src/key/keystore";
+import { _resetKeystoreForTests, loadKeystore } from "../../src/key/keystore";
 
 const PASSPHRASE = "123456789abcdef";
 const b64 = (armored: string) =>
@@ -36,14 +34,14 @@ describe("verify", function () {
   let signerKey: string;
   let otherKey: string;
 
-  before(async () => {
+  // The verification key comes from the keystore sign() uses, read just
+  // before each test, so the pair always matches.
+  beforeEach(async () => {
     _resetKeystoreForTests();
-    signerKey = fs
-      .readFileSync(
-        path.join(process.env["CRYPTO_KEY_DIR"]!, "rsa.pub"),
-        "utf8",
-      )
-      .trim();
+    signerKey = b64((await loadKeystore()).publicKeyArmored);
+  });
+
+  before(async () => {
     const other = await openpgp.generateKey({
       type: "ecc",
       curve: "ed25519Legacy",
