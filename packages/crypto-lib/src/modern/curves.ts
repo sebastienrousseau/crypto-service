@@ -183,7 +183,7 @@ function toBytes(input: string | Uint8Array): Uint8Array {
 /**
  * Generate a new P-256 key pair.
  */
-export function generateP256KeyPair(): P256KeyPair {
+export function p256Keygen(): P256KeyPair {
   const privateKey = p256.utils.randomSecretKey();
   const publicKey = p256.getPublicKey(privateKey, false); // uncompressed
 
@@ -193,6 +193,9 @@ export function generateP256KeyPair(): P256KeyPair {
     algorithm: "ecdsa-p256",
   };
 }
+
+/** @deprecated Use {@link p256Keygen}. */
+export const generateP256KeyPair = p256Keygen;
 
 /**
  * Sign a message with ECDSA P-256.
@@ -234,7 +237,7 @@ export function p256Verify(
 /**
  * Generate a new P-384 key pair.
  */
-export function generateP384KeyPair(): P384KeyPair {
+export function p384Keygen(): P384KeyPair {
   const privateKey = p384.utils.randomSecretKey();
   const publicKey = p384.getPublicKey(privateKey, false); // uncompressed
 
@@ -244,6 +247,9 @@ export function generateP384KeyPair(): P384KeyPair {
     algorithm: "ecdsa-p384",
   };
 }
+
+/** @deprecated Use {@link p384Keygen}. */
+export const generateP384KeyPair = p384Keygen;
 
 /**
  * Sign a message with ECDSA P-384.
@@ -284,7 +290,7 @@ export function p384Verify(
 /**
  * Generate a new Ed448 key pair.
  */
-export function generateEd448KeyPair(): Ed448KeyPair {
+export function ed448Keygen(): Ed448KeyPair {
   const privateKey = randomBytes(57);
   const publicKey = ed448.getPublicKey(privateKey);
 
@@ -294,6 +300,9 @@ export function generateEd448KeyPair(): Ed448KeyPair {
     algorithm: "ed448",
   };
 }
+
+/** @deprecated Use {@link ed448Keygen}. */
+export const generateEd448KeyPair = ed448Keygen;
 
 /**
  * Sign a message with Ed448.
@@ -333,7 +342,7 @@ export function ed448Verify(
 /**
  * Generate a new X448 key pair for Diffie-Hellman.
  */
-export function generateX448KeyPair(): X448KeyPair {
+export function x448Keygen(): X448KeyPair {
   const privateKey = x448.utils.randomSecretKey();
   const publicKey = x448.getPublicKey(privateKey);
 
@@ -343,6 +352,9 @@ export function generateX448KeyPair(): X448KeyPair {
     algorithm: "x448",
   };
 }
+
+/** @deprecated Use {@link x448Keygen}. */
+export const generateX448KeyPair = x448Keygen;
 
 /**
  * Perform X448 Diffie-Hellman key exchange.
@@ -415,7 +427,7 @@ export function ecdhP384(
 /**
  * Generate a new Schnorr key pair (BIP-340, secp256k1).
  */
-export function generateSchnorrKeyPair(): SchnorrKeyPair {
+export function schnorrKeygen(): SchnorrKeyPair {
   const privateKey = randomBytes(32);
   const publicKey = schnorr.getPublicKey(privateKey);
 
@@ -425,6 +437,9 @@ export function generateSchnorrKeyPair(): SchnorrKeyPair {
     algorithm: "schnorr",
   };
 }
+
+/** @deprecated Use {@link schnorrKeygen}. */
+export const generateSchnorrKeyPair = schnorrKeygen;
 
 /**
  * Sign a message with Schnorr (BIP-340).

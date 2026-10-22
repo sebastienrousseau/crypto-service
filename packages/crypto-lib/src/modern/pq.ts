@@ -4,10 +4,10 @@
  */
 
 /**
- * @remarks Post-Quantum Cryptography — ML-KEM (Kyber) + hybrid key exchange.
- *
- * Implements NIST FIPS 203 ML-KEM-768 for quantum-resistant key encapsulation,
- * and a hybrid scheme combining X25519 (classical) + ML-KEM-768 (post-quantum).
+ * @remarks The pre-0.0.7 X25519 + ML-KEM-768 hybrid key exchange, kept so
+ * existing callers work; new code uses `hybridKemKeygen`,
+ * `hybridKemEncapsulate` and `hybridKemDecapsulate` (pq-kem.ts). ML-KEM
+ * on its own is in pq-kem.ts.
  *
  * The hybrid approach ensures security even if one algorithm is broken:
  * - If quantum computers arrive: X25519 fails but ML-KEM protects
@@ -21,77 +21,6 @@ import { x25519 } from "@noble/curves/ed25519.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
-
-// --- ML-KEM (Kyber) standalone ---
-
-/** ML-KEM-768 key pair (encapsulation + decapsulation keys). */
-export interface MlKemKeyPair {
-  /** Hex-encoded public (encapsulation) key. */
-  publicKey: string;
-  /** Hex-encoded secret (decapsulation) key. */
-  secretKey: string;
-  /** Algorithm identifier. */
-  algorithm: "ml-kem-768";
-}
-
-/** Result of an ML-KEM-768 encapsulation operation. */
-export interface MlKemEncapsulateResult {
-  /** Hex-encoded ciphertext to send to the secret key holder. */
-  ciphertext: string;
-  /** Hex-encoded 32-byte shared secret (only known to encapsulator until decapsulation). */
-  sharedSecret: string;
-  /** Algorithm identifier. */
-  algorithm: "ml-kem-768";
-}
-
-/** Result of an ML-KEM-768 decapsulation operation. */
-export interface MlKemDecapsulateResult {
-  /** Hex-encoded 32-byte shared secret. */
-  sharedSecret: string;
-  /** Algorithm identifier. */
-  algorithm: "ml-kem-768";
-}
-
-/**
- * Generate an ML-KEM-768 key pair.
- */
-export function mlKemGenerateKeyPair(): MlKemKeyPair {
-  const { publicKey, secretKey } = ml_kem768.keygen();
-  return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
-    algorithm: "ml-kem-768",
-  };
-}
-
-/**
- * Encapsulate — generate a shared secret and ciphertext using the recipient's public key.
- */
-export function mlKemEncapsulate(publicKeyHex: string): MlKemEncapsulateResult {
-  const publicKey = Buffer.from(publicKeyHex, "hex");
-  const { cipherText, sharedSecret } = ml_kem768.encapsulate(publicKey);
-  return {
-    ciphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
-    algorithm: "ml-kem-768",
-  };
-}
-
-/**
- * Decapsulate — recover the shared secret using the secret key and ciphertext.
- */
-export function mlKemDecapsulate(
-  secretKeyHex: string,
-  ciphertextHex: string,
-): MlKemDecapsulateResult {
-  const secretKey = Buffer.from(secretKeyHex, "hex");
-  const cipherText = Buffer.from(ciphertextHex, "hex");
-  const sharedSecret = ml_kem768.decapsulate(cipherText, secretKey);
-  return {
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
-    algorithm: "ml-kem-768",
-  };
-}
 
 // --- Hybrid X25519 + ML-KEM-768 ---
 

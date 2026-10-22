@@ -224,7 +224,23 @@ export function mlKemKeygen(level: MlKemLevel): MlKemKeyPairResult {
 export function mlKemEncapsulate(
   level: MlKemLevel,
   publicKeyHex: string,
+): MlKemEncapsulateResult;
+/**
+ * ML-KEM-768 encapsulation without a level.
+ *
+ * @deprecated Pass the level: `mlKemEncapsulate(768, publicKey)`.
+ */
+export function mlKemEncapsulate(publicKeyHex: string): MlKemEncapsulateResult;
+export function mlKemEncapsulate(
+  levelOrKey: MlKemLevel | string,
+  key?: string,
 ): MlKemEncapsulateResult {
+  // A level is a number and a key a string, so the old one-argument
+  // ML-KEM-768 form cannot be mistaken for the new one.
+  const [level, publicKeyHex] =
+    typeof levelOrKey === "string"
+      ? [768 as const, levelOrKey]
+      : [levelOrKey, key as string];
   const kem = getKem(level);
   const publicKey = assertHex(publicKeyHex, "publicKey");
   const { cipherText, sharedSecret } = kem.encapsulate(publicKey);
@@ -242,7 +258,25 @@ export function mlKemDecapsulate(
   level: MlKemLevel,
   secretKeyHex: string,
   ciphertextHex: string,
+): MlKemDecapsulateResult;
+/**
+ * ML-KEM-768 decapsulation without a level.
+ *
+ * @deprecated Pass the level: `mlKemDecapsulate(768, secretKey, ciphertext)`.
+ */
+export function mlKemDecapsulate(
+  secretKeyHex: string,
+  ciphertextHex: string,
+): MlKemDecapsulateResult;
+export function mlKemDecapsulate(
+  levelOrKey: MlKemLevel | string,
+  keyOrCiphertext: string,
+  ciphertext?: string,
 ): MlKemDecapsulateResult {
+  const [level, secretKeyHex, ciphertextHex] =
+    typeof levelOrKey === "string"
+      ? [768 as const, levelOrKey, keyOrCiphertext]
+      : [levelOrKey, keyOrCiphertext, ciphertext as string];
   const kem = getKem(level);
   const secretKey = assertHex(secretKeyHex, "secretKey");
   const cipherText = assertHex(ciphertextHex, "ciphertext");
@@ -252,6 +286,34 @@ export function mlKemDecapsulate(
     algorithm: algorithmName(level),
   };
 }
+
+/**
+ * ML-KEM-768 key generation.
+ *
+ * @deprecated Use `mlKemKeygen(768)`.
+ */
+export const mlKemGenerateKeyPair = (): MlKemKeyPairResult => mlKemKeygen(768);
+
+/** @deprecated Use {@link mlKemEncapsulate}, which takes the level first. */
+export const mlKemEncap = (
+  level: MlKemLevel,
+  publicKeyHex: string,
+): MlKemEncapsulateResult => mlKemEncapsulate(level, publicKeyHex);
+
+/** @deprecated Use {@link mlKemDecapsulate}, which takes the level first. */
+export const mlKemDecap = (
+  level: MlKemLevel,
+  secretKeyHex: string,
+  ciphertextHex: string,
+): MlKemDecapsulateResult =>
+  mlKemDecapsulate(level, secretKeyHex, ciphertextHex);
+
+/** @deprecated Use {@link MlKemKeyPairResult}. */
+export type MlKemKeyPair = MlKemKeyPairResult;
+/** @deprecated Use {@link MlKemEncapsulateResult}. */
+export type MlKemEncapResult = MlKemEncapsulateResult;
+/** @deprecated Use {@link MlKemDecapsulateResult}. */
+export type MlKemDecapResult = MlKemDecapsulateResult;
 
 // --- Hybrid X25519 + ML-KEM ---
 

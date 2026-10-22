@@ -43,7 +43,7 @@ export interface VerifyResult {
 /**
  * Generate a new Ed25519 key pair.
  */
-export function generateEd25519KeyPair(): Ed25519KeyPair {
+export function ed25519Keygen(): Ed25519KeyPair {
   const privateKey = randomBytes(32);
   const publicKey = ed25519.getPublicKey(privateKey);
 
@@ -52,6 +52,9 @@ export function generateEd25519KeyPair(): Ed25519KeyPair {
     publicKey: Buffer.from(publicKey).toString("hex"),
   };
 }
+
+/** @deprecated Use {@link ed25519Keygen}. */
+export const generateEd25519KeyPair = ed25519Keygen;
 
 /**
  * Sign a message with Ed25519.

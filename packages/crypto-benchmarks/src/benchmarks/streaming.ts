@@ -2,7 +2,7 @@
 
 import crypto from "node:crypto";
 import {
-  generateX25519KeyPair,
+  x25519Keygen,
   mlKemKeygen,
   streamEncrypt,
   streamDecrypt,
@@ -37,11 +37,11 @@ function createMultiRecipients(): {
   recipients: MultiPqRecipient[];
   alice: { id: string; xSec: string; mlSec: string };
 } {
-  const aliceX = generateX25519KeyPair();
+  const aliceX = x25519Keygen();
   const aliceMl = mlKemKeygen(768);
-  const bobX = generateX25519KeyPair();
+  const bobX = x25519Keygen();
   const bobMl = mlKemKeygen(768);
-  const charlieX = generateX25519KeyPair();
+  const charlieX = x25519Keygen();
   const charlieMl = mlKemKeygen(768);
 
   const recipients: MultiPqRecipient[] = [
@@ -81,7 +81,7 @@ export function createStreamingOperations(): StreamingOperations {
   const symmetricKey = crypto.randomBytes(32);
   const symEnc = streamEncrypt({ key: symmetricKey, plaintext: payload64k });
 
-  const x25519 = generateX25519KeyPair();
+  const x25519 = x25519Keygen();
   const mlkem = mlKemKeygen(768);
   const pqEnc = streamPqEncrypt({
     recipientX25519Public: x25519.publicKey,

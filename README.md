@@ -118,8 +118,8 @@ import {
   aesGcmDecrypt,
   hash,
   mlKemKeygen,
-  mlKemEncap,
-  mlKemDecap,
+  mlKemEncapsulate,
+  mlKemDecapsulate,
   slhDsaKeygen,
   slhDsaSign,
   slhDsaVerify,
@@ -135,8 +135,8 @@ const { digest } = hash({ algorithm: "sha256", data: "Integrity check" });
 
 // 3. ML-KEM-768 key encapsulation (FIPS 203 algorithm)
 const kem = mlKemKeygen(768);
-const sent = mlKemEncap(768, kem.publicKey);
-const received = mlKemDecap(768, kem.secretKey, sent.ciphertext);
+const sent = mlKemEncapsulate(768, kem.publicKey);
+const received = mlKemDecapsulate(768, kem.secretKey, sent.ciphertext);
 // received.sharedSecret === sent.sharedSecret
 
 // 4. SLH-DSA signatures (FIPS 205 algorithm)

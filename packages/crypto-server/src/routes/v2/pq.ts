@@ -13,7 +13,7 @@
 
 import type { FastifyInstance } from "fastify";
 import {
-  mlKemGenerateKeyPair,
+  mlKemKeygen,
   mlKemEncapsulate,
   mlKemDecapsulate,
   hybridKemKeygen,
@@ -49,7 +49,7 @@ function registerMlKemKeygen(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { publicKey, secretKey, algorithm } = mlKemGenerateKeyPair();
+      const { publicKey, secretKey, algorithm } = mlKemKeygen(768);
       const stored = await storeKey(
         request,
         algorithm,
@@ -84,7 +84,7 @@ function registerMlKemEncapsulate(app: FastifyInstance): void {
     async (request, reply) => {
       try {
         const { publicKey } = request.body as { publicKey: string };
-        const result = mlKemEncapsulate(publicKey);
+        const result = mlKemEncapsulate(768, publicKey);
         return reply.send({ data: result });
       } catch (error) {
         return classifyCryptoError(error, request, reply, "Encapsulation");
@@ -122,6 +122,7 @@ function registerMlKemDecapsulate(app: FastifyInstance): void {
       const key = await resolveKey(request, keyId, ["ml-kem-768"]);
       try {
         const result = mlKemDecapsulate(
+          768,
           key.privateParts["secretKey"],
           ciphertext,
         );

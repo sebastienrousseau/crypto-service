@@ -33,7 +33,7 @@ export interface KeyExchangeResult {
 /**
  * Generate a new X25519 key pair for Diffie-Hellman.
  */
-export function generateX25519KeyPair(): X25519KeyPair {
+export function x25519Keygen(): X25519KeyPair {
   const privateKey = randomBytes(32);
   const publicKey = x25519.getPublicKey(privateKey);
 
@@ -42,6 +42,9 @@ export function generateX25519KeyPair(): X25519KeyPair {
     publicKey: Buffer.from(publicKey).toString("hex"),
   };
 }
+
+/** @deprecated Use {@link x25519Keygen}. */
+export const generateX25519KeyPair = x25519Keygen;
 
 /**
  * Perform X25519 Diffie-Hellman key exchange.

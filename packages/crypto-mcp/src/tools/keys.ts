@@ -2,7 +2,7 @@
 
 import crypto from "node:crypto";
 import {
-  generateX25519KeyPair,
+  x25519Keygen,
   mlDsaKeygen,
   mlKemKeygen,
 } from "@sebastienrousseau/crypto-lib";
@@ -94,7 +94,7 @@ function generateSymmetric(): KeyMaterial {
 }
 
 function generateX25519(): KeyMaterial {
-  const pair = generateX25519KeyPair();
+  const pair = x25519Keygen();
   return {
     kind: "x25519",
     secret: Buffer.from(pair.privateKey, "hex"),

@@ -5,8 +5,8 @@ import {
   MlKemLevel,
   hybridKemDecapsulate,
   hybridKemEncapsulate,
-  mlKemDecap,
-  mlKemEncap,
+  mlKemDecapsulate,
+  mlKemEncapsulate,
   unwrapDekHybrid,
   wrapDekHybrid,
 } from "@sebastienrousseau/crypto-lib";
@@ -40,7 +40,7 @@ function inferLevelFromKey(keyKind: string): MlKemLevel {
 /** `crypto_kem_encapsulate`: encapsulate to an ML-KEM public key (512, 768, 1024). */
 export const kemEncapsulate: ToolHandler = async (args) => {
   const level = resolveKemLevel(args.level, 768);
-  const { ciphertext, sharedSecret, algorithm } = mlKemEncap(
+  const { ciphertext, sharedSecret, algorithm } = mlKemEncapsulate(
     level,
     String(args.publicKey),
   );
@@ -62,7 +62,7 @@ export const kemDecapsulate: ToolHandler = async (args) => {
   ]);
   const defaultLevel = inferLevelFromKey(key.kind);
   const level = resolveKemLevel(args.level, defaultLevel);
-  const { sharedSecret, algorithm } = mlKemDecap(
+  const { sharedSecret, algorithm } = mlKemDecapsulate(
     level,
     (key.secret as Buffer).toString("hex"),
     String(args.ciphertext),

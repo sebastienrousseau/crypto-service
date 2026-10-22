@@ -9,7 +9,7 @@
 
 import { header, task, summary } from "./support";
 import {
-  generateEd25519KeyPair, encodePem, decodePem,
+  ed25519Keygen, encodePem, decodePem,
   ed25519ToJwk, jwkToHex, jwkThumbprint,
   hexToBytes, bytesToHex, bytesToBase64, bytesToBase64url,
 } from "../src";
@@ -17,7 +17,7 @@ import {
 async function main() {
   header("crypto-lib -- serialize");
 
-  const kp = await task("Generate Ed25519 key pair", () => generateEd25519KeyPair());
+  const kp = await task("Generate Ed25519 key pair", () => ed25519Keygen());
 
   await task("PEM encode and decode round-trip", () => {
     const pubBytes = hexToBytes(kp.publicKey);

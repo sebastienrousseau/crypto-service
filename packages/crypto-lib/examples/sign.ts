@@ -8,12 +8,12 @@
  */
 
 import { header, task, summary } from "./support";
-import { generateEd25519KeyPair, ed25519Sign, ed25519Verify } from "../src";
+import { ed25519Keygen, ed25519Sign, ed25519Verify } from "../src";
 
 async function main() {
   header("crypto-lib -- sign");
 
-  const kp = await task("Generate Ed25519 key pair", () => generateEd25519KeyPair());
+  const kp = await task("Generate Ed25519 key pair", () => ed25519Keygen());
 
   const message = "Authenticate this payload.";
 

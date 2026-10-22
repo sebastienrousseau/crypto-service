@@ -26,7 +26,7 @@
 
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
 import {
-  generateEd25519KeyPair,
+  ed25519Keygen,
   ed25519Sign,
   ed25519Verify,
   hexToBytes,
@@ -63,7 +63,7 @@ export interface VersionedKey {
 function newVersion(usage: VersionedKey["usage"], version: number): KeyVersion {
   const createdAt = new Date().toISOString();
   if (usage === "sign") {
-    const kp = generateEd25519KeyPair();
+    const kp = ed25519Keygen();
     return {
       version,
       createdAt,
