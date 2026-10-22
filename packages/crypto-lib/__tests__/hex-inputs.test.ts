@@ -16,6 +16,7 @@ import { ed25519Sign } from "../src/modern/signing";
 import { x25519Exchange } from "../src/modern/ecdh";
 import { aeadEncrypt } from "../src/modern/aead";
 import { CryptoError } from "../src/errors";
+import * as pqxdh from "../src/protocols/pqxdh";
 
 /** The error `fn` throws. */
 function thrown(fn: () => unknown): unknown {
@@ -54,6 +55,15 @@ describe("hex inputs are strict", () => {
 
   it("refuses an odd-length AEAD key", () => {
     refusesHex(() => aeadEncrypt({ key: "a".repeat(63), plaintext: "x" }));
+  });
+
+  it("refuses a missing value from a JavaScript caller as invalid hex", () => {
+    // initiateSession hands each bundle field to the hex check directly.
+    refusesHex(() =>
+      pqxdh.initiateSession({
+        identityKeyPair: pqxdh.generateIdentityKeyPair(),
+      } as unknown as pqxdh.InitiateSessionParams),
+    );
   });
 
   it("refuses non-hex Ed25519 and X25519 keys", () => {

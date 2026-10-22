@@ -17,9 +17,17 @@ import { CryptoError, CryptoErrorCode } from "./errors";
 /** Hex digits only. */
 const HEX_DIGITS = /^[0-9a-fA-F]*$/;
 
-/** Whether `value` is hex: hex digits only, an even number of them. */
-export function isHex(value: string): boolean {
-  return value.length % 2 === 0 && HEX_DIGITS.test(value);
+/**
+ * Whether `value` is hex: a string of hex digits, an even number of them.
+ * Anything else, including a missing value from a JavaScript caller, is
+ * not.
+ */
+export function isHex(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length % 2 === 0 &&
+    HEX_DIGITS.test(value)
+  );
 }
 
 /**
