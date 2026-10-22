@@ -28,6 +28,10 @@ module.exports = {
   // Override spec to exclude fixture files (.key, .pub, .cert) that the
   // default __tests__/** glob picks up and tries to require as JS.
   spec: ["./__tests__/**/*.test.ts"],
+  // Known-answer and cross-implementation suites run without coverage
+  // (.mocharc.vectors.cjs): V8's block counting slows noble's Keccak about
+  // 23 times, which pushed SLH-DSA's SHAKE vectors past the timeout.
+  ignore: ["__tests__/vectors/**"],
   require: ["ts-node/register/transpile-only"],
   timeout: 60000,
 };

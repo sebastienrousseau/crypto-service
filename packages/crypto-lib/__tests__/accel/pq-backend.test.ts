@@ -92,60 +92,9 @@ describe("native post-quantum back end", function () {
     });
   }
 
-  const signers: Array<[string, boolean]> = [
-    ["ml_dsa44", true],
-    ["ml_dsa65", true],
-    ["ml_dsa87", true],
-    ...(
-      [
-        "sha2_128f",
-        "sha2_128s",
-        "sha2_192f",
-        "sha2_192s",
-        "sha2_256f",
-        "sha2_256s",
-        "shake_128f",
-        "shake_128s",
-        "shake_192f",
-        "shake_192s",
-        "shake_256f",
-        "shake_256s",
-      ] as const
-    ).map((v): [string, boolean] => [`slh_dsa_${v}`, v.endsWith("f")]),
-  ];
-
-  for (const [name, nobleSignsFast] of signers) {
-    const n = (noble as unknown as Record<string, typeof noble.ml_dsa44>)[
-      name
-    ]!;
-    const b = (backend as unknown as Record<string, typeof noble.ml_dsa44>)[
-      name
-    ]!;
-
-    describe(name, () => {
-      it("native signatures verify with noble, and fail when changed", () => {
-        const before = backend.nativeFallbacks();
-        const kp = b.keygen();
-        const sig = b.sign(msg, kp.secretKey);
-        expect(n.verify(sig, msg, kp.publicKey)).to.equal(true);
-        expect(b.verify(sig, msg, kp.publicKey)).to.equal(true);
-        expect(backend.nativeFallbacks(), "native calls fell back").to.equal(
-          before,
-        );
-        expect(b.verify(flip(sig, 10), msg, kp.publicKey)).to.equal(false);
-        expect(b.verify(sig, flip(msg), kp.publicKey)).to.equal(false);
-        expect(b.verify(sig.subarray(1), msg, kp.publicKey)).to.equal(false);
-      });
-
-      if (nobleSignsFast) {
-        it("verifies noble signatures natively", () => {
-          const kp = n.keygen();
-          const sig = n.sign(msg, kp.secretKey);
-          expect(b.verify(sig, msg, kp.publicKey)).to.equal(true);
-        });
-      }
-    });
-  }
+  // The per-signer comparisons with noble are in
+  // __tests__/vectors/pq-backend-interop.test.ts: SLH-DSA's SHAKE variants
+  // sign about 23 times slower under coverage, so they run without it.
 
   it("leaves signing with options to noble", () => {
     const kp = noble.ml_dsa44.keygen(new Uint8Array(32).fill(1));
