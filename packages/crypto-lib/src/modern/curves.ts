@@ -379,7 +379,9 @@ export function ecdhP256(
 ): EcdhP256Result {
   const priv = assertHex(privateKeyHex, "privateKey");
   const pub = assertHex(theirPublicKeyHex, "theirPublicKey");
-  const shared = p256.getSharedSecret(priv, pub);
+  // The x-coordinate of the shared point (SEC 1, 3.3.1), as OpenSSL and
+  // WebCrypto return it; noble's default adds a compressed-point prefix.
+  const shared = p256.getSharedSecret(priv, pub).subarray(1);
 
   return {
     sharedSecret: Buffer.from(shared).toString("hex"),
@@ -399,7 +401,8 @@ export function ecdhP384(
 ): EcdhP384Result {
   const priv = assertHex(privateKeyHex, "privateKey");
   const pub = assertHex(theirPublicKeyHex, "theirPublicKey");
-  const shared = p384.getSharedSecret(priv, pub);
+  // The x-coordinate of the shared point, as for P-256 above.
+  const shared = p384.getSharedSecret(priv, pub).subarray(1);
 
   return {
     sharedSecret: Buffer.from(shared).toString("hex"),
