@@ -12,7 +12,10 @@
  * 2. Encrypt the plaintext once with the DEK using secretbox.
  * 3. For each recipient, wrap the DEK using their public key:
  *    - Classical (X25519): ephemeral ECDH + HKDF → AES-KW
- *    - Post-quantum (X25519 + ML-KEM-768): hybrid ephemeral → AES-KW
+ *    - Post-quantum (X25519 + ML-KEM-768): the library's v2 hybrid KEM
+ *      (modern/hybrid-combiner.ts), label `crypto-service/multi-recipient/v2`
+ *      → AES-KW. Keys wrapped before, with a KEK that bound only the
+ *      ephemeral key, still unwrap.
  *
  * Output: the single ciphertext + per-recipient wrapped DEKs.
  */
@@ -20,8 +23,11 @@
 import { randomBytes } from "@noble/ciphers/utils.js";
 import * as secretbox from "./secretbox";
 import { x25519AesKwWrap, x25519AesKwUnwrap } from "./key-wrap";
-import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "../accel/pq-backend";
+import {
+  hybridReceiveKeys,
+  hybridSend,
+  openWithFirstKey,
+} from "../modern/hybrid-combiner";
 import { aeskw } from "@noble/ciphers/aes.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
@@ -164,26 +170,12 @@ export function wrapDekHybrid(
   const x25519Pub = hexToBytes(x25519PublicKey);
   const mlKemPub = hexToBytes(mlKemPublicKey);
 
-  // Ephemeral X25519
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
-
-  // ML-KEM encapsulation
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(mlKemPub);
-
-  // Combine via HKDF
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-  const kek = hkdf(
-    sha256,
-    combined,
+  // The library's v2 hybrid KEM, with the envelope's own label.
+  const {
     ephPub,
-    new TextEncoder().encode("multi-recipient-pq-v1"),
-    32,
-  );
+    mlKemCt,
+    key: kek,
+  } = hybridSend(x25519Pub, mlKemPub, "multi-recipient");
 
   // AES-KW wrap the DEK
   const cipher = aeskw(kek);
@@ -224,26 +216,25 @@ export function unwrapDekHybrid(
   const ephPub = hexToBytes(ephemeralPublicKey);
   const mlKemCt = hexToBytes(mlKemCiphertext);
 
-  // Recover shared secrets
-  const x25519Shared = x25519.getSharedSecret(x25519Sec, ephPub);
-  const mlKemShared = ml_kem768.decapsulate(mlKemCt, mlKemSec);
-
-  // Derive KEK
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-  const kek = hkdf(
-    sha256,
-    combined,
+  // The v2 KEK, then the KEK keys wrapped before it used. AES-KW checks
+  // its own integrity, so the wrong KEK fails to unwrap.
+  const keks = hybridReceiveKeys(
+    x25519Sec,
+    mlKemSec,
     ephPub,
-    new TextEncoder().encode("multi-recipient-pq-v1"),
-    32,
+    mlKemCt,
+    "multi-recipient",
+    (x25519Shared, mlKemShared) =>
+      hkdf(
+        sha256,
+        Buffer.concat([x25519Shared, mlKemShared]),
+        ephPub,
+        new TextEncoder().encode("multi-recipient-pq-v1"),
+        32,
+      ),
   );
-
-  // Unwrap DEK
   const wrapped = Buffer.from(wrappedKey, "base64");
-  const cipher = aeskw(kek);
-  return cipher.decrypt(wrapped);
+  return openWithFirstKey(keks, (kek) => aeskw(kek).decrypt(wrapped));
 }
 
 /**

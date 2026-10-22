@@ -6,6 +6,11 @@
 /**
  * @remarks Multi-recipient post-quantum hybrid streaming AEAD (X25519 + ML-KEM-768 + XChaCha20-Poly1305).
  *
+ * Each slot's KEK is the library's v2 hybrid KEM secret (see
+ * modern/hybrid-combiner.ts) with the label
+ * `crypto-service/multi-pq-stream/v2`; slots written before, whose KEK bound
+ * only the ephemeral key, still open.
+ *
  * Implements envelope-wrapped chunk-based authenticated encryption for multiple recipients:
  * - Content Encryption Key (CEK): Random 32-byte 256-bit symmetric key per stream.
  * - Per-recipient slot: Ephemeral X25519 (32 B) + ML-KEM-768 (1088 B) encapsulation deriving
@@ -14,8 +19,11 @@
  * - Anti-truncation: The final chunk is tagged with 0x01.
  */
 
-import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "../accel/pq-backend";
+import {
+  hybridReceiveKeys,
+  hybridSend,
+  openWithFirstKey,
+} from "../modern/hybrid-combiner";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
@@ -157,25 +165,15 @@ function createSlot(
   r: MultiPqRecipient,
 ): Uint8Array {
   const { idBytes, x25519Pub, mlKemPub } = validateRecipient(r);
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(mlKemPub);
-
-  const combined = new Uint8Array(64);
-  combined.set(x25519Shared, 0);
-  combined.set(mlKemShared, 32);
-
-  const kek = hkdf(sha256, combined, ephPub, KEK_INFO, 32);
+  // The library's v2 hybrid KEM, with the stream's own label.
+  const {
+    ephPub,
+    mlKemCt,
+    key: kek,
+  } = hybridSend(x25519Pub, mlKemPub, "multi-pq-stream");
   const slotNonce = randomBytes(NONCE_LEN);
   const aad = buildSlotAad(idBytes, slotIndex);
   const wrappedCek = xchacha20poly1305(kek, slotNonce, aad).encrypt(cek);
-
-  wipeMemory(ephPriv);
-  wipeMemory(x25519Shared);
-  wipeMemory(mlKemShared);
-  wipeMemory(combined);
   wipeMemory(kek);
 
   return serializeSlot(idBytes, ephPub, mlKemCt, slotNonce, wrappedCek);
@@ -383,30 +381,46 @@ function parseSlots(
   return { slots, headerEndOffset: offset };
 }
 
-/** Attempts to unwrap CEK from a parsed slot using recipient secret keys. */
+/**
+ * The KEK of a slot written before the v2 hybrid KEM: HKDF over the two
+ * shared secrets, bound only to the ephemeral key.
+ */
+function legacyKek(
+  x25519Shared: Uint8Array,
+  mlKemShared: Uint8Array,
+  ephPub: Uint8Array,
+): Uint8Array {
+  const combined = Buffer.concat([x25519Shared, mlKemShared]);
+  const kek = hkdf(sha256, combined, ephPub, KEK_INFO, 32);
+  wipeMemory(combined);
+  return kek;
+}
+
+/**
+ * Unwraps the CEK from a parsed slot with the recipient's secret keys,
+ * trying the v2 KEK, then the KEK of slots written before; null when the
+ * slot is not the recipient's.
+ */
 function tryUnwrapSlot(
   slot: ParsedSlot,
   recipX25519Sec: Uint8Array,
   recipMlKemSec: Uint8Array,
 ): Uint8Array | null {
   try {
-    const mlKemShared = ml_kem768.decapsulate(slot.mlKemCt, recipMlKemSec);
-    const x25519Shared = x25519.getSharedSecret(recipX25519Sec, slot.ephPub);
-    const combined = new Uint8Array(64);
-    combined.set(x25519Shared, 0);
-    combined.set(mlKemShared, 32);
-
-    const kek = hkdf(sha256, combined, slot.ephPub, KEK_INFO, 32);
-    const aad = buildSlotAad(slot.recipientIdBytes, slot.slotIndex);
-    const cek = xchacha20poly1305(kek, slot.slotNonce, aad).decrypt(
-      slot.wrappedCek,
+    const keks = hybridReceiveKeys(
+      recipX25519Sec,
+      recipMlKemSec,
+      slot.ephPub,
+      slot.mlKemCt,
+      "multi-pq-stream",
+      (x25519Shared, mlKemShared) =>
+        legacyKek(x25519Shared, mlKemShared, slot.ephPub),
     );
-
-    wipeMemory(x25519Shared);
-    wipeMemory(mlKemShared);
-    wipeMemory(combined);
-    wipeMemory(kek);
-
+    const aad = buildSlotAad(slot.recipientIdBytes, slot.slotIndex);
+    const cek = openWithFirstKey(keks, (kek) =>
+      xchacha20poly1305(kek, slot.slotNonce, aad).decrypt(slot.wrappedCek),
+    );
+    keks.forEach(wipeMemory);
     return cek;
   } catch {
     return null;

@@ -35,11 +35,10 @@
  */
 
 import { ml_kem512, ml_kem768, ml_kem1024 } from "../accel/pq-backend";
+import { combineHybrid } from "./hybrid-combiner";
 import { x25519 } from "@noble/curves/ed25519.js";
 import { x448 } from "@noble/curves/ed448.js";
 import { p256 } from "@noble/curves/nist.js";
-import { hkdf } from "@noble/hashes/hkdf.js";
-import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 
 // --- Types ---
@@ -192,48 +191,6 @@ function getKem(level: MlKemLevel) {
 /** Build the ML-KEM algorithm identifier string from a security level. */
 function algorithmName(level: MlKemLevel): MlKemAlgorithm {
   return `ml-kem-${level}` as MlKemAlgorithm;
-}
-
-/** Transcript of one hybrid encapsulation, fed to {@link combineHybrid}. */
-interface HybridTranscript {
-  /** Algorithm identifier, used in the domain-separation label. */
-  algorithm: HybridKemAlgorithm;
-  /** Classical (ECDH) shared secret. */
-  ssClassical: Uint8Array;
-  /** ML-KEM shared secret. */
-  ssMlKem: Uint8Array;
-  /** Sender's ephemeral classical public key (the classical "ciphertext"). */
-  ctClassical: Uint8Array;
-  /** Recipient's classical public key. */
-  pkClassical: Uint8Array;
-  /** ML-KEM ciphertext. */
-  ctMlKem: Uint8Array;
-  /** Recipient's ML-KEM public key. */
-  pkMlKem: Uint8Array;
-}
-
-/** 4-byte big-endian length prefix followed by the bytes. */
-function lengthPrefixed(bytes: Uint8Array): Uint8Array {
-  const out = new Uint8Array(4 + bytes.length);
-  new DataView(out.buffer).setUint32(0, bytes.length, false);
-  out.set(bytes, 4);
-  return out;
-}
-
-/**
- * v2 combiner: HKDF-SHA256 over both shared secrets, with a domain label,
- * both ciphertexts and both recipient public keys bound in `info`.
- */
-function combineHybrid(t: HybridTranscript): Uint8Array {
-  const ikm = Buffer.concat([t.ssClassical, t.ssMlKem]);
-  const info = Buffer.concat([
-    lengthPrefixed(Buffer.from(`crypto-service/hybrid-kem/v2/${t.algorithm}`)),
-    lengthPrefixed(t.ctClassical),
-    lengthPrefixed(t.pkClassical),
-    lengthPrefixed(t.ctMlKem),
-    lengthPrefixed(t.pkMlKem),
-  ]);
-  return hkdf(sha256, ikm, undefined, info, 32);
 }
 
 /** Hex-encode bytes. */

@@ -153,13 +153,18 @@ const TRUNCATED: TruncationMessages = {
  * is opened as soon as all of it is in; the FINAL chunk runs to the end of
  * the stream, so {@link ChunkDecryptor.finish} opens it. At most one chunk
  * is held at a time: a FINAL chunk longer than a chunk is refused.
+ *
+ * Given several keys, newest first, it opens the first chunk with each in
+ * turn and keeps the first that authenticates, so a stream written under
+ * an earlier key derivation still opens.
  */
 export class ChunkDecryptor {
   private readonly queue = new ByteQueue();
   private counter = 0;
+  private key: Uint8Array | undefined;
 
   constructor(
-    private readonly key: Uint8Array,
+    private readonly keys: Uint8Array | readonly Uint8Array[],
     private readonly baseNonce: Uint8Array,
     private readonly chunkSize: number,
     private readonly chunkNonce: ChunkNonce,
@@ -202,7 +207,21 @@ export class ChunkDecryptor {
   /** Opens a tag byte followed by a chunk's ciphertext. */
   private open(chunk: Uint8Array): Uint8Array {
     const nonce = this.chunkNonce(this.baseNonce, this.counter++, chunk[0]!);
-    return xchacha20poly1305(this.key, nonce).decrypt(chunk.subarray(1));
+    const body = chunk.subarray(1);
+    if (this.key) return xchacha20poly1305(this.key, nonce).decrypt(body);
+    const candidates =
+      this.keys instanceof Uint8Array ? [this.keys] : this.keys;
+    let firstError: unknown;
+    for (const key of candidates) {
+      try {
+        const plaintext = xchacha20poly1305(key, nonce).decrypt(body);
+        this.key = key;
+        return plaintext;
+      } catch (e) {
+        firstError ??= e;
+      }
+    }
+    throw firstError;
   }
 }
 

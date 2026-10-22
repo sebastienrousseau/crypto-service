@@ -17,7 +17,11 @@
  */
 
 import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "../accel/pq-backend";
+import {
+  hybridReceiveKeys,
+  hybridSend,
+  openWithFirstKey,
+} from "../modern/hybrid-combiner";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
@@ -155,9 +159,11 @@ export function open(
 /**
  * Encrypt `plaintext` to a recipient using both X25519 and ML-KEM-768.
  *
- * The sender generates an ephemeral X25519 key pair and an ephemeral
- * ML-KEM-768 encapsulation. Both shared secrets are combined via
- * HKDF-SHA256 to derive the encryption key.
+ * The sender encapsulates to both keys with the library's v2 hybrid KEM
+ * (see modern/hybrid-combiner.ts), which binds both ciphertexts and both
+ * public keys, and derives the encryption key from its secret with the
+ * label `crypto-service/sealed-box/v2`. {@link openPQ} also opens boxes
+ * sealed before, whose key bound only the ephemeral key.
  *
  * Output format:
  *   ephemeral_x25519_pub (32 B) || ml_kem_ciphertext (1088 B) ||
@@ -181,27 +187,12 @@ export function sealPQ(
       ? hexToBytes(recipientMlKemPublic)
       : recipientMlKemPublic;
 
-  // Ephemeral X25519
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
-
-  // ML-KEM-768 encapsulation
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(mlKemPub);
-
-  // Combine both shared secrets
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const encKey = hkdf(
-    sha256,
-    combined,
+  // The library's v2 hybrid KEM, with the sealed box's own label.
+  const {
     ephPub,
-    new TextEncoder().encode("pq-sealedbox-v1"),
-    32,
-  );
+    mlKemCt,
+    key: encKey,
+  } = hybridSend(x25519Pub, mlKemPub, "sealed-box");
 
   // Encrypt
   const nonce = randomBytes(NONCE_LEN);
@@ -269,23 +260,23 @@ export function openPQ(
   );
   const ct = raw.subarray(EPHEMERAL_LEN + ML_KEM_768_CT_LEN + NONCE_LEN);
 
-  // Recover shared secrets
-  const x25519Shared = x25519.getSharedSecret(x25519Sec, ephPub);
-  const mlKemShared = ml_kem768.decapsulate(mlKemCt, mlKemSec);
-
-  // Combine and derive key
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const encKey = hkdf(
-    sha256,
-    combined,
+  // The v2 key, then the key boxes sealed before it used.
+  const keys = hybridReceiveKeys(
+    x25519Sec,
+    mlKemSec,
     ephPub,
-    new TextEncoder().encode("pq-sealedbox-v1"),
-    32,
+    mlKemCt,
+    "sealed-box",
+    (x25519Shared, mlKemShared) =>
+      hkdf(
+        sha256,
+        Buffer.concat([x25519Shared, mlKemShared]),
+        ephPub,
+        new TextEncoder().encode("pq-sealedbox-v1"),
+        32,
+      ),
   );
-
-  const cipher = xchacha20poly1305(encKey, nonce);
-  return cipher.decrypt(ct);
+  return openWithFirstKey(keys, (key) =>
+    xchacha20poly1305(key, nonce).decrypt(ct),
+  );
 }

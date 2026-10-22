@@ -9,13 +9,15 @@
  * Implements chunk-based authenticated encryption for large data streams using
  * hybrid post-quantum key encapsulation:
  * - Header: ephemeral X25519 public key (32 B) || ML-KEM-768 ciphertext (1088 B) || base nonce (24 B)
- * - Derived symmetric key: HKDF-SHA256(combined_shared_secret, salt = ephPub, info = "pq-stream-aead-v1")
+ * - Derived symmetric key: the library's v2 hybrid KEM secret (modern/hybrid-combiner.ts),
+ *   HKDF-SHA256 with info "crypto-service/pq-stream/v2". Streams written before
+ *   used HKDF-SHA256(combined_shared_secret, salt = ephPub, info = "pq-stream-aead-v1");
+ *   they still decrypt.
  * - Chunks: STREAM construction using XChaCha20-Poly1305 with per-chunk derived nonces.
  * - Anti-truncation: The final chunk is tagged with 0x01.
  */
 
-import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "../accel/pq-backend";
+import { hybridReceiveKeys, hybridSend } from "../modern/hybrid-combiner";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
@@ -109,7 +111,10 @@ export interface StreamPqDecryptOptions {
   chunkSize?: number | undefined;
 }
 
-/** Derives symmetric encryption key from combined X25519 and ML-KEM shared secrets. */
+/**
+ * The key streams written before the v2 hybrid KEM used: HKDF over the
+ * two shared secrets, bound only to the ephemeral key.
+ */
 function deriveSharedKey(
   x25519Shared: Uint8Array,
   mlKemShared: Uint8Array,
@@ -127,34 +132,6 @@ function deriveSharedKey(
   );
 }
 
-/** Encapsulates post-quantum hybrid key material for encryption. */
-function encapsulateKeyMaterial(
-  recipX25519Pub: Uint8Array,
-  recipMlKemPub: Uint8Array,
-): { ephPub: Uint8Array; mlKemCt: Uint8Array; key: Uint8Array } {
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, recipX25519Pub);
-
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(recipMlKemPub);
-
-  const key = deriveSharedKey(x25519Shared, mlKemShared, ephPub);
-  return { ephPub, mlKemCt, key };
-}
-
-/** Decapsulates post-quantum hybrid key material for decryption. */
-function decapsulateKeyMaterial(
-  recipX25519Sec: Uint8Array,
-  recipMlKemSec: Uint8Array,
-  ephPub: Uint8Array,
-  mlKemCt: Uint8Array,
-): Uint8Array {
-  const mlKemShared = ml_kem768.decapsulate(mlKemCt, recipMlKemSec);
-  const x25519Shared = x25519.getSharedSecret(recipX25519Sec, ephPub);
-  return deriveSharedKey(x25519Shared, mlKemShared, ephPub);
-}
-
 /**
  * Starts a stream to a recipient: its header (ephemeral X25519 key,
  * ML-KEM-768 ciphertext, base nonce) and the encryptor for its chunks.
@@ -164,9 +141,10 @@ export function pqStreamSender(
   recipMlKemPub: Uint8Array,
   chunkSize: number,
 ): { header: Uint8Array; encryptor: ChunkEncryptor } {
-  const { ephPub, mlKemCt, key } = encapsulateKeyMaterial(
+  const { ephPub, mlKemCt, key } = hybridSend(
     recipX25519Pub,
     recipMlKemPub,
+    "pq-stream",
   );
   const baseNonce = randomBytes(NONCE_LEN);
   const header = new Uint8Array(PQ_STREAM_HEADER_LEN);
@@ -198,13 +176,17 @@ export function pqStreamReceiver(
     EPHEMERAL_LEN + ML_KEM_CT_LEN,
     PQ_STREAM_HEADER_LEN,
   );
-  const key = decapsulateKeyMaterial(
+  // The v2 key, then the key streams written before it used.
+  const keys = hybridReceiveKeys(
     recipX25519Sec,
     recipMlKemSec,
     ephPub,
     mlKemCt,
+    "pq-stream",
+    (x25519Shared, mlKemShared) =>
+      deriveSharedKey(x25519Shared, mlKemShared, ephPub),
   );
-  return new ChunkDecryptor(key, baseNonce, chunkSize, derivePqChunkNonce);
+  return new ChunkDecryptor(keys, baseNonce, chunkSize, derivePqChunkNonce);
 }
 
 /**
