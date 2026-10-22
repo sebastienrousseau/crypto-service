@@ -18,7 +18,12 @@ import {
 export interface UseKeypairResult {
   /** Hex-encoded public key, or null before generation. */
   publicKey: string | null;
-  /** Hex-encoded private key, or null before generation. */
+  /**
+   * Hex-encoded private key, or null before generation and after
+   * {@link UseKeypairResult.clear}. It is ordinary component state: any
+   * script on the page and React DevTools can read it, and JavaScript
+   * cannot wipe the string. Keep long-lived keys on a server.
+   */
   privateKey: string | null;
   /** Algorithm used for the last generated pair. */
   algorithm: string | null;
@@ -26,6 +31,8 @@ export interface UseKeypairResult {
   generate: (algorithm?: KeyAlgorithm) => void;
   /** True while a key pair is being generated. */
   isGenerating: boolean;
+  /** Drop the key pair from state once it is no longer needed. */
+  clear: () => void;
 }
 
 /**
@@ -64,5 +71,11 @@ export function useKeypair(
     [defaultAlgorithm],
   );
 
-  return { publicKey, privateKey, algorithm, generate, isGenerating };
+  const clear = useCallback(() => {
+    setPublicKey(null);
+    setPrivateKey(null);
+    setAlgorithm(null);
+  }, []);
+
+  return { publicKey, privateKey, algorithm, generate, isGenerating, clear };
 }

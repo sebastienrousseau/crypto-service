@@ -304,6 +304,20 @@ describe("@sebastienrousseau/crypto-react", () => {
       expect(updated.isGenerating).to.be.false;
     });
 
+    // The private key lived in React state until unmount, with no way to
+    // drop it; clear() resets the hook.
+    it("clear() drops the key pair from state", () => {
+      resetHookState();
+      useKeypair().generate();
+      stateIdx = 0;
+      useKeypair().clear();
+      stateIdx = 0;
+      const cleared = useKeypair();
+      expect(cleared.privateKey).to.be.null;
+      expect(cleared.publicKey).to.be.null;
+      expect(cleared.algorithm).to.be.null;
+    });
+
     it("should generate ed448 key pair", () => {
       resetHookState();
       const result = useKeypair("ed448");

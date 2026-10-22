@@ -158,21 +158,26 @@ Wrap your component tree with `<CryptoProvider>` to supply shared
 configuration to all hooks.
 
 ```tsx
-<CryptoProvider
-  defaultKey="a1b2c3d4...64-hex-chars"
-  serverUrl="https://crypto.example.com"
-  apiKey="my-api-key"
->
+<CryptoProvider defaultKey={keyTheUserUnlocked}>
   <App />
 </CryptoProvider>
 ```
 
-| Prop         | Type        | Description                              |
-| :----------- | :---------- | :--------------------------------------- |
-| `defaultKey` | `string`    | Hex-encoded 256-bit key for `useEncrypt` |
-| `serverUrl`  | `string`    | Server URL for SDK-backed operations     |
-| `apiKey`     | `string`    | API key for server authentication        |
-| `children`   | `ReactNode` | Child components                         |
+| Prop         | Type        | Description                                                         |
+| :----------- | :---------- | :------------------------------------------------------------------ |
+| `defaultKey` | `string`    | Hex-encoded 256-bit key for `useEncrypt`                            |
+| `serverUrl`  | `string`    | Deprecated: no hook reads it                                        |
+| `apiKey`     | `string`    | Deprecated: no hook reads it, and an API key in a browser is public |
+| `children`   | `ReactNode` | Child components                                                    |
+
+Everything these hooks hold runs in the browser. A key written into your
+bundle, such as a literal `defaultKey`, is public; pass keys the user
+supplies or unlocks at runtime. Keys in hook state, such as
+`useKeypair`'s `privateKey`, can be read by any script on the page and by
+React DevTools, and JavaScript cannot wipe them: call `clear()` when you
+are done, and keep long-lived keys on a server (for example
+crypto-server's `/v2/keys/generate`, which never returns the private key
+unless asked).
 
 Access the context from any child via `useCryptoContext()`.
 
@@ -180,12 +185,12 @@ Access the context from any child via `useCryptoContext()`.
 
 ## Hooks Reference
 
-| Hook           | Purpose                              | Returns                                                        |
-| :------------- | :----------------------------------- | :------------------------------------------------------------- |
-| `useKeypair`   | Key pair generation (all algorithms) | `{ publicKey, privateKey, algorithm, generate, isGenerating }` |
-| `useEncrypt`   | Symmetric encryption (secretbox)     | `{ encrypt, decrypt, ciphertext, plaintext, isProcessing }`    |
-| `useHash`      | Cryptographic hashing                | `{ hash, digest, isHashing }`                                  |
-| `useSignature` | Digital signatures (sign + verify)   | `{ sign, verify, signature, isValid, isProcessing }`           |
+| Hook           | Purpose                              | Returns                                                               |
+| :------------- | :----------------------------------- | :-------------------------------------------------------------------- |
+| `useKeypair`   | Key pair generation (all algorithms) | `{ publicKey, privateKey, algorithm, generate, isGenerating, clear }` |
+| `useEncrypt`   | Symmetric encryption (secretbox)     | `{ encrypt, decrypt, ciphertext, plaintext, isProcessing }`           |
+| `useHash`      | Cryptographic hashing                | `{ hash, digest, isHashing }`                                         |
+| `useSignature` | Digital signatures (sign + verify)   | `{ sign, verify, signature, isValid, isProcessing }`                  |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

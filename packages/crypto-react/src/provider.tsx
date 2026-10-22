@@ -14,9 +14,19 @@ import { createContext, useContext, useMemo, type ReactNode } from "react";
 export interface CryptoContextValue {
   /** Hex-encoded default encryption key. */
   defaultKey?: string;
-  /** Server URL for SDK-backed operations. */
+  /**
+   * Server URL for SDK-backed operations.
+   *
+   * @deprecated No hook reads it; it will be removed.
+   */
   serverUrl?: string;
-  /** API key for server authentication. */
+  /**
+   * API key for server authentication.
+   *
+   * @deprecated No hook reads it, and an API key in a browser bundle is
+   * public: authenticate users to your own backend instead. It will be
+   * removed.
+   */
   apiKey?: string;
 }
 
