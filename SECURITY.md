@@ -82,21 +82,24 @@ with you and credit reporters (unless anonymity is preferred).
 - **Hashing:** SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b, BLAKE3
 - **Key derivation:** Argon2id/i/d, scrypt, HKDF-SHA256, PBKDF2-SHA256
   (deprecated)
-- **Signatures:** Ed25519, Ed448, ECDSA-P256, ECDSA-P384, Schnorr (BIP-340)
+- **Signatures:** Ed25519, Ed448, ECDSA-P256, ECDSA-P384, Schnorr (BIP-340),
+  Composite ML-DSA-44/65 with Ed25519 (hybrid)
 - **Key exchange:** X25519, X448, ECDH-P256, ECDH-P384
 - **MAC:** HMAC-SHA256/384/512, HMAC-SHA3-256/512, KMAC128/256
 - **Post-quantum:** ML-KEM-512/768/1024 (FIPS 203), ML-DSA-44/65/87 (FIPS 204),
   SLH-DSA (FIPS 205), FN-DSA-512/1024 (FIPS 206)
 - **Hybrid KEM:** X25519 with ML-KEM-512, -768 or -1024, P-256+ML-KEM-768,
   X448+ML-KEM-1024
-- **HPKE:** RFC 9180 Base and PSK modes, single-shot, with DHKEM(X25519)
-  or DHKEM(P-256), each with ChaCha20Poly1305 or AES-128-GCM
+- **HPKE:** RFC 9180 Base and PSK modes, single-shot, with DHKEM(X25519),
+  DHKEM(P-256) or X-Wing (X25519 + ML-KEM-768, KEM `0x647A`), each with
+  ChaCha20Poly1305 or AES-128-GCM
 - **High-level:** Secretbox, Sealed Box, password encryption, key wrapping
   (AES-KW/KWP), multi-recipient encryption
 - **Protocols:** PQXDH, Double Ratchet, PAKE (RFC 9807 OPAQUE-3DH), Threshold/Shamir+Feldman VSS
 
 `GET /v2/algorithms` lists each algorithm with its status (recommended,
-acceptable or deprecated).
+acceptable or deprecated). [docs/ALGORITHMS.md](docs/ALGORITHMS.md) says
+which to use for each job.
 
 ### Deprecated (v1 API)
 

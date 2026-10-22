@@ -391,6 +391,7 @@ Cryptographic operations use `@noble/hashes`, `@noble/curves`, `@noble/ciphers`,
 - [API reference (TypeDoc)](https://sebastienrousseau.github.io/crypto-service/)
 - [Developer guide](DEVELOPMENT.md)
 - [Architecture](ARCHITECTURE.md)
+- [Choosing an algorithm](docs/ALGORITHMS.md)
 - [Ecosystem comparison](docs/COMPARISON.md)
 - [Benchmarks](docs/BENCHMARKS.md)
 - [Migration guide](MIGRATION.md)
