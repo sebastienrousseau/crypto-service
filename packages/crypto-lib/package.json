@@ -42,6 +42,9 @@
       "accel": [
         "./dist/accel/index.d.ts"
       ],
+      "testing": [
+        "./dist/testing/index.d.ts"
+      ],
       "pgp": [
         "./dist/bin/cryptolib.d.ts"
       ]
