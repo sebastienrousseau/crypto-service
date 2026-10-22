@@ -9,11 +9,13 @@
 // each fixture keeps the first few test cases of every group crypto-lib
 // can run: the pure "external" signature interface, deterministic
 // signing, and every ML-KEM function. Run it to refresh the fixtures
-// after moving COMMIT; the output is deterministic.
+// after moving COMMIT; the output is deterministic and formatted with
+// the repository's Prettier settings.
 //
 //   node scripts/acvp-vectors.mjs
 
 import { mkdirSync, writeFileSync } from "node:fs";
+import prettier from "prettier";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -102,7 +104,15 @@ for (const set of SETS) {
     testGroups,
   };
   const file = join(OUT, `${set.name}.json`);
-  writeFileSync(file, `${JSON.stringify(fixture)}\n`);
+  // Formatted as the repository formats JSON, so a regenerated fixture
+  // matches the committed one byte for byte.
+  const json = await prettier.format(JSON.stringify(fixture), {
+    ...(await prettier.resolveConfig(file)),
+    filepath: file,
+  });
+  writeFileSync(file, json);
   const cases = testGroups.reduce((n, g) => n + g.tests.length, 0);
-  console.log(`acvp-vectors: ${set.name}: ${testGroups.length} groups, ${cases} cases`);
+  console.log(
+    `acvp-vectors: ${set.name}: ${testGroups.length} groups, ${cases} cases`,
+  );
 }
