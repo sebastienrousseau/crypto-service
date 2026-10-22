@@ -32,6 +32,7 @@ import {
   slh_dsa_shake_256s,
 } from "../accel/pq-backend";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -78,12 +79,9 @@ export interface SlhDsaVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
-  if (!HEX_RE.test(input)) {
+  if (!isHex(input)) {
     throw new CryptoError(
       `Invalid hex string for ${label}`,
       CryptoErrorCode.INVALID_HEX,

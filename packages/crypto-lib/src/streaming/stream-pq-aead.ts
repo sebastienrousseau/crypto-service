@@ -29,6 +29,7 @@ import {
   decryptChunks,
 } from "./chunks";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // The chunk tags and Poly1305 tag length are shared with the other
 // streams; re-exported for existing importers of this module.
@@ -45,8 +46,6 @@ export const PQ_STREAM_HEADER_LEN = EPHEMERAL_LEN + ML_KEM_CT_LEN + NONCE_LEN;
 /** Default chunk size for streaming encryption (64 KiB). */
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Helper to parse hex or Uint8Array bytes and validate length. */
 export function toBytes(
   data: string | Uint8Array,
@@ -55,7 +54,7 @@ export function toBytes(
 ): Uint8Array {
   let buf: Uint8Array;
   if (typeof data === "string") {
-    if (!HEX_RE.test(data))
+    if (!isHex(data))
       throw new CryptoError(
         `Invalid hex string for ${name}`,
         CryptoErrorCode.INVALID_HEX,

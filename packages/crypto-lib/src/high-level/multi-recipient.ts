@@ -32,13 +32,11 @@ import { aeskw } from "@noble/ciphers/aes.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
+import { isHex } from "../encoding";
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex))
+  if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }

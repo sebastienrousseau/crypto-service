@@ -25,6 +25,7 @@ import { blake3 } from "@noble/hashes/blake3.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -189,15 +190,13 @@ export function _resetWasmDetection(): void {
 
 // --- Helpers ---
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input))
+    if (!isHex(input))
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     return Buffer.from(input, "hex");
   }

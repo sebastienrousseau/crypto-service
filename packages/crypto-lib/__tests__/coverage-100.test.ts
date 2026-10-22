@@ -475,21 +475,33 @@ describe("ratchet — SymmetricRatchet with Uint8Array chainKey", () => {
 });
 
 // --- pqxdh.ts: invalid hex error (lines 120-121) ---
-import { initiateSession } from "../src/protocols/pqxdh";
+import {
+  generateIdentityKeyPair,
+  generatePqPreKey,
+  generateSignedPreKey,
+  initiateSession,
+} from "../src/protocols/pqxdh";
 
 describe("pqxdh — invalid hex error paths", () => {
   it("should throw when initiateSession receives invalid hex in identityKeyPair", () => {
+    // The responder's bundle is verified first, so it must be a real one.
+    const bob = generateIdentityKeyPair();
+    const spk = generateSignedPreKey(bob);
+    const pqpk = generatePqPreKey(bob);
     expect(() =>
       initiateSession({
         identityKeyPair: {
-          publicKey: "aa".repeat(32),
+          ...generateIdentityKeyPair(),
           privateKey: "zz-not-hex",
         },
-        remoteIdentityPublic: "aa".repeat(32),
-        remoteSignedPreKeyPublic: "bb".repeat(32),
-        remotePqPreKeyPublic: "dd".repeat(32),
+        remoteIdentityPublic: bob.publicKey,
+        remoteIdentitySigningPublic: bob.signingPublicKey,
+        remoteSignedPreKeyPublic: spk.publicKey,
+        remoteSignedPreKeySignature: spk.signature,
+        remotePqPreKeyPublic: pqpk.publicKey,
+        remotePqPreKeySignature: pqpk.signature,
       }),
-    ).to.throw(/[Ii]nvalid.*hex|hex string expected/);
+    ).to.throw("Invalid hex string for identityPrivateKey");
   });
 });
 

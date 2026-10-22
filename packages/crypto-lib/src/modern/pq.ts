@@ -21,6 +21,7 @@ import { x25519 } from "@noble/curves/ed25519.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { decodeHex } from "../encoding";
 
 // --- Hybrid X25519 + ML-KEM-768 ---
 
@@ -96,12 +97,12 @@ export function hybridEncapsulate(
   const ephemeralPub = x25519.getPublicKey(ephemeralPriv);
   const x25519Shared = x25519.getSharedSecret(
     ephemeralPriv,
-    Buffer.from(theirX25519Public, "hex"),
+    decodeHex(theirX25519Public),
   );
 
   // ML-KEM: encapsulate with their public key
   const { cipherText, sharedSecret: mlKemShared } = ml_kem768.encapsulate(
-    Buffer.from(theirMlKemPublic, "hex"),
+    decodeHex(theirMlKemPublic),
   );
 
   // Combine both shared secrets via HKDF-SHA256
@@ -144,14 +145,14 @@ export function hybridDecapsulate(
 ): HybridDecapsulateResult {
   // X25519: compute shared secret
   const x25519Shared = x25519.getSharedSecret(
-    Buffer.from(ourX25519Private, "hex"),
-    Buffer.from(theirX25519Ephemeral, "hex"),
+    decodeHex(ourX25519Private),
+    decodeHex(theirX25519Ephemeral),
   );
 
   // ML-KEM: decapsulate
   const mlKemShared = ml_kem768.decapsulate(
-    Buffer.from(mlKemCiphertext, "hex"),
-    Buffer.from(ourMlKemSecret, "hex"),
+    decodeHex(mlKemCiphertext),
+    decodeHex(ourMlKemSecret),
   );
 
   // Combine via same HKDF derivation

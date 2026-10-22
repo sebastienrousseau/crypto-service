@@ -30,6 +30,7 @@ import { xwingDecap, xwingEncap, xwingKeygen } from "./hpke-xwing";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { ml_kem768 } from "../accel/pq-backend";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -180,12 +181,9 @@ export interface HpkePskOptions {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex) || hex.length % 2 !== 0) {
+  if (!isHex(hex)) {
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
   return Buffer.from(hex, "hex");

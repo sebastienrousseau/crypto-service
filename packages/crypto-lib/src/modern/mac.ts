@@ -17,6 +17,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
 import { timingSafeEqual } from "../utils";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -72,9 +73,6 @@ export interface HmacVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
@@ -82,7 +80,7 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
+    if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");

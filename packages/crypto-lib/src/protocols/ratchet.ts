@@ -22,6 +22,7 @@ import { hmac } from "@noble/hashes/hmac.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -79,8 +80,6 @@ export interface DoubleRatchetState {
 
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Maximum number of skipped message keys to store per chain. */
 const MAX_SKIP = 256;
 
@@ -88,7 +87,7 @@ const MAX_SKIP = 256;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) {
+  if (!isHex(hex)) {
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
   return Buffer.from(hex, "hex");

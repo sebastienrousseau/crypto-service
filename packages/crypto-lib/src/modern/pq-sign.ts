@@ -24,6 +24,7 @@ import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { sha512 } from "@noble/hashes/sha2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -100,12 +101,9 @@ export interface HybridVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
-  if (!HEX_RE.test(input)) {
+  if (!isHex(input)) {
     throw new CryptoError(
       `Invalid hex string for ${label}`,
       CryptoErrorCode.INVALID_HEX,

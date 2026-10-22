@@ -27,6 +27,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 /** Length of an X25519 ephemeral public key in bytes. */
 const EPHEMERAL_LEN = 32;
@@ -34,12 +35,10 @@ const EPHEMERAL_LEN = 32;
 const NONCE_LEN = 24;
 /** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex))
+  if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }

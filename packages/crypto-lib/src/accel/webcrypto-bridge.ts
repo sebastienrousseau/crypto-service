@@ -22,6 +22,7 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import * as nodeCrypto from "node:crypto";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 /**
  * Narrows a `Uint8Array` to one the WebCrypto types accept.
@@ -96,8 +97,6 @@ export interface WebCryptoHashResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 /** GCM standard 96-bit nonce length in bytes. */
 const NONCE_LENGTH = 12;
 /** GCM 128-bit authentication tag length in bytes. */
@@ -110,7 +109,7 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
+    if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");

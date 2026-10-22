@@ -21,6 +21,7 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import * as nodeCrypto from "node:crypto";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 /**
  * Narrows a `Uint8Array` to one the WebCrypto types accept.
@@ -119,7 +120,6 @@ export interface ModernSha3HashResult {
 
 // --- Helpers ---
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
 const NONCE_LENGTH = 12; // Standard ChaCha20-Poly1305 uses 12-byte nonce
 const TAG_LENGTH = 16;
 
@@ -129,7 +129,7 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
+    if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");

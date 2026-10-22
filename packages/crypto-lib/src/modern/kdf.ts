@@ -17,6 +17,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
@@ -64,9 +65,6 @@ export interface KdfResult {
   keyLength: number;
 }
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
@@ -74,7 +72,7 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
+    if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");

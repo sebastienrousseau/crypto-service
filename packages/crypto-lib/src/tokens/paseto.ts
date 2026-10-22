@@ -31,6 +31,7 @@ import { equalBytes, randomBytes } from "@noble/ciphers/utils.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Constants ---
 
@@ -50,8 +51,6 @@ const TAG_LEN = 32;
 const SIG_LEN = 64;
 /** Regex matching unpadded base64url. */
 const BASE64URL_RE = /^[A-Za-z0-9_-]*$/;
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 
 // --- Types ---
 
@@ -210,7 +209,7 @@ export function pae(...pieces: Uint8Array[]): Uint8Array {
 }
 
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex))
+  if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }

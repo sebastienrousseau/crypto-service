@@ -34,6 +34,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex } from "../encoding";
 
 // --- Types ---
 
@@ -145,12 +146,9 @@ export interface RespondToSessionResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing with a label on invalid input. */
 function hexToBytes(hex: string, label: string): Uint8Array {
-  if (!HEX_RE.test(hex)) {
+  if (!isHex(hex)) {
     throw new CryptoError(
       `Invalid hex string for ${label}`,
       CryptoErrorCode.INVALID_HEX,
