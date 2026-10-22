@@ -8,25 +8,13 @@
  */
 import { expect } from "chai";
 import path from "path";
-import { createRequire } from "module";
+import { resetKeystore } from "@sebastienrousseau/crypto-lib/testing";
 import type { FastifyInstance } from "fastify";
 import { init } from "../src/server";
 import { authenticate } from "../src/lib/auth";
 import { validateApiKey } from "../src/utils/validation";
 import { authConfigError } from "../src/config/auth-policy";
 import type { FastifyReply, FastifyRequest } from "fastify";
-
-// The keystore cache is internal to crypto-lib and not part of its
-// package exports. Load the module by file path next to the package
-// entry, which is the same module instance the server uses, so the
-// tests can clear the cache after changing CRYPTO_KEY_DIR.
-const { _resetKeystoreForTests } = createRequire(__filename)(
-  path.join(
-    path.dirname(require.resolve("@sebastienrousseau/crypto-lib")),
-    "key",
-    "keystore.js",
-  ),
-) as { _resetKeystoreForTests: () => void };
 
 const FIXTURE_KEYS = path.resolve(
   __dirname,
@@ -172,7 +160,7 @@ describe("Fail-closed security defaults", function () {
       await withEnv(
         { CRYPTO_KEY_DIR: FIXTURE_KEYS, ALLOW_ANONYMOUS: "1" },
         async () => {
-          _resetKeystoreForTests();
+          resetKeystore();
           const app = await init();
           try {
             const res = await app.inject({
@@ -187,7 +175,7 @@ describe("Fail-closed security defaults", function () {
             ]);
           } finally {
             await app.close();
-            _resetKeystoreForTests();
+            resetKeystore();
           }
         },
       );

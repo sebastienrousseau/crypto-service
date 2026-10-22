@@ -8,20 +8,8 @@ import { init } from "../src/server";
 import type { FastifyInstance } from "fastify";
 import * as openpgp from "openpgp";
 import * as path from "path";
-import { createRequire } from "module";
+import { resetKeystore } from "@sebastienrousseau/crypto-lib/testing";
 import { readFileSync } from "fs";
-
-// The keystore cache is internal to crypto-lib and not part of its
-// package exports. Load the module by file path next to the package
-// entry, which is the same module instance the server uses, so the
-// tests can clear the cache after changing CRYPTO_KEY_DIR.
-const { _resetKeystoreForTests } = createRequire(__filename)(
-  path.join(
-    path.dirname(require.resolve("@sebastienrousseau/crypto-lib")),
-    "key",
-    "keystore.js",
-  ),
-) as { _resetKeystoreForTests: () => void };
 
 /** The crypto-lib test keystore (passphrase "123456789abcdef"). */
 const FIXTURE_KEYS = path.resolve(
@@ -48,12 +36,12 @@ function useFixtureKeystore(): void {
   before(() => {
     saved = process.env["CRYPTO_KEY_DIR"];
     process.env["CRYPTO_KEY_DIR"] = FIXTURE_KEYS;
-    _resetKeystoreForTests();
+    resetKeystore();
   });
   after(() => {
     if (saved === undefined) delete process.env["CRYPTO_KEY_DIR"];
     else process.env["CRYPTO_KEY_DIR"] = saved;
-    _resetKeystoreForTests();
+    resetKeystore();
   });
 }
 
@@ -280,7 +268,7 @@ describe("Route success paths", function () {
     let origKeyDir: string | undefined;
 
     before(() => {
-      _resetKeystoreForTests();
+      resetKeystore();
       origKeyDir = process.env["CRYPTO_KEY_DIR"];
       process.env["CRYPTO_KEY_DIR"] = path.resolve(
         __dirname,
@@ -299,7 +287,7 @@ describe("Route success paths", function () {
       } else {
         process.env["CRYPTO_KEY_DIR"] = origKeyDir;
       }
-      _resetKeystoreForTests();
+      resetKeystore();
     });
 
     it("should revoke a key pair", async () => {

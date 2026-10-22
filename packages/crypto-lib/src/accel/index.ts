@@ -40,7 +40,6 @@ export {
   wasmHash,
   wasmAeadEncrypt,
   wasmAeadDecrypt,
-  _resetWasmDetection,
 } from "./wasm-bridge";
 /** Re-exported WASM bridge option and result types. */
 export type {
@@ -55,8 +54,6 @@ export type {
 
 export {
   hasNativePqc,
-  resetNativePqcCache,
-  _forceNativePqcDetected,
   pqcBackend,
   bridgedMlKemKeygen,
   bridgedMlKemEncapsulate,
@@ -74,7 +71,6 @@ export type {
 
 export {
   detectModernWebCrypto,
-  _resetModernWebCryptoDetection,
   modernChaCha20Encrypt,
   modernChaCha20Decrypt,
   modernSha3Hash,

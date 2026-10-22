@@ -88,6 +88,11 @@
       "require": "./dist/accel/index.js",
       "default": "./dist/accel/index.js"
     },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "require": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
     "./pgp": {
       "types": "./dist/bin/cryptolib.d.ts",
       "require": "./dist/bin/cryptolib.js",
