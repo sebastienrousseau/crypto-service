@@ -54,6 +54,15 @@ describe("verify", function () {
     _resetKeystoreForTests();
   });
 
+  // OpenPGP refuses a signature created after the verification date, and
+  // records creation times in whole seconds. Taking the date before an
+  // awaited sign() (as `{ date: new Date(), message: await sign(...) }`
+  // does) failed whenever signing crossed a second boundary: one run in
+  // a few under load. The arguments, signatures included, are computed
+  // before verifyNow takes the date.
+  const verifyNow = (args: Omit<Parameters<typeof verify>[0], "date">) =>
+    verify({ ...args, date: new Date() });
+
   const clearSigned = () =>
     sign({ message: "hello", detached: false, passphrase: PASSPHRASE });
   const detached = async () =>
@@ -62,8 +71,7 @@ describe("verify", function () {
     );
 
   it("verifies a clear-signed message", async () => {
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: await clearSigned(),
       verificationKeys: signerKey,
     });
@@ -74,8 +82,7 @@ describe("verify", function () {
   });
 
   it("verifies a detached signature", async () => {
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: "hello",
       signature: await detached(),
       verificationKeys: signerKey,
@@ -85,8 +92,7 @@ describe("verify", function () {
 
   it("rejects a clear-signed message whose text was changed", async () => {
     const tampered = (await clearSigned()).replace("hello", "hellO");
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: tampered,
       verificationKeys: signerKey,
     });
@@ -94,8 +100,7 @@ describe("verify", function () {
   });
 
   it("rejects a detached signature over different text", async () => {
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: "goodbye",
       signature: await detached(),
       verificationKeys: signerKey,
@@ -104,8 +109,7 @@ describe("verify", function () {
   });
 
   it("rejects a signature by a key that was not given", async () => {
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: await clearSigned(),
       verificationKeys: otherKey,
     });
@@ -113,8 +117,7 @@ describe("verify", function () {
   });
 
   it("checks against every key given", async () => {
-    const res = await verify({
-      date: new Date(),
+    const res = await verifyNow({
       message: await clearSigned(),
       verificationKeys: [otherKey, signerKey],
     });
@@ -123,8 +126,7 @@ describe("verify", function () {
 
   it("refuses text that carries no signature", async () => {
     const err = await rejection(
-      verify({
-        date: new Date(),
+      verifyNow({
         message: "anything at all",
         verificationKeys: signerKey,
       }),
