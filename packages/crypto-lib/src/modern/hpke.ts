@@ -81,7 +81,7 @@ export type HpkeKem =
   | "x25519"
   | "p256"
   | "x-wing"
-  /** @deprecated Opens pre-0.0.36 messages; seal with `"x-wing"`. */
+  // Deprecated: opens pre-0.0.36 messages; seal with "x-wing".
   | "x25519-ml-kem-768";
 
 /**
