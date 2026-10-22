@@ -148,20 +148,23 @@ import App from "./App.vue";
 
 const app = createApp(App);
 
-app.use(CryptoPlugin, {
-  defaultKey: "your-256-bit-hex-key",
-  serverUrl: "https://api.example.com",
-  apiKey: "your-api-key",
-});
+app.use(CryptoPlugin, { defaultKey: keyTheUserUnlocked });
 
 app.mount("#app");
 ```
 
-| Option       | Type     | Description                                 |
-| :----------- | :------- | :------------------------------------------ |
-| `defaultKey` | `string` | Default encryption key (256-bit hex string) |
-| `serverUrl`  | `string` | Base URL for the Crypto Service REST API    |
-| `apiKey`     | `string` | API key for authenticated server requests   |
+| Option       | Type     | Description                                                               |
+| :----------- | :------- | :------------------------------------------------------------------------ |
+| `defaultKey` | `string` | Default encryption key (256-bit hex string)                               |
+| `serverUrl`  | `string` | Deprecated: no composable reads it                                        |
+| `apiKey`     | `string` | Deprecated: no composable reads it, and an API key in a browser is public |
+
+Everything these composables hold runs in the browser. A key written into
+your bundle, such as a literal `defaultKey`, is public; pass keys the user
+supplies or unlocks at runtime. Keys in reactive state, such as
+`useKeypair`'s `privateKey`, can be read by any script on the page and by
+Vue DevTools, and JavaScript cannot wipe them: call `clear()` when you are
+done, and keep long-lived keys on a server.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

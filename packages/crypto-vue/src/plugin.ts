@@ -9,17 +9,26 @@ import type { App, InjectionKey } from "vue";
  * @example
  * ```ts
  * const opts: CryptoPluginOptions = {
- *   defaultKey: "ab".repeat(32),
- *   serverUrl: "https://crypto.example.com",
+ *   defaultKey: keyTheUserUnlocked,
  * };
  * ```
  */
 export interface CryptoPluginOptions {
   /** Default symmetric encryption key (hex-encoded) used when none is passed explicitly. */
   defaultKey?: string;
-  /** Base URL of the crypto-server instance for remote operations. */
+  /**
+   * Base URL of the crypto-server instance for remote operations.
+   *
+   * @deprecated No composable reads it; it will be removed.
+   */
   serverUrl?: string;
-  /** API key for authenticating with the crypto-server. */
+  /**
+   * API key for authenticating with the crypto-server.
+   *
+   * @deprecated No composable reads it, and an API key in a browser
+   * bundle is public: authenticate users to your own backend instead. It
+   * will be removed.
+   */
   apiKey?: string;
 }
 
