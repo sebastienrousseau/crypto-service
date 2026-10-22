@@ -4,6 +4,10 @@ packages:
   # exclude packages that are inside test directories
   - '!**/__tests__/**'
 
+# Install missing peer dependencies (pnpm reads this here, not from
+# .npmrc, which npm also reads and warns about).
+autoInstallPeers: true
+
 # Refuse a dependency version published less than a day ago: most
 # malicious releases are found and pulled within hours.
 minimumReleaseAge: 1440
