@@ -146,15 +146,15 @@ lets you scope protection to specific endpoints.
 
 ### Configuration
 
-| Option        | Type       | Required | Description                                       |
-| :------------ | :--------- | :------- | :------------------------------------------------ |
-| `key`         | `string`   | \*       | Hex-encoded 256-bit key for encryption/decryption |
-| `routes`      | `string[]` | No       | Glob patterns for routes to apply middleware to   |
-| `operations`  | `string[]` | No       | Operations to perform (see below)                 |
-| `hmacKey`     | `string`   | \*       | Hex-encoded HMAC key for signature verification   |
-| `jwtSecret`   | `string`   | \*       | Secret for HS256 JWT verification                 |
-| `jwtIssuer`   | `string`   | No       | Required `iss` claim for `verify-jwt`             |
-| `jwtAudience` | `string`   | No       | Required `aud` value for `verify-jwt`             |
+| Option        | Type       | Required | Description                                                        |
+| :------------ | :--------- | :------- | :----------------------------------------------------------------- |
+| `key`         | `string`   | \*       | Hex-encoded 256-bit key for encryption/decryption                  |
+| `routes`      | `string[]` | No       | Glob patterns for routes to apply middleware to                    |
+| `operations`  | `string[]` | No       | Operations to perform (see below)                                  |
+| `hmacKey`     | `string`   | \*       | Hex-encoded HMAC key for signature verification, at least 16 bytes |
+| `jwtSecret`   | `string`   | \*       | Secret for HS256 JWT verification, at least 16 bytes               |
+| `jwtIssuer`   | `string`   | No       | Required `iss` claim for `verify-jwt`                              |
+| `jwtAudience` | `string`   | No       | Required `aud` value for `verify-jwt`                              |
 
 \* Required when the corresponding operation is enabled.
 

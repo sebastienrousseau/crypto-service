@@ -266,7 +266,7 @@ describe("mac.ts — invalid hex key", () => {
     expect(() =>
       verifyHmac({
         algorithm: "sha256",
-        key: "abcd1234",
+        key: "abcd1234".repeat(4),
         data: "test",
         mac: "not-hex!!",
       }),

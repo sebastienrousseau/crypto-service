@@ -160,6 +160,7 @@ export {
   computeKmac,
   verifyKmac,
   KMAC_ALGORITHMS,
+  MIN_MAC_KEY_BYTES,
 } from "./mac";
 /** Re-exported HMAC and KMAC option, result, and algorithm types. */
 export type {

@@ -282,6 +282,18 @@ describe("verifyHmacSignature", () => {
     expect(result).to.equal(true);
   });
 
+  it("should throw INVALID_CONFIG for an hmacKey shorter than 16 bytes", () => {
+    try {
+      verifyHmacSignature("aa".repeat(15), "body", "deadbeef".repeat(8));
+      expect.fail("should have thrown");
+    } catch (err) {
+      const e = err as CryptoMiddlewareError;
+      expect(e.code).to.equal("INVALID_CONFIG");
+      expect(e.statusCode).to.equal(500);
+      expect(e.message).to.equal("hmacKey must be at least 16 bytes");
+    }
+  });
+
   it("should throw MISSING_SIGNATURE for empty signature", () => {
     try {
       verifyHmacSignature(HMAC_KEY, "body", "");
@@ -413,12 +425,27 @@ describe("verifyJwt", () => {
   it("should throw INVALID_TOKEN for wrong secret", () => {
     const token = createJwt({ sub: "u" }, JWT_SECRET);
     try {
-      verifyJwt("wrong-secret", token);
+      verifyJwt("a-different-jwt-secret", token);
       expect.fail("should have thrown");
     } catch (err) {
       const e = err as CryptoMiddlewareError;
       expect(e.code).to.equal("INVALID_TOKEN");
       expect(e.message).to.include("Invalid JWT signature");
+    }
+  });
+
+  // crypto-lib refuses MAC keys shorter than 16 bytes; a short secret is
+  // a configuration error, reported as one rather than as a bare Error.
+  it("should throw INVALID_CONFIG for a secret shorter than 16 bytes", () => {
+    const token = createJwt({ sub: "u" }, JWT_SECRET);
+    try {
+      verifyJwt("short-secret", token);
+      expect.fail("should have thrown");
+    } catch (err) {
+      const e = err as CryptoMiddlewareError;
+      expect(e.code).to.equal("INVALID_CONFIG");
+      expect(e.statusCode).to.equal(500);
+      expect(e.message).to.equal("jwtSecret must be at least 16 bytes");
     }
   });
 

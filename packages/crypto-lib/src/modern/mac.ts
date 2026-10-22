@@ -16,6 +16,7 @@ import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
 import { timingSafeEqual } from "../utils";
+import { CryptoError } from "../errors";
 
 // --- Types ---
 
@@ -113,6 +114,21 @@ function getHashFn(algorithm: HmacAlgorithm): HashFn {
   return fn;
 }
 
+/** Shortest MAC key accepted, in bytes (128 bits). */
+export const MIN_MAC_KEY_BYTES = 16;
+
+/** Decodes a hex MAC key, refusing one shorter than 128 bits. */
+function macKey(hex: string | Uint8Array): Uint8Array {
+  const key = toBytes(hex, "hex");
+  if (key.length < MIN_MAC_KEY_BYTES) {
+    throw new CryptoError(
+      `MAC key must be at least ${MIN_MAC_KEY_BYTES} bytes, got ${key.length}`,
+      "INVALID_KEY",
+    );
+  }
+  return key;
+}
+
 // --- HMAC ---
 
 /**
@@ -120,7 +136,7 @@ function getHashFn(algorithm: HmacAlgorithm): HashFn {
  */
 export function computeHmac(options: HmacComputeOptions): HmacComputeResult {
   const hashFn = getHashFn(options.algorithm);
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
 
   const mac = hmac(hashFn, key, data);
@@ -136,7 +152,7 @@ export function computeHmac(options: HmacComputeOptions): HmacComputeResult {
  */
 export function verifyHmac(options: HmacVerifyOptions): HmacVerifyResult {
   const hashFn = getHashFn(options.algorithm);
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const expectedMac = toBytes(options.mac, "hex");
 
@@ -229,7 +245,7 @@ export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
     );
   }
 
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const outputLength =
     options.outputLength ?? kmacDefaultLength[options.algorithm]!;
@@ -260,7 +276,7 @@ export function verifyKmac(options: KmacVerifyOptions): KmacVerifyResult {
     );
   }
 
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const expectedMac = toBytes(options.mac, "hex");
   const outputLength =
