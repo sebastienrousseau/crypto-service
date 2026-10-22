@@ -5,6 +5,7 @@
 
 import { expect } from "chai";
 import logger from "../src/lib/logger";
+import { init } from "../src/server";
 import {
   LIB_VERSION,
   HOST,
@@ -93,8 +94,38 @@ describe("Crypto Server", () => {
         expect(fastifyOptions.bodyLimit).to.be.greaterThan(0);
       });
 
-      it("should have caseSensitive set to true", () => {
-        expect(fastifyOptions.caseSensitive).to.be.true;
+      it("sets router options under routerOptions", () => {
+        // Top-level caseSensitive, ignoreTrailingSlash and maxParamLength
+        // emit Fastify's FSTDEP022 deprecation warning for every instance.
+        expect(fastifyOptions.routerOptions).to.deep.include({
+          caseSensitive: true,
+          ignoreTrailingSlash: false,
+          maxParamLength: 100,
+        });
+        for (const key of [
+          "caseSensitive",
+          "ignoreTrailingSlash",
+          "maxParamLength",
+        ]) {
+          expect(fastifyOptions, key).to.not.have.property(key);
+        }
+      });
+
+      it("starts without deprecation warnings", async () => {
+        const warnings: string[] = [];
+        const onWarning = (w: Error & { code?: string }) =>
+          warnings.push(w.code ?? w.name);
+        process.on("warning", onWarning);
+        try {
+          const app = await init({ logger: false });
+          await app.close();
+          await new Promise((r) => setImmediate(r));
+        } finally {
+          process.off("warning", onWarning);
+        }
+        expect(warnings.filter((c) => c.startsWith("FSTDEP"))).to.deep.equal(
+          [],
+        );
       });
 
       it("should leave request logging at Fastify's default (enabled)", () => {

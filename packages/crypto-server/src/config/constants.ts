@@ -72,16 +72,20 @@ export const serverDetails = Object.freeze({
  */
 export const fastifyOptions: FastifyServerOptions = {
   bodyLimit: 256 * 1024,
-  caseSensitive: true,
   connectionTimeout: 30_000,
-  ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
   // Request IDs come from lib/logger.ts requestIdFrom, logged as reqId.
   requestIdHeader: false,
-  maxParamLength: 100,
   onConstructorPoisoning: "error",
   onProtoPoisoning: "error",
   return503OnClosing: true,
+  // Router settings belong here: at the top level Fastify 5 warns
+  // (FSTDEP022) for every instance, and Fastify 6 drops them.
+  routerOptions: {
+    caseSensitive: true,
+    ignoreTrailingSlash: false,
+    maxParamLength: 100,
+  },
   trustProxy: parseTrustProxy(),
 };
 
