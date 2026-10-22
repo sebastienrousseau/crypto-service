@@ -55,7 +55,7 @@ function getSubtle(): SubtleCrypto {
  *
  * @example
  * ```ts
- * import { randomBytes } from "@aspect/crypto-edge";
+ * import { randomBytes } from "@sebastienrousseau/crypto-edge";
  *
  * const iv = randomBytes(12);  // 96-bit IV for AES-GCM
  * const key = randomBytes(32); // 256-bit key
@@ -82,7 +82,7 @@ function randomBytes(length: number): Uint8Array {
  *
  * @example
  * ```ts
- * import { toBytes } from "@aspect/crypto-edge";
+ * import { toBytes } from "@sebastienrousseau/crypto-edge";
  *
  * const bytes = toBytes("hello world");
  * // Uint8Array of UTF-8 encoded bytes
@@ -110,7 +110,7 @@ function buf(data: Uint8Array): ArrayBuffer {
  *
  * @example
  * ```ts
- * import { toHex } from "@aspect/crypto-edge";
+ * import { toHex } from "@sebastienrousseau/crypto-edge";
  *
  * const hex = toHex(new Uint8Array([0xde, 0xad, 0xbe, 0xef]));
  * // "deadbeef"
@@ -129,7 +129,7 @@ function toHex(bytes: Uint8Array): string {
  *
  * @example
  * ```ts
- * import { concat } from "@aspect/crypto-edge";
+ * import { concat } from "@sebastienrousseau/crypto-edge";
  *
  * const combined = concat(new Uint8Array([1, 2]), new Uint8Array([3, 4]));
  * // Uint8Array [1, 2, 3, 4]

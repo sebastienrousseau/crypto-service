@@ -306,7 +306,7 @@ export function installPolyfills(): {
  *
  * @example
  * ```ts
- * import { _resetPolyfillState, installPolyfills } from "@aspect/crypto-edge";
+ * import { _resetPolyfillState, installPolyfills } from "@sebastienrousseau/crypto-edge";
  *
  * _resetPolyfillState();
  * const result = installPolyfills(); // re-runs polyfill detection
