@@ -53,6 +53,11 @@ detail.
   default of `/v2/hpke/keygen`, `/v2/hpke/seal` and the CLI. Generate new
   X-Wing key pairs for recipients; `"x25519-ml-kem-768"` still seals and
   opens with its existing keys but is deprecated.
+- **PQXDH** (`protocols.pqxdh`): generate pre-keys again with
+  `generateSignedPreKey(identity)` and `generatePqPreKey(identity)`, pass
+  the responder's signing key and both pre-key signatures to
+  `initiateSession`, and authenticate the first message with the returned
+  `associatedData`. Both parties must upgrade together.
 - **License tiers are removed**: every tenant has the same quota, 60
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry
