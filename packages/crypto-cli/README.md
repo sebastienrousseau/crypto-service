@@ -873,7 +873,7 @@ cryptocli
 
 ## Examples
 
-Runnable shell scripts are provided in the [`examples/`](examples/)
+Runnable shell scripts are provided in the [`examples/`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli/examples)
 directory:
 
 | Category   | Example                             | Purpose                                   |

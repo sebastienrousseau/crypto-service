@@ -10,5 +10,19 @@
   "logLevel": "Verbose",
   "name": "Crypto LSP",
   "out": "docs",
-  "sort": ["source-order"]
+  "sort": ["source-order"],
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "json5",
+    "lua",
+    "tsx",
+    "typescript",
+    "yaml"
+  ]
 }

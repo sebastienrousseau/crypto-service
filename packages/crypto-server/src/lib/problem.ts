@@ -142,7 +142,7 @@ export function cryptoErrorStatus(code: string): number {
   return CRYPTO_INPUT_CODES.has(code) ? 400 : 500;
 }
 
-/** Whether a value is a crypto-lib {@link CryptoError}. */
+/** Whether a value is a crypto-lib `CryptoError`. */
 export function isCryptoError(error: unknown): error is CryptoError {
   return error instanceof CryptoError;
 }

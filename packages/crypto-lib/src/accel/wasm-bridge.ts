@@ -224,8 +224,8 @@ function getHashFn(algorithm: WasmHashAlgorithm) {
 /**
  * Hash data using the fastest available backend.
  *
- * Currently uses @noble pure-JS implementations. When `awasm-noble` ships,
- * this will transparently upgrade to WASM for 5-10x speedups.
+ * Uses the `@noble` pure JavaScript implementations; no WebAssembly
+ * module ships.
  *
  * @example
  * ```ts

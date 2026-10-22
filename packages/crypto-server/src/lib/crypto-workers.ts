@@ -56,7 +56,7 @@ export const SIGNING_LIMITS: WorkerLimits = Object.freeze({
  * password, ML-DSA and SLH-DSA functions; `highLevel` has
  * `passwordEncrypt` and `passwordDecrypt`; `keys` has `generateKeyPair`.
  */
-const MODULES = {
+export const MODULES = {
   modern: require.resolve("@sebastienrousseau/crypto-lib/modern"),
   highLevel: require.resolve("@sebastienrousseau/crypto-lib/high-level"),
   keys: require.resolve("@sebastienrousseau/crypto-lib/keys"),
