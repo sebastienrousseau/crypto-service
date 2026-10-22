@@ -148,7 +148,7 @@ AWS or `EC_SIGN_P384_SHA384` on Google Cloud).
 | **Vault**   | `VaultKmsProvider`  | HashiCorp Vault Transit    | `aes-256-gcm`, `aes-128-gcm`, `chacha20-poly1305`, `rsa-*` | `ed25519`, `p256`, `p384`, `p521`, `rsa-*`                                 | None                  |
 | **Local**   | `LocalKmsProvider`  | In-memory (crypto-lib)     | `aes-256-gcm`                                              | `ed25519`                                                                  | None                  |
 | **Azure**   | `AzureKmsProvider`  | Azure Key Vault            | Stub: rejects `NOT_IMPLEMENTED`                            | Stub                                                                       | None                  |
-| **PKCS#11** | `Pkcs11HsmProvider` | None (in-memory)           | Software simulation; `simulate: true`                      | Software simulation                                                        | None                  |
+| **PKCS#11** | `Pkcs11HsmProvider` | None (in-memory)           | Software simulation of `aes-256-gcm`; `simulate: true`     | Software simulation of `ed25519`                                           | None                  |
 
 Backend behaviour worth knowing:
 
