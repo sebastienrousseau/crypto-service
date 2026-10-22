@@ -4,6 +4,10 @@ packages:
   # exclude packages that are inside test directories
   - '!**/__tests__/**'
 
+# Refuse a dependency version published less than a day ago: most
+# malicious releases are found and pulled within hours.
+minimumReleaseAge: 1440
+
 allowBuilds:
   '@prisma/client': false
   protobufjs: false
