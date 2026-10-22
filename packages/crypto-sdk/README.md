@@ -145,6 +145,26 @@ per failed check) for validation failures. A response without a problem
 body (for example from a proxy) becomes an `about:blank` problem for its
 status code.
 
+A request that got no response (connection failure, timeout) throws a
+`CryptoTransportError`: `timedOut` says which, and `cause` holds the
+underlying error.
+
+### Timeouts and retries
+
+`timeout` (milliseconds) applies to each attempt. Retries are off unless
+`retry.maxRetries` is set; then 429, 503 and 504 responses and lost
+connections are retried with jittered exponential backoff, or after the
+server's `Retry-After` when it gives one. A `Retry-After` longer than
+`retry.maxDelayMs` (default 2000) ends the retries, so the client does
+not keep calling a server that asked it to wait.
+
+Requests that create or delete server state (key generation, KMS key
+creation, OPAQUE registration, key deletion) are retried only after 429
+or 503, which mean the server did not process them: after a lost
+connection or a 504 the work may already be done, and a retry could
+create a second key. The client never follows redirects, so an API key
+or token is never sent to another origin.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ---

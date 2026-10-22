@@ -7,6 +7,7 @@ import { expect } from "chai";
 import {
   CryptoClient,
   CryptoApiError,
+  CryptoTransportError,
   ClientOptions,
   ApiError,
   ApiResponse,
@@ -530,8 +531,12 @@ describe("CryptoClient", () => {
           .hash({ algorithm: "sha256", data: "test" })
           .catch((e) => e);
         expect(callCount).to.equal(3);
-        expect(err).to.be.an.instanceOf(TypeError);
-        expect((err as TypeError).message).to.equal("Connection refused");
+        // Transport failures are typed; the original error is the cause.
+        expect(err).to.be.an.instanceOf(CryptoTransportError);
+        expect((err as CryptoTransportError).timedOut).to.equal(false);
+        const cause = (err as CryptoTransportError).cause as TypeError;
+        expect(cause).to.be.an.instanceOf(TypeError);
+        expect(cause.message).to.equal("Connection refused");
       });
     });
   });
