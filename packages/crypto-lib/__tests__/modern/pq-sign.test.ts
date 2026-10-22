@@ -122,9 +122,9 @@ describe("ML-DSA (FIPS 204)", function () {
 
     it("should throw for invalid hex in signature", () => {
       const kp = mlDsaKeygen(44);
-      expect(() =>
-        mlDsaVerify(44, kp.publicKey, "msg", "not-hex!"),
-      ).to.throw(/Invalid hex/);
+      expect(() => mlDsaVerify(44, kp.publicKey, "msg", "not-hex!")).to.throw(
+        /Invalid hex/,
+      );
     });
   });
 
@@ -134,11 +134,7 @@ describe("ML-DSA (FIPS 204)", function () {
       const mlDsaKp = mlDsaKeygen(65);
       const msg = "hybrid message";
 
-      const sig = hybridSign(
-        ed25519Kp.privateKey,
-        mlDsaKp.secretKey,
-        msg,
-      );
+      const sig = hybridSign(ed25519Kp.privateKey, mlDsaKp.secretKey, msg);
       expect(sig.algorithm).to.equal("ed25519-ml-dsa-65");
       expect(sig.ed25519Signature).to.be.a("string");
       expect(sig.ed25519Signature).to.have.length(128); // 64 bytes hex
@@ -156,7 +152,9 @@ describe("ML-DSA (FIPS 204)", function () {
       expect(result.algorithm).to.equal("ed25519-ml-dsa-65");
     });
 
-    for (const level of levels) {
+    // Composite ML-DSA pairs Ed25519 with ML-DSA-44 and ML-DSA-65 only;
+    // ML-DSA-87 is refused (hybrid-composite.test.ts).
+    for (const level of [44, 65] as const) {
       it(`should sign and verify hybrid with ML-DSA-${level}`, () => {
         const ed25519Kp = generateEd25519KeyPair();
         const mlDsaKp = mlDsaKeygen(level);
@@ -209,12 +207,7 @@ describe("ML-DSA (FIPS 204)", function () {
       const mlDsaKp = mlDsaKeygen(44);
       const msg = "msg";
 
-      const sig = hybridSign(
-        ed25519Kp1.privateKey,
-        mlDsaKp.secretKey,
-        msg,
-        44,
-      );
+      const sig = hybridSign(ed25519Kp1.privateKey, mlDsaKp.secretKey, msg, 44);
       const result = hybridVerify(
         ed25519Kp2.publicKey,
         mlDsaKp.publicKey,
@@ -231,12 +224,7 @@ describe("ML-DSA (FIPS 204)", function () {
       const mlDsaKp = mlDsaKeygen(44);
       const msg = new Uint8Array([10, 20, 30]);
 
-      const sig = hybridSign(
-        ed25519Kp.privateKey,
-        mlDsaKp.secretKey,
-        msg,
-        44,
-      );
+      const sig = hybridSign(ed25519Kp.privateKey, mlDsaKp.secretKey, msg, 44);
       const result = hybridVerify(
         ed25519Kp.publicKey,
         mlDsaKp.publicKey,
@@ -249,9 +237,9 @@ describe("ML-DSA (FIPS 204)", function () {
     });
 
     it("should throw for invalid hex in hybrid sign", () => {
-      expect(() =>
-        hybridSign("not-hex!", "aabb", "msg", 44),
-      ).to.throw(/Invalid hex/);
+      expect(() => hybridSign("not-hex!", "aabb", "msg", 44)).to.throw(
+        /Invalid hex/,
+      );
     });
 
     it("should throw for invalid hex in hybrid verify", () => {

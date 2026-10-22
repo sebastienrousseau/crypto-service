@@ -129,6 +129,8 @@ export type {
   MlDsaVerifyResult,
   HybridSignResult,
   HybridVerifyResult,
+  HybridSignOptions,
+  HybridVerifyOptions,
 } from "./pq-sign";
 
 /** FN-DSA (FALCON / FIPS 206) digital signatures. */

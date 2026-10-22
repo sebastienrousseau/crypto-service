@@ -58,6 +58,10 @@ detail.
   the responder's signing key and both pre-key signatures to
   `initiateSession`, and authenticate the first message with the returned
   `associatedData`. Both parties must upgrade together.
+- **Hybrid signatures** (`hybridSign`/`hybridVerify`) follow Composite
+  ML-DSA: re-sign data signed by earlier versions, and verify old
+  signatures meanwhile with `{ acceptLegacy: true }`. ML-DSA-87 hybrids are
+  refused; use ML-DSA-65.
 - **License tiers are removed**: every tenant has the same quota, 60
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry
