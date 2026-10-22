@@ -76,6 +76,11 @@ export interface PasetoLocalDecryptOptions {
   footer?: string;
   /** Optional implicit assertions. */
   implicit?: string;
+  /**
+   * The time to check the `exp`, `nbf` and `iat` claims against
+   * (default: now).
+   */
+  now?: Date;
 }
 
 /** Options for signing a PASETO v4.public token. */
@@ -100,6 +105,11 @@ export interface PasetoPublicVerifyOptions {
   footer?: string;
   /** Optional implicit assertions. */
   implicit?: string;
+  /**
+   * The time to check the `exp`, `nbf` and `iat` claims against
+   * (default: now).
+   */
+  now?: Date;
 }
 
 /** Result of PASETO token creation. */
@@ -117,6 +127,41 @@ export interface PasetoPayload {
 }
 
 // --- Helpers ---
+
+/** An RFC 3339 date-time, the format of PASETO's registered time claims. */
+const RFC3339_RE =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+
+/** The time claim `name` in milliseconds, or undefined when absent. */
+function timeClaim(
+  payload: Record<string, unknown>,
+  name: "exp" | "nbf" | "iat",
+): number | undefined {
+  if (!(name in payload)) return undefined;
+  const value = payload[name];
+  const ms =
+    typeof value === "string" && RFC3339_RE.test(value)
+      ? Date.parse(value)
+      : NaN;
+  if (Number.isNaN(ms)) throw new Error(`Invalid ${name} claim`);
+  return ms;
+}
+
+/**
+ * Refuses a token outside its validity window: at or after `exp`, before
+ * `nbf`, or issued (`iat`) after `now`. Absent claims are not checked.
+ */
+function checkTimeClaims(payload: Record<string, unknown>, now: Date): void {
+  const t = now.getTime();
+  const exp = timeClaim(payload, "exp");
+  const nbf = timeClaim(payload, "nbf");
+  const iat = timeClaim(payload, "iat");
+  if (exp !== undefined && t >= exp) throw new Error("Token expired");
+  if (nbf !== undefined && t < nbf) throw new Error("Token not yet valid");
+  if (iat !== undefined && t < iat) {
+    throw new Error("Token issued in the future");
+  }
+}
 
 /**
  * Pre-Authentication Encoding (PAE).
@@ -357,6 +402,7 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
     string,
     unknown
   >;
+  checkTimeClaims(payload, opts.now ?? new Date());
   return { payload, ...(footer ? { footer } : {}) };
 }
 
@@ -459,6 +505,7 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
 
   const payloadStr = Buffer.from(message).toString("utf8");
   const payload = JSON.parse(payloadStr) as Record<string, unknown>;
+  checkTimeClaims(payload, opts.now ?? new Date());
 
   return { payload, ...(footer ? { footer } : {}) };
 }
