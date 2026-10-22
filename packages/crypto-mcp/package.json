@@ -38,9 +38,8 @@
     "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sebastienrousseau/crypto-lib": "workspace:*",
     "@sebastienrousseau/crypto-kms": "workspace:*",
-    "@sebastienrousseau/crypto-wasm": "workspace:*"
+    "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

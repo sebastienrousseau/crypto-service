@@ -547,9 +547,6 @@ importers:
       '@sebastienrousseau/crypto-lib':
         specifier: workspace:*
         version: link:../crypto-lib
-      '@sebastienrousseau/crypto-wasm':
-        specifier: workspace:*
-        version: link:../crypto-wasm
     devDependencies:
       '@types/chai':
         specifier: ^5.2.3

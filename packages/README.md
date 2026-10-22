@@ -70,7 +70,7 @@ ones published to npm.
 - `crypto-kms`: `crypto-lib`
 - `crypto-lib`: no workspace dependencies
 - `crypto-lsp`: `crypto-lib`
-- `crypto-mcp`: `crypto-kms`, `crypto-lib`, `crypto-wasm`
+- `crypto-mcp`: `crypto-kms`, `crypto-lib`
 - `crypto-middleware`: `crypto-lib`
 - `crypto-prisma`: `crypto-lib`
 - `crypto-react`: `crypto-lib`

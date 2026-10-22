@@ -14,7 +14,7 @@
 
 `@sebastienrousseau/crypto-mcp` implements the **Model Context Protocol (MCP)** specification, turning the Crypto Service Suite into a secure, tool-enabled cryptographic runtime for AI agents and LLM-driven environments (including Cursor, Antigravity, Claude Desktop, VS Code, and Zed).
 
-Instead of relying on fragile shell scripts or unverified LLM math, agents invoke cryptographically verified tools backed by `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-kms`, and `@sebastienrousseau/crypto-wasm`.
+Instead of relying on fragile shell scripts or unverified LLM math, agents invoke cryptographically verified tools backed by `@sebastienrousseau/crypto-lib` and `@sebastienrousseau/crypto-kms`.
 
 ---
 
