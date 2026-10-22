@@ -204,36 +204,75 @@ describe("Route success paths", function () {
     });
   });
 
-  describe("POST /v1/verify (success)", () => {
-    it("should verify a signed message", async () => {
-      // Create a cleartext signed message
-      const privKey = await openpgp.decryptKey({
+  describe("POST /v1/verify", () => {
+    // /v1/verify never checked a signature: crypto-lib's verify wrapped the
+    // message in a new unsigned message, so a signed message, a tampered
+    // one and text nobody signed all answered 200 with no signatures.
+    const keyB64 = () => Buffer.from(publicKeyArmored).toString("base64");
+    const signingKey = async () =>
+      openpgp.decryptKey({
         privateKey: await openpgp.readPrivateKey({
           armoredKey: privateKeyArmored,
         }),
         passphrase,
       });
-
-      const signed = await openpgp.sign({
+    const clearSigned = async () =>
+      (await openpgp.sign({
         message: await openpgp.createCleartextMessage({ text: "Verify me" }),
-        signingKeys: privKey,
-      });
-
-      const verificationKeysBase64 =
-        Buffer.from(publicKeyArmored).toString("base64");
-
-      const res = await app.inject({
+        signingKeys: await signingKey(),
+      })) as string;
+    const verifyRequest = (payload: Record<string, string>) =>
+      app.inject({
         method: "POST",
         url: "/v1/verify",
         payload: {
           date: new Date().toISOString(),
-          message: signed as string,
-          verificationKeys: verificationKeysBase64,
+          verificationKeys: keyB64(),
+          ...payload,
         },
       });
+
+    it("verifies a clear-signed message", async () => {
+      const res = await verifyRequest({ message: await clearSigned() });
       expect(res.statusCode).to.equal(200);
-      const body = JSON.parse(res.payload);
-      expect(body).to.have.property("data");
+      expect(res.json().data).to.deep.include({
+        verified: true,
+        data: "Verify me",
+      });
+      expect(res.json().data.keyIDs).to.have.length(1);
+    });
+
+    it("verifies a detached signature", async () => {
+      const signature = (await openpgp.sign({
+        message: await openpgp.createMessage({ text: "Verify me" }),
+        signingKeys: await signingKey(),
+        detached: true,
+      })) as string;
+      const res = await verifyRequest({
+        message: "Verify me",
+        signature: Buffer.from(signature).toString("base64"),
+      });
+      expect(res.json().data.verified).to.equal(true);
+    });
+
+    it("reports a tampered message as not verified", async () => {
+      const tampered = (await clearSigned()).replace("Verify me", "Verify mE");
+      const res = await verifyRequest({ message: tampered });
+      expect(res.statusCode).to.equal(200);
+      expect(res.json().data.verified).to.equal(false);
+    });
+
+    it("answers 400 for a signature that is not base64", async () => {
+      const res = await verifyRequest({
+        message: "Verify me",
+        signature: "not!base64#",
+      });
+      expect(res.statusCode).to.equal(400);
+    });
+
+    it("answers 400 for text that carries no signature", async () => {
+      const res = await verifyRequest({ message: "anything at all" });
+      expect(res.statusCode).to.equal(400);
     });
   });
 
@@ -373,7 +412,7 @@ describe("Route success paths", function () {
       expect(body.detail).to.equal("Encryption failed");
     });
 
-    it("should return 500 when verify fails with bad data", async () => {
+    it("should return 400 when verify gets a key that is not OpenPGP", async () => {
       const badBase64 = Buffer.from("not-a-pgp-key").toString("base64");
       const res = await app.inject({
         method: "POST",
@@ -384,9 +423,9 @@ describe("Route success paths", function () {
           verificationKeys: badBase64,
         },
       });
-      expect(res.statusCode).to.equal(500);
+      expect(res.statusCode).to.equal(400);
       const body = JSON.parse(res.payload);
-      expect(body.detail).to.equal("Verification failed");
+      expect(body.detail).to.match(/^The message must be clear-signed/);
     });
 
     it("should return 500 when revoke fails with bad passphrase", async () => {

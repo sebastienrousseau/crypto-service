@@ -7,13 +7,11 @@
  *   - reformat.ts:46,49-56 — same typeof branches for reformatted keys
  *   - revoke.ts:44 — CRYPTO_KEY_DIR env fallback
  *   - sign.ts:50 — CRYPTO_DATA_DIR env fallback
- *   - verify.ts:26 — non-array verificationKeys (single string)
  */
 import { expect } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { generate } from "../../src/lib/generate";
-import { verify } from "../../src/lib/verify";
 import { sign } from "../../src/lib/sign";
 import { revoke } from "../../src/lib/revoke";
 import { reformat } from "../../src/lib/reformat";
@@ -158,46 +156,6 @@ describe("Lib Branch Coverage", function () {
       } catch {
         // May fail if fallback dir doesn't exist, but branch is covered
       }
-    });
-  });
-
-  // -----------------------------------------------------------------
-  // verify.ts:26 — non-array verificationKeys (single string)
-  // The function creates a Message and verifies against keys.
-  // With no embedded signatures openpgp.verify just returns empty sigs.
-  // -----------------------------------------------------------------
-  describe("verify – non-array verificationKeys", () => {
-    let publicKeyBase64: string;
-
-    before(async () => {
-      const fixtureKeyDir = process.env["CRYPTO_KEY_DIR"]!;
-      // Fixture key files are stored as base64-encoded armored keys
-      publicKeyBase64 = fs
-        .readFileSync(path.join(fixtureKeyDir, "rsa.pub"), "utf8")
-        .trim();
-    });
-
-    it("should accept verificationKeys as a single string (not array)", async () => {
-      // verify.ts line 26: exercises the non-array branch
-      const result = await verify({
-        date: new Date(),
-        message: "some plaintext",
-        verificationKeys: publicKeyBase64,
-      });
-      // openpgp.verify returns a result even with 0 signatures
-      expect(result).to.have.property("data");
-      expect(result).to.have.property("signatures");
-    });
-
-    it("should accept verificationKeys as an array", async () => {
-      // verify.ts line 26: exercises the array branch
-      const result = await verify({
-        date: new Date(),
-        message: "some plaintext",
-        verificationKeys: [publicKeyBase64],
-      });
-      expect(result).to.have.property("data");
-      expect(result).to.have.property("signatures");
     });
   });
 

@@ -82,9 +82,11 @@ export type dataSign = {
 export type dataVerify = {
   /** Date to use for signature validity checks instead of the current time. */
   date: Date;
-  /** Signed message (or cleartext message when using a detached signature). */
+  /** Armored clear-signed message, or the signed text when `signature` is set. */
   message: string;
-  /** Armored public key(s) to verify the signature against. */
+  /** Base64-encoded armored detached signature over `message`. */
+  signature?: string;
+  /** Base64-encoded armored public key(s) to verify the signature against. */
   verificationKeys: string | string[];
 };
 

@@ -26,12 +26,21 @@ const verifySchema = {
   tags: ["Signing"],
   summary: "Verify a signed message",
   description:
-    "Verifies a cleartext-signed PGP message against the supplied verification keys.",
+    "Verifies a clear-signed PGP message, or a message and its base64-encoded detached signature, against the supplied verification keys. `verified` is true only when every signature found verifies; input that carries no signature answers 400.",
   response: {
     200: {
       type: "object",
       additionalProperties: true,
-      properties: { data: {} },
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            verified: { type: "boolean" },
+            data: { type: "string" },
+            keyIDs: { type: "array", items: { type: "string" } },
+          },
+        },
+      },
     },
     400: PROBLEM_SCHEMA,
     401: PROBLEM_SCHEMA,
@@ -44,6 +53,7 @@ const verifySchema = {
       date: { type: "string", minLength: 1, maxLength: 64 },
       message: { type: "string", minLength: 1, maxLength: 1024 * 1024 },
       verificationKeys: { type: "string", minLength: 1, maxLength: 64 * 1024 },
+      signature: { type: "string", minLength: 1, maxLength: 64 * 1024 },
     },
   },
 } as const;
@@ -57,31 +67,42 @@ export default (app: FastifyInstance): void => {
       config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },
     async (request, reply) => {
-      try {
-        const body = request.body as IBodyVerify;
-        const v = collectValidation(
-          {
-            date: validateDateString(body.date, "date"),
-            message: validateRequiredString(body.message, "message"),
-            verificationKeys: validateBase64(
-              body.verificationKeys,
-              "verificationKeys",
-            ),
-          },
-          reply,
-        );
-        if (!v) return reply;
+      const body = request.body as IBodyVerify;
+      const v = collectValidation(
+        {
+          date: validateDateString(body.date, "date"),
+          message: validateRequiredString(body.message, "message"),
+          verificationKeys: validateBase64(
+            body.verificationKeys,
+            "verificationKeys",
+          ),
+          ...(body.signature === undefined
+            ? {}
+            : { signature: validateBase64(body.signature, "signature") }),
+        },
+        reply,
+      );
+      if (!v) return reply;
 
+      try {
         const verifyData = await verify({
           date: v.date as Date,
           message: v.message,
           verificationKeys: v.verificationKeys,
+          ...(v.signature === undefined ? {} : { signature: v.signature }),
         });
-
         return reply.send({ data: verifyData });
       } catch (error) {
-        request.log.error(error, "Verification operation failed");
-        return sendProblem(reply, 500, "internal-error", "Verification failed");
+        // Everything verify throws comes from reading the request: a
+        // message that is not clear-signed, or a key or signature that
+        // is not valid armored OpenPGP.
+        request.log.warn(error, "Verification input rejected");
+        return sendProblem(
+          reply,
+          400,
+          "invalid-input",
+          "The message must be clear-signed or come with a detached signature, and the keys must be armored OpenPGP public keys",
+        );
       }
     },
   );

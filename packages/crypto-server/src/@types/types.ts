@@ -165,8 +165,10 @@ export interface IBodyRevoke {
 export interface IBodyVerify {
   /** ISO-8601 date string used as the verification reference time. */
   date: string;
-  /** Armored PGP signed message (clear-signed or detached). */
+  /** Armored clear-signed PGP message, or the signed text when `signature` is set. */
   message: string;
-  /** Armored PGP public key(s) to verify the signature against. */
+  /** Base64-encoded armored PGP public key to verify the signature against. */
   verificationKeys: string;
+  /** Base64-encoded armored detached signature over `message`. */
+  signature?: string;
 }
