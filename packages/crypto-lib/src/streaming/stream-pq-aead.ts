@@ -28,6 +28,7 @@ import {
   assertChunkSize,
   decryptChunks,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // The chunk tags and Poly1305 tag length are shared with the other
 // streams; re-exported for existing importers of this module.
@@ -54,13 +55,20 @@ export function toBytes(
 ): Uint8Array {
   let buf: Uint8Array;
   if (typeof data === "string") {
-    if (!HEX_RE.test(data)) throw new Error(`Invalid hex string for ${name}`);
+    if (!HEX_RE.test(data))
+      throw new CryptoError(
+        `Invalid hex string for ${name}`,
+        CryptoErrorCode.INVALID_HEX,
+      );
     buf = Buffer.from(data, "hex");
   } else {
     buf = new Uint8Array(data);
   }
   if (expectedLen !== undefined && buf.length !== expectedLen) {
-    throw new Error(`${name} must be ${expectedLen} bytes, got ${buf.length}`);
+    throw new CryptoError(
+      `${name} must be ${expectedLen} bytes, got ${buf.length}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return buf;
 }
@@ -249,7 +257,10 @@ export function streamPqDecrypt(options: StreamPqDecryptOptions): Uint8Array {
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < PQ_STREAM_HEADER_LEN + 1 + TAG_LEN) {
-    throw new Error("Ciphertext too short — missing header or chunk data");
+    throw new CryptoError(
+      "Ciphertext too short — missing header or chunk data",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   return decryptChunks(

@@ -45,6 +45,7 @@ import {
   assertChunkSize,
   decryptChunks,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Magic bytes identifying multi-recipient post-quantum stream format ("MSPQ"). */
 export const MULTI_PQ_STREAM_MAGIC = new Uint8Array([0x4d, 0x53, 0x50, 0x51]);
@@ -139,11 +140,17 @@ function validateRecipient(r: MultiPqRecipient): {
   mlKemPub: Uint8Array;
 } {
   if (!r.recipientId || typeof r.recipientId !== "string") {
-    throw new Error("Recipient ID must be a non-empty string");
+    throw new CryptoError(
+      "Recipient ID must be a non-empty string",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   const idBytes = TEXT_ENCODER.encode(r.recipientId);
   if (idBytes.length === 0 || idBytes.length > 255) {
-    throw new Error("Recipient ID must be between 1 and 255 UTF-8 bytes");
+    throw new CryptoError(
+      "Recipient ID must be between 1 and 255 UTF-8 bytes",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   const x25519Pub = toBytes(
     r.recipientX25519Public,
@@ -236,15 +243,24 @@ function checkEncryptOptions(
 } {
   const recipients = options.recipients;
   if (!Array.isArray(recipients) || recipients.length === 0) {
-    throw new Error("At least one recipient is required");
+    throw new CryptoError(
+      "At least one recipient is required",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   if (recipients.length > 1000) {
-    throw new Error("Recipient count exceeds maximum limit of 1000");
+    throw new CryptoError(
+      "Recipient count exceeds maximum limit of 1000",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
   assertChunkSize(chunkSize);
   if (chunkSize < 1024 || chunkSize > 16 * 1024 * 1024) {
-    throw new Error("Chunk size must be between 1024 and 16777216 bytes");
+    throw new CryptoError(
+      "Chunk size must be between 1024 and 16777216 bytes",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return { recipients, chunkSize };
 }
@@ -308,16 +324,23 @@ function parseHeaderPrefix(ciphertext: Uint8Array): {
   recipientCount: number;
 } {
   if (ciphertext.length < MULTI_PQ_PREFIX_LEN) {
-    throw new Error("Ciphertext too short: missing header prefix");
+    throw new CryptoError(
+      "Ciphertext too short: missing header prefix",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   for (let i = 0; i < 4; i++) {
     if (ciphertext[i] !== MULTI_PQ_STREAM_MAGIC[i]) {
-      throw new Error("Invalid multi-recipient post-quantum stream magic");
+      throw new CryptoError(
+        "Invalid multi-recipient post-quantum stream magic",
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     }
   }
   if (ciphertext[4] !== MULTI_PQ_STREAM_VERSION) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported multi-recipient post-quantum stream version: ${ciphertext[4]}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
     );
   }
   const view = new DataView(
@@ -327,12 +350,18 @@ function parseHeaderPrefix(ciphertext: Uint8Array): {
   );
   const chunkSize = view.getUint32(5, false);
   if (chunkSize < 1024 || chunkSize > 16 * 1024 * 1024) {
-    throw new Error(`Invalid stream header chunk size: ${chunkSize}`);
+    throw new CryptoError(
+      `Invalid stream header chunk size: ${chunkSize}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const baseNonce = ciphertext.subarray(9, 33);
   const recipientCount = view.getUint16(33, false);
   if (recipientCount < 1) {
-    throw new Error("Invalid stream header: zero recipients");
+    throw new CryptoError(
+      "Invalid stream header: zero recipients",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   return { chunkSize, baseNonce, recipientCount };
 }
@@ -347,12 +376,18 @@ function parseSlots(
 
   for (let i = 0; i < recipientCount; i++) {
     if (offset >= ciphertext.length) {
-      throw new Error("Ciphertext truncated: incomplete slot table");
+      throw new CryptoError(
+        "Ciphertext truncated: incomplete slot table",
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     }
     const idLen = ciphertext[offset] as number;
     const slotTotalLen = SLOT_FIXED_OVERHEAD + idLen;
     if (offset + slotTotalLen > ciphertext.length) {
-      throw new Error("Ciphertext truncated: incomplete recipient slot");
+      throw new CryptoError(
+        "Ciphertext truncated: incomplete recipient slot",
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     }
     const idStart = offset + 1;
     const recipientIdBytes = ciphertext.subarray(idStart, idStart + idLen);
@@ -500,11 +535,17 @@ function resolveRecipientCek(
   if (recipId !== undefined) {
     const slot = slots.find((s) => s.recipientId === recipId) ?? null;
     if (!slot) {
-      throw new Error(`Recipient ID "${recipId}" not found in stream slots`);
+      throw new CryptoError(
+        `Recipient ID "${recipId}" not found in stream slots`,
+        CryptoErrorCode.INVALID_INPUT,
+      );
     }
     const cek = tryUnwrapSlot(slot, recipX25519Sec, recipMlKemSec);
     if (!cek) {
-      throw new Error(`Decryption failed for recipient slot "${recipId}"`);
+      throw new CryptoError(
+        `Decryption failed for recipient slot "${recipId}"`,
+        CryptoErrorCode.AUTH_FAILED,
+      );
     }
     return { cek, matchingSlot: slot };
   }
@@ -515,7 +556,10 @@ function resolveRecipientCek(
       return { cek, matchingSlot: slot };
     }
   }
-  throw new Error("No matching recipient key slot could be decrypted");
+  throw new CryptoError(
+    "No matching recipient key slot could be decrypted",
+    CryptoErrorCode.AUTH_FAILED,
+  );
 }
 
 /**

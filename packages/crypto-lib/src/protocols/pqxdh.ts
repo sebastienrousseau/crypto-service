@@ -33,6 +33,7 @@ import { ml_kem768 } from "../accel/pq-backend";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -150,7 +151,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing with a label on invalid input. */
 function hexToBytes(hex: string, label: string): Uint8Array {
   if (!HEX_RE.test(hex)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(hex, "hex");
 }
@@ -181,7 +185,10 @@ const DEFAULT_INFO = "crypto-service";
 /** HKDF info: the four PQXDH parameters joined with underscores. */
 function kdfInfo(info: string): Uint8Array {
   if (!/^[\x20-\x7e]{8,}$/.test(info)) {
-    throw new Error("PQXDH info must be at least 8 printable ASCII characters");
+    throw new CryptoError(
+      "PQXDH info must be at least 8 printable ASCII characters",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return new TextEncoder().encode(`${info}_CURVE25519_SHA-256_ML-KEM-768`);
 }
@@ -221,7 +228,11 @@ function assertSigned(
   const valid =
     signature.length === 64 &&
     ed25519.verify(signature, message, signingPublic, { zip215: false });
-  if (!valid) throw new Error(`Invalid ${label} signature`);
+  if (!valid)
+    throw new CryptoError(
+      `Invalid ${label} signature`,
+      CryptoErrorCode.AUTH_FAILED,
+    );
 }
 
 // --- Key Generation ---

@@ -64,6 +64,9 @@ detail.
   refused; use ML-DSA-65.
 - **Test hooks** (`_resetWasmDetection` and the like) come from
   `@sebastienrousseau/crypto-lib/testing`, without the leading underscore.
+- **crypto-lib errors** are `CryptoError`s with a `code`; branch on the code
+  (or `isCallerErrorCode`) rather than the message. A 400 from
+  crypto-server's crypto routes carries the code in its problem details.
 - **License tiers are removed**: every tenant has the same quota, 60
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry

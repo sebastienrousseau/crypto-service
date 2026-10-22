@@ -11,13 +11,19 @@
  */
 
 import { sha256 } from "@noble/hashes/sha2.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // ─── Raw format conversions ────────────────────────────────────────
 
 /** Convert a hex string to a Uint8Array. */
 export function hexToBytes(hex: string): Uint8Array {
-  if (!/^[0-9a-fA-F]*$/.test(hex)) throw new Error("Invalid hex string");
-  if (hex.length % 2 !== 0) throw new Error("Hex string must have even length");
+  if (!/^[0-9a-fA-F]*$/.test(hex))
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
+  if (hex.length % 2 !== 0)
+    throw new CryptoError(
+      "Hex string must have even length",
+      CryptoErrorCode.INVALID_HEX,
+    );
   return Buffer.from(hex, "hex");
 }
 
@@ -84,17 +90,21 @@ export function decodePem(pem: string): {
   const beginMarker = "-----BEGIN ";
   const endMarker = "-----END ";
   const beginIdx = pem.indexOf(beginMarker);
-  if (beginIdx === -1) throw new Error("Invalid PEM format");
+  if (beginIdx === -1)
+    throw new CryptoError("Invalid PEM format", CryptoErrorCode.INVALID_INPUT);
 
   const headerEnd = pem.indexOf("-----", beginIdx + beginMarker.length);
-  if (headerEnd === -1) throw new Error("Invalid PEM format");
+  if (headerEnd === -1)
+    throw new CryptoError("Invalid PEM format", CryptoErrorCode.INVALID_INPUT);
 
   const label = pem.slice(beginIdx + beginMarker.length, headerEnd).trim();
-  if (!label) throw new Error("Invalid PEM format");
+  if (!label)
+    throw new CryptoError("Invalid PEM format", CryptoErrorCode.INVALID_INPUT);
 
   const closeTag = `${endMarker}${label}-----`;
   const endIdx = pem.indexOf(closeTag, headerEnd + 5);
-  if (endIdx === -1) throw new Error("Invalid PEM format");
+  if (endIdx === -1)
+    throw new CryptoError("Invalid PEM format", CryptoErrorCode.INVALID_INPUT);
 
   const b64 = pem.slice(headerEnd + 5, endIdx).replace(/\s/g, "");
   return { label, data: Buffer.from(b64, "base64") };
@@ -168,7 +178,11 @@ export function jwkToHex(jwk: Jwk): {
   /** Hex-encoded private key (if present in JWK). */
   privateKey?: string;
 } {
-  if (!jwk.x) throw new Error("JWK missing 'x' (public key) field");
+  if (!jwk.x)
+    throw new CryptoError(
+      "JWK missing 'x' (public key) field",
+      CryptoErrorCode.INVALID_KEY,
+    );
   const pub = base64urlToBytes(jwk.x);
   const result: { publicKey: string; privateKey?: string } = {
     publicKey: bytesToHex(pub),

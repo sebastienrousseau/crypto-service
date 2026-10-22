@@ -30,6 +30,7 @@ import {
   encryptChunksInto,
   streamSize,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** XChaCha20 nonce length in bytes, which is also the header length. */
 const NONCE_LEN = 24;
@@ -102,14 +103,21 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 export function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== 32) {
-      throw new Error(`Key must be 32 bytes, got ${key.length}`);
+      throw new CryptoError(
+        `Key must be 32 bytes, got ${key.length}`,
+        CryptoErrorCode.INVALID_KEY,
+      );
     }
     return key;
   }
-  if (!HEX_RE.test(key)) throw new Error("Invalid hex key");
+  if (!HEX_RE.test(key))
+    throw new CryptoError("Invalid hex key", CryptoErrorCode.INVALID_HEX);
   const buf = Buffer.from(key, "hex");
   if (buf.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${buf.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${buf.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
   return buf;
 }
@@ -186,7 +194,10 @@ export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < NONCE_LEN + 1 + TAG_LEN) {
-    throw new Error("Ciphertext too short — missing header or chunk data");
+    throw new CryptoError(
+      "Ciphertext too short — missing header or chunk data",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const baseNonce = ciphertext.subarray(0, NONCE_LEN);

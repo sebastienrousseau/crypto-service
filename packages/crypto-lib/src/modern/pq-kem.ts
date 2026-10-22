@@ -40,6 +40,7 @@ import { x25519 } from "@noble/curves/ed25519.js";
 import { x448 } from "@noble/curves/ed448.js";
 import { p256 } from "@noble/curves/nist.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -89,9 +90,10 @@ export function normalizeHybridKemAlgorithm(
     name === RFC10024_X25519_MLKEM768 ||
     name === RFC10024_SECP256R1_MLKEM768
   ) {
-    throw new Error(
+    throw new CryptoError(
       `${name} (RFC 10024 TLS group) is not implemented by this library; ` +
         "its hybrid KEMs use a different combiner and do not interoperate",
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return name;
@@ -167,7 +169,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(input, "hex");
 }
@@ -182,8 +187,9 @@ function getKem(level: MlKemLevel) {
     case 1024:
       return ml_kem1024;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported ML-KEM level: ${level}. Supported: 512, 768, 1024`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }

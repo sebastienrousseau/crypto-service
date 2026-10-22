@@ -16,6 +16,7 @@
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
@@ -30,15 +31,20 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== KEY_LEN) {
-      throw new Error(`Key must be ${KEY_LEN} bytes, got ${key.length}`);
+      throw new CryptoError(
+        `Key must be ${KEY_LEN} bytes, got ${key.length}`,
+        CryptoErrorCode.INVALID_KEY,
+      );
     }
     return key;
   }
-  if (!HEX_RE.test(key)) throw new Error("Invalid hex key");
+  if (!HEX_RE.test(key))
+    throw new CryptoError("Invalid hex key", CryptoErrorCode.INVALID_HEX);
   const buf = Buffer.from(key, "hex");
   if (buf.length !== KEY_LEN) {
-    throw new Error(
+    throw new CryptoError(
       `Key must be ${KEY_LEN} bytes (${KEY_LEN * 8} bits), got ${buf.length}`,
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   return buf;
@@ -96,7 +102,10 @@ export function open(
   const raw =
     sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
   if (raw.length < NONCE_LEN + TAG_LEN) {
-    throw new Error("Sealed box too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Sealed box too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const nonce = raw.subarray(0, NONCE_LEN);
   const ct = raw.subarray(NONCE_LEN);

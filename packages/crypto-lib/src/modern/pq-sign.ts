@@ -23,6 +23,7 @@
 import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { sha512 } from "@noble/hashes/sha2.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -105,7 +106,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(input, "hex");
 }
@@ -126,8 +130,9 @@ function getDsa(level: MlDsaLevel) {
     case 87:
       return ml_dsa87;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported ML-DSA level: ${level}. Supported: 44, 65, 87`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }
@@ -207,8 +212,9 @@ const COMPOSITE_LABELS: Partial<Record<MlDsaLevel, Uint8Array>> = {
 function compositeLabel(level: MlDsaLevel): Uint8Array {
   const label = COMPOSITE_LABELS[level];
   if (!label) {
-    throw new Error(
+    throw new CryptoError(
       "Composite ML-DSA defines no ML-DSA-87 + Ed25519 algorithm; use ML-DSA-44 or ML-DSA-65",
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return label;
@@ -222,7 +228,10 @@ function messageRepresentative(
 ): Uint8Array {
   const ctx = toBytes(context ?? new Uint8Array(0));
   if (ctx.length > 255) {
-    throw new Error("Hybrid signature context must be at most 255 bytes");
+    throw new CryptoError(
+      "Hybrid signature context must be at most 255 bytes",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return Uint8Array.from(
     Buffer.concat([

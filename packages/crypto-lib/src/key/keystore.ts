@@ -23,6 +23,7 @@
 import { readFile } from "fs/promises";
 import * as path from "path";
 import * as openpgp from "openpgp";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Immutable container holding the three shipped PGP key artifacts. */
 export interface Keystore {
@@ -63,8 +64,9 @@ function resolveKeyDir(dir?: string): string {
   if (process.env["CRYPTO_KEY_DIR"]) return process.env["CRYPTO_KEY_DIR"];
   // The bundled keys are public test fixtures: anyone can sign with them.
   if (process.env["NODE_ENV"] === "production") {
-    throw new Error(
+    throw new CryptoError(
       "CRYPTO_KEY_DIR is not set; refusing to use the bundled test keys in production",
+      CryptoErrorCode.CONFIGURATION,
     );
   }
   return path.resolve(__dirname, "..", "key");

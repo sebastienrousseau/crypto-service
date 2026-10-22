@@ -43,6 +43,7 @@ import {
   type ChunkDecryptor,
   type ChunkEncryptor,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
 /** Reference to the global TransformStream constructor. */
@@ -172,7 +173,10 @@ export function createHashStream(
 ): CryptoTransformStream<Uint8Array, HashStreamResult> {
   const factory = hashFactories[algorithm];
   if (!factory) {
-    throw new Error(`Unsupported hash algorithm: ${algorithm}`);
+    throw new CryptoError(
+      `Unsupported hash algorithm: ${algorithm}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+    );
   }
   const hasher = factory();
 
@@ -285,7 +289,10 @@ function chunkedDecryptStream(
     },
     flush(controller: Sink) {
       if (opened === undefined) {
-        throw new Error("Ciphertext too short — missing header or chunk data");
+        throw new CryptoError(
+          "Ciphertext too short — missing header or chunk data",
+          CryptoErrorCode.INVALID_CIPHERTEXT,
+        );
       }
       try {
         controller.enqueue(opened.decryptor.finish());
@@ -377,7 +384,10 @@ function singleMessageDecrypt(
     flush(controller: Sink) {
       const message = Uint8Array.from(Buffer.concat(parts));
       if (message.length < NONCE_LEN + 16) {
-        throw new Error("Ciphertext too short — missing nonce or auth tag");
+        throw new CryptoError(
+          "Ciphertext too short — missing nonce or auth tag",
+          CryptoErrorCode.INVALID_CIPHERTEXT,
+        );
       }
       const nonce = message.subarray(0, NONCE_LEN);
       controller.enqueue(

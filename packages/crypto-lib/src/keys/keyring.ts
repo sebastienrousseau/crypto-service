@@ -16,6 +16,7 @@
 import { generateKeyPair, type KeyAlgorithm, type KeyMetadata } from "./keygen";
 import { ed25519ToJwk, x25519ToJwk, type Jwk } from "./serialize";
 import * as secretbox from "../high-level/secretbox";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -127,7 +128,11 @@ export class Keyring {
    */
   rotate(kid: string): KeyEntry {
     const old = this.keys.get(kid);
-    if (!old) throw new Error(`Key not found: ${kid}`);
+    if (!old)
+      throw new CryptoError(
+        `Key not found: ${kid}`,
+        CryptoErrorCode.INVALID_KEY,
+      );
 
     old.archived = true;
 

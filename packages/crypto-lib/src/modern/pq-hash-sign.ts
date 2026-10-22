@@ -31,6 +31,7 @@ import {
   slh_dsa_shake_256f,
   slh_dsa_shake_256s,
 } from "../accel/pq-backend";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -83,7 +84,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(input, "hex");
 }
@@ -114,8 +118,9 @@ const SLH_DSA_VARIANTS: Record<SlhDsaVariant, typeof slh_dsa_sha2_128f> = {
 function getVariant(variant: SlhDsaVariant) {
   const impl = SLH_DSA_VARIANTS[variant];
   if (!impl) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported SLH-DSA variant: ${variant}. Supported: ${Object.keys(SLH_DSA_VARIANTS).join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return impl;

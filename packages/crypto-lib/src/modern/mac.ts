@@ -16,7 +16,7 @@ import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
 import { timingSafeEqual } from "../utils";
-import { CryptoError } from "../errors";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -83,7 +83,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -107,8 +107,9 @@ const hashFunctions: Record<HmacAlgorithm, HashFn> = {
 function getHashFn(algorithm: HmacAlgorithm): HashFn {
   const fn = hashFunctions[algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported HMAC algorithm: ${algorithm}. Supported: ${HMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return fn;
@@ -240,8 +241,9 @@ const kmacDefaultLength: Record<KmacAlgorithm, number> = {
 export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
   const fn = kmacFunctions[options.algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported KMAC algorithm: ${options.algorithm}. Supported: ${KMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
 
@@ -271,8 +273,9 @@ export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
 export function verifyKmac(options: KmacVerifyOptions): KmacVerifyResult {
   const fn = kmacFunctions[options.algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported KMAC algorithm: ${options.algorithm}. Supported: ${KMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
 

@@ -21,6 +21,7 @@ import { argon2id, argon2i, argon2d } from "../accel/kdf-backend";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { timingSafeEqual } from "../utils";
 import { checkArgon2Costs } from "./cost-limits";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -110,7 +111,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -127,8 +128,9 @@ function getArgon2Fn(variant: Argon2Variant) {
     case "argon2d":
       return argon2d;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported Argon2 variant: ${variant}. Supported: argon2id, argon2i, argon2d`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }
@@ -156,11 +158,17 @@ function parsePhcString(phc: string): {
 } {
   const parts = phc.split("$").filter(Boolean);
   if (parts.length < 5) {
-    throw new Error("Invalid PHC string format");
+    throw new CryptoError(
+      "Invalid PHC string format",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   const variant = parts[0] as Argon2Variant;
   if (!["argon2id", "argon2i", "argon2d"].includes(variant)) {
-    throw new Error(`Unsupported variant in PHC string: ${variant}`);
+    throw new CryptoError(
+      `Unsupported variant in PHC string: ${variant}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   // parts[1] = "v=19"
   const paramStr = parts[2];

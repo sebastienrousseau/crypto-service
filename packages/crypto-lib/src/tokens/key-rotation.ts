@@ -24,6 +24,7 @@
  */
 
 import * as secretbox from "../high-level/secretbox";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -175,7 +176,10 @@ export function decryptWithVersion(
 ): string {
   const vk = findKeyByVersion(ring, version);
   if (!vk) {
-    throw new Error(`Key version "${version}" not found in key ring`);
+    throw new CryptoError(
+      `Key version "${version}" not found in key ring`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
   const pt = secretbox.open(vk.key, ciphertext);
   return Buffer.from(pt).toString("utf8");

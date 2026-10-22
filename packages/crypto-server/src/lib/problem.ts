@@ -19,7 +19,7 @@
 
 import { STATUS_CODES } from "http";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { CryptoError } from "@sebastienrousseau/crypto-lib";
+import { CryptoError, isCallerErrorCode } from "@sebastienrousseau/crypto-lib";
 import {
   WorkerPoolBusyError,
   WorkerTaskTimeoutError,
@@ -122,24 +122,10 @@ export function sendProblem(
   return reply.status(status).type(PROBLEM_CONTENT_TYPE).send(body);
 }
 
-/** crypto-lib error codes that describe bad input (400); others are 500. */
-const CRYPTO_INPUT_CODES: ReadonlySet<string> = new Set([
-  "INVALID_KEY",
-  "UNSUPPORTED_ALGORITHM",
-  "INVALID_HEX",
-  "INVALID_CIPHERTEXT",
-  "AUTH_FAILED",
-  "INVALID_INPUT",
-  "OPAQUE_ENVELOPE_RECOVERY",
-  "OPAQUE_SERVER_AUTHENTICATION",
-  "OPAQUE_CLIENT_AUTHENTICATION",
-  "OPAQUE_DESERIALIZE",
-  "OPAQUE_INVALID_INPUT",
-]);
-
 /** HTTP status for a crypto-lib error code. */
 export function cryptoErrorStatus(code: string): number {
-  return CRYPTO_INPUT_CODES.has(code) ? 400 : 500;
+  // crypto-lib owns the list of codes that mean bad input.
+  return isCallerErrorCode(code) ? 400 : 500;
 }
 
 /** Whether a value is a crypto-lib `CryptoError`. */

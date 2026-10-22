@@ -18,6 +18,7 @@
 
 import { gcm, gcmsiv } from "@noble/ciphers/aes.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -95,7 +96,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -111,8 +112,9 @@ const TAG_LENGTH = 16; // GCM 128-bit auth tag
 function validateAesKey(rawKey: string | Uint8Array): Uint8Array {
   const key = toBytes(rawKey, "hex");
   if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
+    throw new CryptoError(
       `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   return key;
@@ -133,7 +135,10 @@ function unpackNonceAndSealed(ciphertext: string): {
 } {
   const combined = Buffer.from(ciphertext, "base64");
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   return {
     nonce: combined.subarray(0, NONCE_LENGTH),

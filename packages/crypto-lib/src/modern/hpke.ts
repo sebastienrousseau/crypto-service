@@ -26,9 +26,10 @@ import { extract, expand } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { gcm } from "@noble/ciphers/aes.js";
-import { ml_kem768_x25519 as xwing } from "@noble/post-quantum/hybrid.js";
+import { xwingDecap, xwingEncap, xwingKeygen } from "./hpke-xwing";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { ml_kem768 } from "../accel/pq-backend";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -185,7 +186,7 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!HEX_RE.test(hex) || hex.length % 2 !== 0) {
-    throw new Error("Invalid hex string");
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
   return Buffer.from(hex, "hex");
 }
@@ -416,35 +417,6 @@ function dhkemDecap(
   return extractAndExpand(params, dh, concat(enc, recipientPub));
 }
 
-/**
- * X-Wing Encap (draft-connolly-cfrg-xwing-kem-06, section 5.6): the KEM's
- * shared secret is X-Wing's own, used directly by the key schedule.
- * `eseed` is the 64 bytes of encapsulation randomness.
- */
-function xwingEncap(
-  recipientPub: Uint8Array,
-  eseed: Uint8Array,
-): { sharedSecret: Uint8Array; enc: Uint8Array } {
-  if (recipientPub.length !== 1216) {
-    throw new Error("Invalid x-wing public key length (expected 1216 bytes)");
-  }
-  const { cipherText, sharedSecret } = xwing.encapsulate(recipientPub, eseed);
-  return { sharedSecret, enc: cipherText };
-}
-
-/** X-Wing Decap with the 32-byte X-Wing private key (a seed). */
-function xwingDecap(enc: Uint8Array, recipientPriv: Uint8Array): Uint8Array {
-  if (recipientPriv.length !== 32) {
-    throw new Error("Invalid x-wing private key length (expected 32 bytes)");
-  }
-  if (enc.length !== 1120) {
-    throw new Error(
-      "Invalid x-wing encapsulated key length (expected 1120 bytes)",
-    );
-  }
-  return xwing.decapsulate(enc, recipientPriv);
-}
-
 /** Encap with the KEM `kem` and the ephemeral secret it needs. */
 function encap(
   kem: HpkeKem,
@@ -487,8 +459,9 @@ function hybridEncap(
   params: SuiteParams,
 ): { sharedSecret: Uint8Array; enc: Uint8Array } {
   if (recipientPub.length !== 1216) {
-    throw new Error(
+    throw new CryptoError(
       "Invalid recipient public key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   const pkX = recipientPub.subarray(0, 32);
@@ -513,12 +486,16 @@ function hybridDecap(
   params: SuiteParams,
 ): Uint8Array {
   if (recipientPriv.length !== 2432) {
-    throw new Error(
+    throw new CryptoError(
       "Invalid recipient private key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   if (enc.length !== 1120) {
-    throw new Error("Invalid encapsulated key length for x25519-ml-kem-768");
+    throw new CryptoError(
+      "Invalid encapsulated key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const skX = recipientPriv.subarray(0, 32);
   const skMlKem = recipientPriv.subarray(32);
@@ -607,7 +584,10 @@ function scheduleInputs(options: {
   const psk = hexToBytes(options.psk.psk);
   const pskId = hexToBytes(options.psk.pskId);
   if (psk.length === 0 || pskId.length === 0) {
-    throw new Error("PSK mode requires a non-empty psk and pskId");
+    throw new CryptoError(
+      "PSK mode requires a non-empty psk and pskId",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return { mode: MODE_PSK, info, psk, pskId };
 }
@@ -663,7 +643,7 @@ function aeadOpen(
  */
 export function hpkeGenerateKeyPair(kem: HpkeKem = "x25519"): HpkeKeyPair {
   if (kem === "x-wing") {
-    const { publicKey, secretKey } = xwing.keygen();
+    const { publicKey, secretKey } = xwingKeygen();
     return {
       publicKey: bytesToHex(publicKey),
       privateKey: bytesToHex(secretKey),

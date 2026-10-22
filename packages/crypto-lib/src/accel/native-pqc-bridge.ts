@@ -18,6 +18,7 @@ import {
   ml_kem1024,
   nativeAlgorithms,
 } from "./pq-backend";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Feature Detection ---
 
@@ -109,8 +110,9 @@ const VALID_LEVELS = new Set<number>([512, 768, 1024]);
 
 function assertLevel(level: number): asserts level is NativeMlKemLevel {
   if (!VALID_LEVELS.has(level)) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported ML-KEM level: ${level}. Supported: 512, 768, 1024`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
 }

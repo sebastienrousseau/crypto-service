@@ -22,6 +22,7 @@
 
 import { Worker, isMainThread } from "node:worker_threads";
 import { cpus } from "node:os";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -51,6 +52,36 @@ export interface WorkerPoolOptions {
 export class WorkerPoolBusyError extends Error {
   override readonly name = "WorkerPoolBusyError";
 }
+
+/** What a worker answers for a task. */
+interface WorkerAnswer {
+  success: boolean;
+  result?: unknown;
+  /** The error's message, when the task failed. */
+  error?: string;
+  /** The error's name (`CryptoError`, `RangeError`...). */
+  name?: string;
+  /** A CryptoError's code. */
+  code?: string;
+}
+
+/**
+ * The main-thread error for a task that failed in a worker: a CryptoError
+ * keeps its code and a RangeError its class, so callers classify it as
+ * they would the same error thrown in-process.
+ */
+function rebuildError(msg: WorkerAnswer): Error {
+  /* c8 ignore next -- worker error messages always include .error */
+  const message = msg.error ?? "Worker task failed";
+  if (msg.name === "CryptoError" && msg.code !== undefined) {
+    return new CryptoError(message, msg.code);
+  }
+  if (msg.name === "RangeError") return new RangeError(message);
+  return new Error(message);
+}
+
+/** Message for a pool created outside the main thread. */
+const MAIN_THREAD_ONLY = "WorkerPool must be created from the main thread";
 
 /** Raised for a task that ran longer than `taskTimeoutMs`. */
 export class WorkerTaskTimeoutError extends Error {
@@ -113,9 +144,13 @@ parentPort.on("message", async (msg) => {
     const result = await fn(...msg.args);
     parentPort.postMessage({ success: true, result });
   } catch (err) {
+    // An error crosses the thread as data: send its name and, for a
+    // CryptoError, its code, so the main thread can rebuild it.
     parentPort.postMessage({
       success: false,
       error: err instanceof Error ? err.message : String(err),
+      name: err instanceof Error ? err.name : undefined,
+      code: err && typeof err.code === "string" ? err.code : undefined,
     });
   }
 });
@@ -151,7 +186,7 @@ export class WorkerPool {
   constructor(options: WorkerPoolOptions = {}) {
     /* c8 ignore next 3 -- only reachable from worker threads (separate V8 instance) */
     if (!isMainThread) {
-      throw new Error("WorkerPool must be created from the main thread");
+      throw new CryptoError(MAIN_THREAD_ONLY, CryptoErrorCode.INVALID_STATE);
     }
 
     this.size = Math.max(1, options.size ?? Math.floor(cpus().length / 2));
@@ -286,10 +321,7 @@ export class WorkerPool {
   }
 
   /** A worker answered its task. */
-  private settle(
-    entry: WorkerEntry,
-    msg: { success: boolean; result?: unknown; error?: string },
-  ): void {
+  private settle(entry: WorkerEntry, msg: WorkerAnswer): void {
     const pending = entry.current;
     /* c8 ignore next -- a worker only answers the task it was given */
     if (!pending) return;
@@ -298,8 +330,7 @@ export class WorkerPool {
     if (msg.success) {
       pending.resolve(msg.result);
     } else {
-      /* c8 ignore next -- worker error messages always include .error */
-      pending.reject(new Error(msg.error ?? "Worker task failed"));
+      pending.reject(rebuildError(msg));
     }
     this.processQueue(entry);
   }

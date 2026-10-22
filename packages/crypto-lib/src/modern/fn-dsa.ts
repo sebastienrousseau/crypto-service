@@ -12,6 +12,7 @@
  */
 
 import { falcon512, falcon1024 } from "@noble/post-quantum/falcon.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -93,7 +94,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(input, "hex");
 }
@@ -106,8 +110,9 @@ function getFalcon(level: FnDsaLevel) {
     case 1024:
       return falcon1024;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported FN-DSA level: ${level}. Supported: 512, 1024`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }

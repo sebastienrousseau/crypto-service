@@ -7,6 +7,7 @@ import * as path from "path";
 import * as openpgp from "openpgp";
 import { writeKeyOutputs, type KeyOutputOptions } from "./key-output";
 import * as types from "../types/types";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /**
  * Validate and normalise the numeric inputs of {@link generate}, and reject
@@ -18,15 +19,17 @@ function validateGenerateInput(data: types.dataGenerate): {
 } {
   const rsaBits = Number(data.rsaBits);
   if (!Number.isFinite(rsaBits) || rsaBits < 2048) {
-    throw new Error(
+    throw new CryptoError(
       "rsaBits should be at least 2047 (received " + String(data.rsaBits) + ")",
+      CryptoErrorCode.INVALID_INPUT,
     );
   }
 
   const keyExpirationTime = Number(data.keyExpirationTime);
   if (!Number.isFinite(keyExpirationTime) || keyExpirationTime < 0) {
-    throw new Error(
+    throw new CryptoError(
       "keyExpirationTime must be a non-negative number of seconds",
+      CryptoErrorCode.INVALID_INPUT,
     );
   }
 
@@ -34,7 +37,10 @@ function validateGenerateInput(data: types.dataGenerate): {
   if (data.type) {
     const safeType = path.basename(data.type);
     if (safeType !== data.type || safeType.includes("..")) {
-      throw new Error("Invalid key type: must not contain path separators");
+      throw new CryptoError(
+        "Invalid key type: must not contain path separators",
+        CryptoErrorCode.INVALID_INPUT,
+      );
     }
   }
 
@@ -88,7 +94,10 @@ export async function generate(
     await openpgp.generateKey(options);
 
   if (!data.type) {
-    throw new Error("No key type specified");
+    throw new CryptoError(
+      "No key type specified",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   const publicKeyString =

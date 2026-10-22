@@ -58,21 +58,12 @@ export function collectValidation<
   };
 }
 
-/** Error messages from crypto-lib and @noble/* that mean bad input. */
-const INPUT_ERROR_PATTERNS: readonly RegExp[] = [
-  /invalid hex/i,
-  /must be \d+ bytes/i,
-  /too short/i,
-  /unsupported/i,
-  /expected.*length/i,
-  /of length \d+ expected/i,
-];
-
 /**
  * Classify a crypto operation error as client (4xx) or server (5xx), and
  * send it as an RFC 9457 problem. A crypto-lib `CryptoError` is
- * classified by its `code`, which the problem carries as `code`.
- * Input validation errors (invalid hex, wrong key length, etc.) return 400.
+ * classified by its `code` (crypto-lib's `isCallerErrorCode`), which the
+ * problem carries as `code`; a RangeError from @noble/* (input of the
+ * wrong length) is a 400; anything else is a 500.
  * @example
  * ```ts
  * classifyCryptoError(error, request, reply, "Encryption");
@@ -88,13 +79,13 @@ export function classifyCryptoError(
     const spec = busy();
     return sendProblem(reply, spec.status, spec.slug, spec.detail);
   }
-  const msg = error instanceof Error ? error.message : String(error);
-  // A crypto-lib CryptoError carries a code; anything else is classified
-  // by its message.
+  // A crypto-lib CryptoError carries a code. Anything else is classified
+  // by its class, never its message: @noble/* throws RangeError for input
+  // of the wrong length; any other error is a fault on this side.
   const code = isCryptoError(error) ? error.code : undefined;
   const isInputError =
     code === undefined
-      ? INPUT_ERROR_PATTERNS.some((pattern) => pattern.test(msg))
+      ? error instanceof RangeError
       : cryptoErrorStatus(code) === 400;
   const extensions = code === undefined ? {} : { code };
 

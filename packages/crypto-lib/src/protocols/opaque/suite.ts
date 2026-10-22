@@ -25,24 +25,13 @@ import { expand, extract } from "@noble/hashes/hkdf.js";
 import { hmac } from "@noble/hashes/hmac.js";
 import { concatBytes } from "@noble/hashes/utils.js";
 import type { CHash } from "@noble/hashes/utils.js";
-import { CryptoError } from "../../errors";
+import { CryptoError, OpaqueErrorCode } from "../../errors";
 
 /** Identifier of a supported OPAQUE-3DH configuration (named after its OPRF suite). */
 export type SuiteId = "P256-SHA256" | "ristretto255-SHA512";
 
 /** Error codes thrown by the OPAQUE functions (as `CryptoError.code`). */
-export const OpaqueErrorCode = {
-  /** RFC 9807 EnvelopeRecoveryError: wrong password or a forged or fake credential response. */
-  ENVELOPE_RECOVERY: "OPAQUE_ENVELOPE_RECOVERY",
-  /** RFC 9807 ServerAuthenticationError: the server MAC in KE2 does not verify. */
-  SERVER_AUTHENTICATION: "OPAQUE_SERVER_AUTHENTICATION",
-  /** RFC 9807 ClientAuthenticationError: the client MAC in KE3 does not verify. */
-  CLIENT_AUTHENTICATION: "OPAQUE_CLIENT_AUTHENTICATION",
-  /** A message, key or element has the wrong length or is not a valid group element. */
-  DESERIALIZE: "OPAQUE_DESERIALIZE",
-  /** An input outside the RFC's limits (unknown suite, empty or oversized identity). */
-  INVALID_INPUT: "OPAQUE_INVALID_INPUT",
-} as const;
+export { OpaqueErrorCode } from "../../errors";
 
 /** Nonce length Nn in bytes (RFC 9807 § 2). */
 export const Nn = 32;

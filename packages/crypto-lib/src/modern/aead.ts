@@ -15,6 +15,7 @@
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Result of an XChaCha20-Poly1305 encryption operation. */
 export interface AeadEncryptResult {
@@ -55,7 +56,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -73,7 +74,10 @@ const NONCE_LENGTH = 24; // XChaCha20 uses 24-byte nonces
 export function aeadEncrypt(options: AeadEncryptOptions): AeadEncryptResult {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const plaintext = toBytes(options.plaintext, "utf8");
@@ -101,12 +105,18 @@ export function aeadEncrypt(options: AeadEncryptOptions): AeadEncryptResult {
 export function aeadDecrypt(options: AeadDecryptOptions): Uint8Array {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const combined = Buffer.from(options.ciphertext, "base64");
   if (combined.length < NONCE_LENGTH + 16) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);

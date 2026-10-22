@@ -14,6 +14,7 @@ import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { blake3 } from "@noble/hashes/blake3.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Supported streaming hash algorithm identifiers. */
 export const STREAM_HASH_ALGORITHMS = [
@@ -68,14 +69,21 @@ export interface StreamingHasher {
 export function createHasher(algorithm: StreamHashAlgorithm): StreamingHasher {
   const factory = factories[algorithm];
   if (!factory) {
-    throw new Error(`Unsupported streaming hash algorithm: ${algorithm}`);
+    throw new CryptoError(
+      `Unsupported streaming hash algorithm: ${algorithm}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+    );
   }
   const inner = factory();
   let finalized = false;
 
   return {
     update(data: string | Uint8Array) {
-      if (finalized) throw new Error("Hasher already finalized");
+      if (finalized)
+        throw new CryptoError(
+          "Hasher already finalized",
+          CryptoErrorCode.INVALID_STATE,
+        );
       const bytes = typeof data === "string" ? Buffer.from(data, "utf8") : data;
       inner.update(bytes);
       return this;

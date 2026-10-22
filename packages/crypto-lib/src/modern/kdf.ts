@@ -16,6 +16,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
@@ -74,7 +75,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -140,7 +141,10 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
       derived = derivePbkdf2(password, salt, keyLength, params);
       break;
     default:
-      throw new Error(`Unsupported KDF algorithm: ${options.algorithm}`);
+      throw new CryptoError(
+        `Unsupported KDF algorithm: ${options.algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 
   return {

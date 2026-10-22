@@ -30,6 +30,7 @@ import { xchacha20 } from "@noble/ciphers/chacha.js";
 import { equalBytes, randomBytes } from "@noble/ciphers/utils.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { blake2b } from "@noble/hashes/blake2.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Constants ---
 
@@ -143,7 +144,11 @@ function timeClaim(
     typeof value === "string" && RFC3339_RE.test(value)
       ? Date.parse(value)
       : NaN;
-  if (Number.isNaN(ms)) throw new Error(`Invalid ${name} claim`);
+  if (Number.isNaN(ms))
+    throw new CryptoError(
+      `Invalid ${name} claim`,
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   return ms;
 }
 
@@ -156,10 +161,15 @@ function checkTimeClaims(payload: Record<string, unknown>, now: Date): void {
   const exp = timeClaim(payload, "exp");
   const nbf = timeClaim(payload, "nbf");
   const iat = timeClaim(payload, "iat");
-  if (exp !== undefined && t >= exp) throw new Error("Token expired");
-  if (nbf !== undefined && t < nbf) throw new Error("Token not yet valid");
+  if (exp !== undefined && t >= exp)
+    throw new CryptoError("Token expired", CryptoErrorCode.INVALID_TOKEN);
+  if (nbf !== undefined && t < nbf)
+    throw new CryptoError("Token not yet valid", CryptoErrorCode.INVALID_TOKEN);
   if (iat !== undefined && t < iat) {
-    throw new Error("Token issued in the future");
+    throw new CryptoError(
+      "Token issued in the future",
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
 }
 
@@ -200,7 +210,8 @@ export function pae(...pieces: Uint8Array[]): Uint8Array {
 }
 
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
+  if (!HEX_RE.test(hex))
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }
 
@@ -216,7 +227,10 @@ function toBase64url(buf: Uint8Array): string {
 function fromBase64url(s: string): Uint8Array {
   const bytes = Buffer.from(s, "base64url");
   if (!BASE64URL_RE.test(s) || bytes.toString("base64url") !== s) {
-    throw new Error("Invalid base64url encoding");
+    throw new CryptoError(
+      "Invalid base64url encoding",
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
   return bytes;
 }
@@ -229,7 +243,10 @@ const encoder = new TextEncoder();
 function localKey(key: string): Uint8Array {
   const keyBytes = hexToBytes(key);
   if (keyBytes.length !== 32) {
-    throw new Error(`Key must be 32 bytes, got ${keyBytes.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes, got ${keyBytes.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
   return keyBytes;
 }
@@ -299,7 +316,10 @@ export function localEncryptWithNonce(
   const { key, payload, footer = "", implicit = "" } = opts;
   const keyBytes = localKey(key);
   if (nonce.length !== NONCE_LEN) {
-    throw new Error(`Nonce must be ${NONCE_LEN} bytes, got ${nonce.length}`);
+    throw new CryptoError(
+      `Nonce must be ${NONCE_LEN} bytes, got ${nonce.length}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   const footerBytes = encoder.encode(footer);
   const { ek, n2, ak } = localSubkeys(keyBytes, nonce);
@@ -350,7 +370,7 @@ function localEncrypt(opts: PasetoLocalEncryptOptions): PasetoToken {
 function assertFooter(footerB64: string, footer: string): void {
   const expected = encoder.encode(footer);
   if (!equalBytes(fromBase64url(footerB64), expected)) {
-    throw new Error("Footer mismatch");
+    throw new CryptoError("Footer mismatch", CryptoErrorCode.INVALID_TOKEN);
   }
 }
 
@@ -371,7 +391,10 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
   const keyBytes = localKey(key);
 
   if (!token.startsWith(V4_LOCAL_HEADER)) {
-    throw new Error(`Invalid token header: expected "${V4_LOCAL_HEADER}"`);
+    throw new CryptoError(
+      `Invalid token header: expected "${V4_LOCAL_HEADER}"`,
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
 
   const parts = token.slice(V4_LOCAL_HEADER.length).split(".");
@@ -379,7 +402,10 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
 
   const body = fromBase64url(parts[0]!);
   if (body.length < NONCE_LEN + TAG_LEN) {
-    throw new Error("Token body too short");
+    throw new CryptoError(
+      "Token body too short",
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
   const nonce = body.subarray(0, NONCE_LEN);
   const ciphertext = body.subarray(NONCE_LEN, body.length - TAG_LEN);
@@ -394,7 +420,10 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
     encoder.encode(implicit),
   );
   if (!equalBytes(tag, expected)) {
-    throw new Error("Invalid token: authentication failed");
+    throw new CryptoError(
+      "Invalid token: authentication failed",
+      CryptoErrorCode.AUTH_FAILED,
+    );
   }
 
   const plaintext = xchacha20(ek, n2, ciphertext);
@@ -425,7 +454,10 @@ function publicSign(opts: PasetoPublicSignOptions): PasetoToken {
   const { secretKey, payload, footer = "", implicit = "" } = opts;
   const skBytes = hexToBytes(secretKey);
   if (skBytes.length !== 64 && skBytes.length !== 32) {
-    throw new Error(`Secret key must be 32 or 64 bytes, got ${skBytes.length}`);
+    throw new CryptoError(
+      `Secret key must be 32 or 64 bytes, got ${skBytes.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const header = encoder.encode(V4_PUBLIC_HEADER);
@@ -469,11 +501,17 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
   const { publicKey, token, footer = "", implicit = "" } = opts;
   const pkBytes = hexToBytes(publicKey);
   if (pkBytes.length !== 32) {
-    throw new Error(`Public key must be 32 bytes, got ${pkBytes.length}`);
+    throw new CryptoError(
+      `Public key must be 32 bytes, got ${pkBytes.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   if (!token.startsWith(V4_PUBLIC_HEADER)) {
-    throw new Error(`Invalid token header: expected "${V4_PUBLIC_HEADER}"`);
+    throw new CryptoError(
+      `Invalid token header: expected "${V4_PUBLIC_HEADER}"`,
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
 
   const withoutHeader = token.slice(V4_PUBLIC_HEADER.length);
@@ -486,7 +524,10 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
 
   const body = fromBase64url(bodyB64);
   if (body.length < SIG_LEN) {
-    throw new Error("Token body too short");
+    throw new CryptoError(
+      "Token body too short",
+      CryptoErrorCode.INVALID_TOKEN,
+    );
   }
 
   const message = body.subarray(0, body.length - SIG_LEN);
@@ -501,7 +542,7 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
   // RFC 8032 decoding, as PASETO v4.public specifies Ed25519.
   const valid = ed25519.verify(sig, m2, pkBytes, { zip215: false });
   if (!valid) {
-    throw new Error("Invalid signature");
+    throw new CryptoError("Invalid signature", CryptoErrorCode.AUTH_FAILED);
   }
 
   const payloadStr = Buffer.from(message).toString("utf8");

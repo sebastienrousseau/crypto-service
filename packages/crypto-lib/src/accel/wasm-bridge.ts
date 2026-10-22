@@ -24,6 +24,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -196,7 +197,8 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) throw new Error("Invalid hex string");
+    if (!HEX_RE.test(input))
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     return Buffer.from(input, "hex");
   }
   return Buffer.from(input, "utf8");
@@ -215,7 +217,10 @@ function getHashFn(algorithm: WasmHashAlgorithm) {
     case "blake3":
       return blake3;
     default:
-      throw new Error(`Unsupported hash algorithm: ${algorithm}`);
+      throw new CryptoError(
+        `Unsupported hash algorithm: ${algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 }
 
@@ -267,7 +272,10 @@ export function wasmAeadEncrypt(
 ): WasmAeadEncryptResult {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const plaintext =
@@ -307,12 +315,18 @@ export function wasmAeadDecrypt(options: {
 }): WasmAeadDecryptResult {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const combined = Buffer.from(options.ciphertext, "base64");
   if (combined.length < NONCE_LENGTH + 16) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);

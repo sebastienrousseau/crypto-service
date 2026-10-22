@@ -26,6 +26,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Length of an X25519 ephemeral public key in bytes. */
 const EPHEMERAL_LEN = 32;
@@ -38,7 +39,8 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
+  if (!HEX_RE.test(hex))
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }
 
@@ -131,8 +133,9 @@ export function open(
     sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
   const minLen = EPHEMERAL_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
-    throw new Error(
+    throw new CryptoError(
       `Sealed box too short: expected >= ${minLen} bytes, got ${raw.length}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
     );
   }
 
@@ -244,8 +247,9 @@ export function openPQ(
     sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
   const minLen = EPHEMERAL_LEN + ML_KEM_768_CT_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
-    throw new Error(
+    throw new CryptoError(
       `PQ sealed box too short: expected >= ${minLen} bytes, got ${raw.length}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
     );
   }
 

@@ -31,13 +31,15 @@ import {
 import { aeskw } from "@noble/ciphers/aes.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Regex matching valid hexadecimal strings. */
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
+  if (!HEX_RE.test(hex))
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   return Buffer.from(hex, "hex");
 }
 
@@ -97,7 +99,10 @@ export function multiEncrypt(
   plaintext: string | Uint8Array,
 ): MultiRecipientEncryptResult {
   if (recipients.length === 0) {
-    throw new Error("At least one recipient is required");
+    throw new CryptoError(
+      "At least one recipient is required",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   // Generate DEK
@@ -252,7 +257,10 @@ export function multiDecryptPQ(
   ciphertext: string,
 ): Uint8Array {
   if (!wrappedKey.mlKemCiphertext) {
-    throw new Error("Missing ML-KEM ciphertext in wrapped key");
+    throw new CryptoError(
+      "Missing ML-KEM ciphertext in wrapped key",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const dek = unwrapDekHybrid(

@@ -13,6 +13,7 @@ import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { blake3 } from "@noble/hashes/blake3.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Supported cryptographic hash algorithms. */
 export const HASH_ALGORITHMS = [
@@ -82,8 +83,9 @@ export function hash(options: HashOptions): HashResult {
       digest = blake3(data);
       break;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported algorithm: ${options.algorithm as string}. Supported: ${HASH_ALGORITHMS.join(", ")}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 

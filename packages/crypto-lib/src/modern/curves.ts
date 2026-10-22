@@ -18,6 +18,7 @@ import { p256, p384 } from "@noble/curves/nist.js";
 import { ed448, x448 } from "@noble/curves/ed448.js";
 import { schnorr } from "@noble/curves/secp256k1.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -167,7 +168,10 @@ const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
   if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
   return Buffer.from(input, "hex");
 }

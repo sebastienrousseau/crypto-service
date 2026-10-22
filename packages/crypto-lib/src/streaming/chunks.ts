@@ -8,6 +8,7 @@
  */
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /**
  * Throw unless `chunkSize` is a positive integer. Zero made encryption
@@ -16,7 +17,10 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
  */
 export function assertChunkSize(chunkSize: number): void {
   if (!Number.isSafeInteger(chunkSize) || chunkSize < 1) {
-    throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
+    throw new CryptoError(
+      `chunkSize must be a positive integer, got ${chunkSize}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 }
 
@@ -181,11 +185,17 @@ export class ChunkDecryptor {
     while (this.queue.length > 0) {
       const tag = this.queue.first();
       if (tag !== CHUNK_TAG_MESSAGE && tag !== CHUNK_TAG_FINAL) {
-        throw new Error(`Invalid chunk tag: 0x${tag.toString(16)}`);
+        throw new CryptoError(
+          `Invalid chunk tag: 0x${tag.toString(16)}`,
+          CryptoErrorCode.INVALID_CIPHERTEXT,
+        );
       }
       if (tag === CHUNK_TAG_FINAL) {
         if (this.queue.length > full) {
-          throw new Error("Final chunk is longer than the chunk size");
+          throw new CryptoError(
+            "Final chunk is longer than the chunk size",
+            CryptoErrorCode.INVALID_CIPHERTEXT,
+          );
         }
         break;
       }
@@ -197,9 +207,16 @@ export class ChunkDecryptor {
 
   /** Ends the stream; returns the FINAL chunk's plaintext. */
   finish(): Uint8Array {
-    if (this.queue.length === 0) throw new Error(this.truncated.finalMissing);
+    if (this.queue.length === 0)
+      throw new CryptoError(
+        this.truncated.finalMissing,
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     if (this.queue.first() !== CHUNK_TAG_FINAL) {
-      throw new Error(this.truncated.incomplete);
+      throw new CryptoError(
+        this.truncated.incomplete,
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     }
     return this.open(this.queue.take(this.queue.length));
   }

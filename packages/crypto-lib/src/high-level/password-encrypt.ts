@@ -26,6 +26,7 @@ import { argon2id } from "../accel/kdf-backend";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkArgon2Costs } from "../modern/cost-limits";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Legacy format version: header not authenticated (decrypt only). */
 const VERSION_V1 = 0x01;
@@ -168,12 +169,18 @@ export function passwordDecrypt(
       : Buffer.from(encrypted, "base64");
 
   if (raw.length < HEADER_LEN + TAG_LEN) {
-    throw new Error("Encrypted payload too short");
+    throw new CryptoError(
+      "Encrypted payload too short",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const version = raw[0]!;
   if (version !== VERSION_V1 && version !== VERSION_V2) {
-    throw new Error(`Unsupported format version: ${version}`);
+    throw new CryptoError(
+      `Unsupported format version: ${version}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const t = readU32LE(raw, 1);
@@ -186,7 +193,10 @@ export function passwordDecrypt(
 
   checkArgon2Costs(t, m, p);
   if (dkLen !== KEY_LEN) {
-    throw new Error(`Unsupported key length in header: ${dkLen}`);
+    throw new CryptoError(
+      `Unsupported key length in header: ${dkLen}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const key = argon2id(pwd, salt, { t, m, p, dkLen });
   const aad = version === VERSION_V2 ? raw.subarray(0, HEADER_LEN) : undefined;

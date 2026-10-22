@@ -18,6 +18,7 @@ import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToBase64url } from "./serialize";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 // --- Types ---
 
@@ -121,8 +122,9 @@ export function generateKeyPair(
   metadata: KeyMetadata = {},
 ): GeneratedKeyPair {
   if (!Object.hasOwn(KEYGEN, algorithm)) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported algorithm: ${algorithm}. Supported: ${KEY_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   const { publicKey, privateKey } = KEYGEN[algorithm]();

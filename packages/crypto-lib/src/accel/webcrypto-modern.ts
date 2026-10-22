@@ -20,6 +20,7 @@ import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import * as nodeCrypto from "node:crypto";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /**
  * Narrows a `Uint8Array` to one the WebCrypto types accept.
@@ -129,7 +130,7 @@ function toBytes(
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
     if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
     return Buffer.from(input, "hex");
   }
@@ -257,7 +258,10 @@ export async function modernChaCha20Encrypt(
 ): Promise<ModernAeadResult> {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const plaintext = toBytes(options.plaintext, "utf8");
@@ -332,12 +336,18 @@ export async function modernChaCha20Decrypt(
 ): Promise<ModernChaCha20DecryptResult> {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const combined = Buffer.from(options.ciphertext, "base64");
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);
@@ -428,7 +438,10 @@ export async function modernSha3Hash(
       digest = sha3_512(data);
       break;
     default:
-      throw new Error(`Unsupported SHA-3 algorithm: ${options.algorithm}`);
+      throw new CryptoError(
+        `Unsupported SHA-3 algorithm: ${options.algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 
   return {
