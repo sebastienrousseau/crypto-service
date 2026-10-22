@@ -10,12 +10,18 @@ import * as path from "path";
 import * as fs from "fs";
 import prompts from "prompts";
 import { Command } from "../../src/commands/index";
+import { sign } from "@sebastienrousseau/crypto-lib/pgp";
 
 // Point crypto-lib keystore to the fixture keys (relative to package root where tests run)
-const FIXTURE_KEY_DIR = path.resolve(process.cwd(), "../crypto-lib/__tests__/fixtures/keys");
+const FIXTURE_KEY_DIR = path.resolve(
+  process.cwd(),
+  "../crypto-lib/__tests__/fixtures/keys",
+);
 const FIXTURE_PASSPHRASE = "123456789abcdef";
 // The fixture public key in base64 (read from rsa.pub fixture)
-const FIXTURE_PUB_BASE64 = fs.readFileSync(path.join(FIXTURE_KEY_DIR, "rsa.pub"), "utf8").trim();
+const FIXTURE_PUB_BASE64 = fs
+  .readFileSync(path.join(FIXTURE_KEY_DIR, "rsa.pub"), "utf8")
+  .trim();
 
 describe("Command Handlers", function () {
   this.timeout(60000);
@@ -26,7 +32,10 @@ describe("Command Handlers", function () {
   let origKeyDir: string | undefined;
   let origDataDir: string | undefined;
   let origOutDir: string | undefined;
-  const tmpDir = path.join(process.env["TMPDIR"] ?? "/tmp", "crypto-cli-cmd-test");
+  const tmpDir = path.join(
+    process.env["TMPDIR"] ?? "/tmp",
+    "crypto-cli-cmd-test",
+  );
 
   before(() => {
     fs.mkdirSync(tmpDir, { recursive: true });
@@ -43,7 +52,8 @@ describe("Command Handlers", function () {
     else delete process.env["CRYPTO_KEY_DIR"];
     if (origDataDir !== undefined) process.env["CRYPTO_DATA_DIR"] = origDataDir;
     else delete process.env["CRYPTO_DATA_DIR"];
-    if (origOutDir !== undefined) process.env["CRYPTO_KEY_OUT_DIR"] = origOutDir;
+    if (origOutDir !== undefined)
+      process.env["CRYPTO_KEY_OUT_DIR"] = origOutDir;
     else delete process.env["CRYPTO_KEY_OUT_DIR"];
   });
 
@@ -52,8 +62,10 @@ describe("Command Handlers", function () {
     consoleErrors = [];
     origLog = console.log;
     origError = console.error;
-    console.log = (...args: unknown[]) => consoleOutput.push(args.map(String).join(" "));
-    console.error = (...args: unknown[]) => consoleErrors.push(args.map(String).join(" "));
+    console.log = (...args: unknown[]) =>
+      consoleOutput.push(args.map(String).join(" "));
+    console.error = (...args: unknown[]) =>
+      consoleErrors.push(args.map(String).join(" "));
   });
 
   afterEach(() => {
@@ -130,7 +142,16 @@ describe("Command Handlers", function () {
 
   describe("handleGenerate", () => {
     it("should successfully generate ECC keys", async () => {
-      prompts.inject(["Gen User", "gen@test.com", "ecc", "testpass123", 2048, "curve25519", 0, "armored"]);
+      prompts.inject([
+        "Gen User",
+        "gen@test.com",
+        "ecc",
+        "testpass123",
+        2048,
+        "curve25519",
+        0,
+        "armored",
+      ]);
       await Command.handleGenerate();
       expect(consoleErrors).to.have.length(0);
     });
@@ -144,7 +165,13 @@ describe("Command Handlers", function () {
     });
 
     it("should successfully reformat with valid passphrase", async () => {
-      prompts.inject(["reformat@test.com", "0", "Reformat User", FIXTURE_PASSPHRASE, FIXTURE_PUB_BASE64]);
+      prompts.inject([
+        "reformat@test.com",
+        "0",
+        "Reformat User",
+        FIXTURE_PASSPHRASE,
+        FIXTURE_PUB_BASE64,
+      ]);
       await Command.handleReformat();
       expect(consoleErrors).to.have.length(0);
     });
@@ -201,7 +228,12 @@ describe("Command Handlers", function () {
     });
 
     it("should successfully sign with valid passphrase", async () => {
-      prompts.inject([FIXTURE_PASSPHRASE, "hello sign test", true, FIXTURE_PUB_BASE64]);
+      prompts.inject([
+        FIXTURE_PASSPHRASE,
+        "hello sign test",
+        true,
+        FIXTURE_PUB_BASE64,
+      ]);
       await Command.handleSign();
       expect(consoleErrors).to.have.length(0);
     });
@@ -214,11 +246,37 @@ describe("Command Handlers", function () {
       expect(consoleErrors.join(" ")).to.include("must provide a value");
     });
 
-    it("should successfully verify with valid key", async () => {
+    // handleVerify used to discard verify's result and print its own
+    // input, so it never said whether a signature verified.
+    const clearSigned = () =>
+      sign({
+        message: "Hello world",
+        detached: false,
+        passphrase: FIXTURE_PASSPHRASE,
+      });
+
+    it("reports a valid signature without echoing the input", async () => {
+      prompts.inject([await clearSigned(), FIXTURE_PUB_BASE64, "2024-01-01"]);
+      await Command.handleVerify();
+      expect(consoleErrors).to.have.length(0);
+      expect(consoleOutput.join(" ")).to.include("Signature verified");
+      expect(consoleOutput.join(" ")).to.not.include(FIXTURE_PUB_BASE64);
+    });
+
+    it("reports a tampered message as not verified", async () => {
+      const tampered = (await clearSigned()).replace(
+        "Hello world",
+        "Hello World",
+      );
+      prompts.inject([tampered, FIXTURE_PUB_BASE64, "2024-01-01"]);
+      await Command.handleVerify();
+      expect(consoleErrors.join(" ")).to.include("did not verify");
+    });
+
+    it("explains input that carries no signature", async () => {
       prompts.inject(["Hello world", FIXTURE_PUB_BASE64, "2024-01-01"]);
       await Command.handleVerify();
-      // verify doesn't throw for messages without signatures
-      expect(consoleErrors).to.have.length(0);
+      expect(consoleErrors.join(" ")).to.include("Could not verify");
     });
   });
 
