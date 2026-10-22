@@ -15,12 +15,13 @@
  * Initialize BEFORE importing Fastify to ensure auto-instrumentation hooks.
  */
 
+import type * as Api from "@opentelemetry/api";
 import type * as SdkNode from "@opentelemetry/sdk-node";
 import type * as TraceExporter from "@opentelemetry/exporter-trace-otlp-http";
 import type * as MetricExporter from "@opentelemetry/exporter-metrics-otlp-http";
 import type * as SdkMetrics from "@opentelemetry/sdk-metrics";
 import type * as HttpInstr from "@opentelemetry/instrumentation-http";
-import type * as FastifyInstr from "@opentelemetry/instrumentation-fastify";
+import type * as FastifyOtel from "@fastify/otel";
 import type * as Resources from "@opentelemetry/resources";
 import type * as Semconv from "@opentelemetry/semantic-conventions";
 import { PACKAGE_VERSION } from "./version";
@@ -31,6 +32,18 @@ const SERVICE_NAME = "crypto-server";
 /** Active OpenTelemetry SDK instance (undefined if telemetry is disabled). */
 let sdk: SdkNode.NodeSDK | undefined;
 
+/**
+ * The instrumentations the SDK started. NodeSDK.shutdown() leaves them
+ * enabled, and @fastify/otel stays subscribed to new Fastify instances,
+ * so shutdownTelemetry() disables them itself. It also clears the API's
+ * global providers, which the API refuses to replace: without that, an
+ * SDK started after a shutdown exported nothing, its spans going to the
+ * stopped one.
+ */
+let instrumentations: (
+  HttpInstr.HttpInstrumentation | FastifyOtel.FastifyOtelInstrumentation
+)[] = [];
+
 /** Loads the OpenTelemetry SDK modules, only once telemetry is enabled. */
 /* eslint-disable @typescript-eslint/no-require-imports -- loaded on demand */
 function loadSdk() {
@@ -40,7 +53,7 @@ function loadSdk() {
     ...(require("@opentelemetry/exporter-metrics-otlp-http") as typeof MetricExporter),
     ...(require("@opentelemetry/sdk-metrics") as typeof SdkMetrics),
     ...(require("@opentelemetry/instrumentation-http") as typeof HttpInstr),
-    ...(require("@opentelemetry/instrumentation-fastify") as typeof FastifyInstr),
+    ...(require("@fastify/otel") as typeof FastifyOtel),
     ...(require("@opentelemetry/resources") as typeof Resources),
     ...(require("@opentelemetry/semantic-conventions") as typeof Semconv),
   };
@@ -58,6 +71,12 @@ export function initTelemetry(): void {
     return;
   }
   const otel = loadSdk();
+  instrumentations = [
+    new otel.HttpInstrumentation(),
+    // Hooks each Fastify instance as it is created, so it works even
+    // when Fastify was loaded before telemetry started.
+    new otel.FastifyOtelInstrumentation({ registerOnInitialization: true }),
+  ];
   sdk = new otel.NodeSDK({
     resource: otel.resourceFromAttributes({
       [otel.ATTR_SERVICE_NAME]: SERVICE_NAME,
@@ -68,10 +87,7 @@ export function initTelemetry(): void {
       exporter: new otel.OTLPMetricExporter({ url: `${endpoint}/v1/metrics` }),
       exportIntervalMillis: 30000,
     }),
-    instrumentations: [
-      new otel.HttpInstrumentation(),
-      new otel.FastifyInstrumentation(),
-    ],
+    instrumentations,
   });
   sdk.start();
 }
@@ -87,5 +103,14 @@ export function telemetryActive(): boolean {
 export async function shutdownTelemetry(): Promise<void> {
   const running = sdk;
   sdk = undefined;
-  await running?.shutdown();
+  for (const instrumentation of instrumentations) instrumentation.disable();
+  instrumentations = [];
+  if (!running) return;
+  await running.shutdown();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- loaded on demand
+  const api = require("@opentelemetry/api") as typeof Api;
+  api.trace.disable();
+  api.metrics.disable();
+  api.propagation.disable();
+  api.context.disable();
 }

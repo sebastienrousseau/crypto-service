@@ -14,6 +14,8 @@
  * OpenTelemetry.
  */
 import { expect } from "chai";
+import * as http from "http";
+import type { AddressInfo } from "net";
 import type { FastifyInstance } from "fastify";
 import { init } from "../src/server";
 import {
@@ -68,6 +70,69 @@ describe("telemetry and metrics", function () {
           expect(telemetryActive()).to.equal(false);
         },
       );
+    });
+  });
+
+  describe("Fastify tracing", () => {
+    /** Spans exported to a local OTLP receiver, by instrumentation scope. */
+    async function exportedScopes(): Promise<string[]> {
+      const bodies: string[] = [];
+      const receiver = http.createServer((req, res) => {
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", () => {
+          if (req.url === "/v1/traces") bodies.push(body);
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end("{}");
+        });
+      });
+      await new Promise<void>((resolve) =>
+        receiver.listen(0, "127.0.0.1", resolve),
+      );
+      const { port } = receiver.address() as AddressInfo;
+      try {
+        await withEnv(
+          {
+            OTEL_EXPORTER_OTLP_ENDPOINT: `http://127.0.0.1:${port}`,
+            OTEL_SDK_DISABLED: undefined,
+          },
+          async () => {
+            initTelemetry();
+            const app = await init({ logger: false });
+            try {
+              await app.inject({ method: "GET", url: "/ready" });
+            } finally {
+              await app.close();
+            }
+            await shutdownTelemetry();
+          },
+        );
+      } finally {
+        receiver.closeAllConnections();
+        receiver.close();
+      }
+      return bodies.flatMap((body) =>
+        (
+          JSON.parse(body) as {
+            resourceSpans: { scopeSpans: { scope: { name: string } }[] }[];
+          }
+        ).resourceSpans.flatMap((rs) => rs.scopeSpans.map((s) => s.scope.name)),
+      );
+    }
+
+    // @opentelemetry/instrumentation-fastify is deprecated in favour of
+    // @fastify/otel, maintained by the Fastify authors. It hooks Fastify
+    // as each instance is created, so the server's requests are traced
+    // even when Fastify was loaded before telemetry started.
+    it("traces the server's requests with @fastify/otel", async () => {
+      expect(await exportedScopes()).to.include("@fastify/otel");
+    });
+
+    // shutdownTelemetry() left the API's global providers pointing at the
+    // stopped SDK, so a second start exported nothing.
+    it("still exports after a shutdown and a new start", async () => {
+      await exportedScopes();
+      expect(await exportedScopes()).to.include("@fastify/otel");
     });
   });
 
