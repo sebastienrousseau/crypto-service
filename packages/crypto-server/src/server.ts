@@ -154,9 +154,11 @@ async function init(
     propagateTraceContext(request, reply);
   });
 
-  // Prevent caching of sensitive cryptographic responses.
+  // Prevent caching of every response but the static API documentation:
+  // v1 and v2 routes return keys and plaintext, and probe results must be
+  // fresh.
   app.addHook("onSend", async (request, reply) => {
-    if (request.url.startsWith("/v2/")) {
+    if (!request.url.startsWith("/docs")) {
       reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
       reply.header("Pragma", "no-cache");
     }
