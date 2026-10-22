@@ -6,144 +6,86 @@
 /**
  * @remarks OpenTelemetry instrumentation for the Crypto Server.
  *
- * Provides:
- * - Distributed tracing (HTTP + Fastify auto-instrumentation)
- * - Custom spans for crypto operations
- * - Metrics (operation counters, latency histograms)
- * - OTLP export (configurable via OTEL_EXPORTER_OTLP_ENDPOINT)
+ * Provides distributed tracing and metrics (HTTP and Fastify
+ * auto-instrumentation) exported over OTLP to the collector named by
+ * OTEL_EXPORTER_OTLP_ENDPOINT. Without an endpoint, or with
+ * OTEL_SDK_DISABLED=true, nothing starts and the SDK modules are never
+ * loaded.
  *
  * Initialize BEFORE importing Fastify to ensure auto-instrumentation hooks.
  */
 
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
-import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
-import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { FastifyInstrumentation } from "@opentelemetry/instrumentation-fastify";
-import { resourceFromAttributes } from "@opentelemetry/resources";
+import type * as SdkNode from "@opentelemetry/sdk-node";
+import type * as TraceExporter from "@opentelemetry/exporter-trace-otlp-http";
+import type * as MetricExporter from "@opentelemetry/exporter-metrics-otlp-http";
+import type * as SdkMetrics from "@opentelemetry/sdk-metrics";
+import type * as HttpInstr from "@opentelemetry/instrumentation-http";
+import type * as FastifyInstr from "@opentelemetry/instrumentation-fastify";
+import type * as Resources from "@opentelemetry/resources";
+import type * as Semconv from "@opentelemetry/semantic-conventions";
 import { PACKAGE_VERSION } from "./version";
-import {
-  ATTR_SERVICE_NAME,
-  ATTR_SERVICE_VERSION,
-} from "@opentelemetry/semantic-conventions";
-import { trace, metrics, SpanStatusCode } from "@opentelemetry/api";
 
 /** OpenTelemetry service name for spans and metrics. */
 const SERVICE_NAME = "crypto-server";
-/** OpenTelemetry service version for spans and metrics. */
-const SERVICE_VERSION = PACKAGE_VERSION;
 
 /** Active OpenTelemetry SDK instance (undefined if telemetry is disabled). */
-let sdk: NodeSDK | undefined;
+let sdk: SdkNode.NodeSDK | undefined;
+
+/** Loads the OpenTelemetry SDK modules, only once telemetry is enabled. */
+/* eslint-disable @typescript-eslint/no-require-imports -- loaded on demand */
+function loadSdk() {
+  return {
+    ...(require("@opentelemetry/sdk-node") as typeof SdkNode),
+    ...(require("@opentelemetry/exporter-trace-otlp-http") as typeof TraceExporter),
+    ...(require("@opentelemetry/exporter-metrics-otlp-http") as typeof MetricExporter),
+    ...(require("@opentelemetry/sdk-metrics") as typeof SdkMetrics),
+    ...(require("@opentelemetry/instrumentation-http") as typeof HttpInstr),
+    ...(require("@opentelemetry/instrumentation-fastify") as typeof FastifyInstr),
+    ...(require("@opentelemetry/resources") as typeof Resources),
+    ...(require("@opentelemetry/semantic-conventions") as typeof Semconv),
+  };
+}
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 /**
- * Initialize OpenTelemetry SDK. Call once at startup, before any other imports.
- * No-op if OTEL_EXPORTER_OTLP_ENDPOINT is not set (avoids overhead in dev).
+ * Initialize the OpenTelemetry SDK. Call once at startup, before any
+ * other imports. A no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set, in
+ * every environment, and when OTEL_SDK_DISABLED is "true".
  */
 export function initTelemetry(): void {
   const endpoint = process.env["OTEL_EXPORTER_OTLP_ENDPOINT"];
-  if (!endpoint && process.env["NODE_ENV"] !== "production") {
-    return; // Skip in development unless explicitly configured
+  if (!endpoint || process.env["OTEL_SDK_DISABLED"] === "true" || sdk) {
+    return;
   }
-
-  // @opentelemetry/resources 2.x replaced the `Resource` class with a
-  // factory; `Resource` is now a type only.
-  const resource = resourceFromAttributes({
-    [ATTR_SERVICE_NAME]: SERVICE_NAME,
-    [ATTR_SERVICE_VERSION]: SERVICE_VERSION,
-  });
-
-  const traceExporterOpts = endpoint ? { url: `${endpoint}/v1/traces` } : {};
-  const metricExporterOpts = endpoint ? { url: `${endpoint}/v1/metrics` } : {};
-
-  sdk = new NodeSDK({
-    resource,
-    traceExporter: new OTLPTraceExporter(traceExporterOpts),
-    metricReader: new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter(metricExporterOpts),
+  const otel = loadSdk();
+  sdk = new otel.NodeSDK({
+    resource: otel.resourceFromAttributes({
+      [otel.ATTR_SERVICE_NAME]: SERVICE_NAME,
+      [otel.ATTR_SERVICE_VERSION]: PACKAGE_VERSION,
+    }),
+    traceExporter: new otel.OTLPTraceExporter({ url: `${endpoint}/v1/traces` }),
+    metricReader: new otel.PeriodicExportingMetricReader({
+      exporter: new otel.OTLPMetricExporter({ url: `${endpoint}/v1/metrics` }),
       exportIntervalMillis: 30000,
     }),
-    instrumentations: [new HttpInstrumentation(), new FastifyInstrumentation()],
+    instrumentations: [
+      new otel.HttpInstrumentation(),
+      new otel.FastifyInstrumentation(),
+    ],
   });
-
   sdk.start();
+}
+
+/** Whether the OpenTelemetry SDK is running. */
+export function telemetryActive(): boolean {
+  return sdk !== undefined;
 }
 
 /**
  * Shut down the telemetry SDK gracefully (flush pending spans/metrics).
  */
 export async function shutdownTelemetry(): Promise<void> {
-  if (sdk) {
-    await sdk.shutdown();
-  }
-}
-
-// --- Custom crypto operation instrumentation ---
-
-/** OpenTelemetry tracer for crypto operation spans. */
-const tracer = trace.getTracer(SERVICE_NAME, SERVICE_VERSION);
-/** OpenTelemetry meter for crypto operation metrics. */
-const meter = metrics.getMeter(SERVICE_NAME, SERVICE_VERSION);
-
-/** Counter tracking total crypto operations (success/error). */
-const operationCounter = meter.createCounter("crypto.operations.total", {
-  description: "Total number of cryptographic operations performed",
-});
-
-/** Histogram tracking crypto operation duration in milliseconds. */
-const operationDuration = meter.createHistogram(
-  "crypto.operations.duration_ms",
-  {
-    description: "Duration of cryptographic operations in milliseconds",
-    unit: "ms",
-  },
-);
-
-/**
- * Wraps an async crypto operation with tracing and metrics.
- *
- * @param operationName - e.g. "encrypt", "sign", "hash"
- * @param attributes - Additional span attributes (algorithm, key size, etc.)
- * @param fn - The actual operation to execute
- */
-export async function traceCryptoOperation<T>(
-  operationName: string,
-  attributes: Record<string, string | number>,
-  fn: () => Promise<T> | T,
-): Promise<T> {
-  return tracer.startActiveSpan(`crypto.${operationName}`, async (span) => {
-    const start = performance.now();
-    span.setAttributes(attributes);
-
-    try {
-      const result = await fn();
-      span.setStatus({ code: SpanStatusCode.OK });
-      operationCounter.add(1, {
-        operation: operationName,
-        status: "success",
-        ...attributes,
-      });
-      return result;
-    } catch (error) {
-      span.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: (error as Error).message,
-      });
-      span.recordException(error as Error);
-      operationCounter.add(1, {
-        operation: operationName,
-        status: "error",
-        ...attributes,
-      });
-      throw error;
-    } finally {
-      const duration = performance.now() - start;
-      operationDuration.record(duration, {
-        operation: operationName,
-        ...attributes,
-      });
-      span.end();
-    }
-  });
+  const running = sdk;
+  sdk = undefined;
+  await running?.shutdown();
 }

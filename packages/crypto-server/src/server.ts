@@ -47,6 +47,7 @@ import {
 import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
 import { OpaqueStore } from "./lib/opaque-store";
+import { registerHttpMetrics } from "./lib/http-metrics";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -137,6 +138,9 @@ async function init(
 
   // Every error response is an RFC 9457 application/problem+json body.
   registerProblemHandlers(app);
+
+  // Count every response, by route pattern, for /metrics.
+  registerHttpMetrics(app);
 
   // Assign a unique request ID (or honour the upstream one) and propagate
   // W3C trace context headers for distributed tracing.

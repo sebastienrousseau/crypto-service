@@ -163,48 +163,48 @@ All v2 endpoints accept and return `application/json`. Authenticated
 requests must include an `x-api-key` header (or
 `Authorization: Bearer <jwt>`).
 
-| Method | Path                          | Description                                                          |
-| :----- | :---------------------------- | :------------------------------------------------------------------- |
-| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)         |
-| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                              |
-| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                              |
-| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                        |
-| `POST` | `/v2/verify`                  | Verify a digital signature                                           |
-| `POST` | `/v2/kdf`                     | Derive a key (scrypt N=2^17 r=8, HKDF-SHA256, PBKDF2-SHA256 >= 600k) |
-| `POST` | `/v2/hmac`                    | Compute an HMAC                                                      |
-| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                                      |
-| `POST` | `/v2/password/hash`           | Hash a password with Argon2id (m >= 19 MiB, t >= 2)                  |
-| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                           |
-| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)                |
-| `POST` | `/v2/password/decrypt`        | Decrypt with password                                                |
-| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key        |
-| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)               |
-| `POST` | `/v2/keys/delete`             | Delete one of the caller's keys, freeing quota                       |
-| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                    |
-| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                         |
-| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                          |
-| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                       |
-| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                             |
-| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)         |
-| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                        |
-| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key                |
-| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                                      |
-| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                           |
-| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                          |
-| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)              |
-| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                       |
-| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                                 |
-| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)                |
-| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                               |
-| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                         |
-| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                           |
-| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                              |
-| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                        |
-| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                          |
-| `GET`  | `/v2/algorithms`              | List all supported algorithms                                        |
-| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                          |
-| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                         |
-| `GET`  | `/metrics`                    | Prometheus-compatible metrics                                        |
+| Method | Path                          | Description                                                                                                                              |
+| :----- | :---------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)                                                                             |
+| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                                                                                                  |
+| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                                                                                                  |
+| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                                                                                            |
+| `POST` | `/v2/verify`                  | Verify a digital signature                                                                                                               |
+| `POST` | `/v2/kdf`                     | Derive a key (scrypt N=2^17 r=8, HKDF-SHA256, PBKDF2-SHA256 >= 600k)                                                                     |
+| `POST` | `/v2/hmac`                    | Compute an HMAC                                                                                                                          |
+| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                                                                                                          |
+| `POST` | `/v2/password/hash`           | Hash a password with Argon2id (m >= 19 MiB, t >= 2)                                                                                      |
+| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                                                                                               |
+| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)                                                                                    |
+| `POST` | `/v2/password/decrypt`        | Decrypt with password                                                                                                                    |
+| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key                                                                            |
+| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)                                                                                   |
+| `POST` | `/v2/keys/delete`             | Delete one of the caller's keys, freeing quota                                                                                           |
+| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                                                                                        |
+| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                                                                                             |
+| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                                                                                              |
+| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                                                                                           |
+| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                                                                                                 |
+| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)                                                                             |
+| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                                                                                            |
+| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key                                                                                    |
+| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                                                                                                          |
+| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                                                                                               |
+| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                                                                                              |
+| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)                                                                                  |
+| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                                                                                           |
+| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                                                                                                     |
+| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)                                                                                    |
+| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                                                                                                   |
+| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                                                                                             |
+| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                                                                                               |
+| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                                                                                                  |
+| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                                                                                            |
+| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                                                                                              |
+| `GET`  | `/v2/algorithms`              | List all supported algorithms                                                                                                            |
+| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                                                                                              |
+| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                                                                                             |
+| `GET`  | `/metrics`                    | Prometheus metrics: process memory and uptime, and `http_requests_total` and `http_request_duration_seconds` by method, route and status |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -375,7 +375,7 @@ authentication but no scope.
 | `CRYPTO_KEY_STORAGE_KEY`                                                 | --            | Encrypts the private parts of persisted keys (AES-256-GCM, authenticated with the whole record): exactly 64 hex characters; a passphrase is refused. Required in production when `CRYPTO_KEY_OUT_DIR` is set                                                                   |
 | `CRYPTO_KEY_ALLOW_PLAINTEXT`                                             | --            | `1` accepts plaintext key files: writing them in production, or reading old ones after `CRYPTO_KEY_STORAGE_KEY` was set                                                                                                                                                        |
 | `KEY_STORE_MAX_PER_PRINCIPAL`                                            | `1000`        | Keys one principal may hold; more answer `429` until it deletes some                                                                                                                                                                                                           |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --            | OpenTelemetry OTLP collector endpoint (export disabled when unset)                                                                                                                                                                                                             |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --            | OpenTelemetry OTLP collector endpoint; without it (or with `OTEL_SDK_DISABLED=true`) OpenTelemetry does not start, in any environment                                                                                                                                          |
 | `KMS_PROVIDERS`                                                          | `local`       | Comma-separated KMS providers requests may use: `local`, `aws`, `gcp`, `vault`. Any other provider is refused with `400`; an enabled provider with a missing setting, an unknown name or `azure` (a stub) stops the server from starting                                       |
 | `AWS_REGION`                                                             | --            | Required when `aws` is enabled; credentials come from the AWS default credential chain                                                                                                                                                                                         |
 | `GCP_PROJECT_ID`, `GCP_LOCATION_ID`, `GCP_KEY_RING_ID`, `GCP_AUTH_TOKEN` | --            | Required when `gcp` is enabled; the OAuth2 access token is not refreshed by the server                                                                                                                                                                                         |
