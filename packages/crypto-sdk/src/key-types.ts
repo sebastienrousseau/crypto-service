@@ -396,6 +396,7 @@ export interface KmsCreateKeyParams {
 /** KMS Key Wrap parameters. */
 export interface KmsWrapParams {
   keyId: string;
+  /** Key bytes to wrap, as hex (the encoding unwrap returns). */
   unwrappedKey: string;
   provider?: string;
   context?: Record<string, string>;
@@ -442,6 +443,8 @@ export interface KmsGenerateDataKeyResult {
 export interface KmsEncryptParams {
   keyId: string;
   plaintext: string;
+  /** How `plaintext` is encoded: `"utf8"` (default) or `"hex"`. */
+  encoding?: "utf8" | "hex";
   provider?: string;
   context?: Record<string, string>;
 }

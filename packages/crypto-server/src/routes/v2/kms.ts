@@ -105,11 +105,20 @@ function ownedKey(
   return { provider, keyId };
 }
 
-function parseBytes(text: string): Uint8Array {
-  const isHex = /^[0-9a-fA-F]*$/.test(text) && text.length % 2 === 0;
-  return isHex
-    ? new Uint8Array(Buffer.from(text, "hex"))
-    : new Uint8Array(Buffer.from(text, "utf8"));
+/** An even-length hex string. */
+const HEX_BYTES = "^([0-9a-fA-F]{2})*$";
+
+/**
+ * The bytes of `plaintext` in the request's `encoding`: UTF-8 unless
+ * `encoding` is `"hex"`. It is never guessed from the content, so text
+ * that happens to look like hex stays text.
+ */
+function plaintextBytes(text: string, encoding: unknown): Uint8Array {
+  if (encoding !== "hex") return new Uint8Array(Buffer.from(text, "utf8"));
+  if (!new RegExp(HEX_BYTES).test(text)) {
+    throw new KmsError("INVALID_ARGUMENT", "plaintext is not hex");
+  }
+  return new Uint8Array(Buffer.from(text, "hex"));
 }
 
 function sanitizeKeyId(id: unknown): string {
@@ -147,7 +156,11 @@ const WRAP_SCHEMA = {
     additionalProperties: false,
     properties: {
       keyId: { type: "string" },
-      unwrappedKey: { type: "string" },
+      unwrappedKey: {
+        type: "string",
+        pattern: HEX_BYTES,
+        description: "Key bytes to wrap, as hex (the encoding unwrap returns).",
+      },
       provider: { type: "string" },
       context: { type: "object", additionalProperties: { type: "string" } },
     },
@@ -195,6 +208,12 @@ const ENCRYPT_SCHEMA = {
     properties: {
       keyId: { type: "string" },
       plaintext: { type: "string" },
+      encoding: {
+        type: "string",
+        enum: ["utf8", "hex"],
+        description:
+          "How plaintext is encoded: utf8 (default) or hex. Never guessed from the content.",
+      },
       provider: { type: "string" },
       context: { type: "object", additionalProperties: { type: "string" } },
     },
@@ -257,7 +276,9 @@ function registerWrap(app: FastifyInstance): void {
         if (!provider.wrapKey) {
           throw new KmsError("NOT_IMPLEMENTED", "wrapKey is not supported");
         }
-        const bytes = parseBytes(b["unwrappedKey"] as string);
+        const bytes = new Uint8Array(
+          Buffer.from(b["unwrappedKey"] as string, "hex"),
+        );
         const res = await provider.wrapKey(
           keyId,
           bytes,
@@ -347,7 +368,7 @@ function registerEncrypt(app: FastifyInstance): void {
       const b = request.body as Record<string, unknown>;
       try {
         const { provider, keyId } = ownedKey(request, b);
-        const bytes = parseBytes(b["plaintext"] as string);
+        const bytes = plaintextBytes(b["plaintext"] as string, b["encoding"]);
         const res = await provider.encrypt(
           keyId,
           bytes,
