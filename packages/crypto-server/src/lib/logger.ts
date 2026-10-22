@@ -1,50 +1,64 @@
 /**
- * Copyright © 2022-2023 The Crypto Service Suite. All rights reserved.
+ * Copyright © 2022-2026 The Crypto Service Suite. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
 /**
- * @remarks Configures and exports a Winston logger for application logging.
- *
- * Outputs structured JSON in production for machine parsing (ELK, Datadog,
- * etc.) and human-readable coloured text in development.
+ * @remarks The server's one logger: pino, as Fastify uses for request logs,
+ * so startup, shutdown and request lines share one JSON format. Its level
+ * comes from `LOG_LEVEL` (default `info`), and fields that can carry
+ * credentials or key material are redacted wherever they appear.
  */
 
-import { createLogger, format, transports } from "winston";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
+import { pino, type DestinationStream, type Logger } from "pino";
 
-/** Unique correlation ID for the lifetime of this server process. */
-const correlationId = uuidv4();
-/** Whether the server is running in production mode. */
-const isProduction = process.env["NODE_ENV"] === "production";
+/**
+ * Paths pino replaces with "[Redacted]": request credentials, and any
+ * password, passphrase or key field at the top level or one level down.
+ */
+export const LOG_REDACT_PATHS: readonly string[] = [
+  "req.headers.authorization",
+  'req.headers["x-api-key"]',
+  "req.headers.cookie",
+  "headers.authorization",
+  'headers["x-api-key"]',
+  ...[
+    "password",
+    "passphrase",
+    "privateKey",
+    "secretKey",
+    "secret",
+    "token",
+  ].flatMap((field) => [field, `*.${field}`]),
+];
 
-/** JSON log format for production environments (machine-parseable). */
-const structuredFormat = format.combine(
-  format.timestamp({ format: "YYYY-MM-DDTHH:mm:ss.SSSZ" }),
-  format.errors({ stack: true }),
-  format.json(),
-);
-
-/** Colorized human-readable log format for development. */
-const devFormat = format.combine(
-  format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-  format.colorize(),
-  format.printf(
-    (info) =>
-      `${correlationId} | ${info.timestamp} | ${info.level}: ${info.message}`,
-  ),
-);
-
-/** Pre-configured Winston logger instance for the crypto-server. */
-const logger = createLogger({
-  defaultMeta: { service: "crypto-server", correlationId },
-  format: isProduction ? structuredFormat : devFormat,
-  transports: [
-    new transports.Console({
+/** A logger at `LOG_LEVEL`, writing JSON to `destination` (stdout). */
+export function createLogger(destination?: DestinationStream): Logger {
+  return pino(
+    {
       level: process.env["LOG_LEVEL"] ?? "info",
-    }),
-  ],
-});
+      base: { service: "crypto-server" },
+      redact: { paths: [...LOG_REDACT_PATHS] },
+    },
+    destination,
+  );
+}
 
-/** Default export of the pre-configured Winston logger instance. */
+/** Characters and length accepted from an incoming x-request-id. */
+const REQUEST_ID = /^[A-Za-z0-9._-]{1,128}$/;
+
+/**
+ * The request ID for a request: the client's `x-request-id` when it is
+ * one well-formed value of at most 128 characters, else a fresh UUID, so
+ * a caller cannot inject arbitrary text into logs and headers.
+ */
+export function requestIdFrom(header: string | string[] | undefined): string {
+  return typeof header === "string" && REQUEST_ID.test(header)
+    ? header
+    : randomUUID();
+}
+
+/** The server's logger. */
+const logger = createLogger();
 export default logger;

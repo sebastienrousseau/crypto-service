@@ -9,7 +9,7 @@
 
 import {
   compressOptions,
-  consoleOutput,
+  serverDetails,
   corsOptions,
   fastifyOptions,
   healthCheckOptions,
@@ -28,8 +28,7 @@ import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
-import { randomUUID } from "crypto";
-import logger from "./lib/logger";
+import logger, { requestIdFrom } from "./lib/logger";
 import { authenticate, authorizeRoute, registerAuth } from "./lib/auth";
 import {
   assertRoutesCovered,
@@ -81,6 +80,29 @@ async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
 }
 
 /**
+ * Attach the server's stateful services, each built from the environment:
+ * key custody (lib/key-store.ts), KMS providers and key owners
+ * (lib/kms-providers.ts, lib/kms-owners.ts), worker pools for KDF and
+ * post-quantum signing (lib/crypto-workers.ts) and OPAQUE state
+ * (lib/opaque-store.ts). Invalid settings throw, so the server does not
+ * start.
+ */
+function decorateServices(app: fastify.FastifyInstance): void {
+  app.decorate("keyStore", keyStoreFromEnv());
+  app.decorate("kms", new KmsRegistry(process.env));
+  app.decorate(
+    "kmsOwners",
+    new KmsOwners(process.env["CRYPTO_KEY_OUT_DIR"] || undefined),
+  );
+  app.decorate("kdf", new CryptoWorkers(KDF_LIMITS));
+  app.decorate("signer", new CryptoWorkers(SIGNING_LIMITS));
+  app.decorate("opaqueStore", new OpaqueStore());
+  app.addHook("onClose", async () => {
+    await Promise.all([app.kdf.close(), app.signer.close()]);
+  });
+}
+
+/**
  * Initializes and configures the Fastify application instance.
  *
  * Plugins are registered **before** routes so that compression, rate
@@ -94,7 +116,15 @@ async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
 async function init(
   overrides: Pick<fastify.FastifyServerOptions, "logger"> = {},
 ): Promise<fastify.FastifyInstance> {
-  const app = fastify.fastify({ ...fastifyOptions, ...overrides });
+  // One logger for the whole server (lib/logger.ts), unless a caller
+  // passes its own logger configuration.
+  const app = fastify.fastify({
+    ...fastifyOptions,
+    genReqId: (req) => requestIdFrom(req.headers["x-request-id"]),
+    ...(overrides.logger === undefined
+      ? { loggerInstance: logger }
+      : { logger: overrides.logger }),
+  });
 
   // Record every route, including those plugins add, so the boot check
   // can prove each one is covered by the authorization policy.
@@ -103,7 +133,7 @@ async function init(
     registered.push({ method: route.method, url: route.url });
   });
 
-  logger.info("\n\nEnvironment details: " + consoleOutput);
+  app.log.info(serverDetails, "Server configuration");
 
   // Every error response is an RFC 9457 application/problem+json body.
   registerProblemHandlers(app);
@@ -111,8 +141,7 @@ async function init(
   // Assign a unique request ID (or honour the upstream one) and propagate
   // W3C trace context headers for distributed tracing.
   app.addHook("onRequest", async (request, reply) => {
-    const reqId = (request.headers["x-request-id"] as string) ?? randomUUID();
-    reply.header("x-request-id", reqId);
+    reply.header("x-request-id", request.id);
     propagateTraceContext(request, reply);
   });
 
@@ -152,25 +181,7 @@ async function init(
     (request as { auth?: unknown }).auth = auth;
   });
 
-  // Server-side custody of generated key pairs (see lib/key-store.ts),
-  // KDF / password hashing and post-quantum signing on worker threads
-  // (lib/crypto-workers.ts),
-  // and OPAQUE authentication state (lib/opaque-store.ts).
-  app.decorate("keyStore", keyStoreFromEnv());
-  // KMS providers from the KMS_PROVIDERS allowlist (throws on invalid
-  // settings, so the server does not start) and the owner of each key
-  // created through the API (lib/kms-providers.ts, lib/kms-owners.ts).
-  app.decorate("kms", new KmsRegistry(process.env));
-  app.decorate(
-    "kmsOwners",
-    new KmsOwners(process.env["CRYPTO_KEY_OUT_DIR"] || undefined),
-  );
-  app.decorate("kdf", new CryptoWorkers(KDF_LIMITS));
-  app.decorate("signer", new CryptoWorkers(SIGNING_LIMITS));
-  app.decorate("opaqueStore", new OpaqueStore());
-  app.addHook("onClose", async () => {
-    await Promise.all([app.kdf.close(), app.signer.close()]);
-  });
+  decorateServices(app);
 
   // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
   // every onRequest hook, so the tenant is the authenticated principal.

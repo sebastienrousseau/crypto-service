@@ -40,12 +40,13 @@ const main = async (): Promise<void> => {
     if (isShuttingDown) return;
     isShuttingDown = true;
 
-    logger.info(`Received ${signal} — shutting down gracefully...`);
+    logger.info({ signal }, "Shutting down gracefully");
 
     // Force exit after timeout to prevent hanging
     const forceTimer = setTimeout(() => {
       logger.error(
-        `Shutdown timed out after ${config.shutdownTimeoutMs}ms — forcing exit`,
+        { shutdownTimeoutMs: config.shutdownTimeoutMs },
+        "Shutdown timed out; forcing exit",
       );
       process.exit(1);
     }, config.shutdownTimeoutMs);
@@ -57,10 +58,7 @@ const main = async (): Promise<void> => {
       logger.info("All connections drained. Goodbye.");
       process.exit(0);
     } catch (err) {
-      logger.error(
-        "Error during shutdown",
-        err instanceof Error ? err : undefined,
-      );
+      logger.error({ err }, "Error during shutdown");
       process.exit(1);
     }
   };
@@ -70,8 +68,6 @@ const main = async (): Promise<void> => {
 };
 
 main().catch((err) => {
-  logger.error(
-    `Server failed to start: ${err instanceof Error ? err.message : "Unknown error"}`,
-  );
+  logger.error({ err }, "Server failed to start");
   process.exit(1);
 });

@@ -96,7 +96,7 @@ describe("Constants coverage", () => {
       delete load.cache[modPath];
       const logger = load("../src/lib/logger").default;
       expect(logger).to.exist;
-      expect(logger.defaultMeta.service).to.equal("crypto-server");
+      expect(logger.bindings().service).to.equal("crypto-server");
       expect(() => logger.info("production test")).to.not.throw();
     });
   });

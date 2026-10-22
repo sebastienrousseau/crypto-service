@@ -56,16 +56,14 @@ const parseTrustProxy = (): boolean | string[] => {
 };
 
 /**
- * @remarks {string[]} consoleOutput
- * An array of strings, defining the console output for environment details.
+ * @remarks Server details logged at startup, as structured fields.
  */
-export const consoleOutput = [
-  `\n → protocol: ${PROTOCOL}`,
-  `\n → hostname: ${HOST}`,
-  `\n → port: ${PORT}`,
-  `\n → version: ${LIB_VERSION}`,
-  "\n",
-];
+export const serverDetails = Object.freeze({
+  protocol: PROTOCOL,
+  host: HOST,
+  port: PORT,
+  version: pack.version,
+});
 
 /**
  * @remarks {FastifyServerOptions} fastifyOptions
@@ -77,7 +75,8 @@ export const fastifyOptions: FastifyServerOptions = {
   connectionTimeout: 30_000,
   ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
-  logger: true,
+  // Request IDs come from lib/logger.ts requestIdFrom, logged as reqId.
+  requestIdHeader: false,
   maxParamLength: 100,
   onConstructorPoisoning: "error",
   onProtoPoisoning: "error",

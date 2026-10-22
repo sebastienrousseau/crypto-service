@@ -12,11 +12,11 @@
  */
 
 import * as fastify from "fastify";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 import { LIB_VERSION } from "../../config/constants";
 
 /** Unique identifier for this server instance. */
-const id = uuidv4();
+const id = randomUUID();
 
 /**
  * @deprecated Use v2 API instead. This endpoint will be removed in v1.0.0.
