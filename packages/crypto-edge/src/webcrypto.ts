@@ -150,6 +150,8 @@ function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
  * Compute a cryptographic hash digest using the Web Crypto API.
  *
  * @param algorithm - One of `"SHA-1"`, `"SHA-256"`, `"SHA-384"`, `"SHA-512"`.
+ *   SHA-1 is broken for collision resistance: use it only to interoperate
+ *   with systems that require it, never for signatures or integrity.
  * @param data - The data to hash (string or bytes).
  * @returns Hex-encoded digest string.
  *
@@ -287,6 +289,18 @@ export async function decrypt(
   return new Uint8Array(decrypted);
 }
 
+/** Shortest HMAC key accepted, in bytes (128 bits), as in crypto-lib. */
+export const MIN_HMAC_KEY_BYTES = 16;
+
+/** Refuses an HMAC key shorter than {@link MIN_HMAC_KEY_BYTES}. */
+function checkHmacKey(key: Uint8Array): void {
+  if (key.length < MIN_HMAC_KEY_BYTES) {
+    throw new Error(
+      `HMAC key must be at least ${MIN_HMAC_KEY_BYTES} bytes, got ${key.length}`,
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // HMAC Sign
 // ---------------------------------------------------------------------------
@@ -308,6 +322,7 @@ export async function decrypt(
 export async function sign(options: EdgeHmacSignOptions): Promise<Uint8Array> {
   const subtle = getSubtle();
   const { key, data } = options;
+  checkHmacKey(key);
   const hashAlg = options.hash ?? "SHA-256";
 
   const cryptoKey = await subtle.importKey(
@@ -344,6 +359,7 @@ export async function sign(options: EdgeHmacSignOptions): Promise<Uint8Array> {
 export async function verify(options: EdgeHmacVerifyOptions): Promise<boolean> {
   const subtle = getSubtle();
   const { key, data, signature } = options;
+  checkHmacKey(key);
   const hashAlg = options.hash ?? "SHA-256";
 
   const cryptoKey = await subtle.importKey(

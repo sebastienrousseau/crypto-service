@@ -65,6 +65,7 @@ describe("index barrel exports", () => {
     expect(barrel.toBytes).to.be.a("function");
     expect(barrel.randomBytes).to.be.a("function");
     expect(barrel.concat).to.be.a("function");
+    expect(barrel.MIN_HMAC_KEY_BYTES).to.equal(16);
   });
 
   it("should re-export polyfill functions", () => {

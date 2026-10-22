@@ -68,7 +68,9 @@ export interface RuntimeCapabilities {
 }
 
 /**
- * Supported hash algorithms for the edge Web Crypto wrapper.
+ * Supported hash algorithms for the edge Web Crypto wrapper. SHA-1 is
+ * broken for collision resistance and is offered only to interoperate
+ * with systems that require it.
  *
  * @example
  * ```ts
