@@ -143,8 +143,9 @@ describe("WorkerPool recovery and limits", function () {
 
   it("rejects running tasks on shutdown instead of leaving them pending", async () => {
     const pool = new WorkerPool({ size: 1, workerScript: script });
-    const running = pool.execute(task("hang"));
+    // Handle the rejection before shutdown() causes it, not after.
+    const outcome = rejection(pool.execute(task("hang")));
     await pool.shutdown();
-    expect((await rejection(running)).message).to.include("shutting down");
+    expect((await outcome).message).to.include("shutting down");
   });
 });
