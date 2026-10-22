@@ -16,7 +16,9 @@
 import { expect } from "chai";
 import { ConfigError, loadConfig } from "../src/config/env";
 import { resolveRateLimitMax } from "../src/config/constants";
-import { integerSetting } from "../src/config/settings";
+import { flagSetting, integerSetting } from "../src/config/settings";
+import { init } from "../src/server";
+import { withEnv } from "./support/auth";
 
 const BASE = { ALLOW_ANONYMOUS: "1" };
 
@@ -146,6 +148,15 @@ describe("configuration", () => {
     });
   });
 
+  describe("flagSetting", () => {
+    it("reads 0 and 1, and the fallback when unset or empty", () => {
+      expect(flagSetting({}, "F", true)).to.equal(true);
+      expect(flagSetting({ F: "" }, "F", false)).to.equal(false);
+      expect(flagSetting({ F: "1" }, "F", false)).to.equal(true);
+      expect(flagSetting({ F: "0" }, "F", true)).to.equal(false);
+    });
+  });
+
   describe("resolveRateLimitMax", () => {
     it("refuses an invalid RATE_LIMIT_MAX instead of using the default", () => {
       expect(resolveRateLimitMax({})).to.equal(10);
@@ -154,6 +165,34 @@ describe("configuration", () => {
         expect(() => resolveRateLimitMax({ RATE_LIMIT_MAX: value })).to.throw(
           /RATE_LIMIT_MAX/,
         );
+      }
+    });
+  });
+});
+
+describe("DOCS_ENABLED", function () {
+  this.timeout(60000);
+
+  it("is on by default and refuses anything but 0 or 1", () => {
+    expect(loadConfig(BASE).docsEnabled).to.equal(true);
+    expect(loadConfig({ ...BASE, DOCS_ENABLED: "0" }).docsEnabled).to.equal(
+      false,
+    );
+    expect(configError({ ...BASE, DOCS_ENABLED: "no" }).message).to.include(
+      'DOCS_ENABLED must be "0" or "1", got "no"',
+    );
+  });
+
+  it("removes /docs and the OpenAPI document when 0", async () => {
+    await withEnv({ DOCS_ENABLED: "0" }, async () => {
+      const app = await init({ logger: false });
+      try {
+        expect((await app.inject({ url: "/docs/json" })).statusCode).to.equal(
+          404,
+        );
+        expect((await app.inject({ url: "/docs" })).statusCode).to.equal(404);
+      } finally {
+        await app.close();
       }
     });
   });

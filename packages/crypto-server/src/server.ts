@@ -35,6 +35,7 @@ import {
   isPublicRoute,
   type RegisteredRoute,
 } from "./config/auth-policy";
+import { docsEnabled } from "./config/env";
 import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
 import { KmsRegistry } from "./lib/kms-providers";
@@ -54,6 +55,8 @@ import * as fastify from "fastify";
 
 /** Registers the OpenAPI spec and the Swagger UI served at `/docs`. */
 async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
+  // DOCS_ENABLED=0 serves neither the UI nor the OpenAPI document.
+  if (!docsEnabled()) return;
   // OpenAPI documentation — auto-generated from Fastify route schemas.
   await app.register(fastifySwagger, {
     openapi: {

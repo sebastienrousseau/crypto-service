@@ -13,7 +13,7 @@
 
 import { authConfigError } from "./auth-policy";
 import { resolveRateLimitMax } from "./constants";
-import { integerSetting } from "./settings";
+import { flagSetting, integerSetting } from "./settings";
 import { kmsConfigError } from "../lib/kms-providers";
 import { keyStoreConfigError } from "../lib/key-store";
 
@@ -48,6 +48,13 @@ export interface Config {
   readonly shutdownTimeoutMs: number;
   /** Requests per client per minute. */
   readonly rateLimitMax: number;
+  /** Whether /docs serves the API documentation (`DOCS_ENABLED`). */
+  readonly docsEnabled: boolean;
+}
+
+/** Whether /docs serves the API documentation: `DOCS_ENABLED`, default on. */
+export function docsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return flagSetting(env, "DOCS_ENABLED", true);
 }
 
 /** Runs a parser, recording its error and returning `fallback` on failure. */
@@ -93,8 +100,8 @@ function enumErrors(
   return errors;
 }
 
-/** Numeric settings, each recorded in `errors` when invalid. */
-function numericSettings(env: NodeJS.ProcessEnv, errors: string[]) {
+/** Numeric and on/off settings, each recorded in `errors` when invalid. */
+function checkedSettings(env: NodeJS.ProcessEnv, errors: string[]) {
   return {
     port: attempt(errors, 3000, () =>
       integerSetting(env, "PORT", 3000, 0, 65535),
@@ -103,6 +110,7 @@ function numericSettings(env: NodeJS.ProcessEnv, errors: string[]) {
       integerSetting(env, "SHUTDOWN_TIMEOUT_MS", 30000, 1),
     ),
     rateLimitMax: attempt(errors, 0, () => resolveRateLimitMax(env)),
+    docsEnabled: attempt(errors, true, () => docsEnabled(env)),
   };
 }
 
@@ -134,7 +142,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     const error = check(env);
     if (error) errors.push(error);
   }
-  const numbers = numericSettings(env, errors);
+  const checked = checkedSettings(env, errors);
   if (errors.length > 0) {
     throw new ConfigError(
       [
@@ -149,6 +157,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     protocol,
     nodeEnv,
     logLevel,
-    ...numbers,
+    ...checked,
   });
 }

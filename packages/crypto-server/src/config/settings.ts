@@ -33,3 +33,22 @@ export function integerSetting(
   }
   return value;
 }
+
+/**
+ * An on/off setting: `fallback` when unset or empty, otherwise `"1"` or
+ * `"0"`.
+ *
+ * @throws Error naming the setting and the value given.
+ */
+export function flagSetting(
+  env: NodeJS.ProcessEnv,
+  name: string,
+  fallback: boolean,
+): boolean {
+  const raw = env[name];
+  if (raw === undefined || raw === "") return fallback;
+  if (raw !== "0" && raw !== "1") {
+    throw new Error(`${name} must be "0" or "1", got "${raw}"`);
+  }
+  return raw === "1";
+}
