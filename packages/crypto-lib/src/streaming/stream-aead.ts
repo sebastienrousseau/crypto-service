@@ -23,6 +23,7 @@
 import { randomBytes } from "@noble/ciphers/utils.js";
 import {
   ChunkDecryptor,
+  ChunkEncryptor,
   TAG_LEN,
   assertChunkSize,
   decryptChunks,
@@ -30,10 +31,12 @@ import {
   streamSize,
 } from "./chunks";
 
-/** XChaCha20 nonce length in bytes. */
+/** XChaCha20 nonce length in bytes, which is also the header length. */
 const NONCE_LEN = 24;
+/** Length of the stream header: the base nonce. */
+export const AEAD_STREAM_HEADER_LEN = NONCE_LEN;
 /** Default chunk size for streaming encryption (64 KiB). */
-const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
+export const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
 
 /**
  * Derive a per-chunk nonce by XORing the base nonce with the chunk counter.
@@ -96,7 +99,7 @@ export interface StreamDecryptOptions {
 const HEX_RE = /^[0-9a-fA-F]*$/;
 
 /** Parse and validate a 256-bit key from hex string or Uint8Array. */
-function toKey(key: string | Uint8Array): Uint8Array {
+export function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== 32) {
       throw new Error(`Key must be 32 bytes, got ${key.length}`);
@@ -109,6 +112,30 @@ function toKey(key: string | Uint8Array): Uint8Array {
     throw new Error(`Key must be 32 bytes (256 bits), got ${buf.length}`);
   }
   return buf;
+}
+
+/**
+ * Starts a stream for `key`: its header (a fresh base nonce) and the
+ * encryptor for its chunks, for callers that encrypt as data arrives.
+ */
+export function aeadStreamSender(
+  key: Uint8Array,
+  chunkSize: number,
+): { header: Uint8Array; encryptor: ChunkEncryptor } {
+  const baseNonce = randomBytes(NONCE_LEN);
+  return {
+    header: baseNonce,
+    encryptor: new ChunkEncryptor(key, baseNonce, chunkSize, deriveChunkNonce),
+  };
+}
+
+/** The decryptor for the chunks that follow a stream's `header`. */
+export function aeadStreamReceiver(
+  key: Uint8Array,
+  header: Uint8Array,
+  chunkSize: number,
+): ChunkDecryptor {
+  return new ChunkDecryptor(key, header, chunkSize, deriveChunkNonce);
 }
 
 /**

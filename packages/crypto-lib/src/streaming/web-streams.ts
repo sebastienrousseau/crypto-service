@@ -11,15 +11,20 @@
  * Cloudflare Workers.
  *
  * Usage:
- *   readable.pipeThrough(createEncryptStream(key)).pipeTo(writable)
+ *   readable.pipeThrough(createEncryptStream({ key })).pipeTo(writable)
  *   readable.pipeThrough(createHashStream("sha256")).pipeTo(writable)
  */
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
-import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
+import {
+  AEAD_STREAM_HEADER_LEN,
+  aeadStreamReceiver,
+  aeadStreamSender,
+  toKey,
+} from "./stream-aead";
 import {
   DEFAULT_CHUNK_SIZE,
   PQ_STREAM_HEADER_LEN,
@@ -101,6 +106,8 @@ export interface HashStreamResult {
 export interface EncryptStreamOptions {
   /** 256-bit key as hex string or Uint8Array. */
   key: string | Uint8Array;
+  /** Chunk size in bytes (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
 }
 
 /**
@@ -114,23 +121,16 @@ export interface EncryptStreamOptions {
 export interface DecryptStreamOptions {
   /** 256-bit key as hex string or Uint8Array. */
   key: string | Uint8Array;
-}
-
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
-function toKey(key: string | Uint8Array): Uint8Array {
-  if (key instanceof Uint8Array) {
-    if (key.length !== 32) {
-      throw new Error(`Key must be 32 bytes, got ${key.length}`);
-    }
-    return key;
-  }
-  if (!HEX_RE.test(key)) throw new Error("Invalid hex key");
-  const buf = Buffer.from(key, "hex");
-  if (buf.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${buf.length}`);
-  }
-  return buf;
+  /** Chunk size used during encryption (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
+  /**
+   * `"stream"` (the default) reads the chunked format that
+   * {@link createEncryptStream} and `streamEncrypt` write.
+   * `"single-message"` reads the format `createEncryptStream` wrote before
+   * 0.0.36 (`nonce || ciphertext || tag`); it can only be checked once all
+   * of it has arrived, so it is buffered whole.
+   */
+  format?: "stream" | "single-message" | undefined;
 }
 
 interface HashLike {
@@ -145,110 +145,6 @@ const hashFactories: Record<WebStreamHashAlgorithm, () => HashLike> = {
   "sha3-512": () => sha3_512.create(),
   blake3: () => blake3.create(),
 };
-
-/**
- * Create a TransformStream that encrypts data with XChaCha20-Poly1305.
- *
- * Accumulates all input chunks, then on flush encrypts the combined
- * plaintext and emits `nonce (24 B) || ciphertext || tag (16 B)`.
- *
- * @example
- * ```ts
- * const key = "aa".repeat(32);
- * const stream = createEncryptStream({ key });
- * const writer = stream.writable.getWriter();
- * await writer.write(new Uint8Array([1, 2, 3]));
- * await writer.close();
- * ```
- *
- * @param options - Encryption options containing the 256-bit key.
- * @returns A TransformStream that accepts Uint8Array chunks and emits encrypted output.
- */
-export function createEncryptStream(
-  options: EncryptStreamOptions,
-): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const keyBytes = toKey(options.key);
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      // Assemble plaintext
-      const plaintext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        plaintext.set(c, offset);
-        offset += c.length;
-      }
-
-      const nonce = randomBytes(NONCE_LEN);
-      const cipher = xchacha20poly1305(keyBytes, nonce);
-      const encrypted = cipher.encrypt(plaintext);
-
-      // Output: nonce || ciphertext+tag
-      const output = new Uint8Array(NONCE_LEN + encrypted.length);
-      output.set(nonce, 0);
-      output.set(encrypted, NONCE_LEN);
-      controller.enqueue(output);
-    },
-  });
-}
-
-/**
- * Create a TransformStream that decrypts XChaCha20-Poly1305 data.
- *
- * Accumulates all input chunks (expecting `nonce || ciphertext || tag`),
- * then on flush decrypts and emits the plaintext.
- *
- * @example
- * ```ts
- * const key = "aa".repeat(32);
- * const stream = createDecryptStream({ key });
- * const writer = stream.writable.getWriter();
- * await writer.write(ciphertext);
- * await writer.close();
- * ```
- *
- * @param options - Decryption options containing the 256-bit key.
- * @returns A TransformStream that accepts encrypted Uint8Array chunks and emits plaintext.
- */
-export function createDecryptStream(
-  options: DecryptStreamOptions,
-): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const keyBytes = toKey(options.key);
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      // Assemble ciphertext
-      const ciphertext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        ciphertext.set(c, offset);
-        offset += c.length;
-      }
-
-      if (ciphertext.length < NONCE_LEN + 16) {
-        throw new Error("Ciphertext too short — missing nonce or auth tag");
-      }
-
-      const nonce = ciphertext.subarray(0, NONCE_LEN);
-      const encrypted = ciphertext.subarray(NONCE_LEN);
-      const cipher = xchacha20poly1305(keyBytes, nonce);
-      const plaintext = cipher.decrypt(encrypted);
-      controller.enqueue(plaintext);
-    },
-  });
-}
 
 /**
  * Create a TransformStream that computes a hash digest.
@@ -396,6 +292,97 @@ function chunkedDecryptStream(
       } finally {
         opened.wipe?.();
       }
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that encrypts data with XChaCha20-Poly1305 in
+ * the STREAM construction.
+ *
+ * Emits the header (a fresh 24-byte base nonce) at once and each chunk as
+ * soon as the next byte shows it is not the last, so it holds at most one
+ * chunk of plaintext; the output is the same as `streamEncrypt`'s.
+ *
+ * @example
+ * ```ts
+ * const key = "aa".repeat(32);
+ * await readable
+ *   .pipeThrough(createEncryptStream({ key }))
+ *   .pipeTo(writable);
+ * ```
+ *
+ * @param options - The 256-bit key and an optional chunk size.
+ * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
+ */
+export function createEncryptStream(
+  options: EncryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const key = toKey(options.key);
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedEncryptStream(() => aeadStreamSender(key, chunkSize));
+}
+
+/**
+ * Create a TransformStream that decrypts what {@link createEncryptStream}
+ * or `streamEncrypt` wrote.
+ *
+ * Emits each chunk's plaintext once the chunk has arrived and
+ * authenticated. A stream that ends early errors instead of ending
+ * normally, but plaintext already emitted is not withdrawn: treat the
+ * output as complete only once the stream closes without error. With
+ * `format: "single-message"`, it reads the pre-0.0.36 format instead.
+ *
+ * @example
+ * ```ts
+ * const key = "aa".repeat(32);
+ * await encrypted
+ *   .pipeThrough(createDecryptStream({ key }))
+ *   .pipeTo(writable);
+ * ```
+ *
+ * @param options - The 256-bit key, the chunk size used to encrypt and the format.
+ * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
+ */
+export function createDecryptStream(
+  options: DecryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const key = toKey(options.key);
+  if (options.format === "single-message") return singleMessageDecrypt(key);
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedDecryptStream(
+    (bytes) =>
+      bytes.length >= AEAD_STREAM_HEADER_LEN
+        ? AEAD_STREAM_HEADER_LEN
+        : undefined,
+    (header) => ({ decryptor: aeadStreamReceiver(key, header, chunkSize) }),
+  );
+}
+
+/**
+ * Decrypts the single XChaCha20-Poly1305 message (`nonce || ciphertext ||
+ * tag`) that `createEncryptStream` wrote before 0.0.36. Its one tag covers
+ * the whole message, so nothing can be released before all of it is in.
+ */
+function singleMessageDecrypt(
+  key: Uint8Array,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const parts: Uint8Array[] = [];
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      parts.push(chunk);
+    },
+    flush(controller: Sink) {
+      const message = Uint8Array.from(Buffer.concat(parts));
+      if (message.length < NONCE_LEN + 16) {
+        throw new Error("Ciphertext too short — missing nonce or auth tag");
+      }
+      const nonce = message.subarray(0, NONCE_LEN);
+      controller.enqueue(
+        xchacha20poly1305(key, nonce).decrypt(message.subarray(NONCE_LEN)),
+      );
     },
   });
 }

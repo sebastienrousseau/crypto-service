@@ -45,6 +45,10 @@ detail.
   in `KMS_PROVIDERS` (default `local`) can be used.
 - **OPAQUE registration** needs credentials; a caller registers only its
   own subject unless it holds `crypto:admin`.
+- **`createEncryptStream`** writes the chunked format `streamEncrypt`
+  writes. Decrypt output from earlier versions with
+  `createDecryptStream({ key, format: "single-message" })`, and re-encrypt
+  it if you can.
 - **License tiers are removed**: every tenant has the same quota, 60
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry

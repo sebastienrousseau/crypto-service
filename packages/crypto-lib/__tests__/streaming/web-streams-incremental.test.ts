@@ -11,12 +11,16 @@
 import { expect } from "chai";
 import { randomBytes } from "crypto";
 import { hybridKemKeygen } from "../../src/modern/pq-kem";
+import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import {
+  createDecryptStream,
+  createEncryptStream,
   createMultiPqDecryptStream,
   createMultiPqEncryptStream,
   createPqDecryptStream,
   createPqEncryptStream,
 } from "../../src/streaming/web-streams";
+import { streamDecrypt, streamEncrypt } from "../../src/streaming/stream-aead";
 import {
   streamPqDecrypt,
   streamPqEncrypt,
@@ -260,5 +264,95 @@ describe("incremental post-quantum Web Streams", function () {
     expect(() =>
       streamPqDecrypt({ ...secrets, ciphertext: padded, chunkSize: CHUNK }),
     ).to.throw("Final chunk is longer than the chunk size");
+  });
+});
+
+// createEncryptStream wrote one XChaCha20-Poly1305 message, so it held the
+// whole payload and emitted nothing until the input ended. It now writes
+// streamEncrypt's chunked format as the input flows, and
+// createDecryptStream reads it chunk by chunk; the old single-message
+// output still decrypts with `format: "single-message"`.
+describe("incremental symmetric Web Streams", function () {
+  this.timeout(60000);
+  const key = new Uint8Array(randomBytes(32));
+
+  for (const size of [0, 1, CHUNK - 1, CHUNK, CHUNK + 1, 20 * CHUNK + 7]) {
+    it(`encrypts ${size} bytes as it goes, in streamEncrypt's format`, async () => {
+      const plaintext = new Uint8Array(randomBytes(size));
+      const { output, beforeClose } = await drive(
+        createEncryptStream({ key, chunkSize: CHUNK }) as unknown as Stream,
+        pieces(plaintext),
+      );
+      expect(beforeClose).to.be.at.least(output.length - (CHUNK + 17));
+      const opened = streamDecrypt({
+        key,
+        ciphertext: output,
+        chunkSize: CHUNK,
+      });
+      expect(Buffer.from(opened).equals(Buffer.from(plaintext))).to.equal(true);
+    });
+
+    it(`decrypts ${size} bytes of streamEncrypt output as they arrive`, async () => {
+      const plaintext = new Uint8Array(randomBytes(size));
+      const { ciphertext } = streamEncrypt({
+        key,
+        plaintext,
+        chunkSize: CHUNK,
+      });
+      const { output, beforeClose } = await drive(
+        createDecryptStream({ key, chunkSize: CHUNK }) as unknown as Stream,
+        pieces(ciphertext),
+      );
+      expect(Buffer.from(output).equals(Buffer.from(plaintext))).to.equal(true);
+      expect(beforeClose).to.be.at.least(Math.max(0, size - CHUNK));
+    });
+  }
+
+  it("uses streamEncrypt's default chunk size", async () => {
+    const plaintext = new Uint8Array(randomBytes(3 * 65536 + 9));
+    const { output } = await drive(
+      createEncryptStream({ key }) as unknown as Stream,
+      pieces(plaintext),
+    );
+    expect(
+      Buffer.from(streamDecrypt({ key, ciphertext: output })).equals(
+        Buffer.from(plaintext),
+      ),
+    ).to.equal(true);
+  });
+
+  it("still decrypts the single-message format with format: single-message", async () => {
+    const plaintext = new Uint8Array(randomBytes(5000));
+    const nonce = new Uint8Array(randomBytes(24));
+    const legacy = concat([
+      nonce,
+      xchacha20poly1305(key, nonce).encrypt(plaintext),
+    ]);
+    const { output } = await drive(
+      createDecryptStream({
+        key,
+        format: "single-message",
+      }) as unknown as Stream,
+      pieces(legacy),
+    );
+    expect(Buffer.from(output).equals(Buffer.from(plaintext))).to.equal(true);
+  });
+
+  it("errors on a truncated stream", async () => {
+    const { ciphertext } = streamEncrypt({
+      key,
+      plaintext: new Uint8Array(randomBytes(5 * CHUNK)),
+      chunkSize: CHUNK,
+    });
+    let error: unknown;
+    try {
+      await drive(
+        createDecryptStream({ key, chunkSize: CHUNK }) as unknown as Stream,
+        [ciphertext.subarray(0, 24 + 3 * (CHUNK + 17))],
+      );
+    } catch (e) {
+      error = e;
+    }
+    expect((error as Error).message).to.match(/final chunk missing/);
   });
 });
