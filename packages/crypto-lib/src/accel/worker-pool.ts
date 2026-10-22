@@ -38,7 +38,9 @@ export interface WorkerPoolOptions {
   maxQueue?: number;
   /**
    * Milliseconds a task may run before it is rejected with
-   * {@link WorkerTaskTimeoutError} and its worker replaced. Default: none.
+   * {@link WorkerTaskTimeoutError} and its worker replaced. The clock
+   * starts once the worker is running, so a fresh worker's start-up does
+   * not count. Default: none.
    */
   taskTimeoutMs?: number;
   /** Resource limits for each worker thread (heap sizes, stack size). */
@@ -81,6 +83,8 @@ interface WorkerEntry {
   timer: ReturnType<typeof setTimeout> | undefined;
   /** Set once the worker has failed and been replaced. */
   retired: boolean;
+  /** Set once the worker thread runs JavaScript; deadlines start then. */
+  online: boolean;
 }
 
 // --- Worker Executor (inline script) ---
@@ -245,7 +249,14 @@ export class WorkerPool {
       current: undefined,
       timer: undefined,
       retired: false,
+      online: false,
     };
+    // A task posted before the worker runs waits for it; its deadline
+    // starts only now.
+    worker.once("online", () => {
+      entry.online = true;
+      if (entry.current) this.startTimer(entry);
+    });
     worker.on("message", (msg) => this.settle(entry, msg));
     worker.on("error", (err: Error) => this.fail(entry, err));
     worker.on("exit", (code: number) =>
@@ -256,18 +267,22 @@ export class WorkerPool {
 
   private dispatch(entry: WorkerEntry, pending: PendingTask): void {
     entry.current = pending;
-    if (this.taskTimeoutMs !== undefined) {
-      const ms = this.taskTimeoutMs;
-      entry.timer = setTimeout(
-        () =>
-          this.fail(
-            entry,
-            new WorkerTaskTimeoutError(`Worker task timed out after ${ms} ms`),
-          ),
-        ms,
-      );
-    }
+    if (entry.online) this.startTimer(entry);
     entry.worker.postMessage(pending.task);
+  }
+
+  /** Fails the worker's task if it runs longer than `taskTimeoutMs`. */
+  private startTimer(entry: WorkerEntry): void {
+    if (this.taskTimeoutMs === undefined) return;
+    const ms = this.taskTimeoutMs;
+    entry.timer = setTimeout(
+      () =>
+        this.fail(
+          entry,
+          new WorkerTaskTimeoutError(`Worker task timed out after ${ms} ms`),
+        ),
+      ms,
+    );
   }
 
   /** A worker answered its task. */

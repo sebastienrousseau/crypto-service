@@ -128,6 +128,28 @@ describe("WorkerPool recovery and limits", function () {
     }
   });
 
+  // The deadline started when a task was posted, so it counted the start
+  // of a fresh worker (tens of milliseconds, more under load): a task
+  // sent to a replacement worker could time out before the worker ran,
+  // and its own replacement then started just as slowly. The deadline now
+  // starts when the worker is online. A worker takes over 10 ms to start
+  // but answers within a few once online, so with a 10 ms deadline every
+  // task here failed before.
+  it("does not count a worker's start-up against the task deadline", async () => {
+    for (let i = 0; i < 5; i++) {
+      const pool = new WorkerPool({
+        size: 1,
+        workerScript: script,
+        taskTimeoutMs: 10,
+      });
+      try {
+        expect(await pool.execute(task("work"))).to.equal("ok");
+      } finally {
+        await pool.shutdown();
+      }
+    }
+  });
+
   it("starts workers with the given resource limits", async () => {
     const pool = new WorkerPool({
       size: 1,
