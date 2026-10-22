@@ -26,6 +26,7 @@ import {
   HpkeSealResult,
   HpkeOpenResult,
 } from "../src/index";
+import { negotiateAlgorithm } from "../src/negotiation";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1742,64 +1743,12 @@ describe("CryptoClient", () => {
   });
 
   describe("negotiateAlgorithm()", () => {
-    const client = new CryptoClient({ baseUrl: "http://localhost:3000" });
-
-    it("defaults to category 1 with standard fallback", () => {
-      const res = client.negotiateAlgorithm();
-      expect(res.selectedAlgorithm).to.equal("x448-mlkem1024");
-      expect(res.securityCategory).to.equal(5);
-      expect(res.isHybrid).to.be.true;
-      expect(res.compliancePosture.doraArticle13Compliant).to.be.true;
-    });
-
-    it("negotiates within MTU constraints (e.g. 1500 bytes payload)", () => {
-      const res = client.negotiateAlgorithm({ maxPayloadBytes: 1500 });
-      expect(res.selectedAlgorithm).to.equal("x25519-mlkem768");
-      expect(res.ciphertextBytes).to.be.at.most(1500);
-      expect(res.fitsWithinMtu).to.be.true;
-    });
-
-    it("respects requireHybrid requirement", () => {
-      const res = client.negotiateAlgorithm({
-        securityCategoryMin: 3,
-        requireHybrid: true,
-      });
-      expect(res.isHybrid).to.be.true;
-      expect(res.cipherCategory).to.equal("hybrid-kem");
-      expect(res.selectedAlgorithm).to.equal("x448-mlkem1024");
-    });
-
-    it("respects clientSupportedAlgorithms whitelist", () => {
-      const res = client.negotiateAlgorithm({
-        clientSupportedAlgorithms: ["ml-kem-512", "x25519"],
-      });
-      expect(res.selectedAlgorithm).to.equal("ml-kem-512");
-      expect(res.securityCategory).to.equal(1);
-    });
-
-    it("falls back to classical ecdh when tightly constrained", () => {
-      const res = client.negotiateAlgorithm({
-        maxPayloadBytes: 100,
-        securityCategoryMin: 1,
-      });
-      expect(res.selectedAlgorithm).to.equal("x25519");
-      expect(res.fitsWithinMtu).to.be.true;
-    });
-
-    it("handles fallback when no eligible candidate fits MTU", () => {
-      const res = client.negotiateAlgorithm({
-        securityCategoryMin: 5,
-        maxPayloadBytes: 500,
-      });
-      expect(res.fitsWithinMtu).to.be.false;
-      expect(res.selectedAlgorithm).to.equal("x448-mlkem1024");
-    });
-
-    it("falls back to baseline cipher when client provides no matching algorithms", () => {
-      const res = client.negotiateAlgorithm({
-        clientSupportedAlgorithms: ["unknown-algorithm-xyz"],
-      });
-      expect(res.selectedAlgorithm).to.equal("x25519");
+    // The negotiation rules are tested in negotiation.test.ts.
+    it("delegates to negotiateAlgorithm", () => {
+      const client = new CryptoClient({ baseUrl: "http://localhost:3000" });
+      expect(
+        client.negotiateAlgorithm({ maxPayloadBytes: 1500 }),
+      ).to.deep.equal(negotiateAlgorithm({ maxPayloadBytes: 1500 }));
     });
   });
 });

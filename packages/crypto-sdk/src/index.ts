@@ -20,6 +20,7 @@
  */
 
 import { negotiateAlgorithm } from "./negotiation";
+export { AlgorithmNegotiationError, negotiateAlgorithm } from "./negotiation";
 import {
   buildClientHeaders,
   buildRequestInit,
