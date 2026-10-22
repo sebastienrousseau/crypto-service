@@ -24,7 +24,7 @@ module.exports = {
   ...base,
   // Override spec to exclude fixture files (.key, .pub, .cert) that the
   // default __tests__/** glob picks up and tries to require as JS.
-  spec: ["./__tests__/**/*.test.ts", "./__tests__/**/*.test.js"],
+  spec: ["./__tests__/**/*.test.ts"],
   require: ["ts-node/register/transpile-only"],
   timeout: 60000,
 };
