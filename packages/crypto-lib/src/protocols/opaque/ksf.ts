@@ -19,7 +19,7 @@
  * applications can supply their own {@link Ksf}.
  */
 
-import { scrypt } from "@noble/hashes/scrypt.js";
+import { scrypt } from "../../accel/kdf-backend";
 import { checkScryptCosts } from "../../modern/cost-limits";
 
 /** A key stretching function: Stretch(msg), slow and collision resistant. */

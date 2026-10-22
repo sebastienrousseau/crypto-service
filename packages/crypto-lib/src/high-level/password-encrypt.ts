@@ -22,7 +22,7 @@
  * The Argon2 cost caps apply to both versions before any key derivation.
  */
 
-import { argon2id } from "@noble/hashes/argon2.js";
+import { argon2id } from "../accel/kdf-backend";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkArgon2Costs } from "../modern/cost-limits";

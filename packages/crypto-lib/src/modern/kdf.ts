@@ -4,16 +4,15 @@
  */
 
 /**
- * @remarks Key derivation functions via @noble/hashes.
+ * @remarks Key derivation functions.
  *
- * Supports: scrypt, HKDF-SHA256, PBKDF2-SHA256.
- * Argon2 is not yet available in @noble/hashes — scrypt is the recommended
- * alternative for password hashing.
+ * Supports: scrypt, HKDF-SHA256, PBKDF2-SHA256. scrypt and PBKDF2 run in
+ * Node.js's native code where available (see accel/kdf-backend.ts), HKDF
+ * in @noble/hashes. For password hashing, Argon2id is in password.ts.
  */
 
-import { scrypt } from "@noble/hashes/scrypt.js";
+import { pbkdf2, scrypt } from "../accel/kdf-backend";
 import { hkdf } from "@noble/hashes/hkdf.js";
-import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";

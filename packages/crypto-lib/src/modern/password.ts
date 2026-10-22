@@ -17,7 +17,7 @@
  * These match the OWASP recommendations for server-side password hashing.
  */
 
-import { argon2id, argon2i, argon2d } from "@noble/hashes/argon2.js";
+import { argon2id, argon2i, argon2d } from "../accel/kdf-backend";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { timingSafeEqual } from "../utils";
 import { checkArgon2Costs } from "./cost-limits";

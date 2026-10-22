@@ -10,6 +10,7 @@
 import { expect } from "chai";
 import * as noble from "./noble-pq";
 import * as backend from "../../src/accel/pq-backend";
+import { runtimeCrypto } from "../../src/accel/runtime";
 
 const msg = new TextEncoder().encode("differential test message");
 const flip = (b: Uint8Array, i = 0) => {
@@ -161,7 +162,7 @@ describe("native post-quantum back end", function () {
 
   describe("runtime crypto", () => {
     it("loads node:crypto without importing it", () => {
-      expect(backend.runtimeCrypto()?.generateKeyPairSync).to.be.a("function");
+      expect(runtimeCrypto()?.generateKeyPairSync).to.be.a("function");
     });
 
     it("is null where process.getBuiltinModule is missing", () => {
@@ -169,7 +170,7 @@ describe("native post-quantum back end", function () {
       try {
         (process as { getBuiltinModule?: unknown }).getBuiltinModule =
           undefined;
-        expect(backend.runtimeCrypto()).to.equal(null);
+        expect(runtimeCrypto()).to.equal(null);
       } finally {
         process.getBuiltinModule = getBuiltinModule;
       }

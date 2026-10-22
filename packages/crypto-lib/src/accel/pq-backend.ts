@@ -24,6 +24,7 @@
 
 import type * as NodeCrypto from "node:crypto";
 import type { KeyObject } from "node:crypto";
+import { runtimeCrypto } from "./runtime";
 import {
   ml_kem512 as nobleMlKem512,
   ml_kem768 as nobleMlKem768,
@@ -48,23 +49,6 @@ import {
   slh_dsa_shake_256f as nobleSlhShake256f,
   slh_dsa_shake_256s as nobleSlhShake256s,
 } from "@noble/post-quantum/slh-dsa.js";
-
-// --- Runtime ---
-
-/**
- * Node.js's `crypto` module, loaded at run time so that bundlers for
- * browsers and edge runtimes never see an import of it; null there, and
- * on Node.js before 22.3, which lacks `process.getBuiltinModule`.
- */
-export function runtimeCrypto(): typeof NodeCrypto | null {
-  const runtime = (
-    globalThis as {
-      process?: { getBuiltinModule?: (id: string) => unknown };
-    }
-  ).process;
-  const crypto = runtime?.getBuiltinModule?.("node:crypto");
-  return (crypto ?? null) as typeof NodeCrypto | null;
-}
 
 /** Node.js's `crypto`, when this runtime has it. */
 const nodeCrypto = runtimeCrypto();
