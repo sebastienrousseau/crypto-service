@@ -7,25 +7,12 @@
  * @remarks Type definitions for Enterprise CaaS (Crypto-as-a-Service) multi-tenant metering and compliance.
  */
 
-/** The subscription tier governing feature gating and rate limits. */
-export type LicenseTier = "community" | "enterprise" | "sovereign";
-
-/** Quota parameters associated with a given license tier. */
-export interface TenantQuota {
-  readonly tier: LicenseTier;
-  readonly maxRequestsPerMinute: number;
-  readonly maxBytesPerPayload: number;
-  readonly allowQuantumOperations: boolean;
-  readonly allowComplianceAudit: boolean;
-}
-
 /** In-memory state tracking request consumption and bandwidth. */
 export interface TenantUsage {
   tokens: number;
   lastRefillMs: number;
   totalRequests: number;
   totalBytes: number;
-  tier: LicenseTier;
 }
 
 /** Result returned after evaluating tenant quota for an incoming request. */
@@ -34,9 +21,8 @@ export interface MeteringCheckResult {
   readonly limit: number;
   readonly remaining: number;
   readonly resetSeconds: number;
-  readonly tier: LicenseTier;
+  /** Why the request was refused (429), when it was. */
   readonly error?: string;
-  readonly statusCode?: number;
 }
 
 /** Deprecation schedule record for legacy ciphers under DORA Article 13. */

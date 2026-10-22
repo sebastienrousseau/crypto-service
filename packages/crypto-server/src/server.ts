@@ -201,7 +201,7 @@ async function init(
 
   decorateServices(app);
 
-  // Multi-tenant Sovereign CaaS metering. Its preHandler hook runs after
+  // Per-tenant metering. Its preHandler hook runs after
   // every onRequest hook, so the tenant is the authenticated principal.
   registerMetering(app);
 

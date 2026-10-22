@@ -1,814 +1,734 @@
 [
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 59,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 58,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 57,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 56,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 55,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 54,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 53,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 52,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 51,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 50,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 49,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 48,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 47,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 46,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 45,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 44,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 43,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 42,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 41,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 40,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 39,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 38,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 37,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 36,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 35,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 34,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 33,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 32,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 31,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 30,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 29,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 28,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 27,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 26,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 25,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 24,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 23,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 22,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 21,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 20,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 19,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 18,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 17,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 16,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 15,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 14,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 13,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 12,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 11,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 10,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 9,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 8,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 7,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 6,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 5,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 4,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 3,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 2,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 1,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 0,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": false,
       "limit": 60,
       "remaining": 0,
       "resetSeconds": 60,
-      "tier": "community",
-      "error": "Tenant rate limit exceeded for tier 'community'. Limit: 60 req/min.",
-      "statusCode": 429
+      "error": "Tenant rate limit exceeded. Limit: 60 req/min."
     },
     "size": 1
   },
   {
-    "step": ["a", "community", null, 1000],
+    "step": ["a", null, 1000],
     "result": {
       "allowed": false,
       "limit": 60,
       "remaining": 0,
       "resetSeconds": 60,
-      "tier": "community",
-      "error": "Tenant rate limit exceeded for tier 'community'. Limit: 60 req/min.",
-      "statusCode": 429
+      "error": "Tenant rate limit exceeded. Limit: 60 req/min."
     },
     "size": 1
   },
   {
-    "step": ["a", "community", 0, 1500],
+    "step": ["a", 0, 1500],
     "result": {
       "allowed": false,
       "limit": 60,
       "remaining": 0,
       "resetSeconds": 60,
-      "tier": "community",
-      "error": "Tenant rate limit exceeded for tier 'community'. Limit: 60 req/min.",
-      "statusCode": 429
+      "error": "Tenant rate limit exceeded. Limit: 60 req/min."
     },
     "size": 1
   },
   {
-    "step": ["a", "community", 100, 2000],
+    "step": ["a", 100, 2000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 0,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", 1048576, 30000],
+    "step": ["a", 1048576, 30000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 27,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", 1048577, 30001],
-    "result": {
-      "allowed": false,
-      "limit": 60,
-      "remaining": 27,
-      "resetSeconds": 60,
-      "tier": "community",
-      "error": "Payload size (1048577 bytes) exceeds tier limit of 1048576 bytes",
-      "statusCode": 413
-    },
-    "size": 1
-  },
-  {
-    "step": ["a", "community", 10, 29000],
+    "step": ["a", 1048577, 30001],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 26,
-      "resetSeconds": 62,
-      "tier": "community"
+      "resetSeconds": 60
     },
     "size": 1
   },
   {
-    "step": ["a", "community", 10, 95123],
+    "step": ["a", 10, 29000],
     "result": {
       "allowed": true,
       "limit": 60,
-      "remaining": 59,
-      "resetSeconds": 60,
-      "tier": "community"
+      "remaining": 25,
+      "resetSeconds": 62
     },
     "size": 1
   },
   {
-    "step": ["b", "enterprise", 10485761, 1000],
-    "result": {
-      "allowed": false,
-      "limit": 1000,
-      "remaining": 1000,
-      "resetSeconds": 60,
-      "tier": "enterprise",
-      "error": "Payload size (10485761 bytes) exceeds tier limit of 10485760 bytes",
-      "statusCode": 413
-    },
-    "size": 2
-  },
-  {
-    "step": ["b", "enterprise", 5, 61000],
-    "result": {
-      "allowed": true,
-      "limit": 1000,
-      "remaining": 999,
-      "resetSeconds": 60,
-      "tier": "enterprise"
-    },
-    "size": 2
-  },
-  {
-    "step": ["c", "sovereign", 52428800, 7777],
-    "result": {
-      "allowed": true,
-      "limit": 10000,
-      "remaining": 9999,
-      "resetSeconds": 60,
-      "tier": "sovereign"
-    },
-    "size": 3
-  },
-  {
-    "step": ["d", "community", null, 8000],
+    "step": ["a", 10, 95123],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 59,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
     },
-    "size": 3
+    "size": 1
   },
   {
-    "step": ["a", "community", null, 200000],
+    "step": ["b", 10485761, 1000],
     "result": {
       "allowed": true,
       "limit": 60,
       "remaining": 59,
-      "resetSeconds": 60,
-      "tier": "community"
+      "resetSeconds": 60
+    },
+    "size": 2
+  },
+  {
+    "step": ["b", 5, 61000],
+    "result": {
+      "allowed": true,
+      "limit": 60,
+      "remaining": 59,
+      "resetSeconds": 60
+    },
+    "size": 2
+  },
+  {
+    "step": ["c", 52428800, 7777],
+    "result": {
+      "allowed": true,
+      "limit": 60,
+      "remaining": 59,
+      "resetSeconds": 60
+    },
+    "size": 3
+  },
+  {
+    "step": ["d", null, 8000],
+    "result": {
+      "allowed": true,
+      "limit": 60,
+      "remaining": 59,
+      "resetSeconds": 60
+    },
+    "size": 3
+  },
+  {
+    "step": ["a", null, 200000],
+    "result": {
+      "allowed": true,
+      "limit": 60,
+      "remaining": 59,
+      "resetSeconds": 60
     },
     "size": 3
   }

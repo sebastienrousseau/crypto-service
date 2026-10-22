@@ -12,8 +12,10 @@ import { expect } from "chai";
 import fc from "fast-check";
 import { isEmailShaped } from "../src/utils/validation";
 import { OpaqueStore } from "../src/lib/opaque-store";
-import { MeteringEngine, TIER_QUOTAS } from "../src/enterprise/metering";
-import type { LicenseTier } from "../src/enterprise/types";
+import {
+  MeteringEngine,
+  TENANT_REQUESTS_PER_MINUTE,
+} from "../src/enterprise/metering";
 
 /** The regex isEmailShaped replaced (it backtracks polynomially). */
 const LEGACY_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -121,22 +123,14 @@ describe("Property-based fuzzing (fast-check)", () => {
   });
 
   describe("Rate limiter & metering burst fuzzing", () => {
-    const tierArbitrary = fc.constantFrom<LicenseTier>(
-      "community",
-      "enterprise",
-      "sovereign",
-    );
-
     it("enforces exact burst capacity limits at delta t = 0", () => {
       fc.assert(
         fc.property(
-          tierArbitrary,
           fc.string({ minLength: 1, maxLength: 16 }),
           fc.integer({ min: 1, max: 50 }),
-          (tier, tenantId, extraRequests) => {
+          (tenantId, extraRequests) => {
             const engine = new MeteringEngine();
-            const quota = TIER_QUOTAS[tier];
-            const maxAllowed = quota.maxRequestsPerMinute;
+            const maxAllowed = TENANT_REQUESTS_PER_MINUTE;
             const totalRequests = maxAllowed + extraRequests;
             const now = 1_700_000_000_000;
 
@@ -144,13 +138,13 @@ describe("Property-based fuzzing (fast-check)", () => {
             let rejectedCount = 0;
 
             for (let i = 0; i < totalRequests; i++) {
-              const res = engine.checkRequest(tenantId, tier, undefined, now);
+              const res = engine.checkRequest(tenantId, undefined, now);
               if (res.allowed) {
                 allowedCount++;
               } else {
                 rejectedCount++;
                 expect(res.remaining).to.equal(0);
-                expect(res.statusCode).to.equal(429);
+                expect(res.error).to.include("Tenant rate limit exceeded");
               }
             }
 
@@ -165,31 +159,24 @@ describe("Property-based fuzzing (fast-check)", () => {
     it("replenishes tokens proportionally over sliding time windows", () => {
       fc.assert(
         fc.property(
-          tierArbitrary,
           fc.string({ minLength: 1, maxLength: 16 }),
           fc.integer({ min: 1000, max: 60000 }),
-          (tier, tenantId, elapsedMs) => {
+          (tenantId, elapsedMs) => {
             const engine = new MeteringEngine();
-            const quota = TIER_QUOTAS[tier];
             const baseTime = 1_700_000_000_000;
 
             // Exhaust all tokens
-            for (let i = 0; i < quota.maxRequestsPerMinute; i++) {
-              engine.checkRequest(tenantId, tier, undefined, baseTime);
+            for (let i = 0; i < TENANT_REQUESTS_PER_MINUTE; i++) {
+              engine.checkRequest(tenantId, undefined, baseTime);
             }
 
             // Advance time by elapsedMs
             const futureTime = baseTime + elapsedMs;
-            const res = engine.checkRequest(
-              tenantId,
-              tier,
-              undefined,
-              futureTime,
-            );
+            const res = engine.checkRequest(tenantId, undefined, futureTime);
 
             // Refilled tokens must allow at least 1 request after positive elapsed time
             expect(res.allowed).to.be.true;
-            expect(res.remaining).to.be.at.most(quota.maxRequestsPerMinute - 1);
+            expect(res.remaining).to.be.at.most(TENANT_REQUESTS_PER_MINUTE - 1);
             expect(res.remaining).to.be.at.least(0);
           },
         ),
@@ -210,7 +197,7 @@ describe("Property-based fuzzing (fast-check)", () => {
             const now = 1_700_000_000_000;
 
             for (const tenant of tenants) {
-              engine.checkRequest(tenant, "community", undefined, now);
+              engine.checkRequest(tenant, undefined, now);
               expect(engine.size).to.be.at.most(maxTenants);
             }
           },
@@ -222,33 +209,21 @@ describe("Property-based fuzzing (fast-check)", () => {
     it("handles backward clock drift (negative delta t) without token overflow or crash", () => {
       fc.assert(
         fc.property(
-          tierArbitrary,
           fc.string({ minLength: 1, maxLength: 16 }),
           fc.integer({ min: 1, max: 1_000_000 }),
-          (tier, tenantId, clockDrift) => {
+          (tenantId, clockDrift) => {
             const engine = new MeteringEngine();
-            const quota = TIER_QUOTAS[tier];
             const baseTime = 1_700_000_000_000;
 
             // Consume one token at baseTime
-            const first = engine.checkRequest(
-              tenantId,
-              tier,
-              undefined,
-              baseTime,
-            );
+            const first = engine.checkRequest(tenantId, undefined, baseTime);
             expect(first.allowed).to.be.true;
 
             // Clock jumps backwards
             const driftTime = baseTime - clockDrift;
-            const second = engine.checkRequest(
-              tenantId,
-              tier,
-              undefined,
-              driftTime,
-            );
+            const second = engine.checkRequest(tenantId, undefined, driftTime);
             // Must not crash and remaining must not exceed capacity
-            expect(second.remaining).to.be.at.most(quota.maxRequestsPerMinute);
+            expect(second.remaining).to.be.at.most(TENANT_REQUESTS_PER_MINUTE);
           },
         ),
         { numRuns: 30 },
@@ -258,30 +233,23 @@ describe("Property-based fuzzing (fast-check)", () => {
     it("caps token replenishment at maxRequestsPerMinute after massive time jumps", () => {
       fc.assert(
         fc.property(
-          tierArbitrary,
           fc.string({ minLength: 1, maxLength: 16 }),
           fc.integer({ min: 100_000_000, max: 1_000_000_000 }),
-          (tier, tenantId, largeJumpMs) => {
+          (tenantId, largeJumpMs) => {
             const engine = new MeteringEngine();
-            const quota = TIER_QUOTAS[tier];
             const baseTime = 1_700_000_000_000;
 
             // Exhaust bucket
-            for (let i = 0; i < quota.maxRequestsPerMinute; i++) {
-              engine.checkRequest(tenantId, tier, undefined, baseTime);
+            for (let i = 0; i < TENANT_REQUESTS_PER_MINUTE; i++) {
+              engine.checkRequest(tenantId, undefined, baseTime);
             }
 
             // Advance by years
             const futureTime = baseTime + largeJumpMs;
-            const res = engine.checkRequest(
-              tenantId,
-              tier,
-              undefined,
-              futureTime,
-            );
+            const res = engine.checkRequest(tenantId, undefined, futureTime);
             expect(res.allowed).to.be.true;
             // After consuming 1, remaining must be exactly max - 1
-            expect(res.remaining).to.equal(quota.maxRequestsPerMinute - 1);
+            expect(res.remaining).to.equal(TENANT_REQUESTS_PER_MINUTE - 1);
           },
         ),
         { numRuns: 30 },

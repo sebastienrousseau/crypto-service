@@ -45,6 +45,10 @@ detail.
   in `KMS_PROVIDERS` (default `local`) can be used.
 - **OPAQUE registration** needs credentials; a caller registers only its
   own subject unless it holds `crypto:admin`.
+- **License tiers are removed**: every tenant has the same quota, 60
+  requests a minute, whatever its JWT `tier` claim. Responses no longer
+  carry `X-License-Tier`, and a refusal's problem details no longer carry
+  `tier`. Payloads are bounded only by the server's body limit.
 
 ## 0.0.2 to 0.0.3
 

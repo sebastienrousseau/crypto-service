@@ -91,7 +91,7 @@ describe("Global rate limit (server)", function () {
     });
   }
 
-  it("ignores a client-chosen API key prefix when picking the tier", async () => {
+  it("reports the tenant quota without a license tier", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/v2/algorithms",
@@ -99,7 +99,7 @@ describe("Global rate limit (server)", function () {
       remoteAddress: "203.0.113.7",
     });
     expect(res.statusCode).to.equal(200);
-    expect(res.headers["x-license-tier"]).to.equal("community");
+    expect(res.headers["x-license-tier"]).to.be.undefined;
     expect(res.headers["x-tenant-ratelimit-limit"]).to.equal("60");
     // The global limiter owns X-RateLimit-*; metering must not overwrite it.
     expect(res.headers["x-ratelimit-limit"]).to.equal(

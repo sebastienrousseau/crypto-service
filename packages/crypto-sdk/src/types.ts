@@ -104,7 +104,7 @@ export interface ApiError {
   code?: string;
   /** Per-field failures of a `validation-failed` problem. */
   errors?: ApiErrorField[];
-  /** Other extension members (e.g. `tier`, `limit`, `resetSeconds`). */
+  /** Other extension members (e.g. `limit`, `resetSeconds`). */
   [extension: string]: unknown;
 }
 
