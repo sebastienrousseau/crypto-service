@@ -20,13 +20,12 @@
  *   tag = 0x00 for intermediate chunks, 0x01 for the final chunk.
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import {
-  CHUNK_TAG_FINAL,
-  CHUNK_TAG_MESSAGE,
+  ChunkDecryptor,
   TAG_LEN,
   assertChunkSize,
+  decryptChunks,
   encryptChunksInto,
   streamSize,
 } from "./chunks";
@@ -147,36 +146,6 @@ export function streamEncrypt(
   };
 }
 
-/** Tag byte and encrypted length of the chunk that starts at `offset`. */
-interface ChunkHeader {
-  chunkTag: number;
-  isFinal: boolean;
-  encLen: number;
-}
-
-/**
- * Read and validate the chunk header at `offset`: the tag byte must be a
- * MESSAGE or FINAL marker, and the chunk must fit in the ciphertext.
- */
-function readChunkHeader(
-  ciphertext: Uint8Array,
-  offset: number,
-  chunkSize: number,
-): ChunkHeader {
-  const chunkTag = ciphertext[offset]!;
-  if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
-    throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
-  }
-  const isFinal = chunkTag === CHUNK_TAG_FINAL;
-  const start = offset + 1;
-  // The FINAL chunk runs to the end; every other chunk is full-sized.
-  const encLen = isFinal ? ciphertext.length - start : chunkSize + TAG_LEN;
-  if (start + encLen > ciphertext.length) {
-    throw new Error("Ciphertext truncated — incomplete chunk");
-  }
-  return { chunkTag, isFinal, encLen };
-}
-
 /**
  * Decrypt a stream produced by {@link streamEncrypt}.
  *
@@ -194,50 +163,11 @@ export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
   }
 
   const baseNonce = ciphertext.subarray(0, NONCE_LEN);
-  let offset = NONCE_LEN;
-
-  const plaintextChunks: Uint8Array[] = [];
-  let totalPtLen = 0;
-  let sawFinal = false;
-
-  while (offset < ciphertext.length) {
-    const { chunkTag, isFinal, encLen } = readChunkHeader(
-      ciphertext,
-      offset,
-      chunkSize,
-    );
-    offset += 1;
-
-    const chunkIdx = plaintextChunks.length;
-    const nonce = deriveChunkNonce(baseNonce, chunkIdx, chunkTag);
-    const cipher = xchacha20poly1305(key, nonce);
-    const decrypted = cipher.decrypt(
-      ciphertext.subarray(offset, offset + encLen),
-    );
-
-    plaintextChunks.push(decrypted);
-    totalPtLen += decrypted.length;
-    offset += encLen;
-
-    if (isFinal) {
-      sawFinal = true;
-      break;
-    }
-  }
-
   // Without the FINAL chunk, an attacker could drop trailing chunks and
-  // the remaining prefix would still authenticate chunk by chunk.
-  if (!sawFinal) {
-    throw new Error("Ciphertext truncated — final chunk missing");
-  }
-
-  // Assemble plaintext
-  const result = new Uint8Array(totalPtLen);
-  let pos = 0;
-  for (const chunk of plaintextChunks) {
-    result.set(chunk, pos);
-    pos += chunk.length;
-  }
-
-  return result;
+  // the remaining prefix would still authenticate chunk by chunk; the
+  // decryptor refuses a stream that ends without one.
+  return decryptChunks(
+    new ChunkDecryptor(key, baseNonce, chunkSize, deriveChunkNonce),
+    ciphertext.subarray(NONCE_LEN),
+  );
 }

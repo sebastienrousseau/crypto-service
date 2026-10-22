@@ -54,6 +54,168 @@ export function streamSize(
   return headerLen + ptLen + chunkCount(ptLen, chunkSize) * (1 + TAG_LEN);
 }
 
+/** Bytes received but not yet processed, kept as a list of parts. */
+class ByteQueue {
+  private parts: Uint8Array[] = [];
+  /** Number of bytes queued. */
+  length = 0;
+
+  /** Appends `data`. */
+  push(data: Uint8Array): void {
+    if (data.length === 0) return;
+    this.parts.push(data);
+    this.length += data.length;
+  }
+
+  /** The byte at the front of the queue. */
+  first(): number {
+    return this.parts[0]![0]!;
+  }
+
+  /** Removes and returns the first `n` bytes. */
+  take(n: number): Uint8Array {
+    const out = new Uint8Array(n);
+    let filled = 0;
+    while (filled < n) {
+      const part = this.parts[0]!;
+      const used = Math.min(part.length, n - filled);
+      out.set(part.subarray(0, used), filled);
+      filled += used;
+      if (used === part.length) this.parts.shift();
+      else this.parts[0] = part.subarray(used);
+    }
+    this.length -= n;
+    return out;
+  }
+}
+
+/**
+ * Encrypts a stream chunk by chunk as plaintext arrives. A chunk is sealed
+ * once more plaintext follows it, so it is known not to be the last; the
+ * last is sealed FINAL by {@link ChunkEncryptor.finish}. The output is the
+ * same, byte for byte, however the plaintext is split.
+ */
+export class ChunkEncryptor {
+  private readonly queue = new ByteQueue();
+  private counter = 0;
+
+  constructor(
+    private readonly key: Uint8Array,
+    private readonly baseNonce: Uint8Array,
+    private readonly chunkSize: number,
+    private readonly chunkNonce: ChunkNonce,
+  ) {
+    assertChunkSize(chunkSize);
+  }
+
+  /** Adds plaintext; returns the chunks it completes. */
+  push(plaintext: Uint8Array): Uint8Array[] {
+    this.queue.push(plaintext);
+    const out: Uint8Array[] = [];
+    while (this.queue.length > this.chunkSize) {
+      out.push(this.seal(this.queue.take(this.chunkSize), CHUNK_TAG_MESSAGE));
+    }
+    return out;
+  }
+
+  /** Ends the stream; returns its FINAL chunk. */
+  finish(): Uint8Array {
+    return this.seal(this.queue.take(this.queue.length), CHUNK_TAG_FINAL);
+  }
+
+  /** Tag byte followed by the chunk's ciphertext. */
+  private seal(chunk: Uint8Array, tag: number): Uint8Array {
+    const nonce = this.chunkNonce(this.baseNonce, this.counter++, tag);
+    const encrypted = xchacha20poly1305(this.key, nonce).encrypt(chunk);
+    const out = new Uint8Array(1 + encrypted.length);
+    out[0] = tag;
+    out.set(encrypted, 1);
+    return out;
+  }
+}
+
+/** Messages a {@link ChunkDecryptor} throws for a cut-short stream. */
+export interface TruncationMessages {
+  /** A chunk that ends before its length. */
+  incomplete: string;
+  /** A stream that ends without a FINAL chunk. */
+  finalMissing: string;
+}
+
+/** The messages of the single-recipient formats. */
+const TRUNCATED: TruncationMessages = {
+  incomplete: "Ciphertext truncated — incomplete chunk",
+  finalMissing: "Ciphertext truncated — final chunk missing",
+};
+
+/**
+ * Decrypts a stream chunk by chunk as ciphertext arrives. A MESSAGE chunk
+ * is opened as soon as all of it is in; the FINAL chunk runs to the end of
+ * the stream, so {@link ChunkDecryptor.finish} opens it. At most one chunk
+ * is held at a time: a FINAL chunk longer than a chunk is refused.
+ */
+export class ChunkDecryptor {
+  private readonly queue = new ByteQueue();
+  private counter = 0;
+
+  constructor(
+    private readonly key: Uint8Array,
+    private readonly baseNonce: Uint8Array,
+    private readonly chunkSize: number,
+    private readonly chunkNonce: ChunkNonce,
+    private readonly truncated: TruncationMessages = TRUNCATED,
+  ) {
+    assertChunkSize(chunkSize);
+  }
+
+  /** Adds ciphertext; returns the plaintext of the chunks it completes. */
+  push(ciphertext: Uint8Array): Uint8Array[] {
+    this.queue.push(ciphertext);
+    const full = 1 + this.chunkSize + TAG_LEN;
+    const out: Uint8Array[] = [];
+    while (this.queue.length > 0) {
+      const tag = this.queue.first();
+      if (tag !== CHUNK_TAG_MESSAGE && tag !== CHUNK_TAG_FINAL) {
+        throw new Error(`Invalid chunk tag: 0x${tag.toString(16)}`);
+      }
+      if (tag === CHUNK_TAG_FINAL) {
+        if (this.queue.length > full) {
+          throw new Error("Final chunk is longer than the chunk size");
+        }
+        break;
+      }
+      if (this.queue.length < full) break;
+      out.push(this.open(this.queue.take(full)));
+    }
+    return out;
+  }
+
+  /** Ends the stream; returns the FINAL chunk's plaintext. */
+  finish(): Uint8Array {
+    if (this.queue.length === 0) throw new Error(this.truncated.finalMissing);
+    if (this.queue.first() !== CHUNK_TAG_FINAL) {
+      throw new Error(this.truncated.incomplete);
+    }
+    return this.open(this.queue.take(this.queue.length));
+  }
+
+  /** Opens a tag byte followed by a chunk's ciphertext. */
+  private open(chunk: Uint8Array): Uint8Array {
+    const nonce = this.chunkNonce(this.baseNonce, this.counter++, chunk[0]!);
+    return xchacha20poly1305(this.key, nonce).decrypt(chunk.subarray(1));
+  }
+}
+
+/** Decrypts a whole chunk sequence with a {@link ChunkDecryptor}. */
+export function decryptChunks(
+  decryptor: ChunkDecryptor,
+  body: Uint8Array,
+): Uint8Array {
+  const parts = decryptor.push(body);
+  parts.push(decryptor.finish());
+  return Uint8Array.from(Buffer.concat(parts));
+}
+
 /**
  * Encrypt `plaintext` chunk by chunk with XChaCha20-Poly1305 into
  * `output`, starting at `offset`. Each chunk is its tag byte followed by
@@ -68,16 +230,9 @@ export function encryptChunksInto(
   offset: number,
   chunkNonce: ChunkNonce,
 ): void {
-  const total = chunkCount(plaintext.length, chunkSize);
-  for (let i = 0; i < total; i++) {
-    const isFinal = i === total - 1;
-    const tag = isFinal ? CHUNK_TAG_FINAL : CHUNK_TAG_MESSAGE;
-    const end = isFinal ? plaintext.length : (i + 1) * chunkSize;
-    const chunk = plaintext.subarray(i * chunkSize, end);
-    const nonce = chunkNonce(baseNonce, i, tag);
-    const encrypted = xchacha20poly1305(key, nonce).encrypt(chunk);
-    output[offset] = tag;
-    output.set(encrypted, offset + 1);
-    offset += 1 + encrypted.length;
+  const encryptor = new ChunkEncryptor(key, baseNonce, chunkSize, chunkNonce);
+  for (const chunk of [...encryptor.push(plaintext), encryptor.finish()]) {
+    output.set(chunk, offset);
+    offset += chunk.length;
   }
 }

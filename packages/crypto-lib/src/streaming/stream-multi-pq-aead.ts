@@ -27,12 +27,16 @@ import {
   NONCE_LEN,
   TAG_LEN,
   DEFAULT_CHUNK_SIZE,
-  CHUNK_TAG_MESSAGE,
-  CHUNK_TAG_FINAL,
   derivePqChunkNonce,
   toBytes,
 } from "./stream-pq-aead";
-import { assertChunkSize, encryptChunksInto, streamSize } from "./chunks";
+import {
+  ChunkDecryptor,
+  ChunkEncryptor,
+  type TruncationMessages,
+  assertChunkSize,
+  decryptChunks,
+} from "./chunks";
 
 /** Magic bytes identifying multi-recipient post-quantum stream format ("MSPQ"). */
 export const MULTI_PQ_STREAM_MAGIC = new Uint8Array([0x4d, 0x53, 0x50, 0x51]);
@@ -226,7 +230,9 @@ function writeHeaderPrefix(
 }
 
 /** Recipients (1 to 1000) and a chunk size (1 KiB to 16 MiB), checked. */
-function checkEncryptOptions(options: StreamMultiPqEncryptOptions): {
+function checkEncryptOptions(
+  options: Omit<StreamMultiPqEncryptOptions, "plaintext">,
+): {
   recipients: MultiPqRecipient[];
   chunkSize: number;
 } {
@@ -254,40 +260,46 @@ function checkEncryptOptions(options: StreamMultiPqEncryptOptions): {
 export function streamMultiPqEncrypt(
   options: StreamMultiPqEncryptOptions,
 ): StreamMultiPqEncryptResult {
-  const { recipients, chunkSize } = checkEncryptOptions(options);
-
-  const cek = randomBytes(CEK_LEN);
-  const baseNonce = randomBytes(NONCE_LEN);
-
-  const slots = recipients.map((r, i) => createSlot(cek, i, r));
-  const headerLen =
-    MULTI_PQ_PREFIX_LEN + slots.reduce((sum, slot) => sum + slot.length, 0);
-  const output = new Uint8Array(
-    streamSize(headerLen, options.plaintext.length, chunkSize),
+  const { header, encryptor, wipe } = multiPqStreamSender(options);
+  const output = Uint8Array.from(
+    Buffer.concat([
+      header,
+      ...encryptor.push(options.plaintext),
+      encryptor.finish(),
+    ]),
   );
-
-  writeHeaderPrefix(output, chunkSize, baseNonce, recipients.length);
-  let slotOffset = MULTI_PQ_PREFIX_LEN;
-  for (const slot of slots) {
-    output.set(slot, slotOffset);
-    slotOffset += slot.length;
-  }
-
-  encryptChunksInto(
-    options.plaintext,
-    cek,
-    baseNonce,
-    chunkSize,
-    output,
-    headerLen,
-    derivePqChunkNonce,
-  );
-  wipeMemory(cek);
+  wipe();
 
   return {
     ciphertext: output,
     algorithm: "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
-    recipientCount: recipients.length,
+    recipientCount: options.recipients.length,
+  };
+}
+
+/**
+ * Starts a stream to several recipients: its header (prefix and one key
+ * slot per recipient), the encryptor for its chunks, and `wipe`, which
+ * erases the content key once the stream is finished.
+ */
+export function multiPqStreamSender(
+  options: Omit<StreamMultiPqEncryptOptions, "plaintext">,
+): { header: Uint8Array; encryptor: ChunkEncryptor; wipe: () => void } {
+  const { recipients, chunkSize } = checkEncryptOptions(options);
+  const cek = randomBytes(CEK_LEN);
+  const baseNonce = randomBytes(NONCE_LEN);
+  const slots = recipients.map((r, i) => createSlot(cek, i, r));
+  const prefix = new Uint8Array(MULTI_PQ_PREFIX_LEN);
+  writeHeaderPrefix(prefix, chunkSize, baseNonce, recipients.length);
+  return {
+    header: Uint8Array.from(Buffer.concat([prefix, ...slots])),
+    encryptor: new ChunkEncryptor(
+      cek,
+      baseNonce,
+      chunkSize,
+      derivePqChunkNonce,
+    ),
+    wipe: () => wipeMemory(cek),
   };
 }
 
@@ -401,74 +413,67 @@ function tryUnwrapSlot(
   }
 }
 
-/** Reads next encrypted chunk header from ciphertext. */
-function readMultiChunkHeader(
-  ciphertext: Uint8Array,
-  offset: number,
-  chunkSize: number,
-): { chunkTag: number; isFinal: boolean; encLen: number } {
-  const chunkTag = ciphertext[offset] as number;
-  if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
-    throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
+/** The multi-recipient format's messages for a cut-short stream. */
+const TRUNCATED: TruncationMessages = {
+  incomplete: "Ciphertext truncated: incomplete chunk",
+  finalMissing: "Ciphertext truncated: final chunk missing",
+};
+
+/**
+ * Length of the header at the start of `bytes` (prefix and every key
+ * slot), or undefined while more bytes are needed to know it.
+ * @throws For a prefix that is not this format's.
+ */
+export function multiPqHeaderLength(bytes: Uint8Array): number | undefined {
+  if (bytes.length < MULTI_PQ_PREFIX_LEN) return undefined;
+  const { recipientCount } = parseHeaderPrefix(bytes);
+  let offset = MULTI_PQ_PREFIX_LEN;
+  for (let i = 0; i < recipientCount; i++) {
+    if (offset >= bytes.length) return undefined;
+    offset += SLOT_FIXED_OVERHEAD + bytes[offset]!;
   }
-  const isFinal = chunkTag === CHUNK_TAG_FINAL;
-  const start = offset + 1;
-  const encLen = isFinal ? ciphertext.length - start : chunkSize + TAG_LEN;
-  if (start + encLen > ciphertext.length) {
-    throw new Error("Ciphertext truncated: incomplete chunk");
-  }
-  return { chunkTag, isFinal, encLen };
+  return offset <= bytes.length ? offset : undefined;
 }
 
-/** Decrypts stream chunks from ciphertext using recovered CEK. */
-function decryptStreamChunks(
-  ciphertext: Uint8Array,
-  headerEndOffset: number,
-  cek: Uint8Array,
-  baseNonce: Uint8Array,
-  chunkSize: number,
-): Uint8Array {
-  let offset = headerEndOffset;
-  const chunks: Uint8Array[] = [];
-  let totalPtLen = 0;
-  let sawFinal = false;
-
-  while (offset < ciphertext.length) {
-    const { chunkTag, isFinal, encLen } = readMultiChunkHeader(
-      ciphertext,
-      offset,
-      chunkSize,
-    );
-    offset += 1;
-
-    const chunkIdx = chunks.length;
-    const nonce = derivePqChunkNonce(baseNonce, chunkIdx, chunkTag);
-    const cipher = xchacha20poly1305(cek, nonce);
-    const decrypted = cipher.decrypt(
-      ciphertext.subarray(offset, offset + encLen),
-    );
-
-    chunks.push(decrypted);
-    totalPtLen += decrypted.length;
-    offset += encLen;
-
-    if (isFinal) {
-      sawFinal = true;
-      break;
-    }
-  }
-
-  if (!sawFinal) {
-    throw new Error("Ciphertext truncated: final chunk missing");
-  }
-
-  const result = new Uint8Array(totalPtLen);
-  let pos = 0;
-  for (const chunk of chunks) {
-    result.set(chunk, pos);
-    pos += chunk.length;
-  }
-  return result;
+/**
+ * The decryptor for a stream's chunks and the recipient it opened for,
+ * from its header and the recipient's secret keys. `wipe` erases the
+ * content key once the stream is finished.
+ */
+export function multiPqStreamReceiver(
+  options: Omit<StreamMultiPqDecryptOptions, "ciphertext">,
+  header: Uint8Array,
+): { decryptor: ChunkDecryptor; recipientId: string; wipe: () => void } {
+  const recipX25519Sec = toBytes(
+    options.recipientX25519Secret,
+    32,
+    "recipientX25519Secret",
+  );
+  const recipMlKemSec = toBytes(
+    options.recipientMlKemSecret,
+    2400,
+    "recipientMlKemSecret",
+  );
+  const { chunkSize, baseNonce, recipientCount } = parseHeaderPrefix(header);
+  const { slots } = parseSlots(header, recipientCount);
+  const { cek, matchingSlot } = resolveRecipientCek(
+    slots,
+    options.recipientId,
+    recipX25519Sec,
+    recipMlKemSec,
+  );
+  const decryptor = new ChunkDecryptor(
+    cek,
+    baseNonce,
+    options.chunkSize ?? chunkSize,
+    derivePqChunkNonce,
+    TRUNCATED,
+  );
+  return {
+    decryptor,
+    recipientId: matchingSlot.recipientId,
+    wipe: () => wipeMemory(cek),
+  };
 }
 
 /** Resolves CEK and matching recipient slot either by ID or by trial unwrapping. */
@@ -508,44 +513,20 @@ function resolveRecipientCek(
 export function streamMultiPqDecrypt(
   options: StreamMultiPqDecryptOptions,
 ): StreamMultiPqDecryptResult {
-  const recipX25519Sec = toBytes(
-    options.recipientX25519Secret,
-    32,
-    "recipientX25519Secret",
-  );
-  const recipMlKemSec = toBytes(
-    options.recipientMlKemSecret,
-    2400,
-    "recipientMlKemSecret",
-  );
   const ciphertext = options.ciphertext;
-
-  const {
-    chunkSize: headerChunkSize,
-    baseNonce,
-    recipientCount,
-  } = parseHeaderPrefix(ciphertext);
-  const effectiveChunkSize = options.chunkSize ?? headerChunkSize;
-  const { slots, headerEndOffset } = parseSlots(ciphertext, recipientCount);
-
-  const { cek, matchingSlot } = resolveRecipientCek(
-    slots,
-    options.recipientId,
-    recipX25519Sec,
-    recipMlKemSec,
+  const { recipientCount } = parseHeaderPrefix(ciphertext);
+  const { headerEndOffset } = parseSlots(ciphertext, recipientCount);
+  const { decryptor, recipientId, wipe } = multiPqStreamReceiver(
+    options,
+    ciphertext.subarray(0, headerEndOffset),
   );
-
-  const plaintext = decryptStreamChunks(
-    ciphertext,
-    headerEndOffset,
-    cek,
-    baseNonce,
-    effectiveChunkSize,
-  );
-  wipeMemory(cek);
-
-  return {
-    plaintext,
-    recipientId: matchingSlot.recipientId,
-  };
+  try {
+    const plaintext = decryptChunks(
+      decryptor,
+      ciphertext.subarray(headerEndOffset),
+    );
+    return { plaintext, recipientId };
+  } finally {
+    wipe();
+  }
 }
