@@ -186,6 +186,37 @@ describe("hybrid signatures as Composite ML-DSA (draft 19)", function () {
     expect(valid).to.equal(true);
   });
 
+  it("with acceptLegacy, still verifies new signatures and refuses bad ones", () => {
+    const ml65 = mlDsaKeygen(65);
+    const ed = ed25519.utils.randomSecretKey();
+    const edPub = hex(ed25519.getPublicKey(ed));
+    const signed = hybridSign(hex(ed), ml65.secretKey, message, 65);
+    const opts = { acceptLegacy: true };
+    expect(
+      hybridVerify(
+        edPub,
+        ml65.publicKey,
+        message,
+        signed.ed25519Signature,
+        signed.mlDsaSignature,
+        65,
+        opts,
+      ).valid,
+    ).to.equal(true);
+    const ml87 = mlDsaKeygen(87);
+    expect(
+      hybridVerify(
+        edPub,
+        ml87.publicKey,
+        message,
+        signed.ed25519Signature,
+        mlDsaSign(87, ml87.secretKey, "other").signature,
+        87,
+        opts,
+      ).valid,
+    ).to.equal(false);
+  });
+
   it("refuses a context longer than 255 bytes", () => {
     const ml = mlDsaKeygen(65);
     const ed = hex(ed25519.utils.randomSecretKey());

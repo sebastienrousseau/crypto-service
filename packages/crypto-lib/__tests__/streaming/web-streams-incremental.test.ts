@@ -338,6 +338,22 @@ describe("incremental symmetric Web Streams", function () {
     expect(Buffer.from(output).equals(Buffer.from(plaintext))).to.equal(true);
   });
 
+  it("refuses a single-message input shorter than a nonce and tag", async () => {
+    let error: unknown;
+    try {
+      await drive(
+        createDecryptStream({
+          key,
+          format: "single-message",
+        }) as unknown as Stream,
+        [new Uint8Array(39)],
+      );
+    } catch (e) {
+      error = e;
+    }
+    expect((error as Error).message).to.match(/too short/);
+  });
+
   it("errors on a truncated stream", async () => {
     const { ciphertext } = streamEncrypt({
       key,
