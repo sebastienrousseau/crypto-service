@@ -143,6 +143,15 @@ SLH-DSA) are first-class citizens, not add-ons, and hybrid
 constructions combine classical and PQ algorithms so security holds
 even if one family breaks.
 
+On Node.js 24.7 and later, ML-KEM, ML-DSA and SLH-DSA run in the
+runtime's own OpenSSL 3.5 instead: measured on an Apple A18 Pro with
+Node.js 24.21, ML-KEM-768 encapsulation is about 7 times faster,
+ML-DSA-65 signing about 20 times and SLH-DSA-SHA2-128f signing about 6
+times. Keys, ciphertexts and signatures are the same raw bytes as
+noble's, so data made on one runtime works on another, and noble still
+runs in browsers, edge runtimes and older Node.js. `nativeAlgorithms()`
+in `@sebastienrousseau/crypto-lib/accel` lists what runs natively.
+
 Two API layers serve different needs: a unified `crypto.*` namespace
 for common tasks, and granular per-module imports for full control
 and tree-shaking. Both layers use the same underlying noble

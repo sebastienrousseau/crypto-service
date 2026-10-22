@@ -30,7 +30,7 @@ import {
   slh_dsa_shake_192s,
   slh_dsa_shake_256f,
   slh_dsa_shake_256s,
-} from "@noble/post-quantum/slh-dsa.js";
+} from "../accel/pq-backend";
 
 // --- Types ---
 

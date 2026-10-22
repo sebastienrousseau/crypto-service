@@ -21,7 +21,7 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import * as secretbox from "./secretbox";
 import { x25519AesKwWrap, x25519AesKwUnwrap } from "./key-wrap";
 import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { ml_kem768 } from "../accel/pq-backend";
 import { aeskw } from "@noble/ciphers/aes.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";

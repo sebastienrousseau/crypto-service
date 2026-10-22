@@ -16,7 +16,7 @@
  * Shared secret derivation: HKDF-SHA256(X25519_shared || ML-KEM_shared, salt, info)
  */
 
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { ml_kem768 } from "../accel/pq-backend";
 import { x25519 } from "@noble/curves/ed25519.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";

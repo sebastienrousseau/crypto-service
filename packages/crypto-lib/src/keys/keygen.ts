@@ -13,12 +13,8 @@
 import { ed25519, x25519 } from "@noble/curves/ed25519.js";
 import { ed448, x448 } from "@noble/curves/ed448.js";
 import { p256, p384 } from "@noble/curves/nist.js";
-import {
-  ml_kem512,
-  ml_kem768,
-  ml_kem1024,
-} from "@noble/post-quantum/ml-kem.js";
-import { ml_dsa44, ml_dsa65, ml_dsa87 } from "@noble/post-quantum/ml-dsa.js";
+import { ml_kem512, ml_kem768, ml_kem1024 } from "../accel/pq-backend";
+import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToBase64url } from "./serialize";

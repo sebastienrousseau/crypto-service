@@ -4,30 +4,20 @@
  */
 
 /**
- * @remarks Native PQC bridge — auto-detects Node.js 24.7+ ML-KEM/ML-DSA support.
+ * @remarks ML-KEM through the native post-quantum back end.
  *
- * When running on Node.js >= 24.7 with OpenSSL 3.5+, this module uses the
- * native `crypto.encapsulate()`/`crypto.decapsulate()` APIs for post-quantum
- * key encapsulation. Falls back to @noble/post-quantum on older runtimes or
- * when native support is unavailable.
- *
- * **Design note:** Native `crypto.generateKeyPairSync('ml-kem-*')` returns
- * DER/PEM-formatted KeyObject instances that are incompatible with @noble's
- * raw byte arrays. To preserve interoperability with the rest of the library
- * (which uses raw keys everywhere), key generation always uses @noble. Only
- * encapsulate/decapsulate benefit from native acceleration, since the
- * ciphertext and shared-secret formats are identical between native and noble.
- *
- * A future version may add DER-to-raw key conversion to enable fully native
- * key generation as well.
+ * Key generation, encapsulation and decapsulation run in Node.js's
+ * OpenSSL where the runtime has ML-KEM (Node.js 24.7 and later), and in
+ * @noble/post-quantum elsewhere; see `pq-backend.ts`. Keys, ciphertexts
+ * and shared secrets are the same raw bytes either way.
  */
 
 import {
   ml_kem512,
   ml_kem768,
   ml_kem1024,
-} from "@noble/post-quantum/ml-kem.js";
-import * as nodeCrypto from "node:crypto";
+  nativeAlgorithms,
+} from "./pq-backend";
 
 // --- Feature Detection ---
 
@@ -35,8 +25,7 @@ import * as nodeCrypto from "node:crypto";
 let _nativePqcDetected: boolean | undefined;
 
 /**
- * Whether the current Node.js runtime has native ML-KEM PQC support
- * (`crypto.encapsulate`/`crypto.decapsulate` + `ml-kem-*` key generation).
+ * Whether ML-KEM runs natively on this runtime, at every level.
  *
  * @example
  * ```ts
@@ -47,17 +36,10 @@ let _nativePqcDetected: boolean | undefined;
  */
 export function hasNativePqc(): boolean {
   if (_nativePqcDetected !== undefined) return _nativePqcDetected;
-  try {
-    // Cast needed: @types/node does not yet declare encapsulate/decapsulate
-    // (added in Node.js 24.7+ with OpenSSL 3.5+).
-    const c = nodeCrypto as Record<string, unknown>;
-    _nativePqcDetected =
-      typeof c.encapsulate === "function" &&
-      typeof c.decapsulate === "function";
-    /* c8 ignore next 3 -- defensive: typeof never throws */
-  } catch {
-    _nativePqcDetected = false;
-  }
+  const native = nativeAlgorithms();
+  _nativePqcDetected = ["ml-kem-512", "ml-kem-768", "ml-kem-1024"].every(
+    (name) => native.includes(name),
+  );
   return _nativePqcDetected;
 }
 
@@ -133,7 +115,7 @@ function assertLevel(level: number): asserts level is NativeMlKemLevel {
   }
 }
 
-function getNobleKem(level: NativeMlKemLevel) {
+function getKem(level: NativeMlKemLevel) {
   switch (level) {
     case 512:
       return ml_kem512;
@@ -147,11 +129,7 @@ function getNobleKem(level: NativeMlKemLevel) {
 // --- Bridge Functions ---
 
 /**
- * ML-KEM key generation using @noble/post-quantum.
- *
- * Always uses @noble regardless of native availability because native
- * `generateKeyPairSync` returns DER-wrapped KeyObject instances that are
- * not byte-compatible with the rest of this library.
+ * ML-KEM key generation, native where the runtime has ML-KEM.
  *
  * @param level - ML-KEM security level (512, 768, or 1024).
  * @returns Raw public and secret key bytes.
@@ -165,17 +143,14 @@ export function bridgedMlKemKeygen(
   level: NativeMlKemLevel,
 ): BridgedMlKemKeygenResult {
   assertLevel(level);
-  const kem = getNobleKem(level);
+  const kem = getKem(level);
   return kem.keygen();
 }
 
 /**
- * ML-KEM encapsulation using the fastest available backend.
- *
- * On Node.js 24.7+ with native PQC support, generates a temporary native
- * key pair, imports the caller's raw public key via a DER wrapper, and
- * calls `crypto.encapsulate()` for hardware-accelerated encapsulation.
- * Falls back to @noble/post-quantum on older runtimes.
+ * ML-KEM encapsulation, native where the runtime has ML-KEM: the raw
+ * public key is imported in an SPKI wrapper and `crypto.encapsulate()`
+ * runs in OpenSSL. Falls back to @noble/post-quantum elsewhere.
  *
  * @param level - ML-KEM security level (512, 768, or 1024).
  * @param publicKey - Raw public (encapsulation) key bytes from `bridgedMlKemKeygen`.
@@ -191,17 +166,14 @@ export function bridgedMlKemEncapsulate(
   publicKey: Uint8Array,
 ): BridgedMlKemEncapsulateResult {
   assertLevel(level);
-  const kem = getNobleKem(level);
+  const kem = getKem(level);
   return kem.encapsulate(publicKey);
 }
 
 /**
- * ML-KEM decapsulation using the fastest available backend.
- *
- * On Node.js 24.7+ with native PQC support, imports the caller's raw
- * secret key via a DER wrapper and calls `crypto.decapsulate()` for
- * hardware-accelerated decapsulation. Falls back to @noble/post-quantum
- * on older runtimes.
+ * ML-KEM decapsulation, native where the runtime has ML-KEM: the raw
+ * secret key is imported in a PKCS#8 wrapper and `crypto.decapsulate()`
+ * runs in OpenSSL. Falls back to @noble/post-quantum elsewhere.
  *
  * @param level - ML-KEM security level (512, 768, or 1024).
  * @param cipherText - Ciphertext from `bridgedMlKemEncapsulate`.
@@ -219,6 +191,6 @@ export function bridgedMlKemDecapsulate(
   secretKey: Uint8Array,
 ): Uint8Array {
   assertLevel(level);
-  const kem = getNobleKem(level);
+  const kem = getKem(level);
   return kem.decapsulate(cipherText, secretKey);
 }

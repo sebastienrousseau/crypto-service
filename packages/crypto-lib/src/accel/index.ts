@@ -62,6 +62,8 @@ export {
   bridgedMlKemEncapsulate,
   bridgedMlKemDecapsulate,
 } from "./native-pqc-bridge";
+/** Which post-quantum algorithms run in the runtime's OpenSSL. */
+export { nativeAlgorithms } from "./pq-backend";
 /** Re-exported native PQC bridge types. */
 export type {
   PqcBackend,

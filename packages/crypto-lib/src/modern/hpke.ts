@@ -26,7 +26,7 @@ import { extract, expand } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { gcm } from "@noble/ciphers/aes.js";
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { ml_kem768 } from "../accel/pq-backend";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
