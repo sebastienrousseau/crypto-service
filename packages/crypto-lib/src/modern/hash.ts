@@ -14,6 +14,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { toHex, utf8 } from "../encoding";
 
 /** Supported cryptographic hash algorithms. */
 export const HASH_ALGORITHMS = [
@@ -50,7 +51,7 @@ export interface HashResult {
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /**
@@ -90,7 +91,7 @@ export function hash(options: HashOptions): HashResult {
   }
 
   return {
-    digest: Buffer.from(digest).toString("hex"),
+    digest: toHex(digest),
     algorithm: options.algorithm,
     length: digest.length,
   };

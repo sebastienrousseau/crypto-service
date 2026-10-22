@@ -19,7 +19,7 @@ import { ed448, x448 } from "@noble/curves/ed448.js";
 import { schnorr } from "@noble/curves/secp256k1.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -171,13 +171,13 @@ function assertHex(input: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 // --- P-256 (secp256r1) ---
@@ -190,8 +190,8 @@ export function p256Keygen(): P256KeyPair {
   const publicKey = p256.getPublicKey(privateKey, false); // uncompressed
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ecdsa-p256",
   };
 }
@@ -211,7 +211,7 @@ export function p256Sign(
   const signature = p256.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ecdsa-p256",
   };
 }
@@ -244,8 +244,8 @@ export function p384Keygen(): P384KeyPair {
   const publicKey = p384.getPublicKey(privateKey, false); // uncompressed
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ecdsa-p384",
   };
 }
@@ -265,7 +265,7 @@ export function p384Sign(
   const signature = p384.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ecdsa-p384",
   };
 }
@@ -297,8 +297,8 @@ export function ed448Keygen(): Ed448KeyPair {
   const publicKey = ed448.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ed448",
   };
 }
@@ -318,7 +318,7 @@ export function ed448Sign(
   const signature = ed448.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ed448",
   };
 }
@@ -349,8 +349,8 @@ export function x448Keygen(): X448KeyPair {
   const publicKey = x448.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "x448",
   };
 }
@@ -374,7 +374,7 @@ export function x448Exchange(
   const shared = x448.getSharedSecret(priv, pub);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "x448",
   };
 }
@@ -398,7 +398,7 @@ export function ecdhP256(
   const shared = p256.getSharedSecret(priv, pub).subarray(1);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "ecdh-p256",
   };
 }
@@ -419,7 +419,7 @@ export function ecdhP384(
   const shared = p384.getSharedSecret(priv, pub).subarray(1);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "ecdh-p384",
   };
 }
@@ -434,8 +434,8 @@ export function schnorrKeygen(): SchnorrKeyPair {
   const publicKey = schnorr.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "schnorr",
   };
 }
@@ -455,7 +455,7 @@ export function schnorrSign(
   const signature = schnorr.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "schnorr",
   };
 }

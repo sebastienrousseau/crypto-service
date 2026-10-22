@@ -34,7 +34,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { concat, decodeHex, isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -154,15 +154,11 @@ function hexToBytes(hex: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
-/** Hex-encode bytes. */
-const toHex = (bytes: Uint8Array): string => Buffer.from(bytes).toString("hex");
-
 /** Concatenate byte arrays. */
-const concat = (...parts: Uint8Array[]): Uint8Array =>
-  Uint8Array.from(Buffer.concat(parts));
+const cat = (...parts: Uint8Array[]): Uint8Array => concat(parts);
 
 /** Type byte EncodeEC puts before a curve25519 key (chosen here). */
 const CURVE25519_TYPE = 0x01;
@@ -171,11 +167,11 @@ const ML_KEM_768_TYPE = 0x02;
 
 /** EncodeEC: the curve's type byte, then the u-coordinate. */
 const encodeEC = (publicKey: Uint8Array): Uint8Array =>
-  concat(new Uint8Array([CURVE25519_TYPE]), publicKey);
+  cat(new Uint8Array([CURVE25519_TYPE]), publicKey);
 
 /** EncodeKEM: the KEM's type byte, then its public key. */
 const encodeKEM = (publicKey: Uint8Array): Uint8Array =>
-  concat(new Uint8Array([ML_KEM_768_TYPE]), publicKey);
+  cat(new Uint8Array([ML_KEM_768_TYPE]), publicKey);
 
 /** Default application name in the KDF info. */
 const DEFAULT_INFO = "crypto-service";
@@ -199,7 +195,7 @@ function deriveSessionKey(
   secrets: Uint8Array[],
   info: string | undefined,
 ): Uint8Array {
-  const ikm = concat(new Uint8Array(32).fill(0xff), ...secrets);
+  const ikm = cat(new Uint8Array(32).fill(0xff), ...secrets);
   const sk = hkdf(
     sha256,
     ikm,
@@ -214,7 +210,7 @@ function deriveSessionKey(
 
 /** The message a pre-key signature covers: EncodeEC(IK) || Encode(PK). */
 const preKeyMessage = (identity: Uint8Array, encodedPreKey: Uint8Array) =>
-  concat(encodeEC(identity), encodedPreKey);
+  cat(encodeEC(identity), encodedPreKey);
 
 /** Throws unless `signature` is the identity's signature over `message`. */
 function assertSigned(
@@ -384,7 +380,7 @@ export function initiateSession(
 
   return {
     sharedSecret: toHex(sharedSecret),
-    associatedData: toHex(concat(encodeEC(ikPub), encodeEC(remoteIk))),
+    associatedData: toHex(cat(encodeEC(ikPub), encodeEC(remoteIk))),
     ephemeralPublicKey: toHex(ephPub),
     pqCiphertext: toHex(cipherText),
     algorithm: "pqxdh",
@@ -438,7 +434,7 @@ export function respondToSession(
 
   return {
     sharedSecret: toHex(sharedSecret),
-    associatedData: toHex(concat(encodeEC(remoteIk), encodeEC(ikPub))),
+    associatedData: toHex(cat(encodeEC(remoteIk), encodeEC(ikPub))),
     algorithm: "pqxdh",
   };
 }

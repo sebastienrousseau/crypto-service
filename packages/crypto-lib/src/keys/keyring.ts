@@ -17,6 +17,7 @@ import { generateKeyPair, type KeyAlgorithm, type KeyMetadata } from "./keygen";
 import { ed25519ToJwk, x25519ToJwk, type Jwk } from "./serialize";
 import * as secretbox from "../high-level/secretbox";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { fromUtf8 } from "../encoding";
 
 // --- Types ---
 
@@ -208,7 +209,7 @@ export class Keyring {
    */
   static fromEncrypted(key: string | Uint8Array, encrypted: string): Keyring {
     const decrypted = secretbox.open(key, encrypted);
-    const json = Buffer.from(decrypted).toString("utf8");
+    const json = fromUtf8(decrypted);
     return Keyring.deserialize(json);
   }
 }

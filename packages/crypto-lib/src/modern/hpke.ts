@@ -30,7 +30,7 @@ import { xwingDecap, xwingEncap, xwingKeygen } from "./hpke-xwing";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { ml_kem768 } from "../accel/pq-backend";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -186,12 +186,12 @@ function hexToBytes(hex: string): Uint8Array {
   if (!isHex(hex)) {
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 /** Encode a number as a big-endian two-byte array (I2OSP(n, 2)). */
@@ -280,7 +280,7 @@ function suiteParams(kem: HpkeKem, aead: HpkeAead): SuiteParams {
 /** Build the suite_id for HPKE key schedule: "HPKE" || I2OSP(kem_id,2) || I2OSP(kdf_id,2) || I2OSP(aead_id,2). */
 function hpkeSuiteId(params: SuiteParams): Uint8Array {
   return concat(
-    Buffer.from("HPKE"),
+    utf8("HPKE"),
     i2osp2(params.kemId),
     i2osp2(params.kdfId),
     i2osp2(params.aeadId),
@@ -289,7 +289,7 @@ function hpkeSuiteId(params: SuiteParams): Uint8Array {
 
 /** Build the suite_id for KEM: "KEM" || I2OSP(kem_id, 2). */
 function kemSuiteId(kemId: number): Uint8Array {
-  return concat(Buffer.from("KEM"), i2osp2(kemId));
+  return concat(utf8("KEM"), i2osp2(kemId));
 }
 
 // ---------------------------------------------------------------------------
@@ -306,12 +306,7 @@ function labeledExtract(
   label: string,
   ikm: Uint8Array,
 ): Uint8Array {
-  const labeledIkm = concat(
-    Buffer.from("HPKE-v1"),
-    suiteId,
-    Buffer.from(label),
-    ikm,
-  );
+  const labeledIkm = concat(utf8("HPKE-v1"), suiteId, utf8(label), ikm);
   return extract(sha256, labeledIkm, salt.length > 0 ? salt : undefined);
 }
 
@@ -328,9 +323,9 @@ function labeledExpand(
 ): Uint8Array {
   const labeledInfo = concat(
     i2osp2(length),
-    Buffer.from("HPKE-v1"),
+    utf8("HPKE-v1"),
     suiteId,
-    Buffer.from(label),
+    utf8(label),
     info,
   );
   return expand(sha256, prk, labeledInfo, length);

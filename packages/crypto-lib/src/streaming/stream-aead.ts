@@ -31,7 +31,7 @@ import {
   streamSize,
 } from "./chunks";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex } from "../encoding";
 
 /** XChaCha20 nonce length in bytes, which is also the header length. */
 const NONCE_LEN = 24;
@@ -110,7 +110,7 @@ export function toKey(key: string | Uint8Array): Uint8Array {
   }
   if (!isHex(key))
     throw new CryptoError("Invalid hex key", CryptoErrorCode.INVALID_HEX);
-  const buf = Buffer.from(key, "hex");
+  const buf = decodeHex(key);
   if (buf.length !== 32) {
     throw new CryptoError(
       `Key must be 32 bytes (256 bits), got ${buf.length}`,

@@ -13,7 +13,7 @@
 
 import { x25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
-import { decodeHex } from "../encoding";
+import { decodeHex, toHex } from "../encoding";
 
 /** X25519 Diffie-Hellman key pair (128-bit security). */
 export interface X25519KeyPair {
@@ -39,8 +39,8 @@ export function x25519Keygen(): X25519KeyPair {
   const publicKey = x25519.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
   };
 }
 
@@ -68,7 +68,7 @@ export function x25519Exchange(
   const shared = x25519.getSharedSecret(priv, pub);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "x25519",
   };
 }

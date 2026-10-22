@@ -27,7 +27,14 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import {
+  concat,
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  utf8,
+} from "../encoding";
 
 /** Length of an X25519 ephemeral public key in bytes. */
 const EPHEMERAL_LEN = 32;
@@ -40,12 +47,12 @@ const TAG_LEN = 16;
 function hexToBytes(hex: string): Uint8Array {
   if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toData(input: string | Uint8Array): Uint8Array {
-  return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
+  return input instanceof Uint8Array ? input : utf8(input);
 }
 
 /** Result of an anonymous sealed-box encryption (X25519). */
@@ -108,7 +115,7 @@ export function seal(
   out.set(ct, EPHEMERAL_LEN + NONCE_LEN);
 
   return {
-    sealed: Buffer.from(out).toString("base64"),
+    sealed: toBase64(out),
     algorithm: "x25519-xchacha20-poly1305",
   };
 }
@@ -128,8 +135,7 @@ export function open(
       ? hexToBytes(recipientSecretKey)
       : recipientSecretKey;
 
-  const raw =
-    sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
+  const raw = sealed instanceof Uint8Array ? sealed : fromBase64(sealed);
   const minLen = EPHEMERAL_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
     throw new CryptoError(
@@ -213,7 +219,7 @@ export function sealPQ(
   out.set(ct, EPHEMERAL_LEN + mlKemCtLen + NONCE_LEN);
 
   return {
-    sealed: Buffer.from(out).toString("base64"),
+    sealed: toBase64(out),
     algorithm: "x25519-ml-kem-768-xchacha20-poly1305",
   };
 }
@@ -242,8 +248,7 @@ export function openPQ(
       ? hexToBytes(recipientMlKemSecret)
       : recipientMlKemSecret;
 
-  const raw =
-    sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
+  const raw = sealed instanceof Uint8Array ? sealed : fromBase64(sealed);
   const minLen = EPHEMERAL_LEN + ML_KEM_768_CT_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
     throw new CryptoError(
@@ -273,7 +278,7 @@ export function openPQ(
     (x25519Shared, mlKemShared) =>
       hkdf(
         sha256,
-        Buffer.concat([x25519Shared, mlKemShared]),
+        concat([x25519Shared, mlKemShared]),
         ephPub,
         new TextEncoder().encode("pq-sealedbox-v1"),
         32,

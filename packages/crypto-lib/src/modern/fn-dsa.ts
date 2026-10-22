@@ -13,7 +13,7 @@
 
 import { falcon512, falcon1024 } from "@noble/post-quantum/falcon.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -97,7 +97,7 @@ function assertHex(input: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Retrieve the FALCON implementation for the given security level. */
@@ -140,8 +140,8 @@ export function fnDsaKeygen(level: FnDsaLevel): FnDsaKeyPairResult {
   const falcon = getFalcon(level);
   const { publicKey, secretKey } = falcon.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(level),
   };
 }
@@ -172,7 +172,7 @@ export function fnDsaSign(
   const msg = assertHex(messageHex, "message");
   const signature = falcon.sign(msg, secretKey);
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: algorithmName(level),
   };
 }

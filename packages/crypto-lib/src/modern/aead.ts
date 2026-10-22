@@ -16,7 +16,7 @@
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, fromBase64, isHex, toBase64, utf8 } from "../encoding";
 
 /** Result of an XChaCha20-Poly1305 encryption operation. */
 export interface AeadEncryptResult {
@@ -56,9 +56,9 @@ function toBytes(
     if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** XChaCha20 nonce length in bytes. */
@@ -90,7 +90,7 @@ export function aeadEncrypt(options: AeadEncryptOptions): AeadEncryptResult {
   combined.set(sealed, NONCE_LENGTH);
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: toBase64(combined),
     algorithm: "xchacha20-poly1305",
   };
 }
@@ -109,7 +109,7 @@ export function aeadDecrypt(options: AeadDecryptOptions): Uint8Array {
     );
   }
 
-  const combined = Buffer.from(options.ciphertext, "base64");
+  const combined = fromBase64(options.ciphertext);
   if (combined.length < NONCE_LENGTH + 16) {
     throw new CryptoError(
       "Ciphertext too short — missing nonce or auth tag",

@@ -49,6 +49,7 @@ import {
   slh_dsa_shake_256f as nobleSlhShake256f,
   slh_dsa_shake_256s as nobleSlhShake256s,
 } from "@noble/post-quantum/slh-dsa.js";
+import { concat } from "../encoding";
 
 /** Node.js's `crypto`, when this runtime has it. */
 const nodeCrypto = runtimeCrypto();
@@ -64,7 +65,7 @@ function derLength(n: number): Uint8Array {
 
 /** A DER TLV. */
 function tlv(tag: number, body: Uint8Array): Uint8Array {
-  return Buffer.concat([Uint8Array.of(tag), derLength(body.length), body]);
+  return concat([Uint8Array.of(tag), derLength(body.length), body]);
 }
 
 /** Whether `der` ends with an OCTET STRING of exactly `length` bytes. */
@@ -90,8 +91,8 @@ export interface DerForm {
 
 /** SPKI DER for a raw public key. */
 function spki(form: DerForm, publicKey: Uint8Array): Uint8Array {
-  const bits = Buffer.concat([Uint8Array.of(0), publicKey]);
-  return tlv(0x30, Buffer.concat([form.algorithm, tlv(0x03, bits)]));
+  const bits = concat([Uint8Array.of(0), publicKey]);
+  return tlv(0x30, concat([form.algorithm, tlv(0x03, bits)]));
 }
 
 /** PKCS#8 DER for a raw (expanded) secret key. */
@@ -99,11 +100,7 @@ function pkcs8(form: DerForm, secretKey: Uint8Array): Uint8Array {
   const key = form.innerOctetString ? tlv(0x04, secretKey) : secretKey;
   return tlv(
     0x30,
-    Buffer.concat([
-      tlv(0x02, Uint8Array.of(0)),
-      form.algorithm,
-      tlv(0x04, key),
-    ]),
+    concat([tlv(0x02, Uint8Array.of(0)), form.algorithm, tlv(0x04, key)]),
   );
 }
 

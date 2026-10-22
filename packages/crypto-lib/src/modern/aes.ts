@@ -19,7 +19,7 @@
 import { gcm, gcmsiv } from "@noble/ciphers/aes.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, fromBase64, isHex, toBase64, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -96,9 +96,9 @@ function toBytes(
     if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** GCM standard 96-bit nonce length in bytes. */
@@ -123,7 +123,7 @@ function packNonceAndSealed(nonce: Uint8Array, sealed: Uint8Array): string {
   const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
   combined.set(nonce);
   combined.set(sealed, NONCE_LENGTH);
-  return Buffer.from(combined).toString("base64");
+  return toBase64(combined);
 }
 
 /** Unpack Base64-encoded ciphertext into nonce and sealed ciphertext. */
@@ -131,7 +131,7 @@ function unpackNonceAndSealed(ciphertext: string): {
   nonce: Uint8Array;
   sealed: Uint8Array;
 } {
-  const combined = Buffer.from(ciphertext, "base64");
+  const combined = fromBase64(ciphertext);
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
     throw new CryptoError(
       "Ciphertext too short — missing nonce or auth tag",

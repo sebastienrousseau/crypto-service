@@ -29,6 +29,7 @@ import {
   ed25519Keygen,
   ed25519Sign,
   ed25519Verify,
+  base64ToBytes,
   hexToBytes,
 } from "@sebastienrousseau/crypto-lib";
 import { KmsError } from "../errors";
@@ -247,6 +248,25 @@ export function signCurrent(key: VersionedKey, data: Uint8Array): Uint8Array {
     signedMessage(data),
   );
   return hexToBytes(signature);
+}
+
+/**
+ * Verify a base64 `signature` against every version whose material has
+ * not been destroyed. A signature that is not base64, or is malformed in
+ * any other way, verifies as `false`.
+ */
+export function verifyBase64Signature(
+  key: VersionedKey,
+  data: Uint8Array,
+  signature: string,
+): boolean {
+  let bytes: Uint8Array;
+  try {
+    bytes = base64ToBytes(signature);
+  } catch {
+    return false;
+  }
+  return verifyAnyVersion(key, data, bytes);
 }
 
 /**

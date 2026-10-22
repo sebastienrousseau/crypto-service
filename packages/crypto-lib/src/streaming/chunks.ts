@@ -9,6 +9,7 @@
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { concat } from "../encoding";
 
 /**
  * Throw unless `chunkSize` is a positive integer. Zero made encryption
@@ -249,7 +250,7 @@ export function decryptChunks(
 ): Uint8Array {
   const parts = decryptor.push(body);
   parts.push(decryptor.finish());
-  return Uint8Array.from(Buffer.concat(parts));
+  return Uint8Array.from(concat(parts));
 }
 
 /**

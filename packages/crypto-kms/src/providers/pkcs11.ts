@@ -13,11 +13,7 @@
  */
 
 import { randomBytes } from "node:crypto";
-import {
-  bytesToHex,
-  bytesToBase64,
-  base64ToBytes,
-} from "@sebastienrousseau/crypto-lib";
+import { bytesToHex, bytesToBase64 } from "@sebastienrousseau/crypto-lib";
 import type {
   KmsProvider,
   KmsKeyMetadata,
@@ -35,7 +31,7 @@ import {
   sealCurrent,
   openVersioned,
   signCurrent,
-  verifyAnyVersion,
+  verifyBase64Signature,
 } from "./versioned-key";
 import { LOCAL_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
@@ -335,7 +331,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     const key = this.requireUsage(keyId, this.record(keyId), "sign");
-    return verifyAnyVersion(key, data, base64ToBytes(signature));
+    return verifyBase64Signature(key, data, signature);
   }
 
   /**

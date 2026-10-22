@@ -17,7 +17,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
 import { timingSafeEqual } from "../utils";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -83,9 +83,9 @@ function toBytes(
     if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Internal hash function type used by the HMAC implementation. */
@@ -141,7 +141,7 @@ export function computeHmac(options: HmacComputeOptions): HmacComputeResult {
   const mac = hmac(hashFn, key, data);
 
   return {
-    mac: Buffer.from(mac).toString("hex"),
+    mac: toHex(mac),
     algorithm: options.algorithm,
   };
 }
@@ -260,7 +260,7 @@ export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
   const mac = fn(key, data, opts);
 
   return {
-    mac: Buffer.from(mac).toString("hex"),
+    mac: toHex(mac),
     algorithm: options.algorithm,
   };
 }

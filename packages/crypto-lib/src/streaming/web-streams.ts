@@ -44,6 +44,7 @@ import {
   type ChunkEncryptor,
 } from "./chunks";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { concat, toHex } from "../encoding";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
 /** Reference to the global TransformStream constructor. */
@@ -185,7 +186,7 @@ export function createHashStream(
       hasher.update(chunk);
     },
     flush(controller: { enqueue(v: HashStreamResult): void }) {
-      const digest = Buffer.from(hasher.digest()).toString("hex");
+      const digest = toHex(hasher.digest());
       controller.enqueue({ digest, algorithm });
     },
   });
@@ -277,7 +278,7 @@ function chunkedDecryptStream(
   return new TS<Uint8Array, Uint8Array>({
     transform(chunk: Uint8Array, controller: Sink) {
       if (opened === undefined) {
-        pending = Uint8Array.from(Buffer.concat([pending, chunk]));
+        pending = Uint8Array.from(concat([pending, chunk]));
         const length = headerLength(pending);
         if (length === undefined) return;
         opened = open(pending.subarray(0, length));
@@ -382,7 +383,7 @@ function singleMessageDecrypt(
       parts.push(chunk);
     },
     flush(controller: Sink) {
-      const message = Uint8Array.from(Buffer.concat(parts));
+      const message = Uint8Array.from(concat(parts));
       if (message.length < NONCE_LEN + 16) {
         throw new CryptoError(
           "Ciphertext too short — missing nonce or auth tag",

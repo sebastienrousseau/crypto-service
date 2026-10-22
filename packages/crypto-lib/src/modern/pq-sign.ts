@@ -24,7 +24,7 @@ import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { sha512 } from "@noble/hashes/sha2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { concat, decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -109,13 +109,13 @@ function assertHex(input: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Retrieve the ML-DSA implementation for the given security level. */
@@ -149,8 +149,8 @@ export function mlDsaKeygen(level: MlDsaLevel): MlDsaKeyPairResult {
   const dsa = getDsa(level);
   const { publicKey, secretKey } = dsa.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(level),
   };
 }
@@ -168,7 +168,7 @@ export function mlDsaSign(
   const msg = toBytes(message);
   const signature = dsa.sign(msg, secretKey);
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: algorithmName(level),
   };
 }
@@ -232,7 +232,7 @@ function messageRepresentative(
     );
   }
   return Uint8Array.from(
-    Buffer.concat([
+    concat([
       COMPOSITE_PREFIX,
       label,
       new Uint8Array([ctx.length]),
@@ -271,8 +271,8 @@ export function hybridSign(
 
   const mlDsaSig = dsa.sign(mPrime, mlDsaKey, { context: label });
   const ed25519Sig = ed25519.sign(mPrime, ed25519Key);
-  const mlDsaHex = Buffer.from(mlDsaSig).toString("hex");
-  const ed25519Hex = Buffer.from(ed25519Sig).toString("hex");
+  const mlDsaHex = toHex(mlDsaSig);
+  const ed25519Hex = toHex(ed25519Sig);
 
   return {
     ed25519Signature: ed25519Hex,

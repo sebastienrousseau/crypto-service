@@ -31,7 +31,13 @@ import { equalBytes, randomBytes } from "@noble/ciphers/utils.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import {
+  decodeHex,
+  fromBase64,
+  fromUtf8,
+  isHex,
+  toBase64url,
+} from "../encoding";
 
 // --- Constants ---
 
@@ -211,11 +217,7 @@ export function pae(...pieces: Uint8Array[]): Uint8Array {
 function hexToBytes(hex: string): Uint8Array {
   if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
-  return Buffer.from(hex, "hex");
-}
-
-function toBase64url(buf: Uint8Array): string {
-  return Buffer.from(buf).toString("base64url");
+  return decodeHex(hex);
 }
 
 /**
@@ -224,13 +226,14 @@ function toBase64url(buf: Uint8Array): string {
  * rejected rather than silently accepted.
  */
 function fromBase64url(s: string): Uint8Array {
-  const bytes = Buffer.from(s, "base64url");
-  if (!BASE64URL_RE.test(s) || bytes.toString("base64url") !== s) {
-    throw new CryptoError(
+  const invalid = () =>
+    new CryptoError(
       "Invalid base64url encoding",
       CryptoErrorCode.INVALID_TOKEN,
     );
-  }
+  if (!BASE64URL_RE.test(s)) throw invalid();
+  const bytes = fromBase64(s);
+  if (toBase64url(bytes) !== s) throw invalid();
   return bytes;
 }
 
@@ -426,10 +429,7 @@ function localDecrypt(opts: PasetoLocalDecryptOptions): PasetoPayload {
   }
 
   const plaintext = xchacha20(ek, n2, ciphertext);
-  const payload = JSON.parse(Buffer.from(plaintext).toString("utf8")) as Record<
-    string,
-    unknown
-  >;
+  const payload = JSON.parse(fromUtf8(plaintext)) as Record<string, unknown>;
   checkTimeClaims(payload, opts.now ?? new Date());
   return { payload, ...(footer ? { footer } : {}) };
 }
@@ -544,7 +544,7 @@ function publicVerify(opts: PasetoPublicVerifyOptions): PasetoPayload {
     throw new CryptoError("Invalid signature", CryptoErrorCode.AUTH_FAILED);
   }
 
-  const payloadStr = Buffer.from(message).toString("utf8");
+  const payloadStr = fromUtf8(message);
   const payload = JSON.parse(payloadStr) as Record<string, unknown>;
   checkTimeClaims(payload, opts.now ?? new Date());
 

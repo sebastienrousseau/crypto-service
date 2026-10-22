@@ -15,6 +15,7 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { toHex, utf8 } from "../encoding";
 
 /** Supported streaming hash algorithm identifiers. */
 export const STREAM_HASH_ALGORITHMS = [
@@ -84,13 +85,13 @@ export function createHasher(algorithm: StreamHashAlgorithm): StreamingHasher {
           "Hasher already finalized",
           CryptoErrorCode.INVALID_STATE,
         );
-      const bytes = typeof data === "string" ? Buffer.from(data, "utf8") : data;
+      const bytes = typeof data === "string" ? utf8(data) : data;
       inner.update(bytes);
       return this;
     },
     digest() {
       finalized = true;
-      return Buffer.from(inner.digest()).toString("hex");
+      return toHex(inner.digest());
     },
     digestBytes() {
       finalized = true;

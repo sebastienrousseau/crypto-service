@@ -12,6 +12,14 @@
 
 import { sha256 } from "@noble/hashes/sha2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  decodeHex,
+  fromBase64,
+  toBase64,
+  toBase64url,
+  toHex,
+  utf8,
+} from "../encoding";
 
 // ─── Raw format conversions ────────────────────────────────────────
 
@@ -24,34 +32,34 @@ export function hexToBytes(hex: string): Uint8Array {
       "Hex string must have even length",
       CryptoErrorCode.INVALID_HEX,
     );
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Convert a Uint8Array to a lowercase hex string. */
 export function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 /** Convert a Uint8Array to a standard base64 string. */
 export function bytesToBase64(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("base64");
+  return toBase64(bytes);
 }
 
 /** Convert a standard base64 string to a Uint8Array. */
 export function base64ToBytes(b64: string): Uint8Array {
-  return Buffer.from(b64, "base64");
+  return fromBase64(b64);
 }
 
 /** Convert a Uint8Array to a URL-safe base64 string (no padding). */
 export function bytesToBase64url(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("base64url");
+  return toBase64url(bytes);
 }
 
 /** Convert a URL-safe base64 string to a Uint8Array. */
 export function base64urlToBytes(b64url: string): Uint8Array {
   const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
   const pad = (4 - (b64.length % 4)) % 4;
-  return Buffer.from(b64 + "=".repeat(pad), "base64");
+  return fromBase64(b64 + "=".repeat(pad));
 }
 
 // ─── PEM ───────────────────────────────────────────────────────────
@@ -70,7 +78,7 @@ export type PemLabel =
  * Encode raw bytes into PEM format with the given label.
  */
 export function encodePem(label: PemLabel, der: Uint8Array): string {
-  const b64 = Buffer.from(der).toString("base64");
+  const b64 = toBase64(der);
   const lines: string[] = [];
   for (let i = 0; i < b64.length; i += 64) {
     lines.push(b64.slice(i, i + 64));
@@ -107,7 +115,7 @@ export function decodePem(pem: string): {
     throw new CryptoError("Invalid PEM format", CryptoErrorCode.INVALID_INPUT);
 
   const b64 = pem.slice(headerEnd + 5, endIdx).replace(/\s/g, "");
-  return { label, data: Buffer.from(b64, "base64") };
+  return { label, data: fromBase64(b64) };
 }
 
 // ─── JWK ───────────────────────────────────────────────────────────
@@ -207,6 +215,6 @@ export function jwkThumbprint(jwk: Jwk): string {
     members = { kty: jwk.kty };
   }
   const json = JSON.stringify(members, Object.keys(members).sort());
-  const digest = sha256(Buffer.from(json, "utf8"));
+  const digest = sha256(utf8(json));
   return bytesToBase64url(digest);
 }

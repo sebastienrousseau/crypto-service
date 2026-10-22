@@ -20,7 +20,7 @@
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -64,7 +64,7 @@ const P = BigInt(
 
 /** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 /**

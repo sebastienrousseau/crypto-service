@@ -25,6 +25,7 @@
 
 import * as secretbox from "../high-level/secretbox";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { fromUtf8 } from "../encoding";
 
 // --- Types ---
 
@@ -182,5 +183,5 @@ export function decryptWithVersion(
     );
   }
   const pt = secretbox.open(vk.key, ciphertext);
-  return Buffer.from(pt).toString("utf8");
+  return fromUtf8(pt);
 }

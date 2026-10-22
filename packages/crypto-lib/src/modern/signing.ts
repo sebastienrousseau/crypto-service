@@ -15,7 +15,7 @@
 
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
-import { decodeHex } from "../encoding";
+import { decodeHex, toHex, utf8 } from "../encoding";
 
 /** Ed25519 key pair (32-byte private + 32-byte public). */
 export interface Ed25519KeyPair {
@@ -49,8 +49,8 @@ export function ed25519Keygen(): Ed25519KeyPair {
   const publicKey = ed25519.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
   };
 }
 
@@ -66,13 +66,12 @@ export function ed25519Sign(
 ): SignResult {
   const key =
     typeof privateKey === "string" ? decodeHex(privateKey) : privateKey;
-  const msg =
-    typeof message === "string" ? Buffer.from(message, "utf8") : message;
+  const msg = typeof message === "string" ? utf8(message) : message;
 
   const signature = ed25519.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ed25519",
   };
 }
@@ -86,8 +85,7 @@ export function ed25519Verify(
   signature: string | Uint8Array,
 ): VerifyResult {
   const key = typeof publicKey === "string" ? decodeHex(publicKey) : publicKey;
-  const msg =
-    typeof message === "string" ? Buffer.from(message, "utf8") : message;
+  const msg = typeof message === "string" ? utf8(message) : message;
   const sig = typeof signature === "string" ? decodeHex(signature) : signature;
 
   // RFC 8032 decoding (as OpenSSL), not ZIP-215, which accepts some

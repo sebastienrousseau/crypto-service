@@ -19,6 +19,7 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToBase64url } from "./serialize";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { toHex } from "../encoding";
 
 // --- Types ---
 
@@ -66,11 +67,6 @@ export interface GeneratedKeyPair {
 }
 
 // --- Helpers ---
-
-/** Convert bytes to a hex string. */
-function toHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
-}
 
 /** Generate a key ID from a SHA-256 thumbprint of the public key. */
 function generateKid(publicKey: Uint8Array): string {

@@ -29,7 +29,7 @@ import {
   decryptChunks,
 } from "./chunks";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { concat, decodeHex, isHex } from "../encoding";
 
 // The chunk tags and Poly1305 tag length are shared with the other
 // streams; re-exported for existing importers of this module.
@@ -59,7 +59,7 @@ export function toBytes(
         `Invalid hex string for ${name}`,
         CryptoErrorCode.INVALID_HEX,
       );
-    buf = Buffer.from(data, "hex");
+    buf = decodeHex(data);
   } else {
     buf = new Uint8Array(data);
   }
@@ -225,7 +225,7 @@ export function streamPqEncrypt(
     chunkSize,
   );
   const output = Uint8Array.from(
-    Buffer.concat([header, ...encryptor.push(plaintext), encryptor.finish()]),
+    concat([header, ...encryptor.push(plaintext), encryptor.finish()]),
   );
 
   return {

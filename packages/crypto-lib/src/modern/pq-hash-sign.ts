@@ -32,7 +32,7 @@ import {
   slh_dsa_shake_256s,
 } from "../accel/pq-backend";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -87,13 +87,13 @@ function assertHex(input: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Map of SLH-DSA variant names to their implementations. */
@@ -138,8 +138,8 @@ export function slhDsaKeygen(variant: SlhDsaVariant): SlhDsaKeyPairResult {
   const dsa = getVariant(variant);
   const { publicKey, secretKey } = dsa.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(variant),
   };
 }
@@ -157,7 +157,7 @@ export function slhDsaSign(
   const msg = toBytes(message);
   const signature = dsa.sign(msg, secretKey);
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: algorithmName(variant),
   };
 }

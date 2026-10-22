@@ -19,13 +19,13 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, fromBase64, isHex, toBase64, toHex } from "../encoding";
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Coerce a key from hex string or Uint8Array to bytes. */
@@ -71,7 +71,7 @@ export function aesKwWrap(
   const cipher = aeskw(kekBytes);
   const wrapped = cipher.encrypt(keyBytes);
   return {
-    wrapped: Buffer.from(wrapped).toString("base64"),
+    wrapped: toBase64(wrapped),
     algorithm: "aes-kw",
   };
 }
@@ -88,9 +88,7 @@ export function aesKwUnwrap(
 ): Uint8Array {
   const kekBytes = toKey(kek);
   const wrapped =
-    wrappedKey instanceof Uint8Array
-      ? wrappedKey
-      : Buffer.from(wrappedKey, "base64");
+    wrappedKey instanceof Uint8Array ? wrappedKey : fromBase64(wrappedKey);
   const cipher = aeskw(kekBytes);
   return cipher.decrypt(wrapped);
 }
@@ -112,7 +110,7 @@ export function aesKwpWrap(
   const cipher = aeskwp(kekBytes);
   const wrapped = cipher.encrypt(dataBytes);
   return {
-    wrapped: Buffer.from(wrapped).toString("base64"),
+    wrapped: toBase64(wrapped),
     algorithm: "aes-kwp",
   };
 }
@@ -129,9 +127,7 @@ export function aesKwpUnwrap(
 ): Uint8Array {
   const kekBytes = toKey(kek);
   const wrapped =
-    wrappedData instanceof Uint8Array
-      ? wrappedData
-      : Buffer.from(wrappedData, "base64");
+    wrappedData instanceof Uint8Array ? wrappedData : fromBase64(wrappedData);
   const cipher = aeskwp(kekBytes);
   return cipher.decrypt(wrapped);
 }
@@ -173,8 +169,8 @@ export function x25519AesKwWrap(
   const wrapped = cipher.encrypt(keyBytes);
 
   return {
-    wrapped: Buffer.from(wrapped).toString("base64"),
-    ephemeralPublicKey: Buffer.from(ephPub).toString("hex"),
+    wrapped: toBase64(wrapped),
+    ephemeralPublicKey: toHex(ephPub),
     algorithm: "x25519-aes-kw",
   };
 }
@@ -201,9 +197,7 @@ export function x25519AesKwUnwrap(
       : ephemeralPublicKey;
   /* c8 ignore next 3 -- type coercion branch: wrappedKey is always base64 string from multiEncrypt */
   const wrapped =
-    wrappedKey instanceof Uint8Array
-      ? wrappedKey
-      : Buffer.from(wrappedKey, "base64");
+    wrappedKey instanceof Uint8Array ? wrappedKey : fromBase64(wrappedKey);
 
   const raw = x25519.getSharedSecret(secKey, ephPub);
   const kek = hkdf(

@@ -10,11 +10,7 @@
 
 import { randomBytes } from "node:crypto";
 import { LOCAL_ALGORITHMS, resolveAlgorithm } from "./algorithms";
-import {
-  bytesToHex,
-  bytesToBase64,
-  base64ToBytes,
-} from "@sebastienrousseau/crypto-lib";
+import { bytesToHex, bytesToBase64 } from "@sebastienrousseau/crypto-lib";
 import type {
   KmsProvider,
   KmsKeyMetadata,
@@ -32,7 +28,7 @@ import {
   sealCurrent,
   openVersioned,
   signCurrent,
-  verifyAnyVersion,
+  verifyBase64Signature,
 } from "./versioned-key";
 
 /** Internal key record stored in memory. */
@@ -263,7 +259,7 @@ export class LocalKmsProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     const key = this.signingRecord(keyId, this.record(keyId));
-    return verifyAnyVersion(key, data, base64ToBytes(signature));
+    return verifyBase64Signature(key, data, signature);
   }
 
   /**

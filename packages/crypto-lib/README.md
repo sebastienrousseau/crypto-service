@@ -152,6 +152,12 @@ noble's, so data made on one runtime works on another, and noble still
 runs in browsers, edge runtimes and older Node.js. `nativeAlgorithms()`
 in `@sebastienrousseau/crypto-lib/accel` lists what runs natively.
 
+In a browser, import from the `./modern`, `./high-level`, `./keys`,
+`./streaming`, `./protocols` and `./tokens` subpaths: they use no
+Node.js API (each is bundled for the browser and run in Chrome in
+testing). The main entry also loads the OpenPGP API and the file
+keystore, and `./accel` the worker pool, which need Node.js.
+
 Two API layers serve different needs: a unified `crypto.*` namespace
 for common tasks, and granular per-module imports for full control
 and tree-shaking. Both layers use the same underlying noble

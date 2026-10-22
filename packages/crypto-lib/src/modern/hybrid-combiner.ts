@@ -26,6 +26,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { ml_kem768 } from "../accel/pq-backend";
 import type { HybridKemAlgorithm } from "./pq-kem";
+import { concat, utf8 } from "../encoding";
 
 /** Transcript of one hybrid encapsulation, fed to {@link combineHybrid}. */
 export interface HybridTranscript {
@@ -58,9 +59,9 @@ function lengthPrefixed(bytes: Uint8Array): Uint8Array {
  * both ciphertexts and both recipient public keys bound in `info`.
  */
 export function combineHybrid(t: HybridTranscript): Uint8Array {
-  const ikm = Buffer.concat([t.ssClassical, t.ssMlKem]);
-  const info = Buffer.concat([
-    lengthPrefixed(Buffer.from(`crypto-service/hybrid-kem/v2/${t.algorithm}`)),
+  const ikm = concat([t.ssClassical, t.ssMlKem]);
+  const info = concat([
+    lengthPrefixed(utf8(`crypto-service/hybrid-kem/v2/${t.algorithm}`)),
     lengthPrefixed(t.ctClassical),
     lengthPrefixed(t.pkClassical),
     lengthPrefixed(t.ctMlKem),

@@ -27,6 +27,7 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkArgon2Costs } from "../modern/cost-limits";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { fromBase64, toBase64, utf8 } from "../encoding";
 
 /** Legacy format version: header not authenticated (decrypt only). */
 const VERSION_V1 = 0x01;
@@ -74,7 +75,7 @@ export interface PasswordEncryptResult {
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
-  return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
+  return input instanceof Uint8Array ? input : utf8(input);
 }
 
 /** Write a 32-bit unsigned integer in little-endian byte order. */
@@ -147,7 +148,7 @@ export function passwordEncrypt(
   out.set(ct, HEADER_LEN);
 
   return {
-    encrypted: Buffer.from(out).toString("base64"),
+    encrypted: toBase64(out),
     algorithm: "argon2id-xchacha20-poly1305",
   };
 }
@@ -164,9 +165,7 @@ export function passwordDecrypt(
 ): Uint8Array {
   const pwd = toBytes(password);
   const raw =
-    encrypted instanceof Uint8Array
-      ? encrypted
-      : Buffer.from(encrypted, "base64");
+    encrypted instanceof Uint8Array ? encrypted : fromBase64(encrypted);
 
   if (raw.length < HEADER_LEN + TAG_LEN) {
     throw new CryptoError(

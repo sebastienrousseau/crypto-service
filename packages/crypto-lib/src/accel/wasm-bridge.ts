@@ -25,7 +25,14 @@ import { blake3 } from "@noble/hashes/blake3.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 // --- Types ---
 
@@ -198,9 +205,9 @@ function toBytes(
   if (encoding === "hex") {
     if (!isHex(input))
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 function getHashFn(algorithm: WasmHashAlgorithm) {
@@ -244,7 +251,7 @@ export function wasmHash(options: WasmHashOptions): WasmHashResult {
   const digest = hashFn(data);
 
   return {
-    digest: Buffer.from(digest).toString("hex"),
+    digest: toHex(digest),
     algorithm: options.algorithm,
     // Report "js" since we're using noble pure-JS regardless of WASM capability
     // until awasm-noble integration is available
@@ -280,7 +287,7 @@ export function wasmAeadEncrypt(
   const plaintext =
     options.plaintext instanceof Uint8Array
       ? options.plaintext
-      : Buffer.from(options.plaintext, "utf8");
+      : utf8(options.plaintext);
   const nonce = randomBytes(NONCE_LENGTH);
   const cipher = xchacha20poly1305(key, nonce, options.aad);
   const sealed = cipher.encrypt(plaintext);
@@ -290,7 +297,7 @@ export function wasmAeadEncrypt(
   combined.set(sealed, NONCE_LENGTH);
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: toBase64(combined),
     backend: "js",
   };
 }
@@ -320,7 +327,7 @@ export function wasmAeadDecrypt(options: {
     );
   }
 
-  const combined = Buffer.from(options.ciphertext, "base64");
+  const combined = fromBase64(options.ciphertext);
   if (combined.length < NONCE_LENGTH + 16) {
     throw new CryptoError(
       "Ciphertext too short — missing nonce or auth tag",

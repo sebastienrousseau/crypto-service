@@ -465,6 +465,17 @@ describe("LocalKmsProvider", () => {
       expect(valid).to.be.false;
     });
 
+    // The provider documents that malformed signatures verify as false;
+    // since crypto-lib's base64 decoding became strict, a signature that is
+    // not base64 threw instead.
+    it("verifies a signature that is not base64 as false", async () => {
+      const key = await provider.createKey("ed25519", "sign");
+      const data = new TextEncoder().encode("message");
+      expect(await provider.verify(key.keyId, data, "not-base64!!!")).to.equal(
+        false,
+      );
+    });
+
     it("sign throws for unknown key", async () => {
       try {
         await provider.sign("bad", new Uint8Array(1));

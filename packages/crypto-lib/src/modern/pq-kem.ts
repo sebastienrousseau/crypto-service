@@ -41,7 +41,7 @@ import { x448 } from "@noble/curves/ed448.js";
 import { p256 } from "@noble/curves/nist.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -172,7 +172,7 @@ function assertHex(input: string, label: string): Uint8Array {
       CryptoErrorCode.INVALID_HEX,
     );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Retrieve the ML-KEM implementation for the given security level. */
@@ -197,11 +197,6 @@ function algorithmName(level: MlKemLevel): MlKemAlgorithm {
   return `ml-kem-${level}` as MlKemAlgorithm;
 }
 
-/** Hex-encode bytes. */
-function toHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
-}
-
 /** Build the hybrid KEM algorithm identifier string from a security level. */
 function hybridAlgorithmName(level: MlKemLevel): HybridKemAlgorithm {
   return `x25519-ml-kem-${level}` as HybridKemAlgorithm;
@@ -216,8 +211,8 @@ export function mlKemKeygen(level: MlKemLevel): MlKemKeyPairResult {
   const kem = getKem(level);
   const { publicKey, secretKey } = kem.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(level),
   };
 }
@@ -249,8 +244,8 @@ export function mlKemEncapsulate(
   const publicKey = assertHex(publicKeyHex, "publicKey");
   const { cipherText, sharedSecret } = kem.encapsulate(publicKey);
   return {
-    ciphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
+    ciphertext: toHex(cipherText),
+    sharedSecret: toHex(sharedSecret),
     algorithm: algorithmName(level),
   };
 }
@@ -286,7 +281,7 @@ export function mlKemDecapsulate(
   const cipherText = assertHex(ciphertextHex, "ciphertext");
   const sharedSecret = kem.decapsulate(cipherText, secretKey);
   return {
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
+    sharedSecret: toHex(sharedSecret),
     algorithm: algorithmName(level),
   };
 }
@@ -331,10 +326,10 @@ export function hybridKemKeygen(kemLevel: MlKemLevel = 768): HybridKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = kem.keygen();
 
   return {
-    x25519PrivateKey: Buffer.from(x25519Priv).toString("hex"),
-    x25519PublicKey: Buffer.from(x25519Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    x25519PrivateKey: toHex(x25519Priv),
+    x25519PublicKey: toHex(x25519Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: hybridAlgorithmName(kemLevel),
   };
 }
@@ -462,10 +457,10 @@ export function p256MlKemKeygen(): P256MlKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem768.keygen();
 
   return {
-    p256PrivateKey: Buffer.from(p256Priv).toString("hex"),
-    p256PublicKey: Buffer.from(p256Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    p256PrivateKey: toHex(p256Priv),
+    p256PublicKey: toHex(p256Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: "p256-ml-kem-768",
   };
 }
@@ -579,10 +574,10 @@ export function x448MlKemKeygen(): X448MlKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem1024.keygen();
 
   return {
-    x448PrivateKey: Buffer.from(x448Priv).toString("hex"),
-    x448PublicKey: Buffer.from(x448Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    x448PrivateKey: toHex(x448Priv),
+    x448PublicKey: toHex(x448Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: "x448-ml-kem-1024",
   };
 }

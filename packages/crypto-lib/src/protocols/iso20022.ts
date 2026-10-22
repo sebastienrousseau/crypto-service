@@ -19,10 +19,11 @@
  * `:`-joined statement without the timestamp) do not verify under v2.
  */
 
-import { createHash } from "node:crypto";
+import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { ed25519Sign, ed25519Verify } from "../modern/signing";
 import { mlDsaSign, mlDsaVerify, type MlDsaLevel } from "../modern/pq-sign";
 import { bytesToHex } from "../keys/serialize";
+import { concat, toHex, utf8 } from "../encoding";
 
 /** Supported ISO 20022 payment message types. */
 export type Iso20022MessageType =
@@ -30,6 +31,12 @@ export type Iso20022MessageType =
 
 /** Supported cryptographic hash algorithms for message digests. */
 export type Iso20022DigestAlgorithm = "sha256" | "sha384" | "sha512";
+
+/** The hash for each digest algorithm (portable, no node:crypto). */
+const DIGESTS: Record<
+  Iso20022DigestAlgorithm,
+  (data: Uint8Array) => Uint8Array
+> = { sha256, sha384, sha512 };
 
 /** Canonical dual-signature envelope container for ISO 20022 messages. */
 export interface Iso20022DualSignatureEnvelope {
@@ -136,7 +143,7 @@ interface StatementFields {
  * as a 4-byte big-endian length followed by its UTF-8 bytes, so no field can
  * absorb bytes from its neighbour.
  */
-function encodeStatement(fields: StatementFields): Buffer {
+function encodeStatement(fields: StatementFields): Uint8Array {
   const parts = [
     STATEMENT_DOMAIN,
     fields.messageType,
@@ -149,14 +156,14 @@ function encodeStatement(fields: StatementFields): Buffer {
     fields.postQuantumAlgorithm,
     fields.postQuantumPublicKeyHex.toLowerCase(),
   ];
-  const chunks: Buffer[] = [];
+  const chunks: Uint8Array[] = [];
   for (const part of parts) {
-    const bytes = Buffer.from(part, "utf8");
-    const len = Buffer.alloc(4);
-    len.writeUInt32BE(bytes.length, 0);
+    const bytes = utf8(part);
+    const len = new Uint8Array(4);
+    new DataView(len.buffer).setUint32(0, bytes.length);
     chunks.push(len, bytes);
   }
-  return Buffer.concat(chunks);
+  return concat(chunks);
 }
 
 /**
@@ -192,7 +199,7 @@ export function computeIso20022Digest(
   algorithm: Iso20022DigestAlgorithm = "sha256",
 ): string {
   const canonical = canonicalizePayload(payload);
-  return createHash(algorithm).update(canonical, "utf8").digest("hex");
+  return toHex(DIGESTS[algorithm](utf8(canonical)));
 }
 
 /**
@@ -268,7 +275,7 @@ export function signIso20022Payment(
 /** Verifies the Ed25519 signature; any decoding error counts as invalid. */
 function verifyClassical(
   publicKeyHex: string,
-  statement: Buffer,
+  statement: Uint8Array,
   signatureHex: string,
 ): boolean {
   try {
@@ -283,7 +290,7 @@ function verifyClassical(
 function verifyPostQuantum(
   algorithm: string,
   publicKeyHex: string,
-  statement: Buffer,
+  statement: Uint8Array,
   signatureHex: string,
 ): boolean {
   const level = ML_DSA_LEVELS[algorithm];

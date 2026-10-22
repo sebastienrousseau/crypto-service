@@ -32,13 +32,20 @@ import { aeskw } from "@noble/ciphers/aes.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import {
+  concat,
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+} from "../encoding";
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
   if (!isHex(hex))
     throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 // --- Types ---
@@ -185,9 +192,9 @@ export function wrapDekHybrid(
   const wrapped = cipher.encrypt(dek);
 
   return {
-    wrappedKey: Buffer.from(wrapped).toString("base64"),
-    ephemeralPublicKey: Buffer.from(ephPub).toString("hex"),
-    mlKemCiphertext: Buffer.from(mlKemCt).toString("hex"),
+    wrappedKey: toBase64(wrapped),
+    ephemeralPublicKey: toHex(ephPub),
+    mlKemCiphertext: toHex(mlKemCt),
   };
 }
 
@@ -230,13 +237,13 @@ export function unwrapDekHybrid(
     (x25519Shared, mlKemShared) =>
       hkdf(
         sha256,
-        Buffer.concat([x25519Shared, mlKemShared]),
+        concat([x25519Shared, mlKemShared]),
         ephPub,
         new TextEncoder().encode("multi-recipient-pq-v1"),
         32,
       ),
   );
-  const wrapped = Buffer.from(wrappedKey, "base64");
+  const wrapped = fromBase64(wrappedKey);
   return openWithFirstKey(keks, (kek) => aeskw(kek).decrypt(wrapped));
 }
 

@@ -290,6 +290,14 @@ describe("Pkcs11HsmProvider", () => {
         "not-valid-base64!!!",
       );
       expect(invalidBase64).to.be.false;
+
+      // Well-formed base64 of the wrong length is malformed too.
+      const wrongLength = await provider.verify(
+        signKey.keyId,
+        data,
+        Buffer.from(new Uint8Array(10)).toString("base64"),
+      );
+      expect(wrongLength).to.be.false;
     });
 
     it("enforces key validity and usage checks on signing and verifying", async () => {

@@ -46,6 +46,7 @@ import {
   decryptChunks,
 } from "./chunks";
 import { CryptoError, CryptoErrorCode } from "../errors";
+import { concat } from "../encoding";
 
 /** Magic bytes identifying multi-recipient post-quantum stream format ("MSPQ"). */
 export const MULTI_PQ_STREAM_MAGIC = new Uint8Array([0x4d, 0x53, 0x50, 0x51]);
@@ -276,11 +277,7 @@ export function streamMultiPqEncrypt(
 ): StreamMultiPqEncryptResult {
   const { header, encryptor, wipe } = multiPqStreamSender(options);
   const output = Uint8Array.from(
-    Buffer.concat([
-      header,
-      ...encryptor.push(options.plaintext),
-      encryptor.finish(),
-    ]),
+    concat([header, ...encryptor.push(options.plaintext), encryptor.finish()]),
   );
   wipe();
 
@@ -306,7 +303,7 @@ export function multiPqStreamSender(
   const prefix = new Uint8Array(MULTI_PQ_PREFIX_LEN);
   writeHeaderPrefix(prefix, chunkSize, baseNonce, recipients.length);
   return {
-    header: Uint8Array.from(Buffer.concat([prefix, ...slots])),
+    header: Uint8Array.from(concat([prefix, ...slots])),
     encryptor: new ChunkEncryptor(
       cek,
       baseNonce,
@@ -425,7 +422,7 @@ function legacyKek(
   mlKemShared: Uint8Array,
   ephPub: Uint8Array,
 ): Uint8Array {
-  const combined = Buffer.concat([x25519Shared, mlKemShared]);
+  const combined = concat([x25519Shared, mlKemShared]);
   const kek = hkdf(sha256, combined, ephPub, KEK_INFO, 32);
   wipeMemory(combined);
   return kek;

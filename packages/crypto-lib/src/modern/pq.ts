@@ -21,7 +21,7 @@ import { x25519 } from "@noble/curves/ed25519.js";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
-import { decodeHex } from "../encoding";
+import { decodeHex, toHex } from "../encoding";
 
 // --- Hybrid X25519 + ML-KEM-768 ---
 
@@ -70,10 +70,10 @@ export function hybridGenerateKeyPair(): HybridKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem768.keygen();
 
   return {
-    x25519PrivateKey: Buffer.from(x25519Priv).toString("hex"),
-    x25519PublicKey: Buffer.from(x25519Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    x25519PrivateKey: toHex(x25519Priv),
+    x25519PublicKey: toHex(x25519Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: "x25519-ml-kem-768",
   };
 }
@@ -119,9 +119,9 @@ export function hybridEncapsulate(
   );
 
   return {
-    x25519EphemeralPublic: Buffer.from(ephemeralPub).toString("hex"),
-    mlKemCiphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+    x25519EphemeralPublic: toHex(ephemeralPub),
+    mlKemCiphertext: toHex(cipherText),
+    sharedSecret: toHex(derivedSecret),
     algorithm: "x25519-ml-kem-768",
   };
 }
@@ -169,7 +169,7 @@ export function hybridDecapsulate(
   );
 
   return {
-    sharedSecret: Buffer.from(derivedSecret).toString("hex"),
+    sharedSecret: toHex(derivedSecret),
     algorithm: "x25519-ml-kem-768",
   };
 }

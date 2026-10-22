@@ -17,7 +17,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
@@ -75,9 +75,9 @@ function toBytes(
     if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 function deriveScrypt(
@@ -146,8 +146,8 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
   }
 
   return {
-    derivedKey: Buffer.from(derived).toString("hex"),
-    salt: Buffer.from(salt).toString("hex"),
+    derivedKey: toHex(derived),
+    salt: toHex(salt),
     algorithm: options.algorithm,
     keyLength,
   };

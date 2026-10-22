@@ -22,7 +22,14 @@ import { randomBytes } from "@noble/ciphers/utils.js";
 import { timingSafeEqual } from "../utils";
 import { checkArgon2Costs } from "./cost-limits";
 import { CryptoError, CryptoErrorCode } from "../errors";
-import { isHex } from "../encoding";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 // --- Types ---
 
@@ -111,9 +118,9 @@ function toBytes(
     if (!isHex(input)) {
       throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Retrieve the Argon2 function for the given variant. */
@@ -140,9 +147,9 @@ function toPhcString(
   salt: Uint8Array,
   hash: Uint8Array,
 ): string {
-  let saltB64 = Buffer.from(salt).toString("base64");
+  let saltB64 = toBase64(salt);
   while (saltB64.endsWith("=")) saltB64 = saltB64.slice(0, -1);
-  let hashB64 = Buffer.from(hash).toString("base64");
+  let hashB64 = toBase64(hash);
   while (hashB64.endsWith("=")) hashB64 = hashB64.slice(0, -1);
   return `$${variant}$v=19$m=${params.m},t=${params.t},p=${params.p}$${saltB64}$${hashB64}`;
 }
@@ -181,8 +188,8 @@ function parsePhcString(phc: string): {
     t: paramMap["t"],
     p: paramMap["p"],
   };
-  const salt = Buffer.from(parts[3], "base64");
-  const hash = Buffer.from(parts[4], "base64");
+  const salt = fromBase64(parts[3]);
+  const hash = fromBase64(parts[4]);
   return { variant, params, salt, hash };
 }
 
@@ -221,8 +228,8 @@ export function hashPassword(options: HashPasswordOptions): HashPasswordResult {
   const params: Argon2Params = { t, m, p };
 
   return {
-    hash: Buffer.from(hash).toString("hex"),
-    salt: Buffer.from(salt).toString("hex"),
+    hash: toHex(hash),
+    salt: toHex(salt),
     params,
     algorithm: variant,
     phc: toPhcString(variant, params, salt, hash),
