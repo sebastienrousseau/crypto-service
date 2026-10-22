@@ -17,6 +17,7 @@ import {
   type KmsRegistry,
 } from "../../lib/kms-providers";
 import type { KmsOwners } from "../../lib/kms-owners";
+import { noteAuditKey } from "../../lib/audit";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -233,6 +234,7 @@ function registerCreateKey(app: FastifyInstance): void {
           b["metadata"] as Record<string, string>,
         );
         request.server.kmsOwners.bind(name, meta.keyId, authOf(request).sub);
+        noteAuditKey(request, meta.keyId);
         return reply.send({ data: meta });
       } catch (err) {
         return kmsFailure(err, request, reply, "KMS CreateKey");

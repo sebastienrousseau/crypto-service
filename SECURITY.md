@@ -140,6 +140,10 @@ setting.
 - **Logging:** Credentials, key material and passwords are redacted from
   logs. A client's `x-request-id` is used only if it is 1 to 128
   characters from `[A-Za-z0-9._-]`; otherwise the server generates one.
+- **Audit log:** Key generation, export, deletion and use, KMS calls and
+  OPAQUE registration each write an `audit` log line naming the
+  principal, the key or provider and the outcome, refused requests
+  included, without key material.
 - **Configuration:** Every setting is validated at startup, and the
   server refuses to start with an invalid one.
 

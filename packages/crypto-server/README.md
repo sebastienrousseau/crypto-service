@@ -351,6 +351,31 @@ authentication but no scope.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
+### Audit log
+
+Every request that creates, exports, deletes or uses a server-held key,
+calls a KMS route, or registers an OPAQUE credential writes one log line
+with `msg: "audit"` after the response, refused requests included:
+
+```json
+{
+  "reqId": "…",
+  "msg": "audit",
+  "audit": {
+    "action": "POST /v2/keys/export",
+    "principal": "alice",
+    "status": 404,
+    "outcome": "failure",
+    "keyId": "k_…"
+  }
+}
+```
+
+It names the key or KMS provider, never key material. Audit lines are
+written at `info`, so a `LOG_LEVEL` above `info` drops them.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Configuration
 
 The server checks every setting at startup and refuses to start, listing each problem, when one is invalid. Numeric settings take digits only: `PORT=3000abc` or `RATE_LIMIT_MAX=0` is an error, not a fallback to the default.

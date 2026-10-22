@@ -49,6 +49,7 @@ import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
 import { OpaqueStore } from "./lib/opaque-store";
 import { registerHttpMetrics } from "./lib/http-metrics";
+import { registerAudit } from "./lib/audit";
 import { trackLifecycle } from "./lib/readiness";
 import routes from "./routes";
 import * as fastify from "fastify";
@@ -147,6 +148,9 @@ async function init(
   // Count every response, by route pattern, for /metrics.
   registerHttpMetrics(app);
 
+  // Record key custody and KMS operations (lib/audit.ts).
+  registerAudit(app);
+
   // Assign a unique request ID (or honour the upstream one) and propagate
   // W3C trace context headers for distributed tracing.
   app.addHook("onRequest", async (request, reply) => {
@@ -188,8 +192,11 @@ async function init(
   app.addHook("onRequest", async (request, reply) => {
     if (isPublicRoute(request.routeOptions.url ?? request.url)) return;
     const auth = await authenticate(request, reply);
-    if (!auth || !authorizeRoute(request, reply, auth)) return reply;
+    if (!auth) return reply;
+    // Set before the scope check, so a refused request's audit record
+    // still names its principal; handlers never run after a refusal.
     (request as { auth?: unknown }).auth = auth;
+    if (!authorizeRoute(request, reply, auth)) return reply;
   });
 
   decorateServices(app);

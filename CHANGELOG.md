@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Audit log in crypto-server**: key generation, export, deletion and use, KMS calls and OPAQUE registration left no record of who did what. Each now writes one `audit` log line after the response, refused and failed requests included, with the action, principal, status, outcome and the key ID or KMS provider, never key material. A request refused for its scope now carries its principal, so the record names it.
 - **`DOCS_ENABLED` for crypto-server**: `DOCS_ENABLED=0` stops serving the API documentation (`/docs` and the OpenAPI document), which is public, for deployments that should not publish their route list. It defaults to `1`, so nothing changes unless it is set; any value but `0` or `1` stops the server from starting.
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.36 in strict lockstep.
 
