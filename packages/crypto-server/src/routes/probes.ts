@@ -7,11 +7,12 @@
  * @remarks Kubernetes-style liveness, readiness probes and Prometheus metrics.
  *
  * - GET /live    — lightweight liveness check (always 200 if process is alive)
- * - GET /ready   — readiness check (verifies config is loaded)
+ * - GET /ready   — readiness check (not draining; key directory writable)
  * - GET /metrics — Prometheus-compatible text metrics
  */
 
 import type { FastifyInstance } from "fastify";
+import { readinessChecks } from "../lib/readiness";
 
 /** Process start time for uptime calculations. */
 const startTime = Date.now();
@@ -30,21 +31,13 @@ export default (app: FastifyInstance): void => {
   });
 
   /**
-   * Readiness probe — indicates the service is ready to accept traffic.
-   * Checks that critical config is loaded.
+   * Readiness probe: 503 while the server drains for shutdown or cannot
+   * write keys, so a load balancer stops sending it traffic.
    */
   app.get("/ready", { schema: { hide: true } }, async (_request, reply) => {
-    const checks: Record<string, boolean> = {
-      configLoaded: true,
-      serverListening: true,
-    };
-
+    const checks = await readinessChecks(app);
     const allReady = Object.values(checks).every(Boolean);
-    /* c8 ignore next -- checks are hardcoded true; 503 path is defensive */
-    const status = allReady ? 200 : 503;
-
-    return reply.status(status).send({
-      /* c8 ignore next -- see above */
+    return reply.status(allReady ? 200 : 503).send({
       status: allReady ? "ready" : "not_ready",
       checks,
     });

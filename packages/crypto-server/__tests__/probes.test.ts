@@ -36,8 +36,7 @@ describe("Probe endpoints", function () {
       const body = JSON.parse(res.payload);
       expect(body.status).to.equal("ready");
       expect(body.checks).to.be.an("object");
-      expect(body.checks.configLoaded).to.be.true;
-      expect(body.checks.serverListening).to.be.true;
+      expect(body.checks).to.deep.equal({ accepting: true, keyStore: true });
     });
   });
 

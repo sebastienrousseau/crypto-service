@@ -203,7 +203,7 @@ requests must include an `x-api-key` header (or
 | `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                                                                                              |
 | `GET`  | `/v2/algorithms`              | List all supported algorithms                                                                                                            |
 | `GET`  | `/live`                       | Liveness probe (Kubernetes)                                                                                                              |
-| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                                                                                             |
+| `GET`  | `/ready`                      | Readiness probe: `503` while the server drains for shutdown or cannot write to `CRYPTO_KEY_OUT_DIR`                                      |
 | `GET`  | `/metrics`                    | Prometheus metrics: process memory and uptime, and `http_requests_total` and `http_request_duration_seconds` by method, route and status |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
@@ -352,6 +352,8 @@ authentication but no scope.
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ## Configuration
+
+The server checks every setting at startup and refuses to start, listing each problem, when one is invalid. Numeric settings take digits only: `PORT=3000abc` or `RATE_LIMIT_MAX=0` is an error, not a fallback to the default.
 
 | Variable                                                                 | Default       | Description                                                                                                                                                                                                                                                                    |
 | :----------------------------------------------------------------------- | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

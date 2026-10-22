@@ -29,9 +29,11 @@
  */
 
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
-import { readFile, unlink, writeFile } from "fs/promises";
+import { constants as fsConstants } from "fs";
+import { access, readFile, unlink, writeFile } from "fs/promises";
 import * as path from "path";
 import { wipeMemory } from "@sebastienrousseau/crypto-lib";
+import { integerSetting } from "../config/settings";
 
 /** Named hex-encoded key parts, e.g. `{ publicKey }` or `{ x25519PublicKey, mlKemPublicKey }`. */
 export type KeyParts = Readonly<Record<string, string>>;
@@ -314,6 +316,15 @@ export class KeyStore {
     return stored;
   }
 
+  /** Whether keys can be written: always in memory, else if the directory is writable. */
+  async writable(): Promise<boolean> {
+    if (!this.dir) return true;
+    return access(this.dir, fsConstants.W_OK).then(
+      () => true,
+      () => false,
+    );
+  }
+
   /**
    * Delete the key `keyId` owned by `owner`, from memory and disk. Throws
    * 404 for an unknown key or another owner's, as {@link get} does.
@@ -446,7 +457,8 @@ export class KeyStore {
  * plaintext without `CRYPTO_KEY_ALLOW_PLAINTEXT=1`.
  */
 export function keyStoreConfigError(env: NodeJS.ProcessEnv): string | null {
-  const keyError = storageKeyError(env["CRYPTO_KEY_STORAGE_KEY"]);
+  const keyError =
+    storageKeyError(env["CRYPTO_KEY_STORAGE_KEY"]) ?? perOwnerError(env);
   if (keyError) return keyError;
   const plaintextOnDisk =
     env["NODE_ENV"] === "production" &&
@@ -457,20 +469,37 @@ export function keyStoreConfigError(env: NodeJS.ProcessEnv): string | null {
     : null;
 }
 
+/** KEY_STORE_MAX_PER_PRINCIPAL, or the default when unset. */
+function maxKeysPerOwner(env: NodeJS.ProcessEnv): number {
+  return integerSetting(
+    env,
+    "KEY_STORE_MAX_PER_PRINCIPAL",
+    DEFAULT_KEYS_PER_OWNER,
+    1,
+  );
+}
+
+/** Why KEY_STORE_MAX_PER_PRINCIPAL is invalid, or undefined. */
+function perOwnerError(env: NodeJS.ProcessEnv): string | undefined {
+  try {
+    maxKeysPerOwner(env);
+    return undefined;
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
 /** The key store configured by the environment; throws on invalid settings. */
 export function keyStoreFromEnv(): KeyStore {
   const error = keyStoreConfigError(process.env);
   if (error) throw new Error(error);
-  const perOwner = Number(process.env["KEY_STORE_MAX_PER_PRINCIPAL"]);
   return new KeyStore(
     process.env["CRYPTO_KEY_OUT_DIR"] || undefined,
     DEFAULT_KEY_CAPACITY,
     process.env["CRYPTO_KEY_STORAGE_KEY"] || undefined,
     {
       acceptPlaintext: process.env["CRYPTO_KEY_ALLOW_PLAINTEXT"] === "1",
-      ...(Number.isSafeInteger(perOwner) && perOwner > 0
-        ? { maxKeysPerOwner: perOwner }
-        : {}),
+      maxKeysPerOwner: maxKeysPerOwner(process.env),
     },
   );
 }

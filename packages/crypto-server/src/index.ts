@@ -7,7 +7,7 @@
 /**
  * @remarks Entrypoint for initializing and starting the Crypto Server.
  *
- * Handles startup, signal-based graceful shutdown, and force-exit timeout.
+ * Startup and graceful shutdown live in lib/lifecycle.ts.
  */
 
 import { initTelemetry, shutdownTelemetry } from "./lib/telemetry";
@@ -15,59 +15,16 @@ import { initTelemetry, shutdownTelemetry } from "./lib/telemetry";
 // Initialize OTel BEFORE other imports to ensure auto-instrumentation hooks.
 initTelemetry();
 
-import { config } from "./config/env";
-import { init } from "./server";
 import logger from "./lib/logger";
+import { start } from "./lib/lifecycle";
 
-/** Boot the server and register graceful shutdown handlers. */
-const main = async (): Promise<void> => {
-  const server = await init();
-  await server.ready();
-
-  await server.listen({ port: config.port, host: config.host });
-  logger.info(
-    `Server listening on ${config.protocol}://${config.host}:${config.port}/`,
-  );
-  logger.info(
-    `Swagger docs at ${config.protocol}://${config.host}:${config.port}/docs`,
-  );
-
-  // --- Graceful Shutdown ---------------------------------------------------
-
-  let isShuttingDown = false;
-
-  const shutdown = async (signal: string): Promise<void> => {
-    if (isShuttingDown) return;
-    isShuttingDown = true;
-
-    logger.info({ signal }, "Shutting down gracefully");
-
-    // Force exit after timeout to prevent hanging
-    const forceTimer = setTimeout(() => {
-      logger.error(
-        { shutdownTimeoutMs: config.shutdownTimeoutMs },
-        "Shutdown timed out; forcing exit",
-      );
-      process.exit(1);
-    }, config.shutdownTimeoutMs);
-    forceTimer.unref();
-
-    try {
-      await server.close();
-      await shutdownTelemetry();
-      logger.info("All connections drained. Goodbye.");
-      process.exit(0);
-    } catch (err) {
-      logger.error({ err }, "Error during shutdown");
-      process.exit(1);
-    }
-  };
-
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
-  process.on("SIGINT", () => shutdown("SIGINT"));
-};
-
-main().catch((err) => {
+start({
+  env: process.env,
+  log: logger,
+  exit: (code) => process.exit(code),
+  onClosed: shutdownTelemetry,
+  signals: process,
+}).catch((err: unknown) => {
   logger.error({ err }, "Server failed to start");
   process.exit(1);
 });

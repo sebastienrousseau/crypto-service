@@ -124,8 +124,8 @@ describe("resolveRateLimitMax", () => {
     expect(resolveRateLimitMax()).to.equal(250);
   });
 
-  it("falls back to the default for missing or invalid values", () => {
-    for (const value of [undefined, "", "0", "-5", "1.5", "lots"]) {
+  it("uses the default when RATE_LIMIT_MAX is unset or empty", () => {
+    for (const value of [undefined, ""]) {
       setMaxEnv(value);
       expect(resolveRateLimitMax()).to.equal(rateLimitOptions.max);
     }

@@ -12,6 +12,7 @@ import { FastifyServerOptions } from "fastify";
 import { FastifyCompressOptions } from "@fastify/compress";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { FastifyHelmetOptions } from "@fastify/helmet";
+import { integerSetting } from "./settings";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pack = require("../../package.json") as { version: string };
 
@@ -207,15 +208,14 @@ export const rateLimitOptions = {
 
 /**
  * Resolve the per-client request limit from `RATE_LIMIT_MAX`, read when the
- * server is initialised. A missing, non-integer or non-positive value falls
- * back to the default in {@link rateLimitOptions}, never to "unlimited".
+ * server is initialised: the default in {@link rateLimitOptions} when
+ * unset, never "unlimited".
+ *
+ * @throws Error when it is set to anything but a positive whole number.
  */
-export const resolveRateLimitMax = (): number => {
-  const parsed = Number(process.env["RATE_LIMIT_MAX"]);
-  return Number.isSafeInteger(parsed) && parsed > 0
-    ? parsed
-    : rateLimitOptions.max;
-};
+export const resolveRateLimitMax = (
+  env: NodeJS.ProcessEnv = process.env,
+): number => integerSetting(env, "RATE_LIMIT_MAX", rateLimitOptions.max, 1);
 
 /**
  * @remarks {object} healthCheckOptions

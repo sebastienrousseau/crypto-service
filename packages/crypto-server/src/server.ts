@@ -48,6 +48,7 @@ import { registerProblemHandlers } from "./lib/problem";
 import { propagateTraceContext } from "./utils/trace";
 import { OpaqueStore } from "./lib/opaque-store";
 import { registerHttpMetrics } from "./lib/http-metrics";
+import { trackLifecycle } from "./lib/readiness";
 import routes from "./routes";
 import * as fastify from "fastify";
 
@@ -98,6 +99,7 @@ function decorateServices(app: fastify.FastifyInstance): void {
   app.decorate("kdf", new CryptoWorkers(KDF_LIMITS));
   app.decorate("signer", new CryptoWorkers(SIGNING_LIMITS));
   app.decorate("opaqueStore", new OpaqueStore());
+  trackLifecycle(app);
   app.addHook("onClose", async () => {
     await Promise.all([app.kdf.close(), app.signer.close()]);
   });
