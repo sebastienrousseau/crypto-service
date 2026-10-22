@@ -44,6 +44,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.12.0(jiti@2.6.1)(supports-color@8.1.1))
+      '@sebastienrousseau/c8-config':
+        specifier: ^0.0.7
+        version: 0.0.7(c8@12.0.0)
       '@sebastienrousseau/prettier-config':
         specifier: 0.0.7
         version: 0.0.7(prettier@3.9.10)

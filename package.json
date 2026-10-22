@@ -47,6 +47,7 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
+    "@sebastienrousseau/c8-config": "^0.0.7",
     "@sebastienrousseau/prettier-config": "0.0.7",
     "eslint": "^10.12.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
