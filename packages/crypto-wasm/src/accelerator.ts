@@ -7,6 +7,7 @@ import type {
   WasmStatus,
 } from "./types";
 import { VERSION } from "./version";
+import type { HashAlgorithm } from "@sebastienrousseau/crypto-lib/modern";
 
 /** All operations the WASM module can accelerate. */
 const ALL_OPERATIONS: AcceleratedOperation[] = [
@@ -24,6 +25,23 @@ const ALL_OPERATIONS: AcceleratedOperation[] = [
   "ml-dsa-sign",
   "ml-dsa-verify",
 ];
+
+/** The crypto-lib hash each benchmarkable operation runs. */
+const BENCHMARK_HASHES: Partial<
+  Record<AcceleratedOperation, "sha256" | "sha512" | "blake3">
+> = {
+  "hash-sha256": "sha256",
+  "hash-sha512": "sha512",
+  "hash-blake3": "blake3",
+};
+
+/** crypto-lib's name for a hash: `SHA-256` and `sha-512` lose the dash. */
+function libHashName(algorithm: string): HashAlgorithm {
+  const name = algorithm.toLowerCase();
+  return (
+    /^sha-\d+$/.test(name) ? name.replace("-", "") : name
+  ) as HashAlgorithm;
+}
 
 /**
  * WebAssembly cryptographic accelerator.
@@ -118,20 +136,24 @@ export class WasmAccelerator {
   }
 
   /**
-   * Hash data using WASM-accelerated implementation. Falls back to JS.
+   * Hash data with the WebAssembly module when one is loaded, otherwise
+   * with crypto-lib.
    *
-   * @param algorithm - Hash algorithm name (e.g. "sha256", "sha512", "blake3").
+   * @param algorithm - A crypto-lib hash name (`"sha256"`, `"sha384"`,
+   *   `"sha512"`, `"sha3-256"`, `"sha3-512"`, `"blake2b"`, `"blake3"`);
+   *   `"SHA-256"` and `"sha-512"` are read as `"sha256"` and `"sha512"`.
    * @param data - Raw bytes to hash.
    * @returns The hash digest as a Uint8Array.
+   * @throws For an algorithm crypto-lib does not support.
    */
   async hash(algorithm: string, data: Uint8Array): Promise<Uint8Array> {
     if (!this.isAvailable) {
-      // Fallback: use Node.js built-in crypto
-      const { createHash } = await import("node:crypto");
-      const nodeAlg = algorithm.replace("-", "").toLowerCase();
-      const h = createHash(nodeAlg);
-      h.update(data);
-      return new Uint8Array(h.digest());
+      const { hash } = await import("@sebastienrousseau/crypto-lib/modern");
+      const { digest } = hash({
+        algorithm: libHashName(algorithm),
+        data,
+      });
+      return new Uint8Array(Buffer.from(digest, "hex"));
     }
     // WASM-accelerated path — the actual WASM exports will be wired
     // here once the Rust/C++ module is compiled.
@@ -253,33 +275,34 @@ export class WasmAccelerator {
   }
 
   /**
-   * Benchmark an operation: JS vs WASM.
+   * Benchmark a hash operation: crypto-lib against this accelerator's
+   * {@link WasmAccelerator.hash}, which is crypto-lib too until a
+   * WebAssembly module is loaded.
    *
-   * @param operation - The operation to benchmark.
+   * @param operation - `"hash-sha256"`, `"hash-sha512"` or `"hash-blake3"`.
    * @param iterations - Number of iterations (default 1000).
    * @returns Benchmark results with timing and speedup ratio.
+   * @throws For any other operation, which this method cannot time.
    */
   async benchmark(
     operation: AcceleratedOperation,
     iterations = 1000,
   ): Promise<BenchmarkResult> {
-    const data = new Uint8Array(1024).fill(0x42);
-
-    // JS benchmark
-    const { createHash } = await import("node:crypto");
-    const jsStart = performance.now();
-    for (let i = 0; i < iterations; i++) {
-      const h = createHash("sha256");
-      h.update(data);
-      h.digest();
+    const algorithm = BENCHMARK_HASHES[operation];
+    if (algorithm === undefined) {
+      throw new Error(
+        `benchmark supports hash-sha256, hash-sha512 and hash-blake3, not ${operation}`,
+      );
     }
+    const data = new Uint8Array(1024).fill(0x42);
+    const { hash } = await import("@sebastienrousseau/crypto-lib/modern");
+
+    const jsStart = performance.now();
+    for (let i = 0; i < iterations; i++) hash({ algorithm, data });
     const jsTimeMs = performance.now() - jsStart;
 
-    // WASM benchmark
     const wasmStart = performance.now();
-    for (let i = 0; i < iterations; i++) {
-      await this.hash("sha256", data);
-    }
+    for (let i = 0; i < iterations; i++) await this.hash(algorithm, data);
     const wasmTimeMs = performance.now() - wasmStart;
 
     return {
