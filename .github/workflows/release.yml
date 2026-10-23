@@ -81,13 +81,23 @@ jobs:
           name: npm-tarballs
           path: npm-tarballs
 
+      # The ./ prefix matters: npm reads a bare `dir/file.tgz` as a GitHub
+      # `owner/repo` shorthand and tries to clone it. Versions already in
+      # the registry are skipped, so a re-run after a partial failure
+      # publishes only what is missing.
       - name: Publish to GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for tarball in npm-tarballs/*.tgz; do
-            npm publish "$tarball" --access public \
-              --registry https://npm.pkg.github.com
+          registry=https://npm.pkg.github.com
+          for tarball in ./npm-tarballs/*.tgz; do
+            spec="$(tar -xOzf "$tarball" package/package.json |
+              node -e 'let s="";process.stdin.on("data",(d)=>(s+=d)).on("end",()=>{const p=JSON.parse(s);console.log(p.name+"@"+p.version)})')"
+            if npm view "$spec" version --registry "$registry" >/dev/null 2>&1; then
+              echo "$spec already in GitHub Packages, skipped"
+              continue
+            fi
+            npm publish "$tarball" --access public --registry "$registry"
           done
 
   # Publishes to npm only after a maintainer approves the `npm`
