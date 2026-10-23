@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-kms",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Key management interface for envelope encryption, signing and key rotation, with providers for AWS KMS (including ML-DSA signing keys), Google Cloud KMS, HashiCorp Vault Transit and an in-memory local store. The Azure Key Vault provider is a stub and the PKCS#11 provider is a software simulation.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

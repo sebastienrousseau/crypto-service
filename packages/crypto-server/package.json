@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-server",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Fastify REST API for cryptography as a service: post-quantum ML-KEM and ML-DSA, encryption, signing, hashing and KMS endpoints, with OpenAPI docs, API key or JWT auth, rate limiting and OpenTelemetry.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -71,7 +71,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "fastify": "^5.12.7",
     "fastify-healthcheck": "^5.1.0",
-    "pino": "10.3.1"
+    "pino": "10.4.0"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

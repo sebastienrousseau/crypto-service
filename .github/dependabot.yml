@@ -19,6 +19,10 @@ updates:
       types:
         patterns:
           - "@types/*"
+      # cli and config-conventional release together.
+      commitlint:
+        patterns:
+          - "@commitlint/*"
       dev-tools:
         patterns:
           - "eslint*"
@@ -42,6 +46,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # Every step must run the same version: CodeQL refuses a
+      # configuration written by another.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
     open-pull-requests-limit: 5
     cooldown:
       default-days: 3
