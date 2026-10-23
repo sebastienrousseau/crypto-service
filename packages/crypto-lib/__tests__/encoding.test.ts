@@ -73,4 +73,13 @@ describe("portable encodings", () => {
       expect((err as CryptoError).code).to.equal("INVALID_INPUT");
     }
   });
+
+  it("strips padding in linear time", function () {
+    // /=+$/ retried from every "=" of a long run that did not end the
+    // text: 40,000 of them took 27 s.
+    this.timeout(1000);
+    const run = "=".repeat(100_000);
+    expect(() => fromBase64(`${run}!`)).to.throw(CryptoError);
+    expect(fromBase64(`aGVsbG8${run}`)).to.deep.equal(utf8("hello"));
+  });
 });

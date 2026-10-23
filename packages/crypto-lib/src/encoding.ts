@@ -93,7 +93,7 @@ function encodeGroup(bytes: Uint8Array, i: number): string {
 
 /** Base64url (RFC 4648 section 5, without padding) of `bytes`. */
 export const toBase64url = (bytes: Uint8Array): string =>
-  toBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  trimPadding(toBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_"));
 
 /**
  * Decodes base64 or base64url, with or without padding; whitespace is
@@ -101,7 +101,7 @@ export const toBase64url = (bytes: Uint8Array): string =>
  * CryptoError `INVALID_INPUT` (Buffer skipped such characters silently).
  */
 export function fromBase64(text: string): Uint8Array {
-  const clean = text.replace(/\s+/g, "").replace(/=+$/, "");
+  const clean = trimPadding(text.replace(/\s+/g, ""));
   if (clean.length % 4 === 1) throw invalidBase64();
   const out = new Uint8Array(Math.floor((clean.length * 3) / 4));
   let pending = 0; // bits held in `value`, at most 13
@@ -124,6 +124,17 @@ function base64Value(char: string): number {
   const v = code < 128 ? B64_VALUE[code]! : -1;
   if (v < 0) throw invalidBase64();
   return v;
+}
+
+/**
+ * `text` without its trailing "=" padding. A loop, not /=+$/: the regular
+ * expression retried from every "=" of a run that did not end the text,
+ * which took quadratic time on untrusted input.
+ */
+function trimPadding(text: string): string {
+  let end = text.length;
+  while (end > 0 && text[end - 1] === "=") end--;
+  return text.slice(0, end);
 }
 
 /** The error for text that is not base64. */
