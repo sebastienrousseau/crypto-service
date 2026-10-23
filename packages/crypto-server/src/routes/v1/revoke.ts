@@ -23,6 +23,7 @@ import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
 /** Fastify JSON Schema for the v1 key-revocation endpoint. */
 const revokeSchema = {
   tags: ["Key Management"],
+  deprecated: true,
   summary: "Revoke a key pair",
   description:
     "Revokes the shipped key pair with a reason code (0=unspecified, 1=superseded, 2=compromised, 3=retired). Returns the revoked public key only.",
@@ -70,13 +71,18 @@ export default (app: FastifyInstance): void => {
           reply,
         );
         /* c8 ignore next -- Fastify schema already validates all fields */
-        if (!v) return;
+        if (!v) return reply;
 
-        const revocationData = await revoke({
-          passphrase: v.passphrase as string,
-          flag: v.flag as number,
-          reason: v.reason as string,
-        });
+        // persist: false: the revoked key is the server's own private key;
+        // it must not be written to CRYPTO_KEY_OUT_DIR.
+        const revocationData = await revoke(
+          {
+            passphrase: v.passphrase as string,
+            flag: v.flag as number,
+            reason: v.reason as string,
+          },
+          { persist: false },
+        );
 
         // Never return the (unlocked) private key.
         return reply.send({ data: { publicKey: revocationData.publicKey } });

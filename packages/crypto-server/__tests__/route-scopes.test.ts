@@ -12,6 +12,7 @@ import { init } from "../src/server";
 import { authorizeRoute, SCOPES, type AuthPayload } from "../src/lib/auth";
 import {
   AUTHENTICATED,
+  PUBLIC,
   ROUTE_SCOPES,
   assertRoutesCovered,
   isPublicRoute,
@@ -100,10 +101,11 @@ describe("Route authorization policy (F05)", function () {
       }
     });
 
-    it("only uses known scopes or the authenticated marker", () => {
+    it("only uses known scopes or the authenticated or public markers", () => {
       for (const [key, value] of Object.entries(ROUTE_SCOPES)) {
         const known = (SCOPES as readonly string[]).includes(value);
-        expect(known || value === AUTHENTICATED, key).to.equal(true);
+        const marker = value === AUTHENTICATED || value === PUBLIC;
+        expect(known || marker, key).to.equal(true);
       }
     });
 

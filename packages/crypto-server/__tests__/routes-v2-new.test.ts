@@ -388,6 +388,23 @@ describe("V2 New Routes", function () {
       const verBody = JSON.parse(verRes.payload);
       expect(verBody.data.valid).to.be.true;
     });
+
+    it("answers 400 INVALID_KEY for a key shorter than 16 bytes", async () => {
+      for (const url of ["/v2/hmac", "/v2/hmac/verify"]) {
+        const res = await app.inject({
+          method: "POST",
+          url,
+          payload: {
+            algorithm: "sha256",
+            key: "aa",
+            data: "hello",
+            mac: "00".repeat(32),
+          },
+        });
+        expect(res.statusCode, url).to.equal(400);
+        expect(res.json().code, url).to.equal("INVALID_KEY");
+      }
+    });
   });
 
   // --- PQ Signatures (ML-DSA) ---

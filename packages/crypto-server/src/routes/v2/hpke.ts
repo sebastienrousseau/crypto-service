@@ -17,13 +17,13 @@ const loadHpke = async () =>
   await import("@sebastienrousseau/crypto-lib/modern");
 
 interface KeygenBody {
-  kem: "x25519" | "p256" | "x25519-ml-kem-768";
+  kem: "x25519" | "p256" | "x-wing" | "x25519-ml-kem-768";
 }
 
 interface SealBody {
   recipientPublicKey: string;
   plaintext: string;
-  kem?: "x25519" | "p256" | "x25519-ml-kem-768";
+  kem?: "x25519" | "p256" | "x-wing" | "x25519-ml-kem-768";
   aead?: "chacha20-poly1305" | "aes-128-gcm";
   info?: string;
   aad?: string;
@@ -58,8 +58,8 @@ const KEYGEN_SCHEMA = {
     properties: {
       kem: {
         type: "string",
-        enum: ["x25519", "p256", "x25519-ml-kem-768"],
-        default: "x25519-ml-kem-768",
+        enum: ["x25519", "p256", "x-wing", "x25519-ml-kem-768"],
+        default: "x-wing",
       },
     },
   },
@@ -75,7 +75,10 @@ const SEAL_SCHEMA = {
     properties: {
       recipientPublicKey: { type: "string", minLength: 1 },
       plaintext: { type: "string", minLength: 1 },
-      kem: { type: "string", enum: ["x25519", "p256", "x25519-ml-kem-768"] },
+      kem: {
+        type: "string",
+        enum: ["x25519", "p256", "x-wing", "x25519-ml-kem-768"],
+      },
       aead: { type: "string", enum: ["chacha20-poly1305", "aes-128-gcm"] },
       info: { type: "string" },
       aad: { type: "string" },
@@ -136,7 +139,7 @@ function registerSeal(app: FastifyInstance): void {
         recipientPublicKey: b.recipientPublicKey,
         plaintext: hexPlaintext,
         suite: {
-          kem: b.kem ?? "x25519-ml-kem-768",
+          kem: b.kem ?? "x-wing",
           aead: b.aead ?? "chacha20-poly1305",
         },
         ...(b.info ? { info: ensureHex(b.info) } : {}),
@@ -161,6 +164,7 @@ function registerOpen(app: FastifyInstance): void {
     async (request, reply) => {
       const b = request.body as OpenBody;
       const key = await resolveKey(request, b.keyId, [
+        "x-wing",
         "x25519-ml-kem-768",
         "x25519",
         "p256",
@@ -172,7 +176,8 @@ function registerOpen(app: FastifyInstance): void {
           encapsulatedKey: b.encapsulatedKey,
           ciphertext: b.ciphertext,
           suite: {
-            kem: key.algorithm as "x25519" | "p256" | "x25519-ml-kem-768",
+            kem: key.algorithm as
+              "x25519" | "p256" | "x-wing" | "x25519-ml-kem-768",
             aead: b.aead ?? "chacha20-poly1305",
           },
           ...(b.info ? { info: ensureHex(b.info) } : {}),

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-mcp",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Model Context Protocol (MCP) server that gives AI assistants and agents cryptography tools: key generation, encryption, ML-KEM, ML-DSA signing, hashing, streaming encryption, KMS and CBOM.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -31,6 +31,7 @@
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc",
     "lint": "eslint src __tests__",
     "lint:fix": "eslint --cache --fix src __tests__",
@@ -38,9 +39,8 @@
     "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sebastienrousseau/crypto-lib": "workspace:*",
     "@sebastienrousseau/crypto-kms": "workspace:*",
-    "@sebastienrousseau/crypto-wasm": "workspace:*"
+    "@sebastienrousseau/crypto-lib": "workspace:*"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

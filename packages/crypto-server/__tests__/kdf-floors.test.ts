@@ -11,7 +11,7 @@ import { expect } from "chai";
 import type { FastifyInstance } from "fastify";
 import { hashPassword } from "@sebastienrousseau/crypto-lib/modern";
 import { init } from "../src/server";
-import { KdfRunner } from "../src/lib/kdf-runner";
+import { CryptoWorkers, KDF_LIMITS } from "../src/lib/crypto-workers";
 import { KDF_FLOORS } from "../src/routes/v2/kdf";
 import { ARGON2_FLOORS } from "../src/routes/v2/password";
 
@@ -132,9 +132,9 @@ describe("KDF floors and off-loop work (F14, F15)", function () {
     expect(healthDone - healthStarted).to.be.lessThan((kdfDone - started) / 2);
   });
 
-  describe("KdfRunner", () => {
+  describe("CryptoWorkers (KDF pool)", () => {
     it("starts no threads until used, and closes cleanly either way", async () => {
-      const runner = new KdfRunner();
+      const runner = new CryptoWorkers(KDF_LIMITS);
       await runner.close();
       const out = await runner.run<{ algorithm: string }>(
         "modern",
@@ -149,7 +149,7 @@ describe("KDF floors and off-loop work (F14, F15)", function () {
     });
 
     it("returns crypto-lib's error message from the worker", async () => {
-      const runner = new KdfRunner();
+      const runner = new CryptoWorkers(KDF_LIMITS);
       try {
         const err = await runner
           .run("modern", "kdfDerive", {

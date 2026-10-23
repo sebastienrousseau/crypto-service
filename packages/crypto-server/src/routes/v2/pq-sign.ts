@@ -4,6 +4,10 @@
  */
 
 import type { FastifyInstance } from "fastify";
+import type {
+  mlDsaKeygen,
+  mlDsaSign,
+} from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import {
   KEY_ID_SCHEMA,
@@ -36,10 +40,11 @@ function registerKeygen(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { mlDsaKeygen } =
-        await import("@sebastienrousseau/crypto-lib/modern");
       const { level } = request.body as { level: 44 | 65 | 87 };
-      const { publicKey, secretKey, algorithm } = mlDsaKeygen(level);
+      const { publicKey, secretKey, algorithm } =
+        await request.server.signer.run<
+          Awaited<ReturnType<typeof mlDsaKeygen>>
+        >("modern", "mlDsaKeygen", level);
       const stored = await storeKey(
         request,
         algorithm,
@@ -73,15 +78,19 @@ function registerSign(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { mlDsaSign } =
-        await import("@sebastienrousseau/crypto-lib/modern");
       const body = request.body as { keyId: string; message: string };
       const key = await resolveKey(request, body.keyId, ML_DSA_ALGORITHMS);
       const level = Number(key.algorithm.slice("ml-dsa-".length)) as
         44 | 65 | 87;
       // A stored ML-DSA key always signs; anything else is a server error.
       return reply.send({
-        data: mlDsaSign(level, key.privateParts["secretKey"], body.message),
+        data: await request.server.signer.run<ReturnType<typeof mlDsaSign>>(
+          "modern",
+          "mlDsaSign",
+          level,
+          key.privateParts["secretKey"],
+          body.message,
+        ),
       });
     },
   );

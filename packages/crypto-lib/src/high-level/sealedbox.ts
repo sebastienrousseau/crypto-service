@@ -17,11 +17,24 @@
  */
 
 import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import {
+  hybridReceiveKeys,
+  hybridSend,
+  openWithFirstKey,
+} from "../modern/hybrid-combiner";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  concat,
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  utf8,
+} from "../encoding";
 
 /** Length of an X25519 ephemeral public key in bytes. */
 const EPHEMERAL_LEN = 32;
@@ -29,18 +42,17 @@ const EPHEMERAL_LEN = 32;
 const NONCE_LEN = 24;
 /** Poly1305 authentication tag length in bytes. */
 const TAG_LEN = 16;
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) throw new Error("Invalid hex string");
-  return Buffer.from(hex, "hex");
+  if (!isHex(hex))
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
+  return decodeHex(hex);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toData(input: string | Uint8Array): Uint8Array {
-  return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
+  return input instanceof Uint8Array ? input : utf8(input);
 }
 
 /** Result of an anonymous sealed-box encryption (X25519). */
@@ -103,7 +115,7 @@ export function seal(
   out.set(ct, EPHEMERAL_LEN + NONCE_LEN);
 
   return {
-    sealed: Buffer.from(out).toString("base64"),
+    sealed: toBase64(out),
     algorithm: "x25519-xchacha20-poly1305",
   };
 }
@@ -123,12 +135,12 @@ export function open(
       ? hexToBytes(recipientSecretKey)
       : recipientSecretKey;
 
-  const raw =
-    sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
+  const raw = sealed instanceof Uint8Array ? sealed : fromBase64(sealed);
   const minLen = EPHEMERAL_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
-    throw new Error(
+    throw new CryptoError(
       `Sealed box too short: expected >= ${minLen} bytes, got ${raw.length}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
     );
   }
 
@@ -155,9 +167,11 @@ export function open(
 /**
  * Encrypt `plaintext` to a recipient using both X25519 and ML-KEM-768.
  *
- * The sender generates an ephemeral X25519 key pair and an ephemeral
- * ML-KEM-768 encapsulation. Both shared secrets are combined via
- * HKDF-SHA256 to derive the encryption key.
+ * The sender encapsulates to both keys with the library's v2 hybrid KEM
+ * (see modern/hybrid-combiner.ts), which binds both ciphertexts and both
+ * public keys, and derives the encryption key from its secret with the
+ * label `crypto-service/sealed-box/v2`. {@link openPQ} also opens boxes
+ * sealed before, whose key bound only the ephemeral key.
  *
  * Output format:
  *   ephemeral_x25519_pub (32 B) || ml_kem_ciphertext (1088 B) ||
@@ -181,27 +195,12 @@ export function sealPQ(
       ? hexToBytes(recipientMlKemPublic)
       : recipientMlKemPublic;
 
-  // Ephemeral X25519
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, x25519Pub);
-
-  // ML-KEM-768 encapsulation
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(mlKemPub);
-
-  // Combine both shared secrets
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const encKey = hkdf(
-    sha256,
-    combined,
+  // The library's v2 hybrid KEM, with the sealed box's own label.
+  const {
     ephPub,
-    new TextEncoder().encode("pq-sealedbox-v1"),
-    32,
-  );
+    mlKemCt,
+    key: encKey,
+  } = hybridSend(x25519Pub, mlKemPub, "sealed-box");
 
   // Encrypt
   const nonce = randomBytes(NONCE_LEN);
@@ -220,7 +219,7 @@ export function sealPQ(
   out.set(ct, EPHEMERAL_LEN + mlKemCtLen + NONCE_LEN);
 
   return {
-    sealed: Buffer.from(out).toString("base64"),
+    sealed: toBase64(out),
     algorithm: "x25519-ml-kem-768-xchacha20-poly1305",
   };
 }
@@ -249,12 +248,12 @@ export function openPQ(
       ? hexToBytes(recipientMlKemSecret)
       : recipientMlKemSecret;
 
-  const raw =
-    sealed instanceof Uint8Array ? sealed : Buffer.from(sealed, "base64");
+  const raw = sealed instanceof Uint8Array ? sealed : fromBase64(sealed);
   const minLen = EPHEMERAL_LEN + ML_KEM_768_CT_LEN + NONCE_LEN + TAG_LEN;
   if (raw.length < minLen) {
-    throw new Error(
+    throw new CryptoError(
       `PQ sealed box too short: expected >= ${minLen} bytes, got ${raw.length}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
     );
   }
 
@@ -269,23 +268,23 @@ export function openPQ(
   );
   const ct = raw.subarray(EPHEMERAL_LEN + ML_KEM_768_CT_LEN + NONCE_LEN);
 
-  // Recover shared secrets
-  const x25519Shared = x25519.getSharedSecret(x25519Sec, ephPub);
-  const mlKemShared = ml_kem768.decapsulate(mlKemCt, mlKemSec);
-
-  // Combine and derive key
-  const combined = new Uint8Array(x25519Shared.length + mlKemShared.length);
-  combined.set(x25519Shared);
-  combined.set(mlKemShared, x25519Shared.length);
-
-  const encKey = hkdf(
-    sha256,
-    combined,
+  // The v2 key, then the key boxes sealed before it used.
+  const keys = hybridReceiveKeys(
+    x25519Sec,
+    mlKemSec,
     ephPub,
-    new TextEncoder().encode("pq-sealedbox-v1"),
-    32,
+    mlKemCt,
+    "sealed-box",
+    (x25519Shared, mlKemShared) =>
+      hkdf(
+        sha256,
+        concat([x25519Shared, mlKemShared]),
+        ephPub,
+        new TextEncoder().encode("pq-sealedbox-v1"),
+        32,
+      ),
   );
-
-  const cipher = xchacha20poly1305(encKey, nonce);
-  return cipher.decrypt(ct);
+  return openWithFirstKey(keys, (key) =>
+    xchacha20poly1305(key, nonce).decrypt(ct),
+  );
 }

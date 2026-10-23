@@ -13,11 +13,7 @@
  */
 
 import { randomBytes } from "node:crypto";
-import {
-  bytesToHex,
-  bytesToBase64,
-  base64ToBytes,
-} from "@sebastienrousseau/crypto-lib";
+import { bytesToHex, bytesToBase64 } from "@sebastienrousseau/crypto-lib";
 import type {
   KmsProvider,
   KmsKeyMetadata,
@@ -35,8 +31,9 @@ import {
   sealCurrent,
   openVersioned,
   signCurrent,
-  verifyAnyVersion,
+  verifyBase64Signature,
 } from "./versioned-key";
+import { LOCAL_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /** Configuration options for the simulated PKCS#11 provider. */
 export interface Pkcs11HsmOptions {
@@ -229,11 +226,18 @@ export class Pkcs11HsmProvider implements KmsProvider {
     usage: "encrypt" | "sign" | "wrap",
     _metadata?: Record<string, string>,
   ): Promise<KmsKeyMetadata> {
+    // The simulation keeps the same key types as LocalKmsProvider.
+    const resolved = resolveAlgorithm(
+      "Pkcs11HsmProvider",
+      LOCAL_ALGORITHMS,
+      algorithm,
+      usage,
+    );
     const keyId = generateHsmKeyId(this.hsmModel);
     const record: HsmKeyRecord = {
       metadata: {
         keyId,
-        algorithm,
+        algorithm: resolved,
         usage,
         createdAt: new Date().toISOString(),
         enabled: true,
@@ -327,7 +331,7 @@ export class Pkcs11HsmProvider implements KmsProvider {
     _algorithm?: string,
   ): Promise<boolean> {
     const key = this.requireUsage(keyId, this.record(keyId), "sign");
-    return verifyAnyVersion(key, data, base64ToBytes(signature));
+    return verifyBase64Signature(key, data, signature);
   }
 
   /**

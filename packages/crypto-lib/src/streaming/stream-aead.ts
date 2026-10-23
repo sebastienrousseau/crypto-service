@@ -20,21 +20,25 @@
  *   tag = 0x00 for intermediate chunks, 0x01 for the final chunk.
  */
 
-import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import {
-  CHUNK_TAG_FINAL,
-  CHUNK_TAG_MESSAGE,
+  ChunkDecryptor,
+  ChunkEncryptor,
   TAG_LEN,
   assertChunkSize,
+  decryptChunks,
   encryptChunksInto,
   streamSize,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex } from "../encoding";
 
-/** XChaCha20 nonce length in bytes. */
+/** XChaCha20 nonce length in bytes, which is also the header length. */
 const NONCE_LEN = 24;
+/** Length of the stream header: the base nonce. */
+export const AEAD_STREAM_HEADER_LEN = NONCE_LEN;
 /** Default chunk size for streaming encryption (64 KiB). */
-const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
+export const DEFAULT_CHUNK_SIZE = 64 * 1024; // 64 KiB
 
 /**
  * Derive a per-chunk nonce by XORing the base nonce with the chunk counter.
@@ -93,23 +97,51 @@ export interface StreamDecryptOptions {
   chunkSize?: number;
 }
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse and validate a 256-bit key from hex string or Uint8Array. */
-function toKey(key: string | Uint8Array): Uint8Array {
+export function toKey(key: string | Uint8Array): Uint8Array {
   if (key instanceof Uint8Array) {
     if (key.length !== 32) {
-      throw new Error(`Key must be 32 bytes, got ${key.length}`);
+      throw new CryptoError(
+        `Key must be 32 bytes, got ${key.length}`,
+        CryptoErrorCode.INVALID_KEY,
+      );
     }
     return key;
   }
-  if (!HEX_RE.test(key)) throw new Error("Invalid hex key");
-  const buf = Buffer.from(key, "hex");
+  if (!isHex(key))
+    throw new CryptoError("Invalid hex key", CryptoErrorCode.INVALID_HEX);
+  const buf = decodeHex(key);
   if (buf.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${buf.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${buf.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
   return buf;
+}
+
+/**
+ * Starts a stream for `key`: its header (a fresh base nonce) and the
+ * encryptor for its chunks, for callers that encrypt as data arrives.
+ */
+export function aeadStreamSender(
+  key: Uint8Array,
+  chunkSize: number,
+): { header: Uint8Array; encryptor: ChunkEncryptor } {
+  const baseNonce = randomBytes(NONCE_LEN);
+  return {
+    header: baseNonce,
+    encryptor: new ChunkEncryptor(key, baseNonce, chunkSize, deriveChunkNonce),
+  };
+}
+
+/** The decryptor for the chunks that follow a stream's `header`. */
+export function aeadStreamReceiver(
+  key: Uint8Array,
+  header: Uint8Array,
+  chunkSize: number,
+): ChunkDecryptor {
+  return new ChunkDecryptor(key, header, chunkSize, deriveChunkNonce);
 }
 
 /**
@@ -147,36 +179,6 @@ export function streamEncrypt(
   };
 }
 
-/** Tag byte and encrypted length of the chunk that starts at `offset`. */
-interface ChunkHeader {
-  chunkTag: number;
-  isFinal: boolean;
-  encLen: number;
-}
-
-/**
- * Read and validate the chunk header at `offset`: the tag byte must be a
- * MESSAGE or FINAL marker, and the chunk must fit in the ciphertext.
- */
-function readChunkHeader(
-  ciphertext: Uint8Array,
-  offset: number,
-  chunkSize: number,
-): ChunkHeader {
-  const chunkTag = ciphertext[offset]!;
-  if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
-    throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
-  }
-  const isFinal = chunkTag === CHUNK_TAG_FINAL;
-  const start = offset + 1;
-  // The FINAL chunk runs to the end; every other chunk is full-sized.
-  const encLen = isFinal ? ciphertext.length - start : chunkSize + TAG_LEN;
-  if (start + encLen > ciphertext.length) {
-    throw new Error("Ciphertext truncated — incomplete chunk");
-  }
-  return { chunkTag, isFinal, encLen };
-}
-
 /**
  * Decrypt a stream produced by {@link streamEncrypt}.
  *
@@ -190,54 +192,18 @@ export function streamDecrypt(options: StreamDecryptOptions): Uint8Array {
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < NONCE_LEN + 1 + TAG_LEN) {
-    throw new Error("Ciphertext too short — missing header or chunk data");
+    throw new CryptoError(
+      "Ciphertext too short — missing header or chunk data",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const baseNonce = ciphertext.subarray(0, NONCE_LEN);
-  let offset = NONCE_LEN;
-
-  const plaintextChunks: Uint8Array[] = [];
-  let totalPtLen = 0;
-  let sawFinal = false;
-
-  while (offset < ciphertext.length) {
-    const { chunkTag, isFinal, encLen } = readChunkHeader(
-      ciphertext,
-      offset,
-      chunkSize,
-    );
-    offset += 1;
-
-    const chunkIdx = plaintextChunks.length;
-    const nonce = deriveChunkNonce(baseNonce, chunkIdx, chunkTag);
-    const cipher = xchacha20poly1305(key, nonce);
-    const decrypted = cipher.decrypt(
-      ciphertext.subarray(offset, offset + encLen),
-    );
-
-    plaintextChunks.push(decrypted);
-    totalPtLen += decrypted.length;
-    offset += encLen;
-
-    if (isFinal) {
-      sawFinal = true;
-      break;
-    }
-  }
-
   // Without the FINAL chunk, an attacker could drop trailing chunks and
-  // the remaining prefix would still authenticate chunk by chunk.
-  if (!sawFinal) {
-    throw new Error("Ciphertext truncated — final chunk missing");
-  }
-
-  // Assemble plaintext
-  const result = new Uint8Array(totalPtLen);
-  let pos = 0;
-  for (const chunk of plaintextChunks) {
-    result.set(chunk, pos);
-    pos += chunk.length;
-  }
-
-  return result;
+  // the remaining prefix would still authenticate chunk by chunk; the
+  // decryptor refuses a stream that ends without one.
+  return decryptChunks(
+    new ChunkDecryptor(key, baseNonce, chunkSize, deriveChunkNonce),
+    ciphertext.subarray(NONCE_LEN),
+  );
 }

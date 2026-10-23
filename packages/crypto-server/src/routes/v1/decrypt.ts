@@ -21,6 +21,7 @@ import { serverPgpPrivateKey } from "../../utils/keys";
 /** Fastify JSON Schema for the v1 decrypt endpoint. */
 const decryptSchema = {
   tags: ["Encryption"],
+  deprecated: true,
   summary: "Decrypt a message",
   description:
     "Decrypts a PGP message encrypted to the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase. The API never takes a private key.",
@@ -71,7 +72,7 @@ export default (app: FastifyInstance): void => {
           },
           reply,
         );
-        if (!v) return;
+        if (!v) return reply;
 
         const decryptedData = await decrypt({
           passphrase: v.passphrase,

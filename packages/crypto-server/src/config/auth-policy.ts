@@ -96,9 +96,17 @@ export function authConfigError(env: NodeJS.ProcessEnv): string | null {
 export const AUTHENTICATED = "authenticated";
 
 /**
+ * Marks a route that needs no credentials: the OPAQUE login steps, where
+ * the client is proving who it is. Such routes are metered per client
+ * address.
+ */
+export const PUBLIC = "public";
+
+/**
  * The central route-to-scope policy, keyed by `"<METHOD> <route pattern>"`
  * exactly as the route is registered. Each value is one authorization
- * scope from `SCOPES` in `lib/auth.ts`, or {@link AUTHENTICATED}.
+ * scope from `SCOPES` in `lib/auth.ts`, {@link AUTHENTICATED}, or
+ * {@link PUBLIC}.
  *
  * The server enforces it on every authenticated request and refuses to
  * boot when a non-public route has no entry, so a new route cannot ship
@@ -163,6 +171,7 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/keys/generate": "crypto:keys",
   // The only route that returns private key material; crypto:admin does
   // not imply this scope.
+  "POST /v2/keys/delete": "crypto:keys",
   "POST /v2/keys/export": "crypto:keys:export",
   "POST /v2/keys/wrap": "crypto:keys",
   "POST /v2/keys/unwrap": "crypto:keys",
@@ -170,11 +179,13 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/pq/hybrid/keygen": "crypto:keys",
   "POST /v2/pq/dsa/keygen": "crypto:keys",
   "POST /v2/pq/slh-dsa/keygen": "crypto:keys",
-  // OPAQUE authentication (RFC 9807 zero-knowledge PAKE)
+  // OPAQUE authentication (RFC 9807 zero-knowledge PAKE). Registration
+  // binds a credential to the caller (see routes/v2/opaque.ts); login is
+  // how a client without other credentials authenticates.
   "POST /v2/opaque/register/init": AUTHENTICATED,
   "POST /v2/opaque/register/finish": AUTHENTICATED,
-  "POST /v2/opaque/login/init": AUTHENTICATED,
-  "POST /v2/opaque/login/finish": AUTHENTICATED,
+  "POST /v2/opaque/login/init": PUBLIC,
+  "POST /v2/opaque/login/finish": PUBLIC,
   // HPKE (RFC 9180 classical and post-quantum hybrid)
   "POST /v2/hpke/keygen": "crypto:keys",
   "POST /v2/hpke/seal": "crypto:encrypt",
@@ -188,14 +199,23 @@ export const ROUTE_SCOPES: Readonly<Record<string, string>> = Object.freeze({
   "POST /v2/kms/decrypt": "crypto:decrypt",
 });
 
+/** Paths of the routes the policy marks {@link PUBLIC}. */
+const PUBLIC_PATHS: ReadonlySet<string> = new Set(
+  Object.entries(ROUTE_SCOPES)
+    .filter(([, requirement]) => requirement === PUBLIC)
+    .map(([route]) => route.slice(route.indexOf(" ") + 1)),
+);
+
 /**
- * Whether a URL is public (no authentication, no authorization): the
- * health, liveness, readiness and metrics probes, API docs, and OPAQUE
- * handshake endpoints (where the client does not yet possess credentials).
+ * Whether a route is public (no authentication, no authorization): the
+ * health, liveness, readiness and metrics probes, API docs, and the
+ * routes the policy marks {@link PUBLIC}. Pass the matched route pattern
+ * when there is one; a public path must match exactly.
  */
 export function isPublicRoute(url: string): boolean {
+  const path = url.split("?")[0] as string;
   return (
-    isProbePath(url) || url.startsWith("/docs") || url.startsWith("/v2/opaque")
+    isProbePath(path) || path.startsWith("/docs") || PUBLIC_PATHS.has(path)
   );
 }
 

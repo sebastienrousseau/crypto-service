@@ -107,7 +107,7 @@ export interface AuditFinding {
   remediation: string;
 }
 
-/** Result of {@link auditCbom}: a heuristic posture score, not a compliance verdict. */
+/** Result of `auditCbom`: a heuristic posture score, not a compliance verdict. */
 export interface CbomAuditResult {
   score: number; // 0 - 100
   /** FAIL: broken primitives or score < 50; REVIEW: quantum-vulnerable assets or score < 85. */

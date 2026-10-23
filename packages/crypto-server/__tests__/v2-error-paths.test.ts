@@ -268,8 +268,23 @@ describe("V2 error paths", function () {
       expect(res.headers["pragma"]).to.equal("no-cache");
     });
 
-    it("should not include Cache-Control: no-store on non-v2 responses", async () => {
-      const res = await app.inject({ method: "GET", url: "/health" });
+    // Only /v2/ responses were marked no-store, although /v1/generate
+    // and /v1/revoke return private keys.
+    it("marks v1 and probe responses no-store too", async () => {
+      for (const url of ["/v1/generate", "/health", "/ready", "/nowhere"]) {
+        const res = await app.inject({
+          method: url === "/v1/generate" ? "POST" : "GET",
+          url,
+          payload: url === "/v1/generate" ? {} : undefined,
+        });
+        expect(res.headers["cache-control"], url).to.equal(
+          "no-store, no-cache, must-revalidate",
+        );
+      }
+    });
+
+    it("leaves the static API documentation cacheable", async () => {
+      const res = await app.inject({ method: "GET", url: "/docs/json" });
       expect(res.statusCode).to.equal(200);
       expect(res.headers["cache-control"]).to.not.equal(
         "no-store, no-cache, must-revalidate",

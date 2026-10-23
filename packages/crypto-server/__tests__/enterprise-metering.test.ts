@@ -4,139 +4,100 @@
  */
 
 /**
- * Tests for enterprise/metering.ts — Multi-tenant Sovereign CaaS metering and rate-limiting engine.
+ * Tests for enterprise/metering.ts: per-tenant metering and rate limiting.
  */
 import { expect } from "chai";
 import Fastify from "fastify";
 import {
   DEFAULT_MAX_TENANTS,
   MeteringEngine,
-  TIER_QUOTAS,
+  TENANT_REQUESTS_PER_MINUTE,
   registerMetering,
 } from "../src/enterprise/metering";
 
-describe("Enterprise CaaS Metering Engine", () => {
+const MAX = TENANT_REQUESTS_PER_MINUTE;
+
+describe("Tenant metering engine", () => {
   let engine: MeteringEngine;
 
   beforeEach(() => {
     engine = new MeteringEngine();
   });
 
-  describe("Tier Resolution", () => {
-    it("should resolve a missing or unknown claim to community tier", () => {
-      expect(engine.resolveTier(undefined)).to.equal("community");
-      expect(engine.resolveTier("")).to.equal("community");
-      expect(engine.resolveTier("platinum")).to.equal("community");
-      expect(engine.resolveTier("toString")).to.equal("community");
-      expect(engine.resolveTier(42)).to.equal("community");
-    });
-
-    it("should not derive a tier from an API key prefix", () => {
-      expect(engine.resolveTier("sk_sovereign_xyz789")).to.equal("community");
-      expect(engine.resolveTier("sk_enterprise_abc")).to.equal("community");
-    });
-
-    it("should accept a known tier claim", () => {
-      expect(engine.resolveTier("enterprise")).to.equal("enterprise");
-      expect(engine.resolveTier("sovereign")).to.equal("sovereign");
-    });
-  });
-
-  describe("Token Bucket & Quota Evaluation", () => {
-    it("should allow request and deduct tokens properly", () => {
+  describe("Token bucket", () => {
+    it("should allow requests and deduct tokens", () => {
       const start = 100000;
-      const res1 = engine.checkRequest("tenant-a", "enterprise", 1024, start);
+      const res1 = engine.checkRequest("tenant-a", 1024, start);
       expect(res1.allowed).to.be.true;
-      expect(res1.tier).to.equal("enterprise");
-      expect(res1.limit).to.equal(TIER_QUOTAS.enterprise.maxRequestsPerMinute);
-      expect(res1.remaining).to.equal(
-        TIER_QUOTAS.enterprise.maxRequestsPerMinute - 1,
-      );
+      expect(res1.limit).to.equal(MAX);
+      expect(res1.remaining).to.equal(MAX - 1);
 
-      // Check request without contentLength
-      const res2 = engine.checkRequest(
-        "tenant-a",
-        "enterprise",
-        undefined,
-        start,
-      );
+      const res2 = engine.checkRequest("tenant-a", undefined, start);
       expect(res2.allowed).to.be.true;
-      expect(res2.remaining).to.equal(
-        TIER_QUOTAS.enterprise.maxRequestsPerMinute - 2,
-      );
+      expect(res2.remaining).to.equal(MAX - 2);
     });
 
-    it("should reject request exceeding max payload size with 413", () => {
-      const start = 100000;
-      const oversizedPayload = TIER_QUOTAS.community.maxBytesPerPayload + 1024;
-      const res = engine.checkRequest(
-        "tenant-b",
-        "community",
-        oversizedPayload,
-        start,
-      );
-      expect(res.allowed).to.be.false;
-      expect(res.statusCode).to.equal(413);
-      expect(res.error).to.include("Payload size");
+    it("takes its quota from the constructor", () => {
+      const custom = new MeteringEngine(10, 5);
+      for (let i = 0; i < 5; i++) {
+        expect(custom.checkRequest("t", undefined, 0).allowed).to.be.true;
+      }
+      const refused = custom.checkRequest("t", undefined, 0);
+      expect(refused.allowed).to.be.false;
+      expect(refused.limit).to.equal(5);
     });
 
-    it("should reject request when tokens are exhausted with 429", () => {
+    // The per-tier payload ceilings (1 to 50 MB) were above the server's
+    // body limit, so they could never apply; a payload is only counted.
+    it("does not refuse a large payload", () => {
+      const res = engine.checkRequest("tenant-b", 100 * 1024 * 1024, 0);
+      expect(res.allowed).to.be.true;
+    });
+
+    it("should refuse a request when tokens are exhausted", () => {
       const start = 100000;
       const tenant = "tenant-exhaust";
-      // Exhaust tokens
-      for (let i = 0; i < TIER_QUOTAS.community.maxRequestsPerMinute; i++) {
-        const check = engine.checkRequest(tenant, "community", 100, start);
-        expect(check.allowed).to.be.true;
+      for (let i = 0; i < MAX; i++) {
+        expect(engine.checkRequest(tenant, 100, start).allowed).to.be.true;
       }
 
-      // Next request must be rejected
-      const rejected = engine.checkRequest(tenant, "community", 100, start);
+      const rejected = engine.checkRequest(tenant, 100, start);
       expect(rejected.allowed).to.be.false;
-      expect(rejected.statusCode).to.equal(429);
       expect(rejected.remaining).to.equal(0);
-      expect(rejected.error).to.include("Tenant rate limit exceeded");
+      expect(rejected.error).to.equal(
+        `Tenant rate limit exceeded. Limit: ${MAX} req/min.`,
+      );
     });
 
-    it("should refill tokens over elapsed time window", () => {
+    it("should refill tokens over the window", () => {
       const start = 100000;
       const tenant = "tenant-refill";
-      // Exhaust all 60 tokens
-      for (let i = 0; i < 60; i++) {
-        engine.checkRequest(tenant, "community", 100, start);
+      for (let i = 0; i < MAX; i++) {
+        engine.checkRequest(tenant, 100, start);
       }
-      expect(engine.checkRequest(tenant, "community", 100, start).allowed).to.be
-        .false;
+      expect(engine.checkRequest(tenant, 100, start).allowed).to.be.false;
 
-      // Advance clock by 30 seconds (half window = 30 tokens refilled)
-      const halfWindow = start + 30000;
-      const refilledCheck = engine.checkRequest(
-        tenant,
-        "community",
-        100,
-        halfWindow,
-      );
-      expect(refilledCheck.allowed).to.be.true;
-      expect(refilledCheck.remaining).to.be.at.least(28);
+      // Half a window refills half the bucket.
+      const refilled = engine.checkRequest(tenant, 100, start + 30000);
+      expect(refilled.allowed).to.be.true;
+      expect(refilled.remaining).to.be.at.least(28);
 
-      // Check non-positive elapsedMs does not fail or alter tokens
-      engine.checkRequest(tenant, "community", 100, halfWindow - 5000);
+      // A clock that goes backwards neither fails nor adds tokens.
+      engine.checkRequest(tenant, 100, start + 25000);
     });
 
-    it("should reset tenant store when reset() is invoked", () => {
-      engine.checkRequest("tenant-c", "sovereign", 100);
+    it("should reset the tenant store when reset() is invoked", () => {
+      engine.checkRequest("tenant-c", 100);
       engine.reset();
       expect(engine.size).to.equal(0);
-      const fresh = engine.checkRequest("tenant-c", "sovereign", 100);
-      expect(fresh.remaining).to.equal(
-        TIER_QUOTAS.sovereign.maxRequestsPerMinute - 1,
-      );
+      expect(engine.checkRequest("tenant-c", 100).remaining).to.equal(MAX - 1);
     });
   });
 
   describe("Bounded tenant store", () => {
     it("should default to DEFAULT_MAX_TENANTS", () => {
       for (let i = 0; i <= DEFAULT_MAX_TENANTS; i++) {
-        engine.checkRequest(`t${i}`, "community", undefined, 0);
+        engine.checkRequest(`t${i}`, undefined, 0);
       }
       expect(engine.size).to.equal(DEFAULT_MAX_TENANTS);
     });
@@ -144,31 +105,26 @@ describe("Enterprise CaaS Metering Engine", () => {
     it("should never hold more than maxTenants entries", () => {
       const small = new MeteringEngine(3);
       for (let i = 0; i < 50; i++) {
-        small.checkRequest(`attacker-${i}`, "community", undefined, 0);
+        small.checkRequest(`attacker-${i}`, undefined, 0);
       }
       expect(small.size).to.equal(3);
     });
 
     it("should evict the least recently used tenant first", () => {
       const small = new MeteringEngine(2);
-      const max = TIER_QUOTAS.community.maxRequestsPerMinute;
-      small.checkRequest("a", "community", undefined, 0);
-      small.checkRequest("b", "community", undefined, 0);
+      small.checkRequest("a", undefined, 0);
+      small.checkRequest("b", undefined, 0);
       // Touch "a" so "b" becomes the least recently used tenant.
-      small.checkRequest("a", "community", undefined, 0);
-      small.checkRequest("c", "community", undefined, 0);
+      small.checkRequest("a", undefined, 0);
+      small.checkRequest("c", undefined, 0);
 
       // "a" kept its bucket (3 tokens used); "b" was evicted (fresh bucket).
-      expect(
-        small.checkRequest("a", "community", undefined, 0).remaining,
-      ).to.equal(max - 3);
-      expect(
-        small.checkRequest("b", "community", undefined, 0).remaining,
-      ).to.equal(max - 1);
+      expect(small.checkRequest("a", undefined, 0).remaining).to.equal(MAX - 3);
+      expect(small.checkRequest("b", undefined, 0).remaining).to.equal(MAX - 1);
     });
   });
 
-  describe("Fastify Plugin Integration", () => {
+  describe("Fastify plugin", () => {
     let testApp: ReturnType<typeof Fastify>;
 
     beforeEach(async () => {
@@ -204,7 +160,7 @@ describe("Enterprise CaaS Metering Engine", () => {
       for (const url of ["/live", "/live?verbose=1", "/health"]) {
         const res = await testApp.inject({ method: "GET", url });
         expect(res.statusCode).to.equal(200);
-        expect(res.headers["x-license-tier"]).to.be.undefined;
+        expect(res.headers["x-tenant-ratelimit-limit"]).to.be.undefined;
       }
 
       const docsRes = await testApp.inject({ method: "GET", url: "/docs" });
@@ -218,35 +174,32 @@ describe("Enterprise CaaS Metering Engine", () => {
       expect(engine.size).to.equal(0);
     });
 
-    it("should take the tier from the authenticated principal", async () => {
+    // Tier quotas are removed for now: a `tier` claim no longer changes
+    // the limit, and no license tier is reported.
+    it("gives every tenant the same quota, whatever its tier claim", async () => {
       const res = await testApp.inject({
         method: "GET",
         url: "/v2/test-crypto",
-        headers: {
-          "x-test-sub": "tenant-ent",
-          "x-test-tier": "enterprise",
-          "content-length": "256",
-        },
+        headers: { "x-test-sub": "tenant-claims", "x-test-tier": "sovereign" },
+      });
+      expect(res.statusCode).to.equal(200);
+      expect(res.headers["x-tenant-ratelimit-limit"]).to.equal("60");
+      expect(res.headers["x-license-tier"]).to.be.undefined;
+    });
+
+    it("reports the tenant quota in X-Tenant-RateLimit-*", async () => {
+      const res = await testApp.inject({
+        method: "GET",
+        url: "/v2/test-crypto",
+        headers: { "x-test-sub": "tenant-a", "content-length": "256" },
       });
 
       expect(res.statusCode).to.equal(200);
-      expect(res.headers["x-license-tier"]).to.equal("enterprise");
-      expect(res.headers["x-tenant-ratelimit-limit"]).to.equal("1000");
-      expect(res.headers["x-tenant-ratelimit-remaining"]).to.equal("999");
+      expect(res.headers["x-tenant-ratelimit-limit"]).to.equal("60");
+      expect(res.headers["x-tenant-ratelimit-remaining"]).to.equal("59");
       expect(res.headers["x-tenant-ratelimit-reset"]).to.exist;
       // X-RateLimit-* belongs to the global limiter, not to metering.
       expect(res.headers["x-ratelimit-limit"]).to.be.undefined;
-    });
-
-    it("should ignore a forged API key prefix", async () => {
-      const res = await testApp.inject({
-        method: "GET",
-        url: "/v2/test-crypto",
-        headers: { "x-api-key": "sk_sovereign_forged" },
-      });
-      expect(res.statusCode).to.equal(200);
-      expect(res.headers["x-license-tier"]).to.equal("community");
-      expect(res.headers["x-tenant-ratelimit-limit"]).to.equal("60");
     });
 
     it("should key tenants on the authenticated subject only", async () => {
@@ -261,42 +214,18 @@ describe("Enterprise CaaS Metering Engine", () => {
       expect(engine.size).to.equal(1);
     });
 
-    it("should handle invalid content-length header safely", async () => {
+    it("should handle an invalid content-length header safely", async () => {
       const res = await testApp.inject({
         method: "GET",
         url: "/v2/test-crypto",
-        headers: {
-          "content-length": "not-a-number",
-        },
+        headers: { "content-length": "not-a-number" },
       });
       expect(res.statusCode).to.equal(200);
-      expect(res.headers["x-license-tier"]).to.equal("community");
     });
 
-    it("should respond with 413 when payload exceeds tier limit", async () => {
-      const res = await testApp.inject({
-        method: "GET",
-        url: "/v2/test-crypto",
-        headers: {
-          "content-length": "5000000", // 5MB exceeds community 1MB limit
-        },
-      });
-
-      expect(res.statusCode).to.equal(413);
-      expect(res.headers["retry-after"]).to.be.undefined;
-      const json = JSON.parse(res.payload);
-      expect(json.status).to.equal(413);
-      expect(res.headers["content-type"]).to.include(
-        "application/problem+json",
-      );
-      expect(json.title).to.equal("Payload Too Large");
-      expect(json.tier).to.equal("community");
-    });
-
-    it("should respond with 429 when tenant rate limit is exceeded", async () => {
+    it("should respond with 429 when the tenant quota is exhausted", async () => {
       const headers = { "x-test-sub": "tenant-exhaust" };
-      // Exhaust 60 tokens
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < MAX; i++) {
         await testApp.inject({
           method: "GET",
           url: "/v2/test-crypto",
@@ -312,10 +241,14 @@ describe("Enterprise CaaS Metering Engine", () => {
 
       expect(res.statusCode).to.equal(429);
       expect(res.headers["retry-after"]).to.exist;
+      expect(res.headers["content-type"]).to.include(
+        "application/problem+json",
+      );
       const json = JSON.parse(res.payload);
       expect(json.status).to.equal(429);
       expect(json.title).to.equal("Too Many Requests");
-      expect(json.tier).to.equal("community");
+      expect(json.limit).to.equal(MAX);
+      expect(json).to.not.have.property("tier");
     });
   });
 });

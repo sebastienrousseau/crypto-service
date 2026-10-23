@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lib",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Post-quantum cryptography library for TypeScript and Node.js: ML-KEM, ML-DSA, SLH-DSA, HPKE, AES-GCM, XChaCha20-Poly1305, Ed25519, X25519, SHA-3, BLAKE3, Argon2id and OpenPGP.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -41,6 +41,9 @@
       ],
       "accel": [
         "./dist/accel/index.d.ts"
+      ],
+      "testing": [
+        "./dist/testing/index.d.ts"
       ],
       "pgp": [
         "./dist/bin/cryptolib.d.ts"
@@ -88,6 +91,11 @@
       "require": "./dist/accel/index.js",
       "default": "./dist/accel/index.js"
     },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "require": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
     "./pgp": {
       "types": "./dist/bin/cryptolib.d.ts",
       "require": "./dist/bin/cryptolib.js",
@@ -109,7 +117,8 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/index.js",
-    "test": "c8 --check-coverage --lines 100 --branches 99.5 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs && mocha --config=.mocharc.vectors.cjs",
+    "test:run": "mocha --config=.mocharc.cjs && mocha --config=.mocharc.vectors.cjs",
     "docs": "typedoc",
     "examples:check": "tsc -p examples/tsconfig.json"
   },
@@ -119,6 +128,7 @@
     "@noble/hashes": "^2.4.0",
     "@noble/post-quantum": "^0.7.1",
     "@openpgp/web-stream-tools": "^0.3.1",
+    "eckey-utils": "^0.7.14",
     "openpgp": "^6.3.2"
   },
   "devDependencies": {

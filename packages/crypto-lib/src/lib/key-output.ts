@@ -6,6 +6,16 @@
 import { chmod, writeFile } from "fs/promises";
 import * as path from "path";
 
+/** Options of the key functions that can persist their output. */
+export interface KeyOutputOptions {
+  /**
+   * Write the generated files to `CRYPTO_KEY_OUT_DIR` (default true). A
+   * server should pass false: the files use fixed names that the next call
+   * overwrites, and are written in plaintext.
+   */
+  persist?: boolean;
+}
+
 /** One armored key file to persist. */
 export interface KeyOutputFile {
   /** File name; any directory part is stripped. */
@@ -24,9 +34,12 @@ export interface KeyOutputFile {
  * keys the service signs with. When `CRYPTO_KEY_OUT_DIR` is unset, nothing
  * is written and the caller keeps the keys it was returned.
  */
-export async function writeKeyOutputs(files: KeyOutputFile[]): Promise<void> {
+export async function writeKeyOutputs(
+  files: KeyOutputFile[],
+  options: KeyOutputOptions = {},
+): Promise<void> {
   const dir = process.env["CRYPTO_KEY_OUT_DIR"];
-  if (!dir) return;
+  if (!dir || options.persist === false) return;
   await Promise.all(
     files.map(async (f) => {
       const target = path.join(dir, path.basename(f.name));

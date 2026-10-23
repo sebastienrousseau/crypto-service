@@ -43,6 +43,10 @@ const fixture = JSON.parse(
 ) as { vectors: { tests: Vector[] } };
 
 const tests = fixture.vectors.tests;
+// The vectors' payloads expire on 2022-01-01, so they are checked as of
+// a time before that; time-claim checks have their own tests.
+const VECTOR_TIME = new Date("2021-01-01T00:00:00Z");
+
 const opts = (t: Vector) => ({
   footer: t.footer,
   implicit: t["implicit-assertion"],
@@ -61,7 +65,12 @@ describe("PASETO v4 official test vectors", () => {
         Buffer.from(t.nonce!, "hex"),
       );
       expect(token).to.equal(t.token);
-      const out = v4local.decrypt({ key: t.key!, token: t.token, ...opts(t) });
+      const out = v4local.decrypt({
+        key: t.key!,
+        token: t.token,
+        ...opts(t),
+        now: VECTOR_TIME,
+      });
       expect(out.payload).to.deep.equal(payload);
     });
   }
@@ -79,6 +88,7 @@ describe("PASETO v4 official test vectors", () => {
         publicKey: t["public-key"]!,
         token: t.token,
         ...opts(t),
+        now: VECTOR_TIME,
       });
       expect(out.payload).to.deep.equal(payload);
     });
@@ -90,12 +100,19 @@ describe("PASETO v4 official test vectors", () => {
       // rest to v4.public: each checks that the wrong purpose, version
       // or encoding is refused.
       const attempt = t.key
-        ? () => v4local.decrypt({ key: t.key!, token: t.token, ...opts(t) })
+        ? () =>
+            v4local.decrypt({
+              key: t.key!,
+              token: t.token,
+              ...opts(t),
+              now: VECTOR_TIME,
+            })
         : () =>
             v4public.verify({
               publicKey: t["public-key"]!,
               token: t.token,
               ...opts(t),
+              now: VECTOR_TIME,
             });
       expect(attempt).to.throw();
     });

@@ -4,51 +4,26 @@
  */
 
 /**
- * @remarks Multi-tenant metering and rate-limiting engine for Sovereign Crypto-as-a-Service (CaaS).
+ * @remarks Multi-tenant metering and rate limiting: one request quota per
+ * authenticated tenant, and request and byte counts per tenant.
  */
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { isProbePath } from "../config/constants";
 import { sendProblem } from "../lib/problem";
-import type {
-  LicenseTier,
-  MeteringCheckResult,
-  TenantQuota,
-  TenantUsage,
-} from "./types";
+import type { MeteringCheckResult, TenantUsage } from "./types";
 
-/** The fields of the authenticated principal that metering reads. */
+/** The field of the authenticated principal that metering reads. */
 interface MeteredPrincipal {
   /** Tenant identifier: the authenticated subject. */
   sub?: string;
-  /** License tier claim from a verified credential (e.g. a signed JWT). */
-  tier?: unknown;
 }
 
-/** Predefined quotas for each license tier. */
-export const TIER_QUOTAS: Record<LicenseTier, TenantQuota> = {
-  community: {
-    tier: "community",
-    maxRequestsPerMinute: 60,
-    maxBytesPerPayload: 1024 * 1024, // 1 MB
-    allowQuantumOperations: true,
-    allowComplianceAudit: true,
-  },
-  enterprise: {
-    tier: "enterprise",
-    maxRequestsPerMinute: 1000,
-    maxBytesPerPayload: 10 * 1024 * 1024, // 10 MB
-    allowQuantumOperations: true,
-    allowComplianceAudit: true,
-  },
-  sovereign: {
-    tier: "sovereign",
-    maxRequestsPerMinute: 10000,
-    maxBytesPerPayload: 50 * 1024 * 1024, // 50 MB
-    allowQuantumOperations: true,
-    allowComplianceAudit: true,
-  },
-};
+/**
+ * Requests a tenant may make per minute. Every tenant has the same quota:
+ * license tiers, which gave some tenants more, are removed for now.
+ */
+export const TENANT_REQUESTS_PER_MINUTE = 60;
 
 /** Default upper bound on the number of tenants tracked in memory. */
 export const DEFAULT_MAX_TENANTS = 10_000;
@@ -88,6 +63,7 @@ export class MeteringEngine {
   /** Creates an engine that tracks at most `maxTenants` tenants. */
   public constructor(
     private readonly maxTenants: number = DEFAULT_MAX_TENANTS,
+    private readonly requestsPerMinute: number = TENANT_REQUESTS_PER_MINUTE,
   ) {}
 
   /** Number of tenants currently tracked. */
@@ -95,25 +71,8 @@ export class MeteringEngine {
     return this.tenants.size;
   }
 
-  /**
-   * Resolves the license tier from a claim of the authenticated principal.
-   *
-   * Only a value that came from a verified credential may be passed here,
-   * such as the `tier` claim of a signed JWT. Anything that is not a known
-   * tier, including a missing claim, resolves to the community tier.
-   */
-  public resolveTier(claim?: unknown): LicenseTier {
-    return typeof claim === "string" && Object.hasOwn(TIER_QUOTAS, claim)
-      ? (claim as LicenseTier)
-      : "community";
-  }
-
   /** Gets tenant usage record, initializing if not present. */
-  private getUsage(
-    tenantKey: string,
-    tier: LicenseTier,
-    nowMs: number,
-  ): TenantUsage {
+  private getUsage(tenantKey: string, nowMs: number): TenantUsage {
     let usage = this.tenants.get(tenantKey);
     if (usage) {
       // Re-insert to mark the tenant as most recently used.
@@ -121,11 +80,10 @@ export class MeteringEngine {
     } else {
       this.evictIfFull();
       usage = {
-        tokens: TIER_QUOTAS[tier].maxRequestsPerMinute,
+        tokens: this.requestsPerMinute,
         lastRefillMs: nowMs,
         totalRequests: 0,
         totalBytes: 0,
-        tier,
       };
     }
     this.tenants.set(tenantKey, usage);
@@ -140,69 +98,44 @@ export class MeteringEngine {
   }
 
   /** Refills tokens based on elapsed time (1-minute sliding window). */
-  private refillTokens(
-    usage: TenantUsage,
-    quota: TenantQuota,
-    nowMs: number,
-  ): void {
+  private refillTokens(usage: TenantUsage, nowMs: number): void {
     const elapsedMs = nowMs - usage.lastRefillMs;
     if (elapsedMs <= 0) return;
 
-    const refillRatePerMs = quota.maxRequestsPerMinute / 60000;
+    const refillRatePerMs = this.requestsPerMinute / 60000;
     const tokensToAdd = elapsedMs * refillRatePerMs;
-    usage.tokens = Math.min(
-      quota.maxRequestsPerMinute,
-      usage.tokens + tokensToAdd,
-    );
+    usage.tokens = Math.min(this.requestsPerMinute, usage.tokens + tokensToAdd);
     usage.lastRefillMs = nowMs;
   }
 
   /**
-   * Evaluates whether a request from `tenantKey` satisfies the quota of
-   * `tier`. Both must come from the authenticated principal.
+   * Evaluates whether a request from `tenantKey`, which must come from the
+   * authenticated principal, is within its quota, and records it if so.
+   * The payload size is only counted: the server's body limit bounds it.
    */
   public checkRequest(
     tenantKey: string,
-    tier: LicenseTier,
     contentLength?: number,
     nowMs: number = Date.now(),
   ): MeteringCheckResult {
-    const quota = TIER_QUOTAS[tier];
-    const usage = this.getUsage(tenantKey, tier, nowMs);
-    this.refillTokens(usage, quota, nowMs);
-    const status = { limit: quota.maxRequestsPerMinute, tier };
+    const usage = this.getUsage(tenantKey, nowMs);
+    this.refillTokens(usage, nowMs);
+    const limit = this.requestsPerMinute;
 
-    // Payload size validation
-    if (
-      contentLength !== undefined &&
-      contentLength > quota.maxBytesPerPayload
-    ) {
-      return {
-        allowed: false,
-        ...status,
-        remaining: remainingTokens(usage),
-        resetSeconds: secondsToReset(usage, nowMs),
-        error: `Payload size (${contentLength} bytes) exceeds tier limit of ${quota.maxBytesPerPayload} bytes`,
-        statusCode: 413,
-      };
-    }
-
-    // Rate limiting check
     if (usage.tokens < 1) {
       return {
         allowed: false,
-        ...status,
+        limit,
         remaining: 0,
         resetSeconds: secondsToReset(usage, nowMs),
-        error: `Tenant rate limit exceeded for tier '${tier}'. Limit: ${quota.maxRequestsPerMinute} req/min.`,
-        statusCode: 429,
+        error: `Tenant rate limit exceeded. Limit: ${limit} req/min.`,
       };
     }
 
     recordRequest(usage, contentLength);
     return {
       allowed: true,
-      ...status,
+      limit,
       remaining: remainingTokens(usage),
       resetSeconds: secondsToReset(usage, nowMs),
     };
@@ -232,14 +165,11 @@ const parseContentLength = (raw?: string): number | undefined =>
   raw !== undefined && !Number.isNaN(Number(raw)) ? Number(raw) : undefined;
 
 /**
- * Registers the multi-tenant CaaS metering preHandler hook on Fastify.
+ * Registers the multi-tenant metering preHandler hook on Fastify.
  *
  * The hook runs at `preHandler`, after every `onRequest` hook, so it sees
  * the principal the authentication hook stored on `request.auth`. The
- * tenant is `auth.sub`; the tier comes only from `auth.tier`, which is
- * present when the principal is a verified JWT carrying a `tier` claim.
- * API keys and anonymous access carry no tier and are metered at the
- * community tier. A client-supplied header never selects the tier.
+ * tenant is `auth.sub`; a client-supplied header never selects it.
  *
  * Tenant quotas are reported in `X-Tenant-RateLimit-*` headers so they do
  * not overwrite the global limiter's `X-RateLimit-*` headers.
@@ -255,30 +185,22 @@ export const registerMetering = (
 
       const auth = (request as { auth?: MeteredPrincipal }).auth;
       const result = engine.checkRequest(
-        auth?.sub ?? ANONYMOUS_TENANT,
-        engine.resolveTier(auth?.tier),
+        // Unauthenticated callers (public routes) are metered per address,
+        // so one client cannot exhaust the quota of every other.
+        auth?.sub ?? `${ANONYMOUS_TENANT}:${request.ip}`,
         parseContentLength(request.headers["content-length"]),
       );
 
       reply.header("X-Tenant-RateLimit-Limit", result.limit);
       reply.header("X-Tenant-RateLimit-Remaining", result.remaining);
       reply.header("X-Tenant-RateLimit-Reset", result.resetSeconds);
-      reply.header("X-License-Tier", result.tier);
 
       if (!result.allowed) {
-        const code = result.statusCode as number;
-        if (code === 429) reply.header("Retry-After", result.resetSeconds);
-        return sendProblem(
-          reply,
-          code,
-          code === 413 ? "payload-too-large" : "rate-limited",
-          result.error as string,
-          {
-            tier: result.tier,
-            limit: result.limit,
-            resetSeconds: result.resetSeconds,
-          },
-        );
+        reply.header("Retry-After", result.resetSeconds);
+        return sendProblem(reply, 429, "rate-limited", result.error as string, {
+          limit: result.limit,
+          resetSeconds: result.resetSeconds,
+        });
       }
     },
   );

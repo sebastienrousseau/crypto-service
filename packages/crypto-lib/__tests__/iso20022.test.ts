@@ -10,6 +10,7 @@ import {
 } from "../src/protocols/iso20022";
 import { generateEd25519KeyPair } from "../src/modern/signing";
 import { mlDsaKeygen } from "../src/modern/pq-sign";
+import { CryptoError } from "../src/errors";
 
 describe("ISO 20022 Post-Quantum Dual-Signature Protocol", () => {
   const edKey = generateEd25519KeyPair();
@@ -65,6 +66,17 @@ describe("ISO 20022 Post-Quantum Dual-Signature Protocol", () => {
 
       const d512 = computeIso20022Digest("payload", "sha512");
       expect(d512).to.have.length(128);
+    });
+
+    it("refuses a name that is not a digest algorithm", () => {
+      // Every property of the digest table was callable, inherited ones
+      // included: "constructor" returned a digest of "78".
+      for (const name of ["constructor", "toString", "__proto__", "md5"]) {
+        expect(
+          () => computeIso20022Digest("payload", name as "sha256"),
+          name,
+        ).to.throw(CryptoError, `Unsupported digest algorithm: ${name}`);
+      }
     });
   });
 

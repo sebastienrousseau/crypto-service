@@ -18,7 +18,7 @@ export const TEST_KEYS = {
   ed25519: {
     /** Hex-encoded Ed25519 public key. */
     publicKey:
-      "d75a980182b10ab7d54bfed3c964073a0ee172f3daa3f4a18446b7e8c38f1dd5",
+      "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
     /** Hex-encoded Ed25519 private key. */
     privateKey:
       "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
@@ -32,11 +32,11 @@ export const TEST_KEYS = {
     privateKey:
       "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a",
   },
-  /** NIST P-256 key pair. */
+  /** NIST P-256 key pair (RFC 6979 A.2.5 private key). */
   p256: {
     /** Hex-encoded P-256 public key (uncompressed). */
     publicKey:
-      "0437c1b9e44bcb3d97a78b8b5e71f5e3e5a4a0e7d6b8c2f1e0d9c8b7a6f5e4d3c2b1a09f8e7d6c5b4a3029f8e7d6c5b4a3029f8e7d6c5b4a3029f8e7d6c5b4a302",
+      "0460fed4ba255a9d31c961eb74c6356d68c049b8923b61fa6ce669622e60f29fb67903fe1008b8bc99a41ae9e95628bc64f2f1b20c2d7e9f5177a3c294d4462299",
     /** Hex-encoded P-256 private key. */
     privateKey:
       "c9afa9d845ba75166b5c215767b1d6934e50c3db36e89b127b8a622b120f6721",
@@ -64,9 +64,9 @@ export const TEST_VECTORS = {
   /** Expected SHA-256 digest (hex) of `plaintext`. */
   sha256: "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592",
   /** Expected SHA3-256 digest (hex) of `plaintext`. */
-  sha3_256: "a80f839cd4f83f6c3dafc87feae470045e4eb0d366397d5c6ce34ba1739f734d",
+  sha3_256: "69070dda01975c8c120c3aada1b282394e7f032fa9cf32f4cb2259a0897dfc04",
   /** Expected BLAKE3 digest (hex) of `plaintext`. */
-  blake3: "8e7e26d7e72a04d2ed173f90a72ec2a3bf3bb38890c9a2f95f3ab0e18a1e1a4a",
+  blake3: "2f1514181aadccd913abd94cfa592701a5686ab23f8df1dff1b74710febc6d4a",
 } as const;
 
 /**
@@ -94,7 +94,7 @@ export const RFC_VECTORS = {
     salt: "000102030405060708090a0b0c",
     info: "f0f1f2f3f4f5f6f7f8f9",
     l: 42,
-    prk: "077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e0",
+    prk: "077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5",
     okm: "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865",
   },
   /**

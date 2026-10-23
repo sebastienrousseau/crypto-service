@@ -35,7 +35,7 @@ import {
 } from "./secrets";
 
 /** Sign and verify with one algorithm; keys and signatures are hex. */
-interface Signer {
+export interface Signer {
   sign: (privateKey: string, message: Uint8Array) => string;
   verify: (
     publicKey: string,
@@ -83,7 +83,7 @@ export const SIGNING_ALGORITHMS = Object.keys(SIGNERS);
 const HEX = /^(?:[0-9a-fA-F]{2})+$/;
 
 /** A key from a key file, with the part one command needs. */
-interface LoadedKey {
+export interface LoadedKey {
   algorithm: string;
   kid?: string | undefined;
   material: string;

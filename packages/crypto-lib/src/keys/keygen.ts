@@ -13,15 +13,13 @@
 import { ed25519, x25519 } from "@noble/curves/ed25519.js";
 import { ed448, x448 } from "@noble/curves/ed448.js";
 import { p256, p384 } from "@noble/curves/nist.js";
-import {
-  ml_kem512,
-  ml_kem768,
-  ml_kem1024,
-} from "@noble/post-quantum/ml-kem.js";
-import { ml_dsa44, ml_dsa65, ml_dsa87 } from "@noble/post-quantum/ml-dsa.js";
+import { ml_kem512, ml_kem768, ml_kem1024 } from "../accel/pq-backend";
+import { ml_dsa44, ml_dsa65, ml_dsa87 } from "../accel/pq-backend";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToBase64url } from "./serialize";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { toHex } from "../encoding";
 
 // --- Types ---
 
@@ -69,11 +67,6 @@ export interface GeneratedKeyPair {
 }
 
 // --- Helpers ---
-
-/** Convert bytes to a hex string. */
-function toHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
-}
 
 /** Generate a key ID from a SHA-256 thumbprint of the public key. */
 function generateKid(publicKey: Uint8Array): string {
@@ -125,8 +118,9 @@ export function generateKeyPair(
   metadata: KeyMetadata = {},
 ): GeneratedKeyPair {
   if (!Object.hasOwn(KEYGEN, algorithm)) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported algorithm: ${algorithm}. Supported: ${KEY_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   const { publicKey, privateKey } = KEYGEN[algorithm]();

@@ -3,7 +3,7 @@
 import crypto from "node:crypto";
 import {
   mlKemKeygen,
-  mlKemEncap,
+  mlKemEncapsulate,
   mlDsaKeygen,
   mlDsaSign,
   mlDsaVerify,
@@ -37,7 +37,7 @@ export function createPqcOperations(): PqcOperations {
   const { signature } = mlDsaSign(65, dsa.secretKey, message);
 
   return {
-    mlKem768Encapsulate: () => mlKemEncap(768, kem.publicKey),
+    mlKem768Encapsulate: () => mlKemEncapsulate(768, kem.publicKey),
     mlKem768SecretKey: kem.secretKey,
     mlDsa65Verify: () => mlDsaVerify(65, dsa.publicKey, message, signature),
   };

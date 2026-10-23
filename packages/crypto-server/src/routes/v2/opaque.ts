@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { CryptoError, protocols } from "@sebastienrousseau/crypto-lib";
 import { sendProblem } from "../../lib/problem";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { hasScope, type AuthPayload } from "../../lib/auth";
+import { OpaqueStoreFullError } from "../../lib/opaque-store";
 
 type SuiteId = protocols.pake.SuiteId;
 
@@ -23,6 +25,45 @@ function parseHex(hex: string): Uint8Array {
 /** Convert a Uint8Array to a lowercase hex string. */
 function toHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
+}
+
+/**
+ * Answer a failed OPAQUE step: a full record or session store is a 503,
+ * anything else is classified like other crypto errors.
+ */
+function opaqueFailure(
+  error: unknown,
+  request: FastifyRequest,
+  reply: FastifyReply,
+  operation: string,
+): FastifyReply {
+  if (error instanceof OpaqueStoreFullError) {
+    return sendProblem(reply, 503, "service-unavailable", error.message);
+  }
+  return classifyCryptoError(error, request, reply, operation);
+}
+
+/**
+ * Whether the caller may register `credentialIdentifier`: its own subject,
+ * or any identifier with `crypto:admin` (provisioning). Otherwise a caller
+ * could claim another user's identifier first. Sends 403 when not.
+ */
+function mayRegister(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  credentialIdentifier: string,
+): boolean {
+  const auth = (request as unknown as { auth: AuthPayload }).auth;
+  if (hasScope(auth, "crypto:admin") || auth.sub === credentialIdentifier) {
+    return true;
+  }
+  sendProblem(
+    reply,
+    403,
+    "forbidden",
+    "A credential can only be registered for the caller's own subject",
+  );
+  return false;
 }
 
 /** Rate limit options for OPAQUE authentication routes. */
@@ -112,6 +153,9 @@ function registerRegisterInit(app: FastifyInstance): void {
           request: string;
           suite?: SuiteId;
         };
+        if (!mayRegister(request, reply, body.credentialIdentifier)) {
+          return reply;
+        }
         const suite = body.suite ?? "P256-SHA256";
         const store = request.server.opaqueStore;
         const setup = store.getSetup(suite);
@@ -127,12 +171,7 @@ function registerRegisterInit(app: FastifyInstance): void {
         const responseBytes = pake.serializeRegistrationResponse(regRes);
         return reply.send({ data: { response: toHex(responseBytes) } });
       } catch (error) {
-        return classifyCryptoError(
-          error,
-          request,
-          reply,
-          "OPAQUE registration init",
-        );
+        return opaqueFailure(error, request, reply, "OPAQUE registration init");
       }
     },
   );
@@ -150,6 +189,9 @@ function registerRegisterFinish(app: FastifyInstance): void {
           record: string;
           suite?: SuiteId;
         };
+        if (!mayRegister(request, reply, body.credentialIdentifier)) {
+          return reply;
+        }
         const suite = body.suite ?? "P256-SHA256";
         const store = request.server.opaqueStore;
         if (store.hasRecord(body.credentialIdentifier)) {
@@ -171,7 +213,7 @@ function registerRegisterFinish(app: FastifyInstance): void {
           },
         });
       } catch (error) {
-        return classifyCryptoError(
+        return opaqueFailure(
           error,
           request,
           reply,
@@ -221,7 +263,7 @@ function registerLoginInit(app: FastifyInstance): void {
         const ke2Bytes = pake.serializeKE2(ke2);
         return reply.send({ data: { sessionId, ke2: toHex(ke2Bytes) } });
       } catch (error) {
-        return classifyCryptoError(error, request, reply, "OPAQUE login init");
+        return opaqueFailure(error, request, reply, "OPAQUE login init");
       }
     },
   );
@@ -251,12 +293,7 @@ function registerLoginFinish(app: FastifyInstance): void {
         const sessionKey = pake.serverFinish(session.serverState, ke3);
         return reply.send({ data: { sessionKey: toHex(sessionKey) } });
       } catch (error) {
-        return classifyCryptoError(
-          error,
-          request,
-          reply,
-          "OPAQUE login finish",
-        );
+        return opaqueFailure(error, request, reply, "OPAQUE login finish");
       }
     },
   );

@@ -5,7 +5,11 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
-import type { SlhDsaVariant } from "@sebastienrousseau/crypto-lib/modern";
+import type {
+  SlhDsaVariant,
+  slhDsaKeygen,
+  slhDsaSign,
+} from "@sebastienrousseau/crypto-lib/modern";
 import {
   KEY_ID_SCHEMA,
   publicView,
@@ -54,10 +58,13 @@ function registerKeygen(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { slhDsaKeygen } =
-        await import("@sebastienrousseau/crypto-lib/modern");
       const { variant } = request.body as { variant: SlhDsaVariant };
-      const { publicKey, secretKey, algorithm } = slhDsaKeygen(variant);
+      const { publicKey, secretKey, algorithm } =
+        await request.server.signer.run<ReturnType<typeof slhDsaKeygen>>(
+          "modern",
+          "slhDsaKeygen",
+          variant,
+        );
       const stored = await storeKey(
         request,
         algorithm,
@@ -92,14 +99,18 @@ function registerSign(app: FastifyInstance): void {
       },
     },
     async (request, reply) => {
-      const { slhDsaSign } =
-        await import("@sebastienrousseau/crypto-lib/modern");
       const body = request.body as { keyId: string; message: string };
       const key = await resolveKey(request, body.keyId, SLH_DSA_ALGORITHMS);
       const variant = key.algorithm.slice("slh-dsa-".length) as SlhDsaVariant;
       // A stored SLH-DSA key always signs; anything else is a server error.
       return reply.send({
-        data: slhDsaSign(variant, key.privateParts["secretKey"], body.message),
+        data: await request.server.signer.run<ReturnType<typeof slhDsaSign>>(
+          "modern",
+          "slhDsaSign",
+          variant,
+          key.privateParts["secretKey"],
+          body.message,
+        ),
       });
     },
   );

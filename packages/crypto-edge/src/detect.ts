@@ -36,7 +36,7 @@ const g = globalThis as Record<string, any>; // eslint-disable-line @typescript-
  *
  * @example
  * ```ts
- * import { detectRuntime } from "@aspect/crypto-edge";
+ * import { detectRuntime } from "@sebastienrousseau/crypto-edge";
  *
  * const runtime = detectRuntime();
  * console.log(runtime); // "node", "cloudflare-workers", "deno", etc.
@@ -96,7 +96,7 @@ export function detectRuntime(): EdgeRuntime {
  *
  * @example
  * ```ts
- * import { getCapabilities } from "@aspect/crypto-edge";
+ * import { getCapabilities } from "@sebastienrousseau/crypto-edge";
  *
  * const caps = getCapabilities();
  * if (caps.hasSubtle) {
@@ -153,7 +153,7 @@ export function getCapabilities(): RuntimeCapabilities {
  *
  * @example
  * ```ts
- * import { isEdgeCryptoAvailable } from "@aspect/crypto-edge";
+ * import { isEdgeCryptoAvailable } from "@sebastienrousseau/crypto-edge";
  *
  * if (isEdgeCryptoAvailable()) {
  *   // Safe to use encrypt(), decrypt(), sign(), etc.

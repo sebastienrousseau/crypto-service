@@ -22,10 +22,12 @@
  * The Argon2 cost caps apply to both versions before any key derivation.
  */
 
-import { argon2id } from "@noble/hashes/argon2.js";
+import { argon2id } from "../accel/kdf-backend";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkArgon2Costs } from "../modern/cost-limits";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { fromBase64, toBase64, utf8 } from "../encoding";
 
 /** Legacy format version: header not authenticated (decrypt only). */
 const VERSION_V1 = 0x01;
@@ -73,7 +75,7 @@ export interface PasswordEncryptResult {
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
-  return input instanceof Uint8Array ? input : Buffer.from(input, "utf8");
+  return input instanceof Uint8Array ? input : utf8(input);
 }
 
 /** Write a 32-bit unsigned integer in little-endian byte order. */
@@ -146,7 +148,7 @@ export function passwordEncrypt(
   out.set(ct, HEADER_LEN);
 
   return {
-    encrypted: Buffer.from(out).toString("base64"),
+    encrypted: toBase64(out),
     algorithm: "argon2id-xchacha20-poly1305",
   };
 }
@@ -163,17 +165,21 @@ export function passwordDecrypt(
 ): Uint8Array {
   const pwd = toBytes(password);
   const raw =
-    encrypted instanceof Uint8Array
-      ? encrypted
-      : Buffer.from(encrypted, "base64");
+    encrypted instanceof Uint8Array ? encrypted : fromBase64(encrypted);
 
   if (raw.length < HEADER_LEN + TAG_LEN) {
-    throw new Error("Encrypted payload too short");
+    throw new CryptoError(
+      "Encrypted payload too short",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const version = raw[0]!;
   if (version !== VERSION_V1 && version !== VERSION_V2) {
-    throw new Error(`Unsupported format version: ${version}`);
+    throw new CryptoError(
+      `Unsupported format version: ${version}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const t = readU32LE(raw, 1);
@@ -186,7 +192,10 @@ export function passwordDecrypt(
 
   checkArgon2Costs(t, m, p);
   if (dkLen !== KEY_LEN) {
-    throw new Error(`Unsupported key length in header: ${dkLen}`);
+    throw new CryptoError(
+      `Unsupported key length in header: ${dkLen}`,
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const key = argon2id(pwd, salt, { t, m, p, dkLen });
   const aad = version === VERSION_V2 ? raw.subarray(0, HEADER_LEN) : undefined;

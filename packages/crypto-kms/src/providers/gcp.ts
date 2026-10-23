@@ -3,6 +3,7 @@
 
 /** @remarks Google Cloud KMS adapter using native Cloud KMS REST v1 API. */
 
+import * as nodeCrypto from "node:crypto";
 import type {
   KmsProvider,
   KmsKeyMetadata,
@@ -11,6 +12,7 @@ import type {
   KmsSignResult,
 } from "../types";
 import { KmsError } from "../errors";
+import { GCP_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /**
  * Configuration for the Google Cloud KMS provider.
@@ -43,13 +45,67 @@ interface RawGcpKey {
   name?: string;
   purpose?: string;
   createTime?: string;
+  /**
+   * The current version. Cloud KMS sets it for symmetric keys only;
+   * asymmetric keys have numbered versions and no primary.
+   */
   primary?: {
     name?: string;
     state?: string;
     algorithm?: string;
     createTime?: string;
   };
+  /** Algorithm new versions are created with. */
+  versionTemplate?: { algorithm?: string };
 }
+
+/**
+ * Raw GCP CryptoKeyVersion resource. Cloud KMS always returns these
+ * fields; a missing state matches no state filter and a missing algorithm
+ * is refused by verifyParams.
+ */
+interface RawGcpVersion {
+  name: string;
+  state: string;
+  algorithm: string;
+}
+
+/** How to check a signature locally for a Cloud KMS signing algorithm. */
+interface VerifyParams {
+  /** Digest the key version signs, or null when it signs the message. */
+  digest: "sha256" | "sha384" | "sha512" | null;
+  /** RSA padding, when the algorithm is RSA. */
+  padding?: number;
+}
+
+/**
+ * Local verification parameters per Cloud KMS signing algorithm. Cloud KMS
+ * has no remote verify for asymmetric keys: callers verify against the
+ * version's public key. RSA-PSS uses a salt as long as the digest.
+ */
+function verifyParams(algorithm: string): VerifyParams {
+  const digest = /SHA512$/.test(algorithm)
+    ? "sha512"
+    : /SHA384$/.test(algorithm)
+      ? "sha384"
+      : "sha256";
+  if (algorithm === "EC_SIGN_ED25519") return { digest: null };
+  if (/^EC_SIGN_/.test(algorithm)) return { digest };
+  if (/^RSA_SIGN_PSS_/.test(algorithm)) {
+    return { digest, padding: nodeCrypto.constants.RSA_PKCS1_PSS_PADDING };
+  }
+  if (/^RSA_SIGN_PKCS1_/.test(algorithm)) {
+    return { digest, padding: nodeCrypto.constants.RSA_PKCS1_PADDING };
+  }
+  throw new KmsError(
+    "INVALID_ARGUMENT",
+    `GCP signing algorithm ${algorithm} is not supported`,
+  );
+}
+
+/** Version number at the end of a version resource name. */
+const versionNumber = (v: RawGcpVersion): number =>
+  Number(v.name.slice(v.name.lastIndexOf("/") + 1));
 
 /** Parse raw JSON response text safely. */
 function parseGcpResponse<T>(text: string): {
@@ -83,26 +139,23 @@ function handleGcpError(
   throw new KmsError("INVALID_ARGUMENT", `GCP KMS error: ${errMsg}`, keyId);
 }
 
-/** Map algorithm and usage to GCP KMS version template algorithm. */
-function mapGcpAlgorithm(
-  algorithm: string,
-  usage: "encrypt" | "sign" | "wrap",
-): string {
-  const upper = algorithm.toUpperCase();
-  if (usage === "sign") {
-    if (upper.includes("EC") || upper.includes("P256")) {
-      return "EC_SIGN_P256_SHA256";
-    }
-    return "RSA_SIGN_PSS_2048_SHA256";
-  }
-  return "GOOGLE_SYMMETRIC_ENCRYPTION";
-}
-
 /** Extract short key identifier from GCP resource name. */
 function extractGcpKeyId(fullName?: string): string {
   if (!fullName) return "";
   const idx = fullName.lastIndexOf("/");
   return idx >= 0 ? fullName.slice(idx + 1) : fullName;
+}
+
+/**
+ * A key's algorithm: its primary version's for a symmetric key, its
+ * version template's for an asymmetric key (which has no primary).
+ */
+function keyAlgorithm(raw: RawGcpKey): string {
+  return (
+    raw.primary?.algorithm ??
+    raw.versionTemplate?.algorithm ??
+    "GOOGLE_SYMMETRIC_ENCRYPTION"
+  );
 }
 
 /** Convert raw GCP CryptoKey to KmsKeyMetadata. */
@@ -111,7 +164,7 @@ function mapGcpKey(raw: RawGcpKey, fallbackId: string): KmsKeyMetadata {
   const isSign = raw.purpose === "ASYMMETRIC_SIGN";
   return {
     keyId,
-    algorithm: raw.primary?.algorithm ?? "GOOGLE_SYMMETRIC_ENCRYPTION",
+    algorithm: keyAlgorithm(raw),
     usage: isSign ? "sign" : "encrypt",
     createdAt: raw.createTime ?? new Date().toISOString(),
     enabled:
@@ -158,15 +211,23 @@ export class GcpKmsProvider implements KmsProvider {
     return `${this.getParent()}/cryptoKeys/${keyId}`;
   }
 
-  /** Build a sanitized GCP Cloud KMS API URL. */
-  private buildUrl(path: string): string {
+  /**
+   * Build a sanitized GCP Cloud KMS API URL. The path is checked against a
+   * strict character set; query values (such as page tokens) are encoded
+   * separately so they never reach the path.
+   */
+  private buildUrl(path: string, query?: Record<string, string>): string {
     if (!/^[a-zA-Z0-9_\-/:.?=&]+$/.test(path) || path.includes("..")) {
       throw new KmsError("INVALID_ARGUMENT", "Invalid GCP KMS path", path);
     }
     const endpoint =
       this.options.endpoint ?? "https://cloudkms.googleapis.com/v1";
     const base = `${endpoint.replace(/\/+$/, "")}/`;
-    return new URL(path, base).href;
+    const url = new URL(path, base);
+    for (const [k, v] of Object.entries(query ?? {})) {
+      url.searchParams.set(k, v);
+    }
+    return url.href;
   }
 
   /** Send authenticated request to GCP Cloud KMS API. */
@@ -174,8 +235,9 @@ export class GcpKmsProvider implements KmsProvider {
     path: string,
     method = "GET",
     body?: Record<string, unknown>,
+    query?: Record<string, string>,
   ): Promise<T> {
-    const url = this.buildUrl(path);
+    const url = this.buildUrl(path, query);
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
@@ -241,7 +303,12 @@ export class GcpKmsProvider implements KmsProvider {
     const body: Record<string, unknown> = {
       purpose,
       versionTemplate: {
-        algorithm: mapGcpAlgorithm(algorithm, usage),
+        algorithm: resolveAlgorithm(
+          "GcpKmsProvider",
+          GCP_ALGORITHMS,
+          algorithm,
+          usage,
+        ),
       },
       ...(metadata ? { labels: metadata } : {}),
     };
@@ -249,25 +316,65 @@ export class GcpKmsProvider implements KmsProvider {
     return mapGcpKey(res, keyId);
   }
 
-  /** Enable a previously disabled key version. */
+  /** Every version of a key, following list pages. */
+  private async listVersions(keyId: string): Promise<RawGcpVersion[]> {
+    const path = `${this.getKeyName(keyId)}/cryptoKeyVersions`;
+    const versions: RawGcpVersion[] = [];
+    let pageToken: string | undefined;
+    do {
+      const res = await this.request<{
+        cryptoKeyVersions?: RawGcpVersion[];
+        nextPageToken?: string;
+      }>(path, "GET", undefined, pageToken ? { pageToken } : undefined);
+      versions.push(...(res.cryptoKeyVersions ?? []));
+      pageToken = res.nextPageToken;
+    } while (pageToken);
+    return versions;
+  }
+
+  /** Versions of a key in one of `states`. */
+  private async versionsIn(
+    keyId: string,
+    states: string[],
+  ): Promise<RawGcpVersion[]> {
+    const all = await this.listVersions(keyId);
+    return all.filter((v) => states.includes(v.state));
+  }
+
+  /** Set the state of every version currently in `from`. */
+  private async setVersionStates(
+    keyId: string,
+    from: string,
+    to: string,
+  ): Promise<void> {
+    for (const v of await this.versionsIn(keyId, [from])) {
+      await this.request(`${v.name}?updateMask=state`, "PATCH", { state: to });
+    }
+  }
+
+  /** Enable every disabled version of a key. */
   async enableKey(keyId: string): Promise<void> {
-    const path = `${this.getKeyName(keyId)}/cryptoKeyVersions/1?updateMask=state`;
-    await this.request(path, "PATCH", { state: "ENABLED" });
+    await this.setVersionStates(keyId, "DISABLED", "ENABLED");
   }
 
-  /** Disable a key version so it cannot be used for operations. */
+  /** Disable every enabled version of a key. */
   async disableKey(keyId: string): Promise<void> {
-    const path = `${this.getKeyName(keyId)}/cryptoKeyVersions/1?updateMask=state`;
-    await this.request(path, "PATCH", { state: "DISABLED" });
+    await this.setVersionStates(keyId, "ENABLED", "DISABLED");
   }
 
-  /** Schedule a key version for destruction. */
+  /**
+   * Schedule every version that is not already scheduled or destroyed
+   * for destruction. Cloud KMS applies the key's own
+   * `destroyScheduledDuration`, set when the key is created, so
+   * `pendingWindowDays` is not used.
+   */
   async scheduleKeyDeletion(
     keyId: string,
     _pendingWindowDays?: number,
   ): Promise<void> {
-    const path = `${this.getKeyName(keyId)}/cryptoKeyVersions/1:destroy`;
-    await this.request(path, "POST", {});
+    for (const v of await this.versionsIn(keyId, ["ENABLED", "DISABLED"])) {
+      await this.request(`${v.name}:destroy`, "POST", {});
+    }
   }
 
   /** Encrypt plaintext using a managed key. */
@@ -322,42 +429,78 @@ export class GcpKmsProvider implements KmsProvider {
     };
   }
 
-  /** Sign data using a managed signing key. */
+  /**
+   * Sign data with the newest enabled version of a signing key. Digest
+   * algorithms receive the message's digest, Ed25519 the message itself.
+   * The result reports the version's actual algorithm.
+   */
   async sign(
     keyId: string,
     data: Uint8Array,
-    algorithm?: string,
+    _algorithm?: string,
   ): Promise<KmsSignResult> {
-    const path = `${this.getKeyName(keyId)}/cryptoKeyVersions/1:asymmetricSign`;
-    const body = {
-      data: Buffer.from(data).toString("base64"),
-    };
-    const res = await this.request<{ signature: string }>(path, "POST", body);
-    return {
-      signature: res.signature,
-      keyId,
-      algorithm: algorithm ?? "RSA_SIGN_PSS_2048_SHA256",
-    };
+    const enabled = await this.versionsIn(keyId, ["ENABLED"]);
+    const version = enabled.sort(
+      (a, b) => versionNumber(b) - versionNumber(a),
+    )[0];
+    if (!version) {
+      throw new KmsError("DISABLED", "Key has no enabled version", keyId);
+    }
+    const algorithm = version.algorithm;
+    const { digest } = verifyParams(algorithm);
+    const body = digest
+      ? {
+          digest: {
+            [digest]: nodeCrypto
+              .createHash(digest)
+              .update(data)
+              .digest("base64"),
+          },
+        }
+      : { data: Buffer.from(data).toString("base64") };
+    const res = await this.request<{ signature: string }>(
+      `${version.name}:asymmetricSign`,
+      "POST",
+      body,
+    );
+    return { signature: res.signature, keyId, algorithm };
   }
 
-  /** Verify a signature against data. */
+  /**
+   * Verify a signature locally against the public key of every enabled
+   * version, so signatures made before a rotation still verify until
+   * their version is disabled or destroyed. Cloud KMS has no remote
+   * verify for asymmetric keys. A mismatch returns false; transport and
+   * lookup errors are thrown.
+   */
   async verify(
     keyId: string,
     data: Uint8Array,
     signature: string,
     _algorithm?: string,
   ): Promise<boolean> {
-    try {
-      const path = `${this.getKeyName(keyId)}/cryptoKeyVersions/1:macVerify`;
-      const body = {
-        data: Buffer.from(data).toString("base64"),
-        mac: signature,
-      };
-      const res = await this.request<{ success?: boolean }>(path, "POST", body);
-      return Boolean(res.success);
-    } catch {
-      return false;
+    const sig = Buffer.from(signature, "base64");
+    for (const v of await this.versionsIn(keyId, ["ENABLED"])) {
+      const res = await this.request<{ pem: string; algorithm: string }>(
+        `${v.name}/publicKey`,
+      );
+      const { digest, padding } = verifyParams(res.algorithm);
+      const key = nodeCrypto.createPublicKey(res.pem);
+      const ok = nodeCrypto.verify(
+        digest,
+        data,
+        padding === undefined
+          ? key
+          : {
+              key,
+              padding,
+              saltLength: nodeCrypto.constants.RSA_PSS_SALTLEN_DIGEST,
+            },
+        sig,
+      );
+      if (ok) return true;
     }
+    return false;
   }
 
   /** Rotate a key by creating a new version. */

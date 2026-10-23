@@ -60,6 +60,7 @@ export {
   toBytes,
   randomBytes,
   concat,
+  MIN_HMAC_KEY_BYTES,
 } from "./webcrypto";
 
 // Polyfills

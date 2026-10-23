@@ -30,15 +30,6 @@ const handleVerify = async () => {
     },
   ]);
 
-  // Security: Do not log user input
-  // console.log(responseVerify);
-
-  const data = {
-    message: responseVerify.message,
-    verificationKeys: responseVerify.verificationKeys,
-    date: new Date(),
-  };
-
   if (
     responseVerify.message === "" ||
     responseVerify.verificationKeys === "" ||
@@ -47,9 +38,27 @@ const handleVerify = async () => {
     console.error(
       "\n🔔 You must provide a value for each of the properties.\n",
     );
-  } else {
-    console.log(data);
-    await verify(data);
+    return;
+  }
+
+  // Security: never log the user's input, only the outcome.
+  try {
+    const result = await verify({
+      message: responseVerify.message,
+      verificationKeys: responseVerify.verificationKeys,
+      date: new Date(),
+    });
+    if (result.verified) {
+      console.log(
+        `\n✅ Signature verified (key ID ${result.keyIDs.join(", ")}).\n`,
+      );
+    } else {
+      console.error("\n❌ The signature did not verify.\n");
+    }
+  } catch (error) {
+    console.error(
+      `\n❌ Could not verify: ${(error as Error).message}. Provide a clear-signed message and a base64-encoded armored public key.\n`,
+    );
   }
 };
 /** Default export of the handleVerify command handler. */

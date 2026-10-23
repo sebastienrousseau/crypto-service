@@ -11,6 +11,8 @@ import type {
   KmsSignResult,
 } from "../types";
 import { KmsError } from "../errors";
+import { canonicalContext } from "./versioned-key";
+import { VAULT_ALGORITHMS, resolveAlgorithm } from "./algorithms";
 
 /**
  * Configuration for the HashiCorp Vault provider.
@@ -33,6 +35,15 @@ export interface VaultKmsOptions {
   mountPath?: string;
   /** Optional Vault enterprise namespace. */
   namespace?: string;
+  /**
+   * Also accept ciphertext written by crypto-kms 0.0.35 and earlier, which
+   * passed the encryption context as Transit's `context` parameter. Vault
+   * ignores that parameter for keys that are not derived, so those
+   * ciphertexts were never bound to their context. When set, a decryption
+   * that fails with the context is retried without it. Re-encrypt such
+   * data and turn this off; default false.
+   */
+  acceptUnboundContext?: boolean;
 }
 
 /** Vault Transit API key details response structure. */
@@ -69,9 +80,14 @@ function handleVaultError(
   const errMsg = json.errors?.join(", ") ?? `HTTP ${res.status}`;
   if (
     res.status === 400 &&
-    /ciphertext.*invalid|decryption failed/i.test(errMsg)
+    /ciphertext.*invalid|decryption failed|authentication failed/i.test(errMsg)
   ) {
     throw new KmsError("DECRYPTION_FAILED", errMsg, keyId);
+  }
+  // Transit answers 400 "signing key not found" (and similar) for sign
+  // and verify against a key that does not exist.
+  if (/key not found/i.test(errMsg)) {
+    throw new KmsError("NOT_FOUND", errMsg, keyId);
   }
   if (/disabled/i.test(errMsg)) {
     throw new KmsError("DISABLED", errMsg, keyId);
@@ -106,6 +122,8 @@ export class VaultKmsProvider implements KmsProvider {
   private readonly _mount: string;
   /** Optional Vault enterprise namespace. */
   private readonly _namespace?: string | undefined;
+  /** See {@link VaultKmsOptions.acceptUnboundContext}. */
+  private readonly _acceptUnboundContext: boolean;
 
   /** Create a Vault Transit provider with the given options. */
   constructor(options: VaultKmsOptions) {
@@ -113,6 +131,7 @@ export class VaultKmsProvider implements KmsProvider {
     this._token = options.token;
     this._mount = options.mountPath ?? "transit";
     this._namespace = options.namespace;
+    this._acceptUnboundContext = options.acceptUnboundContext ?? false;
   }
 
   /** Build a Vault API URL for the transit engine. */
@@ -236,18 +255,6 @@ export class VaultKmsProvider implements KmsProvider {
     return this.mapMetadata(keyId, details);
   }
 
-  /** Resolve internal Vault key type from algorithm and usage. */
-  private resolveVaultType(algorithm: string, usage: string): string {
-    const lower = algorithm.toLowerCase();
-    if (lower.includes("p256") || lower.includes("ecdsa")) return "ecdsa-p256";
-    if (lower.includes("rsa-4096")) return "rsa-4096";
-    if (lower.includes("rsa")) return "rsa-2048";
-    if (lower.includes("chacha")) return "chacha20-poly1305";
-    if (lower.includes("ed25519")) return "ed25519";
-    if (usage === "sign") return "ed25519";
-    return "aes256-gcm96";
-  }
-
   /** Create a new key with the given algorithm and usage. */
   async createKey(
     algorithm: string,
@@ -257,38 +264,51 @@ export class VaultKmsProvider implements KmsProvider {
     const keyId =
       metadata?.["keyId"] ??
       `vault-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
-    const vaultType = this.resolveVaultType(algorithm, usage);
+    const vaultType = resolveAlgorithm(
+      "VaultKmsProvider",
+      VAULT_ALGORITHMS,
+      algorithm,
+      usage,
+    );
     await this.request(`keys/${keyId}`, "POST", { type: vaultType }, keyId);
     return this.getKey(keyId);
   }
 
-  /** Enable a previously disabled key. */
+  /**
+   * Not supported: Vault Transit has no way to disable a key (the minimum
+   * encryption version cannot exceed the latest version). Restrict use of
+   * the key with a Vault policy instead.
+   */
   async enableKey(keyId: string): Promise<void> {
-    await this.request(
-      `keys/${keyId}/config`,
-      "POST",
-      { min_encryption_version: 0 },
+    throw new KmsError(
+      "NOT_IMPLEMENTED",
+      "Vault Transit keys cannot be enabled or disabled; use a Vault policy",
       keyId,
     );
   }
 
-  /** Disable a key so it cannot be used for operations. */
+  /** Not supported; see {@link VaultKmsProvider.enableKey}. */
   async disableKey(keyId: string): Promise<void> {
-    const meta = await this.getKey(keyId);
-    const disableVersion = (meta.currentVersion ?? 1) + 1;
-    await this.request(
-      `keys/${keyId}/config`,
-      "POST",
-      { min_encryption_version: disableVersion },
-      keyId,
-    );
+    return this.enableKey(keyId);
   }
 
-  /** Schedule a key for deletion after a pending window. */
+  /**
+   * Delete a key. Vault Transit has no deletion window: the key and every
+   * version are destroyed at once, and data encrypted under it is lost.
+   * Pass `pendingWindowDays: 0` to confirm; any other value, including
+   * none, is refused so a caller expecting a window cannot lose the key.
+   */
   async scheduleKeyDeletion(
     keyId: string,
-    _pendingWindowDays?: number,
+    pendingWindowDays?: number,
   ): Promise<void> {
+    if (pendingWindowDays !== 0) {
+      throw new KmsError(
+        "INVALID_ARGUMENT",
+        "Vault Transit deletes keys immediately; pass pendingWindowDays 0 to confirm",
+        keyId,
+      );
+    }
     await this.request(
       `keys/${keyId}/config`,
       "POST",
@@ -298,49 +318,67 @@ export class VaultKmsProvider implements KmsProvider {
     await this.request(`keys/${keyId}`, "DELETE", undefined, keyId);
   }
 
-  /** Encrypt plaintext using a managed key. */
+  /**
+   * The encryption context as Transit `associated_data`: authenticated
+   * with the ciphertext, independent of key order. Transit's `context`
+   * parameter is only for derived keys and is ignored otherwise.
+   */
+  private aad(context?: Record<string, string>): Record<string, string> {
+    const bytes = canonicalContext(context);
+    return bytes.length > 0
+      ? { associated_data: bytes.toString("base64") }
+      : {};
+  }
+
+  /** Encrypt plaintext, binding the encryption context. */
   async encrypt(
     keyId: string,
     plaintext: Uint8Array,
     context?: Record<string, string>,
   ): Promise<KmsEncryptResult> {
-    const b64Plaintext = Buffer.from(plaintext).toString("base64");
-    const b64Context = context
-      ? Buffer.from(JSON.stringify(context)).toString("base64")
-      : undefined;
-    const body: Record<string, unknown> = { plaintext: b64Plaintext };
-    if (b64Context) body.context = b64Context;
-
     const res = await this.request<{ ciphertext: string }>(
       `encrypt/${keyId}`,
       "POST",
-      body,
+      {
+        plaintext: Buffer.from(plaintext).toString("base64"),
+        ...this.aad(context),
+      },
       keyId,
     );
-    const out: KmsEncryptResult = {
-      ciphertext: res.ciphertext,
-      keyId,
-    };
+    const out: KmsEncryptResult = { ciphertext: res.ciphertext, keyId };
     if (context) out.context = context;
     return out;
   }
 
-  /** Decrypt ciphertext using a managed key. */
+  /** Decrypt ciphertext; the encryption context must match. */
   async decrypt(
     keyId: string,
     ciphertext: string,
     context?: Record<string, string>,
   ): Promise<KmsDecryptResult> {
-    const b64Context = context
-      ? Buffer.from(JSON.stringify(context)).toString("base64")
-      : undefined;
-    const body: Record<string, unknown> = { ciphertext };
-    if (b64Context) body.context = b64Context;
+    const aad = this.aad(context);
+    try {
+      return await this.decryptWith(keyId, ciphertext, aad);
+    } catch (err) {
+      const retry =
+        this._acceptUnboundContext &&
+        "associated_data" in aad &&
+        err instanceof KmsError &&
+        err.code === "DECRYPTION_FAILED";
+      if (!retry) throw err;
+      return this.decryptWith(keyId, ciphertext, {});
+    }
+  }
 
+  private async decryptWith(
+    keyId: string,
+    ciphertext: string,
+    aad: Record<string, string>,
+  ): Promise<KmsDecryptResult> {
     const res = await this.request<{ plaintext: string }>(
       `decrypt/${keyId}`,
       "POST",
-      body,
+      { ciphertext, ...aad },
       keyId,
     );
     return {
@@ -349,44 +387,55 @@ export class VaultKmsProvider implements KmsProvider {
     };
   }
 
-  /** Sign data using a managed signing key. */
+  /**
+   * Sign data. `algorithm` is the Transit hash algorithm (default
+   * "sha2-256"); RSA keys use Transit's default PSS padding, and Ed25519
+   * ignores the hash.
+   */
   async sign(
     keyId: string,
     data: Uint8Array,
     algorithm = "sha2-256",
   ): Promise<KmsSignResult> {
-    const input = Buffer.from(data).toString("base64");
     const res = await this.request<{ signature: string }>(
       `sign/${keyId}`,
       "POST",
-      { input, signature_algorithm: algorithm },
+      {
+        input: Buffer.from(data).toString("base64"),
+        hash_algorithm: algorithm,
+      },
       keyId,
     );
-    return {
-      signature: res.signature,
-      keyId,
-      algorithm,
-    };
+    return { signature: res.signature, keyId, algorithm };
   }
 
-  /** Verify a signature against data. */
+  /**
+   * Verify a signature. A wrong or malformed signature returns false;
+   * lookup, permission and transport errors are thrown.
+   */
   async verify(
     keyId: string,
     data: Uint8Array,
     signature: string,
     algorithm = "sha2-256",
   ): Promise<boolean> {
-    const input = Buffer.from(data).toString("base64");
     try {
       const res = await this.request<{ valid?: boolean }>(
         `verify/${keyId}`,
         "POST",
-        { input, signature, signature_algorithm: algorithm },
+        {
+          input: Buffer.from(data).toString("base64"),
+          signature,
+          hash_algorithm: algorithm,
+        },
         keyId,
       );
-      return Boolean(res.valid);
-    } catch {
-      return false;
+      return res.valid === true;
+    } catch (err) {
+      if (err instanceof KmsError && /invalid signature/i.test(err.message)) {
+        return false;
+      }
+      throw err;
     }
   }
 

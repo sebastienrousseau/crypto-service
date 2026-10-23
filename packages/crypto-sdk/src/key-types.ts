@@ -230,6 +230,22 @@ export interface HybridEncapsulateResult {
   sharedSecret: string;
   /** Hybrid KEM algorithm identifier. */
   algorithm: string;
+  /**
+   * Combiner the secret was derived with, `"crypto-service/hybrid-kem/v2"`
+   * (crypto-lib's hybridKemEncapsulate). Servers before 0.0.36 omit it
+   * and used the unbound pre-0.0.7 combiner, whose secrets differ.
+   */
+  combiner?: string;
+}
+
+/** Result of `POST /v2/pq/hybrid/decapsulate`. */
+export interface HybridDecapsulateResult {
+  /** Hex-encoded combined shared secret. */
+  sharedSecret: string;
+  /** Hybrid KEM algorithm identifier. */
+  algorithm: string;
+  /** Combiner the secret was derived with; see {@link HybridEncapsulateResult}. */
+  combiner?: string;
 }
 
 /** Result of `POST /v2/pq/dsa/keygen`: a server-held ML-DSA key. */
@@ -293,15 +309,19 @@ export interface SealedboxSealResult {
   algorithm: string;
 }
 
-/** Supported KEM algorithms for HPKE. */
-export type HpkeKem = "x25519" | "p256" | "x25519-ml-kem-768";
+/**
+ * Supported KEM algorithms for HPKE. `"x-wing"` is X-Wing (KEM 0x647A);
+ * `"x25519-ml-kem-768"` is the pre-0.0.36 hybrid, kept to open earlier
+ * messages.
+ */
+export type HpkeKem = "x25519" | "p256" | "x-wing" | "x25519-ml-kem-768";
 
 /** Supported AEAD algorithms for HPKE. */
 export type HpkeAead = "chacha20-poly1305" | "aes-128-gcm";
 
 /** Parameters for `POST /v2/hpke/keygen`. */
 export interface HpkeGenerateKeyPairParams {
-  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  /** KEM algorithm (defaults to `"x-wing"`). */
   kem?: HpkeKem;
 }
 
@@ -317,7 +337,7 @@ export interface HpkeSealParams {
   recipientPublicKey: string;
   /** Plaintext message (UTF-8 string or hex). */
   plaintext: string;
-  /** KEM algorithm (defaults to `"x25519-ml-kem-768"`). */
+  /** KEM algorithm (defaults to `"x-wing"`). */
   kem?: HpkeKem;
   /** AEAD algorithm (defaults to `"chacha20-poly1305"`). */
   aead?: HpkeAead;
@@ -380,6 +400,7 @@ export interface KmsCreateKeyParams {
 /** KMS Key Wrap parameters. */
 export interface KmsWrapParams {
   keyId: string;
+  /** Key bytes to wrap, as hex (the encoding unwrap returns). */
   unwrappedKey: string;
   provider?: string;
   context?: Record<string, string>;
@@ -426,6 +447,8 @@ export interface KmsGenerateDataKeyResult {
 export interface KmsEncryptParams {
   keyId: string;
   plaintext: string;
+  /** How `plaintext` is encoded: `"utf8"` (default) or `"hex"`. */
+  encoding?: "utf8" | "hex";
   provider?: string;
   context?: Record<string, string>;
 }

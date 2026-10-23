@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-sdk",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Typed TypeScript client for the crypto-server REST API: post-quantum, encryption, signing and hashing calls. Zero dependencies, built on fetch.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -28,6 +28,7 @@
     "build": "tsc --build tsconfig.json",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc",
     "examples:check": "tsc -p examples/tsconfig.json",
     "lint": "eslint src __tests__",

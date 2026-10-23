@@ -70,10 +70,12 @@ export interface EncryptionConfig {
 
   /**
    * Accept legacy ciphertexts written before the `v2:` format (sealed
-   * with the configured key and no associated data). Turn this off once
-   * every row has been re-written.
+   * with the configured key and no associated data). Legacy values are not
+   * bound to their column, so anyone able to write the database could
+   * move one into another encrypted column. Set this only while
+   * re-writing old rows, then remove it.
    *
-   * @default true
+   * @default false
    */
   acceptLegacyCiphertext?: boolean;
 }

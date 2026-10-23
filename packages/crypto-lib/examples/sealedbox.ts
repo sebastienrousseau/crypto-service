@@ -10,12 +10,12 @@
  */
 
 import { header, task, summary } from "./support";
-import { sealedbox, generateX25519KeyPair } from "../src";
+import { sealedbox, x25519Keygen } from "../src";
 
 async function main() {
   header("crypto-lib -- sealedbox");
 
-  const recipient = await task("Generate recipient X25519 key pair", () => generateX25519KeyPair());
+  const recipient = await task("Generate recipient X25519 key pair", () => x25519Keygen());
 
   const message = "You will never know who sent this.";
 

@@ -37,7 +37,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
@@ -58,7 +58,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
@@ -79,7 +79,7 @@
         },
         "serverInfo": {
           "name": "crypto-service",
-          "version": "0.0.35"
+          "version": "<package version>"
         },
         "instructions": "Cryptographic tools that keep key material inside this server: generate or import a key to get a handle, then pass the handle to encrypt, decrypt, sign, KEM and KMS tools. No tool returns a private or secret key."
       }
@@ -672,7 +672,7 @@
                 },
                 "keyHandle": {
                   "type": "string",
-                  "description": "Optional handle of an existing symmetric-256 key to encapsulate. If omitted, a fresh 256-bit DEK is generated. Key handles look like 'kh_' followed by 32 hex characters.",
+                  "description": "Optional handle of an existing symmetric-256 key to encapsulate. Refused unless the server sets MCP_ALLOW_KEY_EXPORT=1, since it sends the key to the recipients. If omitted, a fresh 256-bit DEK is generated. Key handles look like 'kh_' followed by 32 hex characters.",
                   "maxLength": 35,
                   "pattern": "^kh_[0-9a-f]{32}$"
                 }

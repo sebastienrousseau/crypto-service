@@ -229,7 +229,7 @@ describe("WasmAccelerator", () => {
   });
 
   describe("hash() — JS fallback", () => {
-    it("hashes with sha256 via Node.js fallback", async () => {
+    it("hashes with sha256 via the crypto-lib fallback", async () => {
       const accel = new WasmAccelerator();
       await accel.init(); // no WASM available
       const data = new TextEncoder().encode("hello world");
@@ -238,7 +238,7 @@ describe("WasmAccelerator", () => {
       expect(digest.length).to.equal(32); // SHA-256 = 32 bytes
     });
 
-    it("hashes with sha512 via Node.js fallback", async () => {
+    it("hashes with sha512 via the crypto-lib fallback", async () => {
       const accel = new WasmAccelerator();
       await accel.init();
       const data = new TextEncoder().encode("hello world");

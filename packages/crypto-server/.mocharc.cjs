@@ -11,6 +11,9 @@ process.env.ALLOW_ANONYMOUS = process.env.ALLOW_ANONYMOUS ?? "1";
 process.env.RATE_LIMIT_MAX = process.env.RATE_LIMIT_MAX ?? "100000";
 module.exports = {
   ...base,
+  // The shared spec also globs test/ directories this package does not
+  // have, which made mocha warn on every run.
+  spec: ["./__tests__/**/*.test.ts"],
   // Use transpile-only so ts-node does not type-check compiled JS
   // from workspace dependencies (crypto-lib dist/).
   require: ["ts-node/register/transpile-only"],

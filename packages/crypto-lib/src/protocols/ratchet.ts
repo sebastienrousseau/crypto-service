@@ -21,6 +21,15 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { hmac } from "@noble/hashes/hmac.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 // --- Types ---
 
@@ -78,8 +87,6 @@ export interface DoubleRatchetState {
 
 /** XChaCha20 nonce length in bytes. */
 const NONCE_LEN = 24;
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 /** Maximum number of skipped message keys to store per chain. */
 const MAX_SKIP = 256;
 
@@ -87,15 +94,15 @@ const MAX_SKIP = 256;
 
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex)) {
-    throw new Error("Invalid hex string");
+  if (!isHex(hex)) {
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 // --- Symmetric Ratchet ---
@@ -251,7 +258,10 @@ export class DoubleRatchet {
    */
   encrypt(plaintext: string | Uint8Array): EncryptedMessage {
     if (!this._state.sendingChainKey) {
-      throw new Error("Sending chain not initialized — cannot encrypt");
+      throw new CryptoError(
+        "Sending chain not initialized — cannot encrypt",
+        CryptoErrorCode.INVALID_STATE,
+      );
     }
 
     // Derive message key from sending chain
@@ -270,13 +280,10 @@ export class DoubleRatchet {
     // Encrypt with XChaCha20-Poly1305
     const nonce = randomBytes(NONCE_LEN);
     /* c8 ignore next 3 -- both string and Uint8Array paths produce identical output */
-    const pt =
-      plaintext instanceof Uint8Array
-        ? plaintext
-        : Buffer.from(plaintext, "utf8");
+    const pt = plaintext instanceof Uint8Array ? plaintext : utf8(plaintext);
 
     // Use header as AAD for authentication
-    const aad = Buffer.from(JSON.stringify(header), "utf8");
+    const aad = utf8(JSON.stringify(header));
     const cipher = xchacha20poly1305(messageKey, nonce, aad);
     const ct = cipher.encrypt(pt);
 
@@ -287,7 +294,7 @@ export class DoubleRatchet {
 
     return {
       header,
-      ciphertext: Buffer.from(packed).toString("base64"),
+      ciphertext: toBase64(packed),
     };
   }
 
@@ -342,14 +349,17 @@ export class DoubleRatchet {
     header: MessageHeader,
     ciphertext: string,
   ): Uint8Array {
-    const raw = Buffer.from(ciphertext, "base64");
+    const raw = fromBase64(ciphertext);
     if (raw.length < NONCE_LEN + 16) {
-      throw new Error("Ciphertext too short");
+      throw new CryptoError(
+        "Ciphertext too short",
+        CryptoErrorCode.INVALID_CIPHERTEXT,
+      );
     }
     const nonce = raw.subarray(0, NONCE_LEN);
     const ct = raw.subarray(NONCE_LEN);
 
-    const aad = Buffer.from(JSON.stringify(header), "utf8");
+    const aad = utf8(JSON.stringify(header));
     const cipher = xchacha20poly1305(messageKey, nonce, aad);
     return cipher.decrypt(ct);
   }
@@ -400,8 +410,9 @@ export class DoubleRatchet {
 
   private _skipMessages(publicKey: string, start: number, until: number): void {
     if (until - start > MAX_SKIP) {
-      throw new Error(
+      throw new CryptoError(
         `Too many skipped messages: ${until - start} exceeds max ${MAX_SKIP}`,
+        CryptoErrorCode.INVALID_STATE,
       );
     }
     /* c8 ignore next -- receivingChainKey is always set before _skipMessages is called */

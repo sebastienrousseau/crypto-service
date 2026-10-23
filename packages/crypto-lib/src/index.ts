@@ -58,7 +58,12 @@ export type {
 } from "./registry";
 
 // Branded error class and error codes
-export { CryptoError, CryptoErrorCode } from "./errors";
+export {
+  CryptoError,
+  CryptoErrorCode,
+  OpaqueErrorCode,
+  isCallerErrorCode,
+} from "./errors";
 
 // Utilities (constant-time comparison, SecureBuffer, memory zeroing)
 export { timingSafeEqual, SecureBuffer, wipeMemory } from "./utils";

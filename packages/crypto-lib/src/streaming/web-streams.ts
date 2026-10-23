@@ -11,21 +11,40 @@
  * Cloudflare Workers.
  *
  * Usage:
- *   readable.pipeThrough(createEncryptStream(key)).pipeTo(writable)
+ *   readable.pipeThrough(createEncryptStream({ key })).pipeTo(writable)
  *   readable.pipeThrough(createHashStream("sha256")).pipeTo(writable)
  */
 
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
-import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
-import { streamPqEncrypt, streamPqDecrypt } from "./stream-pq-aead";
 import {
-  streamMultiPqEncrypt,
-  streamMultiPqDecrypt,
+  AEAD_STREAM_HEADER_LEN,
+  aeadStreamReceiver,
+  aeadStreamSender,
+  toKey,
+} from "./stream-aead";
+import {
+  DEFAULT_CHUNK_SIZE,
+  PQ_STREAM_HEADER_LEN,
+  pqStreamReceiver,
+  pqStreamSender,
+  toBytes,
+} from "./stream-pq-aead";
+import {
+  multiPqHeaderLength,
+  multiPqStreamReceiver,
+  multiPqStreamSender,
   type MultiPqRecipient,
 } from "./stream-multi-pq-aead";
+import {
+  assertChunkSize,
+  type ChunkDecryptor,
+  type ChunkEncryptor,
+} from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { concat, toHex } from "../encoding";
 
 /* Node 18+ exposes TransformStream globally; TS ES2023 lib doesn't declare it. */
 /** Reference to the global TransformStream constructor. */
@@ -89,6 +108,8 @@ export interface HashStreamResult {
 export interface EncryptStreamOptions {
   /** 256-bit key as hex string or Uint8Array. */
   key: string | Uint8Array;
+  /** Chunk size in bytes (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
 }
 
 /**
@@ -102,23 +123,16 @@ export interface EncryptStreamOptions {
 export interface DecryptStreamOptions {
   /** 256-bit key as hex string or Uint8Array. */
   key: string | Uint8Array;
-}
-
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
-function toKey(key: string | Uint8Array): Uint8Array {
-  if (key instanceof Uint8Array) {
-    if (key.length !== 32) {
-      throw new Error(`Key must be 32 bytes, got ${key.length}`);
-    }
-    return key;
-  }
-  if (!HEX_RE.test(key)) throw new Error("Invalid hex key");
-  const buf = Buffer.from(key, "hex");
-  if (buf.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${buf.length}`);
-  }
-  return buf;
+  /** Chunk size used during encryption (default: 65536 = 64 KiB). */
+  chunkSize?: number | undefined;
+  /**
+   * `"stream"` (the default) reads the chunked format that
+   * {@link createEncryptStream} and `streamEncrypt` write.
+   * `"single-message"` reads the format `createEncryptStream` wrote before
+   * 0.0.36 (`nonce || ciphertext || tag`); it can only be checked once all
+   * of it has arrived, so it is buffered whole.
+   */
+  format?: "stream" | "single-message" | undefined;
 }
 
 interface HashLike {
@@ -133,110 +147,6 @@ const hashFactories: Record<WebStreamHashAlgorithm, () => HashLike> = {
   "sha3-512": () => sha3_512.create(),
   blake3: () => blake3.create(),
 };
-
-/**
- * Create a TransformStream that encrypts data with XChaCha20-Poly1305.
- *
- * Accumulates all input chunks, then on flush encrypts the combined
- * plaintext and emits `nonce (24 B) || ciphertext || tag (16 B)`.
- *
- * @example
- * ```ts
- * const key = "aa".repeat(32);
- * const stream = createEncryptStream({ key });
- * const writer = stream.writable.getWriter();
- * await writer.write(new Uint8Array([1, 2, 3]));
- * await writer.close();
- * ```
- *
- * @param options - Encryption options containing the 256-bit key.
- * @returns A TransformStream that accepts Uint8Array chunks and emits encrypted output.
- */
-export function createEncryptStream(
-  options: EncryptStreamOptions,
-): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const keyBytes = toKey(options.key);
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      // Assemble plaintext
-      const plaintext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        plaintext.set(c, offset);
-        offset += c.length;
-      }
-
-      const nonce = randomBytes(NONCE_LEN);
-      const cipher = xchacha20poly1305(keyBytes, nonce);
-      const encrypted = cipher.encrypt(plaintext);
-
-      // Output: nonce || ciphertext+tag
-      const output = new Uint8Array(NONCE_LEN + encrypted.length);
-      output.set(nonce, 0);
-      output.set(encrypted, NONCE_LEN);
-      controller.enqueue(output);
-    },
-  });
-}
-
-/**
- * Create a TransformStream that decrypts XChaCha20-Poly1305 data.
- *
- * Accumulates all input chunks (expecting `nonce || ciphertext || tag`),
- * then on flush decrypts and emits the plaintext.
- *
- * @example
- * ```ts
- * const key = "aa".repeat(32);
- * const stream = createDecryptStream({ key });
- * const writer = stream.writable.getWriter();
- * await writer.write(ciphertext);
- * await writer.close();
- * ```
- *
- * @param options - Decryption options containing the 256-bit key.
- * @returns A TransformStream that accepts encrypted Uint8Array chunks and emits plaintext.
- */
-export function createDecryptStream(
-  options: DecryptStreamOptions,
-): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const keyBytes = toKey(options.key);
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      // Assemble ciphertext
-      const ciphertext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        ciphertext.set(c, offset);
-        offset += c.length;
-      }
-
-      if (ciphertext.length < NONCE_LEN + 16) {
-        throw new Error("Ciphertext too short — missing nonce or auth tag");
-      }
-
-      const nonce = ciphertext.subarray(0, NONCE_LEN);
-      const encrypted = ciphertext.subarray(NONCE_LEN);
-      const cipher = xchacha20poly1305(keyBytes, nonce);
-      const plaintext = cipher.decrypt(encrypted);
-      controller.enqueue(plaintext);
-    },
-  });
-}
 
 /**
  * Create a TransformStream that computes a hash digest.
@@ -262,9 +172,14 @@ export function createDecryptStream(
 export function createHashStream(
   algorithm: WebStreamHashAlgorithm,
 ): CryptoTransformStream<Uint8Array, HashStreamResult> {
-  const factory = hashFactories[algorithm];
+  const factory = Object.hasOwn(hashFactories, algorithm)
+    ? hashFactories[algorithm]
+    : undefined;
   if (!factory) {
-    throw new Error(`Unsupported hash algorithm: ${algorithm}`);
+    throw new CryptoError(
+      `Unsupported hash algorithm: ${algorithm}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+    );
   }
   const hasher = factory();
 
@@ -273,7 +188,7 @@ export function createHashStream(
       hasher.update(chunk);
     },
     flush(controller: { enqueue(v: HashStreamResult): void }) {
-      const digest = Buffer.from(hasher.digest()).toString("hex");
+      const digest = toHex(hasher.digest());
       controller.enqueue({ digest, algorithm });
     },
   });
@@ -319,10 +234,179 @@ export interface MultiPqDecryptStreamOptions {
   chunkSize?: number | undefined;
 }
 
+/** Something that receives a transform's output. */
+type Sink = { enqueue(v: Uint8Array): void };
+
 /**
- * Create a TransformStream that encrypts data using hybrid post-quantum STREAM (X25519 + ML-KEM-768).
+ * A TransformStream that writes `header`, then each chunk of `encryptor`
+ * as soon as the next byte shows it is not the last, then the FINAL chunk
+ * when the input ends. It holds at most one chunk of plaintext.
+ */
+function chunkedEncryptStream(
+  start: () => { header: Uint8Array; encryptor: ChunkEncryptor },
+  finish: () => void = () => undefined,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  let encryptor: ChunkEncryptor;
+  return new TS<Uint8Array, Uint8Array>({
+    start(controller: Sink) {
+      const started = start();
+      encryptor = started.encryptor;
+      controller.enqueue(started.header);
+    },
+    transform(chunk: Uint8Array, controller: Sink) {
+      for (const sealed of encryptor.push(chunk)) controller.enqueue(sealed);
+    },
+    flush(controller: Sink) {
+      controller.enqueue(encryptor.finish());
+      finish();
+    },
+  });
+}
+
+/**
+ * A TransformStream that collects the header (whose length `headerLength`
+ * reports once it can), opens it with `open`, then emits each chunk's
+ * plaintext as soon as the chunk is in. It holds at most one chunk.
+ */
+function chunkedDecryptStream(
+  headerLength: (bytes: Uint8Array) => number | undefined,
+  open: (header: Uint8Array) => {
+    decryptor: ChunkDecryptor;
+    wipe?: () => void;
+  },
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  let pending = new Uint8Array(0);
+  let opened: { decryptor: ChunkDecryptor; wipe?: () => void } | undefined;
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array, controller: Sink) {
+      if (opened === undefined) {
+        pending = Uint8Array.from(concat([pending, chunk]));
+        const length = headerLength(pending);
+        if (length === undefined) return;
+        opened = open(pending.subarray(0, length));
+        chunk = pending.subarray(length);
+      }
+      for (const plain of opened.decryptor.push(chunk)) {
+        controller.enqueue(plain);
+      }
+    },
+    flush(controller: Sink) {
+      if (opened === undefined) {
+        throw new CryptoError(
+          "Ciphertext too short — missing header or chunk data",
+          CryptoErrorCode.INVALID_CIPHERTEXT,
+        );
+      }
+      try {
+        controller.enqueue(opened.decryptor.finish());
+      } finally {
+        opened.wipe?.();
+      }
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that encrypts data with XChaCha20-Poly1305 in
+ * the STREAM construction.
  *
- * Accumulates input chunks and on flush emits the post-quantum encrypted stream ciphertext.
+ * Emits the header (a fresh 24-byte base nonce) at once and each chunk as
+ * soon as the next byte shows it is not the last, so it holds at most one
+ * chunk of plaintext; the output is the same as `streamEncrypt`'s.
+ *
+ * @example
+ * ```ts
+ * const key = "aa".repeat(32);
+ * await readable
+ *   .pipeThrough(createEncryptStream({ key }))
+ *   .pipeTo(writable);
+ * ```
+ *
+ * @param options - The 256-bit key and an optional chunk size.
+ * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
+ */
+export function createEncryptStream(
+  options: EncryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const key = toKey(options.key);
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedEncryptStream(() => aeadStreamSender(key, chunkSize));
+}
+
+/**
+ * Create a TransformStream that decrypts what {@link createEncryptStream}
+ * or `streamEncrypt` wrote.
+ *
+ * Emits each chunk's plaintext once the chunk has arrived and
+ * authenticated. A stream that ends early errors instead of ending
+ * normally, but plaintext already emitted is not withdrawn: treat the
+ * output as complete only once the stream closes without error. With
+ * `format: "single-message"`, it reads the pre-0.0.36 format instead.
+ *
+ * @example
+ * ```ts
+ * const key = "aa".repeat(32);
+ * await encrypted
+ *   .pipeThrough(createDecryptStream({ key }))
+ *   .pipeTo(writable);
+ * ```
+ *
+ * @param options - The 256-bit key, the chunk size used to encrypt and the format.
+ * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
+ */
+export function createDecryptStream(
+  options: DecryptStreamOptions,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const key = toKey(options.key);
+  if (options.format === "single-message") return singleMessageDecrypt(key);
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedDecryptStream(
+    (bytes) =>
+      bytes.length >= AEAD_STREAM_HEADER_LEN
+        ? AEAD_STREAM_HEADER_LEN
+        : undefined,
+    (header) => ({ decryptor: aeadStreamReceiver(key, header, chunkSize) }),
+  );
+}
+
+/**
+ * Decrypts the single XChaCha20-Poly1305 message (`nonce || ciphertext ||
+ * tag`) that `createEncryptStream` wrote before 0.0.36. Its one tag covers
+ * the whole message, so nothing can be released before all of it is in.
+ */
+function singleMessageDecrypt(
+  key: Uint8Array,
+): CryptoTransformStream<Uint8Array, Uint8Array> {
+  const parts: Uint8Array[] = [];
+  return new TS<Uint8Array, Uint8Array>({
+    transform(chunk: Uint8Array) {
+      parts.push(chunk);
+    },
+    flush(controller: Sink) {
+      const message = Uint8Array.from(concat(parts));
+      if (message.length < NONCE_LEN + 16) {
+        throw new CryptoError(
+          "Ciphertext too short — missing nonce or auth tag",
+          CryptoErrorCode.INVALID_CIPHERTEXT,
+        );
+      }
+      const nonce = message.subarray(0, NONCE_LEN);
+      controller.enqueue(
+        xchacha20poly1305(key, nonce).decrypt(message.subarray(NONCE_LEN)),
+      );
+    },
+  });
+}
+
+/**
+ * Create a TransformStream that encrypts data using hybrid post-quantum
+ * STREAM (X25519 + ML-KEM-768).
+ *
+ * Emits the header at once and each chunk as soon as the next byte shows
+ * it is not the last, so it holds at most one chunk of plaintext; the
+ * output is the same as `streamPqEncrypt`'s.
  *
  * @param options - Encryption parameters including recipient public keys.
  * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
@@ -330,36 +414,32 @@ export interface MultiPqDecryptStreamOptions {
 export function createPqEncryptStream(
   options: PqEncryptStreamOptions,
 ): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      const plaintext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        plaintext.set(c, offset);
-        offset += c.length;
-      }
-      const encrypted = streamPqEncrypt({
-        recipientX25519Public: options.recipientX25519Public,
-        recipientMlKemPublic: options.recipientMlKemPublic,
-        plaintext,
-        chunkSize: options.chunkSize,
-      });
-      controller.enqueue(encrypted.ciphertext);
-    },
-  });
+  const recipX25519Pub = toBytes(
+    options.recipientX25519Public,
+    32,
+    "recipientX25519Public",
+  );
+  const recipMlKemPub = toBytes(
+    options.recipientMlKemPublic,
+    1184,
+    "recipientMlKemPublic",
+  );
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedEncryptStream(() =>
+    pqStreamSender(recipX25519Pub, recipMlKemPub, chunkSize),
+  );
 }
 
 /**
- * Create a TransformStream that decrypts hybrid post-quantum STREAM ciphertext.
+ * Create a TransformStream that decrypts hybrid post-quantum STREAM
+ * ciphertext.
  *
- * Accumulates input chunks and on flush decapsulates and decrypts the stream to plaintext.
+ * Decapsulates as soon as the header is in, then emits each chunk's
+ * plaintext once the chunk has arrived and authenticated. A stream that
+ * ends early errors instead of ending normally, but plaintext already
+ * emitted is not withdrawn: treat the output as complete only once the
+ * stream closes without error.
  *
  * @param options - Decryption parameters including recipient secret keys.
  * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
@@ -367,36 +447,39 @@ export function createPqEncryptStream(
 export function createPqDecryptStream(
   options: PqDecryptStreamOptions,
 ): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      const ciphertext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        ciphertext.set(c, offset);
-        offset += c.length;
-      }
-      const decrypted = streamPqDecrypt({
-        recipientX25519Secret: options.recipientX25519Secret,
-        recipientMlKemSecret: options.recipientMlKemSecret,
-        ciphertext,
-        chunkSize: options.chunkSize,
-      });
-      controller.enqueue(decrypted);
-    },
-  });
+  const recipX25519Sec = toBytes(
+    options.recipientX25519Secret,
+    32,
+    "recipientX25519Secret",
+  );
+  const recipMlKemSec = toBytes(
+    options.recipientMlKemSecret,
+    2400,
+    "recipientMlKemSecret",
+  );
+  const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE;
+  assertChunkSize(chunkSize);
+  return chunkedDecryptStream(
+    (bytes) =>
+      bytes.length >= PQ_STREAM_HEADER_LEN ? PQ_STREAM_HEADER_LEN : undefined,
+    (header) => ({
+      decryptor: pqStreamReceiver(
+        recipX25519Sec,
+        recipMlKemSec,
+        header,
+        chunkSize,
+      ),
+    }),
+  );
 }
 
 /**
- * Create a TransformStream that encrypts data for multiple recipients using hybrid post-quantum STREAM.
+ * Create a TransformStream that encrypts data for multiple recipients
+ * using hybrid post-quantum STREAM.
  *
- * Accumulates input chunks and on flush emits the multi-recipient encrypted stream ciphertext.
+ * Emits the header (one key slot per recipient) at once and each chunk as
+ * soon as the next byte shows it is not the last; the output is the same
+ * as `streamMultiPqEncrypt`'s.
  *
  * @param options - Encryption parameters including recipients array and optional chunk size.
  * @returns A TransformStream that accepts plaintext Uint8Array chunks and emits ciphertext.
@@ -404,35 +487,21 @@ export function createPqDecryptStream(
 export function createMultiPqEncryptStream(
   options: MultiPqEncryptStreamOptions,
 ): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      const plaintext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        plaintext.set(c, offset);
-        offset += c.length;
-      }
-      const encrypted = streamMultiPqEncrypt({
-        recipients: options.recipients,
-        plaintext,
-        chunkSize: options.chunkSize,
-      });
-      controller.enqueue(encrypted.ciphertext);
-    },
-  });
+  let started: ReturnType<typeof multiPqStreamSender>;
+  return chunkedEncryptStream(
+    () => (started = multiPqStreamSender(options)),
+    () => started.wipe(),
+  );
 }
 
 /**
- * Create a TransformStream that decrypts multi-recipient hybrid post-quantum STREAM ciphertext.
+ * Create a TransformStream that decrypts multi-recipient hybrid
+ * post-quantum STREAM ciphertext.
  *
- * Accumulates input chunks and on flush decapsulates and decrypts the stream to plaintext.
+ * Opens the recipient's key slot as soon as the header is in, then emits
+ * each chunk's plaintext once the chunk has arrived and authenticated; as
+ * for {@link createPqDecryptStream}, only a stream that closes without
+ * error is complete.
  *
  * @param options - Decryption parameters including recipient secret keys and optional recipient ID.
  * @returns A TransformStream that accepts ciphertext Uint8Array chunks and emits plaintext.
@@ -440,29 +509,7 @@ export function createMultiPqEncryptStream(
 export function createMultiPqDecryptStream(
   options: MultiPqDecryptStreamOptions,
 ): CryptoTransformStream<Uint8Array, Uint8Array> {
-  const chunks: Uint8Array[] = [];
-  let totalLen = 0;
-
-  return new TS<Uint8Array, Uint8Array>({
-    transform(chunk: Uint8Array) {
-      chunks.push(chunk);
-      totalLen += chunk.length;
-    },
-    flush(controller: { enqueue(v: Uint8Array): void }) {
-      const ciphertext = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const c of chunks) {
-        ciphertext.set(c, offset);
-        offset += c.length;
-      }
-      const decrypted = streamMultiPqDecrypt({
-        recipientId: options.recipientId,
-        recipientX25519Secret: options.recipientX25519Secret,
-        recipientMlKemSecret: options.recipientMlKemSecret,
-        ciphertext,
-        chunkSize: options.chunkSize,
-      });
-      controller.enqueue(decrypted.plaintext);
-    },
-  });
+  return chunkedDecryptStream(multiPqHeaderLength, (header) =>
+    multiPqStreamReceiver(options, header),
+  );
 }

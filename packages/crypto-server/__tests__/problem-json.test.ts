@@ -115,6 +115,8 @@ describe("Problem details (RFC 9457)", function () {
         status: 400,
         detail: "Encryption failed: invalid input",
         instance: "/v2/encrypt",
+        // crypto-lib's errors carry a code, which the problem passes on.
+        code: "INVALID_HEX",
       });
     });
 

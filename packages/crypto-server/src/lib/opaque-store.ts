@@ -24,6 +24,28 @@ const { pake } = protocols;
 /** Default login session lifetime: 5 minutes. */
 export const DEFAULT_OPAQUE_SESSION_TTL_MS = 5 * 60 * 1000;
 
+/** Default bound on stored registration records. */
+export const DEFAULT_OPAQUE_MAX_RECORDS = 100_000;
+
+/** Default bound on login sessions in progress. */
+export const DEFAULT_OPAQUE_MAX_SESSIONS = 10_000;
+
+/** How often, at most, expired sessions are swept outside a full store. */
+const SESSION_SWEEP_INTERVAL_MS = 1000;
+
+/** Bounds of an {@link OpaqueStore}. */
+export interface OpaqueStoreOptions {
+  /** Registration records kept (default {@link DEFAULT_OPAQUE_MAX_RECORDS}). */
+  readonly maxRecords?: number;
+  /** Login sessions in progress (default {@link DEFAULT_OPAQUE_MAX_SESSIONS}). */
+  readonly maxSessions?: number;
+}
+
+/** Raised when a record or session would exceed the store's bound. */
+export class OpaqueStoreFullError extends Error {
+  override readonly name = "OpaqueStoreFullError";
+}
+
 /** Active handshake session awaiting KE3 finish. */
 export interface OpaqueActiveSession {
   readonly serverState: ServerLoginState;
@@ -38,6 +60,14 @@ export class OpaqueStore {
   private readonly fakeRecords = new Map<SuiteId, RegistrationRecord>();
   private readonly records = new Map<string, RegistrationRecord>();
   private readonly sessions = new Map<string, OpaqueActiveSession>();
+  private readonly maxRecords: number;
+  private readonly maxSessions: number;
+  private nextSweepAt = 0;
+
+  constructor(options: OpaqueStoreOptions = {}) {
+    this.maxRecords = options.maxRecords ?? DEFAULT_OPAQUE_MAX_RECORDS;
+    this.maxSessions = options.maxSessions ?? DEFAULT_OPAQUE_MAX_SESSIONS;
+  }
 
   /**
    * Return the server's long-term setup for the given suite, creating one
@@ -65,8 +95,12 @@ export class OpaqueStore {
     return fake;
   }
 
-  /** Save a client registration record. */
+  /** Save a client registration record; throws when the store is full. */
   setRecord(credentialIdentifier: string, record: RegistrationRecord): void {
+    const isNew = !this.records.has(credentialIdentifier);
+    if (isNew && this.records.size >= this.maxRecords) {
+      throw new OpaqueStoreFullError("OPAQUE record store is full");
+    }
     this.records.set(credentialIdentifier, record);
   }
 
@@ -87,7 +121,14 @@ export class OpaqueStore {
     suite: SuiteId = "P256-SHA256",
     ttlMs: number = DEFAULT_OPAQUE_SESSION_TTL_MS,
   ): string {
-    this.cleanExpiredSessions();
+    const now = Date.now();
+    if (now >= this.nextSweepAt || this.sessions.size >= this.maxSessions) {
+      this.cleanExpiredSessions();
+      this.nextSweepAt = now + SESSION_SWEEP_INTERVAL_MS;
+    }
+    if (this.sessions.size >= this.maxSessions) {
+      throw new OpaqueStoreFullError("Too many OPAQUE logins in progress");
+    }
     const sessionId = randomUUID();
     this.sessions.set(sessionId, {
       serverState,

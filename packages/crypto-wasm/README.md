@@ -99,12 +99,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                     | Role             | Description                                                                                                                    |
 | :------------------------------------------------------------------------------------------------------------------------------------------ | :--------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                        | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                        | API docs         | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)          | Benchmarks       | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                      | CBOM             | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                        | Terminal CLI     | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                      | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                        | Cloud KMS        | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                        | Cloud KMS        | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                        | Core Library     | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                        | IDE Analysis     | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                        | AI Agents        | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -144,8 +144,10 @@ error: `isAvailable` stays `false` and the JavaScript path is used.
 
 ### JavaScript fallback
 
-While no module is loaded, `hash()` uses Node.js `crypto`, and the
-ML-KEM-768 and ML-DSA-65 methods call crypto-lib. When a module is
+While no module is loaded, `hash()` and the ML-KEM-768 and ML-DSA-65
+methods call crypto-lib. `hash()` takes crypto-lib's hash names
+(`sha256`, `sha384`, `sha512`, `sha3-256`, `sha3-512`, `blake2b`,
+`blake3`; `SHA-256` and `sha-512` are read as `sha256` and `sha512`). When a module is
 loaded, each method calls the matching export and throws if the
 module does not provide it.
 
@@ -164,7 +166,7 @@ const caps = detectCapabilities();
 
 | Method                                  | Fallback without a module | Export expected from a module               |
 | :-------------------------------------- | :------------------------ | :------------------------------------------ |
-| `hash(algorithm, data)`                 | Node.js `crypto`          | `hash_<algorithm>`                          |
+| `hash(algorithm, data)`                 | crypto-lib `hash`         | `hash_<algorithm>`                          |
 | `mlKemEncapsulate` / `mlKemDecapsulate` | crypto-lib ML-KEM-768     | `ml_kem_encapsulate` / `ml_kem_decapsulate` |
 | `mlDsaSign` / `mlDsaVerify`             | crypto-lib ML-DSA-65      | `ml_dsa_sign` / `ml_dsa_verify`             |
 
@@ -172,10 +174,11 @@ const caps = detectCapabilities();
 
 ## Benchmarks
 
-`benchmark()` times SHA-256 hashing of a 1 KiB buffer through Node.js
-`crypto` and through `hash()`. Without a module both paths are
-JavaScript, so it measures no acceleration. No benchmark results are
-published.
+`benchmark(operation)` times the requested hash (`hash-sha256`,
+`hash-sha512` or `hash-blake3`) of a 1 KiB buffer through crypto-lib and
+through `hash()`, and throws for any other operation. Without a module
+both paths are crypto-lib, so it measures no acceleration. No benchmark
+results are published.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

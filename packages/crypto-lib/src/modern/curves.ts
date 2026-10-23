@@ -18,6 +18,8 @@ import { p256, p384 } from "@noble/curves/nist.js";
 import { ed448, x448 } from "@noble/curves/ed448.js";
 import { schnorr } from "@noble/curves/secp256k1.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -161,21 +163,21 @@ export interface SchnorrVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
-  if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+  if (!isHex(input)) {
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Convert a string or Uint8Array to UTF-8 bytes. */
 function toBytes(input: string | Uint8Array): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 // --- P-256 (secp256r1) ---
@@ -183,16 +185,19 @@ function toBytes(input: string | Uint8Array): Uint8Array {
 /**
  * Generate a new P-256 key pair.
  */
-export function generateP256KeyPair(): P256KeyPair {
+export function p256Keygen(): P256KeyPair {
   const privateKey = p256.utils.randomSecretKey();
   const publicKey = p256.getPublicKey(privateKey, false); // uncompressed
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ecdsa-p256",
   };
 }
+
+/** @deprecated Use {@link p256Keygen}. */
+export const generateP256KeyPair = p256Keygen;
 
 /**
  * Sign a message with ECDSA P-256.
@@ -206,7 +211,7 @@ export function p256Sign(
   const signature = p256.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ecdsa-p256",
   };
 }
@@ -222,7 +227,9 @@ export function p256Verify(
   const key = assertHex(publicKeyHex, "publicKey");
   const msg = toBytes(message);
   const sig = assertHex(signatureHex, "signature");
-  const valid = p256.verify(sig, msg, key);
+  // ECDSA accepts any s in [1, n-1] (FIPS 186-5); low-S is a malleability
+  // convention OpenSSL and WebCrypto signers do not follow.
+  const valid = p256.verify(sig, msg, key, { lowS: false });
 
   return { valid, algorithm: "ecdsa-p256" };
 }
@@ -232,16 +239,19 @@ export function p256Verify(
 /**
  * Generate a new P-384 key pair.
  */
-export function generateP384KeyPair(): P384KeyPair {
+export function p384Keygen(): P384KeyPair {
   const privateKey = p384.utils.randomSecretKey();
   const publicKey = p384.getPublicKey(privateKey, false); // uncompressed
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ecdsa-p384",
   };
 }
+
+/** @deprecated Use {@link p384Keygen}. */
+export const generateP384KeyPair = p384Keygen;
 
 /**
  * Sign a message with ECDSA P-384.
@@ -255,7 +265,7 @@ export function p384Sign(
   const signature = p384.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ecdsa-p384",
   };
 }
@@ -271,7 +281,8 @@ export function p384Verify(
   const key = assertHex(publicKeyHex, "publicKey");
   const msg = toBytes(message);
   const sig = assertHex(signatureHex, "signature");
-  const valid = p384.verify(sig, msg, key);
+  // Any s in [1, n-1], as for P-256 above.
+  const valid = p384.verify(sig, msg, key, { lowS: false });
 
   return { valid, algorithm: "ecdsa-p384" };
 }
@@ -281,16 +292,19 @@ export function p384Verify(
 /**
  * Generate a new Ed448 key pair.
  */
-export function generateEd448KeyPair(): Ed448KeyPair {
+export function ed448Keygen(): Ed448KeyPair {
   const privateKey = randomBytes(57);
   const publicKey = ed448.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "ed448",
   };
 }
+
+/** @deprecated Use {@link ed448Keygen}. */
+export const generateEd448KeyPair = ed448Keygen;
 
 /**
  * Sign a message with Ed448.
@@ -304,7 +318,7 @@ export function ed448Sign(
   const signature = ed448.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ed448",
   };
 }
@@ -330,16 +344,19 @@ export function ed448Verify(
 /**
  * Generate a new X448 key pair for Diffie-Hellman.
  */
-export function generateX448KeyPair(): X448KeyPair {
+export function x448Keygen(): X448KeyPair {
   const privateKey = x448.utils.randomSecretKey();
   const publicKey = x448.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "x448",
   };
 }
+
+/** @deprecated Use {@link x448Keygen}. */
+export const generateX448KeyPair = x448Keygen;
 
 /**
  * Perform X448 Diffie-Hellman key exchange.
@@ -357,7 +374,7 @@ export function x448Exchange(
   const shared = x448.getSharedSecret(priv, pub);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "x448",
   };
 }
@@ -376,10 +393,12 @@ export function ecdhP256(
 ): EcdhP256Result {
   const priv = assertHex(privateKeyHex, "privateKey");
   const pub = assertHex(theirPublicKeyHex, "theirPublicKey");
-  const shared = p256.getSharedSecret(priv, pub);
+  // The x-coordinate of the shared point (SEC 1, 3.3.1), as OpenSSL and
+  // WebCrypto return it; noble's default adds a compressed-point prefix.
+  const shared = p256.getSharedSecret(priv, pub).subarray(1);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "ecdh-p256",
   };
 }
@@ -396,10 +415,11 @@ export function ecdhP384(
 ): EcdhP384Result {
   const priv = assertHex(privateKeyHex, "privateKey");
   const pub = assertHex(theirPublicKeyHex, "theirPublicKey");
-  const shared = p384.getSharedSecret(priv, pub);
+  // The x-coordinate of the shared point, as for P-256 above.
+  const shared = p384.getSharedSecret(priv, pub).subarray(1);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "ecdh-p384",
   };
 }
@@ -409,16 +429,19 @@ export function ecdhP384(
 /**
  * Generate a new Schnorr key pair (BIP-340, secp256k1).
  */
-export function generateSchnorrKeyPair(): SchnorrKeyPair {
+export function schnorrKeygen(): SchnorrKeyPair {
   const privateKey = randomBytes(32);
   const publicKey = schnorr.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
     algorithm: "schnorr",
   };
 }
+
+/** @deprecated Use {@link schnorrKeygen}. */
+export const generateSchnorrKeyPair = schnorrKeygen;
 
 /**
  * Sign a message with Schnorr (BIP-340).
@@ -432,7 +455,7 @@ export function schnorrSign(
   const signature = schnorr.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "schnorr",
   };
 }

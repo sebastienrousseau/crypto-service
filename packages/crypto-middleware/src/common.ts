@@ -17,12 +17,27 @@ import {
   verifyHmac,
   timingSafeEqual,
   wipeMemory,
+  MIN_MAC_KEY_BYTES,
 } from "@sebastienrousseau/crypto-lib";
 import {
   streamPqEncrypt,
   streamPqDecrypt,
 } from "@sebastienrousseau/crypto-lib/streaming";
 import { CryptoMiddlewareError, JwtPayload, MiddlewareConfig } from "./types";
+
+/**
+ * Refuses a MAC key shorter than crypto-lib accepts, as a configuration
+ * error (500) rather than a bare Error from crypto-lib.
+ */
+function requireKeyLength(setting: string, bytes: number): void {
+  if (bytes < MIN_MAC_KEY_BYTES) {
+    throw new CryptoMiddlewareError(
+      `${setting} must be at least ${MIN_MAC_KEY_BYTES} bytes`,
+      500,
+      "INVALID_CONFIG",
+    );
+  }
+}
 
 /**
  * Encrypt a JSON-serialisable payload using secretbox (XChaCha20-Poly1305).
@@ -168,6 +183,8 @@ export function verifyHmacSignature(
     );
   }
 
+  requireKeyLength("hmacKey", Math.floor(hmacKey.length / 2));
+
   // Strip optional "sha256=" prefix
   const sig = signature.startsWith("sha256=") ? signature.slice(7) : signature;
 
@@ -247,6 +264,7 @@ function checkSignature(
   signingInput: string,
   signatureB64: string,
 ): void {
+  requireKeyLength("jwtSecret", Buffer.byteLength(jwtSecret, "utf8"));
   // The secret may be a plain UTF-8 string; convert to hex for crypto-lib
   const keyHex = Buffer.from(jwtSecret, "utf8").toString("hex");
   const computed = computeHmac({

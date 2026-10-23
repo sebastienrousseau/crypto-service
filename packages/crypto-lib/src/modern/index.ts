@@ -48,27 +48,26 @@ export { kdfDerive, KDF_ALGORITHMS } from "./kdf";
 /** Re-exported KDF option, result, and algorithm types. */
 export type { KdfDeriveOptions, KdfResult, KdfAlgorithm } from "./kdf";
 
-export { generateEd25519KeyPair, ed25519Sign, ed25519Verify } from "./signing";
+export {
+  ed25519Keygen,
+  generateEd25519KeyPair,
+  ed25519Sign,
+  ed25519Verify,
+} from "./signing";
 /** Re-exported Ed25519 key pair and signing result types. */
 export type { Ed25519KeyPair, SignResult, VerifyResult } from "./signing";
 
-export { generateX25519KeyPair, x25519Exchange } from "./ecdh";
+export { x25519Keygen, generateX25519KeyPair, x25519Exchange } from "./ecdh";
 /** Re-exported X25519 key pair and key exchange result types. */
 export type { X25519KeyPair, KeyExchangeResult } from "./ecdh";
 
 export {
-  mlKemGenerateKeyPair,
-  mlKemEncapsulate,
-  mlKemDecapsulate,
   hybridGenerateKeyPair,
   hybridEncapsulate,
   hybridDecapsulate,
 } from "./pq";
-/** Re-exported ML-KEM and hybrid key pair and result types. */
+/** Re-exported pre-0.0.7 hybrid key pair and result types. */
 export type {
-  MlKemKeyPair,
-  MlKemEncapsulateResult,
-  MlKemDecapsulateResult,
   HybridKeyPair,
   HybridEncapsulateResult,
   HybridDecapsulateResult,
@@ -77,8 +76,11 @@ export type {
 /** ML-KEM (all parameter sets + advanced hybrids). */
 export {
   mlKemKeygen,
-  mlKemEncapsulate as mlKemEncap,
-  mlKemDecapsulate as mlKemDecap,
+  mlKemEncapsulate,
+  mlKemDecapsulate,
+  mlKemGenerateKeyPair,
+  mlKemEncap,
+  mlKemDecap,
   hybridKemKeygen,
   hybridKemEncapsulate,
   hybridKemDecapsulate,
@@ -98,8 +100,11 @@ export type {
   MlKemLevel,
   MlKemAlgorithm,
   MlKemKeyPairResult,
-  MlKemEncapsulateResult as MlKemEncapResult,
-  MlKemDecapsulateResult as MlKemDecapResult,
+  MlKemEncapsulateResult,
+  MlKemDecapsulateResult,
+  MlKemKeyPair,
+  MlKemEncapResult,
+  MlKemDecapResult,
   HybridKemAlgorithm,
   HybridKemKeyPair,
   HybridKemEncapsulateResult,
@@ -129,6 +134,8 @@ export type {
   MlDsaVerifyResult,
   HybridSignResult,
   HybridVerifyResult,
+  HybridSignOptions,
+  HybridVerifyOptions,
 } from "./pq-sign";
 
 /** FN-DSA (FALCON / FIPS 206) digital signatures. */
@@ -160,6 +167,7 @@ export {
   computeKmac,
   verifyKmac,
   KMAC_ALGORITHMS,
+  MIN_MAC_KEY_BYTES,
 } from "./mac";
 /** Re-exported HMAC and KMAC option, result, and algorithm types. */
 export type {
@@ -190,19 +198,24 @@ export type {
 
 /** Additional elliptic curves (P-256, P-384, Ed448, X448, Schnorr). */
 export {
+  p256Keygen,
   generateP256KeyPair,
   p256Sign,
   p256Verify,
+  p384Keygen,
   generateP384KeyPair,
   p384Sign,
   p384Verify,
+  ed448Keygen,
   generateEd448KeyPair,
   ed448Sign,
   ed448Verify,
+  x448Keygen,
   generateX448KeyPair,
   x448Exchange,
   ecdhP256,
   ecdhP384,
+  schnorrKeygen,
   generateSchnorrKeyPair,
   schnorrSign,
   schnorrVerify,
@@ -324,6 +337,8 @@ export const SUPPORTED_ALGORITHMS = {
     "hpke-x25519-chacha20",
     "hpke-x25519-aes128gcm",
     "hpke-p256-aes128gcm",
+    "hpke-x-wing-chacha20",
+    "hpke-x-wing-aes128gcm",
     "hpke-x25519-ml-kem-768-chacha20",
     "hpke-x25519-ml-kem-768-aes128gcm",
   ],

@@ -16,6 +16,8 @@ import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { kmac128, kmac256 } from "@noble/hashes/sha3-addons.js";
 import { timingSafeEqual } from "../utils";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -71,9 +73,6 @@ export interface HmacVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
@@ -81,12 +80,12 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+    if (!isHex(input)) {
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Internal hash function type used by the HMAC implementation. */
@@ -106,11 +105,27 @@ const hashFunctions: Record<HmacAlgorithm, HashFn> = {
 function getHashFn(algorithm: HmacAlgorithm): HashFn {
   const fn = hashFunctions[algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported HMAC algorithm: ${algorithm}. Supported: ${HMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return fn;
+}
+
+/** Shortest MAC key accepted, in bytes (128 bits). */
+export const MIN_MAC_KEY_BYTES = 16;
+
+/** Decodes a hex MAC key, refusing one shorter than 128 bits. */
+function macKey(hex: string | Uint8Array): Uint8Array {
+  const key = toBytes(hex, "hex");
+  if (key.length < MIN_MAC_KEY_BYTES) {
+    throw new CryptoError(
+      `MAC key must be at least ${MIN_MAC_KEY_BYTES} bytes, got ${key.length}`,
+      "INVALID_KEY",
+    );
+  }
+  return key;
 }
 
 // --- HMAC ---
@@ -120,13 +135,13 @@ function getHashFn(algorithm: HmacAlgorithm): HashFn {
  */
 export function computeHmac(options: HmacComputeOptions): HmacComputeResult {
   const hashFn = getHashFn(options.algorithm);
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
 
   const mac = hmac(hashFn, key, data);
 
   return {
-    mac: Buffer.from(mac).toString("hex"),
+    mac: toHex(mac),
     algorithm: options.algorithm,
   };
 }
@@ -136,7 +151,7 @@ export function computeHmac(options: HmacComputeOptions): HmacComputeResult {
  */
 export function verifyHmac(options: HmacVerifyOptions): HmacVerifyResult {
   const hashFn = getHashFn(options.algorithm);
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const expectedMac = toBytes(options.mac, "hex");
 
@@ -224,12 +239,13 @@ const kmacDefaultLength: Record<KmacAlgorithm, number> = {
 export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
   const fn = kmacFunctions[options.algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported KMAC algorithm: ${options.algorithm}. Supported: ${KMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
 
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const outputLength =
     options.outputLength ?? kmacDefaultLength[options.algorithm]!;
@@ -244,7 +260,7 @@ export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
   const mac = fn(key, data, opts);
 
   return {
-    mac: Buffer.from(mac).toString("hex"),
+    mac: toHex(mac),
     algorithm: options.algorithm,
   };
 }
@@ -255,12 +271,13 @@ export function computeKmac(options: KmacComputeOptions): KmacComputeResult {
 export function verifyKmac(options: KmacVerifyOptions): KmacVerifyResult {
   const fn = kmacFunctions[options.algorithm];
   if (!fn) {
-    throw new Error(
+    throw new CryptoError(
       `Unsupported KMAC algorithm: ${options.algorithm}. Supported: ${KMAC_ALGORITHMS.join(", ")}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
 
-  const key = toBytes(options.key, "hex");
+  const key = macKey(options.key);
   const data = toBytes(options.data, "utf8");
   const expectedMac = toBytes(options.mac, "hex");
   const outputLength =

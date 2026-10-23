@@ -20,11 +20,13 @@
  */
 
 import { negotiateAlgorithm } from "./negotiation";
+export { AlgorithmNegotiationError, negotiateAlgorithm } from "./negotiation";
 import {
   buildClientHeaders,
   buildRequestInit,
   executeRequest,
   generateSdkTraceparent,
+  isIdempotentRequest,
   resolveRetryConfig,
   type RetryConfig,
 } from "./request";
@@ -79,6 +81,7 @@ import type {
   HybridEncapsulateParams,
   HybridEncapsulateResult,
   HybridDecapsulateParams,
+  HybridDecapsulateResult,
   MlDsaLevel,
   MlDsaKeyPair,
   MlDsaSignResult,
@@ -109,7 +112,7 @@ import type {
 
 export * from "./types";
 export * from "./key-types";
-export { CryptoApiError } from "./errors";
+export { CryptoApiError, CryptoTransportError } from "./errors";
 
 export class CryptoClient {
   private baseUrl: string;
@@ -137,12 +140,12 @@ export class CryptoClient {
     const headers = this.autoTraceparent
       ? { ...this.headers, traceparent: generateSdkTraceparent() }
       : this.headers;
-    const init = buildRequestInit(method, headers, body, this.timeout);
     return executeRequest<T>(
       this.fetchFn,
       `${this.baseUrl}${path}`,
-      init,
+      () => buildRequestInit(method, headers, body, this.timeout),
       this.retry,
+      isIdempotentRequest(method, path),
     );
   }
 
@@ -346,7 +349,7 @@ export class CryptoClient {
   /** Recover a hybrid KEM shared secret with a server-held key. */
   async pqDecapsulate(
     params: HybridDecapsulateParams,
-  ): Promise<ApiResponse<KemDecapsulateResult>> {
+  ): Promise<ApiResponse<HybridDecapsulateResult>> {
     return this.request("POST", "/v2/pq/hybrid/decapsulate", params);
   }
 

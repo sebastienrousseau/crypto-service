@@ -14,14 +14,14 @@
 
 `@sebastienrousseau/crypto-mcp` implements the **Model Context Protocol (MCP)** specification, turning the Crypto Service Suite into a secure, tool-enabled cryptographic runtime for AI agents and LLM-driven environments (including Cursor, Antigravity, Claude Desktop, VS Code, and Zed).
 
-Instead of relying on fragile shell scripts or unverified LLM math, agents invoke cryptographically verified tools backed by `@sebastienrousseau/crypto-lib`, `@sebastienrousseau/crypto-kms`, and `@sebastienrousseau/crypto-wasm`.
+Instead of relying on fragile shell scripts or unverified LLM math, agents invoke cryptographically verified tools backed by `@sebastienrousseau/crypto-lib` and `@sebastienrousseau/crypto-kms`.
 
 ---
 
 ## Features
 
 - **Standard MCP Protocol**: JSON-RPC 2.0 over stdio, with tools, resources and prompts.
-- **Key handles, not key material**: keys are generated, unwrapped or derived inside the server process. Tools return an opaque `keyHandle` (`kh_` followed by 32 hex characters) plus public metadata; no tool returns a private key, a symmetric key or a DEK, and no tool accepts one.
+- **Key handles, not key material**: keys are generated, unwrapped or derived inside the server process. Tools return an opaque `keyHandle` (`kh_` followed by 32 hex characters) plus public metadata; no tool returns a private key, a symmetric key or a DEK, no tool accepts one, and no tool wraps an existing key to public keys the client chooses unless the operator allows it (`MCP_ALLOW_KEY_EXPORT=1`).
 - **Post-Quantum Cryptography (PQC)**: ML-KEM-768 (NIST FIPS 203) key generation, encapsulation and decapsulation.
 - **Classical Primitives**: RSA-2048/3072/4096 (RSASSA-PSS), ECDSA on P-256, P-384 and secp256k1, Ed25519, HMAC-SHA256, and AES-256-GCM / ChaCha20-Poly1305.
 - **Envelope Encryption**: wrap and unwrap DEKs under a key-encryption key. Only the `local` provider (random, in-process keys that do not survive a restart) is configured; `aws`, `gcp`, `azure` and `vault` return an error.
@@ -86,6 +86,8 @@ Signature algorithms by key type: `ed25519` signs Ed25519, `rsa` signs RSASSA-PS
 ### Key handles
 
 A key handle is a capability: whoever can call the server with it can use the key, but cannot read it. Handles live only as long as the server process. The store holds at most 64 keys; adding one more destroys the least recently used key, so a client that needs a key for long should keep using it or expect to generate a new one. `crypto_key_destroy` removes a key at once.
+
+`crypto_hybrid_kem_multi_encapsulate` wraps a fresh 256-bit DEK for the recipients it is given. It refuses an existing `keyHandle` unless the server runs with `MCP_ALLOW_KEY_EXPORT=1`: wrapping an existing key to public keys the client names would let a prompt-injected client send that key to keys it controls.
 
 A typical session:
 

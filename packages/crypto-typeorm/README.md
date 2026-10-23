@@ -104,12 +104,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                           | Role            | Description                                                                                                                    |
 | :------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                              | API Schemas     | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                              | API docs        | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)                | Benchmarks      | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                            | CBOM            | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                              | Terminal CLI    | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                            | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                              | Cloud KMS       | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                              | Cloud KMS       | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                              | Core Library    | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                              | IDE Analysis    | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                              | AI Agents       | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -152,7 +152,7 @@ All APIs accept an `EncryptionConfig` object:
 | `fields`                 | `Map<string, string[]>` | `undefined`            | Per-entity field list (used by `EncryptionSubscriber`)                                          |
 | `context`                | `string`                | `""`                   | Column context bound into each ciphertext (`Entity.property`); set by `@EncryptedColumn`        |
 | `allowPlaintextFallback` | `boolean`               | `false`                | Return values that are not ciphertexts as-is instead of throwing; for plaintext migrations only |
-| `acceptLegacyCiphertext` | `boolean`               | `true`                 | Read ciphertexts written before the `v2:` format; turn off once every row has been re-written   |
+| `acceptLegacyCiphertext` | `boolean`               | `false`                | Read ciphertexts written before the `v2:` format, only while re-writing them                    |
 
 `@EncryptedColumn` reads `process.env.TYPEORM_ENCRYPTION_KEY` when
 no key is provided in decorator options.
@@ -186,11 +186,11 @@ New values are written as `v2:` followed by the Base64 sealed box
   duration of a plaintext migration; a `v2:` value that fails
   authentication is rejected even then.
 - **Legacy values.** Ciphertexts written by earlier versions (bare
-  Base64, sealed with `key` and no associated data) are still read,
-  and never written. They are not bound to a column. Rewrite them in
+  Base64, sealed with `key` and no associated data) are refused
+  unless `acceptLegacyCiphertext: true`, and never written. They are not bound to a column. Rewrite them in
   the `v2:` format (as `examples/migration.ts` does for plaintext:
   read each value, write it back through the transformer), then set
-  `acceptLegacyCiphertext: false`.
+  remove `acceptLegacyCiphertext`.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

@@ -12,6 +12,8 @@
  * or exhaust memory, so every entry point checks costs before running.
  */
 
+import { CryptoError, CryptoErrorCode } from "../errors";
+
 /** Maximum Argon2 time cost (passes). */
 export const MAX_ARGON2_TIME = 10;
 /** Maximum Argon2 memory cost in KiB (256 MiB). */
@@ -30,7 +32,10 @@ export const MAX_PBKDF2_ITERATIONS = 1_000_000;
 /** Throw unless `value` is an integer in [min, max]. */
 function checkRange(name: string, value: number, min: number, max: number) {
   if (!Number.isInteger(value) || value < min || value > max) {
-    throw new Error(`${name} must be an integer ${min}–${max}, got ${value}`);
+    throw new CryptoError(
+      `${name} must be an integer ${min}–${max}, got ${value}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 }
 
@@ -45,7 +50,10 @@ export function checkArgon2Costs(t: number, m: number, p: number): void {
 export function checkScryptCosts(N: number, r: number, p: number): void {
   checkRange("scrypt N", N, 2, MAX_SCRYPT_N);
   if ((N & (N - 1)) !== 0) {
-    throw new Error(`scrypt N must be a power of two, got ${N}`);
+    throw new CryptoError(
+      `scrypt N must be a power of two, got ${N}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   checkRange("scrypt r", r, 1, MAX_SCRYPT_R);
   checkRange("scrypt p", p, 1, MAX_SCRYPT_P);

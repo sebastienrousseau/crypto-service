@@ -42,7 +42,7 @@
         },
         "serverInfo": {
           "name": "crypto-lsp",
-          "version": "0.0.35"
+          "version": "<package version>"
         }
       }
     },

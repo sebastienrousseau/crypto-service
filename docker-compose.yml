@@ -19,7 +19,10 @@ services:
       # - CORS_ORIGIN=https://your-app.com
       # - TRUSTED_PROXY_CIDRS=10.0.0.0/8
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      # Same probe as the image's HEALTHCHECK: /ready turns 503 while the
+      # server drains for shutdown. 127.0.0.1, because busybox wget may
+      # resolve localhost to ::1, where the server does not listen.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/ready"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -43,6 +46,6 @@ services:
       - PORT=3000
       - LOG_LEVEL=debug
       - ALLOW_ANONYMOUS=1
-    command: node packages/crypto-server/dist/src/index.js
+    command: node packages/crypto-server/dist/index.js
     profiles:
       - dev

@@ -12,6 +12,7 @@ import { FastifyServerOptions } from "fastify";
 import { FastifyCompressOptions } from "@fastify/compress";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { FastifyHelmetOptions } from "@fastify/helmet";
+import { integerSetting } from "./settings";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pack = require("../../package.json") as { version: string };
 
@@ -56,16 +57,14 @@ const parseTrustProxy = (): boolean | string[] => {
 };
 
 /**
- * @remarks {string[]} consoleOutput
- * An array of strings, defining the console output for environment details.
+ * @remarks Server details logged at startup, as structured fields.
  */
-export const consoleOutput = [
-  `\n → protocol: ${PROTOCOL}`,
-  `\n → hostname: ${HOST}`,
-  `\n → port: ${PORT}`,
-  `\n → version: ${LIB_VERSION}`,
-  "\n",
-];
+export const serverDetails = Object.freeze({
+  protocol: PROTOCOL,
+  host: HOST,
+  port: PORT,
+  version: pack.version,
+});
 
 /**
  * @remarks {FastifyServerOptions} fastifyOptions
@@ -73,15 +72,20 @@ export const consoleOutput = [
  */
 export const fastifyOptions: FastifyServerOptions = {
   bodyLimit: 256 * 1024,
-  caseSensitive: true,
   connectionTimeout: 30_000,
-  ignoreTrailingSlash: false,
   keepAliveTimeout: 5000,
-  logger: true,
-  maxParamLength: 100,
+  // Request IDs come from lib/logger.ts requestIdFrom, logged as reqId.
+  requestIdHeader: false,
   onConstructorPoisoning: "error",
   onProtoPoisoning: "error",
   return503OnClosing: true,
+  // Router settings belong here: at the top level Fastify 5 warns
+  // (FSTDEP022) for every instance, and Fastify 6 drops them.
+  routerOptions: {
+    caseSensitive: true,
+    ignoreTrailingSlash: false,
+    maxParamLength: 100,
+  },
   trustProxy: parseTrustProxy(),
 };
 
@@ -208,15 +212,14 @@ export const rateLimitOptions = {
 
 /**
  * Resolve the per-client request limit from `RATE_LIMIT_MAX`, read when the
- * server is initialised. A missing, non-integer or non-positive value falls
- * back to the default in {@link rateLimitOptions}, never to "unlimited".
+ * server is initialised: the default in {@link rateLimitOptions} when
+ * unset, never "unlimited".
+ *
+ * @throws Error when it is set to anything but a positive whole number.
  */
-export const resolveRateLimitMax = (): number => {
-  const parsed = Number(process.env["RATE_LIMIT_MAX"]);
-  return Number.isSafeInteger(parsed) && parsed > 0
-    ? parsed
-    : rateLimitOptions.max;
-};
+export const resolveRateLimitMax = (
+  env: NodeJS.ProcessEnv = process.env,
+): number => integerSetting(env, "RATE_LIMIT_MAX", rateLimitOptions.max, 1);
 
 /**
  * @remarks {object} healthCheckOptions

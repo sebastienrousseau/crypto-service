@@ -19,7 +19,11 @@
 
 import { STATUS_CODES } from "http";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { CryptoError } from "@sebastienrousseau/crypto-lib";
+import { CryptoError, isCallerErrorCode } from "@sebastienrousseau/crypto-lib";
+import {
+  WorkerPoolBusyError,
+  WorkerTaskTimeoutError,
+} from "@sebastienrousseau/crypto-lib/accel";
 import { KeyStoreError } from "./key-store";
 
 /** Media type of every error response. */
@@ -38,11 +42,17 @@ export const PROBLEM_TITLES = Object.freeze({
   "key-not-found": "Key not found",
   "key-algorithm-mismatch": "Key algorithm mismatch",
   "key-store-full": "Key store full",
+  "key-quota-exceeded": "Key quota exceeded",
   "payload-too-large": "Payload Too Large",
   "rate-limited": "Too Many Requests",
   "request-error": "Bad Request",
   "internal-error": "Internal Server Error",
   conflict: "Conflict",
+  "kms-provider-not-enabled": "KMS provider not enabled",
+  "kms-key-not-found": "KMS key not found",
+  "kms-key-disabled": "KMS key disabled",
+  "not-implemented": "Not Implemented",
+  "service-unavailable": "Service Unavailable",
 });
 
 /** A problem type slug. */
@@ -112,27 +122,13 @@ export function sendProblem(
   return reply.status(status).type(PROBLEM_CONTENT_TYPE).send(body);
 }
 
-/** crypto-lib error codes that describe bad input (400); others are 500. */
-const CRYPTO_INPUT_CODES: ReadonlySet<string> = new Set([
-  "INVALID_KEY",
-  "UNSUPPORTED_ALGORITHM",
-  "INVALID_HEX",
-  "INVALID_CIPHERTEXT",
-  "AUTH_FAILED",
-  "INVALID_INPUT",
-  "OPAQUE_ENVELOPE_RECOVERY",
-  "OPAQUE_SERVER_AUTHENTICATION",
-  "OPAQUE_CLIENT_AUTHENTICATION",
-  "OPAQUE_DESERIALIZE",
-  "OPAQUE_INVALID_INPUT",
-]);
-
 /** HTTP status for a crypto-lib error code. */
 export function cryptoErrorStatus(code: string): number {
-  return CRYPTO_INPUT_CODES.has(code) ? 400 : 500;
+  // crypto-lib owns the list of codes that mean bad input.
+  return isCallerErrorCode(code) ? 400 : 500;
 }
 
-/** Whether a value is a crypto-lib {@link CryptoError}. */
+/** Whether a value is a crypto-lib `CryptoError`. */
 export function isCryptoError(error: unknown): error is CryptoError {
   return error instanceof CryptoError;
 }
@@ -142,10 +138,12 @@ const KEY_STORE_SLUGS: Readonly<Record<string, ProblemSlug>> = {
   KEY_NOT_FOUND: "key-not-found",
   KEY_ALGORITHM_MISMATCH: "key-algorithm-mismatch",
   KEY_STORE_FULL: "key-store-full",
+  KEY_QUOTA_EXCEEDED: "key-quota-exceeded",
   STORAGE_KEY_REQUIRED: "internal-error",
   KEY_INTEGRITY_FAILED: "internal-error",
   KEY_CORRUPTED: "internal-error",
   UNSUPPORTED_STORAGE_ALGORITHM: "internal-error",
+  PLAINTEXT_KEY_REFUSED: "internal-error",
 };
 
 /** What the error handler sends for a thrown error. */
@@ -179,6 +177,25 @@ function fieldOf(issue: Issue): string {
   const missing = issue.params.missingProperty;
   return missing ? `${issue.instancePath}/${missing}` : issue.instancePath;
 }
+
+/**
+ * Whether an error means a worker pool could not take or finish the work:
+ * its queue was full or the task overran its deadline.
+ */
+export function isWorkerOverload(error: unknown): boolean {
+  return (
+    error instanceof WorkerPoolBusyError ||
+    error instanceof WorkerTaskTimeoutError
+  );
+}
+
+/** 503 for work the server cannot take on now. */
+export const busy = (): ProblemSpec => ({
+  status: 503,
+  slug: "service-unavailable",
+  detail: "The server is busy; retry later",
+  extensions: {},
+});
 
 /** The fixed 500 problem: internal messages never reach the client. */
 const internal = (extensions: Record<string, unknown> = {}): ProblemSpec => ({
@@ -247,6 +264,7 @@ function clientProblem(status: number, error: ThrownError): ProblemSpec {
  * messages and stacks never reach the client.
  */
 export function classifyThrown(error: unknown): ProblemSpec {
+  if (isWorkerOverload(error)) return busy();
   if (isCryptoError(error)) return cryptoProblem(error);
   if (error instanceof KeyStoreError) return keyStoreProblem(error);
   const thrown = (error ?? {}) as ThrownError;

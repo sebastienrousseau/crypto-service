@@ -21,6 +21,15 @@ import { gcm } from "@noble/ciphers/aes.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import * as nodeCrypto from "node:crypto";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 /**
  * Narrows a `Uint8Array` to one the WebCrypto types accept.
@@ -95,8 +104,6 @@ export interface WebCryptoHashResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
 /** GCM standard 96-bit nonce length in bytes. */
 const NONCE_LENGTH = 12;
 /** GCM 128-bit authentication tag length in bytes. */
@@ -109,19 +116,20 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+    if (!isHex(input)) {
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** Validate that a key is 16 or 32 bytes for AES-GCM. */
 function validateKey(key: Uint8Array): void {
   if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
+    throw new CryptoError(
       `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
     );
   }
 }
@@ -203,7 +211,7 @@ export async function webCryptoAesGcmEncrypt(
     combined.set(sealed, NONCE_LENGTH);
 
     return {
-      ciphertext: Buffer.from(combined).toString("base64"),
+      ciphertext: toBase64(combined),
       accelerated: true,
     };
   }
@@ -217,7 +225,7 @@ export async function webCryptoAesGcmEncrypt(
   combined.set(sealed, NONCE_LENGTH);
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: toBase64(combined),
     accelerated: false,
   };
 }
@@ -235,9 +243,12 @@ export async function webCryptoAesGcmDecrypt(
   const key = toBytes(options.key, "hex");
   validateKey(key);
 
-  const combined = Buffer.from(options.ciphertext, "base64");
+  const combined = fromBase64(options.ciphertext);
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);
@@ -301,7 +312,7 @@ export async function webCryptoHash(
     const digest = await subtle.digest(options.algorithm, asBufferSource(data));
 
     return {
-      digest: Buffer.from(digest).toString("hex"),
+      digest: toHex(new Uint8Array(digest)),
       accelerated: true,
     };
   }
@@ -319,11 +330,14 @@ export async function webCryptoHash(
       digest = sha512(data);
       break;
     default:
-      throw new Error(`Unsupported hash algorithm: ${options.algorithm}`);
+      throw new CryptoError(
+        `Unsupported hash algorithm: ${options.algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 
   return {
-    digest: Buffer.from(digest).toString("hex"),
+    digest: toHex(new Uint8Array(digest)),
     accelerated: false,
   };
 }

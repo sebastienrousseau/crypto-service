@@ -104,7 +104,7 @@ export interface ApiError {
   code?: string;
   /** Per-field failures of a `validation-failed` problem. */
   errors?: ApiErrorField[];
-  /** Other extension members (e.g. `tier`, `limit`, `resetSeconds`). */
+  /** Other extension members (e.g. `limit`, `resetSeconds`). */
   [extension: string]: unknown;
 }
 
@@ -313,6 +313,11 @@ export interface AlgorithmNegotiationOptions {
   requireHybrid?: boolean;
   /** Client-supported algorithm list filter. */
   clientSupportedAlgorithms?: string[];
+  /**
+   * Allow a classical (not quantum-resistant) algorithm such as X25519.
+   * Default false: without it, a classical algorithm is never selected.
+   */
+  allowClassical?: boolean;
 }
 
 /** Result of dynamic cryptographic algorithm negotiation. */
@@ -321,8 +326,8 @@ export interface AlgorithmNegotiationResult {
   selectedAlgorithm: string;
   /** Cipher category. */
   cipherCategory: "lattice-kem" | "hybrid-kem" | "classical-ecdh";
-  /** Security level (NIST Category 1, 3, or 5). */
-  securityCategory: 1 | 3 | 5;
+  /** NIST post-quantum security category (1, 3 or 5); 0 for a classical algorithm. */
+  securityCategory: 0 | 1 | 3 | 5;
   /** Whether chosen algorithm is a composite hybrid. */
   isHybrid: boolean;
   /** Public key size in bytes. */
@@ -333,12 +338,11 @@ export interface AlgorithmNegotiationResult {
   totalPayloadOverhead: number;
   /** Whether ciphertext fits within maxPayloadBytes without IP fragmentation. */
   fitsWithinMtu: boolean;
-  /** Ordered list of fallback algorithm candidates evaluated. */
+  /** The candidates that met the constraints, strongest first. */
   fallbackChain: string[];
-  /** Regulatory and DORA Article 13 compliance posture. */
+  /** Standards the selected algorithm follows. */
   compliancePosture: {
     standard: string;
-    doraArticle13Compliant: boolean;
     fipsStandard: string;
   };
 }

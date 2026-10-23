@@ -26,7 +26,11 @@ import { extract, expand } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { gcm } from "@noble/ciphers/aes.js";
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { xwingDecap, xwingEncap, xwingKeygen } from "./hpke-xwing";
+import { randomBytes } from "@noble/ciphers/utils.js";
+import { ml_kem768 } from "../accel/pq-backend";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 // ---------------------------------------------------------------------------
 // Constants (RFC 9180 § 7)
@@ -36,8 +40,14 @@ import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
 const KEM_X25519 = 0x0020;
 /** KEM identifier for DHKEM(P-256, HKDF-SHA256). */
 const KEM_P256 = 0x0010;
-/** KEM identifier for Post-Quantum Hybrid DHKEM(X25519, HKDF-SHA256) + ML-KEM-768. */
+/**
+ * KEM identifier crypto-service's own X25519 + ML-KEM-768 combiner used.
+ * IANA's HPKE registry assigns 0x0030 to X25519Kyber768Draft00, which this
+ * is not; it is kept only so earlier messages still open.
+ */
 const KEM_X25519_MLKEM768 = 0x0030;
+/** KEM identifier for X-Wing (draft-connolly-cfrg-xwing-kem-06). */
+const KEM_XWING = 0x647a;
 /** KDF identifier for HKDF-SHA256. */
 const KDF_HKDF_SHA256 = 0x0001;
 /** AEAD identifier for AES-128-GCM. */
@@ -58,10 +68,21 @@ const MODE_PSK = 0x01;
  *
  * @example
  * ```ts
- * const kem: HpkeKem = "x25519-ml-kem-768";
+ * const kem: HpkeKem = "x-wing";
  * ```
+ *
+ * `"x-wing"` is X-Wing (KEM 0x647A in IANA's HPKE registry), the X25519 +
+ * ML-KEM-768 hybrid other HPKE implementations offer. `"x25519-ml-kem-768"`
+ * is crypto-service's earlier hybrid, which labelled itself 0x0030 (the
+ * registry's X25519Kyber768Draft00) and interoperates with nothing else:
+ * use it only to open messages sealed before 0.0.36.
  */
-export type HpkeKem = "x25519" | "p256" | "x25519-ml-kem-768";
+export type HpkeKem =
+  | "x25519"
+  | "p256"
+  | "x-wing"
+  // Deprecated: opens pre-0.0.36 messages; seal with "x-wing".
+  | "x25519-ml-kem-768";
 
 /**
  * AEAD algorithm identifier.
@@ -160,20 +181,17 @@ export interface HpkePskOptions {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a hex string to bytes, throwing on invalid input. */
 function hexToBytes(hex: string): Uint8Array {
-  if (!HEX_RE.test(hex) || hex.length % 2 !== 0) {
-    throw new Error("Invalid hex string");
+  if (!isHex(hex)) {
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
-  return Buffer.from(hex, "hex");
+  return decodeHex(hex);
 }
 
 /** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 /** Encode a number as a big-endian two-byte array (I2OSP(n, 2)). */
@@ -231,6 +249,10 @@ function suiteParams(kem: HpkeKem, aead: HpkeAead): SuiteParams {
     kemId = KEM_P256;
     nEnc = 65;
     nSk = 32;
+  } else if (kem === "x-wing") {
+    kemId = KEM_XWING;
+    nEnc = 1120; // ML-KEM-768 ciphertext (1088) || X25519 ephemeral (32)
+    nSk = 32; // seed, expanded with SHAKE256
   } else {
     kemId = KEM_X25519_MLKEM768;
     nEnc = 1120; // 32 bytes X25519 epk + 1088 bytes ML-KEM-768 ciphertext
@@ -258,7 +280,7 @@ function suiteParams(kem: HpkeKem, aead: HpkeAead): SuiteParams {
 /** Build the suite_id for HPKE key schedule: "HPKE" || I2OSP(kem_id,2) || I2OSP(kdf_id,2) || I2OSP(aead_id,2). */
 function hpkeSuiteId(params: SuiteParams): Uint8Array {
   return concat(
-    Buffer.from("HPKE"),
+    utf8("HPKE"),
     i2osp2(params.kemId),
     i2osp2(params.kdfId),
     i2osp2(params.aeadId),
@@ -267,7 +289,7 @@ function hpkeSuiteId(params: SuiteParams): Uint8Array {
 
 /** Build the suite_id for KEM: "KEM" || I2OSP(kem_id, 2). */
 function kemSuiteId(kemId: number): Uint8Array {
-  return concat(Buffer.from("KEM"), i2osp2(kemId));
+  return concat(utf8("KEM"), i2osp2(kemId));
 }
 
 // ---------------------------------------------------------------------------
@@ -284,12 +306,7 @@ function labeledExtract(
   label: string,
   ikm: Uint8Array,
 ): Uint8Array {
-  const labeledIkm = concat(
-    Buffer.from("HPKE-v1"),
-    suiteId,
-    Buffer.from(label),
-    ikm,
-  );
+  const labeledIkm = concat(utf8("HPKE-v1"), suiteId, utf8(label), ikm);
   return extract(sha256, labeledIkm, salt.length > 0 ? salt : undefined);
 }
 
@@ -306,9 +323,9 @@ function labeledExpand(
 ): Uint8Array {
   const labeledInfo = concat(
     i2osp2(length),
-    Buffer.from("HPKE-v1"),
+    utf8("HPKE-v1"),
     suiteId,
-    Buffer.from(label),
+    utf8(label),
     info,
   );
   return expand(sha256, prk, labeledInfo, length);
@@ -393,15 +410,51 @@ function dhkemDecap(
   return extractAndExpand(params, dh, concat(enc, recipientPub));
 }
 
-/** Encap for X25519-ML-KEM-768 hybrid KEM. */
+/** Encap with the KEM `kem` and the ephemeral secret it needs. */
+function encap(
+  kem: HpkeKem,
+  recipientPub: Uint8Array,
+  ephemeral: Uint8Array,
+  params: SuiteParams,
+): { sharedSecret: Uint8Array; enc: Uint8Array } {
+  if (kem === "x-wing") return xwingEncap(recipientPub, ephemeral);
+  if (kem === "x25519-ml-kem-768") {
+    return hybridEncap(recipientPub, ephemeral, params);
+  }
+  return dhkemEncap(kem, recipientPub, ephemeral, params);
+}
+
+/** Decap with the KEM `kem`. */
+function decap(
+  kem: HpkeKem,
+  enc: Uint8Array,
+  recipientPriv: Uint8Array,
+  params: SuiteParams,
+): Uint8Array {
+  if (kem === "x-wing") return xwingDecap(enc, recipientPriv);
+  if (kem === "x25519-ml-kem-768") {
+    return hybridDecap(enc, recipientPriv, params);
+  }
+  return dhkemDecap(kem, enc, recipientPriv, params);
+}
+
+/** Fresh ephemeral secret for an Encap with `kem`. */
+function ephemeralSecret(kem: HpkeKem): Uint8Array {
+  if (kem === "x-wing") return randomBytes(64);
+  if (kem === "x25519-ml-kem-768") return x25519.utils.randomSecretKey();
+  return kemRandomPrivateKey(kem);
+}
+
+/** Encap for crypto-service's earlier X25519-ML-KEM-768 hybrid KEM. */
 function hybridEncap(
   recipientPub: Uint8Array,
   ephemeralPrivateKey: Uint8Array,
   params: SuiteParams,
 ): { sharedSecret: Uint8Array; enc: Uint8Array } {
   if (recipientPub.length !== 1216) {
-    throw new Error(
+    throw new CryptoError(
       "Invalid recipient public key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   const pkX = recipientPub.subarray(0, 32);
@@ -426,12 +479,16 @@ function hybridDecap(
   params: SuiteParams,
 ): Uint8Array {
   if (recipientPriv.length !== 2432) {
-    throw new Error(
+    throw new CryptoError(
       "Invalid recipient private key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   if (enc.length !== 1120) {
-    throw new Error("Invalid encapsulated key length for x25519-ml-kem-768");
+    throw new CryptoError(
+      "Invalid encapsulated key length for x25519-ml-kem-768",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   const skX = recipientPriv.subarray(0, 32);
   const skMlKem = recipientPriv.subarray(32);
@@ -520,7 +577,10 @@ function scheduleInputs(options: {
   const psk = hexToBytes(options.psk.psk);
   const pskId = hexToBytes(options.psk.pskId);
   if (psk.length === 0 || pskId.length === 0) {
-    throw new Error("PSK mode requires a non-empty psk and pskId");
+    throw new CryptoError(
+      "PSK mode requires a non-empty psk and pskId",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return { mode: MODE_PSK, info, psk, pskId };
 }
@@ -575,6 +635,13 @@ function aeadOpen(
  * ```
  */
 export function hpkeGenerateKeyPair(kem: HpkeKem = "x25519"): HpkeKeyPair {
+  if (kem === "x-wing") {
+    const { publicKey, secretKey } = xwingKeygen();
+    return {
+      publicKey: bytesToHex(publicKey),
+      privateKey: bytesToHex(secretKey),
+    };
+  }
   if (kem === "x25519-ml-kem-768") {
     const skX = x25519.utils.randomSecretKey();
     const pkX = x25519.getPublicKey(skX);
@@ -627,11 +694,7 @@ export function hpkeSeal(options: {
   psk?: HpkePskOptions;
 }): HpkeSealResult {
   const kem = options.suite?.kem ?? "x25519";
-  const ephemeralPrivateKey =
-    kem === "x25519-ml-kem-768"
-      ? x25519.utils.randomSecretKey()
-      : kemRandomPrivateKey(kem);
-  const sealed = hpkeSealWithEphemeral(options, ephemeralPrivateKey);
+  const sealed = hpkeSealWithEphemeral(options, ephemeralSecret(kem));
   return {
     ciphertext: sealed.ciphertext,
     encapsulatedKey: sealed.encapsulatedKey,
@@ -641,8 +704,10 @@ export function hpkeSeal(options: {
 /**
  * HPKE seal with a caller-chosen ephemeral private key, also returning the
  * key-schedule outputs. This exists only so the RFC 9180 Appendix A test
- * vectors (which fix skEm) can be checked; reusing an ephemeral key breaks
- * HPKE's security, so production code must call {@link hpkeSeal}.
+ * vectors (which fix skEm) and the X-Wing draft's vectors (which fix the
+ * 64-byte `eseed`, passed here for `"x-wing"`) can be checked; reusing an
+ * ephemeral key breaks HPKE's security, so production code must call
+ * {@link hpkeSeal}.
  *
  * @internal
  */
@@ -664,10 +729,12 @@ export function hpkeSealWithEphemeral(
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
   const inputs = scheduleInputs(options);
 
-  const { sharedSecret, enc } =
-    kem === "x25519-ml-kem-768"
-      ? hybridEncap(recipientPub, ephemeralPrivateKey, params)
-      : dhkemEncap(kem, recipientPub, ephemeralPrivateKey, params);
+  const { sharedSecret, enc } = encap(
+    kem,
+    recipientPub,
+    ephemeralPrivateKey,
+    params,
+  );
   const ks = keySchedule(params, sharedSecret, inputs);
   const ct = aeadSeal(aead, ks.key, ks.baseNonce, aad, plaintext);
 
@@ -731,10 +798,7 @@ export function hpkeOpen(options: {
   const aad = options.aad ? hexToBytes(options.aad) : new Uint8Array(0);
   const inputs = scheduleInputs(options);
 
-  const sharedSecret =
-    kem === "x25519-ml-kem-768"
-      ? hybridDecap(enc, recipientPriv, params)
-      : dhkemDecap(kem, enc, recipientPriv, params);
+  const sharedSecret = decap(kem, enc, recipientPriv, params);
   const { key, baseNonce } = keySchedule(params, sharedSecret, inputs);
   const pt = aeadOpen(aead, key, baseNonce, aad, ciphertext);
 

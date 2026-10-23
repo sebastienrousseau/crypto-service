@@ -13,6 +13,7 @@
 
 import { x25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { decodeHex, toHex } from "../encoding";
 
 /** X25519 Diffie-Hellman key pair (128-bit security). */
 export interface X25519KeyPair {
@@ -33,15 +34,18 @@ export interface KeyExchangeResult {
 /**
  * Generate a new X25519 key pair for Diffie-Hellman.
  */
-export function generateX25519KeyPair(): X25519KeyPair {
+export function x25519Keygen(): X25519KeyPair {
   const privateKey = randomBytes(32);
   const publicKey = x25519.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
   };
 }
+
+/** @deprecated Use {@link x25519Keygen}. */
+export const generateX25519KeyPair = x25519Keygen;
 
 /**
  * Perform X25519 Diffie-Hellman key exchange.
@@ -55,18 +59,16 @@ export function x25519Exchange(
   theirPublicKey: string | Uint8Array,
 ): KeyExchangeResult {
   const priv =
-    typeof privateKey === "string"
-      ? Buffer.from(privateKey, "hex")
-      : privateKey;
+    typeof privateKey === "string" ? decodeHex(privateKey) : privateKey;
   const pub =
     typeof theirPublicKey === "string"
-      ? Buffer.from(theirPublicKey, "hex")
+      ? decodeHex(theirPublicKey)
       : theirPublicKey;
 
   const shared = x25519.getSharedSecret(priv, pub);
 
   return {
-    sharedSecret: Buffer.from(shared).toString("hex"),
+    sharedSecret: toHex(shared),
     algorithm: "x25519",
   };
 }

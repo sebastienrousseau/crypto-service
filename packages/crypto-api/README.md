@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-api</h1>
 
 <p align="center">
-  Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.
+  Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.
 </p>
 
 <p align="center">
@@ -75,8 +75,9 @@ yarn add @sebastienrousseau/crypto-api
 
 ## Quick Start
 
-Import shared types and use them to build type-safe requests and
-responses across `crypto-server` and `crypto-sdk`.
+Import the Postman collection types, or call `init()` to convert a
+Postman collection to Markdown (it reads the input and output paths from
+`process.argv`).
 
 ```ts
 import type {
@@ -115,12 +116,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                   | Role            | Description                                                                                                                    |
 | :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| **[`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)** _(this package)_ | **API Schemas** | **Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.**                    |
+| **[`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)** _(this package)_ | **API docs**    | **Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.**           |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks      | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM            | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                      | Terminal CLI    | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS       | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS       | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                      | Core Library    | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis    | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents       | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -140,12 +141,16 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 ## Overview
 
-crypto-api provides the shared TypeScript type definitions and
-utility functions used across the Crypto Service Suite. It defines
-the canonical API surface -- request headers, response types,
-authorization tokens, and collection items -- that `crypto-server`,
-`crypto-sdk`, and other packages depend on. Utility functions convert
-Postman-style JSON collections into Markdown documentation.
+crypto-api holds TypeScript types that describe a Postman collection
+(collection items, requests, headers, responses, authorization tokens)
+and a converter that turns a Postman collection into Markdown API
+documentation. The repository keeps a Postman collection of the
+crypto-server v1 API in `src/collections/`; it is not part of the npm
+package.
+
+It is not the request/response contract of crypto-server: no package in
+the suite depends on it, and crypto-sdk keeps its own types. The
+server's contract is its OpenAPI 3 document, served at `/docs/json`.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

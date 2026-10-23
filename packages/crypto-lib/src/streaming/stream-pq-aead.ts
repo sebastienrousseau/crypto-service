@@ -9,29 +9,31 @@
  * Implements chunk-based authenticated encryption for large data streams using
  * hybrid post-quantum key encapsulation:
  * - Header: ephemeral X25519 public key (32 B) || ML-KEM-768 ciphertext (1088 B) || base nonce (24 B)
- * - Derived symmetric key: HKDF-SHA256(combined_shared_secret, salt = ephPub, info = "pq-stream-aead-v1")
+ * - Derived symmetric key: the library's v2 hybrid KEM secret (modern/hybrid-combiner.ts),
+ *   HKDF-SHA256 with info "crypto-service/pq-stream/v2". Streams written before
+ *   used HKDF-SHA256(combined_shared_secret, salt = ephPub, info = "pq-stream-aead-v1");
+ *   they still decrypt.
  * - Chunks: STREAM construction using XChaCha20-Poly1305 with per-chunk derived nonces.
  * - Anti-truncation: The final chunk is tagged with 0x01.
  */
 
-import { x25519 } from "@noble/curves/ed25519.js";
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { hybridReceiveKeys, hybridSend } from "../modern/hybrid-combiner";
 import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import {
-  CHUNK_TAG_FINAL,
-  CHUNK_TAG_MESSAGE,
+  ChunkDecryptor,
+  ChunkEncryptor,
   TAG_LEN,
   assertChunkSize,
-  encryptChunksInto,
-  streamSize,
+  decryptChunks,
 } from "./chunks";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { concat, decodeHex, isHex } from "../encoding";
 
 // The chunk tags and Poly1305 tag length are shared with the other
 // streams; re-exported for existing importers of this module.
-export { CHUNK_TAG_FINAL, CHUNK_TAG_MESSAGE, TAG_LEN };
+export { TAG_LEN };
 
 /** X25519 public key length in bytes. */
 export const EPHEMERAL_LEN = 32;
@@ -44,8 +46,6 @@ export const PQ_STREAM_HEADER_LEN = EPHEMERAL_LEN + ML_KEM_CT_LEN + NONCE_LEN;
 /** Default chunk size for streaming encryption (64 KiB). */
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Helper to parse hex or Uint8Array bytes and validate length. */
 export function toBytes(
   data: string | Uint8Array,
@@ -54,13 +54,20 @@ export function toBytes(
 ): Uint8Array {
   let buf: Uint8Array;
   if (typeof data === "string") {
-    if (!HEX_RE.test(data)) throw new Error(`Invalid hex string for ${name}`);
-    buf = Buffer.from(data, "hex");
+    if (!isHex(data))
+      throw new CryptoError(
+        `Invalid hex string for ${name}`,
+        CryptoErrorCode.INVALID_HEX,
+      );
+    buf = decodeHex(data);
   } else {
     buf = new Uint8Array(data);
   }
   if (expectedLen !== undefined && buf.length !== expectedLen) {
-    throw new Error(`${name} must be ${expectedLen} bytes, got ${buf.length}`);
+    throw new CryptoError(
+      `${name} must be ${expectedLen} bytes, got ${buf.length}`,
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   return buf;
 }
@@ -111,7 +118,10 @@ export interface StreamPqDecryptOptions {
   chunkSize?: number | undefined;
 }
 
-/** Derives symmetric encryption key from combined X25519 and ML-KEM shared secrets. */
+/**
+ * The key streams written before the v2 hybrid KEM used: HKDF over the
+ * two shared secrets, bound only to the ephemeral key.
+ */
 function deriveSharedKey(
   x25519Shared: Uint8Array,
   mlKemShared: Uint8Array,
@@ -129,32 +139,61 @@ function deriveSharedKey(
   );
 }
 
-/** Encapsulates post-quantum hybrid key material for encryption. */
-function encapsulateKeyMaterial(
+/**
+ * Starts a stream to a recipient: its header (ephemeral X25519 key,
+ * ML-KEM-768 ciphertext, base nonce) and the encryptor for its chunks.
+ */
+export function pqStreamSender(
   recipX25519Pub: Uint8Array,
   recipMlKemPub: Uint8Array,
-): { ephPub: Uint8Array; mlKemCt: Uint8Array; key: Uint8Array } {
-  const ephPriv = randomBytes(32);
-  const ephPub = x25519.getPublicKey(ephPriv);
-  const x25519Shared = x25519.getSharedSecret(ephPriv, recipX25519Pub);
-
-  const { cipherText: mlKemCt, sharedSecret: mlKemShared } =
-    ml_kem768.encapsulate(recipMlKemPub);
-
-  const key = deriveSharedKey(x25519Shared, mlKemShared, ephPub);
-  return { ephPub, mlKemCt, key };
+  chunkSize: number,
+): { header: Uint8Array; encryptor: ChunkEncryptor } {
+  const { ephPub, mlKemCt, key } = hybridSend(
+    recipX25519Pub,
+    recipMlKemPub,
+    "pq-stream",
+  );
+  const baseNonce = randomBytes(NONCE_LEN);
+  const header = new Uint8Array(PQ_STREAM_HEADER_LEN);
+  header.set(ephPub, 0);
+  header.set(mlKemCt, EPHEMERAL_LEN);
+  header.set(baseNonce, EPHEMERAL_LEN + ML_KEM_CT_LEN);
+  const encryptor = new ChunkEncryptor(
+    key,
+    baseNonce,
+    chunkSize,
+    derivePqChunkNonce,
+  );
+  return { header, encryptor };
 }
 
-/** Decapsulates post-quantum hybrid key material for decryption. */
-function decapsulateKeyMaterial(
+/**
+ * The decryptor for a stream's chunks, from its header and the
+ * recipient's secret keys.
+ */
+export function pqStreamReceiver(
   recipX25519Sec: Uint8Array,
   recipMlKemSec: Uint8Array,
-  ephPub: Uint8Array,
-  mlKemCt: Uint8Array,
-): Uint8Array {
-  const mlKemShared = ml_kem768.decapsulate(mlKemCt, recipMlKemSec);
-  const x25519Shared = x25519.getSharedSecret(recipX25519Sec, ephPub);
-  return deriveSharedKey(x25519Shared, mlKemShared, ephPub);
+  header: Uint8Array,
+  chunkSize: number,
+): ChunkDecryptor {
+  const ephPub = header.subarray(0, EPHEMERAL_LEN);
+  const mlKemCt = header.subarray(EPHEMERAL_LEN, EPHEMERAL_LEN + ML_KEM_CT_LEN);
+  const baseNonce = header.subarray(
+    EPHEMERAL_LEN + ML_KEM_CT_LEN,
+    PQ_STREAM_HEADER_LEN,
+  );
+  // The v2 key, then the key streams written before it used.
+  const keys = hybridReceiveKeys(
+    recipX25519Sec,
+    recipMlKemSec,
+    ephPub,
+    mlKemCt,
+    "pq-stream",
+    (x25519Shared, mlKemShared) =>
+      deriveSharedKey(x25519Shared, mlKemShared, ephPub),
+  );
+  return new ChunkDecryptor(keys, baseNonce, chunkSize, derivePqChunkNonce);
 }
 
 /**
@@ -180,103 +219,19 @@ export function streamPqEncrypt(
   assertChunkSize(chunkSize);
   const plaintext = options.plaintext;
 
-  const { ephPub, mlKemCt, key } = encapsulateKeyMaterial(
+  const { header, encryptor } = pqStreamSender(
     recipX25519Pub,
     recipMlKemPub,
-  );
-  const baseNonce = randomBytes(NONCE_LEN);
-
-  const output = new Uint8Array(
-    streamSize(PQ_STREAM_HEADER_LEN, plaintext.length, chunkSize),
-  );
-
-  output.set(ephPub, 0);
-  output.set(mlKemCt, EPHEMERAL_LEN);
-  output.set(baseNonce, EPHEMERAL_LEN + ML_KEM_CT_LEN);
-
-  encryptChunksInto(
-    plaintext,
-    key,
-    baseNonce,
     chunkSize,
-    output,
-    PQ_STREAM_HEADER_LEN,
-    derivePqChunkNonce,
+  );
+  const output = Uint8Array.from(
+    concat([header, ...encryptor.push(plaintext), encryptor.finish()]),
   );
 
   return {
     ciphertext: output,
     algorithm: "x25519-ml-kem-768-xchacha20-poly1305-stream",
   };
-}
-
-/** Validates chunk header and returns encrypted chunk length. */
-function readPqChunkHeader(
-  ciphertext: Uint8Array,
-  offset: number,
-  chunkSize: number,
-): { chunkTag: number; isFinal: boolean; encLen: number } {
-  const chunkTag = ciphertext[offset] as number;
-  if (chunkTag !== CHUNK_TAG_MESSAGE && chunkTag !== CHUNK_TAG_FINAL) {
-    throw new Error(`Invalid chunk tag: 0x${chunkTag.toString(16)}`);
-  }
-  const isFinal = chunkTag === CHUNK_TAG_FINAL;
-  const start = offset + 1;
-  const encLen = isFinal ? ciphertext.length - start : chunkSize + TAG_LEN;
-  if (start + encLen > ciphertext.length) {
-    throw new Error("Ciphertext truncated — incomplete chunk");
-  }
-  return { chunkTag, isFinal, encLen };
-}
-
-/** Decrypts chunks from a ciphertext buffer. */
-function decryptChunks(
-  ciphertext: Uint8Array,
-  key: Uint8Array,
-  baseNonce: Uint8Array,
-  chunkSize: number,
-): Uint8Array {
-  let offset = PQ_STREAM_HEADER_LEN;
-  const chunks: Uint8Array[] = [];
-  let totalPtLen = 0;
-  let sawFinal = false;
-
-  while (offset < ciphertext.length) {
-    const { chunkTag, isFinal, encLen } = readPqChunkHeader(
-      ciphertext,
-      offset,
-      chunkSize,
-    );
-    offset += 1;
-
-    const chunkIdx = chunks.length;
-    const nonce = derivePqChunkNonce(baseNonce, chunkIdx, chunkTag);
-    const cipher = xchacha20poly1305(key, nonce);
-    const decrypted = cipher.decrypt(
-      ciphertext.subarray(offset, offset + encLen),
-    );
-
-    chunks.push(decrypted);
-    totalPtLen += decrypted.length;
-    offset += encLen;
-
-    if (isFinal) {
-      sawFinal = true;
-      break;
-    }
-  }
-
-  if (!sawFinal) {
-    throw new Error("Ciphertext truncated — final chunk missing");
-  }
-
-  const result = new Uint8Array(totalPtLen);
-  let pos = 0;
-  for (const chunk of chunks) {
-    result.set(chunk, pos);
-    pos += chunk.length;
-  }
-  return result;
 }
 
 /**
@@ -301,25 +256,19 @@ export function streamPqDecrypt(options: StreamPqDecryptOptions): Uint8Array {
   const ciphertext = options.ciphertext;
 
   if (ciphertext.length < PQ_STREAM_HEADER_LEN + 1 + TAG_LEN) {
-    throw new Error("Ciphertext too short — missing header or chunk data");
+    throw new CryptoError(
+      "Ciphertext too short — missing header or chunk data",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
-  const ephPub = ciphertext.subarray(0, EPHEMERAL_LEN);
-  const mlKemCt = ciphertext.subarray(
-    EPHEMERAL_LEN,
-    EPHEMERAL_LEN + ML_KEM_CT_LEN,
+  return decryptChunks(
+    pqStreamReceiver(
+      recipX25519Sec,
+      recipMlKemSec,
+      ciphertext.subarray(0, PQ_STREAM_HEADER_LEN),
+      chunkSize,
+    ),
+    ciphertext.subarray(PQ_STREAM_HEADER_LEN),
   );
-  const baseNonce = ciphertext.subarray(
-    EPHEMERAL_LEN + ML_KEM_CT_LEN,
-    PQ_STREAM_HEADER_LEN,
-  );
-
-  const key = decapsulateKeyMaterial(
-    recipX25519Sec,
-    recipMlKemSec,
-    ephPub,
-    mlKemCt,
-  );
-
-  return decryptChunks(ciphertext, key, baseNonce, chunkSize);
 }

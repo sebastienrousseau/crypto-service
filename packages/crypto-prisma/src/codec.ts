@@ -14,8 +14,9 @@
  * cannot be moved to another model or field without failing to decrypt.
  *
  * Legacy format (written before `v2`): the bare base64 sealed box under
- * the configured key, with no associated data. It is still read (unless
- * `acceptLegacyCiphertext` is `false`) and never written.
+ * the configured key, with no associated data. It is read only when
+ * `acceptLegacyCiphertext` is `true`, during a migration, and never
+ * written.
  */
 
 import {
@@ -96,7 +97,7 @@ function resolveState(config: EncryptionConfig): CodecState {
         : key,
     deterministicFields: config.deterministicFields ?? [],
     allowPlaintextFallback: config.allowPlaintextFallback === true,
-    acceptLegacyCiphertext: config.acceptLegacyCiphertext !== false,
+    acceptLegacyCiphertext: config.acceptLegacyCiphertext === true,
   };
 }
 

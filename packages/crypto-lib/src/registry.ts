@@ -313,6 +313,24 @@ const REGISTRY: AlgorithmInfo[] = [
     standard: "BIP-340",
     aliases: ["bip340", "schnorr-secp256k1"],
   },
+  {
+    id: "ed25519-ml-dsa-44",
+    name: "Composite ML-DSA-44 + Ed25519",
+    category: "signing",
+    securityLevel: 2,
+    status: "recommended",
+    standard: "draft-ietf-lamps-pq-composite-sigs-19",
+    aliases: ["id-mldsa44-ed25519-sha512"],
+  },
+  {
+    id: "ed25519-ml-dsa-65",
+    name: "Composite ML-DSA-65 + Ed25519",
+    category: "signing",
+    securityLevel: 3,
+    status: "recommended",
+    standard: "draft-ietf-lamps-pq-composite-sigs-19",
+    aliases: ["id-mldsa65-ed25519-sha512"],
+  },
 
   // --- Key Exchange ---
   {
@@ -406,6 +424,14 @@ const REGISTRY: AlgorithmInfo[] = [
     category: "kem",
     securityLevel: 5,
     status: "recommended",
+  },
+  {
+    id: "x-wing",
+    name: "X-Wing (X25519+ML-KEM-768)",
+    category: "kem",
+    securityLevel: 3,
+    status: "recommended",
+    standard: "draft-connolly-cfrg-xwing-kem-06 (HPKE KEM 0x647A)",
   },
 ];
 

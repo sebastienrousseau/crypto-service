@@ -7,8 +7,11 @@ const path = require("path");
 // script so the suite runs on Windows too. Keys come from the synthetic
 // fixtures; generated keys and signatures go to a temp directory, never
 // into the source tree.
-const outDir = path.join(os.tmpdir(), "crypto-lib-test-out");
-fs.mkdirSync(outDir, { recursive: true });
+// A directory of its own per run: a fixed one was shared by concurrent
+// runs (two checkouts, or a package run beside `make check`), which wrote
+// into each other's output and failed tests that expect it empty.
+const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "crypto-lib-test-out-"));
+process.on("exit", () => fs.rmSync(outDir, { recursive: true, force: true }));
 // Always overridden, as the old script did: a shell that points
 // CRYPTO_KEY_DIR at real keys must not leak into the tests.
 process.env.CRYPTO_KEY_DIR = path.join(
@@ -24,7 +27,11 @@ module.exports = {
   ...base,
   // Override spec to exclude fixture files (.key, .pub, .cert) that the
   // default __tests__/** glob picks up and tries to require as JS.
-  spec: ["./__tests__/**/*.test.ts", "./__tests__/**/*.test.js"],
+  spec: ["./__tests__/**/*.test.ts"],
+  // Known-answer and cross-implementation suites run without coverage
+  // (.mocharc.vectors.cjs): V8's block counting slows noble's Keccak about
+  // 23 times, which pushed SLH-DSA's SHAKE vectors past the timeout.
+  ignore: ["__tests__/vectors/**"],
   require: ["ts-node/register/transpile-only"],
   timeout: 60000,
 };

@@ -19,6 +19,8 @@
 
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -58,14 +60,11 @@ const P = BigInt(
   "7237005577332262213973186563042994240857116359379907606001950938285454250989",
 );
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 // --- Helpers ---
 
 /** Convert bytes to a hex string. */
 function bytesToHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
+  return toHex(bytes);
 }
 
 /**
@@ -81,8 +80,8 @@ function scalarToHex(scalar: bigint): string {
  * Convert a hex string to a bigint (big-endian).
  */
 function hexToScalar(hex: string): bigint {
-  if (!HEX_RE.test(hex)) {
-    throw new Error("Invalid hex string");
+  if (!isHex(hex)) {
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
   }
   return BigInt("0x" + hex);
 }
@@ -180,21 +179,31 @@ export function splitSecret(
   threshold: number,
 ): SplitResult {
   if (threshold < 2) {
-    throw new Error("Threshold must be at least 2");
+    throw new CryptoError(
+      "Threshold must be at least 2",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   if (n < threshold) {
-    throw new Error("Number of shares must be >= threshold");
+    throw new CryptoError(
+      "Number of shares must be >= threshold",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   if (n > 255) {
-    throw new Error("Maximum 255 shares supported");
+    throw new CryptoError(
+      "Maximum 255 shares supported",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   const secretScalar = hexToScalar(secret);
   // Reducing an out-of-range secret mod P would silently change it, so
   // combineShares would hand back a different value.
   if (secretScalar >= P) {
-    throw new Error(
+    throw new CryptoError(
       "Secret must be less than the Ed25519 group order; reduce or derive it first",
+      CryptoErrorCode.INVALID_INPUT,
     );
   }
 
@@ -230,13 +239,19 @@ export function splitSecret(
  */
 export function combineShares(shares: Share[]): string {
   if (shares.length < 2) {
-    throw new Error("Need at least 2 shares to reconstruct");
+    throw new CryptoError(
+      "Need at least 2 shares to reconstruct",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   // Check for duplicate indices
   const indices = new Set(shares.map((s) => s.index));
   if (indices.size !== shares.length) {
-    throw new Error("Duplicate share indices detected");
+    throw new CryptoError(
+      "Duplicate share indices detected",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   // Lagrange interpolation at x = 0
@@ -278,7 +293,10 @@ export function generateFeldmanCommitments(
   coefficients: string[],
 ): FeldmanCommitments {
   if (coefficients.length < 2) {
-    throw new Error("Need at least 2 coefficients (threshold >= 2)");
+    throw new CryptoError(
+      "Need at least 2 coefficients (threshold >= 2)",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   const commitments: string[] = [];
@@ -353,21 +371,31 @@ export function splitSecretWithCommitments(
   threshold: number;
 } {
   if (threshold < 2) {
-    throw new Error("Threshold must be at least 2");
+    throw new CryptoError(
+      "Threshold must be at least 2",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   if (n < threshold) {
-    throw new Error("Number of shares must be >= threshold");
+    throw new CryptoError(
+      "Number of shares must be >= threshold",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
   if (n > 255) {
-    throw new Error("Maximum 255 shares supported");
+    throw new CryptoError(
+      "Maximum 255 shares supported",
+      CryptoErrorCode.INVALID_INPUT,
+    );
   }
 
   const secretScalar = hexToScalar(secret);
   // Reducing an out-of-range secret mod P would silently change it, so
   // combineShares would hand back a different value.
   if (secretScalar >= P) {
-    throw new Error(
+    throw new CryptoError(
       "Secret must be less than the Ed25519 group order; reduce or derive it first",
+      CryptoErrorCode.INVALID_INPUT,
     );
   }
 

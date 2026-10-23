@@ -465,6 +465,17 @@ describe("LocalKmsProvider", () => {
       expect(valid).to.be.false;
     });
 
+    // The provider documents that malformed signatures verify as false;
+    // since crypto-lib's base64 decoding became strict, a signature that is
+    // not base64 threw instead.
+    it("verifies a signature that is not base64 as false", async () => {
+      const key = await provider.createKey("ed25519", "sign");
+      const data = new TextEncoder().encode("message");
+      expect(await provider.verify(key.keyId, data, "not-base64!!!")).to.equal(
+        false,
+      );
+    });
+
     it("sign throws for unknown key", async () => {
       try {
         await provider.sign("bad", new Uint8Array(1));
@@ -967,40 +978,17 @@ describe("GcpKmsProvider", () => {
       );
     });
 
-    it("sign and verify operations", async () => {
-      mockFetch((url) => {
-        if (url.includes(":asymmetricSign")) {
-          return new Response(JSON.stringify({ signature: "mock-sig" }), {
-            status: 200,
-          });
-        }
-        if (url.includes(":macVerify")) {
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-          });
-        }
-        return new Response("{}", { status: 200 });
-      });
-
-      const res = await provider.sign("k1", new Uint8Array([1, 2, 3]));
-      expect(res.signature).to.equal("mock-sig");
-
-      const verified = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "mock-sig",
-      );
-      expect(verified).to.be.true;
-    });
-
-    it("verify returns false when request throws", async () => {
+    // Signing, local verification and version handling are covered
+    // against a model of Cloud KMS in gcp-versions.test.ts.
+    it("verify throws on an API error instead of returning false", async () => {
       mockFetch(() => new Response("Verify failed", { status: 400 }));
-      const verified = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "bad-sig",
-      );
-      expect(verified).to.be.false;
+      let err: unknown;
+      try {
+        await provider.verify("k1", new Uint8Array([1, 2, 3]), "bad-sig");
+      } catch (e) {
+        err = e;
+      }
+      expect(err).to.be.instanceOf(KmsError);
     });
 
     it("rotateKey and generateDataKey", async () => {
@@ -1159,7 +1147,8 @@ describe("AzureKmsProvider", () => {
 });
 
 // ---------------------------------------------------------------------------
-// VaultKmsProvider – stub: all methods throw "Not implemented"
+// VaultKmsProvider – Transit REST API. Transit semantics (context binding,
+// signing, disable and delete) are tested in vault-transit.test.ts.
 // ---------------------------------------------------------------------------
 describe("VaultKmsProvider", () => {
   const provider = new VaultKmsProvider({
@@ -1476,71 +1465,8 @@ describe("VaultKmsProvider", () => {
       await provider.createKey("ecdsa-p256", "sign");
       expect(createdType).to.equal("ecdsa-p256");
 
-      await provider.createKey("custom-algo", "sign");
-      expect(createdType).to.equal("ed25519");
-
       await provider.createKey("aes-256-gcm", "encrypt");
       expect(createdType).to.equal("aes256-gcm96");
-    });
-
-    it("enableKey and disableKey update config", async () => {
-      let postedConfig: Record<string, unknown> = {};
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          postedConfig = JSON.parse(init.body as string);
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(
-          JSON.stringify({
-            data: { name: "k1", type: "aes256-gcm96", latest_version: 3 },
-          }),
-        );
-      });
-
-      await provider.enableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(0);
-
-      await provider.disableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(4);
-    });
-
-    it("disableKey uses default version 1 when currentVersion is absent", async () => {
-      let postedConfig: Record<string, unknown> = {};
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          postedConfig = JSON.parse(init.body as string);
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(
-          JSON.stringify({
-            data: { name: "k1", type: "aes256-gcm96" },
-          }),
-        );
-      });
-
-      await provider.disableKey("k1");
-      expect(postedConfig.min_encryption_version).to.equal(2);
-    });
-
-    it("scheduleKeyDeletion configures deletion and deletes key", async () => {
-      let deleted = false;
-      let deletionAllowed = false;
-      mockFetch((url, init) => {
-        if (url.includes("/config") && init?.method === "POST") {
-          const body = JSON.parse(init.body as string);
-          deletionAllowed = Boolean(body.deletion_allowed);
-          return new Response(JSON.stringify({}));
-        }
-        if (init?.method === "DELETE") {
-          deleted = true;
-          return new Response(JSON.stringify({}));
-        }
-        return new Response(JSON.stringify({}));
-      });
-
-      await provider.scheduleKeyDeletion("k1", 5);
-      expect(deletionAllowed).to.be.true;
-      expect(deleted).to.be.true;
     });
 
     it("encrypt and decrypt with and without context", async () => {
@@ -1626,18 +1552,6 @@ describe("VaultKmsProvider", () => {
         "wrong-sig",
       );
       expect(invalid).to.be.false;
-    });
-
-    it("verify returns false when request throws", async () => {
-      mockFetch(() => {
-        throw new Error("network error");
-      });
-      const valid = await provider.verify(
-        "k1",
-        new Uint8Array([1, 2, 3]),
-        "sig",
-      );
-      expect(valid).to.be.false;
     });
 
     it("rotateKey rotates key and returns updated metadata", async () => {
@@ -2011,7 +1925,7 @@ describe("AwsKmsProvider", () => {
       }));
       const meta = await p.createKey("aes-256-gcm", "encrypt");
       expect(meta.keyId).to.equal("new-key-id");
-      expect(meta.algorithm).to.equal("aes-256-gcm");
+      expect(meta.algorithm).to.equal("SYMMETRIC_DEFAULT");
       expect(meta.usage).to.equal("encrypt");
       expect(meta.createdAt).to.equal("2025-03-15T12:00:00.000Z");
     });
@@ -2128,7 +2042,11 @@ describe("AwsKmsProvider", () => {
         KeyId: "k-sig",
         SigningAlgorithm: "RSASSA_PSS_SHA_256",
       }));
-      const result = await p.sign("k1", new Uint8Array([1, 2]));
+      const result = await p.sign(
+        "k1",
+        new Uint8Array([1, 2]),
+        "RSASSA_PSS_SHA_256",
+      );
       expect(result.signature).to.be.a("string");
       expect(result.keyId).to.equal("k-sig");
       expect(result.algorithm).to.equal("RSASSA_PSS_SHA_256");
@@ -2143,20 +2061,16 @@ describe("AwsKmsProvider", () => {
       expect(result.algorithm).to.equal("ECDSA_SHA_256");
     });
 
-    it("sign uses default algorithm RSASSA_PSS_SHA_256", async () => {
-      const p = createMocked(async () => ({
-        Signature: Buffer.from("sig"),
-        SigningAlgorithm: "RSASSA_PSS_SHA_256",
-      }));
-      const result = await p.sign("k1", new Uint8Array(1));
-      expect(result.algorithm).to.equal("RSASSA_PSS_SHA_256");
-    });
-
     it("verify returns true for valid signature", async () => {
       const p = createMocked(async () => ({
         SignatureValid: true,
       }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.true;
     });
 
@@ -2164,28 +2078,32 @@ describe("AwsKmsProvider", () => {
       const p = createMocked(async () => ({
         SignatureValid: false,
       }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.false;
     });
 
     it("verify defaults to false when SignatureValid is missing", async () => {
       const p = createMocked(async () => ({}));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
+      const valid = await p.verify(
+        "k1",
+        new Uint8Array(1),
+        "c2ln",
+        "RSASSA_PSS_SHA_256",
+      );
       expect(valid).to.be.false;
     });
 
-    it("verify uses default algorithm", async () => {
-      const p = createMocked(async () => ({ SignatureValid: true }));
-      const valid = await p.verify("k1", new Uint8Array(1), "c2ln");
-      expect(valid).to.be.true;
-    });
-
-    it("rotateKey calls EnableKeyRotation then getKey", async () => {
+    it("rotateKey calls RotateKeyOnDemand then getKey", async () => {
       let callCount = 0;
       const p = createMocked(async () => {
         callCount++;
         if (callCount === 1) {
-          // EnableKeyRotationCommand
+          // RotateKeyOnDemandCommand
           return {};
         }
         // DescribeKeyCommand (from getKey)

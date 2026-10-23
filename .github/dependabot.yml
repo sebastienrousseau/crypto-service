@@ -30,6 +30,10 @@ updates:
           - "chai*"
           - "c8"
     open-pull-requests-limit: 10
+    # Wait three days before proposing a new version, so a compromised
+    # release is likely pulled first. Security updates are not delayed.
+    cooldown:
+      default-days: 3
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
@@ -39,9 +43,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3

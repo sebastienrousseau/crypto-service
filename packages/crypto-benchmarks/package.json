@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-benchmarks",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Benchmarks comparing classical and post-quantum cryptography in JavaScript: ops/sec, latency and throughput for RSA, ECDSA, AES, SHA-2, ML-KEM and ML-DSA.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
@@ -44,6 +44,7 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
   "dependencies": {

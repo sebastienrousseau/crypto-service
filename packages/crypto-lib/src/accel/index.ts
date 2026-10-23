@@ -27,7 +27,11 @@ export type {
   WebCryptoHashResult,
 } from "./webcrypto-bridge";
 
-export { WorkerPool } from "./worker-pool";
+export {
+  WorkerPool,
+  WorkerPoolBusyError,
+  WorkerTaskTimeoutError,
+} from "./worker-pool";
 /** Re-exported worker pool option and task types. */
 export type { WorkerPoolOptions, WorkerTask } from "./worker-pool";
 
@@ -36,7 +40,6 @@ export {
   wasmHash,
   wasmAeadEncrypt,
   wasmAeadDecrypt,
-  _resetWasmDetection,
 } from "./wasm-bridge";
 /** Re-exported WASM bridge option and result types. */
 export type {
@@ -51,13 +54,13 @@ export type {
 
 export {
   hasNativePqc,
-  resetNativePqcCache,
-  _forceNativePqcDetected,
   pqcBackend,
   bridgedMlKemKeygen,
   bridgedMlKemEncapsulate,
   bridgedMlKemDecapsulate,
 } from "./native-pqc-bridge";
+/** Which post-quantum algorithms run in the runtime's OpenSSL. */
+export { nativeAlgorithms } from "./pq-backend";
 /** Re-exported native PQC bridge types. */
 export type {
   PqcBackend,
@@ -68,7 +71,6 @@ export type {
 
 export {
   detectModernWebCrypto,
-  _resetModernWebCryptoDetection,
   modernChaCha20Encrypt,
   modernChaCha20Decrypt,
   modernSha3Hash,

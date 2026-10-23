@@ -5,12 +5,13 @@
 
 import { expect } from "chai";
 import logger from "../src/lib/logger";
+import { init } from "../src/server";
 import {
   LIB_VERSION,
   HOST,
   PORT,
   PROTOCOL,
-  consoleOutput,
+  serverDetails,
   fastifyOptions,
   compressOptions,
   rateLimitOptions,
@@ -27,9 +28,8 @@ describe("Crypto Server", () => {
       expect(logger.level).to.be.a("string");
     });
 
-    it("should have transports configured", () => {
-      expect(logger.transports).to.be.an("array");
-      expect(logger.transports.length).to.be.greaterThan(0);
+    it("names the service in every line", () => {
+      expect(logger.bindings().service).to.equal("crypto-server");
     });
 
     it("should be able to log messages", () => {
@@ -77,28 +77,14 @@ describe("Crypto Server", () => {
       });
     });
 
-    describe("consoleOutput", () => {
-      it("should be an array of strings", () => {
-        expect(consoleOutput).to.be.an("array");
-        consoleOutput.forEach((item) => {
-          expect(item).to.be.a("string");
+    describe("serverDetails", () => {
+      it("holds the protocol, host, port and version as fields", () => {
+        expect(serverDetails).to.deep.equal({
+          protocol: PROTOCOL,
+          host: HOST,
+          port: PORT,
+          version: JSON.parse(LIB_VERSION),
         });
-      });
-
-      it("should contain protocol information", () => {
-        expect(consoleOutput.some((s) => s.includes("protocol"))).to.be.true;
-      });
-
-      it("should contain hostname information", () => {
-        expect(consoleOutput.some((s) => s.includes("hostname"))).to.be.true;
-      });
-
-      it("should contain port information", () => {
-        expect(consoleOutput.some((s) => s.includes("port"))).to.be.true;
-      });
-
-      it("should contain version information", () => {
-        expect(consoleOutput.some((s) => s.includes("version"))).to.be.true;
       });
     });
 
@@ -108,8 +94,38 @@ describe("Crypto Server", () => {
         expect(fastifyOptions.bodyLimit).to.be.greaterThan(0);
       });
 
-      it("should have caseSensitive set to true", () => {
-        expect(fastifyOptions.caseSensitive).to.be.true;
+      it("sets router options under routerOptions", () => {
+        // Top-level caseSensitive, ignoreTrailingSlash and maxParamLength
+        // emit Fastify's FSTDEP022 deprecation warning for every instance.
+        expect(fastifyOptions.routerOptions).to.deep.include({
+          caseSensitive: true,
+          ignoreTrailingSlash: false,
+          maxParamLength: 100,
+        });
+        for (const key of [
+          "caseSensitive",
+          "ignoreTrailingSlash",
+          "maxParamLength",
+        ]) {
+          expect(fastifyOptions, key).to.not.have.property(key);
+        }
+      });
+
+      it("starts without deprecation warnings", async () => {
+        const warnings: string[] = [];
+        const onWarning = (w: Error & { code?: string }) =>
+          warnings.push(w.code ?? w.name);
+        process.on("warning", onWarning);
+        try {
+          const app = await init({ logger: false });
+          await app.close();
+          await new Promise((r) => setImmediate(r));
+        } finally {
+          process.off("warning", onWarning);
+        }
+        expect(warnings.filter((c) => c.startsWith("FSTDEP"))).to.deep.equal(
+          [],
+        );
       });
 
       it("should leave request logging at Fastify's default (enabled)", () => {
@@ -122,9 +138,9 @@ describe("Crypto Server", () => {
         expect(fastifyOptions.keepAliveTimeout).to.be.a("number");
       });
 
-      it("should have logger enabled", () => {
-        // logger may be `true` or a Pino instance depending on initialization
-        expect(fastifyOptions.logger).to.exist;
+      it("leaves request IDs to the server's genReqId", () => {
+        // init() supplies the shared logger and genReqId (lib/logger.ts).
+        expect(fastifyOptions.requestIdHeader).to.equal(false);
       });
 
       it("should not unconditionally trust proxy headers", () => {

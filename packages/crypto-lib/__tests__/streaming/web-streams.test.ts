@@ -245,6 +245,16 @@ describe("Web Streams", () => {
     it("should reject unsupported algorithm", () => {
       expect(() => createHashStream("md5" as never)).to.throw(/Unsupported/);
     });
+
+    it("rejects inherited property names as algorithms", () => {
+      // "constructor" and "toString" were found on the factory table's
+      // prototype, and the stream failed on its first chunk instead.
+      for (const name of ["constructor", "toString", "__proto__"]) {
+        expect(() => createHashStream(name as never), name).to.throw(
+          /Unsupported hash algorithm/,
+        );
+      }
+    });
   });
 
   describe("createPqEncryptStream + createPqDecryptStream", () => {

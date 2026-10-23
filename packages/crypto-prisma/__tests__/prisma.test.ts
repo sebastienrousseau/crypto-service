@@ -5,13 +5,25 @@ import {
   createFieldEncryptionExtension,
 } from "../src/index";
 import type { EncryptionConfig, FieldConfig } from "../src/types";
-import { secretbox, computeHmac } from "@sebastienrousseau/crypto-lib";
+import { computeHmac } from "@sebastienrousseau/crypto-lib";
+import { createFieldCodec } from "../src/codec";
 
 // 256-bit key as 64-char hex string
 const TEST_KEY =
   "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 // Helper: build mock Prisma middleware params
+/** A User.email value as the codec stores it (v2 format). */
+function v2(value: string): string {
+  const record: Record<string, unknown> = { email: value };
+  createFieldCodec({ key: TEST_KEY, encryptedFields: [] }).encryptRecord(
+    "User",
+    ["email"],
+    record,
+  );
+  return record["email"] as string;
+}
+
 function mockParams(overrides: Record<string, unknown> = {}) {
   return {
     model: "User",
@@ -329,7 +341,7 @@ describe("createEncryptionMiddleware", () => {
 
     it("decrypts a single record on findUnique", async () => {
       const mw = createEncryptionMiddleware(config);
-      const { sealed } = secretbox.seal(TEST_KEY, "alice@example.com");
+      const sealed = v2("alice@example.com");
 
       const params = mockParams({
         action: "findUnique",
@@ -344,7 +356,7 @@ describe("createEncryptionMiddleware", () => {
 
     it("decrypts a single record on findFirst", async () => {
       const mw = createEncryptionMiddleware(config);
-      const { sealed } = secretbox.seal(TEST_KEY, "bob@example.com");
+      const sealed = v2("bob@example.com");
 
       const params = mockParams({
         action: "findFirst",
@@ -358,8 +370,8 @@ describe("createEncryptionMiddleware", () => {
 
     it("decrypts multiple records on findMany", async () => {
       const mw = createEncryptionMiddleware(config);
-      const s1 = secretbox.seal(TEST_KEY, "alice@example.com").sealed;
-      const s2 = secretbox.seal(TEST_KEY, "bob@example.com").sealed;
+      const s1 = v2("alice@example.com");
+      const s2 = v2("bob@example.com");
 
       const params = mockParams({
         action: "findMany",
@@ -423,10 +435,7 @@ describe("createEncryptionMiddleware", () => {
         args: {},
       });
 
-      const next = async () => [
-        null,
-        { id: 1, email: secretbox.seal(TEST_KEY, "a@test.com").sealed },
-      ];
+      const next = async () => [null, { id: 1, email: v2("a@test.com") }];
 
       const result = (await mw(params, next)) as (Record<
         string,
@@ -1082,7 +1091,7 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const { sealed } = secretbox.seal(TEST_KEY, "first@test.com");
+      const sealed = v2("first@test.com");
 
       const result = await findFirstFn({
         args: {},
@@ -1126,8 +1135,8 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const s1 = secretbox.seal(TEST_KEY, "a@test.com").sealed;
-      const s2 = secretbox.seal(TEST_KEY, "b@test.com").sealed;
+      const s1 = v2("a@test.com");
+      const s2 = v2("b@test.com");
 
       const result = await findManyFn({
         args: {},
@@ -1173,7 +1182,7 @@ describe("createFieldEncryptionExtension", () => {
         query: (args: Record<string, unknown>) => Promise<unknown>;
       }) => Promise<unknown>;
 
-      const s1 = secretbox.seal(TEST_KEY, "a@test.com").sealed;
+      const s1 = v2("a@test.com");
 
       const result = await findManyFn({
         args: {},

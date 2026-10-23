@@ -16,25 +16,40 @@ import revokeRoute from "./v1/revoke";
 import verifyRoute from "./v1/verify";
 import v2Routes from "./v2";
 import probeRoutes from "./probes";
+import { v1Enabled } from "../config/env";
+
+/**
+ * RFC 9745 `Deprecation`: when v1 was deprecated, 2026-08-21 (commit
+ * 012e1bf, which marked every v1 route `@deprecated`).
+ */
+export const V1_DEPRECATION = "@1787270400";
+
+/** RFC 8594 `Sunset`: the date v1 may be removed, as an HTTP date. */
+export const V1_SUNSET = "Fri, 01 Jan 2027 00:00:00 GMT";
+
+/** Where a v1 client finds the v2 replacement for each route. */
+export const V1_MIGRATION_LINK =
+  '<https://github.com/sebastienrousseau/crypto-service/blob/main/MIGRATION.md>; rel="deprecation"; type="text/html"';
 
 /** Registers all API route groups (v1, v2, probes) on the Fastify instance. */
 export default (app: fastify.FastifyInstance): void => {
-  // v1: OpenPGP-based operations (deprecated — will be removed in v1.0.0)
-  // Add deprecation warning header to all v1 responses
-  app.addHook("onSend", async (request, reply) => {
-    if (request.url.startsWith("/v1/")) {
-      reply.header("Deprecation", "true");
-      reply.header("Sunset", "2027-01-01T00:00:00Z");
-      reply.header("Link", '</v2>; rel="successor-version"');
-    }
-  });
-
-  decryptRoute(app);
-  encryptRoute(app);
-  generateRoute(app);
+  // v1: OpenPGP-based operations, deprecated (see MIGRATION.md).
+  // V1_ENABLED=0 removes them before their sunset.
+  if (v1Enabled()) {
+    app.addHook("onSend", async (request, reply) => {
+      if (request.url.startsWith("/v1/")) {
+        reply.header("Deprecation", V1_DEPRECATION);
+        reply.header("Sunset", V1_SUNSET);
+        reply.header("Link", V1_MIGRATION_LINK);
+      }
+    });
+    decryptRoute(app);
+    encryptRoute(app);
+    generateRoute(app);
+    revokeRoute(app);
+    verifyRoute(app);
+  }
   indexRoute(app);
-  revokeRoute(app);
-  verifyRoute(app);
 
   // v2: Modern cryptographic operations (noble-based)
   v2Routes(app);

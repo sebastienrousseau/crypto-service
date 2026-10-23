@@ -6,6 +6,7 @@
 import * as openpgp from "openpgp";
 import { unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /**
  * ### decrypt
@@ -47,7 +48,10 @@ export const decrypt = async (
   } = data;
 
   if (!privateKeyBase64) {
-    throw new Error("Private key is required for decryption");
+    throw new CryptoError(
+      "Private key is required for decryption",
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const message = await openpgp.readMessage({

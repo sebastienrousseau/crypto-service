@@ -145,6 +145,26 @@ per failed check) for validation failures. A response without a problem
 body (for example from a proxy) becomes an `about:blank` problem for its
 status code.
 
+A request that got no response (connection failure, timeout) throws a
+`CryptoTransportError`: `timedOut` says which, and `cause` holds the
+underlying error.
+
+### Timeouts and retries
+
+`timeout` (milliseconds) applies to each attempt. Retries are off unless
+`retry.maxRetries` is set; then 429, 503 and 504 responses and lost
+connections are retried with jittered exponential backoff, or after the
+server's `Retry-After` when it gives one. A `Retry-After` longer than
+`retry.maxDelayMs` (default 2000) ends the retries, so the client does
+not keep calling a server that asked it to wait.
+
+Requests that create or delete server state (key generation, KMS key
+creation, OPAQUE registration, key deletion) are retried only after 429
+or 503, which mean the server did not process them: after a lost
+connection or a 504 the work may already be done, and a retry could
+create a second key. The client never follows redirects, so an API key
+or token is never sent to another origin.
+
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ---
@@ -155,12 +175,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                   | Role            | Description                                                                                                                    |
 | :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API Schemas     | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API docs        | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks      | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM            | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                      | Terminal CLI    | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS       | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS       | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                      | Core Library    | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis    | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents       | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |

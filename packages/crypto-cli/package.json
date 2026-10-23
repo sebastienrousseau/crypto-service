@@ -120,8 +120,9 @@
     "readme:usage": "node scripts/readme-usage.mjs",
     "start": "node dist/cli.js",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
   "sideEffects": false,
-  "version": "0.0.35"
+  "version": "0.0.36"
 }

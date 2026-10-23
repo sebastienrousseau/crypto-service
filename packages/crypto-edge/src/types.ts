@@ -23,7 +23,7 @@
  *
  * @example
  * ```ts
- * import type { EdgeRuntime } from "@aspect/crypto-edge";
+ * import type { EdgeRuntime } from "@sebastienrousseau/crypto-edge";
  *
  * const runtime: EdgeRuntime = "cloudflare-workers";
  * ```
@@ -43,7 +43,7 @@ export type EdgeRuntime =
  *
  * @example
  * ```ts
- * import type { RuntimeCapabilities } from "@aspect/crypto-edge";
+ * import type { RuntimeCapabilities } from "@sebastienrousseau/crypto-edge";
  *
  * const caps: RuntimeCapabilities = {
  *   runtime: "node",
@@ -68,11 +68,13 @@ export interface RuntimeCapabilities {
 }
 
 /**
- * Supported hash algorithms for the edge Web Crypto wrapper.
+ * Supported hash algorithms for the edge Web Crypto wrapper. SHA-1 is
+ * broken for collision resistance and is offered only to interoperate
+ * with systems that require it.
  *
  * @example
  * ```ts
- * import type { EdgeHashAlgorithm } from "@aspect/crypto-edge";
+ * import type { EdgeHashAlgorithm } from "@sebastienrousseau/crypto-edge";
  *
  * const alg: EdgeHashAlgorithm = "SHA-256";
  * ```
@@ -84,7 +86,7 @@ export type EdgeHashAlgorithm = "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512";
  *
  * @example
  * ```ts
- * import type { EdgeKeyAlgorithm } from "@aspect/crypto-edge";
+ * import type { EdgeKeyAlgorithm } from "@sebastienrousseau/crypto-edge";
  *
  * const alg: EdgeKeyAlgorithm = "AES-GCM";
  * ```
@@ -96,7 +98,7 @@ export type EdgeKeyAlgorithm = "AES-GCM" | "AES-CBC" | "AES-CTR";
  *
  * @example
  * ```ts
- * import type { EdgeSignAlgorithm } from "@aspect/crypto-edge";
+ * import type { EdgeSignAlgorithm } from "@sebastienrousseau/crypto-edge";
  *
  * const alg: EdgeSignAlgorithm = "HMAC";
  * ```
@@ -108,7 +110,7 @@ export type EdgeSignAlgorithm = "HMAC" | "ECDSA" | "RSASSA-PKCS1-v1_5";
  *
  * @example
  * ```ts
- * import type { EdgeEncryptOptions } from "@aspect/crypto-edge";
+ * import type { EdgeEncryptOptions } from "@sebastienrousseau/crypto-edge";
  *
  * const opts: EdgeEncryptOptions = {
  *   key: new Uint8Array(32),
@@ -130,7 +132,7 @@ export interface EdgeEncryptOptions {
  *
  * @example
  * ```ts
- * import type { EdgeEncryptResult } from "@aspect/crypto-edge";
+ * import type { EdgeEncryptResult } from "@sebastienrousseau/crypto-edge";
  *
  * const result: EdgeEncryptResult = {
  *   ciphertext: new Uint8Array(44), // iv || ciphertext || tag
@@ -150,7 +152,7 @@ export interface EdgeEncryptResult {
  *
  * @example
  * ```ts
- * import type { EdgeDecryptOptions } from "@aspect/crypto-edge";
+ * import type { EdgeDecryptOptions } from "@sebastienrousseau/crypto-edge";
  *
  * const opts: EdgeDecryptOptions = {
  *   key: new Uint8Array(32),
@@ -175,7 +177,7 @@ export interface EdgeDecryptOptions {
  *
  * @example
  * ```ts
- * import type { EdgeHmacSignOptions } from "@aspect/crypto-edge";
+ * import type { EdgeHmacSignOptions } from "@sebastienrousseau/crypto-edge";
  *
  * const opts: EdgeHmacSignOptions = {
  *   key: new Uint8Array(32),
@@ -198,7 +200,7 @@ export interface EdgeHmacSignOptions {
  *
  * @example
  * ```ts
- * import type { EdgeHmacVerifyOptions } from "@aspect/crypto-edge";
+ * import type { EdgeHmacVerifyOptions } from "@sebastienrousseau/crypto-edge";
  *
  * const opts: EdgeHmacVerifyOptions = {
  *   key: new Uint8Array(32),
@@ -217,7 +219,7 @@ export interface EdgeHmacVerifyOptions extends EdgeHmacSignOptions {
  *
  * @example
  * ```ts
- * import type { EdgeGenerateKeyOptions } from "@aspect/crypto-edge";
+ * import type { EdgeGenerateKeyOptions } from "@sebastienrousseau/crypto-edge";
  *
  * const opts: EdgeGenerateKeyOptions = {
  *   algorithm: "AES-GCM",

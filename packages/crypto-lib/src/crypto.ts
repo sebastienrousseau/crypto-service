@@ -59,6 +59,7 @@ import {
 } from "./registry";
 import { computeHmac, verifyHmac, type HmacAlgorithm } from "./modern/mac";
 import { CryptoError, CryptoErrorCode } from "./errors";
+import { toHex } from "./encoding";
 
 /** Supported digital signature algorithms. */
 export type SignAlgorithm =
@@ -110,7 +111,7 @@ export const crypto = {
    * ```
    */
   randomKey(): string {
-    return Buffer.from(randomBytes(32)).toString("hex");
+    return toHex(randomBytes(32));
   },
 
   /**

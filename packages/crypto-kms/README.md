@@ -7,7 +7,7 @@
 <h1 align="center">@sebastienrousseau/crypto-kms</h1>
 
 <p align="center">
-  Unified Key Management Service interface. AWS KMS and an in-memory local provider are implemented; GCP, Azure and Vault are stubs.
+  Unified Key Management Service interface with AWS KMS, Google Cloud KMS, HashiCorp Vault Transit and in-memory local providers. Azure is a stub.
 </p>
 
 <p align="center">
@@ -98,12 +98,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                   | Role            | Description                                                                                                                    |
 | :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API Schemas     | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API docs        | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks      | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM            | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                      | Terminal CLI    | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| **[`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)** _(this package)_ | **Cloud KMS**   | **Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.**                            |
+| **[`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)** _(this package)_ | **Cloud KMS**   | **Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.**                      |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                      | Core Library    | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis    | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents       | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -125,24 +125,53 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 crypto-kms defines a unified `KmsProvider` interface for key
 creation, encryption, decryption, signing, verification, rotation
-and data-key generation. Two providers are implemented: AWS KMS and
-an in-memory local provider. The GCP, Azure and HashiCorp Vault
-providers are stubs: every method rejects with `Not implemented`.
-The PKCS#11 provider is an in-memory software simulation for tests
-(see below); it does not talk to an HSM.
+and data-key generation. Four providers talk to a real key store: AWS
+KMS (through the AWS SDK), Google Cloud KMS and HashiCorp Vault
+Transit (through their REST APIs, with `fetch`), and an in-memory
+local provider. The Azure Key Vault provider is a stub: every method
+rejects with `NOT_IMPLEMENTED`. The PKCS#11 provider is an in-memory
+software simulation for tests (see below); it does not talk to an HSM.
+
+`createKey` creates exactly the algorithm you ask for or rejects with
+`INVALID_ARGUMENT`; it never substitutes another. Each provider accepts
+the names below, and its backend's own names (such as `ML_DSA_65` on
+AWS or `EC_SIGN_P384_SHA384` on Google Cloud).
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
 ## Providers
 
-| Provider    | Class               | Backend                    | Status                                | Peer Dependency        |
-| :---------- | :------------------ | :------------------------- | :------------------------------------ | :--------------------- |
-| **AWS**     | `AwsKmsProvider`    | AWS Key Management Service | Implemented                           | `@aws-sdk/client-kms`  |
-| **GCP**     | `GcpKmsProvider`    | Google Cloud KMS           | Stub (rejects `Not implemented`)      | `@google-cloud/kms`    |
-| **Azure**   | `AzureKmsProvider`  | Azure Key Vault            | Stub (rejects `Not implemented`)      | `@azure/keyvault-keys` |
-| **Vault**   | `VaultKmsProvider`  | HashiCorp Vault Transit    | Stub (rejects `Not implemented`)      | None                   |
-| **Local**   | `LocalKmsProvider`  | In-memory (crypto-lib)     | Implemented                           | None                   |
-| **PKCS#11** | `Pkcs11HsmProvider` | None (in-memory)           | Software simulation; `simulate: true` | None                   |
+| Provider    | Class               | Backend                    | Encryption and wrap                                        | Signing                                                                    | Dependency            |
+| :---------- | :------------------ | :------------------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------- | :-------------------- |
+| **AWS**     | `AwsKmsProvider`    | AWS Key Management Service | `aes-256-gcm` (`SYMMETRIC_DEFAULT`), `rsa-*`               | `ed25519`, `p256`, `p384`, `p521`, `secp256k1`, `rsa-*`, `ml-dsa-44/65/87` | `@aws-sdk/client-kms` |
+| **GCP**     | `GcpKmsProvider`    | Google Cloud KMS (REST v1) | `aes-256-gcm` (`GOOGLE_SYMMETRIC_ENCRYPTION`)              | `ed25519`, `p256`, `p384`, `rsa-2048/3072/4096` (PSS or PKCS#1)            | None                  |
+| **Vault**   | `VaultKmsProvider`  | HashiCorp Vault Transit    | `aes-256-gcm`, `aes-128-gcm`, `chacha20-poly1305`, `rsa-*` | `ed25519`, `p256`, `p384`, `p521`, `rsa-*`                                 | None                  |
+| **Local**   | `LocalKmsProvider`  | In-memory (crypto-lib)     | `aes-256-gcm`                                              | `ed25519`                                                                  | None                  |
+| **Azure**   | `AzureKmsProvider`  | Azure Key Vault            | Stub: rejects `NOT_IMPLEMENTED`                            | Stub                                                                       | None                  |
+| **PKCS#11** | `Pkcs11HsmProvider` | None (in-memory)           | Software simulation of `aes-256-gcm`; `simulate: true`     | Software simulation of `ed25519`                                           | None                  |
+
+Backend behaviour worth knowing:
+
+- **AWS**: without an explicit algorithm, `sign` and `verify` use the
+  one matching the key spec (for example `ECDSA_SHA_256` for P-256,
+  `ML_DSA_SHAKE_256` for ML-DSA). `rotateKey` rotates on demand, which
+  AWS supports for symmetric keys only.
+- **Google Cloud**: signing uses the newest enabled key version, and
+  verification is done locally against the public key of each enabled
+  version, since Cloud KMS has no remote asymmetric verify; signatures
+  made before a rotation keep verifying until their version is
+  disabled. Post-quantum signing keys are refused for now.
+  `enableKey`, `disableKey` and `scheduleKeyDeletion` act on every
+  version; deletion uses the key's own destroy-scheduled duration.
+- **Vault**: the encryption context is bound as Transit
+  `associated_data`. Ciphertext written by crypto-kms 0.0.35 or
+  earlier is not bound to its context; set `acceptUnboundContext` to
+  read it, then re-encrypt. Transit cannot disable a key, so
+  `enableKey`/`disableKey` reject with `NOT_IMPLEMENTED`; deletion is
+  immediate, so `scheduleKeyDeletion` requires `pendingWindowDays: 0`
+  to confirm. Vault creates a key on the first encrypt to an unknown
+  name unless the token's policy denies `create` on `transit/encrypt`;
+  grant `update` only.
 
 `Pkcs11HsmProvider` has no PKCS#11 binding: it never loads a module,
 accepts any PIN, keeps keys in process memory and reports
@@ -225,7 +254,7 @@ message:
 | `INVALID_CIPHERTEXT` | Truncated ciphertext or an unknown format                      |
 | `DECRYPTION_FAILED`  | Wrong context, wrong key, or tampered ciphertext               |
 | `VERSION_DESTROYED`  | The ciphertext's key version has been destroyed                |
-| `NOT_IMPLEMENTED`    | Stub provider (GCP, Azure, Vault)                              |
+| `NOT_IMPLEMENTED`    | Stub provider (Azure), or an operation the backend lacks       |
 | `DEPENDENCY_MISSING` | The AWS SDK peer dependency is not installed                   |
 
 Errors raised by the AWS SDK itself are passed through unchanged. No
@@ -238,9 +267,9 @@ provider method takes a timeout or an `AbortSignal` yet.
 | Provider  | Credentials                                                                        |
 | :-------- | :--------------------------------------------------------------------------------- |
 | **AWS**   | Pass `credentials` in `AwsKmsOptions`, or rely on the default AWS credential chain |
-| **GCP**   | Not applicable yet (stub provider)                                                 |
-| **Azure** | Not applicable yet (stub provider)                                                 |
-| **Vault** | Not applicable yet (stub provider)                                                 |
+| **GCP**   | An OAuth2 access token in `token`; the provider does not refresh it                |
+| **Azure** | Not applicable (stub provider)                                                     |
+| **Vault** | A Vault token in `token`, and `namespace` for Vault Enterprise namespaces          |
 | **Local** | No authentication required                                                         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>

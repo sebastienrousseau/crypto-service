@@ -24,6 +24,7 @@ import { serverPgpPrivateKey } from "../../utils/keys";
 /** Fastify JSON Schema for the v1 encrypt endpoint. */
 const encryptSchema = {
   tags: ["Encryption"],
+  deprecated: true,
   summary: "Encrypt a message",
   description:
     "Encrypts a plaintext message using the supplied PGP public key and passphrase.",
@@ -65,7 +66,7 @@ export default (app: FastifyInstance): void => {
           },
           reply,
         );
-        if (!v) return;
+        if (!v) return reply;
 
         const encryptedData = await encrypt({
           passphrase: v.passphrase,

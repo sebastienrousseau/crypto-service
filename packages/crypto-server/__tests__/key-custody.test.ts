@@ -360,22 +360,13 @@ describe("Server-side key custody (F28, F29)", function () {
         expect(retrieved.privateParts).to.deep.equal({ privateKey: "bb" });
       });
 
-      it("supports Buffer and passphrase strings as storage keys", async () => {
+      it("supports a 32-byte Buffer as the storage key", async () => {
         const bufKey = Buffer.alloc(32, 0x42);
         const bufStore = new KeyStore(dir, 10, bufKey);
         const k1 = await bufStore.put(KEY);
         const restartedBuf = new KeyStore(dir, 10, bufKey);
         expect(
           (await restartedBuf.get(k1.keyId, "alice")).privateParts,
-        ).to.deep.equal({
-          privateKey: "bb",
-        });
-
-        const passphraseStore = new KeyStore(dir, 10, "my-secret-passphrase");
-        const k2 = await passphraseStore.put(KEY);
-        const restartedPass = new KeyStore(dir, 10, "my-secret-passphrase");
-        expect(
-          (await restartedPass.get(k2.keyId, "alice")).privateParts,
         ).to.deep.equal({
           privateKey: "bb",
         });
@@ -457,12 +448,15 @@ describe("Server-side key custody (F28, F29)", function () {
         expect(err?.code).to.equal("KEY_INTEGRITY_FAILED");
       });
 
-      it("reads legacy unencrypted keys transparently (backwards compatibility)", async () => {
+      it("reads plaintext keys with a storage key only while migrating", async () => {
         const unencryptedStore = new KeyStore(dir, 10, undefined);
         const stored = await unencryptedStore.put(KEY);
 
-        // Store with storageKey configured should still read legacy unencrypted file
-        const keyedStore = new KeyStore(dir, 10, storageKeyHex);
+        // A plaintext record is refused once a storage key is set, unless
+        // the store is told to accept plaintext during a migration.
+        const keyedStore = new KeyStore(dir, 10, storageKeyHex, {
+          acceptPlaintext: true,
+        });
         const retrieved = await keyedStore.get(stored.keyId, "alice");
         expect(retrieved.privateParts).to.deep.equal({ privateKey: "bb" });
       });
@@ -524,17 +518,7 @@ describe("Server-side key custody (F28, F29)", function () {
         );
       });
 
-      it("handles non-32 byte Uint8Array and whitespace-only string storage keys", async () => {
-        const shortArray = new Uint8Array([1, 2, 3, 4]);
-        const shortStore = new KeyStore(dir, 10, shortArray);
-        const k1 = await shortStore.put(KEY);
-        const restartedShort = new KeyStore(dir, 10, shortArray);
-        expect(
-          (await restartedShort.get(k1.keyId, "alice")).privateParts,
-        ).to.deep.equal({
-          privateKey: "bb",
-        });
-
+      it("treats a whitespace-only storage key as none", async () => {
         const emptyStore = new KeyStore(dir, 10, "   ");
         const k2 = await emptyStore.put(KEY);
         const raw = JSON.parse(

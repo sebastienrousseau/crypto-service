@@ -4,19 +4,20 @@
  */
 
 /**
- * @remarks Key derivation functions via @noble/hashes.
+ * @remarks Key derivation functions.
  *
- * Supports: scrypt, HKDF-SHA256, PBKDF2-SHA256.
- * Argon2 is not yet available in @noble/hashes — scrypt is the recommended
- * alternative for password hashing.
+ * Supports: scrypt, HKDF-SHA256, PBKDF2-SHA256. scrypt and PBKDF2 run in
+ * Node.js's native code where available (see accel/kdf-backend.ts), HKDF
+ * in @noble/hashes. For password hashing, Argon2id is in password.ts.
  */
 
-import { scrypt } from "@noble/hashes/scrypt.js";
+import { pbkdf2, scrypt } from "../accel/kdf-backend";
 import { hkdf } from "@noble/hashes/hkdf.js";
-import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { checkPbkdf2Iterations, checkScryptCosts } from "./cost-limits";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex, utf8 } from "../encoding";
 
 /** Supported key derivation function algorithms. */
 export const KDF_ALGORITHMS = [
@@ -64,9 +65,6 @@ export interface KdfResult {
   keyLength: number;
 }
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
@@ -74,12 +72,12 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+    if (!isHex(input)) {
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 function deriveScrypt(
@@ -141,12 +139,15 @@ export function kdfDerive(options: KdfDeriveOptions): KdfResult {
       derived = derivePbkdf2(password, salt, keyLength, params);
       break;
     default:
-      throw new Error(`Unsupported KDF algorithm: ${options.algorithm}`);
+      throw new CryptoError(
+        `Unsupported KDF algorithm: ${options.algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 
   return {
-    derivedKey: Buffer.from(derived).toString("hex"),
-    salt: Buffer.from(salt).toString("hex"),
+    derivedKey: toHex(derived),
+    salt: toHex(salt),
     algorithm: options.algorithm,
     keyLength,
   };

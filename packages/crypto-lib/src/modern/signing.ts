@@ -15,6 +15,7 @@
 
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { decodeHex, toHex, utf8 } from "../encoding";
 
 /** Ed25519 key pair (32-byte private + 32-byte public). */
 export interface Ed25519KeyPair {
@@ -43,15 +44,18 @@ export interface VerifyResult {
 /**
  * Generate a new Ed25519 key pair.
  */
-export function generateEd25519KeyPair(): Ed25519KeyPair {
+export function ed25519Keygen(): Ed25519KeyPair {
   const privateKey = randomBytes(32);
   const publicKey = ed25519.getPublicKey(privateKey);
 
   return {
-    privateKey: Buffer.from(privateKey).toString("hex"),
-    publicKey: Buffer.from(publicKey).toString("hex"),
+    privateKey: toHex(privateKey),
+    publicKey: toHex(publicKey),
   };
 }
+
+/** @deprecated Use {@link ed25519Keygen}. */
+export const generateEd25519KeyPair = ed25519Keygen;
 
 /**
  * Sign a message with Ed25519.
@@ -61,16 +65,13 @@ export function ed25519Sign(
   message: string | Uint8Array,
 ): SignResult {
   const key =
-    typeof privateKey === "string"
-      ? Buffer.from(privateKey, "hex")
-      : privateKey;
-  const msg =
-    typeof message === "string" ? Buffer.from(message, "utf8") : message;
+    typeof privateKey === "string" ? decodeHex(privateKey) : privateKey;
+  const msg = typeof message === "string" ? utf8(message) : message;
 
   const signature = ed25519.sign(msg, key);
 
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: "ed25519",
   };
 }
@@ -83,14 +84,13 @@ export function ed25519Verify(
   message: string | Uint8Array,
   signature: string | Uint8Array,
 ): VerifyResult {
-  const key =
-    typeof publicKey === "string" ? Buffer.from(publicKey, "hex") : publicKey;
-  const msg =
-    typeof message === "string" ? Buffer.from(message, "utf8") : message;
-  const sig =
-    typeof signature === "string" ? Buffer.from(signature, "hex") : signature;
+  const key = typeof publicKey === "string" ? decodeHex(publicKey) : publicKey;
+  const msg = typeof message === "string" ? utf8(message) : message;
+  const sig = typeof signature === "string" ? decodeHex(signature) : signature;
 
-  const valid = ed25519.verify(sig, msg, key);
+  // RFC 8032 decoding (as OpenSSL), not ZIP-215, which accepts some
+  // non-canonical encodings of R and the public key.
+  const valid = ed25519.verify(sig, msg, key, { zip215: false });
 
   return { valid, algorithm: "ed25519" };
 }

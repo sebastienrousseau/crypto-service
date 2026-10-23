@@ -209,7 +209,10 @@ describe("WorkerPool", () => {
 
     it("should trigger the worker error event handler when the worker thread crashes", async () => {
       // Create a worker script that throws an unhandled error when it receives a message
-      const crashScript = path.join(os.tmpdir(), "crash-worker-test.js");
+      const crashScript = path.join(
+        os.tmpdir(),
+        `crash-worker-test-${process.pid}.js`,
+      );
       fs.writeFileSync(
         crashScript,
         `const { parentPort } = require("node:worker_threads");
@@ -241,7 +244,10 @@ parentPort.on("message", () => {
   describe("shutdown with pending tasks", () => {
     it("should reject queued tasks when shutdown is called", async () => {
       // Create a worker script that delays responding, so tasks queue up
-      const slowScript = path.join(os.tmpdir(), "slow-worker-test.js");
+      const slowScript = path.join(
+        os.tmpdir(),
+        `slow-worker-test-${process.pid}.js`,
+      );
       fs.writeFileSync(
         slowScript,
         `const { parentPort } = require("node:worker_threads");
@@ -280,11 +286,15 @@ parentPort.on("message", (msg) => {
       // Verify tasks are pending
       expect(pool.pending).to.equal(2);
 
+      // Settle p2 and p3 before shutdown() rejects them, so the
+      // rejections are handled when they happen.
+      const settled = Promise.allSettled([p2, p3]);
+
       // Shutdown immediately — queued tasks (p2, p3) should be rejected
       await pool.shutdown();
 
       // p2 and p3 should reject with "shutting down" error
-      const results = await Promise.allSettled([p2, p3]);
+      const results = await settled;
       expect(results.every((r) => r.status === "rejected")).to.be.true;
       for (const r of results) {
         expect((r as PromiseRejectedResult).reason.message).to.include(

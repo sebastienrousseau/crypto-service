@@ -8,6 +8,7 @@
  */
 
 import { CryptoError, CryptoErrorCode } from "./errors";
+import { decodeHex, toHex } from "./encoding";
 
 /**
  * Constant-time comparison of two byte arrays.
@@ -73,7 +74,7 @@ export class SecureBuffer {
    */
   constructor(data: Uint8Array | string) {
     if (typeof data === "string") {
-      this.buf = Buffer.from(data, "hex");
+      this.buf = decodeHex(data);
     } else {
       this.buf = new Uint8Array(data);
     }
@@ -130,7 +131,7 @@ export class SecureBuffer {
         CryptoErrorCode.BUFFER_DESTROYED,
       );
     }
-    return Buffer.from(this.buf).toString("hex");
+    return toHex(this.buf);
   }
 
   /**

@@ -64,9 +64,9 @@ async function keygenAndSign(
 ): Promise<void> {
   if (algorithm === "schnorr") {
     // Schnorr uses secp256k1, generate manually
-    const { generateSchnorrKeyPair } =
+    const { schnorrKeygen } =
       await import("@sebastienrousseau/crypto-lib/modern");
-    const kp = generateSchnorrKeyPair();
+    const kp = schnorrKeygen();
     const sig = crypto.sign("schnorr", kp.privateKey, message);
     printJson({
       publicKey: kp.publicKey,

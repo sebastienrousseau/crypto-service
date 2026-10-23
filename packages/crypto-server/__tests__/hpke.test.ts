@@ -20,7 +20,7 @@ describe("HPKE Routes (/v2/hpke)", function () {
   });
 
   describe("POST /v2/hpke/keygen", () => {
-    it("generates post-quantum hybrid keypair by default with server custody", async () => {
+    it("generates an X-Wing keypair by default with server custody", async () => {
       const res = await app.inject({
         method: "POST",
         url: "/v2/hpke/keygen",
@@ -30,8 +30,8 @@ describe("HPKE Routes (/v2/hpke)", function () {
       const data = JSON.parse(res.payload).data;
       expect(data).to.have.property("keyId");
       expect(data).to.have.property("publicKey");
-      expect(data.algorithm).to.equal("x25519-ml-kem-768");
-      expect(data.publicKey).to.be.a("string");
+      expect(data.algorithm).to.equal("x-wing");
+      expect(data.publicKey).to.have.length(2432);
     });
 
     it("generates classical x25519 keypair", async () => {
@@ -60,7 +60,40 @@ describe("HPKE Routes (/v2/hpke)", function () {
   });
 
   describe("POST /v2/hpke/seal and /v2/hpke/open", () => {
-    it("round-trips post-quantum hybrid HPKE (x25519-ml-kem-768)", async () => {
+    it("round-trips X-Wing HPKE, the default post-quantum suite", async () => {
+      const keygenRes = await app.inject({
+        method: "POST",
+        url: "/v2/hpke/keygen",
+        payload: {},
+      });
+      const kp = JSON.parse(keygenRes.payload).data;
+      const sealRes = await app.inject({
+        method: "POST",
+        url: "/v2/hpke/seal",
+        payload: {
+          recipientPublicKey: kp.publicKey,
+          plaintext: "X-Wing secret",
+        },
+      });
+      expect(sealRes.statusCode).to.equal(200);
+      const sealData = JSON.parse(sealRes.payload).data;
+      expect(sealData.encapsulatedKey).to.have.length(2240);
+      const openRes = await app.inject({
+        method: "POST",
+        url: "/v2/hpke/open",
+        payload: {
+          keyId: kp.keyId,
+          encapsulatedKey: sealData.encapsulatedKey,
+          ciphertext: sealData.ciphertext,
+        },
+      });
+      expect(openRes.statusCode).to.equal(200);
+      expect(JSON.parse(openRes.payload).data.plaintext).to.equal(
+        "X-Wing secret",
+      );
+    });
+
+    it("still round-trips the pre-0.0.36 hybrid (x25519-ml-kem-768)", async () => {
       const keygenRes = await app.inject({
         method: "POST",
         url: "/v2/hpke/keygen",

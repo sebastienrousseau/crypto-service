@@ -20,6 +20,15 @@ import { chacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import * as nodeCrypto from "node:crypto";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 /**
  * Narrows a `Uint8Array` to one the WebCrypto types accept.
@@ -118,7 +127,6 @@ export interface ModernSha3HashResult {
 
 // --- Helpers ---
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
 const NONCE_LENGTH = 12; // Standard ChaCha20-Poly1305 uses 12-byte nonce
 const TAG_LENGTH = 16;
 
@@ -128,12 +136,12 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+    if (!isHex(input)) {
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /**
@@ -257,7 +265,10 @@ export async function modernChaCha20Encrypt(
 ): Promise<ModernAeadResult> {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const plaintext = toBytes(options.plaintext, "utf8");
@@ -294,7 +305,7 @@ export async function modernChaCha20Encrypt(
     combined.set(sealed, NONCE_LENGTH);
 
     return {
-      ciphertext: Buffer.from(combined).toString("base64"),
+      ciphertext: toBase64(combined),
       accelerated: true,
     };
   }
@@ -308,7 +319,7 @@ export async function modernChaCha20Encrypt(
   combined.set(sealed, NONCE_LENGTH);
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: toBase64(combined),
     accelerated: false,
   };
 }
@@ -332,12 +343,18 @@ export async function modernChaCha20Decrypt(
 ): Promise<ModernChaCha20DecryptResult> {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
-  const combined = Buffer.from(options.ciphertext, "base64");
+  const combined = fromBase64(options.ciphertext);
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);
@@ -413,7 +430,7 @@ export async function modernSha3Hash(
     const digest = await subtle.digest(options.algorithm, asBufferSource(data));
 
     return {
-      digest: Buffer.from(digest).toString("hex"),
+      digest: toHex(new Uint8Array(digest)),
       accelerated: true,
     };
   }
@@ -428,11 +445,14 @@ export async function modernSha3Hash(
       digest = sha3_512(data);
       break;
     default:
-      throw new Error(`Unsupported SHA-3 algorithm: ${options.algorithm}`);
+      throw new CryptoError(
+        `Unsupported SHA-3 algorithm: ${options.algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 
   return {
-    digest: Buffer.from(digest).toString("hex"),
+    digest: toHex(new Uint8Array(digest)),
     accelerated: false,
   };
 }

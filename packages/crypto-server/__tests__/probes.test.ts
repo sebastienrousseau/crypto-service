@@ -36,8 +36,7 @@ describe("Probe endpoints", function () {
       const body = JSON.parse(res.payload);
       expect(body.status).to.equal("ready");
       expect(body.checks).to.be.an("object");
-      expect(body.checks.configLoaded).to.be.true;
-      expect(body.checks.serverListening).to.be.true;
+      expect(body.checks).to.deep.equal({ accepting: true, keyStore: true });
     });
   });
 
@@ -58,7 +57,8 @@ describe("Probe endpoints", function () {
       expect(payload).to.include("process_resident_memory_bytes");
       expect(payload).to.include("process_heap_used_bytes");
       expect(payload).to.include("process_heap_total_bytes");
-      expect(payload).to.include("nodejs_version_info");
+      expect(payload).to.include("http_requests_total");
+      expect(payload).to.not.include("nodejs_version_info");
 
       // Check HELP and TYPE annotations
       expect(payload).to.include(
@@ -83,9 +83,6 @@ describe("Probe endpoints", function () {
       expect(payload).to.match(/process_resident_memory_bytes \d+/);
       expect(payload).to.match(/process_heap_used_bytes \d+/);
       expect(payload).to.match(/process_heap_total_bytes \d+/);
-
-      // Check Node.js version info metric
-      expect(payload).to.match(/nodejs_version_info\{version="v[\d.]+"\} 1/);
     });
   });
 });

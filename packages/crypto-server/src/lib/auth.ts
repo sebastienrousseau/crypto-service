@@ -75,6 +75,27 @@ export interface AuthPayload {
 const IAT_CLOCK_SKEW_SECONDS = 60;
 
 /**
+ * Subjects of the built-in principals. A token may not claim one, or it
+ * would own the API key's or anonymous callers' server-held keys.
+ */
+export const RESERVED_SUBJECTS: ReadonlySet<string> = new Set([
+  "api-key",
+  "anonymous",
+]);
+
+/**
+ * Whether a verified token names a usable subject: server-held keys
+ * belong to `sub`, so tokens without one would all share an owner.
+ */
+export function hasUsableSubject(payload: { sub?: unknown }): boolean {
+  return (
+    typeof payload.sub === "string" &&
+    payload.sub.length > 0 &&
+    !RESERVED_SUBJECTS.has(payload.sub)
+  );
+}
+
+/**
  * Register the JWT plugin when `JWT_SECRET` is set. Every token must be
  * HS256, carry `exp` and `iat`, be younger than `JWT_MAX_AGE` seconds
  * (default 3600), and match `JWT_ISSUER` / `JWT_AUDIENCE` when those are
@@ -97,6 +118,7 @@ export async function registerAuth(app: FastifyInstance): Promise<void> {
       algorithms: ["HS256"],
       // fast-jwt skips an absent claim, so required ones are listed here.
       requiredClaims: [
+        "sub",
         "exp",
         "iat",
         ...(policy.issuer ? ["iss"] : []),
@@ -140,6 +162,9 @@ async function verifyBearer(
     const { maxAgeSeconds } = jwtPolicy(process.env);
     if (exceedsLifetime(decoded, maxAgeSeconds)) {
       throw new Error("token lifetime exceeds JWT_MAX_AGE");
+    }
+    if (!hasUsableSubject(decoded)) {
+      throw new Error("token subject is missing or reserved");
     }
     return decoded;
   } catch {

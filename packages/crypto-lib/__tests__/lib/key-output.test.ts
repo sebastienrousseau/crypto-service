@@ -134,6 +134,48 @@ describe("Key output location and permissions", function () {
     expect(mode.toString(8)).to.equal("600");
   });
 
+  // A caller that must not leave keys on disk (a server) passes
+  // { persist: false }: nothing is written even with CRYPTO_KEY_OUT_DIR.
+  it("generate, revoke and reformat write nothing with persist: false", async () => {
+    await withEnv(
+      { CRYPTO_KEY_DIR: FIXTURE_DIR, CRYPTO_KEY_OUT_DIR: outDir },
+      async () => {
+        const options = { persist: false };
+        await generate(
+          {
+            rsaBits: 2048,
+            curve: "p256",
+            email: "np@test.com",
+            keyExpirationTime: 0,
+            format: "armored",
+            name: "No Persist",
+            passphrase: "no-persist-passphrase",
+            date: new Date(),
+            type: "ecc",
+            userIDs: [{ name: "No Persist", email: "np@test.com" }],
+          },
+          options,
+        );
+        await revoke(
+          { passphrase: FIXTURE_PASSPHRASE, flag: 0, reason: "no persist" },
+          options,
+        );
+        await reformat(
+          {
+            date: new Date(),
+            email: "np@test.com",
+            name: "No Persist",
+            passphrase: FIXTURE_PASSPHRASE,
+            expiration: 0,
+            publicKey: "",
+          },
+          options,
+        );
+      },
+    );
+    expect(fs.readdirSync(outDir)).to.deep.equal([]);
+  });
+
   it("refuses the bundled test keys in production when CRYPTO_KEY_DIR is unset", async () => {
     await withEnv(
       { NODE_ENV: "production", CRYPTO_KEY_DIR: undefined },

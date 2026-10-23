@@ -18,6 +18,8 @@
 
 import { gcm, gcmsiv } from "@noble/ciphers/aes.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, fromBase64, isHex, toBase64, utf8 } from "../encoding";
 
 // --- Types ---
 
@@ -84,9 +86,6 @@ export interface AesGcmDecryptOptions {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Convert a string or Uint8Array to bytes using the specified encoding. */
 function toBytes(
   input: string | Uint8Array,
@@ -94,12 +93,12 @@ function toBytes(
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) {
-      throw new Error("Invalid hex string");
+    if (!isHex(input)) {
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
     }
-    return Buffer.from(input, "hex");
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 /** GCM standard 96-bit nonce length in bytes. */
@@ -111,8 +110,9 @@ const TAG_LENGTH = 16; // GCM 128-bit auth tag
 function validateAesKey(rawKey: string | Uint8Array): Uint8Array {
   const key = toBytes(rawKey, "hex");
   if (key.length !== 16 && key.length !== 32) {
-    throw new Error(
+    throw new CryptoError(
       `Key must be 16 bytes (128 bits) or 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
     );
   }
   return key;
@@ -123,7 +123,7 @@ function packNonceAndSealed(nonce: Uint8Array, sealed: Uint8Array): string {
   const combined = new Uint8Array(NONCE_LENGTH + sealed.length);
   combined.set(nonce);
   combined.set(sealed, NONCE_LENGTH);
-  return Buffer.from(combined).toString("base64");
+  return toBase64(combined);
 }
 
 /** Unpack Base64-encoded ciphertext into nonce and sealed ciphertext. */
@@ -131,9 +131,12 @@ function unpackNonceAndSealed(ciphertext: string): {
   nonce: Uint8Array;
   sealed: Uint8Array;
 } {
-  const combined = Buffer.from(ciphertext, "base64");
+  const combined = fromBase64(ciphertext);
   if (combined.length < NONCE_LENGTH + TAG_LENGTH) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
   return {
     nonce: combined.subarray(0, NONCE_LENGTH),

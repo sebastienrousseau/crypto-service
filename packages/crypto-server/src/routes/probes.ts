@@ -7,11 +7,12 @@
  * @remarks Kubernetes-style liveness, readiness probes and Prometheus metrics.
  *
  * - GET /live    — lightweight liveness check (always 200 if process is alive)
- * - GET /ready   — readiness check (verifies config is loaded)
+ * - GET /ready   — readiness check (not draining; key directory writable)
  * - GET /metrics — Prometheus-compatible text metrics
  */
 
 import type { FastifyInstance } from "fastify";
+import { readinessChecks } from "../lib/readiness";
 
 /** Process start time for uptime calculations. */
 const startTime = Date.now();
@@ -30,21 +31,13 @@ export default (app: FastifyInstance): void => {
   });
 
   /**
-   * Readiness probe — indicates the service is ready to accept traffic.
-   * Checks that critical config is loaded.
+   * Readiness probe: 503 while the server drains for shutdown or cannot
+   * write keys, so a load balancer stops sending it traffic.
    */
   app.get("/ready", { schema: { hide: true } }, async (_request, reply) => {
-    const checks: Record<string, boolean> = {
-      configLoaded: true,
-      serverListening: true,
-    };
-
+    const checks = await readinessChecks(app);
     const allReady = Object.values(checks).every(Boolean);
-    /* c8 ignore next -- checks are hardcoded true; 503 path is defensive */
-    const status = allReady ? 200 : 503;
-
-    return reply.status(status).send({
-      /* c8 ignore next -- see above */
+    return reply.status(allReady ? 200 : 503).send({
       status: allReady ? "ready" : "not_ready",
       checks,
     });
@@ -52,7 +45,8 @@ export default (app: FastifyInstance): void => {
 
   /**
    * Prometheus metrics endpoint.
-   * Exposes basic process metrics + custom crypto operation counters.
+   * Exposes process metrics and per-route request counters. The Node.js
+   * version is not exposed: it only helps fingerprint the server.
    */
   app.get("/metrics", { schema: { hide: true } }, async (_request, reply) => {
     const uptime = Math.floor((Date.now() - startTime) / 1000);
@@ -75,10 +69,7 @@ export default (app: FastifyInstance): void => {
       "# TYPE process_heap_total_bytes gauge",
       `process_heap_total_bytes ${memUsage.heapTotal}`,
       "",
-      "# HELP nodejs_version_info Node.js version",
-      "# TYPE nodejs_version_info gauge",
-      `nodejs_version_info{version="${process.version}"} 1`,
-      "",
+      app.httpMetrics.render(),
     ];
 
     reply.header("content-type", "text/plain; version=0.0.4; charset=utf-8");

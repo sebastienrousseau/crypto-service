@@ -19,7 +19,14 @@ const SEED = Buffer.from("bb".repeat(32), "hex");
 const SECRET_KEY = SEED.toString("hex");
 const PUBLIC_KEY = Buffer.from(ed25519.getPublicKey(SEED)).toString("hex");
 
-const payloadArb = fc.dictionary(fc.string(), fc.jsonValue());
+// exp, nbf and iat are checked as RFC 3339 times (paseto.test.ts covers
+// them); an arbitrary value there is rightly refused, so these properties,
+// about everything else a payload can carry, leave those names out.
+const TIME_CLAIMS = new Set(["exp", "nbf", "iat"]);
+const payloadArb = fc.dictionary(
+  fc.string().filter((key) => !TIME_CLAIMS.has(key)),
+  fc.jsonValue(),
+);
 const optsArb = fc.record({ footer: fc.string(), implicit: fc.string() });
 
 /** The payload as it survives JSON (what a token can carry). */

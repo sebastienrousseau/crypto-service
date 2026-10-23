@@ -6,12 +6,21 @@
 /**
  * @remarks Centralized, validated configuration.
  *
- * All environment variables are parsed and validated at boot time.
- * If any required value is missing or malformed, the process exits
- * immediately with a clear error message — fail fast, not at runtime.
+ * All environment variables are parsed and validated at boot time. If
+ * any value is missing or malformed, loadConfig throws a ConfigError
+ * listing every problem, and the server does not start.
  */
 
 import { authConfigError } from "./auth-policy";
+import { resolveRateLimitMax } from "./constants";
+import { flagSetting, integerSetting } from "./settings";
+import { kmsConfigError } from "../lib/kms-providers";
+import { keyStoreConfigError } from "../lib/key-store";
+
+/** Invalid configuration; the message lists every problem found. */
+export class ConfigError extends Error {
+  override name = "ConfigError";
+}
 
 /** Server configuration loaded from environment variables. */
 export interface Config {
@@ -37,20 +46,32 @@ export interface Config {
   readonly keyOutDir: string | undefined;
   /** Graceful shutdown timeout in milliseconds. */
   readonly shutdownTimeoutMs: number;
+  /** Requests per client per minute. */
+  readonly rateLimitMax: number;
+  /** Whether /docs serves the API documentation (`DOCS_ENABLED`). */
+  readonly docsEnabled: boolean;
+  /** Whether the deprecated v1 routes are served (`V1_ENABLED`). */
+  readonly v1Enabled: boolean;
 }
 
-/** Read an optional environment variable with a fallback default. */
-function optional(name: string, fallback: string): string {
-  return process.env[name] ?? fallback;
+/** Whether /docs serves the API documentation: `DOCS_ENABLED`, default on. */
+export function docsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return flagSetting(env, "DOCS_ENABLED", true);
 }
 
-/** Parse and validate a TCP port number string. */
-function parsePort(val: string): number {
-  const port = parseInt(val, 10);
-  if (!Number.isFinite(port) || port < 0 || port > 65535) {
-    throw new Error(`Invalid PORT: ${val} (must be 0–65535)`);
+/** Whether the deprecated v1 routes are served: `V1_ENABLED`, default on. */
+export function v1Enabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return flagSetting(env, "V1_ENABLED", true);
+}
+
+/** Runs a parser, recording its error and returning `fallback` on failure. */
+function attempt<T>(errors: string[], fallback: T, parse: () => T): T {
+  try {
+    return parse();
+  } catch (e) {
+    errors.push((e as Error).message);
+    return fallback;
   }
-  return port;
 }
 
 /** Parse a comma-separated string into a trimmed array, or false if empty. */
@@ -63,19 +84,13 @@ function parseCsvList(val: string | undefined): string[] | false {
   return entries.length > 0 ? entries : false;
 }
 
-/**
- * Loads and validates all configuration from environment variables.
- * Call once at startup — the returned object is frozen and immutable.
- */
-export function loadConfig(): Config {
+/** Errors for PROTOCOL, NODE_ENV and LOG_LEVEL values out of range. */
+function enumErrors(
+  protocol: string,
+  nodeEnv: string,
+  logLevel: string,
+): string[] {
   const errors: string[] = [];
-
-  const host = optional("HOST", "localhost");
-  const portStr = optional("PORT", "3000");
-  const protocol = optional("PROTOCOL", "http") as Config["protocol"];
-  const nodeEnv = optional("NODE_ENV", "development") as Config["nodeEnv"];
-  const logLevel = optional("LOG_LEVEL", "info") as Config["logLevel"];
-
   if (!["http", "https"].includes(protocol)) {
     errors.push(`PROTOCOL must be "http" or "https", got "${protocol}"`);
   }
@@ -89,42 +104,67 @@ export function loadConfig(): Config {
       `LOG_LEVEL must be one of error|warn|info|debug, got "${logLevel}"`,
     );
   }
+  return errors;
+}
 
-  const authError = authConfigError(process.env);
-  if (authError) errors.push(authError);
+/** Numeric and on/off settings, each recorded in `errors` when invalid. */
+function checkedSettings(env: NodeJS.ProcessEnv, errors: string[]) {
+  return {
+    port: attempt(errors, 3000, () =>
+      integerSetting(env, "PORT", 3000, 0, 65535),
+    ),
+    shutdownTimeoutMs: attempt(errors, 30000, () =>
+      integerSetting(env, "SHUTDOWN_TIMEOUT_MS", 30000, 1),
+    ),
+    rateLimitMax: attempt(errors, 0, () => resolveRateLimitMax(env)),
+    docsEnabled: attempt(errors, true, () => docsEnabled(env)),
+    v1Enabled: attempt(errors, true, () => v1Enabled(env)),
+  };
+}
 
-  let port = 3000;
-  try {
-    port = parsePort(portStr);
-  } catch (e) {
-    errors.push((e as Error).message);
-  }
-
-  if (errors.length > 0) {
-    const msg = [
-      "Configuration validation failed:",
-      ...errors.map((e) => `  - ${e}`),
-    ].join("\n");
-    console.error(msg);
-    process.exit(1);
-  }
-
-  return Object.freeze({
-    host,
-    port,
-    protocol,
-    nodeEnv,
-    logLevel,
-    apiKey: process.env["CRYPTO_API_KEY"] || undefined,
-    corsOrigins: parseCsvList(process.env["CORS_ORIGIN"]),
-    trustProxy: parseCsvList(process.env["TRUSTED_PROXY_CIDRS"]),
-    keyDir: process.env["CRYPTO_KEY_DIR"] || undefined,
-    keyOutDir: process.env["CRYPTO_KEY_OUT_DIR"] || undefined,
-    shutdownTimeoutMs: parseInt(optional("SHUTDOWN_TIMEOUT_MS", "30000"), 10),
-  });
+/** Settings that need no validation: credentials, paths and lists. */
+function openSettings(env: NodeJS.ProcessEnv) {
+  return {
+    host: env["HOST"] ?? "localhost",
+    apiKey: env["CRYPTO_API_KEY"] || undefined,
+    corsOrigins: parseCsvList(env["CORS_ORIGIN"]),
+    trustProxy: parseCsvList(env["TRUSTED_PROXY_CIDRS"]),
+    keyDir: env["CRYPTO_KEY_DIR"] || undefined,
+    keyOutDir: env["CRYPTO_KEY_OUT_DIR"] || undefined,
+  };
 }
 
 /**
- * Singleton config instance. Loaded once at module import time.
+ * Loads and validates all configuration from the environment. The
+ * returned object is frozen.
+ *
+ * @throws ConfigError listing every invalid setting.
  */
-export const config: Config = loadConfig();
+export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const protocol = (env["PROTOCOL"] ?? "http") as Config["protocol"];
+  const nodeEnv = (env["NODE_ENV"] ?? "development") as Config["nodeEnv"];
+  const logLevel = (env["LOG_LEVEL"] ?? "info") as Config["logLevel"];
+
+  const errors = enumErrors(protocol, nodeEnv, logLevel);
+  for (const check of [authConfigError, kmsConfigError, keyStoreConfigError]) {
+    const error = check(env);
+    if (error) errors.push(error);
+  }
+  const checked = checkedSettings(env, errors);
+  if (errors.length > 0) {
+    throw new ConfigError(
+      [
+        "Configuration validation failed:",
+        ...errors.map((e) => `  - ${e}`),
+      ].join("\n"),
+    );
+  }
+
+  return Object.freeze({
+    ...openSettings(env),
+    protocol,
+    nodeEnv,
+    logLevel,
+    ...checked,
+  });
+}

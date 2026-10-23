@@ -108,12 +108,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                   | Role             | Description                                                                                                                    |
 | :---------------------------------------------------------------------------------------------------------------------------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API docs         | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks       | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM             | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                      | Terminal CLI     | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS        | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS        | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | **[`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)** _(this package)_ | **Core Library** | **Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.**     |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis     | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents        | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -142,6 +142,21 @@ add-ons, no C bindings. The first three have had independent audits;
 SLH-DSA) are first-class citizens, not add-ons, and hybrid
 constructions combine classical and PQ algorithms so security holds
 even if one family breaks.
+
+On Node.js 24.7 and later, ML-KEM, ML-DSA and SLH-DSA run in the
+runtime's own OpenSSL 3.5 instead: measured on an Apple A18 Pro with
+Node.js 24.21, ML-KEM-768 encapsulation is about 7 times faster,
+ML-DSA-65 signing about 20 times and SLH-DSA-SHA2-128f signing about 6
+times. Keys, ciphertexts and signatures are the same raw bytes as
+noble's, so data made on one runtime works on another, and noble still
+runs in browsers, edge runtimes and older Node.js. `nativeAlgorithms()`
+in `@sebastienrousseau/crypto-lib/accel` lists what runs natively.
+
+In a browser, import from the `./modern`, `./high-level`, `./keys`,
+`./streaming`, `./protocols` and `./tokens` subpaths: they use no
+Node.js API (each is bundled for the browser and run in Chrome in
+testing). The main entry also loads the OpenPGP API and the file
+keystore, and `./accel` the worker pool, which need Node.js.
 
 Two API layers serve different needs: a unified `crypto.*` namespace
 for common tasks, and granular per-module imports for full control

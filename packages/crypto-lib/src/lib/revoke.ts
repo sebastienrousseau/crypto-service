@@ -4,7 +4,7 @@
  */
 
 import * as openpgp from "openpgp";
-import { writeKeyOutputs } from "./key-output";
+import { writeKeyOutputs, type KeyOutputOptions } from "./key-output";
 import { loadKeystore, unlockPrivateKey } from "../key/keystore";
 import * as types from "../types/types";
 
@@ -23,10 +23,13 @@ import type { ArmoredKeyResult } from "./reformat.js";
  * @param {String} data.passphrase - Passphrase that unlocks the private key.
  * @param {Number} data.flag       - Optional revocation reason flag.
  * @param {String} data.reason     - Optional human-readable reason.
+ * @param {KeyOutputOptions} output - `persist: false` skips writing the
+ *                                    revoked key to `CRYPTO_KEY_OUT_DIR`.
  * @returns {Promise<unknown>}     - The result of `openpgp.revokeKey`.
  */
 export const revoke = async (
   data: types.dataRevoke,
+  output: KeyOutputOptions = {},
 ): Promise<ArmoredKeyResult> => {
   const { flag, passphrase, reason } = data;
 
@@ -43,10 +46,13 @@ export const revoke = async (
   const revokedPubArmored = revoked.publicKey as unknown as string;
   const revokedPrivArmored = revoked.privateKey as unknown as string;
 
-  await writeKeyOutputs([
-    { name: "rsa-revoke.pub", content: revokedPubArmored, secret: false },
-    { name: "rsa-revoke.key", content: revokedPrivArmored, secret: true },
-  ]);
+  await writeKeyOutputs(
+    [
+      { name: "rsa-revoke.pub", content: revokedPubArmored, secret: false },
+      { name: "rsa-revoke.key", content: revokedPrivArmored, secret: true },
+    ],
+    output,
+  );
 
   return revoked;
 };

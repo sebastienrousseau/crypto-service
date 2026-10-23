@@ -4,75 +4,84 @@
   <img src="https://raw.githubusercontent.com/sebastienrousseau/crypto-service/main/assets/crypto-service-logo.svg" alt="Crypto Service Suite logo" width="128" />
 </p>
 
-<h1 align="center">Crypto Service Suite</h1>
+<h1 align="center">Crypto Service Suite packages</h1>
 
 <p align="center">
-  A monorepo of cryptographic libraries, server, CLI, SDK, and ecosystem
-  integrations for TypeScript — with post-quantum support and 100% test coverage.
+  The 18 packages of the monorepo: a post-quantum cryptography library,
+  its CLI, REST server and SDK, and integrations built on them.
 </p>
 
 <p align="center">
   <a href="https://github.com/sebastienrousseau/crypto-service/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/crypto-service/ci.yml?style=for-the-badge&logo=github" alt="Build" /></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License" /></a>
-  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen?style=for-the-badge&logo=node.js" alt="Node" /></a>
+  <a href="https://github.com/sebastienrousseau/crypto-service/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg?style=for-the-badge" alt="License: Apache-2.0 OR MIT" /></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen?style=for-the-badge&logo=node.js" alt="Node.js 22 or newer" /></a>
 </p>
 
 ---
 
 ## Contents
 
-- [Packages](#packages) — all 18 packages at a glance
-- [Quick Start](#quick-start) — install, build, test, run
-- [Architecture](#architecture) — dependency graph
-- [Coverage](#coverage) — per-package test metrics
-- [License](#license) — Apache-2.0 OR MIT
+- [Packages](#packages): every package and what it does
+- [Quick Start](#quick-start): install, build, test, run
+- [Coverage](#coverage): where the coverage floors are set
+- [License](#license): Apache-2.0 OR MIT
 
 ---
 
 ## Packages
 
-### Core
+The table and the dependency list below are generated from each
+package's `package.json` by `node scripts/packages-index.mjs`; `make
+check` fails when they are out of date.
 
-| Package                           | Description                                                           | Version |
-| :-------------------------------- | :-------------------------------------------------------------------- | :------ |
-| [`crypto-lib`](crypto-lib/)       | Core cryptographic library — hash, encrypt, sign, KEM, KDF, protocols | 0.0.3   |
-| [`crypto-server`](crypto-server/) | Fastify REST API exposing all crypto operations over HTTP             | 0.0.3   |
-| [`crypto-cli`](crypto-cli/)       | Interactive CLI for cryptographic operations (legacy + modern)        | 0.0.3   |
-| [`crypto-sdk`](crypto-sdk/)       | Zero-dependency typed HTTP client for the REST API                    | 0.0.3   |
-| [`crypto-api`](crypto-api/)       | Shared TypeScript types and utilities for the API surface             | 0.0.3   |
+<!-- BEGIN GENERATED: scripts/packages-index.mjs -->
 
-### Enterprise
+All 18 packages share one version; descriptions are the
+ones published to npm.
 
-| Package                             | Description                                                              | Version |
-| :---------------------------------- | :----------------------------------------------------------------------- | :------ |
-| [`crypto-kms`](crypto-kms/)         | Adapters for AWS KMS, Google Cloud KMS, Azure Key Vault, HashiCorp Vault | 0.0.3   |
-| [`crypto-prisma`](crypto-prisma/)   | Prisma ORM field-level encryption middleware and client extension        | 0.0.3   |
-| [`crypto-typeorm`](crypto-typeorm/) | TypeORM column encryption via decorators, subscribers, and transformers  | 0.0.3   |
+| Package                                   | Description                                                                                                                                                                                                                                                                                               |
+| :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`crypto-api`](crypto-api/)               | TypeScript types for Postman collections and a converter that turns a Postman collection into Markdown API documentation. Not the crypto-server request/response contract: that is the server's OpenAPI document.                                                                                         |
+| [`crypto-benchmarks`](crypto-benchmarks/) | Benchmarks comparing classical and post-quantum cryptography in JavaScript: ops/sec, latency and throughput for RSA, ECDSA, AES, SHA-2, ML-KEM and ML-DSA.                                                                                                                                                |
+| [`crypto-cbom`](crypto-cbom/)             | Cryptographic Bill of Materials (CBOM) generator and auditor: scans code for cryptographic assets and writes CycloneDX 1.6 or SPDX 3.0, with a heuristic quantum-readiness score.                                                                                                                         |
+| [`crypto-cli`](crypto-cli/)               | Post-quantum cryptography CLI: hash, generate ML-KEM, ML-DSA and Ed25519 keys, encrypt, sign and verify files, HPKE, Argon2id password hashing and CBOM scans from the terminal.                                                                                                                          |
+| [`crypto-edge`](crypto-edge/)             | Edge and serverless cryptography for Cloudflare Workers, Vercel Edge, Deno, Bun and browsers, with runtime detection and a Web Crypto API adapter for crypto-lib.                                                                                                                                         |
+| [`crypto-kms`](crypto-kms/)               | Key management interface for envelope encryption, signing and key rotation, with providers for AWS KMS (including ML-DSA signing keys), Google Cloud KMS, HashiCorp Vault Transit and an in-memory local store. The Azure Key Vault provider is a stub and the PKCS#11 provider is a software simulation. |
+| [`crypto-lib`](crypto-lib/)               | Post-quantum cryptography library for TypeScript and Node.js: ML-KEM, ML-DSA, SLH-DSA, HPKE, AES-GCM, XChaCha20-Poly1305, Ed25519, X25519, SHA-3, BLAKE3, Argon2id and OpenPGP.                                                                                                                           |
+| [`crypto-lsp`](crypto-lsp/)               | Language Server Protocol (LSP) server for cryptography: flags broken hashes, weak ciphers, short keys, quantum-vulnerable algorithms, hardcoded secrets and malformed PEM, with quick fixes.                                                                                                              |
+| [`crypto-mcp`](crypto-mcp/)               | Model Context Protocol (MCP) server that gives AI assistants and agents cryptography tools: key generation, encryption, ML-KEM, ML-DSA signing, hashing, streaming encryption, KMS and CBOM.                                                                                                              |
+| [`crypto-middleware`](crypto-middleware/) | Express and Fastify middleware that decrypts requests, encrypts responses and verifies HMAC signatures and JWTs on matching routes.                                                                                                                                                                       |
+| [`crypto-prisma`](crypto-prisma/)         | Prisma Client extension for transparent field-level encryption with XChaCha20-Poly1305: encrypt chosen model fields before they reach the database.                                                                                                                                                       |
+| [`crypto-react`](crypto-react/)           | React hooks for client-side cryptography: key generation, encryption, signing, hashing and post-quantum hybrid streaming encryption (ML-KEM-768).                                                                                                                                                         |
+| [`crypto-sdk`](crypto-sdk/)               | Typed TypeScript client for the crypto-server REST API: post-quantum, encryption, signing and hashing calls. Zero dependencies, built on fetch.                                                                                                                                                           |
+| [`crypto-server`](crypto-server/)         | Fastify REST API for cryptography as a service: post-quantum ML-KEM and ML-DSA, encryption, signing, hashing and KMS endpoints, with OpenAPI docs, API key or JWT auth, rate limiting and OpenTelemetry.                                                                                                  |
+| [`crypto-testing`](crypto-testing/)       | Test utilities for crypto-lib: deterministic keys, known-answer test vectors, mocks and fixtures for fast, reproducible CI.                                                                                                                                                                               |
+| [`crypto-typeorm`](crypto-typeorm/)       | TypeORM column-level encryption with a single decorator: transparent XChaCha20-Poly1305 encryption of entity columns, powered by crypto-lib.                                                                                                                                                              |
+| [`crypto-vue`](crypto-vue/)               | Vue 3 composables for client-side cryptography: key generation, encryption, signing, hashing and post-quantum hybrid streaming encryption (ML-KEM-768), with reactive state.                                                                                                                              |
+| [`crypto-wasm`](crypto-wasm/)             | Placeholder for a WebAssembly accelerator for crypto-lib. It ships runtime detection and an accelerator interface only; no WebAssembly module yet, so operations run in JavaScript.                                                                                                                       |
 
-### Frontend
+### Workspace dependencies
 
-| Package                         | Description                                                                | Version |
-| :------------------------------ | :------------------------------------------------------------------------- | :------ |
-| [`crypto-react`](crypto-react/) | React hooks for client-side cryptography (useKeypair, useEncrypt, useHash) | 0.0.3   |
-| [`crypto-vue`](crypto-vue/)     | Vue 3 composables for client-side cryptography with reactive state         | 0.0.3   |
+- `crypto-api`: no workspace dependencies
+- `crypto-benchmarks`: `crypto-lib`
+- `crypto-cbom`: `crypto-lib`
+- `crypto-cli`: `crypto-cbom`, `crypto-kms`, `crypto-lib`
+- `crypto-edge`: `crypto-lib`
+- `crypto-kms`: `crypto-lib`
+- `crypto-lib`: no workspace dependencies
+- `crypto-lsp`: `crypto-lib`
+- `crypto-mcp`: `crypto-kms`, `crypto-lib`
+- `crypto-middleware`: `crypto-lib`
+- `crypto-prisma`: `crypto-lib`
+- `crypto-react`: `crypto-lib`
+- `crypto-sdk`: no workspace dependencies
+- `crypto-server`: `crypto-kms`, `crypto-lib`
+- `crypto-testing`: `crypto-lib`
+- `crypto-typeorm`: `crypto-lib`
+- `crypto-vue`: `crypto-lib`
+- `crypto-wasm`: `crypto-lib`
 
-### Infrastructure
-
-| Package                                   | Description                                                                   | Version |
-| :---------------------------------------- | :---------------------------------------------------------------------------- | :------ |
-| [`crypto-middleware`](crypto-middleware/) | Express and Fastify middleware for payload encryption, signature verification | 0.0.3   |
-| [`crypto-edge`](crypto-edge/)             | Edge runtime adapter for Cloudflare Workers, Vercel Edge, Deno, Bun           | 0.0.3   |
-
-### Developer Experience & Tooling
-
-| Package                                   | Description                                                                    | Version |
-| :---------------------------------------- | :----------------------------------------------------------------------------- | :------ |
-| [`crypto-testing`](crypto-testing/)       | Deterministic keys, fast mocks, and test fixtures for CI/CD                    | 0.0.3   |
-| [`crypto-wasm`](crypto-wasm/)             | WebAssembly accelerator for near-native crypto performance                     | 0.0.3   |
-| [`crypto-mcp`](crypto-mcp/)               | Model Context Protocol (MCP) server exposing tools, resources, and prompts     | 0.0.3   |
-| [`crypto-lsp`](crypto-lsp/)               | Language Server Protocol (LSP) server for static analysis, linting, code fixes | 0.0.3   |
-| [`crypto-cbom`](crypto-cbom/)             | Cryptographic Bill of Materials generator (CycloneDX 1.6, SPDX 3.0, DORA/CRA)  | 0.0.3   |
-| [`crypto-benchmarks`](crypto-benchmarks/) | Performance profiling comparing classical vs post-quantum primitives           | 0.0.3   |
+<!-- END GENERATED -->
 
 ---
 
@@ -94,55 +103,12 @@ pnpm start:server
 
 ---
 
-## Architecture
-
-```
-crypto-service/
-  packages/
-    crypto-lib/           Core library (noble primitives, PQ, protocols)
-    crypto-server/        Fastify REST API (v1 deprecated, v2 modern)
-    crypto-cli/           Interactive CLI (OpenPGP legacy + modern)
-    crypto-sdk/           Typed HTTP client (fetch-based)
-    crypto-api/           Shared types and utilities
-    crypto-kms/           Enterprise KMS adapters (AWS, GCP, Azure, Vault)
-    crypto-prisma/        Prisma ORM field-level encryption
-    crypto-typeorm/       TypeORM column-level encryption
-    crypto-react/         React hooks (useKeypair, useEncrypt, useHash)
-    crypto-vue/           Vue 3 composables (useKeypair, useEncrypt, useHash)
-    crypto-middleware/    Express + Fastify middleware
-    crypto-edge/          Edge/serverless runtime adapter
-    crypto-testing/       Test utilities, mocks, fixtures
-    crypto-wasm/          WebAssembly performance accelerator
-    crypto-mcp/           Model Context Protocol server (AI agent tools)
-    crypto-lsp/           Language Server Protocol server (IDE diagnostics)
-    crypto-cbom/          Cryptographic Bill of Materials generator
-    crypto-benchmarks/    Performance benchmarking & profiling suite
-```
-
-**Dependency graph:**
-
-- `crypto-server`, `crypto-cli` depend on `crypto-lib`
-- `crypto-sdk` is standalone (fetch-based, talks to `crypto-server`)
-- `crypto-kms`, `crypto-prisma`, `crypto-typeorm` depend on `crypto-lib`
-- `crypto-react`, `crypto-vue` depend on `crypto-lib`
-- `crypto-middleware` depends on `crypto-lib`
-- `crypto-edge` adapts `crypto-lib` for non-Node runtimes
-- `crypto-testing` provides test utilities for `crypto-lib`
-- `crypto-wasm` accelerates `crypto-lib` with WASM
-- `crypto-mcp`, `crypto-lsp`, `crypto-cbom`, `crypto-benchmarks` depend on `crypto-lib`
-
----
-
 ## Coverage
 
-| Package       | Statements | Branches |    Lines |     Tests |
-| :------------ | ---------: | -------: | -------: | --------: |
-| crypto-lib    |       100% |     100% |     100% |       617 |
-| crypto-server |       100% |     100% |     100% |       271 |
-| crypto-cli    |       100% |     100% |     100% |        89 |
-| crypto-sdk    |       100% |     100% |     100% |        60 |
-| crypto-api    |       100% |     100% |     100% |       116 |
-| **Total**     |   **100%** | **100%** | **100%** | **1,153** |
+Each package's `test` script sets its coverage floor with `c8
+--check-coverage`: 100% of lines, branches and functions everywhere,
+except crypto-lib's branch floor of 99.5%. `make check` and CI run every
+package's tests against its floor.
 
 ---
 

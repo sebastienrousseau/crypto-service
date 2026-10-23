@@ -17,6 +17,7 @@ import {
   type KeyStore,
   type StoredKey,
 } from "../lib/key-store";
+import { noteAuditKey } from "../lib/audit";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -54,19 +55,29 @@ export function resolveKey(
   return request.server.keyStore.get(keyId, principalOf(request), algorithms);
 }
 
+/** Delete a key of the requesting principal (404 for any other key). */
+export function deleteKey(
+  request: FastifyRequest,
+  keyId: string,
+): Promise<void> {
+  return request.server.keyStore.delete(keyId, principalOf(request));
+}
+
 /** Store a generated key pair for the requesting principal. */
-export function storeKey(
+export async function storeKey(
   request: FastifyRequest,
   algorithm: string,
   publicParts: KeyParts,
   privateParts: KeyParts,
 ): Promise<StoredKey> {
-  return request.server.keyStore.put({
+  const stored = await request.server.keyStore.put({
     algorithm,
     owner: principalOf(request),
     publicParts,
     privateParts,
   });
+  noteAuditKey(request, stored.keyId);
+  return stored;
 }
 
 /**

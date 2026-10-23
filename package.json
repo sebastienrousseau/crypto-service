@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-service",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "private": true,
   "description": "The Crypto Service Suite is a powerful and intuitive suite of security tools that provides numerous Cryptographic JavaScript functions and standardized REST APIs to manage encryption keys, perform common cryptographic operations such as key generation, data encryption, digital signing, and signature verification.",
   "engines": {
@@ -47,6 +47,8 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
+    "@sebastienrousseau/c8-config": "^0.0.7",
+    "@sebastienrousseau/prettier-config": "0.0.7",
     "eslint": "^10.12.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
     "eslint-plugin-prettier": "^5.5.7",

@@ -34,6 +34,21 @@ export class CryptoApiError extends Error {
   }
 }
 
+/**
+ * Error thrown when no HTTP response arrived: the connection failed or
+ * the request timed out. The underlying error is in `cause`.
+ */
+export class CryptoTransportError extends Error {
+  /** Whether the request was aborted by its timeout. */
+  public readonly timedOut: boolean;
+
+  constructor(message: string, cause: unknown, timedOut: boolean) {
+    super(message, { cause });
+    this.name = "CryptoTransportError";
+    this.timedOut = timedOut;
+  }
+}
+
 /** Whether a parsed body looks like an RFC 9457 problem with a `detail`. */
 function isProblem(body: unknown): body is ApiError {
   return (

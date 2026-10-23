@@ -12,6 +12,8 @@
  */
 
 import { falcon512, falcon1024 } from "@noble/post-quantum/falcon.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -87,15 +89,15 @@ export interface FnDsaVerifyResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
-  if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+  if (!isHex(input)) {
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Retrieve the FALCON implementation for the given security level. */
@@ -106,8 +108,9 @@ function getFalcon(level: FnDsaLevel) {
     case 1024:
       return falcon1024;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported FN-DSA level: ${level}. Supported: 512, 1024`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }
@@ -137,8 +140,8 @@ export function fnDsaKeygen(level: FnDsaLevel): FnDsaKeyPairResult {
   const falcon = getFalcon(level);
   const { publicKey, secretKey } = falcon.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(level),
   };
 }
@@ -169,7 +172,7 @@ export function fnDsaSign(
   const msg = assertHex(messageHex, "message");
   const signature = falcon.sign(msg, secretKey);
   return {
-    signature: Buffer.from(signature).toString("hex"),
+    signature: toHex(signature),
     algorithm: algorithmName(level),
   };
 }

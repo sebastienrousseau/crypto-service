@@ -124,7 +124,7 @@ const INVENTORY: ReadonlyArray<Omit<InventoryRecord, "version">> = [
     package: "@sebastienrousseau/crypto-kms",
     status: "partial",
     fipsCompliance:
-      "AWS KMS and in-memory local providers; GCP, Azure and Vault providers are stubs; PKCS#11 provider is a software simulation; not FIPS 140 validated",
+      "AWS KMS, Google Cloud KMS, Vault Transit and in-memory local providers; Azure provider is a stub; PKCS#11 provider is a software simulation; not FIPS 140 validated",
   },
   {
     package: "@sebastienrousseau/crypto-edge",

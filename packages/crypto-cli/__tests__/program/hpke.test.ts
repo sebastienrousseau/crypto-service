@@ -9,10 +9,10 @@ import { EXIT } from "../../src/program/io";
 
 describe("crypto-cli hpke", () => {
   describe("hpke keygen", () => {
-    it("generates post-quantum hybrid keypair by default", async () => {
+    it("generates an X-Wing keypair by default", async () => {
       const { code, stdout } = await runCli(["hpke", "keygen"]);
       expect(code).to.equal(EXIT.OK);
-      expect(stdout).to.include("Algorithm:   x25519-ml-kem-768");
+      expect(stdout).to.include("Algorithm:   x-wing");
       expect(stdout).to.include("Public Key:");
       expect(stdout).to.include("Private Key:");
     });
@@ -21,7 +21,9 @@ describe("crypto-cli hpke", () => {
       const { code, stdout } = await runCli(["hpke", "keygen", "--json"]);
       expect(code).to.equal(EXIT.OK);
       const data = JSON.parse(stdout);
-      expect(data.kem).to.equal("x25519-ml-kem-768");
+      expect(data.kem).to.equal("x-wing");
+      expect(data.publicKey).to.have.length(2432);
+      expect(data.privateKey).to.have.length(64);
       expect(data).to.have.property("publicKey");
       expect(data).to.have.property("privateKey");
     });

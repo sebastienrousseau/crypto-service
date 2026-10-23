@@ -34,17 +34,14 @@
  * `HKDF(ss_classical || ss_mlkem)`) do not match v2 secrets.
  */
 
-import {
-  ml_kem512,
-  ml_kem768,
-  ml_kem1024,
-} from "@noble/post-quantum/ml-kem.js";
+import { ml_kem512, ml_kem768, ml_kem1024 } from "../accel/pq-backend";
+import { combineHybrid } from "./hybrid-combiner";
 import { x25519 } from "@noble/curves/ed25519.js";
 import { x448 } from "@noble/curves/ed448.js";
 import { p256 } from "@noble/curves/nist.js";
-import { hkdf } from "@noble/hashes/hkdf.js";
-import { sha256 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import { decodeHex, isHex, toHex } from "../encoding";
 
 // --- Types ---
 
@@ -94,9 +91,10 @@ export function normalizeHybridKemAlgorithm(
     name === RFC10024_X25519_MLKEM768 ||
     name === RFC10024_SECP256R1_MLKEM768
   ) {
-    throw new Error(
+    throw new CryptoError(
       `${name} (RFC 10024 TLS group) is not implemented by this library; ` +
         "its hybrid KEMs use a different combiner and do not interoperate",
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
     );
   }
   return name;
@@ -166,15 +164,15 @@ export interface HybridKemDecapsulateResult {
 
 // --- Helpers ---
 
-/** Regex matching valid hexadecimal strings. */
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 /** Parse a hex string into bytes, throwing on invalid input. */
 function assertHex(input: string, label: string): Uint8Array {
-  if (!HEX_RE.test(input)) {
-    throw new Error(`Invalid hex string for ${label}`);
+  if (!isHex(input)) {
+    throw new CryptoError(
+      `Invalid hex string for ${label}`,
+      CryptoErrorCode.INVALID_HEX,
+    );
   }
-  return Buffer.from(input, "hex");
+  return decodeHex(input);
 }
 
 /** Retrieve the ML-KEM implementation for the given security level. */
@@ -187,8 +185,9 @@ function getKem(level: MlKemLevel) {
     case 1024:
       return ml_kem1024;
     default:
-      throw new Error(
+      throw new CryptoError(
         `Unsupported ML-KEM level: ${level}. Supported: 512, 768, 1024`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
       );
   }
 }
@@ -196,53 +195,6 @@ function getKem(level: MlKemLevel) {
 /** Build the ML-KEM algorithm identifier string from a security level. */
 function algorithmName(level: MlKemLevel): MlKemAlgorithm {
   return `ml-kem-${level}` as MlKemAlgorithm;
-}
-
-/** Transcript of one hybrid encapsulation, fed to {@link combineHybrid}. */
-interface HybridTranscript {
-  /** Algorithm identifier, used in the domain-separation label. */
-  algorithm: HybridKemAlgorithm;
-  /** Classical (ECDH) shared secret. */
-  ssClassical: Uint8Array;
-  /** ML-KEM shared secret. */
-  ssMlKem: Uint8Array;
-  /** Sender's ephemeral classical public key (the classical "ciphertext"). */
-  ctClassical: Uint8Array;
-  /** Recipient's classical public key. */
-  pkClassical: Uint8Array;
-  /** ML-KEM ciphertext. */
-  ctMlKem: Uint8Array;
-  /** Recipient's ML-KEM public key. */
-  pkMlKem: Uint8Array;
-}
-
-/** 4-byte big-endian length prefix followed by the bytes. */
-function lengthPrefixed(bytes: Uint8Array): Uint8Array {
-  const out = new Uint8Array(4 + bytes.length);
-  new DataView(out.buffer).setUint32(0, bytes.length, false);
-  out.set(bytes, 4);
-  return out;
-}
-
-/**
- * v2 combiner: HKDF-SHA256 over both shared secrets, with a domain label,
- * both ciphertexts and both recipient public keys bound in `info`.
- */
-function combineHybrid(t: HybridTranscript): Uint8Array {
-  const ikm = Buffer.concat([t.ssClassical, t.ssMlKem]);
-  const info = Buffer.concat([
-    lengthPrefixed(Buffer.from(`crypto-service/hybrid-kem/v2/${t.algorithm}`)),
-    lengthPrefixed(t.ctClassical),
-    lengthPrefixed(t.pkClassical),
-    lengthPrefixed(t.ctMlKem),
-    lengthPrefixed(t.pkMlKem),
-  ]);
-  return hkdf(sha256, ikm, undefined, info, 32);
-}
-
-/** Hex-encode bytes. */
-function toHex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
 }
 
 /** Build the hybrid KEM algorithm identifier string from a security level. */
@@ -259,8 +211,8 @@ export function mlKemKeygen(level: MlKemLevel): MlKemKeyPairResult {
   const kem = getKem(level);
   const { publicKey, secretKey } = kem.keygen();
   return {
-    publicKey: Buffer.from(publicKey).toString("hex"),
-    secretKey: Buffer.from(secretKey).toString("hex"),
+    publicKey: toHex(publicKey),
+    secretKey: toHex(secretKey),
     algorithm: algorithmName(level),
   };
 }
@@ -271,13 +223,29 @@ export function mlKemKeygen(level: MlKemLevel): MlKemKeyPairResult {
 export function mlKemEncapsulate(
   level: MlKemLevel,
   publicKeyHex: string,
+): MlKemEncapsulateResult;
+/**
+ * ML-KEM-768 encapsulation without a level.
+ *
+ * @deprecated Pass the level: `mlKemEncapsulate(768, publicKey)`.
+ */
+export function mlKemEncapsulate(publicKeyHex: string): MlKemEncapsulateResult;
+export function mlKemEncapsulate(
+  levelOrKey: MlKemLevel | string,
+  key?: string,
 ): MlKemEncapsulateResult {
+  // A level is a number and a key a string, so the old one-argument
+  // ML-KEM-768 form cannot be mistaken for the new one.
+  const [level, publicKeyHex] =
+    typeof levelOrKey === "string"
+      ? [768 as const, levelOrKey]
+      : [levelOrKey, key as string];
   const kem = getKem(level);
   const publicKey = assertHex(publicKeyHex, "publicKey");
   const { cipherText, sharedSecret } = kem.encapsulate(publicKey);
   return {
-    ciphertext: Buffer.from(cipherText).toString("hex"),
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
+    ciphertext: toHex(cipherText),
+    sharedSecret: toHex(sharedSecret),
     algorithm: algorithmName(level),
   };
 }
@@ -289,16 +257,62 @@ export function mlKemDecapsulate(
   level: MlKemLevel,
   secretKeyHex: string,
   ciphertextHex: string,
+): MlKemDecapsulateResult;
+/**
+ * ML-KEM-768 decapsulation without a level.
+ *
+ * @deprecated Pass the level: `mlKemDecapsulate(768, secretKey, ciphertext)`.
+ */
+export function mlKemDecapsulate(
+  secretKeyHex: string,
+  ciphertextHex: string,
+): MlKemDecapsulateResult;
+export function mlKemDecapsulate(
+  levelOrKey: MlKemLevel | string,
+  keyOrCiphertext: string,
+  ciphertext?: string,
 ): MlKemDecapsulateResult {
+  const [level, secretKeyHex, ciphertextHex] =
+    typeof levelOrKey === "string"
+      ? [768 as const, levelOrKey, keyOrCiphertext]
+      : [levelOrKey, keyOrCiphertext, ciphertext as string];
   const kem = getKem(level);
   const secretKey = assertHex(secretKeyHex, "secretKey");
   const cipherText = assertHex(ciphertextHex, "ciphertext");
   const sharedSecret = kem.decapsulate(cipherText, secretKey);
   return {
-    sharedSecret: Buffer.from(sharedSecret).toString("hex"),
+    sharedSecret: toHex(sharedSecret),
     algorithm: algorithmName(level),
   };
 }
+
+/**
+ * ML-KEM-768 key generation.
+ *
+ * @deprecated Use `mlKemKeygen(768)`.
+ */
+export const mlKemGenerateKeyPair = (): MlKemKeyPairResult => mlKemKeygen(768);
+
+/** @deprecated Use {@link mlKemEncapsulate}, which takes the level first. */
+export const mlKemEncap = (
+  level: MlKemLevel,
+  publicKeyHex: string,
+): MlKemEncapsulateResult => mlKemEncapsulate(level, publicKeyHex);
+
+/** @deprecated Use {@link mlKemDecapsulate}, which takes the level first. */
+export const mlKemDecap = (
+  level: MlKemLevel,
+  secretKeyHex: string,
+  ciphertextHex: string,
+): MlKemDecapsulateResult =>
+  mlKemDecapsulate(level, secretKeyHex, ciphertextHex);
+
+/** @deprecated Use {@link MlKemKeyPairResult}. */
+export type MlKemKeyPair = MlKemKeyPairResult;
+/** @deprecated Use {@link MlKemEncapsulateResult}. */
+export type MlKemEncapResult = MlKemEncapsulateResult;
+/** @deprecated Use {@link MlKemDecapsulateResult}. */
+export type MlKemDecapResult = MlKemDecapsulateResult;
 
 // --- Hybrid X25519 + ML-KEM ---
 
@@ -312,10 +326,10 @@ export function hybridKemKeygen(kemLevel: MlKemLevel = 768): HybridKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = kem.keygen();
 
   return {
-    x25519PrivateKey: Buffer.from(x25519Priv).toString("hex"),
-    x25519PublicKey: Buffer.from(x25519Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    x25519PrivateKey: toHex(x25519Priv),
+    x25519PublicKey: toHex(x25519Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: hybridAlgorithmName(kemLevel),
   };
 }
@@ -443,10 +457,10 @@ export function p256MlKemKeygen(): P256MlKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem768.keygen();
 
   return {
-    p256PrivateKey: Buffer.from(p256Priv).toString("hex"),
-    p256PublicKey: Buffer.from(p256Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    p256PrivateKey: toHex(p256Priv),
+    p256PublicKey: toHex(p256Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: "p256-ml-kem-768",
   };
 }
@@ -560,10 +574,10 @@ export function x448MlKemKeygen(): X448MlKemKeyPair {
   const { publicKey: mlKemPub, secretKey: mlKemSec } = ml_kem1024.keygen();
 
   return {
-    x448PrivateKey: Buffer.from(x448Priv).toString("hex"),
-    x448PublicKey: Buffer.from(x448Pub).toString("hex"),
-    mlKemPublicKey: Buffer.from(mlKemPub).toString("hex"),
-    mlKemSecretKey: Buffer.from(mlKemSec).toString("hex"),
+    x448PrivateKey: toHex(x448Priv),
+    x448PublicKey: toHex(x448Pub),
+    mlKemPublicKey: toHex(mlKemPub),
+    mlKemSecretKey: toHex(mlKemSec),
     algorithm: "x448-ml-kem-1024",
   };
 }

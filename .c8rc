@@ -1,5 +1,3 @@
 {
-    "extends": [
-        "@sebastienrousseau/c8-config"
-    ]
+  "extends": "@sebastienrousseau/c8-config"
 }

@@ -1456,7 +1456,7 @@
           }
         ],
         "url": "http://localhost:3000/v1/verify",
-        "description": "# 🔏 Signature Verification API\n\nVerifies signatures for cleartext signed message.\n\n### Returns\n\nObject containing verified message in the form:\n\n``` json\n{\n  data: MaybeStream, (if `message` was a CleartextMessage)\n  data: MaybeStream, (if `message` was a Message)\n  signatures: [\n    {\n      keyID: module:type/keyid~KeyID,\n      verified: Promise,\n      signature: Promise\n    }, ...\n  ]\n}\n```\n\nwhere `signatures` contains a separate entry for each signature packet found in the input message.\n\n### Type\n\nPromise.<(Object)>"
+        "description": "# 🔏 Signature Verification API\n\nVerifies a clear-signed message, or a message and its base64-encoded detached signature (`signature`), against the given public key.\n\n### Returns\n\n``` json\n{\n  \"data\": {\n    \"verified\": true,\n    \"data\": \"the signed text\",\n    \"keyIDs\": [\"<16 hex digits>\"]\n  }\n}\n```\n\n`verified` is true only when every signature found verifies. A message that is not clear-signed and comes without `signature` answers 400."
       },
       "response": [
         {

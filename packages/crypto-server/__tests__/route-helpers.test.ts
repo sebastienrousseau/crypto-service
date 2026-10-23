@@ -126,79 +126,67 @@ describe("Route helpers", () => {
       };
     }
 
-    it("should return 400 for invalid hex errors", () => {
+    // classifyCryptoError used to match error messages against patterns
+    // ("invalid hex", "too short", "unsupported"...). crypto-lib now throws
+    // CryptoError with a code for every error of its own, so the server
+    // classifies by code, through crypto-lib's isCallerErrorCode, and by
+    // class for noble's errors: a RangeError is input of the wrong length.
+    // Message text no longer decides anything.
+    it("returns 400 for noble's RangeError (input of the wrong length)", () => {
       const { reply } = createMockReply();
-      const request = createLogRequest();
       classifyCryptoError(
-        new Error("Invalid hex string"),
-        request,
+        new RangeError(
+          '"publicKey" expected Uint8Array of length 32, got length=4',
+        ),
+        createLogRequest(),
         reply,
-        "Encryption",
+        "Encapsulation",
       );
       expect(reply.statusCode).to.equal(400);
       expect((reply.body as { detail: string }).detail).to.equal(
-        "Encryption failed: invalid input",
+        "Encapsulation failed: invalid input",
       );
     });
 
-    it("should return 400 for 'must be N bytes' errors", () => {
+    it("does not read input errors from message text", () => {
+      for (const message of [
+        "Invalid hex string",
+        "Key must be 32 bytes",
+        "Ciphertext too short",
+        "Unsupported algorithm: foo",
+        "private key of length 32 expected, got 0",
+      ]) {
+        const { reply } = createMockReply();
+        classifyCryptoError(
+          new Error(message),
+          createLogRequest(),
+          reply,
+          "Encryption",
+        );
+        expect(reply.statusCode, message).to.equal(500);
+      }
       const { reply } = createMockReply();
-      const request = createLogRequest();
-      classifyCryptoError(
-        new Error("Key must be 32 bytes"),
-        request,
-        reply,
-        "Encryption",
-      );
-      expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { detail: string }).detail).to.equal(
-        "Encryption failed: invalid input",
-      );
+      classifyCryptoError("Invalid hex in key", createLogRequest(), reply, "X");
+      expect(reply.statusCode).to.equal(500);
     });
 
-    it("should return 400 for 'too short' errors", () => {
-      const { reply } = createMockReply();
-      const request = createLogRequest();
+    it("uses crypto-lib's list of caller-error codes", () => {
+      const token = createMockReply();
       classifyCryptoError(
-        new Error("Ciphertext too short"),
-        request,
-        reply,
-        "Decryption",
+        new CryptoError("Token expired", "INVALID_TOKEN"),
+        createLogRequest(),
+        token.reply as unknown as FastifyReply,
+        "Token verification",
       );
-      expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { detail: string }).detail).to.equal(
-        "Decryption failed: invalid input",
-      );
-    });
-
-    it("should return 400 for 'unsupported' errors", () => {
-      const { reply } = createMockReply();
-      const request = createLogRequest();
+      expect(token.reply.statusCode).to.equal(400);
+      const config = createMockReply();
       classifyCryptoError(
-        new Error("Unsupported algorithm: foo"),
-        request,
-        reply,
-        "Hash computation",
-      );
-      expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { detail: string }).detail).to.equal(
-        "Hash computation failed: invalid input",
-      );
-    });
-
-    it("should return 400 for 'expected.*length' errors", () => {
-      const { reply } = createMockReply();
-      const request = createLogRequest();
-      classifyCryptoError(
-        new Error("private key of length 32 expected, got 0"),
-        request,
-        reply,
+        new CryptoError("CRYPTO_KEY_DIR is not set", "CONFIGURATION"),
+        createLogRequest(),
+        config.reply as unknown as FastifyReply,
         "Signing",
       );
-      expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { detail: string }).detail).to.equal(
-        "Signing failed: invalid input",
-      );
+      expect(config.reply.statusCode).to.equal(500);
     });
 
     it("should return 500 for unknown errors", () => {
@@ -213,16 +201,6 @@ describe("Route helpers", () => {
       expect(reply.statusCode).to.equal(500);
       expect((reply.body as { detail: string }).detail).to.equal(
         "Encryption failed",
-      );
-    });
-
-    it("should handle non-Error values", () => {
-      const { reply } = createMockReply();
-      const request = createLogRequest();
-      classifyCryptoError("Invalid hex in key", request, reply, "Decryption");
-      expect(reply.statusCode).to.equal(400);
-      expect((reply.body as { detail: string }).detail).to.equal(
-        "Decryption failed: invalid input",
       );
     });
 

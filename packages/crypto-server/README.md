@@ -108,12 +108,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                         | Role            | Description                                                                                                                    |
 | :---------------------------------------------------------------------------------------------------------------------------------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                            | API Schemas     | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                        |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                            | API docs        | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.               |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)              | Benchmarks      | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                 |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                          | CBOM            | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                               |
 | [`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)                            | Terminal CLI    | Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu. |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                          | Edge Runtime    | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.       |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                            | Cloud KMS       | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                            | Cloud KMS       | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                          |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                            | Core Library    | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.         |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                            | IDE Analysis    | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                           |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                            | AI Agents       | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                         |
@@ -163,47 +163,48 @@ All v2 endpoints accept and return `application/json`. Authenticated
 requests must include an `x-api-key` header (or
 `Authorization: Bearer <jwt>`).
 
-| Method | Path                          | Description                                                          |
-| :----- | :---------------------------- | :------------------------------------------------------------------- |
-| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)         |
-| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                              |
-| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                              |
-| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                        |
-| `POST` | `/v2/verify`                  | Verify a digital signature                                           |
-| `POST` | `/v2/kdf`                     | Derive a key (scrypt N=2^17 r=8, HKDF-SHA256, PBKDF2-SHA256 >= 600k) |
-| `POST` | `/v2/hmac`                    | Compute an HMAC                                                      |
-| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                                      |
-| `POST` | `/v2/password/hash`           | Hash a password with Argon2id (m >= 19 MiB, t >= 2)                  |
-| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                           |
-| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)                |
-| `POST` | `/v2/password/decrypt`        | Decrypt with password                                                |
-| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key        |
-| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)               |
-| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                    |
-| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                         |
-| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                          |
-| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                       |
-| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                             |
-| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)         |
-| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                        |
-| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key                |
-| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                                      |
-| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                           |
-| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                          |
-| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)              |
-| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                       |
-| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                                 |
-| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)                |
-| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                               |
-| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                         |
-| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                           |
-| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                              |
-| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                        |
-| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                          |
-| `GET`  | `/v2/algorithms`              | List all supported algorithms                                        |
-| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                          |
-| `GET`  | `/ready`                      | Readiness probe (Kubernetes)                                         |
-| `GET`  | `/metrics`                    | Prometheus-compatible metrics                                        |
+| Method | Path                          | Description                                                                                                                              |
+| :----- | :---------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/v2/hash`                    | Compute a cryptographic hash (SHA-2, SHA-3, BLAKE2b, BLAKE3)                                                                             |
+| `POST` | `/v2/encrypt`                 | AEAD encryption with XChaCha20-Poly1305                                                                                                  |
+| `POST` | `/v2/decrypt`                 | AEAD decryption with XChaCha20-Poly1305                                                                                                  |
+| `POST` | `/v2/sign`                    | Sign with a server-held Ed25519 key (`keyId`)                                                                                            |
+| `POST` | `/v2/verify`                  | Verify a digital signature                                                                                                               |
+| `POST` | `/v2/kdf`                     | Derive a key (scrypt N=2^17 r=8, HKDF-SHA256, PBKDF2-SHA256 >= 600k)                                                                     |
+| `POST` | `/v2/hmac`                    | Compute an HMAC                                                                                                                          |
+| `POST` | `/v2/hmac/verify`             | Verify an HMAC in constant time                                                                                                          |
+| `POST` | `/v2/password/hash`           | Hash a password with Argon2id (m >= 19 MiB, t >= 2)                                                                                      |
+| `POST` | `/v2/password/verify`         | Verify a password against an Argon2id hash                                                                                               |
+| `POST` | `/v2/password/encrypt`        | Encrypt with password (Argon2id + XChaCha20-Poly1305)                                                                                    |
+| `POST` | `/v2/password/decrypt`        | Decrypt with password                                                                                                                    |
+| `POST` | `/v2/keys/generate`           | Generate a server-held key pair; returns `keyId` + public key                                                                            |
+| `POST` | `/v2/keys/export`             | Export a private key (`crypto:keys:export` scope only)                                                                                   |
+| `POST` | `/v2/keys/delete`             | Delete one of the caller's keys, freeing quota                                                                                           |
+| `POST` | `/v2/keys/wrap`               | Wrap a key with AES-KW or AES-KWP                                                                                                        |
+| `POST` | `/v2/keys/unwrap`             | Unwrap a key                                                                                                                             |
+| `POST` | `/v2/secretbox/seal`          | Encrypt with XChaCha20-Poly1305 (secretbox)                                                                                              |
+| `POST` | `/v2/secretbox/open`          | Decrypt a secretbox ciphertext                                                                                                           |
+| `POST` | `/v2/sealedbox/seal`          | Anonymous public-key encryption (X25519)                                                                                                 |
+| `POST` | `/v2/sealedbox/open`          | Decrypt a sealed box with a server-held X25519 key (`keyId`)                                                                             |
+| `POST` | `/v2/sealedbox/seal-pq`       | Post-quantum sealed box (X25519 + ML-KEM-768)                                                                                            |
+| `POST` | `/v2/sealedbox/open-pq`       | Decrypt a PQ sealed box with a server-held hybrid key                                                                                    |
+| `POST` | `/v2/multi-recipient/encrypt` | Encrypt for multiple recipients                                                                                                          |
+| `POST` | `/v2/pq/keygen`               | Generate an ML-KEM-768 key pair (FIPS 203)                                                                                               |
+| `POST` | `/v2/pq/encapsulate`          | Encapsulate a shared secret with ML-KEM-768                                                                                              |
+| `POST` | `/v2/pq/decapsulate`          | Decapsulate with a server-held ML-KEM-768 key (`keyId`)                                                                                  |
+| `POST` | `/v2/pq/hybrid/keygen`        | Generate a hybrid X25519 + ML-KEM-768 key pair                                                                                           |
+| `POST` | `/v2/pq/hybrid/encapsulate`   | Hybrid encapsulation                                                                                                                     |
+| `POST` | `/v2/pq/hybrid/decapsulate`   | Hybrid decapsulation with a server-held key (`keyId`)                                                                                    |
+| `POST` | `/v2/pq/dsa/keygen`           | Generate an ML-DSA key pair (FIPS 204)                                                                                                   |
+| `POST` | `/v2/pq/dsa/sign`             | Sign with a server-held ML-DSA key (`keyId`)                                                                                             |
+| `POST` | `/v2/pq/dsa/verify`           | Verify an ML-DSA signature                                                                                                               |
+| `POST` | `/v2/pq/slh-dsa/keygen`       | Generate an SLH-DSA key pair (FIPS 205)                                                                                                  |
+| `POST` | `/v2/pq/slh-dsa/sign`         | Sign with a server-held SLH-DSA key (`keyId`)                                                                                            |
+| `POST` | `/v2/pq/slh-dsa/verify`       | Verify an SLH-DSA signature                                                                                                              |
+| `GET`  | `/v2/algorithms`              | List all supported algorithms                                                                                                            |
+| `GET`  | `/live`                       | Liveness probe (Kubernetes)                                                                                                              |
+| `GET`  | `/ready`                      | Readiness probe: `503` while the server drains for shutdown or cannot write to `CRYPTO_KEY_OUT_DIR`                                      |
+| `GET`  | `/metrics`                    | Prometheus metrics: process memory and uptime, and `http_requests_total` and `http_request_duration_seconds` by method, route and status |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
@@ -255,10 +256,14 @@ decapsulation routes take that `keyId`. A key belongs to the principal
 (token `sub`) that generated it; for anyone else it does not exist
 (`404`).
 
-Keys live in memory (at most 10,000 without persistence). Set
-`CRYPTO_KEY_OUT_DIR` to also write each key to `<keyId>.json` there
-(mode `0600`, never overwritten) so keys survive a restart; those files
-hold the private key unencrypted, so protect the directory.
+Keys live in memory (at most 10,000 without persistence, and 1,000 per
+principal by default). Set `CRYPTO_KEY_OUT_DIR` to also write each key
+to `<keyId>.json` there (mode `0600`, never overwritten) so keys survive
+a restart. With `CRYPTO_KEY_STORAGE_KEY` the private parts are encrypted
+and the whole record authenticated; without it they are written in
+plaintext, which a production server refuses unless
+`CRYPTO_KEY_ALLOW_PLAINTEXT=1`. `POST /v2/keys/delete` removes one of
+the caller's keys.
 
 `POST /v2/keys/export` returns a key's private parts. It needs the
 `crypto:keys:export` scope, granted explicitly in a JWT: `crypto:admin`
@@ -294,7 +299,9 @@ curl -H "x-api-key: your-secret-api-key" ...
 curl -H "Authorization: Bearer eyJhbGciOi..." ...
 ```
 
-A JWT must be HS256 and carry `exp` and `iat`; it is refused once it
+A JWT must be HS256 and carry `sub`, `exp` and `iat`. Its `sub` must be
+a non-empty string other than `api-key` and `anonymous` (the built-in
+principals), because server-held keys belong to the subject. It is refused once it
 is older than `JWT_MAX_AGE` seconds (default 3600) or if it declares a
 longer lifetime (`exp - iat`). When `JWT_ISSUER` / `JWT_AUDIENCE` are
 set, its `iss` must equal the issuer and its `aud` must contain the
@@ -310,6 +317,22 @@ gets `403`. The server refuses to start if a route has no entry.
 JWT principals carry their scopes in a `scopes` array claim; API-key
 and anonymous principals hold `crypto:admin`, which satisfies every
 scope except `crypto:keys:export`.
+
+Anonymous access (`ALLOW_ANONYMOUS=1`) is single-tenant: every caller is
+the same principal, holds `crypto:admin`, and can use every key the
+server holds. Use it only for local development.
+
+### KMS keys
+
+The `/v2/kms/*` routes use only the providers in `KMS_PROVIDERS`
+(default `local`); a request for any other provider is refused with
+`400` before a provider is contacted. A key created with
+`/v2/kms/create-key` belongs to the principal that created it: other
+principals get `404` for it, as for a key that does not exist. A key
+the API did not create (for example one made in the cloud console) has
+no owner and can be used by `crypto:admin` only. With
+`CRYPTO_KEY_OUT_DIR` set, owners are kept in `kms-owners.json` there
+(mode `0600`), so they survive a restart.
 
 | Scope                | Routes                                                                                                               |
 | :------------------- | :------------------------------------------------------------------------------------------------------------------- |
@@ -328,33 +351,65 @@ authentication but no scope.
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 
+### Audit log
+
+Every request that creates, exports, deletes or uses a server-held key,
+calls a KMS route, or registers an OPAQUE credential writes one log line
+with `msg: "audit"` after the response, refused requests included:
+
+```json
+{
+  "reqId": "…",
+  "msg": "audit",
+  "audit": {
+    "action": "POST /v2/keys/export",
+    "principal": "alice",
+    "status": 404,
+    "outcome": "failure",
+    "keyId": "k_…"
+  }
+}
+```
+
+It names the key or KMS provider, never key material. Audit lines are
+written at `info`, so a `LOG_LEVEL` above `info` drops them.
+
+<p align="right"><a href="#contents">Back to Top</a></p>
+
 ## Configuration
 
-| Variable                                                                 | Default                              | Description                                                                                                   |
-| :----------------------------------------------------------------------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------ |
-| `PORT`                                                                   | `3000`                               | TCP port to listen on                                                                                         |
-| `HOST`                                                                   | `localhost`                          | Bind address                                                                                                  |
-| `PROTOCOL`                                                               | `http`                               | `http` or `https`                                                                                             |
-| `NODE_ENV`                                                               | `development`                        | `development`, `production`, or `test`                                                                        |
-| `LOG_LEVEL`                                                              | `info`                               | `error`, `warn`, `info`, or `debug`                                                                           |
-| `CRYPTO_API_KEY`                                                         | --                                   | Static API key for `x-api-key` authentication                                                                 |
-| `JWT_SECRET`                                                             | --                                   | HMAC secret for HS256 JWT validation                                                                          |
-| `JWT_MAX_AGE`                                                            | `3600`                               | Maximum JWT lifetime in seconds                                                                               |
-| `JWT_ISSUER`                                                             | --                                   | Required JWT `iss` (required in production)                                                                   |
-| `JWT_AUDIENCE`                                                           | --                                   | Required JWT `aud` (required in production)                                                                   |
-| `CORS_ORIGIN`                                                            | --                                   | Comma-separated allowed origins (empty = disabled)                                                            |
-| `TRUSTED_PROXY_CIDRS`                                                    | --                                   | Comma-separated trusted proxy CIDRs                                                                           |
-| `CRYPTO_KEY_DIR`                                                         | --                                   | Directory for key storage                                                                                     |
-| `CRYPTO_KEY_OUT_DIR`                                                     | --                                   | Where generated keys are persisted (see Key custody)                                                          |
-| `SHUTDOWN_TIMEOUT_MS`                                                    | `30000`                              | Graceful shutdown timeout in milliseconds                                                                     |
-| `ALLOW_ANONYMOUS`                                                        | --                                   | `1` allows unauthenticated requests                                                                           |
-| `RATE_LIMIT_MAX`                                                         | `10`                                 | Requests per client per minute (probes are exempt)                                                            |
-| `CRYPTO_KEY_STORAGE_KEY`                                                 | --                                   | Encrypts persisted private keys at rest (AES-256-GCM): 64 hex characters, or a passphrase hashed with SHA-256 |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --                                   | OpenTelemetry OTLP collector endpoint (export disabled when unset)                                            |
-| `AWS_REGION`                                                             | `us-east-1`                          | Region for the AWS KMS provider                                                                               |
-| `GCP_PROJECT_ID`, `GCP_LOCATION_ID`, `GCP_KEY_RING_ID`, `GCP_AUTH_TOKEN` | placeholders                         | GCP KMS provider settings (the provider is a stub)                                                            |
-| `VAULT_ADDR`, `VAULT_TOKEN`                                              | `http://localhost:8200`, placeholder | Vault KMS provider settings (the provider is a stub)                                                          |
-| `AZURE_VAULT_URL`                                                        | placeholder                          | Azure Key Vault provider setting (the provider is a stub)                                                     |
+The server checks every setting at startup and refuses to start, listing each problem, when one is invalid. Numeric settings take digits only: `PORT=3000abc` or `RATE_LIMIT_MAX=0` is an error, not a fallback to the default.
+
+| Variable                                                                 | Default       | Description                                                                                                                                                                                                                                                                    |
+| :----------------------------------------------------------------------- | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                                                                   | `3000`        | TCP port to listen on                                                                                                                                                                                                                                                          |
+| `HOST`                                                                   | `localhost`   | Bind address                                                                                                                                                                                                                                                                   |
+| `PROTOCOL`                                                               | `http`        | `http` or `https`                                                                                                                                                                                                                                                              |
+| `NODE_ENV`                                                               | `development` | `development`, `production`, or `test`                                                                                                                                                                                                                                         |
+| `LOG_LEVEL`                                                              | `info`        | `error`, `warn`, `info`, or `debug`, for every log line (one JSON logger, pino). Credentials and key fields are redacted; request lines carry `reqId`, taken from a well-formed `x-request-id` header (at most 128 of `A-Za-z0-9._-`) or generated, and echoed in the response |
+| `CRYPTO_API_KEY`                                                         | --            | Static API key for `x-api-key` authentication                                                                                                                                                                                                                                  |
+| `JWT_SECRET`                                                             | --            | HMAC secret for HS256 JWT validation                                                                                                                                                                                                                                           |
+| `JWT_MAX_AGE`                                                            | `3600`        | Maximum JWT lifetime in seconds                                                                                                                                                                                                                                                |
+| `JWT_ISSUER`                                                             | --            | Required JWT `iss` (required in production)                                                                                                                                                                                                                                    |
+| `JWT_AUDIENCE`                                                           | --            | Required JWT `aud` (required in production)                                                                                                                                                                                                                                    |
+| `CORS_ORIGIN`                                                            | --            | Comma-separated allowed origins (empty = disabled)                                                                                                                                                                                                                             |
+| `TRUSTED_PROXY_CIDRS`                                                    | --            | Comma-separated trusted proxy CIDRs                                                                                                                                                                                                                                            |
+| `CRYPTO_KEY_DIR`                                                         | --            | Directory for key storage                                                                                                                                                                                                                                                      |
+| `CRYPTO_KEY_OUT_DIR`                                                     | --            | Where generated keys are persisted (see Key custody)                                                                                                                                                                                                                           |
+| `SHUTDOWN_TIMEOUT_MS`                                                    | `30000`       | Graceful shutdown timeout in milliseconds                                                                                                                                                                                                                                      |
+| `ALLOW_ANONYMOUS`                                                        | --            | `1` allows unauthenticated requests                                                                                                                                                                                                                                            |
+| `RATE_LIMIT_MAX`                                                         | `10`          | Requests per client per minute (probes are exempt)                                                                                                                                                                                                                             |
+| `CRYPTO_KEY_STORAGE_KEY`                                                 | --            | Encrypts the private parts of persisted keys (AES-256-GCM, authenticated with the whole record): exactly 64 hex characters; a passphrase is refused. Required in production when `CRYPTO_KEY_OUT_DIR` is set                                                                   |
+| `CRYPTO_KEY_ALLOW_PLAINTEXT`                                             | --            | `1` accepts plaintext key files: writing them in production, or reading old ones after `CRYPTO_KEY_STORAGE_KEY` was set                                                                                                                                                        |
+| `KEY_STORE_MAX_PER_PRINCIPAL`                                            | `1000`        | Keys one principal may hold; more answer `429` until it deletes some                                                                                                                                                                                                           |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`                                            | --            | OpenTelemetry OTLP collector endpoint; without it (or with `OTEL_SDK_DISABLED=true`) OpenTelemetry does not start, in any environment                                                                                                                                          |
+| `OTEL_SDK_DISABLED`                                                      | --            | `true` keeps OpenTelemetry off even with an endpoint set                                                                                                                                                                                                                       |
+| `DOCS_ENABLED`                                                           | `1`           | `0` removes the API documentation (`/docs` and the OpenAPI document at `/docs/json`)                                                                                                                                                                                           |
+| `V1_ENABLED`                                                             | `1`           | `0` removes the deprecated v1 routes before their sunset (1 January 2027); see [MIGRATION.md](../../MIGRATION.md)                                                                                                                                                              |
+| `KMS_PROVIDERS`                                                          | `local`       | Comma-separated KMS providers requests may use: `local`, `aws`, `gcp`, `vault`. Any other provider is refused with `400`; an enabled provider with a missing setting, an unknown name or `azure` (a stub) stops the server from starting                                       |
+| `AWS_REGION`                                                             | --            | Required when `aws` is enabled; credentials come from the AWS default credential chain                                                                                                                                                                                         |
+| `GCP_PROJECT_ID`, `GCP_LOCATION_ID`, `GCP_KEY_RING_ID`, `GCP_AUTH_TOKEN` | --            | Required when `gcp` is enabled; the OAuth2 access token is not refreshed by the server                                                                                                                                                                                         |
+| `VAULT_ADDR`, `VAULT_TOKEN`                                              | --            | Required when `vault` is enabled (Transit engine mounted at `transit`)                                                                                                                                                                                                         |
 
 <p align="right"><a href="#contents">Back to Top</a></p>
 

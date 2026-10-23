@@ -24,6 +24,15 @@ import { sha3_256, sha3_512 } from "@noble/hashes/sha3.js";
 import { blake3 } from "@noble/hashes/blake3.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
+import { CryptoError, CryptoErrorCode } from "../errors";
+import {
+  decodeHex,
+  fromBase64,
+  isHex,
+  toBase64,
+  toHex,
+  utf8,
+} from "../encoding";
 
 // --- Types ---
 
@@ -188,18 +197,17 @@ export function _resetWasmDetection(): void {
 
 // --- Helpers ---
 
-const HEX_RE = /^[0-9a-fA-F]*$/;
-
 function toBytes(
   input: string | Uint8Array,
   encoding: "hex" | "utf8" = "utf8",
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (encoding === "hex") {
-    if (!HEX_RE.test(input)) throw new Error("Invalid hex string");
-    return Buffer.from(input, "hex");
+    if (!isHex(input))
+      throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
+    return decodeHex(input);
   }
-  return Buffer.from(input, "utf8");
+  return utf8(input);
 }
 
 function getHashFn(algorithm: WasmHashAlgorithm) {
@@ -215,7 +223,10 @@ function getHashFn(algorithm: WasmHashAlgorithm) {
     case "blake3":
       return blake3;
     default:
-      throw new Error(`Unsupported hash algorithm: ${algorithm}`);
+      throw new CryptoError(
+        `Unsupported hash algorithm: ${algorithm}`,
+        CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+      );
   }
 }
 
@@ -224,8 +235,8 @@ function getHashFn(algorithm: WasmHashAlgorithm) {
 /**
  * Hash data using the fastest available backend.
  *
- * Currently uses @noble pure-JS implementations. When `awasm-noble` ships,
- * this will transparently upgrade to WASM for 5-10x speedups.
+ * Uses the `@noble` pure JavaScript implementations; no WebAssembly
+ * module ships.
  *
  * @example
  * ```ts
@@ -240,7 +251,7 @@ export function wasmHash(options: WasmHashOptions): WasmHashResult {
   const digest = hashFn(data);
 
   return {
-    digest: Buffer.from(digest).toString("hex"),
+    digest: toHex(digest),
     algorithm: options.algorithm,
     // Report "js" since we're using noble pure-JS regardless of WASM capability
     // until awasm-noble integration is available
@@ -267,13 +278,16 @@ export function wasmAeadEncrypt(
 ): WasmAeadEncryptResult {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
   const plaintext =
     options.plaintext instanceof Uint8Array
       ? options.plaintext
-      : Buffer.from(options.plaintext, "utf8");
+      : utf8(options.plaintext);
   const nonce = randomBytes(NONCE_LENGTH);
   const cipher = xchacha20poly1305(key, nonce, options.aad);
   const sealed = cipher.encrypt(plaintext);
@@ -283,7 +297,7 @@ export function wasmAeadEncrypt(
   combined.set(sealed, NONCE_LENGTH);
 
   return {
-    ciphertext: Buffer.from(combined).toString("base64"),
+    ciphertext: toBase64(combined),
     backend: "js",
   };
 }
@@ -307,12 +321,18 @@ export function wasmAeadDecrypt(options: {
 }): WasmAeadDecryptResult {
   const key = toBytes(options.key, "hex");
   if (key.length !== 32) {
-    throw new Error(`Key must be 32 bytes (256 bits), got ${key.length}`);
+    throw new CryptoError(
+      `Key must be 32 bytes (256 bits), got ${key.length}`,
+      CryptoErrorCode.INVALID_KEY,
+    );
   }
 
-  const combined = Buffer.from(options.ciphertext, "base64");
+  const combined = fromBase64(options.ciphertext);
   if (combined.length < NONCE_LENGTH + 16) {
-    throw new Error("Ciphertext too short — missing nonce or auth tag");
+    throw new CryptoError(
+      "Ciphertext too short — missing nonce or auth tag",
+      CryptoErrorCode.INVALID_CIPHERTEXT,
+    );
   }
 
   const nonce = combined.subarray(0, NONCE_LENGTH);

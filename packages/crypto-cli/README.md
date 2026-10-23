@@ -125,12 +125,12 @@ Crypto Service provides a complete cryptography stack across 14 specialized pack
 
 | Package                                                                                                                                   | Role             | Description                                                                                                                        |
 | :---------------------------------------------------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
-| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API Schemas      | Shared TypeScript types and utilities for the Crypto Service Suite, defining the canonical API surface.                            |
+| [`@sebastienrousseau/crypto-api`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-api)                      | API docs         | Postman collection types and a Postman-to-Markdown converter; the server's API contract is its OpenAPI document.                   |
 | [`@sebastienrousseau/crypto-benchmarks`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-benchmarks)        | Benchmarks       | Benchmarks comparing classical and post-quantum cryptography: ops/sec, latency and throughput.                                     |
 | [`@sebastienrousseau/crypto-cbom`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cbom)                    | CBOM             | Cryptographic Bill of Materials generator and auditor (CycloneDX 1.6, SPDX 3.0).                                                   |
 | **[`@sebastienrousseau/crypto-cli`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli)** _(this package)_ | **Terminal CLI** | **Command-line interface: hashing, key generation, encryption, signing, HPKE, Argon2id and CBOM scans, with an interactive menu.** |
 | [`@sebastienrousseau/crypto-edge`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-edge)                    | Edge Runtime     | Edge-runtime cryptographic operations using the Web Crypto API, optimized for Cloudflare Workers, Vercel Edge, and Deno.           |
-| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS        | Unified KMS interface: AWS KMS and local providers implemented; GCP, Azure and Vault are stubs.                                    |
+| [`@sebastienrousseau/crypto-kms`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-kms)                      | Cloud KMS        | Unified KMS interface: AWS KMS, Google Cloud KMS, Vault Transit and local providers; Azure is a stub.                              |
 | [`@sebastienrousseau/crypto-lib`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lib)                      | Core Library     | Core library: post-quantum ML-KEM, ML-DSA and SLH-DSA, plus classical, modern and OpenPGP cryptography for TypeScript.             |
 | [`@sebastienrousseau/crypto-lsp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-lsp)                      | IDE Analysis     | Language server that flags weak and quantum-vulnerable cryptography in the editor, with quick fixes.                               |
 | [`@sebastienrousseau/crypto-mcp`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-mcp)                      | AI Agents        | Model Context Protocol server exposing cryptography tools to AI assistants and agents.                                             |
@@ -687,8 +687,8 @@ Usage: crypto-cli hpke keygen [options]
 Generate an HPKE key pair
 
 Options:
-  -k, --kem <kem>  key encapsulation mechanism (choices: "x25519-ml-kem-768",
-                   "x25519", "p256", default: "x25519-ml-kem-768")
+  -k, --kem <kem>  key encapsulation mechanism (choices: "x-wing",
+                   "x25519-ml-kem-768", "x25519", "p256", default: "x-wing")
   --json           print key pair as JSON
   -h, --help       print help
 ```
@@ -702,9 +702,9 @@ Encrypt a message using HPKE
 
 Options:
   -p, --public-key <hex>  recipient public key (hex)
-  -k, --kem <kem>         key encapsulation mechanism (choices:
+  -k, --kem <kem>         key encapsulation mechanism (choices: "x-wing",
                           "x25519-ml-kem-768", "x25519", "p256", default:
-                          "x25519-ml-kem-768")
+                          "x-wing")
   -a, --aead <aead>       authenticated encryption algorithm (choices:
                           "chacha20-poly1305", "aes-128-gcm", default:
                           "chacha20-poly1305")
@@ -724,9 +724,9 @@ Decrypt an HPKE ciphertext
 Options:
   -s, --secret-key <hex>        recipient private key (hex)
   -e, --encapsulated-key <hex>  encapsulated key (hex)
-  -k, --kem <kem>               key encapsulation mechanism (choices:
+  -k, --kem <kem>               key encapsulation mechanism (choices: "x-wing",
                                 "x25519-ml-kem-768", "x25519", "p256", default:
-                                "x25519-ml-kem-768")
+                                "x-wing")
   -a, --aead <aead>             authenticated encryption algorithm (choices:
                                 "chacha20-poly1305", "aes-128-gcm", default:
                                 "chacha20-poly1305")
@@ -873,7 +873,7 @@ cryptocli
 
 ## Examples
 
-Runnable shell scripts are provided in the [`examples/`](examples/)
+Runnable shell scripts are provided in the [`examples/`](https://github.com/sebastienrousseau/crypto-service/tree/main/packages/crypto-cli/examples)
 directory:
 
 | Category   | Example                             | Purpose                                   |
