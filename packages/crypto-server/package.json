@@ -71,7 +71,7 @@
     "@sebastienrousseau/crypto-lib": "workspace:*",
     "fastify": "^5.12.7",
     "fastify-healthcheck": "^5.1.0",
-    "pino": "10.3.1"
+    "pino": "10.4.0"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
