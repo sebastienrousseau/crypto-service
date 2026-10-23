@@ -25,7 +25,7 @@ overrides:
   "@grpc/grpc-js": ">=1.14.5 <2"
   "@protobufjs/utf8": ">=1.1.2 <2"
   "@tootallnate/once": ">=2.0.1 <4"
-  "body-parser": ">=1.20.8 <3"
+  "body-parser": ">=2.4.0 <3"
   "brace-expansion": ">=1.1.17 <6"
   "chokidar": ">=5.0.0 <6"
   "fast-jwt": ">=6.3.4 <7"

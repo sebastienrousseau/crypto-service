@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`body-parser` 2.4.0 (security)**: GHSA-27r3-jxmh-p828 (high) is a denial of service in `body-parser` from 2.0.0 to below 2.4.0, through trailing bytes after a compressed request body. `express` 5 in crypto-middleware resolved 2.3.0, and the workspace override (`>=1.20.8 <3`) allowed it, so Dependabot could not update it. The override is now `>=2.4.0 <3`, so no affected version resolves.
 - **The v0.0.36 release published nothing**: the release workflow's GitHub Packages step passed `npm-tarballs/<name>.tgz` to `npm publish`, which npm reads as a GitHub `owner/repo` shorthand, so it tried to clone a repository over SSH and failed; the npm job, which waits on that step, never ran. The step now passes `./npm-tarballs/<name>.tgz` and skips versions already in GitHub Packages, so re-running a partly failed release publishes only what is missing.
 - **Publishing an existing release sent GitHub Packages tarballs to npmjs**: the repository's `.npmrc` maps `@sebastienrousseau` to registry.npmjs.org, and npm prefers a scope mapping over `--registry`. Tag-push runs never check the repository out in that job, but publishing an existing release does, so its first run tried npmjs, found no credentials and stopped before publishing anything. The step now maps the scope to GitHub Packages on every `npm view` and `npm publish`, which also keeps the "already published" check from reading npmjs.
 
