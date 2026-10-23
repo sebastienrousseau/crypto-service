@@ -40,6 +40,8 @@ All continuous integration verification gates map directly to pnpm workspace scr
 
 The test suite enforces a **100% coverage floor** (statements, branches, functions, and lines) across all packages in the workspace. No pull request may lower or bypass coverage thresholds.
 
+`pnpm -r run test` measures coverage and enforces the floor; `pnpm -r run test:run` runs the same tests without measuring it. CI enforces the floor on Linux with Node.js 24, the one runtime where every code path runs: the native ML-KEM, ML-DSA, SLH-DSA and Argon2 back ends need Node.js 24.7+, and Windows has no POSIX file modes or signal-driven shutdown. Node.js 22, macOS and Windows run `test:run`.
+
 ## Monorepo Layout
 
 ```

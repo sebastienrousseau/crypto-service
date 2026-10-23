@@ -33,6 +33,7 @@
     "build:wasm": "echo 'No WebAssembly module source exists yet; see README'",
     "clean": "rimraf ./coverage ./dist ./docs",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc",
     "lint": "eslint src __tests__",
     "lint:fix": "eslint --cache --fix src __tests__",

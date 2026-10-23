@@ -96,6 +96,7 @@
     "lint:fix": "eslint --cache --fix src __tests__",
     "start": "node dist/index.js",
     "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },
   "types": "./dist/index.d.ts",

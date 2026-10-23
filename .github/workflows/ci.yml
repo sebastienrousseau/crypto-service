@@ -33,7 +33,14 @@ jobs:
       - run: pnpm run format:root
       - name: Complexity gate (baseline may only shrink)
         run: node scripts/complexity-check.mjs
-      - run: pnpm -r run test
+      # The 100% coverage floor is enforced on Linux with Node.js 24, the
+      # one runtime where every path runs (native ML-KEM, ML-DSA, SLH-DSA
+      # and Argon2 need Node.js 24.7+). The other jobs run the same tests
+      # without measuring coverage.
+      - name: Test
+        env:
+          TEST_SCRIPT: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 24 && 'test' || 'test:run' }}
+        run: pnpm -r run "$TEST_SCRIPT"
 
   # Runs the Vault Transit suite of crypto-kms against a real Vault dev
   # server, so FakeVault (used everywhere else) stays faithful to Vault.
@@ -90,7 +97,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm -r run lint
-      - run: pnpm -r run test
+      # Coverage is enforced in build-and-test; Windows cannot run the
+      # POSIX-only paths (file modes, signal shutdown).
+      - run: pnpm -r run test:run
 
   docs-and-hygiene:
     runs-on: ubuntu-latest
