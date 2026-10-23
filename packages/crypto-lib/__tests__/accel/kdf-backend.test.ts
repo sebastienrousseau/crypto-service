@@ -17,6 +17,11 @@ import { scrypt as nobleScrypt } from "@noble/hashes/scrypt.js";
 import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
 import { sha3_256 } from "@noble/hashes/sha3.js";
 import * as kdf from "../../src/accel/kdf-backend";
+import { runtimeCrypto } from "../../src/accel/runtime";
+
+// Node.js 24.7+ has argon2Sync; Node.js 22 runs Argon2 on noble.
+// Coverage, enforced on Node.js 24, proves the native path ran there.
+const NATIVE_ARGON2 = typeof runtimeCrypto()?.argon2Sync === "function";
 
 const password = "correct horse battery staple";
 const salt = new Uint8Array(16).fill(7);
@@ -73,7 +78,8 @@ describe("native KDF back end", function () {
     expect(thrown(() => kdf.argon2id(password, salt, opts))).to.equal(
       thrown(() => nobleArgon2id(password, salt, opts)),
     );
-    expect(kdf.nativeKdfFallbacks()).to.be.greaterThan(before);
+    // Natively, the refused costs throw and are repeated with noble.
+    expect(kdf.nativeKdfFallbacks() - before).to.equal(NATIVE_ARGON2 ? 1 : 0);
   });
 
   it("returns noble's scrypt bytes, natively", () => {

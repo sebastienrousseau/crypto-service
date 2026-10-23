@@ -12,6 +12,19 @@ import * as noble from "./noble-pq";
 import * as backend from "../../src/accel/pq-backend";
 import { runtimeCrypto } from "../../src/accel/runtime";
 
+// Node.js 24.7+ with OpenSSL 3.5 runs ML-KEM, ML-DSA and SLH-DSA natively;
+// Node.js 22 runs them all on noble. Asked of node:crypto directly, not of
+// the back end under test. Coverage, enforced on Node.js 24, proves the
+// native paths ran there.
+const NATIVE = (() => {
+  try {
+    runtimeCrypto()?.generateKeyPairSync("ml-kem-512" as "ed25519");
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
 const msg = new TextEncoder().encode("differential test message");
 const flip = (b: Uint8Array, i = 0) => {
   const out = Uint8Array.from(b);
@@ -30,9 +43,8 @@ const thrown = (fn: () => unknown): string => {
 describe("native post-quantum back end", function () {
   this.timeout(120000);
 
-  it("runs every routed algorithm natively on this runtime", () => {
-    // Node.js 24.7+ with OpenSSL 3.5; CI runs Node 24.
-    expect(backend.nativeAlgorithms()).to.have.length(18);
+  it("runs every routed algorithm natively where the runtime can", () => {
+    expect(backend.nativeAlgorithms()).to.have.length(NATIVE ? 18 : 0);
   });
 
   for (const level of [512, 768, 1024] as const) {
@@ -77,7 +89,8 @@ describe("native post-quantum back end", function () {
         ).to.equal(
           thrown(() => n.decapsulate(new Uint8Array(3), kp.secretKey)),
         );
-        expect(backend.nativeFallbacks()).to.be.greaterThan(before);
+        // Natively, malformed keys throw and are repeated with noble.
+        expect(backend.nativeFallbacks() - before).to.equal(NATIVE ? 2 : 0);
       });
 
       it("uses noble for seeded key generation and fixed randomness", () => {
