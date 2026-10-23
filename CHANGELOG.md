@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.37 in strict lockstep.
+- **Publishing an existing release**: the release workflow can be run by hand from main with a `tag`, for a release whose own run did not reach the registries. It builds nothing: `scripts/release-assets.sh` downloads the tarballs attached to the release and refuses them unless each carries the tag's version and matches the SHA-256 listed in the release notes, so GitHub Packages and npm receive exactly the bytes the release page states. npm still waits for approval of the `npm` environment. v0.0.36 reaches both registries this way. [docs/releases/v0.0.36.md](docs/releases/v0.0.36.md) records its release notes.
 
 ### Changed
 

@@ -3,15 +3,28 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Publishes a release that already exists, when its own run did not
+  # reach the registries: no build, only the tarballs attached to the
+  # release, checked against the checksums in its notes. Run it from main.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to publish (e.g. v0.0.36)"
+        required: true
+        type: string
 
 permissions:
   contents: read
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   # Installs, builds, tests and packs with a read-only token: dependency
   # code (install scripts, tests) runs here, so this job holds no write
   # permission and does not persist the token in .git/config.
   build:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,7 +45,7 @@ jobs:
       # Refuse to publish if the tag and the manifests disagree or a
       # manifest would be rejected (npm provenance needs repository.url).
       - name: Preflight manifests against the tag
-        run: node scripts/check-manifests.mjs --tag "$GITHUB_REF_NAME"
+        run: node scripts/check-manifests.mjs --tag "$TAG"
 
       - run: pnpm -r run build
       - run: pnpm -r run test
@@ -58,15 +71,20 @@ jobs:
 
   # Creates the GitHub release and publishes the packed tarballs to GitHub
   # Packages. It holds write permissions, so it runs no dependency code:
-  # no checkout, no install, only the tarballs the build job made.
+  # no install, only the tarballs the build job made (or, when publishing
+  # an existing release, the ones attached to it).
   github:
     needs: build
+    if: >-
+      !cancelled() && (needs.build.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     permissions:
       contents: write # create the GitHub release
       packages: write # publish to GitHub Packages
     steps:
       - name: Create GitHub Release
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           generate_release_notes: true
@@ -77,9 +95,22 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        if: github.event_name == 'push'
         with:
           name: npm-tarballs
           path: npm-tarballs
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          persist-credentials: false
+
+      - name: Download the release's own tarballs
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: scripts/release-assets.sh "$TAG" npm-tarballs
 
       # The ./ prefix matters: npm reads a bare `dir/file.tgz` as a GitHub
       # `owner/repo` shorthand and tries to clone it. Versions already in
@@ -101,12 +132,14 @@ jobs:
           done
 
   # Publishes to npm only after a maintainer approves the `npm`
-  # environment (required reviewer, v* tags only). Each package's npm
+  # environment (required reviewer; v* tags, and main while a maintainer
+  # allows it for publishing an existing release). Each package's npm
   # trusted publisher accepts this repository's release.yml in that
   # environment, so no token is stored and nothing reaches npm without
   # the approval. npm attaches provenance to every version.
   npm:
     needs: [build, github]
+    if: ${{ !cancelled() && needs.github.result == 'success' }}
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -122,9 +155,17 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        if: github.event_name == 'push'
         with:
           name: npm-tarballs
           path: npm-tarballs
+
+      - name: Download the release's own tarballs
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: scripts/release-assets.sh "$TAG" npm-tarballs
 
       - name: Publish to npm
         run: scripts/publish-npm.sh npm-tarballs
@@ -132,4 +173,4 @@ jobs:
       # Read every version back and fail unless it is public on npm with
       # a provenance attestation.
       - name: Verify npm provenance
-        run: node scripts/check-provenance.mjs "${GITHUB_REF_NAME#v}"
+        run: node scripts/check-provenance.mjs "${TAG#v}"
