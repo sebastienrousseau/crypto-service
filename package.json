@@ -49,7 +49,7 @@
     "@eslint/js": "^10.0.1",
     "@sebastienrousseau/c8-config": "^0.0.7",
     "@sebastienrousseau/prettier-config": "0.0.7",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-sonarjs": "^4.2.2",
