@@ -17,6 +17,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const cryptoLib = require("../packages/crypto-lib/dist/modern");
 const accel = require("../packages/crypto-lib/dist/accel");
+const hooks = require("../packages/crypto-lib/dist/testing");
 
 // --- Config ---
 const DEFAULT_ITERATIONS = 500;
@@ -603,7 +604,7 @@ function runBenchmarks(): BenchResult[] {
     add(
       bench(
         "KMS local createKey",
-        () => localKms.createKey("aes-256", "encrypt"),
+        () => localKms.createKey("aes-256-gcm", "encrypt"),
         { iters: 200 },
       ),
     );
@@ -630,13 +631,13 @@ function runBenchmarks(): BenchResult[] {
     console.log("\n=== ACCELERATION DETECTION ===");
     add(
       bench("WebCrypto modern detect", () => {
-        accel._resetModernWebCryptoDetection();
+        hooks.resetModernWebCryptoDetection();
         accel.detectModernWebCrypto();
       }),
     );
     add(
       bench("Native PQC detect", () => {
-        accel.resetNativePqcCache();
+        hooks.resetNativePqcCache();
         accel.hasNativePqc();
       }),
     );
