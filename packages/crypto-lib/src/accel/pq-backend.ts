@@ -136,20 +136,32 @@ export interface Sizes {
 export interface Native extends Sizes {
   name: string;
   form: DerForm;
+  /** Whether native key generation yields the expanded secret key. */
+  keygen: boolean;
 }
 
+/** A raw key pair from noble, used to check the runtime reads it alike. */
+export type Expand = () => { publicKey: Uint8Array; secretKey: Uint8Array };
+
 /**
- * The native form of `name`, or undefined when the runtime lacks it or
- * does not export its expanded secret key. Probed once, on first use.
- * `innerOctetString` is the standard's PKCS#8 layout: ML-KEM and ML-DSA
- * keys are the `expandedKey` choice, an OCTET STRING inside the PKCS#8
- * privateKey; SLH-DSA keys are the raw key itself (RFC 9909).
+ * The native form of `name`, or undefined when the runtime lacks it.
+ * Probed once, on first use. `innerOctetString` is the standard's PKCS#8
+ * layout: ML-KEM and ML-DSA keys are the `expandedKey` choice, an OCTET
+ * STRING inside the PKCS#8 privateKey; SLH-DSA keys are the raw key
+ * itself (RFC 9909).
+ *
+ * A runtime that exports private keys as the seed alone (Node.js 24.22+
+ * and 26 for ML-KEM and ML-DSA) cannot hand back the expanded secret key
+ * from native key generation, which stays with noble; it still runs
+ * every other operation natively if it reads an expanded key from
+ * `expand` as noble does.
  */
 export function probe(
   name: string,
   sizes: Sizes,
   innerOctetString: boolean,
   crypto: typeof NodeCrypto | null = nodeCrypto,
+  expand?: Expand,
 ): Native | undefined {
   if (crypto === null) return undefined;
   try {
@@ -158,16 +170,37 @@ export function probe(
     );
     const spkiDer = publicKey.export({ format: "der", type: "spki" });
     const pkcs8Der = privateKey.export({ format: "der", type: "pkcs8" });
-    if (!endsWithOctetString(pkcs8Der, sizes.secretKey)) {
-      // A seed-only private key (Node.js 26's default): its expanded
-      // secret key is not available without noble, so stay on noble.
-      return undefined;
-    }
     const form = { algorithm: algorithmOf(spkiDer), innerOctetString };
-    return { name, form, ...sizes };
+    const native = { name, form, keygen: true, ...sizes };
+    if (endsWithOctetString(pkcs8Der, sizes.secretKey)) return native;
+    return expand && readsLikeNoble(crypto, native, expand())
+      ? { ...native, keygen: false }
+      : undefined;
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Whether the runtime takes noble's expanded secret key and derives
+ * noble's public key from it. Throws when it refuses the key.
+ */
+function readsLikeNoble(
+  crypto: typeof NodeCrypto,
+  native: Native,
+  pair: ReturnType<Expand>,
+): boolean {
+  const privateKey = crypto.createPrivateKey({
+    key: Buffer.from(pkcs8(native.form, pair.secretKey)),
+    format: "der",
+    type: "pkcs8",
+  });
+  const spkiDer = crypto
+    .createPublicKey(privateKey)
+    .export({ format: "der", type: "spki" });
+  return Buffer.from(spkiDer.subarray(-native.publicKey)).equals(
+    Buffer.from(pair.publicKey),
+  );
 }
 
 /** Algorithms probed so far, and whether each runs natively. */
@@ -181,12 +214,13 @@ function lazyNative(
   name: string,
   sizes: Sizes,
   innerOctetString: boolean,
+  expand: Expand,
 ): () => Native | undefined {
   let probed = false;
   let native: Native | undefined;
   const get = (): Native | undefined => {
     if (!probed) {
-      native = probe(name, sizes, innerOctetString);
+      native = probe(name, sizes, innerOctetString, nodeCrypto, expand);
       probed = true;
       nativeByName.set(name, native !== undefined);
     }
@@ -236,6 +270,27 @@ function rawKeyPair(native: Native): {
   };
 }
 
+/**
+ * Native key generation, where the runtime has the algorithm and exports
+ * the expanded secret key; noble for a seeded key pair.
+ */
+function nativeKeygen(
+  native: () => Native | undefined,
+  seed: Uint8Array | undefined,
+): (() => ReturnType<typeof rawKeyPair>) | undefined {
+  const n = seed === undefined ? native() : undefined;
+  return n?.keygen ? () => rawKeyPair(n) : undefined;
+}
+
+/** A key pair from noble's fixed all-zero seed, for {@link probe}. */
+const expandWith =
+  (noble: {
+    keygen: (seed: Uint8Array) => ReturnType<Expand>;
+    lengths: { seed?: number };
+  }): Expand =>
+  () =>
+    noble.keygen(new Uint8Array(noble.lengths.seed!));
+
 /** Imports a raw public key. */
 function publicKeyObject(native: Native, key: Uint8Array): KeyObject {
   return nodeCrypto!.createPublicKey({
@@ -268,12 +323,12 @@ function kem(noble: NobleKem, name: string): NobleKem {
       secretKey: noble.lengths.secretKey!,
     },
     true,
+    expandWith(noble),
   );
   return {
     ...noble,
     keygen(seed?: Uint8Array) {
-      const n = seed === undefined ? native() : undefined;
-      return nativeOr(n && (() => rawKeyPair(n)), () => noble.keygen(seed));
+      return nativeOr(nativeKeygen(native, seed), () => noble.keygen(seed));
     },
     encapsulate(publicKey: Uint8Array, msg?: Uint8Array) {
       const n = msg === undefined ? native() : undefined;
@@ -327,12 +382,12 @@ function signer<S extends NobleSigner>(
       secretKey: noble.lengths.secretKey!,
     },
     innerOctetString,
+    expandWith(noble),
   );
   return {
     ...noble,
     keygen(seed?: Uint8Array) {
-      const n = seed === undefined ? native() : undefined;
-      return nativeOr(n && (() => rawKeyPair(n)), () => noble.keygen(seed));
+      return nativeOr(nativeKeygen(native, seed), () => noble.keygen(seed));
     },
     sign(msg: Uint8Array, secretKey: Uint8Array, opts?: object) {
       const n = opts === undefined ? native() : undefined;

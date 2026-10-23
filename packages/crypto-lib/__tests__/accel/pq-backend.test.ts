@@ -163,10 +163,81 @@ describe("native post-quantum back end", function () {
 
     it("stays on noble when the expanded secret key is not exported", () => {
       // A secret-key size that does not end the PKCS#8 encoding stands
-      // for a seed-only private key, which Node.js 26 exports by default.
+      // for a seed-only private key, and without noble to expand one
+      // the probe cannot check that the runtime takes expanded keys.
       expect(
         backend.probe("ml-kem-768", { publicKey: 1184, secretKey: 2401 }, true),
       ).to.equal(undefined);
+    });
+
+    describe("on a runtime that exports seed-only private keys", () => {
+      // Node.js 24.22+ and 26 export ML-KEM and ML-DSA private keys as
+      // the seed alone. Simulated here so every runtime runs these tests.
+      const real = runtimeCrypto()!;
+      const seedOnly = (overrides: Partial<typeof real> = {}): typeof real => ({
+        ...real,
+        generateKeyPairSync: ((name: "ed25519") => {
+          const pair = real.generateKeyPairSync(name);
+          return {
+            publicKey: pair.publicKey,
+            privateKey: { export: () => Buffer.alloc(86) },
+          };
+        }) as typeof real.generateKeyPairSync,
+        ...overrides,
+      });
+      const sizes = { publicKey: 1184, secretKey: 2400 };
+      const expand = () => noble.ml_kem768.keygen(new Uint8Array(64).fill(1));
+
+      it("generates keys natively where the expanded key is exported", function () {
+        if (!NATIVE) this.skip();
+        // The PKCS#8 encoding ends with the 2400-byte expanded key.
+        const expanded = Buffer.concat([
+          Buffer.from([0x04, 0x82, 0x09, 0x60]),
+          Buffer.alloc(2400),
+        ]);
+        const exportsExpanded = seedOnly({
+          generateKeyPairSync: ((name: "ed25519") => ({
+            publicKey: real.generateKeyPairSync(name).publicKey,
+            privateKey: { export: () => expanded },
+          })) as typeof real.generateKeyPairSync,
+        });
+        expect(
+          backend.probe("ml-kem-768", sizes, true, exportsExpanded, expand),
+        ).to.include({ name: "ml-kem-768", keygen: true });
+      });
+
+      it("runs operations natively and generates keys with noble", function () {
+        if (!NATIVE) this.skip();
+        const native = backend.probe(
+          "ml-kem-768",
+          sizes,
+          true,
+          seedOnly(),
+          expand,
+        );
+        expect(native).to.include({ name: "ml-kem-768", keygen: false });
+      });
+
+      it("stays on noble when the runtime refuses an expanded key", function () {
+        if (!NATIVE) this.skip();
+        const refuses = seedOnly({
+          createPrivateKey: (() => {
+            throw new Error("unsupported");
+          }) as typeof real.createPrivateKey,
+        });
+        expect(
+          backend.probe("ml-kem-768", sizes, true, refuses, expand),
+        ).to.equal(undefined);
+      });
+
+      it("stays on noble when the runtime reads an expanded key differently", function () {
+        if (!NATIVE) this.skip();
+        const other = noble.ml_kem768.keygen(new Uint8Array(64).fill(2));
+        const misreads = () => ({ ...expand(), publicKey: other.publicKey });
+        expect(
+          backend.probe("ml-kem-768", sizes, true, seedOnly(), misreads),
+        ).to.equal(undefined);
+      });
     });
   });
 });
