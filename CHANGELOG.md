@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Dependency updates**: pino 10.4.0 in crypto-server; react 19.3.1, eslint 10.13.0 and commitlint 21.2.4 for development; github/codeql-action 4.39.0 and cargo-binstall 1.26.0 in CI. crypto-react still accepts React from 19.3.0. Dependabot now proposes the codeql-action steps, which must share a version, and the two commitlint packages as one update each.
 
+### Fixed
+
+- **The v0.0.36 release published nothing**: the release workflow's GitHub Packages step passed `npm-tarballs/<name>.tgz` to `npm publish`, which npm reads as a GitHub `owner/repo` shorthand, so it tried to clone a repository over SSH and failed; the npm job, which waits on that step, never ran. The step now passes `./npm-tarballs/<name>.tgz` and skips versions already in GitHub Packages, so re-running a partly failed release publishes only what is missing.
+
 ## [0.0.36] - 2026-10-23
 
 ### Added
