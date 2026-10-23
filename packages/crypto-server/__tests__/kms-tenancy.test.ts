@@ -273,7 +273,10 @@ describe("KMS tenancy", function () {
         const owners = new KmsOwners(dir);
         owners.bind("local", "k1", "alice");
         const file = path.join(dir, "kms-owners.json");
-        expect(statSync(file).mode & 0o777).to.equal(0o600);
+        // Windows has no POSIX permission bits to check.
+        if (process.platform !== "win32") {
+          expect(statSync(file).mode & 0o777).to.equal(0o600);
+        }
         expect(JSON.parse(readFileSync(file, "utf8"))).to.deep.equal({
           version: 1,
           owners: { "local:k1": "alice" },

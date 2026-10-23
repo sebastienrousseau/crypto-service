@@ -163,6 +163,22 @@ describe("server lifecycle", function () {
         await rm(dir, { recursive: true, force: true });
       }
     });
+
+    // Unlike the chmod test above, this one runs on Windows too.
+    it("answers 503 when the key directory is gone", async () => {
+      const dir = await mkdtemp(path.join(tmpdir(), "ready-"));
+      await withEnv({ CRYPTO_KEY_OUT_DIR: dir }, async () => {
+        const app = await init({ logger: false });
+        try {
+          await rm(dir, { recursive: true, force: true });
+          const res = await app.inject({ url: "/ready" });
+          expect(res.statusCode).to.equal(503);
+          expect(res.json().checks.keyStore).to.equal(false);
+        } finally {
+          await app.close();
+        }
+      });
+    });
   });
 
   describe("entry point", () => {
