@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.37] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.37 in strict lockstep.
+
+### Changed
+
+- **Dependency updates**: pino 10.4.0 in crypto-server; react 19.3.1, eslint 10.13.0 and commitlint 21.2.4 for development; github/codeql-action 4.39.0 and cargo-binstall 1.26.0 in CI. crypto-react still accepts React from 19.3.0. Dependabot now proposes the codeql-action steps, which must share a version, and the two commitlint packages as one update each.
+
 ## [0.0.36] - 2026-10-23
 
 ### Added
@@ -582,7 +592,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.36]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.35...HEAD
+[0.0.37]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.36...HEAD
+[0.0.36]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.35...v0.0.36
 [0.0.35]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.34...v0.0.35
 [0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.32...v0.0.33
