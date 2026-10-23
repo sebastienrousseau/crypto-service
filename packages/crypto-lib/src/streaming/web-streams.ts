@@ -172,7 +172,9 @@ const hashFactories: Record<WebStreamHashAlgorithm, () => HashLike> = {
 export function createHashStream(
   algorithm: WebStreamHashAlgorithm,
 ): CryptoTransformStream<Uint8Array, HashStreamResult> {
-  const factory = hashFactories[algorithm];
+  const factory = Object.hasOwn(hashFactories, algorithm)
+    ? hashFactories[algorithm]
+    : undefined;
   if (!factory) {
     throw new CryptoError(
       `Unsupported hash algorithm: ${algorithm}`,
