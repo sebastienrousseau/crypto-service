@@ -1,6 +1,7 @@
 import { generate } from "../../src/lib/generate";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import * as openpgp from "openpgp";
 import * as types from "../../src/types/types";
 import { _resetKeystoreForTests } from "../../src/key/keystore";
 
@@ -84,11 +85,23 @@ describe("generateKey rsaBits", function () {
 //   });
 // });
 
+// Every assertion here is awaited: a generate() left running finishes
+// during a later test and writes its keys into that test's
+// CRYPTO_KEY_OUT_DIR.
 describe("generateKey passphrase", function () {
-  it("should fail for invalid passphrase (KeyOptions: passphrase)", async function () {
+  it("encrypts the private key with the passphrase (KeyOptions: passphrase)", async function () {
     const passphrase = "abcdef123456789";
-    const test = generate({ ...data, passphrase });
-    await expect(test).to.eventually.be.rejectedWith;
+    const { privateKey } = (await generate(
+      { ...data, type: "ecc", passphrase },
+      { persist: false },
+    )) as { privateKey: string };
+    const key = await openpgp.readPrivateKey({ armoredKey: privateKey });
+    expect(key.isDecrypted()).to.equal(false);
+    await expect(
+      openpgp.decryptKey({ privateKey: key, passphrase: "wrong" }),
+    ).to.be.rejectedWith(/Incorrect key passphrase/);
+    const decrypted = await openpgp.decryptKey({ privateKey: key, passphrase });
+    expect(decrypted.isDecrypted()).to.equal(true);
   });
 });
 
@@ -99,7 +112,9 @@ describe("generateKey type", function () {
       type: "123456789" as types.dataGenerate["type"],
     };
     const test = generate(invalidData);
-    await expect(test).to.eventually.be.rejectedWith;
+    await expect(test).to.eventually.be.rejectedWith(
+      /Unsupported key type 123456789/,
+    );
   });
 
   it("should reject path traversal in key type (CWE-23)", async function () {
