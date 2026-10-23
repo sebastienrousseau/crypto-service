@@ -24,6 +24,7 @@ import { ed25519Sign, ed25519Verify } from "../modern/signing";
 import { mlDsaSign, mlDsaVerify, type MlDsaLevel } from "../modern/pq-sign";
 import { bytesToHex } from "../keys/serialize";
 import { concat, toHex, utf8 } from "../encoding";
+import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** Supported ISO 20022 payment message types. */
 export type Iso20022MessageType =
@@ -198,6 +199,12 @@ export function computeIso20022Digest(
   payload: string | Record<string, unknown>,
   algorithm: Iso20022DigestAlgorithm = "sha256",
 ): string {
+  if (!Object.hasOwn(DIGESTS, algorithm)) {
+    throw new CryptoError(
+      `Unsupported digest algorithm: ${algorithm}`,
+      CryptoErrorCode.UNSUPPORTED_ALGORITHM,
+    );
+  }
   const canonical = canonicalizePayload(payload);
   return toHex(DIGESTS[algorithm](utf8(canonical)));
 }
