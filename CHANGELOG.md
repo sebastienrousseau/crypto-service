@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **The v0.0.36 release published nothing**: the release workflow's GitHub Packages step passed `npm-tarballs/<name>.tgz` to `npm publish`, which npm reads as a GitHub `owner/repo` shorthand, so it tried to clone a repository over SSH and failed; the npm job, which waits on that step, never ran. The step now passes `./npm-tarballs/<name>.tgz` and skips versions already in GitHub Packages, so re-running a partly failed release publishes only what is missing.
+- **Publishing an existing release sent GitHub Packages tarballs to npmjs**: the repository's `.npmrc` maps `@sebastienrousseau` to registry.npmjs.org, and npm prefers a scope mapping over `--registry`. Tag-push runs never check the repository out in that job, but publishing an existing release does, so its first run tried npmjs, found no credentials and stopped before publishing anything. The step now maps the scope to GitHub Packages on every `npm view` and `npm publish`, which also keeps the "already published" check from reading npmjs.
 
 ## [0.0.36] - 2026-10-23
 
