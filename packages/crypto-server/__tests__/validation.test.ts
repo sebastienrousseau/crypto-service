@@ -180,10 +180,16 @@ describe("Validation utilities", () => {
 
     it("checks adversarial input in linear time (no ReDoS)", () => {
       const evil = "!@!." + "!.".repeat(50000) + " ";
-      const start = process.hrtime.bigint();
-      expect(validateEmail(evil, "email").valid).to.equal(false);
-      const ms = Number(process.hrtime.bigint() - start) / 1e6;
-      expect(ms).to.be.lessThan(50);
+      // The fastest of five runs: a busy host can stall any one run, but
+      // backtracking slows every run alike.
+      let fastest = Infinity;
+      for (let run = 0; run < 5; run++) {
+        const start = process.hrtime.bigint();
+        expect(validateEmail(evil, "email").valid).to.equal(false);
+        const ms = Number(process.hrtime.bigint() - start) / 1e6;
+        fastest = Math.min(fastest, ms);
+      }
+      expect(fastest).to.be.lessThan(50);
     });
 
     it("should accept valid email", () => {
