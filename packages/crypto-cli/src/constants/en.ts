@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
 /** English (en) translation strings for the CLI interface. */
 export const translations = {
   /** Main title shown in the CLI banner. */

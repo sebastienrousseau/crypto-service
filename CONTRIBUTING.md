@@ -18,7 +18,7 @@ All contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md
    cd crypto-service
    ```
 
-2. Ensure you have Node.js >= 22.0.0 and pnpm >= 9.x installed.
+2. Ensure you have Node.js >= 22.0.0 and pnpm 11 installed (the `packageManager` field in `package.json` names the exact version; `corepack enable` selects it).
 3. Install dependencies:
 
    ```bash
@@ -77,4 +77,4 @@ This project strictly follows the [Conventional Commits](https://www.conventiona
    ```
 
 2. Ensure all quality gates (`build`, `lint`, `format`, `test`, `docs`) pass before pushing.
-3. Open a pull request against `main` (or the active release branch) with a descriptive title and explanation of changes.
+3. Open a pull request against the active release branch, `feat/v<next-version>`, with a descriptive title and explanation of changes. That branch is the only one merged into `main`, through its own release pull request.

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
+/**
  * @remarks Main entry point for the Crypto Service Suite library.
  *
  * Re-exports all modules: modern primitives, high-level APIs, key management,

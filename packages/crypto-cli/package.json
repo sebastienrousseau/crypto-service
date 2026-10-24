@@ -119,7 +119,7 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "readme:usage": "node scripts/readme-usage.mjs",
     "start": "node dist/cli.js",
-    "test": "c8 --check-coverage --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
+    "test": "c8 --check-coverage --statements 100 --lines 100 --branches 100 --functions 100 --reporter=lcov --reporter=text mocha --config=.mocharc.cjs",
     "test:run": "mocha --config=.mocharc.cjs",
     "docs": "typedoc"
   },

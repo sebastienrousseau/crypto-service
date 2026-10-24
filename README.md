@@ -405,7 +405,7 @@ Cryptographic operations use `@noble/hashes`, `@noble/curves`, `@noble/ciphers`,
 
 Versions advance strictly one step at a time on the `0.0.x` line (`v0.0.1` → `v0.0.2` → `v0.0.3` ... → `v0.0.999` → `v0.1.0`). Work for every release iteration begins on a dedicated `feat/v<version>` branch.
 
-All packages in the suite move in lockstep. Public API signatures, cipher output formats, and serialization schemas are strictly versioned. Breaking changes to serialized ciphertext formats, key formats, or algorithm defaults are considered major breaking changes. Minimum toolchain upgrades (e.g. Node.js LTS floor) are governed by [POLICIES.md](docs/POLICIES.md) and announced in advance.
+All packages in the suite move in lockstep. Public API signatures, cipher output formats, and serialization schemas are strictly versioned. Breaking changes to serialized ciphertext formats, key formats, or algorithm defaults still ship as the next `0.0.x` version: the CHANGELOG marks each one **(breaking)** and [MIGRATION.md](MIGRATION.md) says how to upgrade. Minimum toolchain upgrades (e.g. Node.js LTS floor) are governed by [POLICIES.md](docs/POLICIES.md) and announced in advance.
 
 ---
 

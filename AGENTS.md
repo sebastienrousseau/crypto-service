@@ -49,7 +49,7 @@ automated change is most likely to get wrong.
 - Verification gates MUST pass before claiming completion:
   - `pnpm -r run build` (all 18 packages compile with zero errors)
   - `pnpm -r run lint` (zero lint warnings/errors)
-  - `pnpm -r run format` (zero format discrepancies)
+  - `pnpm -r run format:check` and `pnpm run format:root` (zero format discrepancies; `format` rewrites files)
   - `pnpm -r run test` (test suite with **100% statements, branches, functions, and lines** coverage floor across every package)
   - `pnpm -r run docs` (TypeDoc builds with zero errors)
 - "It compiles" or "it runs locally" is not the definition of done. State
@@ -67,7 +67,9 @@ automated change is most likely to get wrong.
 
 ## Structure
 
-- Canonical repository structure follows `REPO-STANDARD.md`.
+- Packages live in `packages/crypto-*`, each with `src/`, `__tests__/`, its
+  own `package.json` and README; repository scripts live in
+  `scripts/`, with their tests in `scripts/__tests__/`.
 - `docs/` is the documentation root for guides, architecture, and ADRs.
 - Root configuration files (`tsconfig.base.json`, `pnpm-workspace.yaml`,
   `.editorconfig`) maintain monorepo consistency without conflicting formatters.

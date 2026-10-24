@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
 import figlet from "figlet";
 import format from "kleur";
 import { constants } from "../constants/index";
