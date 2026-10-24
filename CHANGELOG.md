@@ -7,7 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.37] - Unreleased
+## [0.0.38] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.38 in strict lockstep.
+
+### Fixed
+
+- **The SLH-DSA event-loop test failed on a busy CI runner**: it required the event loop never to stall for 100 ms while a worker generated a key or signed, and the shared macOS runner once stalled it for 185 ms with the work still on the worker (the job passed when re-run). The test now fails only when the loop stalls for 100 ms or a quarter of the work's own duration, whichever is longer: work run on the event loop stalls it for as long as the work takes, so the test still catches it, which a run with signing moved back onto the event loop confirmed.
+
+## [0.0.37] - 2026-10-24
 
 ### Added
 
@@ -601,7 +611,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.37]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.36...HEAD
+[0.0.38]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.37...HEAD
+[0.0.37]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.36...v0.0.37
 [0.0.36]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.35...v0.0.36
 [0.0.35]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.34...v0.0.35
 [0.0.34]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.33...v0.0.34

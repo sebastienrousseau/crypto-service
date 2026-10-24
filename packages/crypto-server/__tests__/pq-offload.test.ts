@@ -14,9 +14,18 @@ import type { FastifyInstance } from "fastify";
 import { init } from "../src/server";
 import { CryptoWorkers } from "../src/lib/crypto-workers";
 
-/** Largest gap between ticks of a 5 ms timer while `work` runs. */
-async function maxEventLoopLag(work: () => Promise<unknown>): Promise<number> {
-  let last = performance.now();
+/** How long `work` took, and the largest gap between ticks of a 5 ms timer. */
+interface LoopTiming {
+  readonly lag: number;
+  readonly duration: number;
+}
+
+/** Time `work` and the largest gap between ticks of a 5 ms timer. */
+async function timeEventLoop(
+  work: () => Promise<unknown>,
+): Promise<LoopTiming> {
+  const started = performance.now();
+  let last = started;
   let worst = 0;
   const timer = setInterval(() => {
     const now = performance.now();
@@ -28,9 +37,51 @@ async function maxEventLoopLag(work: () => Promise<unknown>): Promise<number> {
   } finally {
     clearInterval(timer);
   }
+  const ended = performance.now();
   // Work that blocks until it ends leaves its gap after the last tick.
-  return Math.max(worst, performance.now() - last);
+  return { lag: Math.max(worst, ended - last), duration: ended - started };
 }
+
+/**
+ * Whether the event loop kept ticking while the work ran. Work on the
+ * event loop leaves a gap as long as itself, so a gap under a quarter of
+ * the work's duration (or 100 ms, for short work) means it ran elsewhere.
+ * The bound is relative because a busy CI runner can stall the loop
+ * briefly while the work itself is off it.
+ */
+function stayedResponsive({ lag, duration }: LoopTiming): boolean {
+  return lag < Math.max(100, duration / 4);
+}
+
+/** Block the event loop for `ms` milliseconds. */
+function blockFor(ms: number): void {
+  const until = performance.now() + ms;
+  while (performance.now() < until) {
+    // spin
+  }
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+describe("event loop responsiveness check", () => {
+  it("accepts off-loop work during which a busy host stalls the loop once", async () => {
+    // A shared CI runner once stalled the event loop for 185 ms while a
+    // worker signed; the work was still off the loop.
+    const timing = await timeEventLoop(async () => {
+      await sleep(400);
+      blockFor(185);
+      await sleep(400);
+    });
+    expect(stayedResponsive(timing)).to.equal(true);
+  });
+
+  it("rejects work that holds the event loop until it ends", async () => {
+    const timing = await timeEventLoop(async () => {
+      blockFor(300);
+    });
+    expect(stayedResponsive(timing)).to.equal(false);
+  });
+});
 
 describe("post-quantum work off the event loop", function () {
   this.timeout(120000);
@@ -47,18 +98,18 @@ describe("post-quantum work off the event loop", function () {
 
   it("keeps the event loop responsive during SLH-DSA key generation and signing", async () => {
     let keyId = "";
-    const keygenLag = await maxEventLoopLag(async () => {
+    const keygen = await timeEventLoop(async () => {
       const res = await post("/v2/pq/slh-dsa/keygen", { variant: "sha2-128s" });
       expect(res.statusCode).to.equal(200);
       keyId = res.json().data.keyId;
     });
-    expect(keygenLag).to.be.below(100);
+    expect(stayedResponsive(keygen), JSON.stringify(keygen)).to.equal(true);
 
-    const signLag = await maxEventLoopLag(async () => {
+    const sign = await timeEventLoop(async () => {
       const res = await post("/v2/pq/slh-dsa/sign", { keyId, message: "m" });
       expect(res.statusCode).to.equal(200);
     });
-    expect(signLag).to.be.below(100);
+    expect(stayedResponsive(sign), JSON.stringify(sign)).to.equal(true);
   });
 
   it("signs and verifies ML-DSA through the pool", async () => {

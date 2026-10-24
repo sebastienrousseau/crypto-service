@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-edge",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Edge and serverless cryptography for Cloudflare Workers, Vercel Edge, Deno, Bun and browsers, with runtime detection and a Web Crypto API adapter for crypto-lib.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
