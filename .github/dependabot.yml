@@ -41,6 +41,24 @@ updates:
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # The OpenTelemetry 0.300 / 3.0 line needs @opentelemetry/api
+      # 1.10, but @fastify/otel 0.21.3 still pulls @opentelemetry/core
+      # 2.12, which only accepts api below 1.10. Remove these once a
+      # @fastify/otel release depends on core 3 and instrumentation 0.300.
+      - dependency-name: "@opentelemetry/api"
+        versions: [">=1.10.0"]
+      - dependency-name: "@opentelemetry/resources"
+        versions: [">=3.0.0"]
+      - dependency-name: "@opentelemetry/sdk-metrics"
+        versions: [">=3.0.0"]
+      - dependency-name: "@opentelemetry/sdk-node"
+        versions: [">=0.300.0"]
+      - dependency-name: "@opentelemetry/exporter-metrics-otlp-http"
+        versions: [">=0.300.0"]
+      - dependency-name: "@opentelemetry/exporter-trace-otlp-http"
+        versions: [">=0.300.0"]
+      - dependency-name: "@opentelemetry/instrumentation-http"
+        versions: [">=0.300.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
