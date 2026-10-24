@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Dependency updates**: pino 10.4.0 in crypto-server; react 19.3.1, eslint 10.13.0 and commitlint 21.2.4 for development; github/codeql-action 4.39.0 and cargo-binstall 1.26.0 in CI. crypto-react still accepts React from 19.3.0. Dependabot now proposes the codeql-action steps, which must share a version, and the two commitlint packages as one update each.
+- **Dependency updates**: pino 10.4.0 in crypto-server; react 19.3.1, eslint 10.13.0 and commitlint 21.2.4 for development; github/codeql-action 4.39.1 and cargo-binstall 1.26.0 in CI. crypto-react still accepts React from 19.3.0. Dependabot now proposes the codeql-action steps, which must share a version, and the two commitlint packages as one update each.
 - **OpenTelemetry stays on the 0.223 / 2.x line**: the 0.300 / 3.0 SDK needs `@opentelemetry/api` 1.10, but `@fastify/otel` 0.21.3, which crypto-server uses for Fastify tracing, still pulls `@opentelemetry/core` 2.12, which only accepts api below 1.10; together they leave an unmet peer dependency. Dependabot ignores those versions until a `@fastify/otel` release moves to the new line; minor and patch updates within the current line still arrive.
 
 ### Fixed
