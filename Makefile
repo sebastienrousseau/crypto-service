@@ -112,13 +112,14 @@ test:
 	@echo "Run test suite across all packages"
 	@pnpm -r run test
 
-# @HELP Run every CI gate in order (build, lint, format, complexity, test, docs, manifests, publint/attw, pack smoke test)
+# @HELP Run every CI gate in order (build, lint, format, complexity, script tests, test, docs, manifests, publint/attw, pack smoke test)
 check:
 	@pnpm -r run build
 	@pnpm -r run lint
 	@pnpm -r run format:check
 	@pnpm run format:root
 	@node scripts/complexity-check.mjs
+	@pnpm run test:scripts
 	@pnpm -r run test
 	@pnpm -r run docs
 	@node scripts/check-manifests.mjs

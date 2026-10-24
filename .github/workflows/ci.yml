@@ -33,6 +33,8 @@ jobs:
       - run: pnpm run format:root
       - name: Complexity gate (baseline may only shrink)
         run: node scripts/complexity-check.mjs
+      - name: Release and packaging script tests
+        run: pnpm run test:scripts
       # The 100% coverage floor is enforced on Linux with Node.js 24, the
       # one runtime where every path runs (native ML-KEM, ML-DSA, SLH-DSA
       # and Argon2 need Node.js 24.7+). The other jobs run the same tests

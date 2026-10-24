@@ -47,6 +47,11 @@ jobs:
       - name: Preflight manifests against the tag
         run: node scripts/check-manifests.mjs --tag "$TAG"
 
+      # Refuse a tag whose hand-written Highlights are missing, malformed
+      # or left over from another release, before anything is published.
+      - name: Preflight release highlights
+        run: node scripts/release-notes.mjs check "$TAG"
+
       - run: pnpm -r run build
       - run: pnpm -r run test
 
@@ -72,7 +77,8 @@ jobs:
   # Creates the GitHub release and publishes the packed tarballs to GitHub
   # Packages. It holds write permissions, so it runs no dependency code:
   # no install, only the tarballs the build job made (or, when publishing
-  # an existing release, the ones attached to it).
+  # an existing release, the ones attached to it) and this repository's
+  # own dependency-free scripts.
   github:
     needs: build
     if: >-
@@ -82,12 +88,12 @@ jobs:
     permissions:
       contents: write # create the GitHub release
       packages: write # publish to GitHub Packages
+      id-token: write # sign the provenance attestation (Sigstore)
+      attestations: write # record the attestation on the repository
     steps:
-      - name: Create GitHub Release
-        if: github.event_name == 'push'
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          generate_release_notes: true
+          persist-credentials: false
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -100,10 +106,37 @@ jobs:
           name: npm-tarballs
           path: npm-tarballs
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: github.event_name == 'workflow_dispatch'
+      # SLSA build provenance for the tarballs, signed through Sigstore and
+      # recorded on the repository (`gh attestation verify <tarball>
+      # --repo sebastienrousseau/crypto-service`). The bundle is attached
+      # to the release as well.
+      - name: Attest the tarballs' build provenance
+        id: attest
+        if: github.event_name == 'push'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          persist-credentials: false
+          subject-path: npm-tarballs/*.tgz
+
+      # Title, notes and assets in the house template: the Highlights come
+      # from .github/release-highlights.md (checked in the build job), the
+      # pull requests and changelog link from GitHub's generated notes, and
+      # the checksums from the assets themselves.
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          assets=(npm-tarballs/*.tgz "crypto-service-${TAG#v}.intoto.jsonl")
+          cp "$BUNDLE" "${assets[-1]}"
+          gh api "repos/$GH_REPO/releases/generate-notes" -f tag_name="$TAG" \
+            --jq .body >generated-notes.md
+          node scripts/release-notes.mjs compose "$TAG" generated-notes.md \
+            "${assets[@]}" >release-notes.md
+          gh release create "$TAG" --verify-tag \
+            --title "crypto-service ${TAG#v}" \
+            --notes-file release-notes.md "${assets[@]}"
 
       - name: Download the release's own tarballs
         if: github.event_name == 'workflow_dispatch'
@@ -116,9 +149,9 @@ jobs:
       # `owner/repo` shorthand and tries to clone it. Versions already in
       # the registry are skipped, so a re-run after a partial failure
       # publishes only what is missing. The repository's .npmrc (checked
-      # out when publishing an existing release) maps @sebastienrousseau
-      # to npmjs, and a scope mapping beats --registry, so every call
-      # also maps the scope to GitHub Packages.
+      # out above) maps @sebastienrousseau to npmjs, and a scope mapping
+      # beats --registry, so every call also maps the scope to GitHub
+      # Packages.
       - name: Publish to GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
