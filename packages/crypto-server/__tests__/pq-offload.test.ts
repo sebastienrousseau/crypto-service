@@ -66,11 +66,13 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 describe("event loop responsiveness check", () => {
   it("accepts off-loop work during which a busy host stalls the loop once", async () => {
     // A shared CI runner once stalled the event loop for 185 ms while a
-    // worker signed; the work was still off the loop.
+    // worker signed; the work was still off the loop. The work lasts
+    // about 2 s (a bound near 550 ms), so a loaded host's own timer
+    // delays do not push this case over the bound.
     const timing = await timeEventLoop(async () => {
-      await sleep(400);
+      await sleep(1000);
       blockFor(185);
-      await sleep(400);
+      await sleep(1000);
     });
     expect(stayedResponsive(timing)).to.equal(true);
   });
