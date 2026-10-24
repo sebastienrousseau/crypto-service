@@ -71,6 +71,76 @@ detail.
   requests a minute, whatever its JWT `tier` claim. Responses no longer
   carry `X-License-Tier`, and a refusal's problem details no longer carry
   `tier`. Payloads are bounded only by the server's body limit.
+- **P-256 and P-384 ECDH** (`ecdhP256`, `ecdhP384`) return the standard
+  shared secret, the x-coordinate alone (32 or 48 bytes), as OpenSSL,
+  WebCrypto and Node.js do. They returned a 33- or 49-byte compressed
+  point, so derive again any key you stored from the old output.
+- **KMS encryption takes an explicit `encoding`**: `/v2/kms/encrypt` reads
+  the plaintext as `utf8` unless the request says `encoding: "hex"` (the
+  SDK's `KmsEncryptParams` gains `encoding`), and no longer guesses. A
+  caller that sent hex plaintext without it now encrypts the hex text.
+  `/v2/kms/wrap` reads `unwrappedKey` as hex only, and answers `400` for
+  anything else.
+- **crypto-prisma and crypto-typeorm refuse legacy ciphertext** (values
+  written before the `v2:` format) by default, because such a value can be
+  copied into any field and still decrypt. Set
+  `acceptLegacyCiphertext: true` only while re-writing old rows in the
+  `v2:` format, then remove it.
+- **MAC keys must be at least 16 bytes**: crypto-lib's `computeHmac`,
+  `verifyHmac`, `computeKmac` and `verifyKmac` throw `CryptoError` with
+  code `INVALID_KEY` for a shorter key (`MIN_MAC_KEY_BYTES`), crypto-edge's
+  `sign` and `verify` apply the same floor (`MIN_HMAC_KEY_BYTES`),
+  crypto-server's `/v2/hmac` routes answer `400`, and crypto-middleware
+  reports a short `hmacKey` or `jwtSecret` as `500 INVALID_CONFIG`. Replace
+  short or empty secrets.
+- **PASETO tokens are checked for expiry**: `v4local.decrypt` and
+  `v4public.verify` refuse a token past its `exp`, before its `nbf` or
+  issued (`iat`) in the future, and a time claim that is not an RFC 3339
+  date. Pass `now` to check against another time. Tokens without these
+  claims are unaffected.
+
+## Upgrading to 0.0.9
+
+These changes can break a caller; [CHANGELOG.md](CHANGELOG.md) has the
+detail. Upgrading from 0.0.8 or earlier to the current version crosses
+this section and every later one.
+
+- **Scopes are enforced**: every crypto-server route needs the scope
+  `ROUTE_SCOPES` (`src/config/auth-policy.ts`) gives it, and a principal
+  without it gets `403`. A JWT without a `scopes` array holds none; API-key
+  and anonymous principals hold `crypto:admin`, which covers every scope
+  except `crypto:keys:export`.
+- **JWTs need `exp` and `iat`** and must not be older than `JWT_MAX_AGE`
+  seconds (default 3600). In production, `JWT_SECRET` also needs
+  `JWT_ISSUER` and `JWT_AUDIENCE`. crypto-middleware's `verifyJwt` rejects
+  a token without `exp` too, and takes `jwtIssuer`/`jwtAudience`.
+- **Private keys stay on the server**: key generation returns a `keyId`
+  and the public key, and signing, opening and decapsulation take that
+  `keyId` instead of a private key. Only the principal that generated a
+  key can use it; `POST /v2/keys/export` returns it to a principal with
+  `crypto:keys:export`. `/v1/decrypt` uses the server's key pair, and
+  `/v1/encrypt` takes `sign: true` instead of `privateKey`.
+- **crypto-sdk** follows: `sign`, `pqSign`, `pqHashSign`, `sealedboxOpen`
+  and `pqDecapsulate` take `keyId`, key-generation results carry no private
+  keys, `Ed25519KeyPair` is removed, and `ApiError` is an RFC 9457 problem.
+- **KDF and password-hash floors**: `/v2/kdf` and `/v2/password/hash`
+  answer `400` below scrypt N = 2^17 with r = 8, PBKDF2-HMAC-SHA256 with
+  600,000 iterations, or Argon2id with 19 MiB and two passes.
+  `/v2/password/verify` still accepts existing hashes.
+- **Error bodies** are RFC 9457 `application/problem+json`: read `detail`
+  instead of `error` or `message`, and `errors` instead of `details`.
+- **crypto-mcp** returns a `keyHandle` instead of secret key material, and
+  tools that use a secret take the handle. Every `tools/call` is checked
+  against the tool's `inputSchema`: unknown or missing properties are
+  refused, and required ones are no longer defaulted.
+- **Deep imports** such as `@sebastienrousseau/crypto-lib/dist/...` no
+  longer resolve: use the package's `exports` (for crypto-lib, `.`,
+  `./modern`, `./high-level`, `./keys`, `./streaming`, `./protocols`,
+  `./tokens`, `./accel` and `./pgp`). crypto-lib has no default export
+  (use `pgp` or `./pgp`), and crypto-server's package entry is `init`.
+- **PASETO `v4.local`** follows the specification, so tokens issued by
+  0.0.8 and earlier no longer decrypt: issue them again. `v4.public` is
+  unchanged.
 
 ## 0.0.2 to 0.0.3
 

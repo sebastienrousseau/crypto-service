@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The migration guide missed breaking changes**: MIGRATION.md's "Upgrading to 0.0.36" section left out five of that release's breaking changes, three of them security fixes: P-256 and P-384 ECDH output, the KMS `encoding` field, the ORM packages refusing legacy ciphertext, the 16-byte MAC key floor and PASETO expiry checks. It now lists them, and a new "Upgrading to 0.0.9" section covers that release's eleven breaking changes, which had no migration notes.
 - **The SLH-DSA event-loop test failed on a busy CI runner**: it required the event loop never to stall for 100 ms while a worker generated a key or signed, and the shared macOS runner once stalled it for 185 ms with the work still on the worker (the job passed when re-run). The test now fails only when the loop stalls for 100 ms or a quarter of the work's own duration, whichever is longer: work run on the event loop stalls it for as long as the work takes, so the test still catches it, which a run with signing moved back onto the event loop confirmed.
 
 ## [0.0.37] - 2026-10-24
