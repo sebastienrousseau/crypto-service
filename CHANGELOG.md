@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.38 in strict lockstep.
 
+### Fixed
+
+- **The SLH-DSA event-loop test failed on a busy CI runner**: it required the event loop never to stall for 100 ms while a worker generated a key or signed, and the shared macOS runner once stalled it for 185 ms with the work still on the worker (the job passed when re-run). The test now fails only when the loop stalls for 100 ms or a quarter of the work's own duration, whichever is longer: work run on the event loop stalls it for as long as the work takes, so the test still catches it, which a run with signing moved back onto the event loop confirmed.
+
 ## [0.0.37] - 2026-10-24
 
 ### Added
