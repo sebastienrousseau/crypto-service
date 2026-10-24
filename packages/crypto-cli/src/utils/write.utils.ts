@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+ */
+
 /** Utility class for writing lines to stdout/stderr. */
 export class writeUtils {
   // skipcq: JS-0327
