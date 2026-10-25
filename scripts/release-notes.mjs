@@ -41,9 +41,19 @@ export function checkHighlights(text, tag) {
 
 /** The Highlights section: no comments, `*` bullets, ready to print. */
 export function highlightsSection(text) {
-  return text
+  // Repeat until nothing changes: removing one comment can join the
+  // text around it into a new "<!--".
+  let stripped = text;
+  let previous;
+  do {
+    previous = stripped;
+    stripped = stripped.replace(/<!--[\s\S]*?-->/g, "");
+  } while (stripped !== previous);
+  if (stripped.includes("<!--")) {
+    throw new Error("highlights contain an unclosed comment");
+  }
+  return stripped
     .split("\n")
-    .filter((line) => !line.startsWith("<!--"))
     .map((line) => line.replace(/^- /, "* "))
     .join("\n")
     .trim();
@@ -102,6 +112,7 @@ function main([command, tag, generated, ...files]) {
     throw new Error(`.github/release-highlights.md: ${problems.join("; ")}`);
   }
   if (command === "check") {
+    highlightsSection(highlights);
     console.log(`release-notes: highlights ready for ${tag}`);
   } else if (command === "compose" && files.length > 0) {
     console.log(

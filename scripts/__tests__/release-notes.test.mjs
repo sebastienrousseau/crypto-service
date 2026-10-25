@@ -13,8 +13,12 @@ import {
   splitGenerated,
 } from "../release-notes.mjs";
 
+// Shaped like .github/release-highlights.md, multi-line comment included.
 const HIGHLIGHTS = `<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 <!-- release: v1.2.3 -->
+<!--
+  How to write this file.
+-->
 
 ## Highlights ⭐️
 
@@ -99,6 +103,13 @@ describe("highlightsSection", () => {
     assert.equal(
       highlightsSection(HIGHLIGHTS),
       "## Highlights ⭐️\n\n* **First**: one sentence.\n* **Second**: another sentence.",
+    );
+  });
+
+  it("refuses a comment that is never closed", () => {
+    assert.throws(
+      () => highlightsSection("<!<!---->-- x\n## Highlights ⭐️"),
+      /unclosed comment/,
     );
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-server",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "Fastify REST API for cryptography as a service: post-quantum ML-KEM and ML-DSA, encryption, signing, hashing and KMS endpoints, with OpenAPI docs, API key or JWT auth, rate limiting and OpenTelemetry.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

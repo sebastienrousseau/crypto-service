@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-middleware",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "Express and Fastify middleware that decrypts requests, encrypts responses and verifies HMAC signatures and JWTs on matching routes.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",
