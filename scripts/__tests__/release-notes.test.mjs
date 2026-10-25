@@ -105,4 +105,11 @@ describe("highlightsSection", () => {
       "## Highlights ⭐️\n\n* **First**: one sentence.\n* **Second**: another sentence.",
     );
   });
+
+  it("refuses a comment that is never closed", () => {
+    assert.throws(
+      () => highlightsSection("<!<!---->-- x\n## Highlights ⭐️"),
+      /unclosed comment/,
+    );
+  });
 });
