@@ -1,6 +1,6 @@
 {
   "name": "@sebastienrousseau/crypto-lsp",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "Language Server Protocol (LSP) server for cryptography: flags broken hashes, weak ciphers, short keys, quantum-vulnerable algorithms, hardcoded secrets and malformed PEM, with quick fixes.",
   "author": "Sebastien Rousseau <sebastienrousseau@users.noreply.github.com>",
   "license": "MIT OR Apache-2.0",

@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.39] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.39 in strict lockstep.
+
+### Fixed
+
+- **Release notes carried a comment from the Highlights file**: the release workflow dropped only lines of `.github/release-highlights.md` that start with `<!--`, so the body of the file's multi-line comment, its closing `-->` included, opened the published v0.0.38 notes (corrected on the release page afterwards). Every HTML comment is now removed, however many lines it spans, repeating until nothing changes, and a comment that is never closed makes the build job's preflight refuse the tag before anything is published.
+
 ## [0.0.38] - 2026-10-24
 
 ### Added
@@ -617,7 +627,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with crypto-lib, crypto-api, crypto-cli, crypto-server
 - OpenPGP-based encryption, decryption, key generation, signing, verification
 
-[0.0.38]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.37...HEAD
+[0.0.39]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.38...HEAD
+[0.0.38]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.37...v0.0.38
 [0.0.37]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.36...v0.0.37
 [0.0.36]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.35...v0.0.36
 [0.0.35]: https://github.com/sebastienrousseau/crypto-service/compare/v0.0.34...v0.0.35
