@@ -42,8 +42,8 @@ export function checkHighlights(text, tag) {
 /** The Highlights section: no comments, `*` bullets, ready to print. */
 export function highlightsSection(text) {
   return text
+    .replace(/<!--[\s\S]*?-->/g, "")
     .split("\n")
-    .filter((line) => !line.startsWith("<!--"))
     .map((line) => line.replace(/^- /, "* "))
     .join("\n")
     .trim();
