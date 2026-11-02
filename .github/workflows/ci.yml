@@ -44,6 +44,22 @@ jobs:
           TEST_SCRIPT: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 24 && 'test' || 'test:run' }}
         run: pnpm -r run "$TEST_SCRIPT"
 
+  build-and-test-all:
+    # Branch protection requires this check by name. It stands for every
+    # leg of the build-and-test matrix, so adding or dropping a version never
+    # renames a required check.
+    name: build-and-test (all)
+    if: always()
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Every leg of the matrix passed
+        env:
+          RESULT: ${{ needs.build-and-test.result }}
+        run: test "$RESULT" = success
+
   # Runs the Vault Transit suite of crypto-kms against a real Vault dev
   # server, so FakeVault (used everywhere else) stays faithful to Vault.
   kms-vault-integration:
@@ -102,6 +118,22 @@ jobs:
       # Coverage is enforced in build-and-test; Windows cannot run the
       # POSIX-only paths (file modes, signal shutdown).
       - run: pnpm -r run test:run
+
+  build-windows-all:
+    # Branch protection requires this check by name. It stands for every
+    # leg of the build-windows matrix, so adding or dropping a version never
+    # renames a required check.
+    name: build-windows (all)
+    if: always()
+    needs: build-windows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Every leg of the matrix passed
+        env:
+          RESULT: ${{ needs.build-windows.result }}
+        run: test "$RESULT" = success
 
   docs-and-hygiene:
     runs-on: ubuntu-latest
