@@ -199,6 +199,22 @@ jobs:
           parallel: true
           file: ./packages/crypto-mcp/coverage/lcov.info
 
+  build-all:
+    # Branch protection requires this check by name. It stands for every
+    # leg of the build matrix, so adding or dropping a version never
+    # renames a required check.
+    name: build (all)
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Every leg of the matrix passed
+        env:
+          RESULT: ${{ needs.build.result }}
+        run: test "$RESULT" = success
+
   finish:
     needs: build
     runs-on: ubuntu-latest
