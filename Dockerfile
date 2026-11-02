@@ -29,6 +29,8 @@ WORKDIR /app
 # Populate the pnpm store from the lockfile alone, so this layer is cached
 # until pnpm-lock.yaml changes.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+# pnpm applies patchedDependencies at fetch time, so the patches come too.
+COPY patches ./patches
 RUN pnpm fetch --frozen-lockfile
 
 COPY . .
