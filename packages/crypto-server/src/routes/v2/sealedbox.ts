@@ -6,6 +6,30 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
+import {
+  PLAINTEXT,
+  base64,
+  dataRoute,
+  fields,
+  literal,
+} from "../../utils/response-schemas";
+
+/** A sealed box result with its algorithm. */
+const sealedResponse = (algorithm: string, layout: string) =>
+  dataRoute(
+    "The sealed box.",
+    fields({
+      sealed: base64(layout),
+      algorithm: literal(algorithm, "Sealed-box algorithm."),
+    }),
+  );
+
+/** What the open routes answer: the plaintext itself (404: unknown key). */
+const OPEN_RESPONSE = dataRoute(
+  "The plaintext; data is the text itself, not an object.",
+  PLAINTEXT,
+  404,
+);
 
 /** crypto-lib sealed-box API, loaded on first use. */
 const loadSealedbox = async () =>
@@ -28,6 +52,10 @@ function registerSeal(app: FastifyInstance): void {
             plaintext: { type: "string", minLength: 1 },
           },
         },
+        response: sealedResponse(
+          "x25519-xchacha20-poly1305",
+          "ephemeral X25519 public key (32 bytes) || nonce (24 bytes) || ciphertext || tag (16 bytes).",
+        ),
       },
     },
     async (request, reply) => {
@@ -64,6 +92,7 @@ function registerOpen(app: FastifyInstance): void {
             sealed: { type: "string", minLength: 1 },
           },
         },
+        response: OPEN_RESPONSE,
       },
     },
     async (request, reply) => {
@@ -104,6 +133,10 @@ function registerSealPq(app: FastifyInstance): void {
             plaintext: { type: "string", minLength: 1 },
           },
         },
+        response: sealedResponse(
+          "x25519-ml-kem-768-xchacha20-poly1305",
+          "ephemeral X25519 public key (32 bytes) || ML-KEM-768 ciphertext (1088 bytes) || nonce (24 bytes) || ciphertext || tag (16 bytes).",
+        ),
       },
     },
     async (request, reply) => {
@@ -143,6 +176,7 @@ function registerOpenPq(app: FastifyInstance): void {
             sealed: { type: "string", minLength: 1 },
           },
         },
+        response: OPEN_RESPONSE,
       },
     },
     async (request, reply) => {

@@ -18,7 +18,8 @@ import { encrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyEncrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
-import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { sendProblem } from "../../lib/problem";
+import { bodyProblems } from "../../utils/response-schemas";
 import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 encrypt endpoint. */
@@ -29,9 +30,12 @@ const encryptSchema = {
   description:
     "Encrypts a plaintext message using the supplied PGP public key and passphrase.",
   response: {
-    200: { type: "object", properties: { data: { type: "string" } } },
-    400: PROBLEM_SCHEMA,
-    401: PROBLEM_SCHEMA,
+    200: {
+      description: "The armored OpenPGP message.",
+      type: "object",
+      properties: { data: { type: "string" } },
+    },
+    ...bodyProblems(),
   },
   body: {
     type: "object",

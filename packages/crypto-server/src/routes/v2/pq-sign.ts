@@ -16,8 +16,19 @@ import {
   storeKey,
 } from "../../utils/keys";
 
+import {
+  dataRoute,
+  fields,
+  flag,
+  hex,
+  publicKeyView,
+} from "../../utils/response-schemas";
+
 /** ML-DSA key algorithms, as stored. */
 const ML_DSA_ALGORITHMS = ["ml-dsa-44", "ml-dsa-65", "ml-dsa-87"];
+
+/** The `algorithm` of an ML-DSA result. */
+const ML_DSA = { type: "string", enum: ML_DSA_ALGORITHMS };
 
 /** `POST /v2/pq/dsa/keygen`: generate and store an ML-DSA key pair. */
 function registerKeygen(app: FastifyInstance): void {
@@ -37,6 +48,12 @@ function registerKeygen(app: FastifyInstance): void {
             level: { type: "number", enum: [44, 65, 87] },
           },
         },
+        // 503: the key store is full or the signing pool is busy.
+        response: dataRoute(
+          "The keyId and public key of the new server-held key pair.",
+          publicKeyView(ML_DSA, hex("The ML-DSA public key.")),
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -75,6 +92,15 @@ function registerSign(app: FastifyInstance): void {
             message: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The signature over the UTF-8 bytes of message.",
+          fields({
+            signature: hex("The ML-DSA signature."),
+            algorithm: ML_DSA,
+          }),
+          404,
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -115,6 +141,13 @@ function registerVerify(app: FastifyInstance): void {
             signature: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "Whether the signature is valid.",
+          fields({
+            valid: flag("Whether the signature is valid."),
+            algorithm: ML_DSA,
+          }),
+        ),
       },
       config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },

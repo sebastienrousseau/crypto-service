@@ -6,6 +6,7 @@
 import type { FastifyInstance } from "fastify";
 import { hash, HASH_ALGORITHMS } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { dataRoute, fields, hex, integer } from "../../utils/response-schemas";
 
 /** Fastify JSON Schema for the v2 hash endpoint. */
 const hashSchema = {
@@ -21,6 +22,14 @@ const hashSchema = {
       data: { type: "string", minLength: 1, maxLength: 10 * 1024 * 1024 },
     },
   },
+  response: dataRoute(
+    "The digest of the UTF-8 bytes of data.",
+    fields({
+      digest: hex("The digest."),
+      algorithm: { type: "string", enum: [...HASH_ALGORITHMS] },
+      length: integer("Digest length in bytes."),
+    }),
+  ),
 } as const;
 
 /** Registers the v2 hashing endpoint. */

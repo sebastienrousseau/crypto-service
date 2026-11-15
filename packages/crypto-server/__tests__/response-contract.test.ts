@@ -102,6 +102,19 @@ describe("Response contract (characterisation)", function () {
     expect(failed).to.deep.equal([]);
   });
 
+  it("calls every route the OpenAPI document lists", async () => {
+    const app = await withEnv({ DOCS_ENABLED: "1", V1_ENABLED: "1" }, () =>
+      init({ logger: false }),
+    );
+    const paths = (app.swagger() as { paths: Record<string, object> }).paths;
+    await app.close();
+    const documented = Object.entries(paths).flatMap(([url, ops]) =>
+      Object.keys(ops).map((m) => `${m.toUpperCase()} ${url}`),
+    );
+    const called = new Set(Object.keys(observed).map((n) => n.split("#")[0]));
+    expect([...called].sort()).to.deep.equal(documented.sort());
+  });
+
   it("calls the same routes the fixture records", () => {
     const golden = JSON.parse(readFileSync(GOLDEN, "utf8"));
     expect(Object.keys(observed).sort()).to.deep.equal(

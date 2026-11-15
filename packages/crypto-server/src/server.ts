@@ -36,6 +36,11 @@ import {
   type RegisteredRoute,
 } from "./config/auth-policy";
 import { docsEnabled } from "./config/env";
+import {
+  documentObject,
+  documentRoute,
+  OPENAPI_DOCUMENT,
+} from "./config/openapi";
 import { registerMetering } from "./enterprise/metering";
 import { keyStoreFromEnv } from "./lib/key-store";
 import { KmsRegistry } from "./lib/kms-providers";
@@ -52,32 +57,29 @@ import { registerHttpMetrics } from "./lib/http-metrics";
 import { registerAudit } from "./lib/audit";
 import { trackLifecycle } from "./lib/readiness";
 import routes from "./routes";
+import { HEALTH_SCHEMA } from "./routes/probes";
+import { addSharedSchemas } from "./utils/response-schemas";
 import * as fastify from "fastify";
+
+/** fastify-healthcheck options, with the documented `/health` schema. */
+const HEALTH_CHECK = { ...healthCheckOptions, schemaOptions: HEALTH_SCHEMA };
 
 /** Registers the OpenAPI spec and the Swagger UI served at `/docs`. */
 async function registerDocs(app: fastify.FastifyInstance): Promise<void> {
   // DOCS_ENABLED=0 serves neither the UI nor the OpenAPI document.
   if (!docsEnabled()) return;
-  // OpenAPI documentation — auto-generated from Fastify route schemas.
+  // OpenAPI 3.1 document generated from the route schemas, with each
+  // route's security taken from the route policy (config/openapi.ts).
   await app.register(fastifySwagger, {
     openapi: {
-      info: {
-        title: "Crypto Service Suite API",
-        description:
-          "REST API for low-level cryptographic operations: key generation, encryption, decryption, signing, verification, and revocation.",
-        version: JSON.parse(LIB_VERSION),
-      },
-      components: {
-        securitySchemes: {
-          apiKey: {
-            type: "apiKey",
-            name: "x-api-key",
-            in: "header",
-          },
-        },
-      },
-      security: [{ apiKey: [] }],
+      ...OPENAPI_DOCUMENT,
+      info: { ...OPENAPI_DOCUMENT.info, version: JSON.parse(LIB_VERSION) },
     },
+    transform: documentRoute,
+    transformObject: documentObject,
+    // Name each shared schema by its $id (components.schemas.Problem),
+    // not def-<n>, so SDK generators get a stable type name.
+    refResolver: { buildLocalReference: (json) => String(json["$id"]) },
   });
 
   await app.register(fastifySwaggerUi, {
@@ -168,6 +170,9 @@ async function init(
     }
   });
 
+  // Shared response schemas, before the routes and docs that use them.
+  addSharedSchemas(app);
+
   await registerDocs(app);
 
   await app
@@ -176,7 +181,7 @@ async function init(
     .register(fastifyCors, corsOptions)
     .register(Etag)
     .register(fastifyCompress, compressOptions)
-    .register(fastifyHealthcheck, healthCheckOptions)
+    .register(fastifyHealthcheck, HEALTH_CHECK)
     .register(fastifyRateLimit, {
       ...rateLimitOptions,
       max: resolveRateLimitMax(),

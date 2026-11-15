@@ -5,6 +5,13 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import {
+  PLAINTEXT,
+  base64,
+  dataRoute,
+  fields,
+  literal,
+} from "../../utils/response-schemas";
 
 /** `POST /v2/password/encrypt`: Argon2id + XChaCha20-Poly1305 on a worker. */
 function registerEncrypt(app: FastifyInstance): void {
@@ -25,6 +32,20 @@ function registerEncrypt(app: FastifyInstance): void {
             plaintext: { type: "string", minLength: 1 },
           },
         },
+        // 503: the worker pool is busy.
+        response: dataRoute(
+          "The password-encrypted envelope.",
+          fields({
+            encrypted: base64(
+              "Self-describing envelope: version, Argon2id parameters, salt, nonce and ciphertext; pass it to /v2/password/decrypt as ciphertext.",
+            ),
+            algorithm: literal(
+              "argon2id-xchacha20-poly1305",
+              "Envelope algorithm.",
+            ),
+          }),
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -62,6 +83,11 @@ function registerDecrypt(app: FastifyInstance): void {
             ciphertext: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The plaintext; data is the text itself, not an object.",
+          PLAINTEXT,
+          503,
+        ),
       },
     },
     async (request, reply) => {

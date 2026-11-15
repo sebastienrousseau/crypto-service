@@ -9,6 +9,20 @@ import { sendProblem } from "../../lib/problem";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { hasScope, type AuthPayload } from "../../lib/auth";
 import { OpaqueStoreFullError } from "../../lib/opaque-store";
+import {
+  dataRoute,
+  fields,
+  hex,
+  literal,
+  ok,
+  problems,
+} from "../../utils/response-schemas";
+
+/**
+ * Problems of the public login routes: no credentials, so no 401 or 403;
+ * 503 when the session store is full.
+ */
+const LOGIN_PROBLEMS = problems(400, 413, 415, 429, 500, 503);
 
 type SuiteId = protocols.pake.SuiteId;
 
@@ -89,6 +103,12 @@ const REGISTER_INIT_SCHEMA = {
       suite: { type: "string", enum: SUPPORTED_SUITES },
     },
   },
+  // 503: the record store is full.
+  response: dataRoute(
+    "The server's registration response.",
+    fields({ response: hex("The serialized RegistrationResponse.") }),
+    503,
+  ),
 } as const;
 
 const REGISTER_FINISH_SCHEMA = {
@@ -106,6 +126,19 @@ const REGISTER_FINISH_SCHEMA = {
       suite: { type: "string", enum: SUPPORTED_SUITES },
     },
   },
+  // 409: the identifier is already registered; 503: the store is full.
+  response: dataRoute(
+    "The credential is registered.",
+    fields({
+      status: literal("registered", "Always registered."),
+      credentialIdentifier: {
+        type: "string",
+        description: "The identifier, as the request gave it.",
+      },
+    }),
+    409,
+    503,
+  ),
 } as const;
 
 const LOGIN_INIT_SCHEMA = {
@@ -123,6 +156,20 @@ const LOGIN_INIT_SCHEMA = {
       suite: { type: "string", enum: SUPPORTED_SUITES },
     },
   },
+  response: {
+    ...ok(
+      "KE2 and the login session to finish.",
+      fields({
+        sessionId: {
+          type: "string",
+          description:
+            "Single-use login session identifier; pass it to /v2/opaque/login/finish.",
+        },
+        ke2: hex("The serialized KE2 message."),
+      }),
+    ),
+    ...LOGIN_PROBLEMS,
+  },
 } as const;
 
 const LOGIN_FINISH_SCHEMA = {
@@ -138,6 +185,13 @@ const LOGIN_FINISH_SCHEMA = {
       sessionId: { type: "string", minLength: 1, maxLength: 128 },
       ke3: { type: "string", minLength: 2, pattern: "^[0-9a-fA-F]+$" },
     },
+  },
+  response: {
+    ...ok(
+      "The shared session key; the client derives the same key.",
+      fields({ sessionKey: hex("The session key.") }),
+    ),
+    ...LOGIN_PROBLEMS,
   },
 } as const;
 

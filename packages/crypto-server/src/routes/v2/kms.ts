@@ -18,6 +18,14 @@ import {
 } from "../../lib/kms-providers";
 import type { KmsOwners } from "../../lib/kms-owners";
 import { noteAuditKey } from "../../lib/audit";
+import {
+  CREATE_KEY_RESPONSE,
+  DATA_KEY_RESPONSE,
+  DECRYPT_RESPONSE,
+  ENCRYPT_RESPONSE,
+  UNWRAP_RESPONSE,
+  WRAP_RESPONSE,
+} from "./kms-responses";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -145,6 +153,7 @@ const CREATE_KEY_SCHEMA = {
       metadata: { type: "object", additionalProperties: { type: "string" } },
     },
   },
+  response: CREATE_KEY_RESPONSE,
 };
 
 const WRAP_SCHEMA = {
@@ -165,6 +174,7 @@ const WRAP_SCHEMA = {
       context: { type: "object", additionalProperties: { type: "string" } },
     },
   },
+  response: WRAP_RESPONSE,
 };
 
 const UNWRAP_SCHEMA = {
@@ -181,6 +191,7 @@ const UNWRAP_SCHEMA = {
       context: { type: "object", additionalProperties: { type: "string" } },
     },
   },
+  response: UNWRAP_RESPONSE,
 };
 
 const DATA_KEY_SCHEMA = {
@@ -196,6 +207,7 @@ const DATA_KEY_SCHEMA = {
       keySpec: { type: "string" },
     },
   },
+  response: DATA_KEY_RESPONSE,
 };
 
 const ENCRYPT_SCHEMA = {
@@ -218,6 +230,7 @@ const ENCRYPT_SCHEMA = {
       context: { type: "object", additionalProperties: { type: "string" } },
     },
   },
+  response: ENCRYPT_RESPONSE,
 };
 
 const DECRYPT_SCHEMA = {
@@ -234,6 +247,7 @@ const DECRYPT_SCHEMA = {
       context: { type: "object", additionalProperties: { type: "string" } },
     },
   },
+  response: DECRYPT_RESPONSE,
 };
 
 function registerCreateKey(app: FastifyInstance): void {

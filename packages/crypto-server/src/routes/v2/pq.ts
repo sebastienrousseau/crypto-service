@@ -27,6 +27,18 @@ import {
   resolveKey,
   storeKey,
 } from "../../utils/keys";
+import {
+  KEY_ID,
+  dataRoute,
+  fields,
+  hex,
+  literal,
+  publicKeyView,
+} from "../../utils/response-schemas";
+
+const ML_KEM_768 = literal("ml-kem-768", "KEM algorithm.");
+const HYBRID = literal("x25519-ml-kem-768", "Hybrid KEM algorithm.");
+const SHARED_SECRET = hex("The 32-byte shared secret.");
 
 /** Request body schema of the parameterless key-generation routes. */
 const EMPTY_BODY = {
@@ -46,6 +58,15 @@ function registerMlKemKeygen(app: FastifyInstance): void {
         description:
           "Generates a NIST FIPS 203 ML-KEM-768 key pair, keeps the secret key on the server and returns its keyId with the public key.",
         body: EMPTY_BODY,
+        // 503: the key store is full.
+        response: dataRoute(
+          "The keyId and public key of the new server-held key pair.",
+          publicKeyView(
+            ML_KEM_768,
+            hex("The 1184-byte ML-KEM-768 public key."),
+          ),
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -79,6 +100,14 @@ function registerMlKemEncapsulate(app: FastifyInstance): void {
             publicKey: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The ciphertext to send and the shared secret to keep.",
+          fields({
+            ciphertext: hex("The 1088-byte ML-KEM-768 ciphertext."),
+            sharedSecret: SHARED_SECRET,
+            algorithm: ML_KEM_768,
+          }),
+        ),
       },
     },
     async (request, reply) => {
@@ -112,6 +141,11 @@ function registerMlKemDecapsulate(app: FastifyInstance): void {
             ciphertext: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The shared secret.",
+          fields({ sharedSecret: SHARED_SECRET, algorithm: ML_KEM_768 }),
+          404,
+        ),
       },
     },
     async (request, reply) => {
@@ -141,6 +175,32 @@ function registerMlKemDecapsulate(app: FastifyInstance): void {
  */
 const COMBINER = "crypto-service/hybrid-kem/v2";
 
+/** The `combiner` field of a hybrid result. */
+const COMBINER_FIELD = literal(COMBINER, "Shared-secret combiner.");
+
+/** What `POST /v2/pq/hybrid/encapsulate` answers. */
+const HYBRID_ENCAPSULATE_RESPONSE = dataRoute(
+  "The ephemeral data to send and the combined shared secret to keep.",
+  fields({
+    x25519EphemeralPublic: hex("The 32-byte ephemeral X25519 public key."),
+    mlKemCiphertext: hex("The 1088-byte ML-KEM-768 ciphertext."),
+    sharedSecret: SHARED_SECRET,
+    algorithm: HYBRID,
+    combiner: COMBINER_FIELD,
+  }),
+);
+
+/** What `POST /v2/pq/hybrid/decapsulate` answers (404: unknown key). */
+const HYBRID_DECAPSULATE_RESPONSE = dataRoute(
+  "The combined shared secret.",
+  fields({
+    sharedSecret: SHARED_SECRET,
+    algorithm: HYBRID,
+    combiner: COMBINER_FIELD,
+  }),
+  404,
+);
+
 /** `POST /v2/pq/hybrid/keygen`: generate and store a hybrid key pair. */
 function registerHybridKeygen(app: FastifyInstance): void {
   app.post(
@@ -152,6 +212,17 @@ function registerHybridKeygen(app: FastifyInstance): void {
         description:
           "Generates classical (X25519) and post-quantum (ML-KEM-768) key pairs for hybrid key exchange, keeps the private keys on the server and returns a keyId with the public keys.",
         body: EMPTY_BODY,
+        // 503: the key store is full.
+        response: dataRoute(
+          "The keyId and public keys of the new server-held key pair.",
+          fields({
+            keyId: KEY_ID,
+            algorithm: HYBRID,
+            x25519PublicKey: hex("The 32-byte X25519 public key."),
+            mlKemPublicKey: hex("The 1184-byte ML-KEM-768 public key."),
+          }),
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -192,6 +263,7 @@ function registerHybridEncapsulate(app: FastifyInstance): void {
             mlKemPublicKey: { type: "string", minLength: 1 },
           },
         },
+        response: HYBRID_ENCAPSULATE_RESPONSE,
       },
     },
     async (request, reply) => {
@@ -242,6 +314,7 @@ function registerHybridDecapsulate(app: FastifyInstance): void {
             mlKemCiphertext: { type: "string", minLength: 1 },
           },
         },
+        response: HYBRID_DECAPSULATE_RESPONSE,
       },
     },
     async (request, reply) => {

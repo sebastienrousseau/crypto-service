@@ -5,6 +5,13 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import {
+  base64,
+  dataRoute,
+  fields,
+  literal,
+  PLAINTEXT,
+} from "../../utils/response-schemas";
 
 /** crypto-lib secretbox API, loaded on first use. */
 const loadSecretbox = async () =>
@@ -28,6 +35,15 @@ function registerSeal(app: FastifyInstance): void {
             aad: { type: "string" },
           },
         },
+        response: dataRoute(
+          "The sealed box.",
+          fields({
+            sealed: base64(
+              "nonce (24 bytes) || ciphertext || Poly1305 tag (16 bytes).",
+            ),
+            algorithm: literal("xchacha20-poly1305", "AEAD algorithm."),
+          }),
+        ),
       },
     },
     async (request, reply) => {
@@ -65,6 +81,10 @@ function registerOpen(app: FastifyInstance): void {
             aad: { type: "string" },
           },
         },
+        response: dataRoute(
+          "The plaintext; data is the text itself, not an object.",
+          PLAINTEXT,
+        ),
       },
     },
     async (request, reply) => {

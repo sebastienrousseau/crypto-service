@@ -6,6 +6,13 @@
 import type { FastifyInstance } from "fastify";
 import { aeadEncrypt, aeadDecrypt } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import {
+  base64,
+  dataRoute,
+  fields,
+  literal,
+  PLAINTEXT,
+} from "../../utils/response-schemas";
 
 /** Fastify JSON Schema for the v2 AEAD encrypt endpoint. */
 const encryptSchema = {
@@ -27,6 +34,15 @@ const encryptSchema = {
       plaintext: { type: "string", minLength: 1, maxLength: 10 * 1024 * 1024 },
     },
   },
+  response: dataRoute(
+    "The ciphertext.",
+    fields({
+      ciphertext: base64(
+        "nonce (24 bytes) || ciphertext || Poly1305 tag (16 bytes).",
+      ),
+      algorithm: literal("xchacha20-poly1305", "AEAD algorithm."),
+    }),
+  ),
 } as const;
 
 /** Fastify JSON Schema for the v2 AEAD decrypt endpoint. */
@@ -44,6 +60,7 @@ const decryptSchema = {
       ciphertext: { type: "string", minLength: 1 },
     },
   },
+  response: dataRoute("The plaintext.", fields({ plaintext: PLAINTEXT })),
 } as const;
 
 /** Registers v2 symmetric encryption/decryption routes. */

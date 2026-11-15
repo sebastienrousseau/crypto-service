@@ -15,6 +15,74 @@ import {
   storeKey,
   resolveKey,
 } from "../../utils/keys";
+import {
+  KEY_ALGORITHM,
+  KEY_ID,
+  dataRoute,
+  fields,
+  hex,
+} from "../../utils/response-schemas";
+
+/** JWK-style metadata of a generated key pair. */
+const KEY_METADATA = {
+  type: "object",
+  description: "Key metadata: the request's, with kid always set.",
+  required: ["kid"],
+  properties: {
+    kid: { type: "string", description: "Key identifier (JWK kid)." },
+    use: { type: "string", enum: ["sig", "enc"] },
+    exp: { type: "string", description: "Expiry, as the request gave it." },
+  },
+} as const;
+
+/**
+ * What `POST /v2/keys/generate` answers. 429: the principal's key quota
+ * is reached; 503: the key store is full or the signing pool is busy.
+ */
+const GENERATE_RESPONSE = dataRoute(
+  "The keyId and public key of the new server-held key pair.",
+  fields({
+    keyId: KEY_ID,
+    algorithm: { type: "string", enum: [...KEY_ALGORITHMS] },
+    publicKey: hex("The public key."),
+    kid: {
+      type: "string",
+      description:
+        "Key identifier: the request's metadata.kid, or base64url of the first 16 bytes of SHA-256(public key).",
+    },
+    metadata: KEY_METADATA,
+  }),
+  503,
+);
+
+/**
+ * What `POST /v2/keys/export` answers: the key's public and private
+ * parts. Their names depend on the route that generated the key.
+ */
+const EXPORT_RESPONSE = dataRoute(
+  "The public and private parts of a server-held key.",
+  {
+    type: "object",
+    required: ["keyId", "algorithm"],
+    properties: {
+      keyId: KEY_ID,
+      algorithm: KEY_ALGORITHM,
+      publicKey: hex("Public key (single-key algorithms)."),
+      x25519PublicKey: hex("X25519 public key (x25519-ml-kem-768)."),
+      mlKemPublicKey: hex("ML-KEM-768 public key (x25519-ml-kem-768)."),
+      privateKey: hex(
+        "Private key (POST /v2/keys/generate and POST /v2/hpke/keygen).",
+      ),
+      secretKey: hex(
+        "Secret key (POST /v2/pq/keygen, /v2/pq/dsa/keygen, /v2/pq/slh-dsa/keygen).",
+      ),
+      x25519PrivateKey: hex("X25519 private key (x25519-ml-kem-768)."),
+      mlKemSecretKey: hex("ML-KEM-768 secret key (x25519-ml-kem-768)."),
+    },
+    additionalProperties: hex("Another key part."),
+  },
+  404,
+);
 
 /** `POST /v2/keys/generate`: generate and store a key pair. */
 function registerGenerate(app: FastifyInstance): void {
@@ -46,6 +114,7 @@ function registerGenerate(app: FastifyInstance): void {
             },
           },
         },
+        response: GENERATE_RESPONSE,
       },
     },
     async (request, reply) => {
@@ -98,6 +167,7 @@ function registerExport(app: FastifyInstance): void {
           additionalProperties: false,
           properties: { keyId: KEY_ID_SCHEMA },
         },
+        response: EXPORT_RESPONSE,
       },
     },
     async (request, reply) => {
@@ -131,6 +201,18 @@ function registerDelete(app: FastifyInstance): void {
           additionalProperties: false,
           properties: { keyId: KEY_ID_SCHEMA },
         },
+        response: dataRoute(
+          "The key is deleted.",
+          fields({
+            keyId: KEY_ID,
+            deleted: {
+              type: "boolean",
+              enum: [true],
+              description: "Always true.",
+            },
+          }),
+          404,
+        ),
       },
     },
     async (request, reply) => {

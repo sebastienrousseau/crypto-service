@@ -14,15 +14,49 @@
 import * as fastify from "fastify";
 import { randomUUID } from "crypto";
 import { LIB_VERSION } from "../../config/constants";
+import { GET_ERRORS, fields, problems } from "../../utils/response-schemas";
 
 /** Unique identifier for this server instance. */
 const id = randomUUID();
+
+const STRING = { type: "string" } as const;
+
+/** Route schema of `GET /`: service metadata, not wrapped in `data`. */
+const ROOT_SCHEMA = {
+  tags: ["Service"],
+  summary: "Service metadata",
+  description:
+    "Static, non-secret metadata about this server. Not wrapped in data.",
+  response: {
+    200: fields(
+      {
+        id: {
+          type: "string",
+          format: "uuid",
+          description: "Identifier of this server instance, new at each start.",
+        },
+        title: STRING,
+        description: STRING,
+        details: STRING,
+        license: STRING,
+        url: STRING,
+        version: {
+          type: "string",
+          description:
+            'The library version as a JSON string literal, quotes included: the characters "1.2.3" with their quotes. Parse it as JSON to get the version.',
+        },
+      },
+      "Service metadata.",
+    ),
+    ...problems(...GET_ERRORS),
+  },
+} as const;
 
 /**
  * @deprecated Use v2 API instead. This endpoint will be removed in v1.0.0.
  */
 export default (app: fastify.FastifyInstance): void => {
-  app.get("/", async () => {
+  app.get("/", { schema: ROOT_SCHEMA }, async () => {
     return {
       id: id,
       title: "Welcome to Crypto Server",
