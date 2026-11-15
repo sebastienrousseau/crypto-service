@@ -55,6 +55,15 @@ export function resolveKey(
   return request.server.keyStore.get(keyId, principalOf(request), algorithms);
 }
 
+/**
+ * The secret key of a stored post-quantum key pair. The PQ keygen
+ * routes store it as `secretKey`; POST /v2/keys/generate stores every
+ * algorithm's private key as `privateKey`, so both names are read.
+ */
+export function pqSecretKey(key: StoredKey): string {
+  return key.privateParts["secretKey"] ?? key.privateParts["privateKey"];
+}
+
 /** Delete a key of the requesting principal (404 for any other key). */
 export function deleteKey(
   request: FastifyRequest,

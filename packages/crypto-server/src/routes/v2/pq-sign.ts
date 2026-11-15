@@ -14,6 +14,7 @@ import {
   publicView,
   resolveKey,
   storeKey,
+  pqSecretKey,
 } from "../../utils/keys";
 
 import {
@@ -114,7 +115,7 @@ function registerSign(app: FastifyInstance): void {
           "modern",
           "mlDsaSign",
           level,
-          key.privateParts["secretKey"],
+          pqSecretKey(key),
           body.message,
         ),
       });

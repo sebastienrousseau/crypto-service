@@ -26,6 +26,7 @@ import {
   publicView,
   resolveKey,
   storeKey,
+  pqSecretKey,
 } from "../../utils/keys";
 import {
   KEY_ID,
@@ -155,11 +156,7 @@ function registerMlKemDecapsulate(app: FastifyInstance): void {
       };
       const key = await resolveKey(request, keyId, ["ml-kem-768"]);
       try {
-        const result = mlKemDecapsulate(
-          768,
-          key.privateParts["secretKey"],
-          ciphertext,
-        );
+        const result = mlKemDecapsulate(768, pqSecretKey(key), ciphertext);
         return reply.send({ data: result });
       } catch (error) {
         return classifyCryptoError(error, request, reply, "Decapsulation");

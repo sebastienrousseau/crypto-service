@@ -15,6 +15,7 @@ import {
   publicView,
   resolveKey,
   storeKey,
+  pqSecretKey,
 } from "../../utils/keys";
 import {
   dataRoute,
@@ -133,7 +134,7 @@ function registerSign(app: FastifyInstance): void {
           "modern",
           "slhDsaSign",
           variant,
-          key.privateParts["secretKey"],
+          pqSecretKey(key),
           body.message,
         ),
       });
