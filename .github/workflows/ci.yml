@@ -158,6 +158,10 @@ jobs:
         run: node scripts/check-manifests.mjs
       - name: Package index is generated from the manifests
         run: node scripts/packages-index.mjs --check
+      # The committed OpenAPI document matches what the route schemas
+      # generate (needs the build above).
+      - name: OpenAPI document is generated from the route schemas
+        run: node scripts/export-openapi.mjs --check
       # publint on each manifest, attw on each packed tarball.
       - name: Check package exports and types
         run: pnpm run check:packages

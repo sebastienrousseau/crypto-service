@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 //
 // Opens the next lockstep iteration: moves the root manifest, all 18
-// package manifests, CITATION.cff, the docs portal and the README from
-// the current version to the next one, and adds an "Unreleased"
-// CHANGELOG section. The version moves strictly one step (+0.0.1), so
+// package manifests, CITATION.cff, the docs portal, the README and the
+// committed OpenAPI document from the current version to the next one,
+// and adds an "Unreleased" CHANGELOG section. The version moves
+// strictly one step (+0.0.1), so
 // the only argument is a check: `node scripts/bump-version.mjs 0.0.40`
 // refuses anything but the next version. check-manifests.mjs remains
 // the gate that every file agrees.
@@ -84,6 +85,8 @@ function textPaths(root) {
   return [
     ...layouts.map((f) => `website/_layouts/${f}`),
     "website/content/index.md",
+    // info.version; export-openapi.mjs --check fails until it moves.
+    "openapi/crypto-service.openapi.yaml",
   ];
 }
 

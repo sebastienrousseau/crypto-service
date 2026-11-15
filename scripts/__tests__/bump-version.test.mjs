@@ -114,6 +114,11 @@ describe("bump", () => {
     writeFileSync(join(root, "website/_layouts/notes.txt"), "v0.0.1");
     writeFileSync(join(root, "website/content/index.md"), "same");
     writeFileSync(join(root, "README.md"), "this tree is 0.0.1.");
+    mkdirSync(join(root, "openapi"));
+    writeFileSync(
+      join(root, "openapi/crypto-service.openapi.yaml"),
+      'info:\n  version: "0.0.1"\n',
+    );
     return root;
   }
 
@@ -126,8 +131,13 @@ describe("bump", () => {
       "CITATION.cff",
       "CHANGELOG.md",
       "website/_layouts/a.html",
+      "openapi/crypto-service.openapi.yaml",
       "README.md",
     ]);
+    assert.equal(
+      readFileSync(join(root, "openapi/crypto-service.openapi.yaml"), "utf8"),
+      'info:\n  version: "0.0.2"\n',
+    );
     assert.equal(
       readFileSync(join(root, "website/_layouts/a.html"), "utf8"),
       "<b>v0.0.2</b>",
