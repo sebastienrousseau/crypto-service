@@ -1,0 +1,88 @@
+{
+  "group": "probes",
+  "description": "Health, liveness, readiness and metrics; no credentials.",
+  "vectors": [
+    {
+      "id": "health",
+      "description": "fastify-healthcheck.",
+      "auth": "none",
+      "request": {
+        "method": "GET",
+        "path": "/health"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "statusCode": 200,
+          "status": "ok",
+          "uptime": {
+            "$shape": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "live",
+      "description": "Liveness.",
+      "auth": "none",
+      "request": {
+        "method": "GET",
+        "path": "/live"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "status": "alive",
+          "uptime": {
+            "$shape": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ready",
+      "description": "Readiness of a server that is not draining.",
+      "auth": "none",
+      "request": {
+        "method": "GET",
+        "path": "/ready"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "status": "ready",
+          "checks": {
+            "accepting": true,
+            "keyStore": true
+          }
+        }
+      }
+    },
+    {
+      "id": "metrics",
+      "description": "Prometheus text format.",
+      "auth": "none",
+      "request": {
+        "method": "GET",
+        "path": "/metrics"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "text/plain",
+        "text": {
+          "$shape": {
+            "type": "string",
+            "pattern": "^# HELP process_uptime_seconds "
+          }
+        }
+      }
+    }
+  ]
+}

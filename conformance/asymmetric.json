@@ -1,0 +1,609 @@
+{
+  "group": "asymmetric",
+  "description": "Sealed boxes, ML-KEM, hybrid KEM, multi-recipient and post-quantum streams. Randomised outputs are shape-checked; round trips are exact.",
+  "vectors": [
+    {
+      "id": "x25519-keygen",
+      "description": "A server-held X25519 key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/generate",
+        "body": {
+          "algorithm": "x25519"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "x25519",
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "kid": {
+              "$shape": {
+                "type": "string"
+              }
+            },
+            "metadata": {
+              "kid": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "xKeyId": "/data/keyId",
+        "xPub": "/data/publicKey"
+      }
+    },
+    {
+      "id": "sealedbox-seal",
+      "description": "Anonymous sealed box to it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sealedbox/seal",
+        "body": {
+          "recipientPublicKey": "${xPub}",
+          "plaintext": "sealed box"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "sealed": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "x25519-xchacha20-poly1305"
+          }
+        }
+      },
+      "capture": {
+        "box": "/data/sealed"
+      }
+    },
+    {
+      "id": "sealedbox-open",
+      "description": "The server opens it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sealedbox/open",
+        "body": {
+          "keyId": "${xKeyId}",
+          "sealed": "${box}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "sealed box"
+        }
+      }
+    },
+    {
+      "id": "sealedbox-open-wrong-algorithm",
+      "description": "An X25519 sealed box cannot be opened with the hybrid route.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sealedbox/open-pq",
+        "body": {
+          "keyId": "${xKeyId}",
+          "sealed": "${box}"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:key-algorithm-mismatch",
+          "title": "Key algorithm mismatch",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/sealedbox/open-pq",
+          "code": "KEY_ALGORITHM_MISMATCH"
+        }
+      }
+    },
+    {
+      "id": "ml-kem-keygen",
+      "description": "A server-held ML-KEM-768 key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/keygen",
+        "body": {}
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "ml-kem-768",
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{2368}$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "kemKeyId": "/data/keyId",
+        "kemPub": "/data/publicKey"
+      }
+    },
+    {
+      "id": "ml-kem-encapsulate",
+      "description": "Encapsulate to it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/encapsulate",
+        "body": {
+          "publicKey": "${kemPub}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{2176}$"
+              }
+            },
+            "sharedSecret": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "algorithm": "ml-kem-768"
+          }
+        }
+      },
+      "capture": {
+        "kemCt": "/data/ciphertext",
+        "kemSs": "/data/sharedSecret"
+      }
+    },
+    {
+      "id": "ml-kem-decapsulate",
+      "description": "The server recovers the same shared secret.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/decapsulate",
+        "body": {
+          "keyId": "${kemKeyId}",
+          "ciphertext": "${kemCt}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "sharedSecret": "${kemSs}",
+            "algorithm": "ml-kem-768"
+          }
+        }
+      }
+    },
+    {
+      "id": "hybrid-keygen",
+      "description": "A server-held X25519 + ML-KEM-768 key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/hybrid/keygen",
+        "body": {}
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "x25519-ml-kem-768",
+            "x25519PublicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "mlKemPublicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{2368}$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "hyKeyId": "/data/keyId",
+        "hyX": "/data/x25519PublicKey",
+        "hyMl": "/data/mlKemPublicKey"
+      }
+    },
+    {
+      "id": "hybrid-encapsulate",
+      "description": "Hybrid encapsulation with the v2 combiner.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/hybrid/encapsulate",
+        "body": {
+          "x25519PublicKey": "${hyX}",
+          "mlKemPublicKey": "${hyMl}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "x25519EphemeralPublic": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "mlKemCiphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{2176}$"
+              }
+            },
+            "sharedSecret": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "algorithm": "x25519-ml-kem-768",
+            "combiner": "crypto-service/hybrid-kem/v2"
+          }
+        }
+      },
+      "capture": {
+        "hyEph": "/data/x25519EphemeralPublic",
+        "hyCt": "/data/mlKemCiphertext",
+        "hySs": "/data/sharedSecret"
+      }
+    },
+    {
+      "id": "hybrid-decapsulate",
+      "description": "The server recovers the same combined secret.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/pq/hybrid/decapsulate",
+        "body": {
+          "keyId": "${hyKeyId}",
+          "x25519EphemeralPublic": "${hyEph}",
+          "mlKemCiphertext": "${hyCt}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "sharedSecret": "${hySs}",
+            "algorithm": "x25519-ml-kem-768",
+            "combiner": "crypto-service/hybrid-kem/v2"
+          }
+        }
+      }
+    },
+    {
+      "id": "sealedbox-seal-pq",
+      "description": "Hybrid sealed box.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sealedbox/seal-pq",
+        "body": {
+          "x25519PublicKey": "${hyX}",
+          "mlKemPublicKey": "${hyMl}",
+          "plaintext": "pq box"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "sealed": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "x25519-ml-kem-768-xchacha20-poly1305"
+          }
+        }
+      },
+      "capture": {
+        "pqBox": "/data/sealed"
+      }
+    },
+    {
+      "id": "sealedbox-open-pq",
+      "description": "The server opens it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sealedbox/open-pq",
+        "body": {
+          "keyId": "${hyKeyId}",
+          "sealed": "${pqBox}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "pq box"
+        }
+      }
+    },
+    {
+      "id": "stream-pq-encrypt",
+      "description": "Hybrid post-quantum STREAM encryption.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/pq-encrypt",
+        "body": {
+          "x25519PublicKey": "${hyX}",
+          "mlKemPublicKey": "${hyMl}",
+          "plaintext": "stream",
+          "chunkSize": 64
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "x25519-ml-kem-768-xchacha20-poly1305-stream"
+          }
+        }
+      },
+      "capture": {
+        "stream": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "stream-pq-decrypt",
+      "description": "The server decrypts it (same chunk size).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/pq-decrypt",
+        "body": {
+          "keyId": "${hyKeyId}",
+          "ciphertext": "${stream}",
+          "chunkSize": 64
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "stream"
+          }
+        }
+      }
+    },
+    {
+      "id": "stream-multi-pq-encrypt",
+      "description": "Multi-recipient STREAM encryption.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/multi-pq-encrypt",
+        "body": {
+          "recipients": [
+            {
+              "recipientId": "alice",
+              "x25519PublicKey": "${hyX}",
+              "mlKemPublicKey": "${hyMl}"
+            }
+          ],
+          "plaintext": "multi stream"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
+            "recipientCount": 1
+          }
+        }
+      },
+      "capture": {
+        "multi": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "stream-multi-pq-decrypt",
+      "description": "Decrypt as alice, matched without a recipientId.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/multi-pq-decrypt",
+        "body": {
+          "keyId": "${hyKeyId}",
+          "ciphertext": "${multi}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "multi stream",
+            "recipientId": "alice"
+          }
+        }
+      }
+    },
+    {
+      "id": "multi-recipient-encrypt",
+      "description": "Encrypt once for a classical and a post-quantum recipient.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/multi-recipient/encrypt",
+        "body": {
+          "plaintext": "for two",
+          "recipients": [
+            {
+              "type": "classical",
+              "publicKey": "${xPub}"
+            },
+            {
+              "type": "pq",
+              "publicKey": "${hyX}",
+              "mlKemPublicKey": "${hyMl}"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "recipients": [
+              {
+                "type": "x25519",
+                "wrappedKey": {
+                  "$shape": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                  }
+                },
+                "ephemeralPublicKey": {
+                  "$shape": {
+                    "type": "string",
+                    "pattern": "^([0-9a-f]{2})*$"
+                  }
+                }
+              },
+              {
+                "type": "x25519-ml-kem-768",
+                "wrappedKey": {
+                  "$shape": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                  }
+                },
+                "ephemeralPublicKey": {
+                  "$shape": {
+                    "type": "string",
+                    "pattern": "^([0-9a-f]{2})*$"
+                  }
+                },
+                "mlKemCiphertext": {
+                  "$shape": {
+                    "type": "string",
+                    "pattern": "^([0-9a-f]{2})*$"
+                  }
+                }
+              }
+            ],
+            "algorithm": "multi-recipient-secretbox"
+          }
+        }
+      }
+    },
+    {
+      "id": "export-hybrid",
+      "description": "A hybrid key exports both private parts.",
+      "auth": {
+        "scopes": ["crypto:keys:export"]
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/export",
+        "body": {
+          "keyId": "${hyKeyId}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": "${hyKeyId}",
+            "algorithm": "x25519-ml-kem-768",
+            "x25519PublicKey": "${hyX}",
+            "mlKemPublicKey": "${hyMl}",
+            "x25519PrivateKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "mlKemSecretKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{4800}$"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

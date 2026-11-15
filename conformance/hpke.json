@@ -1,0 +1,197 @@
+{
+  "group": "hpke",
+  "description": "HPKE (RFC 9180) with server-held keys: classical X25519 and the X-Wing default.",
+  "vectors": [
+    {
+      "id": "hpke-keygen-x25519",
+      "description": "A server-held X25519 HPKE key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/keygen",
+        "body": {
+          "kem": "x25519"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "x25519",
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "keyId": "/data/keyId",
+        "pub": "/data/publicKey"
+      }
+    },
+    {
+      "id": "hpke-seal-x25519",
+      "description": "Seal to it; plaintext that is not hex is taken as UTF-8.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/seal",
+        "body": {
+          "recipientPublicKey": "${pub}",
+          "plaintext": "hpke message",
+          "kem": "x25519",
+          "info": "conformance"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            },
+            "encapsulatedKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "enc": "/data/encapsulatedKey",
+        "ct": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "hpke-open-x25519",
+      "description": "The server opens it with the same info.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/open",
+        "body": {
+          "keyId": "${keyId}",
+          "encapsulatedKey": "${enc}",
+          "ciphertext": "${ct}",
+          "info": "conformance"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "hpke message",
+            "hex": "68706b65206d657373616765"
+          }
+        }
+      }
+    },
+    {
+      "id": "hpke-keygen-default",
+      "description": "Without kem, the key is X-Wing.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/keygen",
+        "body": {}
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "x-wing",
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "xwKeyId": "/data/keyId",
+        "xwPub": "/data/publicKey"
+      }
+    },
+    {
+      "id": "hpke-seal-x-wing",
+      "description": "Seal to it (X-Wing is the default kem).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/seal",
+        "body": {
+          "recipientPublicKey": "${xwPub}",
+          "plaintext": "post-quantum"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            },
+            "encapsulatedKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            }
+          }
+        }
+      },
+      "capture": {
+        "xwEnc": "/data/encapsulatedKey",
+        "xwCt": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "hpke-open-x-wing",
+      "description": "The server opens it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hpke/open",
+        "body": {
+          "keyId": "${xwKeyId}",
+          "encapsulatedKey": "${xwEnc}",
+          "ciphertext": "${xwCt}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "post-quantum",
+            "hex": "706f73742d7175616e74756d"
+          }
+        }
+      }
+    }
+  ]
+}

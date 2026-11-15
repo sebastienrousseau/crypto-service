@@ -1,0 +1,198 @@
+{
+  "group": "mac",
+  "description": "HMAC compute and verify; expected tags are exact.",
+  "vectors": [
+    {
+      "id": "hmac-sha256-rfc4231-1",
+      "description": "HMAC-sha256, RFC 4231 test case 1 inputs (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha256",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "mac": "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7",
+            "algorithm": "sha256"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-sha384-rfc4231-1",
+      "description": "HMAC-sha384, RFC 4231 test case 1 inputs (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha384",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "mac": "afd03944d84895626b0825f4ab46907f15f9dadbe4101ec682aa034c7cebc59cfaea9ea9076ede7f4af152e8b2fa9cb6",
+            "algorithm": "sha384"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-sha512-rfc4231-1",
+      "description": "HMAC-sha512, RFC 4231 test case 1 inputs (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha512",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "mac": "87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cdedaa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854",
+            "algorithm": "sha512"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-sha3-256-rfc4231-1",
+      "description": "HMAC-sha3-256, RFC 4231 test case 1 inputs (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha3-256",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "mac": "ba85192310dffa96e2a3a40e69774351140bb7185e1202cdcc917589f95e16bb",
+            "algorithm": "sha3-256"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-sha3-512-rfc4231-1",
+      "description": "HMAC-sha3-512, RFC 4231 test case 1 inputs (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha3-512",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "mac": "eb3fbd4b2eaab8f5c504bd3a41465aacec15770a7cabac531e482f860b5ec7ba47ccb2c6f2afce8f88d22b6dc61380f23a668fd3888bb80537c0a0b86407689e",
+            "algorithm": "sha3-512"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-verify-valid",
+      "description": "The RFC 4231 tag verifies.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac/verify",
+        "body": {
+          "algorithm": "sha256",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi There",
+          "mac": "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": true,
+            "algorithm": "sha256"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-verify-wrong-data",
+      "description": "The same tag over other data does not.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac/verify",
+        "body": {
+          "algorithm": "sha256",
+          "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+          "data": "Hi there",
+          "mac": "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": false,
+            "algorithm": "sha256"
+          }
+        }
+      }
+    },
+    {
+      "id": "hmac-short-key",
+      "description": "A key under 16 bytes is invalid input.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hmac",
+        "body": {
+          "algorithm": "sha256",
+          "key": "4a656665",
+          "data": "Hi There"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:invalid-input",
+          "title": "Invalid input",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hmac",
+          "code": "INVALID_KEY"
+        }
+      }
+    }
+  ]
+}

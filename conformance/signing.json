@@ -1,0 +1,326 @@
+{
+  "group": "signing",
+  "description": "Server-held Ed25519 keys: generate, sign, verify, batch, export and delete. RFC 8032 vectors are exact.",
+  "vectors": [
+    {
+      "id": "verify-rfc8032-test2",
+      "description": "RFC 8032 TEST 2 verifies.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/verify",
+        "body": {
+          "publicKey": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+          "message": "r",
+          "signature": "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": true,
+            "algorithm": "ed25519"
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-rfc8032-test2-tampered",
+      "description": "The same signature over another message does not.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/verify",
+        "body": {
+          "publicKey": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+          "message": "s",
+          "signature": "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": false,
+            "algorithm": "ed25519"
+          }
+        }
+      }
+    },
+    {
+      "id": "keys-generate",
+      "description": "A server-held Ed25519 key with metadata.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/generate",
+        "body": {
+          "algorithm": "ed25519",
+          "metadata": {
+            "kid": "conformance",
+            "use": "sig"
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^k_[A-Za-z0-9_-]{22}$"
+              }
+            },
+            "algorithm": "ed25519",
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            },
+            "kid": "conformance",
+            "metadata": {
+              "kid": "conformance",
+              "use": "sig"
+            }
+          }
+        }
+      },
+      "capture": {
+        "keyId": "/data/keyId",
+        "publicKey": "/data/publicKey"
+      }
+    },
+    {
+      "id": "sign",
+      "description": "Sign with it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sign",
+        "body": {
+          "keyId": "${keyId}",
+          "message": "conformance"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "signature": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{128}$"
+              }
+            },
+            "algorithm": "ed25519"
+          }
+        }
+      },
+      "capture": {
+        "signature": "/data/signature"
+      }
+    },
+    {
+      "id": "verify-own",
+      "description": "The signature verifies against the returned public key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/verify",
+        "body": {
+          "publicKey": "${publicKey}",
+          "message": "conformance",
+          "signature": "${signature}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": true,
+            "algorithm": "ed25519"
+          }
+        }
+      }
+    },
+    {
+      "id": "stream-sign",
+      "description": "Batch signing; Ed25519 is deterministic, so the signature repeats.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/sign",
+        "body": {
+          "items": [
+            {
+              "id": "a",
+              "message": "conformance",
+              "keyId": "${keyId}"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "count": 1,
+            "signatures": [
+              {
+                "id": "a",
+                "signature": "${signature}",
+                "algorithm": "ed25519"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "stream-verify",
+      "description": "Batch verification; a malformed item is not valid.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/stream/verify",
+        "body": {
+          "items": [
+            {
+              "id": "good",
+              "message": "r",
+              "signature": "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00",
+              "publicKey": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c"
+            },
+            {
+              "id": "bad",
+              "message": "r",
+              "signature": "zz",
+              "publicKey": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "count": 2,
+            "validCount": 1,
+            "allValid": false,
+            "results": [
+              {
+                "id": "good",
+                "valid": true
+              },
+              {
+                "id": "bad",
+                "valid": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "export-needs-scope",
+      "description": "crypto:admin does not grant crypto:keys:export.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/export",
+        "body": {
+          "keyId": "${keyId}"
+        }
+      },
+      "expect": {
+        "status": 403,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:forbidden",
+          "title": "Forbidden",
+          "status": 403,
+          "detail": "Missing required scope: crypto:keys:export",
+          "instance": "/v2/keys/export"
+        }
+      }
+    },
+    {
+      "id": "export",
+      "description": "Export with the explicit scope.",
+      "auth": {
+        "scopes": ["crypto:keys", "crypto:keys:export"]
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/export",
+        "body": {
+          "keyId": "${keyId}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": "${keyId}",
+            "algorithm": "ed25519",
+            "publicKey": "${publicKey}",
+            "privateKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "delete",
+      "description": "Delete the key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/delete",
+        "body": {
+          "keyId": "${keyId}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": "${keyId}",
+            "deleted": true
+          }
+        }
+      }
+    },
+    {
+      "id": "sign-deleted",
+      "description": "A deleted key is not found.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sign",
+        "body": {
+          "keyId": "${keyId}",
+          "message": "conformance"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:key-not-found",
+          "title": "Key not found",
+          "status": 404,
+          "detail": "Key not found",
+          "instance": "/v2/sign",
+          "code": "KEY_NOT_FOUND"
+        }
+      }
+    }
+  ]
+}

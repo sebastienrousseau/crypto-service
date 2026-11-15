@@ -1,0 +1,265 @@
+{
+  "group": "errors",
+  "description": "Authentication, authorization and the RFC 9457 error contract shared by every route.",
+  "vectors": [
+    {
+      "id": "no-credentials",
+      "description": "No credentials: 401.",
+      "auth": "none",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha256",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:unauthorized",
+          "title": "Unauthorized",
+          "status": 401,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hash"
+        }
+      }
+    },
+    {
+      "id": "authenticated-route-any-scope",
+      "description": "An authenticated route takes any principal, even one with no scope.",
+      "auth": {
+        "scopes": []
+      },
+      "request": {
+        "method": "GET",
+        "path": "/v2/algorithms"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "$shape": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "insufficient-scope",
+      "description": "A token without the route's scope: 403.",
+      "auth": {
+        "scopes": ["crypto:hash"]
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/encrypt",
+        "body": {
+          "key": "0000000000000000000000000000000000000000000000000000000000000000",
+          "plaintext": "x"
+        }
+      },
+      "expect": {
+        "status": 403,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:forbidden",
+          "title": "Forbidden",
+          "status": 403,
+          "detail": "Missing required scope: crypto:encrypt",
+          "instance": "/v2/encrypt"
+        }
+      }
+    },
+    {
+      "id": "scope-granted",
+      "description": "The same token on a route it covers.",
+      "auth": {
+        "scopes": ["crypto:hash"]
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha256",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            "algorithm": "sha256",
+            "length": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "validation-failed",
+      "description": "Schema validation: 400 validation-failed with errors[] (the server never answers 422).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha256"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hash",
+          "errors": [
+            {
+              "field": "/data",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unknown-property",
+      "description": "Unknown body members are removed before validation, not refused.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha256",
+          "data": "abc",
+          "extra": 1
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            "algorithm": "sha256",
+            "length": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "malformed-json",
+      "description": "A body that is not JSON.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "rawBody": "{not json"
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:request-error",
+          "title": "Bad Request",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hash"
+        }
+      }
+    },
+    {
+      "id": "unsupported-media-type",
+      "description": "A media type the server does not parse.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "headers": {
+          "content-type": "application/xml"
+        },
+        "rawBody": "<a/>"
+      },
+      "expect": {
+        "status": 415,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:request-error",
+          "title": "Bad Request",
+          "status": 415,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hash"
+        }
+      }
+    },
+    {
+      "id": "key-not-found",
+      "description": "A keyId that names no key of this principal.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/sign",
+        "body": {
+          "keyId": "k_AAAAAAAAAAAAAAAAAAAAAA",
+          "message": "m"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:key-not-found",
+          "title": "Key not found",
+          "status": 404,
+          "detail": "Key not found",
+          "instance": "/v2/sign",
+          "code": "KEY_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "id": "route-not-found",
+      "description": "An unknown route.",
+      "request": {
+        "method": "GET",
+        "path": "/v2/no-such-route"
+      },
+      "expect": {
+        "status": 404,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:not-found",
+          "title": "Not Found",
+          "status": 404,
+          "detail": "Route GET /v2/no-such-route not found",
+          "instance": "/v2/no-such-route"
+        }
+      }
+    }
+  ]
+}
