@@ -37,7 +37,7 @@ jobs:
         uses: cargo-bins/cargo-binstall@851112458b5f28a29e5bc14a690c3f283d9dcc6f # v1.26.2
       - name: Install ssg
         run: |
-          cargo binstall --no-confirm ssg@0.0.63
+          cargo binstall --no-confirm ssg@0.0.76
           ssg --version
       - name: Build Voxt documentation portal & package references
         run: node scripts/build-docs.mjs

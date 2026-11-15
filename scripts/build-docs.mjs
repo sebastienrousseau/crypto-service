@@ -34,7 +34,7 @@ function findSsgBinary() {
   const candidatePaths = [
     path.join(
       process.env.HOME || "",
-      ".local/share/mise/installs/cargo-ssg/0.0.63/bin/ssg",
+      ".local/share/mise/installs/cargo-ssg/0.0.76/bin/ssg",
     ),
     path.join(process.env.HOME || "", ".cargo/bin/ssg"),
     "/usr/local/bin/ssg",

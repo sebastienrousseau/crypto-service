@@ -6,7 +6,7 @@
 import { CryptoError, CryptoErrorCode } from "../errors";
 
 /** The part of a noble AEAD cipher that opens a sealed message. */
-interface Opener {
+export interface Opener {
   decrypt(sealed: Uint8Array): Uint8Array;
 }
 
