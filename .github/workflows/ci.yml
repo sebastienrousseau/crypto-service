@@ -162,6 +162,8 @@ jobs:
       # generate (needs the build above).
       - name: OpenAPI document is generated from the route schemas
         run: node scripts/export-openapi.mjs --check
+      - name: README ecosystem table matches docs/ecosystem.json
+        run: node scripts/render-ecosystem.mjs --check
       # publint on each manifest, attw on each packed tarball.
       - name: Check package exports and types
         run: pnpm run check:packages

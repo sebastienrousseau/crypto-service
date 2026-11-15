@@ -14,6 +14,8 @@
     "check:packages": "node scripts/check-packages.mjs",
     "openapi": "node scripts/export-openapi.mjs",
     "openapi:check": "node scripts/export-openapi.mjs --check",
+    "ecosystem:render": "node scripts/render-ecosystem.mjs",
+    "ecosystem:check": "node scripts/check-ecosystem.mjs",
     "clean": "pnpm -r run clean",
     "demo": "export PATH=\"/Applications/Google Chrome.app/Contents/MacOS:$PATH\"; vhs .github/demo.tape",
     "docs": "pnpm -r run docs",

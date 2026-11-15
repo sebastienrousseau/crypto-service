@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`scripts/check-ecosystem.mjs` and the Suite consistency workflow**: for every member at one version, checks the SSH-verified annotated tag, the GitHub release and its assets (this repository: its Checksums section), the registry publication (npm, Maven Central, crates.io, NuGet, PyPI, the Go module proxy) and the site's `VERSION`. It runs when a release is published, daily and on demand, and opens or updates one issue on drift. Against 0.0.39 it passes this repository and reports every other member, which is what 0.0.40 fixes.
 - **The release tells the site**: the release workflow's new `site` job sends `crypto-service-release` with the version to crypto-service.github.io, whose regenerate workflow rebuilds the site. It needs a `SATELLITE_DISPATCH_TOKEN` secret and skips with a warning without one.
 
+- **README lists the language SDKs and the site**: a table generated from `docs/ecosystem.json` by `scripts/render-ecosystem.mjs`; `make check` and CI fail when the two differ.
+- **`docs/sdk-contract.md`**: what every SDK does in every language: scope, options, retry rules (stateful operations retry only after 429 or 503), connection reuse, cancellation, security, the error model, conformance and benchmark scenario names.
+
 ### Changed
 
 - **Docs portal built with ssg 0.0.76** (was 0.0.63), the version crypto-service.co also pins.
@@ -30,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The README called crypto-cli interactive only**: it also has non-interactive subcommands; the ecosystem table now says so.
 - **Keys from `/v2/keys/generate` were refused by the post-quantum routes**: it stores every private key as `privateKey`, while `/v2/pq/dsa/sign`, `/v2/pq/slh-dsa/sign` and `/v2/pq/decapsulate` read only `secretKey`, the name the PQ keygen routes use. So an `ml-dsa-*` or `ml-kem-768` key generated there, as the route's description invites, got `400 INVALID_HEX`. Those routes now read either name, which also covers keys already stored.
 - **A wrong AEAD key was a server error**: `aeadDecrypt`, `aesGcmDecrypt` and `aesGcmSivDecrypt` let noble's plain `Error` escape when the tag did not verify, so `/v2/decrypt` answered a wrong key, wrong associated data or a modified ciphertext with `500 internal-error`. They now throw `CryptoError` `AUTH_FAILED`, and `/v2/decrypt` answers `400 invalid-input` with that code. The conformance kit gains the `decrypt-wrong-key` vector.
 - **Feldman share verification threw a runtime-specific error**: `verifyFeldmanShare` passed each commitment straight to noble's point decoder, so a non-hex commitment threw noble's `RangeError`, whose text differs by runtime (Node 26's native `Uint8Array.fromHex` reports "Input string must contain hex characters"). It now throws the library's `CryptoError` with code `INVALID_HEX` on every runtime, as share values already did.

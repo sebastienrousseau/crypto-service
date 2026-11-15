@@ -125,6 +125,7 @@ check:
 	@node scripts/check-manifests.mjs
 	@node scripts/packages-index.mjs --check
 	@node scripts/export-openapi.mjs --check
+	@node scripts/render-ecosystem.mjs --check
 	@node scripts/check-packages.mjs
 	@./scripts/pack-smoke.sh
 
