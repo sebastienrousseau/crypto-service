@@ -75,6 +75,30 @@
       }
     },
     {
+      "id": "decrypt-wrong-key",
+      "description": "A wrong key fails the Poly1305 tag check: 400 invalid-input with code AUTH_FAILED, never 500.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/decrypt",
+        "body": {
+          "key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "ciphertext": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXt1ZrFr+SFHfhl+I6efFIvDs4l+LBF6yHvvIs"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:invalid-input",
+          "title": "Invalid input",
+          "status": 400,
+          "detail": "Decryption failed: invalid input",
+          "instance": "/v2/decrypt",
+          "code": "AUTH_FAILED"
+        }
+      }
+    },
+    {
       "id": "encrypt-non-hex-key",
       "description": "A 64-character key that is not hex.",
       "request": {

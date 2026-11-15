@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Keys from `/v2/keys/generate` were refused by the post-quantum routes**: it stores every private key as `privateKey`, while `/v2/pq/dsa/sign`, `/v2/pq/slh-dsa/sign` and `/v2/pq/decapsulate` read only `secretKey`, the name the PQ keygen routes use. So an `ml-dsa-*` or `ml-kem-768` key generated there, as the route's description invites, got `400 INVALID_HEX`. Those routes now read either name, which also covers keys already stored.
+- **A wrong AEAD key was a server error**: `aeadDecrypt`, `aesGcmDecrypt` and `aesGcmSivDecrypt` let noble's plain `Error` escape when the tag did not verify, so `/v2/decrypt` answered a wrong key, wrong associated data or a modified ciphertext with `500 internal-error`. They now throw `CryptoError` `AUTH_FAILED`, and `/v2/decrypt` answers `400 invalid-input` with that code. The conformance kit gains the `decrypt-wrong-key` vector.
 - **Feldman share verification threw a runtime-specific error**: `verifyFeldmanShare` passed each commitment straight to noble's point decoder, so a non-hex commitment threw noble's `RangeError`, whose text differs by runtime (Node 26's native `Uint8Array.fromHex` reports "Input string must contain hex characters"). It now throws the library's `CryptoError` with code `INVALID_HEX` on every runtime, as share values already did.
 
 ### Security
