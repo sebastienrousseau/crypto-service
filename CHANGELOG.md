@@ -7,6 +7,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.40] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.40 in strict lockstep.
+- **`scripts/bump-version.mjs`**: opens the next iteration in one command. It moves the root and 18 package manifests, `CITATION.cff`, the docs portal and the README, adds the Unreleased CHANGELOG section, and refuses any version but the next `0.0.x`. `pnpm run test:scripts` covers it.
+
+### Changed
+
+- **Dependencies**: the fastify group, the opentelemetry group, `commander` 15.1, `vue` 3.5.45, `eslint` 10.14, `typescript-eslint` 8.72.2, `rimraf` 6.1.4 and the `@types` group, folded from Dependabot PRs #283–#291. Earlier in this iteration: the fastify group and `typescript-eslint` again, with `qs`, `minimatch` and `glob` constrained, and a `typedoc` patch for minimatch 11.
+- **`@fastify/otel` stays on 0.21**: Dependabot PR #291 proposed 1.0, which peer-requires `@opentelemetry/api` 1.10. That version is not published, and against api 1.9 the 1.0 instrumentation throws at construction, so the server would fail to start with tracing on (three telemetry tests failed). Dependabot now skips `@fastify/otel` 1.x until api 1.10 ships, alongside the OpenTelemetry 0.300 line it already skips for the same reason.
+- **CI actions**: `github/codeql-action` 4.39.2, `pnpm/action-setup` 6.1.1, `docker/login-action` 4.8.0 and `cargo-bins/cargo-binstall` 1.26.2, all still pinned by commit SHA (Dependabot PRs #278–#280 and #288).
+
+### Fixed
+
+- **Feldman share verification threw a runtime-specific error**: `verifyFeldmanShare` passed each commitment straight to noble's point decoder, so a non-hex commitment threw noble's `RangeError`, whose text differs by runtime (Node 26's native `Uint8Array.fromHex` reports "Input string must contain hex characters"). It now throws the library's `CryptoError` with code `INVALID_HEX` on every runtime, as share values already did.
+
+### Security
+
+- **fast-xml-parser quadratic scan (Dependabot alert #148, low)**: `@aws-sdk/client-kms`, crypto-kms's optional peer, resolved `fast-xml-parser` 5.7.2, where scanning an unterminated stop-node tag takes quadratic CPU. A `pnpm-workspace.yaml` override (`>=5.12.0 <6`) now resolves 5.12.1, and `pnpm audit` reports no known vulnerabilities.
+
 ## [0.0.39] - 2026-10-25
 
 ### Added
