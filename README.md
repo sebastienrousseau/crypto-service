@@ -208,7 +208,7 @@ The SDKs are thin clients over crypto-server's REST API: they implement no crypt
 | [`crypto-service-sdk-go`](https://github.com/sebastienrousseau/crypto-service-sdk-go) | Go | Go client (context.Context, safe for concurrent use) for the crypto-server REST API. | [Go module proxy](https://pkg.go.dev/github.com/sebastienrousseau/crypto-service-sdk-go) `github.com/sebastienrousseau/crypto-service-sdk-go` |
 | [`crypto-service-sdk-cpp`](https://github.com/sebastienrousseau/crypto-service-sdk-cpp) | C++ | C++17 client (std::future async client and blocking client) for the crypto-server REST API. | GitHub release (CMake package) `crypto_service_sdk` |
 | [`crypto-service-sdk-dotnet`](https://github.com/sebastienrousseau/crypto-service-sdk-dotnet) | .NET | Async .NET client (Task, CancellationToken) for the crypto-server REST API. | [NuGet](https://www.nuget.org/packages/CryptoService.Sdk) `CryptoService.Sdk` |
-| [`crypto-service-sdk-python`](https://github.com/sebastienrousseau/crypto-service-sdk-python) | Python | Async-first Python client (asyncio and sync) for the crypto-server REST API. | [PyPI](https://pypi.org/project/crypto-service/) `crypto-service` |
+| [`crypto-service-sdk-python`](https://github.com/sebastienrousseau/crypto-service-sdk-python) | Python | Async-first Python client (asyncio and sync) for the crypto-server REST API. | [PyPI](https://pypi.org/project/crypto-service-sdk-python/) `crypto-service-sdk-python` |
 | [`crypto-service.github.io`](https://github.com/sebastienrousseau/crypto-service.github.io) | HTML | crypto-service.co: product site, SDK pages and the published OpenAPI document. | None (website) |
 
 <!-- ecosystem:end -->

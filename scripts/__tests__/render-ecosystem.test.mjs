@@ -15,7 +15,7 @@ describe("row", () => {
     assert.equal(
       row(member("crypto-service-sdk-python"), "o"),
       "| [`crypto-service-sdk-python`](https://github.com/o/crypto-service-sdk-python) | Python | " +
-        `${member("crypto-service-sdk-python").purpose} | [PyPI](https://pypi.org/project/crypto-service/) \`crypto-service\` |`,
+        `${member("crypto-service-sdk-python").purpose} | [PyPI](https://pypi.org/project/crypto-service-sdk-python/) \`crypto-service-sdk-python\` |`,
     );
     assert.match(
       row(member("crypto-service-sdk-java"), "o"),

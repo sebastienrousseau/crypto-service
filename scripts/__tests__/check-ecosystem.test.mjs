@@ -131,7 +131,7 @@ describe("checkMember", () => {
     const deps = { ...released(), exists: async () => false };
     assert.deepEqual(
       await checkMember(member("crypto-service-sdk-python"), V, deps),
-      ["crypto-service 0.0.40 not on pypi"],
+      ["crypto-service-sdk-python 0.0.40 not on pypi"],
     );
   });
 

@@ -90,7 +90,7 @@
       "language": "Python",
       "repo": "crypto-service-sdk-python",
       "purpose": "Async-first Python client (asyncio and sync) for the crypto-server REST API.",
-      "registry": { "type": "pypi", "ids": ["crypto-service"] },
+      "registry": { "type": "pypi", "ids": ["crypto-service-sdk-python"] },
       "releaseAssets": ["SHA256SUMS"]
     },
     {
