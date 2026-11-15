@@ -172,9 +172,13 @@ Behaviour an SDK must not guess:
 
 ## Changing the kit
 
-Edit the JSON, then update the checksums from this directory:
+Edit the JSON, format it as the pre-commit hook will (it runs Prettier
+on every staged `.json` and `.md`, which would otherwise change the files
+after their checksums were taken), then update the checksums from this
+directory:
 
 ```sh
+pnpm exec prettier --write *.json README.md
 sha256sum *.json README.md > SHA256SUMS
 ```
 
