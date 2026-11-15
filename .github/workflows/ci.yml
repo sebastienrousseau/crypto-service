@@ -164,6 +164,8 @@ jobs:
         run: node scripts/export-openapi.mjs --check
       - name: README ecosystem table matches docs/ecosystem.json
         run: node scripts/render-ecosystem.mjs --check
+      - name: Docs portal PRISM files match website/THEME.lock.json
+        run: node scripts/sync-site-theme.mjs --check
       # publint on each manifest, attw on each packed tarball.
       - name: Check package exports and types
         run: pnpm run check:packages

@@ -1,0 +1,64 @@
+{
+  "$comment": "SPDX-License-Identifier: Apache-2.0 OR MIT. Files vendored from the crypto-service.co site repository so the docs portal shares its PRISM design. The site repository owns every file listed here, including content/standards.md: edit them there, then run `node scripts/sync-site-theme.mjs --from <site-checkout>`. `--check` (make check, CI) fails if a copy drifts from its recorded SHA-256.",
+  "source": {
+    "repo": "https://github.com/sebastienrousseau/crypto-service.github.io",
+    "commit": "e107d1a3b052bf9213b64c498147ec0ad8525d0b"
+  },
+  "files": [
+    {
+      "from": "static/css/prism.css",
+      "to": "_layouts/css/prism.css",
+      "sha256": "363c6bc1ccc3969d9430ca704111a7046924c9ad1f67f68c9868c7fa9f725957"
+    },
+    {
+      "from": "static/css/crypto-service-prism.css",
+      "to": "_layouts/css/crypto-service-prism.css",
+      "sha256": "cd4fbb3cb5297e455e23c3080aa477a961607903d4a66bbcf95dc15eefccff27"
+    },
+    {
+      "from": "static/js/prism.js",
+      "to": "_layouts/js/prism.js",
+      "sha256": "8a36989743bf3c1ff2eccba324d74c19a01cecfdf6e28bdf3fdcd19f9b8ffc7d"
+    },
+    {
+      "from": "static/js/prism-theme-init.js",
+      "to": "_layouts/js/prism-theme-init.js",
+      "sha256": "ea25cfe8e6254cdd49f95391f47d8afb477191313a298a8c4fac8dca49e7eb5f"
+    },
+    {
+      "from": "static/js/crypto-service-prism.js",
+      "to": "_layouts/js/crypto-service-prism.js",
+      "sha256": "9ec1a7c21c92febd8fcf6af8097fefdca38cf12a59101f5ff7cf25d40c34d78a"
+    },
+    {
+      "from": "static/fonts/inter-var-latin.woff2",
+      "to": "_layouts/fonts/inter-var-latin.woff2",
+      "sha256": "3ee195c5e811bd4c19c9e10b5924598b1f7f047a92fbf81bd192a18c5d50bb4f"
+    },
+    {
+      "from": "static/fonts/inter-var-latin-ext.woff2",
+      "to": "_layouts/fonts/inter-var-latin-ext.woff2",
+      "sha256": "742fdb6bf71c1605ccca44d1904702065e200e097e24ca156b3e4735d67bdccb"
+    },
+    {
+      "from": "static/fonts/jetbrains-mono-var-latin.woff2",
+      "to": "_layouts/fonts/jetbrains-mono-var-latin.woff2",
+      "sha256": "615a7673d37b1dd624e2deeb572a1a238f9b32981bf3fc44f87aa14f3bd7d04b"
+    },
+    {
+      "from": "static/fonts/jetbrains-mono-var-latin-ext.woff2",
+      "to": "_layouts/fonts/jetbrains-mono-var-latin-ext.woff2",
+      "sha256": "9a1b37b15422ff95216a0838aceeeb4ca6cb54453a8e1ef4594352834fcc8b66"
+    },
+    {
+      "from": "LICENSES/OFL-1.1.txt",
+      "to": "LICENSES/OFL-1.1.txt",
+      "sha256": "8eea8287e5876b539670cadb82e99f9a7afddec6f6730811be1daf25d2e9bcfd"
+    },
+    {
+      "from": "content/standards.md",
+      "to": "content/standards.md",
+      "sha256": "f4ad50feebec499604f89aae09b7ff64ac8b1521ecdeb7aa42d5af26859f3de8"
+    }
+  ]
+}

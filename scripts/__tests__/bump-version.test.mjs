@@ -12,6 +12,7 @@ import {
   bumpText,
   nextVersion,
   openChangelog,
+  textPaths,
 } from "../bump-version.mjs";
 
 const CHANGELOG = `# Changelog\n\nIntro.\n\n## [1.0.0] - 2026-01-01\n\n- old\n`;
@@ -112,6 +113,8 @@ describe("bump", () => {
     writeFileSync(join(root, "CHANGELOG.md"), CHANGELOG);
     writeFileSync(join(root, "website/_layouts/a.html"), "<b>v0.0.1</b>");
     writeFileSync(join(root, "website/_layouts/notes.txt"), "v0.0.1");
+    mkdirSync(join(root, "website/_layouts/css"));
+    writeFileSync(join(root, "website/_layouts/css/prism.css"), "/* 0.0.1 */");
     writeFileSync(join(root, "website/content/index.md"), "same");
     writeFileSync(join(root, "README.md"), "this tree is 0.0.1.");
     mkdirSync(join(root, "openapi"));
@@ -147,8 +150,27 @@ describe("bump", () => {
       "v0.0.1",
     );
     assert.equal(
+      readFileSync(join(root, "website/_layouts/css/prism.css"), "utf8"),
+      "/* 0.0.1 */",
+    );
+    assert.equal(
       readFileSync(join(root, "README.md"), "utf8"),
       "this tree is 0.0.2.",
     );
+  });
+});
+
+describe("textPaths", () => {
+  it("names only the current version in the docs portal", () => {
+    const root = new URL("../../", import.meta.url).pathname;
+    const { version } = JSON.parse(readFileSync(`${root}package.json`, "utf8"));
+    const portal = textPaths(root).filter((p) => p.startsWith("website/"));
+    assert.ok(portal.includes("website/_layouts/base.html"));
+    for (const path of portal) {
+      const seen = readFileSync(`${root}${path}`, "utf8").match(
+        /\b0\.0\.\d+\b/g,
+      );
+      for (const v of seen ?? []) assert.equal(v, version, path);
+    }
   });
 });

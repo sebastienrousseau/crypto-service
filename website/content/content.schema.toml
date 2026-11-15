@@ -1,4 +1,4 @@
-# Typed front-matter contract for Voxt theme.
+# Typed front-matter contract for the docs portal pages (PRISM layouts).
 [[schemas]]
 name = "page"
 

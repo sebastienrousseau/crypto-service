@@ -39,7 +39,7 @@ jobs:
         run: |
           cargo binstall --no-confirm ssg@0.0.76
           ssg --version
-      - name: Build Voxt documentation portal & package references
+      - name: Build the PRISM documentation portal & package references
         run: node scripts/build-docs.mjs
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

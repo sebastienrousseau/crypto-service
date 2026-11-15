@@ -78,7 +78,13 @@ function manifestPaths(root) {
   return ["package.json", ...packages.map((d) => `packages/${d}/package.json`)];
 }
 
-function textPaths(root) {
+/**
+ * Text files that spell the suite version out: the portal's top-level
+ * layouts and home page, and the OpenAPI document. Vendored PRISM files
+ * under website/_layouts/{css,js,fonts} are not listed; their hashes are
+ * pinned by website/THEME.lock.json.
+ */
+export function textPaths(root) {
   const layouts = readdirSync(`${root}website/_layouts`).filter((f) =>
     f.endsWith(".html"),
   );
