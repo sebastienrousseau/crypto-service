@@ -9,6 +9,14 @@ import path from "node:path";
 import type { FastifyInstance } from "fastify";
 import { SUPPORTED_ALGORITHMS } from "@sebastienrousseau/crypto-lib/modern";
 import type { CbomPayload } from "../../enterprise/types";
+import {
+  GET_ERRORS,
+  fields,
+  integer,
+  literal,
+  ok,
+  problems,
+} from "../../utils/response-schemas";
 
 /**
  * Directory holding the `@sebastienrousseau/*` package folders: `packages/`
@@ -246,6 +254,111 @@ export function buildCbom(now: Date = new Date()): CbomPayload {
   };
 }
 
+/** Media type of the CBOM. */
+const CYCLONEDX = "application/vnd.cyclonedx+json";
+
+/** Problems of the compliance routes (authenticated, no body). */
+const GET_PROBLEMS = problems(...GET_ERRORS);
+
+const STRING = { type: "string" } as const;
+
+/** The DORA self-assessment, as `GET /v2/compliance/dora` answers it. */
+const DORA = fields(
+  {
+    standard: literal("DORA (EU 2022/2554)", "The regulation."),
+    article: literal("Article 9 & Article 13", "The articles."),
+    status: STRING,
+    disclaimer: STRING,
+    quantumResistanceRatio: {
+      type: "number",
+      description: "Post-quantum identifiers / all identifiers, two decimals.",
+    },
+    activePrimitivesCount: integer("Algorithm identifiers listed."),
+    postQuantumPrimitivesCount: integer("Post-quantum identifiers listed."),
+    algorithmDeprecationSchedule: {
+      type: "array",
+      items: fields({
+        algorithm: STRING,
+        category: { type: "string", enum: ["symmetric", "asymmetric"] },
+        sunsetDate: {
+          type: "string",
+          description: "An ISO 8601 date-time, or a note such as Immediate.",
+        },
+        recommendedMigration: STRING,
+      }),
+    },
+    cryptographicInventory: {
+      type: "array",
+      items: fields({
+        package: STRING,
+        status: {
+          type: "string",
+          enum: ["implemented", "partial", "placeholder"],
+        },
+        fipsCompliance: {
+          type: "string",
+          description: "What the package implements (name kept for clients).",
+        },
+        version: {
+          type: "string",
+          description: "The package version, or unknown.",
+        },
+      }),
+    },
+    timestamp: {
+      type: "string",
+      format: "date-time",
+      description: "When the assessment was built.",
+    },
+  },
+  "Self-reported inventory; not a compliance verdict.",
+);
+
+/** A CycloneDX `properties` entry. */
+const NAME_VALUE = fields({ name: STRING, value: STRING });
+
+/**
+ * The CycloneDX 1.6 CBOM. Members it does not list pass through, so the
+ * document is never cut short by this schema.
+ */
+const CBOM = {
+  type: "object",
+  description: "CycloneDX 1.6 cryptographic bill of materials.",
+  required: [
+    "bomFormat",
+    "specVersion",
+    "serialNumber",
+    "version",
+    "metadata",
+    "components",
+  ],
+  additionalProperties: true,
+  properties: {
+    bomFormat: literal("CycloneDX", "Always CycloneDX."),
+    specVersion: literal("1.6", "CycloneDX specification version."),
+    serialNumber: {
+      type: "string",
+      pattern: "^urn:uuid:[0-9a-f-]{36}$",
+      description: "A fresh urn:uuid for every document.",
+    },
+    version: integer("BOM version."),
+    metadata: { type: "object", additionalProperties: true },
+    components: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: true,
+        properties: {
+          type: STRING,
+          name: STRING,
+          version: STRING,
+          properties: { type: "array", items: NAME_VALUE },
+        },
+      },
+    },
+  },
+};
+
 /** Registers the v2 compliance endpoints (DORA self-assessment and CycloneDX CBOM). */
 export default (app: FastifyInstance): void => {
   app.get(
@@ -256,28 +369,7 @@ export default (app: FastifyInstance): void => {
         summary: "DORA cryptographic inventory (self-assessment)",
         description:
           "Returns a self-reported cryptographic inventory, post-quantum algorithm counts and recommended sunset dates. It is not a compliance assessment or verdict under Regulation (EU) 2022/2554.",
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              data: {
-                type: "object",
-                properties: {
-                  standard: { type: "string" },
-                  article: { type: "string" },
-                  status: { type: "string" },
-                  disclaimer: { type: "string" },
-                  quantumResistanceRatio: { type: "number" },
-                  activePrimitivesCount: { type: "number" },
-                  postQuantumPrimitivesCount: { type: "number" },
-                  algorithmDeprecationSchedule: { type: "array" },
-                  cryptographicInventory: { type: "array" },
-                  timestamp: { type: "string" },
-                },
-              },
-            },
-          },
-        },
+        response: { ...ok("The self-assessment.", DORA), ...GET_PROBLEMS },
       },
     },
     async () => {
@@ -294,13 +386,18 @@ export default (app: FastifyInstance): void => {
           "Cryptographic Bill of Materials (CBOM) in CycloneDX 1.6 format",
         description:
           "Emits a machine-readable CycloneDX 1.6 CBOM listing the post-quantum algorithms this service implements. It is informational input for CRA and DORA work and does not by itself establish compliance.",
+        response: {
+          200: {
+            description:
+              "A CycloneDX 1.6 document, not wrapped in data; a fresh serialNumber on every call.",
+            content: { [CYCLONEDX]: { schema: CBOM } },
+          },
+          ...GET_PROBLEMS,
+        },
       },
     },
     async (_request, reply) => {
-      reply.header(
-        "Content-Type",
-        "application/vnd.cyclonedx+json; charset=utf-8",
-      );
+      reply.header("Content-Type", `${CYCLONEDX}; charset=utf-8`);
       return buildCbom();
     },
   );

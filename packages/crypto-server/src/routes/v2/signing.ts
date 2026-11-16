@@ -10,6 +10,16 @@ import {
 } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import { KEY_ID_SCHEMA, resolveKey } from "../../utils/keys";
+import {
+  dataRoute,
+  fields,
+  flag,
+  hex,
+  literal,
+} from "../../utils/response-schemas";
+
+/** The `algorithm` of an Ed25519 result. */
+const ED25519 = literal("ed25519", "Signature algorithm.");
 
 /** `POST /v2/sign`: Ed25519 signature with a server-held key. */
 function registerSign(app: FastifyInstance): void {
@@ -34,6 +44,14 @@ function registerSign(app: FastifyInstance): void {
             },
           },
         },
+        response: dataRoute(
+          "The signature over the UTF-8 bytes of message.",
+          fields({
+            signature: hex("The 64-byte Ed25519 signature."),
+            algorithm: ED25519,
+          }),
+          404,
+        ),
       },
     },
     async (request, reply) => {
@@ -73,6 +91,13 @@ function registerVerify(app: FastifyInstance): void {
             signature: { type: "string", minLength: 128, maxLength: 128 },
           },
         },
+        response: dataRoute(
+          "Whether the signature is valid.",
+          fields({
+            valid: flag("Whether the signature is valid."),
+            algorithm: ED25519,
+          }),
+        ),
       },
       config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },

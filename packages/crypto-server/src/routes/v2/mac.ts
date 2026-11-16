@@ -6,9 +6,13 @@
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
 import type { HmacAlgorithm } from "@sebastienrousseau/crypto-lib/modern";
+import { dataRoute, fields, flag, hex } from "../../utils/response-schemas";
 
 /** List of HMAC algorithms accepted by the v2 HMAC endpoint. */
 const HMAC_ALGORITHMS = ["sha256", "sha384", "sha512", "sha3-256", "sha3-512"];
+
+/** The `algorithm` field of an HMAC result. */
+const HMAC_ALGORITHM = { type: "string", enum: HMAC_ALGORITHMS };
 
 /** Registers /v2/hmac. */
 function registerHmac(app: FastifyInstance): void {
@@ -28,6 +32,10 @@ function registerHmac(app: FastifyInstance): void {
             data: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The HMAC of the UTF-8 bytes of data, keyed with the hex key (at least 16 bytes).",
+          fields({ mac: hex("The tag."), algorithm: HMAC_ALGORITHM }),
+        ),
       },
     },
     async (request, reply) => {
@@ -71,6 +79,13 @@ function registerHmacVerify(app: FastifyInstance): void {
             mac: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "Whether the tag matches, compared in constant time.",
+          fields({
+            valid: flag("Whether the tag matches."),
+            algorithm: HMAC_ALGORITHM,
+          }),
+        ),
       },
       config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },

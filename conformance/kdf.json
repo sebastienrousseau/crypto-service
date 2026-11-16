@@ -1,0 +1,236 @@
+{
+  "group": "kdf",
+  "description": "Key derivation and Argon2id password hashing with fixed inputs; expected values come from OpenSSL.",
+  "vectors": [
+    {
+      "id": "hkdf-sha256",
+      "description": "HKDF-SHA256, info \"conformance\".",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kdf",
+        "body": {
+          "algorithm": "hkdf-sha256",
+          "password": "password",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "keyLength": 32,
+          "params": {
+            "info": "conformance"
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "derivedKey": "e2d93a0827f28f58c592f33c3ea93fd7a93e7bf7d46690da2df5fb0503a24566",
+            "salt": "000102030405060708090a0b0c0d0e0f",
+            "algorithm": "hkdf-sha256",
+            "keyLength": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "pbkdf2-sha256",
+      "description": "PBKDF2-HMAC-SHA256, 600,000 iterations.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kdf",
+        "body": {
+          "algorithm": "pbkdf2-sha256",
+          "password": "password",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "keyLength": 32,
+          "params": {
+            "iterations": 600000
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "derivedKey": "3bc37118e625093e9b79ed08930ea7af7389591233fdd92dddf369371e60dbc0",
+            "salt": "000102030405060708090a0b0c0d0e0f",
+            "algorithm": "pbkdf2-sha256",
+            "keyLength": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "scrypt",
+      "description": "scrypt N = 2^17, r = 8, p = 1.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kdf",
+        "body": {
+          "algorithm": "scrypt",
+          "password": "password",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "keyLength": 32,
+          "params": {
+            "N": 131072,
+            "r": 8,
+            "p": 1
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "derivedKey": "e0b546fbd479ded0cfa4396d775e8c794156ce3af225fbce329378c3c2100a78",
+            "salt": "000102030405060708090a0b0c0d0e0f",
+            "algorithm": "scrypt",
+            "keyLength": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "kdf-below-floor",
+      "description": "PBKDF2 under 600,000 iterations fails validation.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kdf",
+        "body": {
+          "algorithm": "pbkdf2-sha256",
+          "password": "password",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "params": {
+            "iterations": 1000
+          }
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/kdf",
+          "errors": [
+            {
+              "field": "/params/iterations",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "password-hash",
+      "description": "A new Argon2id hash (random salt).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/password/hash",
+        "body": {
+          "password": "password",
+          "timeCost": 2,
+          "memoryCost": 19456,
+          "parallelism": 1
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "hash": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            },
+            "salt": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{2})*$"
+              }
+            },
+            "params": {
+              "t": 2,
+              "m": 19456,
+              "p": 1
+            },
+            "algorithm": "argon2id",
+            "phc": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^\\$argon2id\\$v=19\\$m=19456,t=2,p=1\\$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "password-verify-valid",
+      "description": "An Argon2id hash computed by OpenSSL verifies.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/password/verify",
+        "body": {
+          "password": "password",
+          "hash": "39903a34cd393876436e671cd690dfe8ab9ce7b13459a7e04ec0e4f0694ddb0d",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "params": {
+            "t": 2,
+            "m": 19456,
+            "p": 1
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": true
+          }
+        }
+      }
+    },
+    {
+      "id": "password-verify-wrong",
+      "description": "Another password does not.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/password/verify",
+        "body": {
+          "password": "Password",
+          "hash": "39903a34cd393876436e671cd690dfe8ab9ce7b13459a7e04ec0e4f0694ddb0d",
+          "salt": "000102030405060708090a0b0c0d0e0f",
+          "params": {
+            "t": 2,
+            "m": 19456,
+            "p": 1
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "valid": false
+          }
+        }
+      }
+    }
+  ]
+}

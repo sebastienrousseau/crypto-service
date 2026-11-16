@@ -41,10 +41,13 @@ updates:
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
-      # The OpenTelemetry 0.300 / 3.0 line needs @opentelemetry/api
-      # 1.10, but @fastify/otel 0.21.3 still pulls @opentelemetry/core
-      # 2.12, which only accepts api below 1.10. Remove these once a
-      # @fastify/otel release depends on core 3 and instrumentation 0.300.
+      # The OpenTelemetry 0.300 / 3.0 line, and @fastify/otel 1.x built
+      # on it, peer-require @opentelemetry/api 1.10, which is not
+      # published (latest is 1.9.1); against api 1.9 their
+      # instrumentation fails at construction. Remove these once
+      # @opentelemetry/api 1.10.0 is on npm.
+      - dependency-name: "@fastify/otel"
+        versions: [">=1.0.0"]
       - dependency-name: "@opentelemetry/api"
         versions: [">=1.10.0"]
       - dependency-name: "@opentelemetry/resources"

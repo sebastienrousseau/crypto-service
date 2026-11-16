@@ -11,6 +11,16 @@ import {
   resolveKey,
   storeKey,
 } from "../../utils/keys";
+import {
+  PLAINTEXT,
+  dataRoute,
+  fields,
+  hex,
+  publicKeyView,
+} from "../../utils/response-schemas";
+
+/** HPKE KEMs, as the request names them and keys record them. */
+const KEMS = ["x25519", "p256", "x-wing", "x25519-ml-kem-768"];
 
 /** crypto-lib HPKE module, loaded on first use. */
 const loadHpke = async () =>
@@ -63,6 +73,15 @@ const KEYGEN_SCHEMA = {
       },
     },
   },
+  // 503: the key store is full.
+  response: dataRoute(
+    "The keyId and public key of the new server-held HPKE key pair.",
+    publicKeyView(
+      { type: "string", enum: KEMS, description: "The KEM." },
+      hex("The KEM public key."),
+    ),
+    503,
+  ),
 } as const;
 
 const SEAL_SCHEMA = {
@@ -86,6 +105,13 @@ const SEAL_SCHEMA = {
       pskId: { type: "string" },
     },
   },
+  response: dataRoute(
+    "The HPKE ciphertext and encapsulated key; send both to the recipient.",
+    fields({
+      ciphertext: hex("The AEAD ciphertext, tag included."),
+      encapsulatedKey: hex("The KEM encapsulated key (enc)."),
+    }),
+  ),
 } as const;
 
 const OPEN_SCHEMA = {
@@ -106,6 +132,14 @@ const OPEN_SCHEMA = {
       pskId: { type: "string" },
     },
   },
+  response: dataRoute(
+    "The plaintext, as text and as the raw bytes.",
+    fields({
+      plaintext: PLAINTEXT,
+      hex: hex("The decrypted bytes."),
+    }),
+    404,
+  ),
 } as const;
 
 /** `POST /v2/hpke/keygen`: generate a server-held HPKE key pair. */

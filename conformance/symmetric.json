@@ -1,0 +1,331 @@
+{
+  "group": "symmetric",
+  "description": "AEAD, secretbox, password encryption and AES key wrap. Encryption is randomised (shape checks); decryption of fixed ciphertexts and key wrapping are exact.",
+  "vectors": [
+    {
+      "id": "encrypt",
+      "description": "XChaCha20-Poly1305 encryption.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/encrypt",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "plaintext": "round trip"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "xchacha20-poly1305"
+          }
+        }
+      },
+      "capture": {
+        "aead": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "decrypt-round-trip",
+      "description": "Decrypts what encrypt produced.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/decrypt",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "ciphertext": "${aead}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "round trip"
+          }
+        }
+      }
+    },
+    {
+      "id": "decrypt-fixed",
+      "description": "Decrypts a fixed nonce || ciphertext || tag (made with @noble/ciphers).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/decrypt",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "ciphertext": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXt1ZrFr+SFHfhl+I6efFIvDs4l+LBF6yHvvIs"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "conformance"
+          }
+        }
+      }
+    },
+    {
+      "id": "decrypt-wrong-key",
+      "description": "A wrong key fails the Poly1305 tag check: 400 invalid-input with code AUTH_FAILED, never 500.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/decrypt",
+        "body": {
+          "key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "ciphertext": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXt1ZrFr+SFHfhl+I6efFIvDs4l+LBF6yHvvIs"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:invalid-input",
+          "title": "Invalid input",
+          "status": 400,
+          "detail": "Decryption failed: invalid input",
+          "instance": "/v2/decrypt",
+          "code": "AUTH_FAILED"
+        }
+      }
+    },
+    {
+      "id": "encrypt-non-hex-key",
+      "description": "A 64-character key that is not hex.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/encrypt",
+        "body": {
+          "key": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "plaintext": "x"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:invalid-input",
+          "title": "Invalid input",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/encrypt",
+          "code": "INVALID_HEX"
+        }
+      }
+    },
+    {
+      "id": "secretbox-seal",
+      "description": "Secretbox seal with associated data.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/secretbox/seal",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "plaintext": "sealed",
+          "aad": "header"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "sealed": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "xchacha20-poly1305"
+          }
+        }
+      },
+      "capture": {
+        "box": "/data/sealed"
+      }
+    },
+    {
+      "id": "secretbox-open-round-trip",
+      "description": "Opens it; data is the text itself.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/secretbox/open",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "ciphertext": "${box}",
+          "aad": "header"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "sealed"
+        }
+      }
+    },
+    {
+      "id": "secretbox-open-fixed",
+      "description": "Opens a fixed box made with @noble/ciphers, aad \"header\".",
+      "request": {
+        "method": "POST",
+        "path": "/v2/secretbox/open",
+        "body": {
+          "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "ciphertext": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXp1xmArWUG3n3JdJTilhmgg1pNvKgKMKyLg==",
+          "aad": "header"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "secretbox"
+        }
+      }
+    },
+    {
+      "id": "password-encrypt",
+      "description": "Argon2id + XChaCha20-Poly1305 envelope.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/password/encrypt",
+        "body": {
+          "password": "pw",
+          "plaintext": "envelope"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "encrypted": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+              }
+            },
+            "algorithm": "argon2id-xchacha20-poly1305"
+          }
+        }
+      }
+    },
+    {
+      "id": "password-decrypt-fixed",
+      "description": "Decrypts a fixed envelope (t = 2, m = 19456, p = 1) made with crypto-lib.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/password/decrypt",
+        "body": {
+          "password": "pw",
+          "ciphertext": "AgIAAAAATAAAAQAAACAAAADcjJaNJAgmJRHRdnWs/EhUnr+Y10wVd8NV9rAOuUJDio4di+AcJQow5oTknbV/tShqEP9a6nsaoL5b+0sp9w1E"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "envelope"
+        }
+      }
+    },
+    {
+      "id": "aes-kw-rfc3394",
+      "description": "RFC 3394 section 4.1: 128-bit key under a 128-bit KEK.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/wrap",
+        "body": {
+          "kek": "000102030405060708090a0b0c0d0e0f",
+          "keyToWrap": "00112233445566778899aabbccddeeff"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "wrapped": "H6aLCoEStEeu80vY+1p7gp0+hiNx0s/l",
+            "algorithm": "aes-kw"
+          }
+        }
+      }
+    },
+    {
+      "id": "aes-kw-unwrap-rfc3394",
+      "description": "Unwraps it; data is the hex key itself.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/unwrap",
+        "body": {
+          "kek": "000102030405060708090a0b0c0d0e0f",
+          "wrappedKey": "H6aLCoEStEeu80vY+1p7gp0+hiNx0s/l"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "00112233445566778899aabbccddeeff"
+        }
+      }
+    },
+    {
+      "id": "aes-kwp-rfc5649",
+      "description": "RFC 5649 section 6: 20-byte key under a 192-bit KEK.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/wrap",
+        "body": {
+          "kek": "5840df6e29b02af1ab493b705bf16ea1ae8338f4dcc176a8",
+          "keyToWrap": "c37b7e6492584340bed12207808941155068f738",
+          "algorithm": "aes-kwp"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "wrapped": "E4veqpuPp/xh+XdC5yJI7lrmrlNg0a5qX1Tzc/pUO2o=",
+            "algorithm": "aes-kwp"
+          }
+        }
+      }
+    },
+    {
+      "id": "aes-kwp-unwrap-rfc5649",
+      "description": "Unwraps it.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/keys/unwrap",
+        "body": {
+          "kek": "5840df6e29b02af1ab493b705bf16ea1ae8338f4dcc176a8",
+          "wrappedKey": "E4veqpuPp/xh+XdC5yJI7lrmrlNg0a5qX1Tzc/pUO2o=",
+          "algorithm": "aes-kwp"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": "c37b7e6492584340bed12207808941155068f738"
+        }
+      }
+    }
+  ]
+}

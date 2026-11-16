@@ -77,6 +77,18 @@ function scalarToHex(scalar: bigint): string {
 }
 
 /**
+ * Decode a commitment point, refusing non-hex input with the library's
+ * own error: noble's decoder throws a runtime-specific message (Node 26
+ * uses the native Uint8Array.fromHex).
+ */
+function commitmentPoint(hex: string): typeof ed25519.Point.BASE {
+  if (!isHex(hex)) {
+    throw new CryptoError("Invalid hex string", CryptoErrorCode.INVALID_HEX);
+  }
+  return ed25519.Point.fromHex(hex);
+}
+
+/**
  * Convert a hex string to a bigint (big-endian).
  */
 function hexToScalar(hex: string): bigint {
@@ -339,7 +351,7 @@ export function verifyFeldmanShare(
   let power = BigInt(1); // x^k
 
   for (const commitHex of commitments.commitments) {
-    const commitPoint = ed25519.Point.fromHex(commitHex);
+    const commitPoint = commitmentPoint(commitHex);
     // Add C_k * x^k
     const term = commitPoint.multiply(power);
     rhs = rhs.add(term);

@@ -1,0 +1,181 @@
+{
+  "group": "v1",
+  "description": "Deprecated OpenPGP routes (sunset 2027-01-01). Uses a synthetic Curve25519 key. Decrypt and revoke succeed only with the server's own key pair (CRYPTO_KEY_DIR), so only their validation errors are covered.",
+  "vectors": [
+    {
+      "id": "v1-generate",
+      "description": "Generate a key pair; every v1 answer carries Deprecation, Sunset and Link.",
+      "request": {
+        "method": "POST",
+        "path": "/v1/generate",
+        "body": {
+          "name": "Conformance",
+          "email": "conformance@example.com",
+          "type": "ecc",
+          "passphrase": "conformance",
+          "curve": "curve25519",
+          "format": "armored"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "publicKey": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^-----BEGIN PGP PUBLIC KEY BLOCK-----"
+              }
+            },
+            "revocationCertificate": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^-----BEGIN PGP PUBLIC KEY BLOCK-----"
+              }
+            }
+          },
+          "warning": {
+            "$shape": {
+              "type": "string"
+            }
+          }
+        },
+        "headers": {
+          "deprecation": "@1787270400",
+          "sunset": "Fri, 01 Jan 2027 00:00:00 GMT",
+          "link": "<https://github.com/sebastienrousseau/crypto-service/blob/main/MIGRATION.md>; rel=\"deprecation\"; type=\"text/html\""
+        }
+      }
+    },
+    {
+      "id": "v1-encrypt",
+      "description": "Encrypt to the synthetic key (base64 of the armored key).",
+      "request": {
+        "method": "POST",
+        "path": "/v1/encrypt",
+        "body": {
+          "passphrase": "conformance",
+          "message": "hello",
+          "publicKey": "LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4ak1FYVZXNUFCWUpLd1lCQkFIYVJ3OEJBUWRBMWdLOU9aVXNNUzBpTVA1MXBlMHZEK24xMjZ0M3FPSkUKbGIyS0F3QkthSkROSlVOdmJtWnZjbTFoYm1ObElEeGpiMjVtYjNKdFlXNWpaVUJsZUdGdGNHeGxMbU52CmJUN0N3Qk1FRXhZS0FJVUZnbWxWdVFBREN3a0hDUkI5YTJBMmJvUVhva1VVQUFBQUFBQWNBQ0J6WVd4MApRRzV2ZEdGMGFXOXVjeTV2Y0dWdWNHZHdhbk11YjNKbmJyVkE1cmJld3pyQm4zR0pBVXVaSWZCZ3BObkoKcGxqU3YzTjVCZW42YVFZRkZRb0lEZ3dFRmdBQ0FRSVpBUUtiQXdJZUFSWWhCQUNrWFhDSlVLNjlZbmtPCmZYMXJZRFp1aEJlaUFBQWRBZ0VBbjhHSmFySVZqRmxxNnBJbmpZNExtbzM2b2M3V1ZuRVdxU3dVcmd1dApjRDhCQUthcWFrdngwdjFFdGV1aktwUnBmeTc5YXpNUUtmV1dJYmlVT1NpWlZDRUN6amdFYVZXNUFCSUsKS3dZQkJBR1hWUUVGQVFFSFFGUjBjZTRuYUEwRW05aXBHTWFFOUc5Qk4zUWlVazkrVGs5RCtFVmFCdHR0CkF3RUlCOEsrQkJnV0NnQndCWUpwVmJrQUNSQjlhMkEyYm9RWG9rVVVBQUFBQUFBY0FDQnpZV3gwUUc1dgpkR0YwYVc5dWN5NXZjR1Z1Y0dkd2FuTXViM0puaFJ1dTNBUTZiMGxaK3h6NzNJUXdHeDcxZXd6TDkzbHIKSHIxT0VVTVc3U2tDbXd3V0lRUUFwRjF3aVZDdXZXSjVEbjE5YTJBMmJvUVhvZ0FBbDBFQS9pTlpTSlBnCldJOVg3NmJXUi9mUHdVUjExQmxrY01hazBldmg2QU9VcWFMbUFQMFVTVm1zM1ZtWnV4UjRrRXVZbncvOQpjajZHdkZyaHRWcmxzNlYwczRvbERRPT0KPTdMLzYKLS0tLS1FTkQgUEdQIFBVQkxJQyBLRVkgQkxPQ0stLS0tLQo="
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "$shape": {
+              "type": "string",
+              "pattern": "^-----BEGIN PGP MESSAGE-----"
+            }
+          }
+        },
+        "headers": {
+          "deprecation": "@1787270400",
+          "sunset": "Fri, 01 Jan 2027 00:00:00 GMT",
+          "link": "<https://github.com/sebastienrousseau/crypto-service/blob/main/MIGRATION.md>; rel=\"deprecation\"; type=\"text/html\""
+        }
+      }
+    },
+    {
+      "id": "v1-verify",
+      "description": "A fixed clear-signed message by the synthetic key.",
+      "request": {
+        "method": "POST",
+        "path": "/v1/verify",
+        "body": {
+          "date": "2026-06-01T00:00:00Z",
+          "message": "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA512\n\nVerify me\n-----BEGIN PGP SIGNATURE-----\n\nwrsEARYKAG0FgmlXCoAJEH1rYDZuhBeiRRQAAAAAABwAIHNhbHRAbm90YXRp\nb25zLm9wZW5wZ3Bqcy5vcmchyjBI3P7FcChGdwjA7B9j/DTDfZ1Y6DzuNCuQ\nqZPs5RYhBACkXXCJUK69YnkOfX1rYDZuhBeiAACx8QEAvEKZEoW5waU4aYWH\ndxZTwFDCC0R5qBvK1ZCVR7RSvb0A/0iefdoeL/LcRUD6TeHJC7loVKJI/M13\nAfkIUbbDPFEB\n=7q5n\n-----END PGP SIGNATURE-----\n",
+          "verificationKeys": "LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4ak1FYVZXNUFCWUpLd1lCQkFIYVJ3OEJBUWRBMWdLOU9aVXNNUzBpTVA1MXBlMHZEK24xMjZ0M3FPSkUKbGIyS0F3QkthSkROSlVOdmJtWnZjbTFoYm1ObElEeGpiMjVtYjNKdFlXNWpaVUJsZUdGdGNHeGxMbU52CmJUN0N3Qk1FRXhZS0FJVUZnbWxWdVFBREN3a0hDUkI5YTJBMmJvUVhva1VVQUFBQUFBQWNBQ0J6WVd4MApRRzV2ZEdGMGFXOXVjeTV2Y0dWdWNHZHdhbk11YjNKbmJyVkE1cmJld3pyQm4zR0pBVXVaSWZCZ3BObkoKcGxqU3YzTjVCZW42YVFZRkZRb0lEZ3dFRmdBQ0FRSVpBUUtiQXdJZUFSWWhCQUNrWFhDSlVLNjlZbmtPCmZYMXJZRFp1aEJlaUFBQWRBZ0VBbjhHSmFySVZqRmxxNnBJbmpZNExtbzM2b2M3V1ZuRVdxU3dVcmd1dApjRDhCQUthcWFrdngwdjFFdGV1aktwUnBmeTc5YXpNUUtmV1dJYmlVT1NpWlZDRUN6amdFYVZXNUFCSUsKS3dZQkJBR1hWUUVGQVFFSFFGUjBjZTRuYUEwRW05aXBHTWFFOUc5Qk4zUWlVazkrVGs5RCtFVmFCdHR0CkF3RUlCOEsrQkJnV0NnQndCWUpwVmJrQUNSQjlhMkEyYm9RWG9rVVVBQUFBQUFBY0FDQnpZV3gwUUc1dgpkR0YwYVc5dWN5NXZjR1Z1Y0dkd2FuTXViM0puaFJ1dTNBUTZiMGxaK3h6NzNJUXdHeDcxZXd6TDkzbHIKSHIxT0VVTVc3U2tDbXd3V0lRUUFwRjF3aVZDdXZXSjVEbjE5YTJBMmJvUVhvZ0FBbDBFQS9pTlpTSlBnCldJOVg3NmJXUi9mUHdVUjExQmxrY01hazBldmg2QU9VcWFMbUFQMFVTVm1zM1ZtWnV4UjRrRXVZbncvOQpjajZHdkZyaHRWcmxzNlYwczRvbERRPT0KPTdMLzYKLS0tLS1FTkQgUEdQIFBVQkxJQyBLRVkgQkxPQ0stLS0tLQo="
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "verified": true,
+            "data": "Verify me",
+            "keyIDs": ["7d6b60366e8417a2"]
+          }
+        }
+      }
+    },
+    {
+      "id": "v1-decrypt-validation",
+      "description": "decrypt needs passphrase, message and publicKey.",
+      "request": {
+        "method": "POST",
+        "path": "/v1/decrypt",
+        "body": {
+          "passphrase": "p",
+          "message": "m"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v1/decrypt",
+          "errors": [
+            {
+              "field": "/publicKey",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "v1-revoke-validation",
+      "description": "A revocation flag outside 0..3 fails validation.",
+      "request": {
+        "method": "POST",
+        "path": "/v1/revoke",
+        "body": {
+          "passphrase": "p",
+          "flag": 9,
+          "reason": "r"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v1/revoke",
+          "errors": [
+            {
+              "field": "/flag",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

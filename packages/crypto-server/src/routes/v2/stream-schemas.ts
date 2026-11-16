@@ -2,6 +2,109 @@
 // Copyright (c) 2022-2026 The Crypto Service Suite. All rights reserved.
 
 import { KEY_ID_SCHEMA } from "../../utils/keys";
+import {
+  PLAINTEXT,
+  base64,
+  dataRoute,
+  fields,
+  flag,
+  hex,
+  integer,
+  literal,
+} from "../../utils/response-schemas";
+
+/** What `POST /v2/stream/sign` answers (404: unknown key). */
+const SIGN_RESPONSE = dataRoute(
+  "One Ed25519 signature per item, in request order.",
+  fields({
+    count: integer("Number of signatures."),
+    signatures: {
+      type: "array",
+      items: fields({
+        id: { type: "string", description: "The item's id." },
+        signature: hex("The 64-byte Ed25519 signature."),
+        algorithm: literal("ed25519", "Signature algorithm."),
+      }),
+    },
+  }),
+  404,
+);
+
+/** What `POST /v2/stream/verify` answers. */
+const VERIFY_RESPONSE = dataRoute(
+  "One result per item, in request order; a malformed item is not valid.",
+  fields({
+    count: integer("Number of items."),
+    validCount: integer("Number of valid signatures."),
+    allValid: flag("Whether every signature is valid."),
+    results: {
+      type: "array",
+      items: fields({
+        id: { type: "string", description: "The item's id." },
+        valid: flag("Whether the item's signature is valid."),
+      }),
+    },
+  }),
+);
+
+/** What `POST /v2/stream/iso20022` answers. */
+const ISO20022_RESPONSE = dataRoute(
+  "The verdict on each part of the envelope.",
+  fields({
+    valid: flag("Whether the digest and both signatures pass."),
+    digestMatches: flag("Whether the payload digest matches the envelope."),
+    classicalValid: flag("Whether the Ed25519 signature verifies."),
+    postQuantumValid: flag("Whether the ML-DSA signature verifies."),
+    messageId: { type: "string", description: "The envelope's messageId." },
+  }),
+);
+
+/** What `POST /v2/stream/pq-encrypt` answers. */
+const PQ_ENCRYPT_RESPONSE = dataRoute(
+  "The STREAM ciphertext.",
+  fields({
+    ciphertext: base64("The chunked STREAM ciphertext with its header."),
+    algorithm: literal(
+      "x25519-ml-kem-768-xchacha20-poly1305-stream",
+      "Stream algorithm.",
+    ),
+  }),
+);
+
+/** What `POST /v2/stream/pq-decrypt` answers (404: unknown key). */
+const PQ_DECRYPT_RESPONSE = dataRoute(
+  "The plaintext.",
+  fields({ plaintext: PLAINTEXT }),
+  404,
+);
+
+/** What `POST /v2/stream/multi-pq-encrypt` answers. */
+const MULTI_PQ_ENCRYPT_RESPONSE = dataRoute(
+  "The multi-recipient STREAM ciphertext.",
+  fields({
+    ciphertext: base64(
+      "The chunked STREAM ciphertext with one key slot per recipient.",
+    ),
+    algorithm: literal(
+      "multi-x25519-ml-kem-768-xchacha20-poly1305-stream",
+      "Stream algorithm.",
+    ),
+    recipientCount: integer("Number of recipients."),
+  }),
+);
+
+/** What `POST /v2/stream/multi-pq-decrypt` answers (404: unknown key). */
+const MULTI_PQ_DECRYPT_RESPONSE = dataRoute(
+  "The plaintext and the recipient slot that opened it.",
+  fields({
+    plaintext: PLAINTEXT,
+    recipientId: {
+      type: "string",
+      description: "The recipient slot that opened the ciphertext.",
+    },
+  }),
+  404,
+);
 
 /** Request schema for `POST /v2/stream/sign`. */
 export const SIGN_SCHEMA = {
@@ -31,6 +134,7 @@ export const SIGN_SCHEMA = {
       },
     },
   },
+  response: SIGN_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/verify`. */
@@ -62,6 +166,7 @@ export const VERIFY_SCHEMA = {
       },
     },
   },
+  response: VERIFY_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/iso20022`. */
@@ -136,6 +241,7 @@ export const ISO20022_SCHEMA = {
       payload: {},
     },
   },
+  response: ISO20022_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/pq-encrypt`. */
@@ -155,6 +261,7 @@ export const STREAM_PQ_ENCRYPT_SCHEMA = {
       chunkSize: { type: "integer", minimum: 64, maximum: 1048576 },
     },
   },
+  response: PQ_ENCRYPT_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/pq-decrypt`. */
@@ -173,6 +280,7 @@ export const STREAM_PQ_DECRYPT_SCHEMA = {
       chunkSize: { type: "integer", minimum: 64, maximum: 1048576 },
     },
   },
+  response: PQ_DECRYPT_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/multi-pq-encrypt`. */
@@ -206,6 +314,7 @@ export const STREAM_MULTI_PQ_ENCRYPT_SCHEMA = {
       chunkSize: { type: "integer", minimum: 1024, maximum: 16777216 },
     },
   },
+  response: MULTI_PQ_ENCRYPT_RESPONSE,
 };
 
 /** Request schema for `POST /v2/stream/multi-pq-decrypt`. */
@@ -226,4 +335,5 @@ export const STREAM_MULTI_PQ_DECRYPT_SCHEMA = {
       chunkSize: { type: "integer", minimum: 1024, maximum: 16777216 },
     },
   },
+  response: MULTI_PQ_DECRYPT_RESPONSE,
 };

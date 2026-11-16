@@ -20,6 +20,7 @@ import { gcm, gcmsiv } from "@noble/ciphers/aes.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
 import { decodeHex, fromBase64, isHex, toBase64, utf8 } from "../encoding";
+import { openSealed } from "./aead-open";
 
 // --- Types ---
 
@@ -178,7 +179,7 @@ export function aesGcmDecrypt(options: AesGcmDecryptOptions): Uint8Array {
   const key = validateAesKey(options.key);
   const { nonce, sealed } = unpackNonceAndSealed(options.ciphertext);
   const cipher = gcm(key, nonce, options.aad);
-  return cipher.decrypt(sealed);
+  return openSealed(cipher, sealed);
 }
 
 // --- AES-GCM-SIV (nonce-misuse resistant) ---
@@ -219,5 +220,5 @@ export function aesGcmSivDecrypt(options: AesGcmSivDecryptOptions): Uint8Array {
   const key = validateAesKey(options.key);
   const { nonce, sealed } = unpackNonceAndSealed(options.ciphertext);
   const cipher = gcmsiv(key, nonce, options.aad);
-  return cipher.decrypt(sealed);
+  return openSealed(cipher, sealed);
 }

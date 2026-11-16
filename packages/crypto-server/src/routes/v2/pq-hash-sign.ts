@@ -15,7 +15,15 @@ import {
   publicView,
   resolveKey,
   storeKey,
+  pqSecretKey,
 } from "../../utils/keys";
+import {
+  dataRoute,
+  fields,
+  flag,
+  hex,
+  publicKeyView,
+} from "../../utils/response-schemas";
 
 /** List of SLH-DSA variants accepted by the v2 hash-sign endpoint. */
 const SLH_DSA_VARIANTS = [
@@ -36,6 +44,9 @@ const SLH_DSA_VARIANTS = [
 /** Stored algorithm name of each variant, as crypto-lib reports it. */
 const SLH_DSA_ALGORITHMS = SLH_DSA_VARIANTS.map((v) => `slh-dsa-${v}`);
 
+/** The `algorithm` of an SLH-DSA result. */
+const SLH_DSA = { type: "string", enum: SLH_DSA_ALGORITHMS };
+
 /** `POST /v2/pq/slh-dsa/keygen`: generate and store an SLH-DSA key pair. */
 function registerKeygen(app: FastifyInstance): void {
   app.post(
@@ -55,6 +66,12 @@ function registerKeygen(app: FastifyInstance): void {
             variant: { type: "string", enum: SLH_DSA_VARIANTS },
           },
         },
+        // 503: the key store is full or the signing pool is busy.
+        response: dataRoute(
+          "The keyId and public key of the new server-held key pair.",
+          publicKeyView(SLH_DSA, hex("The SLH-DSA public key.")),
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -96,6 +113,15 @@ function registerSign(app: FastifyInstance): void {
             message: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "The signature over the UTF-8 bytes of message.",
+          fields({
+            signature: hex("The SLH-DSA signature."),
+            algorithm: SLH_DSA,
+          }),
+          404,
+          503,
+        ),
       },
     },
     async (request, reply) => {
@@ -108,7 +134,7 @@ function registerSign(app: FastifyInstance): void {
           "modern",
           "slhDsaSign",
           variant,
-          key.privateParts["secretKey"],
+          pqSecretKey(key),
           body.message,
         ),
       });
@@ -135,6 +161,13 @@ function registerVerify(app: FastifyInstance): void {
             signature: { type: "string", minLength: 1 },
           },
         },
+        response: dataRoute(
+          "Whether the signature is valid.",
+          fields({
+            valid: flag("Whether the signature is valid."),
+            algorithm: SLH_DSA,
+          }),
+        ),
       },
       config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     },

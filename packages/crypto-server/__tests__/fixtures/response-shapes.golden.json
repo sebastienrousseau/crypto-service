@@ -1,0 +1,805 @@
+{
+  "GET /": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.description: string",
+      "$.details: string",
+      "$.id: string",
+      "$.license: string",
+      "$.title: string",
+      "$.url: string",
+      "$.version: string",
+      "$: object"
+    ]
+  },
+  "GET /v2/algorithms": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.encryption: array",
+      "$.data.encryption[]: string",
+      "$.data.hashing: array",
+      "$.data.hashing[]: string",
+      "$.data.kdf: array",
+      "$.data.kdf[]: string",
+      "$.data.keyExchange: array",
+      "$.data.keyExchange[]: string",
+      "$.data.mac: array",
+      "$.data.mac[]: string",
+      "$.data.postQuantum: array",
+      "$.data.postQuantum[]: string",
+      "$.data.signing: array",
+      "$.data.signing[]: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "GET /v2/compliance/dora": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.activePrimitivesCount: number",
+      "$.data.algorithmDeprecationSchedule: array",
+      "$.data.algorithmDeprecationSchedule[].algorithm: string",
+      "$.data.algorithmDeprecationSchedule[].category: string",
+      "$.data.algorithmDeprecationSchedule[].recommendedMigration: string",
+      "$.data.algorithmDeprecationSchedule[].sunsetDate: string",
+      "$.data.algorithmDeprecationSchedule[]: object",
+      "$.data.article: string",
+      "$.data.cryptographicInventory: array",
+      "$.data.cryptographicInventory[].fipsCompliance: string",
+      "$.data.cryptographicInventory[].package: string",
+      "$.data.cryptographicInventory[].status: string",
+      "$.data.cryptographicInventory[].version: string",
+      "$.data.cryptographicInventory[]: object",
+      "$.data.disclaimer: string",
+      "$.data.postQuantumPrimitivesCount: number",
+      "$.data.quantumResistanceRatio: number",
+      "$.data.standard: string",
+      "$.data.status: string",
+      "$.data.timestamp: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "GET /v2/compliance/cbom": {
+    "status": 200,
+    "mediaType": "application/vnd.cyclonedx+json",
+    "shape": [
+      "$.bomFormat: string",
+      "$.components: array",
+      "$.components[].name: string",
+      "$.components[].properties: array",
+      "$.components[].properties[].name: string",
+      "$.components[].properties[].value: string",
+      "$.components[].properties[]: object",
+      "$.components[].type: string",
+      "$.components[].version: string",
+      "$.components[]: object",
+      "$.metadata.component.description: string",
+      "$.metadata.component.name: string",
+      "$.metadata.component.type: string",
+      "$.metadata.component.version: string",
+      "$.metadata.component: object",
+      "$.metadata.timestamp: string",
+      "$.metadata.tools: array",
+      "$.metadata.tools[].name: string",
+      "$.metadata.tools[].vendor: string",
+      "$.metadata.tools[].version: string",
+      "$.metadata.tools[]: object",
+      "$.metadata: object",
+      "$.serialNumber: string",
+      "$.specVersion: string",
+      "$.version: number",
+      "$: object"
+    ]
+  },
+  "GET /health": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.status: string",
+      "$.statusCode: number",
+      "$.uptime: number",
+      "$: object"
+    ]
+  },
+  "GET /live": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.status: string", "$.uptime: number", "$: object"]
+  },
+  "GET /ready": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.checks.accepting: boolean",
+      "$.checks.keyStore: boolean",
+      "$.checks: object",
+      "$.status: string",
+      "$: object"
+    ]
+  },
+  "GET /metrics": {
+    "status": 200,
+    "mediaType": "text/plain",
+    "shape": ["$: text"]
+  },
+  "POST /v2/encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.ciphertext: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.plaintext: string", "$.data: object", "$: object"]
+  },
+  "POST /v2/hash": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.digest: string",
+      "$.data.length: number",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kdf": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.derivedKey: string",
+      "$.data.keyLength: number",
+      "$.data.salt: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/hmac": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.mac: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/hmac/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/secretbox/seal": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.sealed: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/secretbox/open": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v2/keys/wrap": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.wrapped: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/unwrap": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v2/password/hash": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.hash: string",
+      "$.data.params.m: number",
+      "$.data.params.p: number",
+      "$.data.params.t: number",
+      "$.data.params: object",
+      "$.data.phc: string",
+      "$.data.salt: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/password/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.valid: boolean", "$.data: object", "$: object"]
+  },
+  "POST /v2/password/encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.encrypted: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/password/decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v2/pq/keygen": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/encapsulate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.ciphertext: string",
+      "$.data.sharedSecret: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/decapsulate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.sharedSecret: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/hybrid/keygen": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.mlKemPublicKey: string",
+      "$.data.x25519PublicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/export#ml-kem": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.publicKey: string",
+      "$.data.secretKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/export#hybrid": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.mlKemPublicKey: string",
+      "$.data.mlKemSecretKey: string",
+      "$.data.x25519PrivateKey: string",
+      "$.data.x25519PublicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/hybrid/encapsulate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.combiner: string",
+      "$.data.mlKemCiphertext: string",
+      "$.data.sharedSecret: string",
+      "$.data.x25519EphemeralPublic: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/hybrid/decapsulate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.combiner: string",
+      "$.data.sharedSecret: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/sealedbox/seal-pq": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.sealed: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/sealedbox/open-pq": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v2/stream/pq-encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.ciphertext: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/pq-decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.plaintext: string", "$.data: object", "$: object"]
+  },
+  "POST /v2/stream/multi-pq-encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.ciphertext: string",
+      "$.data.recipientCount: number",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/multi-pq-decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.plaintext: string",
+      "$.data.recipientId: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/generate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.kid: string",
+      "$.data.metadata.exp: string",
+      "$.data.metadata.kid: string",
+      "$.data.metadata.use: string",
+      "$.data.metadata: object",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/generate#x25519": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.kid: string",
+      "$.data.metadata.kid: string",
+      "$.data.metadata: object",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/sign": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.signature: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/verify#invalid": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/sign": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.count: number",
+      "$.data.signatures: array",
+      "$.data.signatures[].algorithm: string",
+      "$.data.signatures[].id: string",
+      "$.data.signatures[].signature: string",
+      "$.data.signatures[]: object",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.allValid: boolean",
+      "$.data.count: number",
+      "$.data.results: array",
+      "$.data.results[].id: string",
+      "$.data.results[].valid: boolean",
+      "$.data.results[]: object",
+      "$.data.validCount: number",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/sealedbox/seal": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.sealed: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/sealedbox/open": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v2/multi-recipient/encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.ciphertext: string",
+      "$.data.recipients: array",
+      "$.data.recipients[].ephemeralPublicKey: string",
+      "$.data.recipients[].mlKemCiphertext: string",
+      "$.data.recipients[].type: string",
+      "$.data.recipients[].wrappedKey: string",
+      "$.data.recipients[]: object",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/export": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.privateKey: string",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/keys/delete": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.deleted: boolean",
+      "$.data.keyId: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/dsa/keygen": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/dsa/sign": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.signature: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/dsa/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/slh-dsa/keygen": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/slh-dsa/sign": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.signature: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/pq/slh-dsa/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/iso20022": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.classicalValid: boolean",
+      "$.data.digestMatches: boolean",
+      "$.data.messageId: string",
+      "$.data.postQuantumValid: boolean",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/stream/iso20022#tampered": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.classicalValid: boolean",
+      "$.data.digestMatches: boolean",
+      "$.data.messageId: string",
+      "$.data.postQuantumValid: boolean",
+      "$.data.valid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/hpke/keygen": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.keyId: string",
+      "$.data.publicKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/hpke/seal": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.ciphertext: string",
+      "$.data.encapsulatedKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/hpke/open": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.hex: string",
+      "$.data.plaintext: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/create-key": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.algorithm: string",
+      "$.data.createdAt: string",
+      "$.data.currentVersion: number",
+      "$.data.enabled: boolean",
+      "$.data.keyId: string",
+      "$.data.provider: string",
+      "$.data.usage: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.ciphertext: string",
+      "$.data.keyId: string",
+      "$.data.keyVersion: number",
+      "$.data.provider: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.hex: string",
+      "$.data.keyId: string",
+      "$.data.plaintext: string",
+      "$.data.provider: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/generate-data-key": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.ciphertext: string",
+      "$.data.keyId: string",
+      "$.data.plaintext: string",
+      "$.data.provider: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/wrap": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.keyId: string",
+      "$.data.provider: string",
+      "$.data.wrappedKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/kms/unwrap": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.keyId: string",
+      "$.data.provider: string",
+      "$.data.unwrappedKey: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v1/encrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data: string", "$: object"]
+  },
+  "POST /v1/decrypt": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.data: string",
+      "$.data.signatureValid: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v1/verify": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.data: string",
+      "$.data.keyIDs: array",
+      "$.data.keyIDs[]: string",
+      "$.data.verified: boolean",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v1/generate": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.publicKey: string",
+      "$.data.revocationCertificate: string",
+      "$.data: object",
+      "$.warning: string",
+      "$: object"
+    ]
+  },
+  "POST /v1/revoke": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.publicKey: string", "$.data: object", "$: object"]
+  },
+  "POST /v2/opaque/register/init": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.response: string", "$.data: object", "$: object"]
+  },
+  "POST /v2/opaque/register/finish": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.credentialIdentifier: string",
+      "$.data.status: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/opaque/login/init": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": [
+      "$.data.ke2: string",
+      "$.data.sessionId: string",
+      "$.data: object",
+      "$: object"
+    ]
+  },
+  "POST /v2/opaque/login/finish": {
+    "status": 200,
+    "mediaType": "application/json",
+    "shape": ["$.data.sessionKey: string", "$.data: object", "$: object"]
+  }
+}

@@ -5,6 +5,42 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import {
+  base64,
+  dataRoute,
+  fields,
+  hex,
+  literal,
+} from "../../utils/response-schemas";
+
+/** One recipient's wrapped content key. */
+const WRAPPED_FOR = {
+  type: "object",
+  required: ["type", "wrappedKey", "ephemeralPublicKey"],
+  properties: {
+    type: {
+      type: "string",
+      enum: ["x25519", "x25519-ml-kem-768"],
+      description:
+        "x25519 for a classical recipient, x25519-ml-kem-768 for a pq one.",
+    },
+    wrappedKey: base64("The content key, wrapped for this recipient."),
+    ephemeralPublicKey: hex("The sender's ephemeral X25519 public key."),
+    mlKemCiphertext: hex("The ML-KEM-768 ciphertext (pq recipients only)."),
+  },
+} as const;
+
+/** What `POST /v2/multi-recipient/encrypt` answers. */
+const ENCRYPT_RESPONSE = dataRoute(
+  "The ciphertext and one wrapped key per recipient, in request order.",
+  fields({
+    ciphertext: base64(
+      "The content, sealed with XChaCha20-Poly1305 under a random key.",
+    ),
+    recipients: { type: "array", items: WRAPPED_FOR },
+    algorithm: literal("multi-recipient-secretbox", "Envelope algorithm."),
+  }),
+);
 
 /** A recipient as the route accepts it. */
 interface RouteRecipient {
@@ -57,6 +93,7 @@ export default (app: FastifyInstance): void => {
             },
           },
         },
+        response: ENCRYPT_RESPONSE,
       },
     },
     async (request, reply) => {

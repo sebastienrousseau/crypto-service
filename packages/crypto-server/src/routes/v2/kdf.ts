@@ -10,6 +10,7 @@ import {
   type KdfResult,
 } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { dataRoute, fields, hex, integer } from "../../utils/response-schemas";
 
 /**
  * OWASP Password Storage Cheat Sheet floors for deriving new keys:
@@ -65,6 +66,17 @@ const kdfSchema = {
       },
     },
   },
+  // 503: the worker pool is busy.
+  response: dataRoute(
+    "The derived key.",
+    fields({
+      derivedKey: hex("The derived key."),
+      salt: hex("The salt used: the request's, or 16 random bytes."),
+      algorithm: { type: "string", enum: [...KDF_ALGORITHMS] },
+      keyLength: integer("Derived key length in bytes."),
+    }),
+    503,
+  ),
 } as const;
 
 /** Registers the v2 key-derivation (scrypt/HKDF/PBKDF2) endpoint. */

@@ -62,7 +62,8 @@ describe("V2 API Routes", function () {
       expect(res.statusCode).to.equal(400);
     });
 
-    it("should return 500 for wrong key on decrypt", async () => {
+    // A wrong key fails the tag check: the caller's error, not a fault.
+    it("should return 400 AUTH_FAILED for wrong key on decrypt", async () => {
       const encRes = await app.inject({
         method: "POST",
         url: "/v2/encrypt",
@@ -75,7 +76,10 @@ describe("V2 API Routes", function () {
         url: "/v2/decrypt",
         payload: { key: "b".repeat(64), ciphertext },
       });
-      expect(decRes.statusCode).to.equal(500);
+      expect(decRes.statusCode).to.equal(400);
+      const problem = JSON.parse(decRes.payload);
+      expect(problem.type).to.equal("urn:crypto-service:problem:invalid-input");
+      expect(problem.code).to.equal("AUTH_FAILED");
     });
   });
 

@@ -17,6 +17,7 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { randomBytes } from "@noble/ciphers/utils.js";
 import { CryptoError, CryptoErrorCode } from "../errors";
 import { decodeHex, fromBase64, isHex, toBase64, utf8 } from "../encoding";
+import { openSealed } from "./aead-open";
 
 /** Result of an XChaCha20-Poly1305 encryption operation. */
 export interface AeadEncryptResult {
@@ -121,5 +122,5 @@ export function aeadDecrypt(options: AeadDecryptOptions): Uint8Array {
   const sealed = combined.subarray(NONCE_LENGTH);
 
   const cipher = xchacha20poly1305(key, nonce, options.aad);
-  return cipher.decrypt(sealed);
+  return openSealed(cipher, sealed);
 }

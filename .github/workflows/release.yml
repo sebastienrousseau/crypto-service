@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
@@ -211,3 +211,26 @@ jobs:
       # a provenance attestation.
       - name: Verify npm provenance
         run: node scripts/check-provenance.mjs "${TAG#v}"
+
+  # Tell the site the suite version moved (docs/adr/0005): its
+  # regenerate workflow rebuilds crypto-service.co at this version. Needs
+  # SATELLITE_DISPATCH_TOKEN, a fine-grained token with Contents: write
+  # on crypto-service.github.io only; without it the job warns and skips.
+  site:
+    needs: github
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Dispatch crypto-service-release to the site
+        env:
+          GH_TOKEN: ${{ secrets.SATELLITE_DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::warning::SATELLITE_DISPATCH_TOKEN is not set; the site was not told about ${TAG}."
+            exit 0
+          fi
+          gh api repos/sebastienrousseau/crypto-service.github.io/dispatches \
+            -f event_type=crypto-service-release \
+            -f "client_payload[version]=${TAG#v}"

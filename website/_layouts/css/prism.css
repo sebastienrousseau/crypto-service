@@ -1,0 +1,3522 @@
+/* SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+   SPDX-License-Identifier: MIT */
+/*!
+ * Prism — financial-infrastructure marketing theme for Static Site Generator (SSG).
+ *
+ * Token contract
+ * --------------
+ * Every colour below is gated by `scripts/validate_contrast.py`, which parses the
+ * `:root` blocks and asserts the pairs it declares. Text tokens clear
+ * WCAG 1.4.6 (AAA, 7:1); borders and the focus ring clear WCAG 1.4.11
+ * (3:1). Change a value and the gate re-checks it — do not hand-tune a
+ * colour without running `make check`.
+ *
+ * Besides the shared vocabulary (`--ink`, `--surface`, `--accent`, ...)
+ * this theme carries three more sets, each gated under its own name:
+ *
+ *   --hero-*   the masthead, the hero band and the developer panel:
+ *              paper white in light, lifted ink in dark
+ *   --code-*   the syntax colours in the developer panel's code window
+ *   --green/--clay/--gold/--burgundy  the four semantic tints, each a
+ *              text token on a soft ground
+ *
+ * The category this theme belongs to — enterprise fintech marketing —
+ * conventionally opens with a mesh gradient and product mock-ups. PRISM
+ * opens with the product's real output on a solid band instead: a
+ * gradient cannot be contrast-checked, and a mock-up is not evidence.
+ *
+ * Layers keep specificity flat so a site can override any component from
+ * its own stylesheet without `!important`.
+ */
+@layer reset, tokens, base, layout, components, utilities;
+
+@layer tokens {
+  /* Light — the default, and what an unstamped `prefers-color-scheme:
+     light` viewer sees. */
+  :root,
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --bg-soft: #f5f4f1;
+    --surface: #ffffff;
+    --surface-soft: #f5f4f1;
+
+    --ink: #14161c;
+    --ink-soft: #3a3d45;
+    --ink-muted: #4a4d55;
+
+    --accent: #1f3db0;
+    --accent-hover: #17307f;
+    --accent-ink: #ffffff;
+    --accent-soft: #eaeefc;
+    --on-accent-soft: #17307f;
+
+    --line: #8a857c;
+    --line-soft: #e4e1db;
+    --focus: #1f3db0;
+    /* Mint call-to-action fill; dark ink on it. */
+    --cta-bg: #1f3db0;
+    --cta-bg-hover: #17307f;
+    --cta-ink: #ffffff;
+    /* The brand signal: the brand mark, eyebrows, the bank-profile layer. */
+    --brand: #1f3db0;
+    /* Orange signal: "Next" on the timeline and nothing else. */
+    --signal: #853200;
+
+    /* Semantic tints: a text token on a soft ground, each pair gated. */
+    --green-text: #04552f;
+    --green-soft: #e8f5ee;
+    --green: #12805a;
+    --clay-text: #7a320f;
+    --clay-soft: #f8e9e0;
+    --gold-text: #634404;
+    --gold-soft: #f7eedc;
+    --burgundy-text: #9b1c14;
+    --burgundy-soft: #fdecea;
+
+    /* The dark surfaces, the same in both schemes. */
+    --hero-bg: #ffffff;
+    --hero-surface: #f5f4f1;
+    --hero-ink: #14161c;
+    --hero-ink-soft: #3a3d45;
+    --hero-line: #e4e1db;
+    --hero-accent: #1f3db0;
+    --hero-clay: #7a320f;
+    --hero-gold: #6b4a05;
+
+    /* Icon-badge gradient stops. Tokens rather than literals inside the
+       component rule, so `scripts/validate_contrast.py` can hold the white glyph
+       they carry to WCAG 1.4.11 (3:1) against the *lightest* stop — the
+       one that decides whether the icon is visible. Two of these were
+       hand-picked at 2.5:1 before the gate covered them. */
+    --badge-ink: #ffffff;
+    --badge-blue-from: #1e40af;
+    --badge-blue-to: #3b82f6;
+    --badge-clay-from: #b05a3f;
+    --badge-clay-to: #cf7e66;
+    --badge-green-from: #2d6a4f;
+    --badge-green-to: #40916c;
+    --badge-gold-from: #8f7036;
+    --badge-gold-to: #af8e4f;
+    --badge-burgundy-from: #6b1d2f;
+    --badge-burgundy-to: #8d2840;
+    --badge-navy-from: #0b192c;
+    --badge-navy-to: #1e40af;
+
+    /* Code window: light in the light theme, so the terminal reads as
+       part of the page rather than a dark slab dropped onto it. */
+    --code-bg: #f5f4f1;
+    --code-bar: #efede8;
+    --code-plain: #14161c;
+    --code-keyword: #7a320f;
+    --code-function: #1f3db0;
+    --code-string: #634404;
+    --code-comment: #4a4d55;
+    --code-property: #17307f;
+    --code-number: #04552f;
+
+    --shadow-sm: 0 1px 2px rgb(17 19 24 / 5%);
+    --shadow-md: 0 1px 1px rgb(17 19 24 / 4%), 0 8px 24px -12px rgb(17 19 24 / 12%);
+    --shadow-lg: 0 1px 1px rgb(17 19 24 / 4%), 0 12px 24px -12px rgb(17 19 24 / 10%), 0 40px 80px -32px rgb(17 19 24 / 18%);
+    /* Material: an 8% hairline and a two-layer lift (contact + ambient). */
+    --edge: rgb(0 0 0 / 8%);
+    --lift: 0 2px 4px rgb(17 19 24 / 4%), 0 24px 60px -16px rgb(17 19 24 / 16%);
+    --glow: rgb(31 61 176 / 10%);
+
+    color-scheme: light;
+  }
+
+  /* Dark — redefine tokens only. Guarded so an explicit light choice
+     still wins on a dark OS. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b0d14;
+      --bg-soft: #10131c;
+      --surface: #151924;
+      --surface-soft: #1c2130;
+
+      --ink: #f2f3f7;
+      --ink-soft: #c9ccd6;
+      --ink-muted: #b4b8c4;
+
+      --accent: #a8b8ff;
+      --accent-hover: #c5d0ff;
+      --accent-ink: #0b0d14;
+      --accent-soft: #1c2654;
+      --on-accent-soft: #d6ddff;
+
+      --line: #737889;
+      --line-soft: #262b3a;
+      --focus: #a8b8ff;
+      /* Mint call-to-action fill; dark ink on it. */
+      --cta-bg: #a8b8ff;
+      --cta-bg-hover: #c5d0ff;
+      --cta-ink: #0b0d14;
+      /* The brand signal: the brand mark, eyebrows, the bank-profile layer. */
+      --brand: #a8b8ff;
+      /* Orange signal: "Next" on the timeline and nothing else. */
+      --signal: #ffb066;
+
+      --green-text: #7fddb2;
+      --green-soft: #0c2419;
+      --green: #46d39a;
+      --clay-text: #f4a27e;
+      --clay-soft: #33190d;
+      --gold-text: #efc76e;
+      --gold-soft: #2e2410;
+      --burgundy-text: #ff9c8f;
+      --burgundy-soft: #33120f;
+
+      --hero-bg: #0b0d14;
+      --hero-surface: #151924;
+      --hero-ink: #f2f3f7;
+      --hero-ink-soft: #c9ccd6;
+      --hero-line: #262b3a;
+      --hero-accent: #a8b8ff;
+      --hero-clay: #f4a27e;
+      --hero-gold: #e8b44a;
+
+      /* Icon-badge gradient stops. Tokens rather than literals inside the
+         component rule, so `scripts/validate_contrast.py` can hold the white glyph
+         they carry to WCAG 1.4.11 (3:1) against the *lightest* stop — the
+         one that decides whether the icon is visible. Two of these were
+         hand-picked at 2.5:1 before the gate covered them. */
+      --badge-ink: #ffffff;
+      --badge-blue-from: #1e40af;
+      --badge-blue-to: #3b82f6;
+      --badge-clay-from: #b05a3f;
+      --badge-clay-to: #cf7e66;
+      --badge-green-from: #2d6a4f;
+      --badge-green-to: #40916c;
+      --badge-gold-from: #8f7036;
+      --badge-gold-to: #af8e4f;
+      --badge-burgundy-from: #6b1d2f;
+      --badge-burgundy-to: #8d2840;
+      --badge-navy-from: #0b192c;
+      --badge-navy-to: #1e40af;
+
+      --code-bg: #0e1119;
+      --code-bar: #151924;
+      --code-plain: #eef3f9;
+      --code-keyword: #f4b39a;
+      --code-function: #a8b8ff;
+      --code-string: #e7cd8a;
+      --code-comment: #9db0c8;
+      --code-property: #c5d0ff;
+      --code-number: #8be0b4;
+
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 50%);
+      --shadow-md: 0 1px 1px rgb(0 0 0 / 40%), 0 8px 24px -12px rgb(0 0 0 / 60%);
+      --shadow-lg: 0 0 0 1px rgb(255 255 255 / 4%), 0 12px 24px -12px rgb(0 0 0 / 60%), 0 40px 80px -32px rgb(0 0 0 / 80%);
+      /* Material: an 8% hairline and a two-layer lift (contact + ambient). */
+      --edge: rgb(255 255 255 / 9%);
+      --lift: 0 2px 4px rgb(0 0 0 / 50%), 0 24px 60px -16px rgb(0 0 0 / 70%);
+      --glow: rgb(168 184 255 / 12%);
+
+      color-scheme: dark;
+    }
+  }
+
+  /* The toggle wins in both directions. */
+  :root[data-theme="dark"] {
+    --bg: #0b0d14;
+    --bg-soft: #10131c;
+    --surface: #151924;
+    --surface-soft: #1c2130;
+
+    --ink: #f2f3f7;
+    --ink-soft: #c9ccd6;
+    --ink-muted: #b4b8c4;
+
+    --accent: #a8b8ff;
+    --accent-hover: #c5d0ff;
+    --accent-ink: #0b0d14;
+    --accent-soft: #1c2654;
+    --on-accent-soft: #d6ddff;
+
+    --line: #737889;
+    --line-soft: #262b3a;
+    --focus: #a8b8ff;
+    /* Mint call-to-action fill; dark ink on it. */
+    --cta-bg: #a8b8ff;
+    --cta-bg-hover: #c5d0ff;
+    --cta-ink: #0b0d14;
+    /* The brand signal: the brand mark, eyebrows, the bank-profile layer. */
+    --brand: #a8b8ff;
+    /* Orange signal: "Next" on the timeline and nothing else. */
+    --signal: #ffb066;
+
+    --green-text: #7fddb2;
+    --green-soft: #0c2419;
+    --green: #46d39a;
+    --clay-text: #f4a27e;
+    --clay-soft: #33190d;
+    --gold-text: #efc76e;
+    --gold-soft: #2e2410;
+    --burgundy-text: #ff9c8f;
+    --burgundy-soft: #33120f;
+
+    --hero-bg: #0b0d14;
+    --hero-surface: #151924;
+    --hero-ink: #f2f3f7;
+    --hero-ink-soft: #c9ccd6;
+    --hero-line: #262b3a;
+    --hero-accent: #a8b8ff;
+    --hero-clay: #f4a27e;
+    --hero-gold: #e8b44a;
+
+    /* Icon-badge gradient stops. Tokens rather than literals inside the
+       component rule, so `scripts/validate_contrast.py` can hold the white glyph
+       they carry to WCAG 1.4.11 (3:1) against the *lightest* stop — the
+       one that decides whether the icon is visible. Two of these were
+       hand-picked at 2.5:1 before the gate covered them. */
+    --badge-ink: #ffffff;
+    --badge-blue-from: #1e40af;
+    --badge-blue-to: #3b82f6;
+    --badge-clay-from: #b05a3f;
+    --badge-clay-to: #cf7e66;
+    --badge-green-from: #2d6a4f;
+    --badge-green-to: #40916c;
+    --badge-gold-from: #8f7036;
+    --badge-gold-to: #af8e4f;
+    --badge-burgundy-from: #6b1d2f;
+    --badge-burgundy-to: #8d2840;
+    --badge-navy-from: #0b192c;
+    --badge-navy-to: #1e40af;
+
+    --code-bg: #0e1119;
+    --code-bar: #151924;
+    --code-plain: #eef3f9;
+    --code-keyword: #f4b39a;
+    --code-function: #a8b8ff;
+    --code-string: #e7cd8a;
+    --code-comment: #9db0c8;
+    --code-property: #c5d0ff;
+    --code-number: #8be0b4;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 50%);
+    --shadow-md: 0 1px 1px rgb(0 0 0 / 40%), 0 8px 24px -12px rgb(0 0 0 / 60%);
+    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 4%), 0 12px 24px -12px rgb(0 0 0 / 60%), 0 40px 80px -32px rgb(0 0 0 / 80%);
+    /* Material: an 8% hairline and a two-layer lift (contact + ambient). */
+    --edge: rgb(255 255 255 / 9%);
+    --lift: 0 2px 4px rgb(0 0 0 / 50%), 0 24px 60px -16px rgb(0 0 0 / 70%);
+    --glow: rgb(168 184 255 / 12%);
+
+    color-scheme: dark;
+  }
+
+  :root {
+    /* A fluid scale, so 200% zoom and 320px both stay on the ramp. */
+    --step--1: clamp(0.86rem, 0.83rem + 0.16vw, 0.95rem);
+    --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
+    --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+    --step-2: clamp(1.5rem, 1.34rem + 0.8vw, 2rem);
+    --step-3: clamp(1.9rem, 1.6rem + 1.5vw, 2.9rem);
+    --step-4: clamp(2.3rem, 1.8rem + 2.6vw, 4rem);
+
+    --measure: 68ch;
+    --radius: 12px;
+    --radius-lg: 18px;
+    /* One spacing scale on a 4px base. Section rhythm is drawn from it:
+       48px at phone width, 64px from a wide viewport. The previous fluid
+       value peaked at 104px, which left most of a desktop viewport empty
+       between bands. */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-24: 6rem;
+
+    --gap: clamp(1rem, 0.8rem + 1vw, 1.75rem);
+    --section-y: clamp(var(--space-12), 2.25rem + 2.5vw, var(--space-16));
+    --header-h: 3.25rem;
+
+    /* One family for every voice, as the institutions this site sells to
+       do. Headline tracking tightens with size in the heading rules. */
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-display: var(--font-sans);
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+      Menlo, Consolas, "Liberation Mono", monospace;
+  }
+}
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  ul,
+  ol,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  ul[class],
+  ol[class] {
+    list-style: none;
+    padding: 0;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Typefaces -----------------------------------------------------------
+ * Self-hosted: the Content-Security-Policy is `font-src 'self'`, so a
+ * Google Fonts link would be blocked with no visible error.
+ *
+ * Inter carries every voice. The institutions a treasury buyer already
+ * trusts, from payment networks to central banks, set their
+ * headlines in a grotesque; a text serif read as an editorial
+ * publication beside a monospaced product panel. It is instanced to
+ * wght 400..600, the three weights the theme sets, with the optical-size
+ * axis pinned to the text cut: the axis was 17 KB of the preloaded file,
+ * and on a throttled phone that cost the Lighthouse LCP more than the
+ * Display cut gained. Headlines get the tighter tracking instead.
+ *
+ * `cv05` and `cv08` give lowercase l a tail and capital I serifs. In a
+ * product that exists to catch a transposed character, 1/l/I must not
+ * look alike in the interface either.
+ *
+ * JetBrains Mono carries payment data, for the same reason: slashed
+ * zero, disambiguated 1lI. Ligatures are disabled where it is used, so
+ * an operator in a rule expression never renders as a glyph nobody can
+ * type.
+ *
+ * An English page fetches the two latin subsets, 47 KB; latin-ext
+ * (with the combining marks Yoruba and Vietnamese use) only where a
+ * locale needs it. The ext faces are declared first: where two faces
+ * of one family cover the same code point (U+0153 œ, U+0304 and
+ * U+0308 combining marks) the later declaration wins, so declaring
+ * latin last keeps "cœur" on the preloaded subset instead of
+ * fetching 36 KB of latin-ext for one glyph.
+ */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(/fonts/inter-var-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-024F, U+0253, U+0257, U+0259, U+0300-0301, U+0304, U+0308, U+0323, U+0329, U+1E00-1EFF, U+20A0-20AB, U+20AD-20C0;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(/fonts/inter-var-latin.woff2) format("woff2");
+  unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2022, U+2026, U+2032-2033, U+2039-203A, U+20AC, U+2122, U+2192, U+2212, U+2318, U+2713, U+2717, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(/fonts/jetbrains-mono-var-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(/fonts/jetbrains-mono-var-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    font-feature-settings: "cv05", "cv08";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headlines: tight tracking that scales with size, and weight 600 --
+     the top of the instanced range, so nothing is ever synthesised bold. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.08;
+    text-wrap: balance;
+    letter-spacing: -0.022em;
+    font-weight: 600;
+    font-variant-numeric: lining-nums;
+    color: var(--ink);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+  }
+
+  h2 {
+    font-size: var(--step-3);
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+  }
+
+  h3 {
+    font-size: var(--step-1);
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+
+  /* The second clause of a two-tone headline: same weight, muted ink. */
+  .h-muted {
+    color: var(--ink-muted);
+  }
+
+  b,
+  strong,
+  th {
+    font-weight: 600;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--accent);
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    color: var(--accent-hover);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  code,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+  }
+
+  /* Wrapped rather than scrolled: a code block that never overflows needs
+     no scroll region, so there is nothing to make focusable and nothing
+     to reflow. */
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding: 1rem;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    background: var(--surface-soft);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.7rem 0.8rem;
+    border-block-end: 1px solid var(--line-soft);
+    text-align: start;
+  }
+
+  th {
+    font-weight: 600;
+  }
+}
+
+@layer layout {
+  /* PRISM owns the container outright. Skeletonic's own `.container`
+     sits in a lower layer and adds a stepped max-width (72rem at 80em)
+     and its own inline padding; left in place they produced two content
+     widths on one page and a 36px phone gutter. */
+  .container {
+    width: min(100% - 2rem, 76rem);
+    max-width: none;
+    margin-inline: auto;
+    padding-inline: 0;
+  }
+
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  .stack > * + * {
+    margin-block-start: var(--gap);
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .prose > * + * {
+    margin-block-start: 1em;
+  }
+
+  /* 1.4.8 Visual Presentation (AAA): paragraph spacing at least 1.5x line
+     spacing. `lh` states the requirement exactly; the em value is the
+     fallback. The generator wraps rendered Markdown in its own element, so
+     this must match inside that wrapper, not only direct children. */
+  .prose :where(p, ul, ol, pre, blockquote, table, dl, figure)
+    + :where(p, ul, ol, pre, blockquote, table, dl, figure) {
+    margin-block-start: 2.7em;
+    margin-block-start: 1.6lh;
+  }
+
+  .prose h2 {
+    margin-block-start: 1.8em;
+  }
+
+  .prose h2 + p {
+    margin-block-start: 0.6em;
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--gap);
+  }
+
+  /* auto-fit + minmax keeps every grid single-column at 320px without a
+     media query, which is what makes the 320px reflow check pass. */
+  .grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
+  .section-head {
+    max-width: 48rem;
+  }
+
+  .section-head-centred {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .section-head > * + * {
+    margin-block-start: 0.75rem;
+  }
+
+  /* A section head with the product's own output beside it. Seven
+     columns of copy, five of artefact; one column below 60rem. */
+  .section-split {
+    display: grid;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  .section-split-top {
+    align-items: end;
+  }
+
+  .section-split-top > .lead {
+    margin: 0;
+  }
+
+  @media (min-width: 60rem) {
+    .section-split {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-12);
+    }
+  }
+}
+
+@layer components {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Parked off-screen until focused — never `display: none`, which would
+     take it out of the tab order entirely. */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 999;
+  }
+
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--focus);
+    text-decoration: none;
+  }
+
+  /* ---- header ----
+     The masthead, the hero and the developer band share the --hero-*
+     tokens: paper white in light, lifted ink in dark. They were navy in
+     both schemes, which made light mode a dark page with a pale middle. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--hero-bg);
+    color: var(--hero-ink);
+    border-block-end: 1px solid var(--hero-line);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--header-h);
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 600;
+    font-size: 1.3125rem;
+    letter-spacing: -0.035em;
+    color: var(--hero-ink);
+    text-decoration: none;
+    margin-inline-end: auto;
+  }
+
+  .brand:hover {
+    color: var(--hero-ink);
+  }
+
+  .brand-dot {
+    color: var(--hero-gold);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    margin: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding-inline: 0.6rem;
+    border-radius: 8px;
+    color: var(--hero-ink-soft);
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    background: var(--hero-surface);
+    color: var(--hero-ink);
+  }
+
+  /* An item with a panel reads as one control pair: the link keeps its
+     left padding and gives up the right, and the chevron sits flush
+     against it. */
+  .has-panel .nav-link {
+    padding-inline-end: 0.15rem;
+  }
+
+  .nav-link[aria-current="page"] {
+    color: var(--hero-ink);
+    background: var(--hero-surface);
+  }
+
+  /* The disclosure beside a link. A control in its own right, so 44x44.
+     Its box must not overlap the link's: on touch a tap in the shared
+     strip lands on whichever is painted on top, which is a coin flip.
+     The pair is tightened with the link's padding instead of a negative
+     margin, so they meet without intersecting. */
+  .nav-disclosure {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--hero-ink-soft);
+    cursor: pointer;
+  }
+
+  .nav-disclosure:hover,
+  .nav-disclosure[aria-expanded="true"] {
+    background: var(--hero-surface);
+    color: var(--hero-ink);
+  }
+
+  .nav-disclosure svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .nav-disclosure[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+
+  /* The panel: a light surface in both schemes' own surface colour, so
+     its items use the ordinary --ink/--accent tokens. */
+  .nav-panel[hidden] {
+    display: none;
+  }
+
+  .nav-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 60;
+    margin-block-start: 0.6rem;
+    width: max-content;
+    max-width: min(44rem, calc(100vw - 2rem));
+    padding: var(--space-4);
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    border-radius: 20px;
+    box-shadow: var(--lift);
+  }
+
+  /* Bridges the gap between the item and the panel so a pointer crossing
+     it does not leave the item and dismiss the panel. */
+  .nav-panel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -0.6rem;
+    height: 0.6rem;
+  }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+  }
+
+  .panel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0.6rem;
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .panel-item:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+
+  .panel-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--line-soft);
+    color: var(--ink);
+  }
+
+  .panel-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .panel-text {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .panel-title {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .panel-desc {
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .nav-toggle,
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--hero-line);
+    border-radius: 10px;
+    background: var(--hero-surface);
+    color: var(--hero-ink);
+    cursor: pointer;
+  }
+
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-toggle svg,
+  .theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .icon-close,
+  .icon-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .icon-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .icon-dark {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .icon-light {
+      display: none;
+    }
+
+    :root:not([data-theme="light"]) .icon-dark {
+      display: block;
+    }
+  }
+
+  .nav-toggle[aria-expanded="true"] .icon-open {
+    display: none;
+  }
+
+  .nav-toggle[aria-expanded="true"] .icon-close {
+    display: block;
+  }
+
+  /* The band's own accent, so the ring is gated against the band's
+     ground (`validate_contrast.py`: --focus on --hero-bg) in both
+     schemes. */
+  .site-header :focus-visible,
+  .hero :focus-visible,
+  .page-hero :focus-visible,
+  .section-dark :focus-visible {
+    outline-color: var(--hero-accent);
+  }
+
+  /* ---- buttons ----
+     Ink, not colour: the primary action is the page's darkest (or, in
+     dark mode, lightest) element, the way the institutions it sits
+     beside do it. 44px tall for 2.5.5; the inline padding is set against
+     that height so the pill is not ballooned. Hover changes colour
+     instantly: a colour transition also runs when the theme switches,
+     and text caught mid-fade fails the AAA contrast check. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .btn-primary,
+  .btn-hero-primary {
+    background: var(--cta-bg);
+    color: var(--cta-ink);
+    border-color: var(--cta-bg);
+  }
+
+  .btn-primary:hover,
+  .btn-hero-primary:hover {
+    background: var(--cta-bg-hover);
+    border-color: var(--cta-bg-hover);
+    color: var(--cta-ink);
+  }
+
+  .btn-secondary,
+  .btn-hero-secondary,
+  .btn-header {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line-soft);
+  }
+
+  .btn-secondary:hover,
+  .btn-hero-secondary:hover,
+  .btn-header:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+
+  /* A quiet third action: text with a chevron. */
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    gap: 0.3rem;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    text-decoration: none;
+  }
+
+  .text-link::after {
+    content: "\203A";
+    font-size: 1.15em;
+    transition: transform 150ms ease;
+  }
+
+  .text-link:hover {
+    text-decoration: underline;
+  }
+
+  .text-link:hover::after {
+    transform: translateX(2px);
+  }
+
+  .btn-header {
+    display: none;
+  }
+
+  /* ---- eyebrow, tags, labels ---- */
+  /* Eyebrows are labels, not decoration: one quiet ink in every
+     section. The coloured variants remain as aliases so existing markup
+     keeps working; they no longer change the colour. */
+  .eyebrow,
+  .eyebrow-hero,
+  .eyebrow-clay,
+  .eyebrow-green {
+    color: var(--ink-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  /* 19px, not the 21-28px of a product-page intro: WAVE reports any
+     paragraph of 20px or more that is shorter than 50 characters as a
+     possible heading, and short leads are common in the 34 locales. */
+  .lead {
+    font-size: 1.1875rem;
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  /* Tags are neutral: colour on this site is reserved for pass and
+     fail. The tint variants remain as aliases for existing markup. */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--line-soft);
+    background: var(--surface-soft);
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-block-end: 0.75rem;
+  }
+
+  .section-label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+    margin-block-end: 1.5rem;
+  }
+
+  /* A single row that wraps, rather than a column that stacks: the CTA
+     pair reads as one decision. */
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  /* ---- hero ----
+     A solid band behind every word, closed by a hairline. The sloped foot
+     and the gradient mesh are gone: neither could be contrast-checked, and
+     together they were most of what made the hero read as a template. */
+  .hero,
+  .page-hero {
+    position: relative;
+    background: var(--hero-bg);
+    color: var(--hero-ink);
+    border-block-end: 1px solid var(--hero-line);
+    padding-block: var(--space-16);
+  }
+
+  .hero {
+    padding-block: clamp(var(--space-12), 2rem + 4vw, 6rem);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.375rem, 1.7rem + 2.6vw, 3.625rem);
+    letter-spacing: -0.038em;
+    line-height: 1.04;
+  }
+
+  /* `.hero-copy` carries a 44rem max-width, which on `.container.hero-copy`
+     centred a narrow column inside the page, so page heroes started on a
+     different left edge from the sections below them. The container keeps
+     its width; the measure applies to the children. */
+  .page-hero .container.hero-copy {
+    max-width: none;
+  }
+
+  .page-hero .container.hero-copy > * {
+    max-width: 48rem;
+  }
+
+  /* Article titles at the display step wrapped three to six lines on a
+     laptop (the corpus scenario names run to 75 characters). One step
+     down, and across the whole container rather than the 48rem measure of
+     the lead below, they hold to two. */
+  .page-hero .container.hero-copy > h1,
+  .page-hero .hero-inner > .hero-copy > h1 {
+    max-width: none;
+    font-size: var(--step-3);
+  }
+
+  /* The same for the grid variant (`.hero-inner > .hero-copy`, the
+     comparison layout), whose copy block carried the 44rem cap itself. */
+  .page-hero .hero-inner > .hero-copy {
+    max-width: none;
+  }
+
+  .page-hero .hero-inner > .hero-copy > :not(h1) {
+    max-width: 48rem;
+  }
+
+  .hero-inner {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 4rem);
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: var(--space-6);
+    align-content: start;
+    justify-items: start;
+    max-width: 44rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-copy h1 {
+    color: var(--hero-ink);
+  }
+
+  .hero-lead {
+    color: var(--hero-ink-soft);
+    max-width: 40ch;
+  }
+
+  /* ---- run panel ----
+     Recorded validation runs, layer by layer, behind a tab strip. The one
+     element on the page with depth: a hairline at 6% ink, three stacked
+     shadows (contact, lift, ambient). Colour appears only as pass and
+     fail; every label and layer is monochrome. */
+  .run-panel {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    border-radius: 16px;
+    box-shadow: var(--lift);
+    overflow: hidden;
+  }
+
+  /* Soft light behind the one lifted object: a real element beside the
+     panel, not a pseudo-element on an ancestor, so the contrast checker
+     can still compute every text colour above it. No text sits on it. */
+  .stage {
+    position: relative;
+    min-width: 0;
+  }
+
+  .stage-glow {
+    position: absolute;
+    /* Vertical bloom only: widening past the panel pushed it past the
+       page edge on every screen narrower than the container. */
+    inset: -12% 0;
+    z-index: 0;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    pointer-events: none;
+  }
+
+  .stage > .run-panel {
+    z-index: 1;
+  }
+
+  .run-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-soft);
+    border-block-end: 1px solid var(--line-soft);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .run-title {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .run-net {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--ink-muted);
+  }
+
+  .run-net-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  .run-tabs {
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3) 0;
+    border-block-end: 1px solid var(--line-soft);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .run-tab {
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-block-end: 2px solid transparent;
+    background: none;
+    color: var(--ink-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .run-tab:hover {
+    color: var(--ink);
+  }
+
+  .run-tab[aria-selected="true"] {
+    color: var(--ink);
+    border-block-end-color: var(--ink);
+  }
+
+  /* Without the script there are no tabs to operate: every recorded run
+     is shown, one after another. */
+  html.no-js .run-tabs {
+    display: none;
+  }
+
+  html.no-js .run-view[hidden] {
+    display: block;
+    border-block-start: 1px solid var(--line-soft);
+  }
+
+  .run-cmd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-3) var(--space-4) var(--space-1);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .run-cmd code {
+    background: none;
+    padding: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .run-exit {
+    flex: none;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .run-exit.is-pass { color: var(--green-text); }
+  .run-exit.is-fail { color: var(--burgundy-text); }
+
+  .run-layers {
+    margin: 0;
+    padding: var(--space-1) 0;
+    list-style: none;
+  }
+
+  .run-layers li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .run-layers li + li {
+    border-block-start: 1px solid var(--line-soft);
+  }
+
+  .run-state {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+
+  .run-state.is-pass { color: var(--green-text); }
+  .run-state.is-fail { color: var(--burgundy-text); }
+
+  .run-finding {
+    flex-basis: 100%;
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    border-inline-start: 2px solid var(--burgundy-text);
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    font-variant-ligatures: none;
+    overflow-wrap: anywhere;
+  }
+
+  .run-finding + .run-finding {
+    margin-block-start: calc(-1 * var(--space-1));
+  }
+
+  .run-finding code {
+    display: block;
+    margin: 0 0 var(--space-1);
+    font: inherit;
+    font-weight: 600;
+    background: none;
+    padding: 0;
+    color: var(--burgundy-text);
+  }
+
+  .run-foot {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-block-start: 1px solid var(--line-soft);
+    background: var(--surface-soft);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+  }
+
+  /* The one motion moment: on first paint the layers resolve in order,
+     60ms apart, 400ms in total. CSS only; nothing moves under
+     prefers-reduced-motion (the reset layer zeroes durations). */
+  @keyframes prism-rise {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .run-view:not([hidden]) .run-layers li {
+    animation: prism-rise 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .run-view:not([hidden]) .run-layers li:nth-child(2) { animation-delay: 60ms; }
+  .run-view:not([hidden]) .run-layers li:nth-child(3) { animation-delay: 120ms; }
+  .run-view:not([hidden]) .run-layers li:nth-child(4) { animation-delay: 180ms; }
+
+  /* ---- trust chips ---- */
+  .trust-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .trust-chips li {
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 6px;
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /* ---- proof band ----
+     Figures as data, the way a central bank shows its base rate: the
+     number large, the label under it, hairlines between. */
+  .proof {
+    border-block-end: 1px solid var(--line-soft);
+    padding-block: var(--space-12);
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    margin: 0;
+  }
+
+  .proof-item {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-6) var(--space-2) 0;
+  }
+
+  .proof-item + .proof-item {
+    border-inline-start: 1px solid var(--line-soft);
+    padding-inline-start: var(--space-6);
+  }
+
+  .proof-item dd {
+    margin: 0;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-size: clamp(2.25rem, 1.8rem + 2vw, 3.25rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  .proof-item dt {
+    display: grid;
+    gap: 0.15rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--ink-muted);
+    max-width: 24ch;
+  }
+
+  .proof-item dt strong {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .proof-note {
+    margin: var(--space-6) 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  /* Two by two on a phone: four figures stacked one per row read as a
+     list, not as data. */
+  @media (max-width: 40rem) {
+    .proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: var(--space-6);
+    }
+
+    .proof-item,
+    .proof-item + .proof-item {
+      border-inline-start: 0;
+      padding: 0 var(--space-3) 0 0;
+    }
+
+    .proof-item:nth-child(even) {
+      border-inline-start: 1px solid var(--line-soft);
+      padding-inline-start: var(--space-4);
+    }
+  }
+
+  /* ---- pillars and steps: hairline columns, no boxes ---- */
+  .pillars,
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-8);
+    margin: var(--space-12) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pillar,
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-block-start: var(--space-6);
+    border-block-start: 1px solid var(--ink);
+  }
+
+  .pillar h3,
+  .step h3 {
+    font-size: var(--step-1);
+    padding: 0;
+  }
+
+  .pillar p,
+  .step p {
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  .steps {
+    margin-block-start: var(--space-8);
+  }
+
+  /* ---- product cells ----
+     One grid of hairline cells, each a single link. Hover darkens the
+     cell's edge; nothing lifts. */
+  /* Fixed column counts, not auto-fit: six products in a four-track
+     grid left two empty cells showing the hairline ground. */
+  .cell-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--line-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  @media (min-width: 40rem) {
+    .cell-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 64rem) {
+    .cell-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .cell:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+
+  .cell .tag {
+    margin: 0 0 var(--space-2);
+  }
+
+  .cell h3 {
+    font-size: var(--step-1);
+    padding: 0;
+  }
+
+  .cell p {
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .cell-more {
+    margin-block-start: auto;
+    padding-block-start: var(--space-3);
+    color: var(--accent);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .cell-more::after {
+    content: " \203A";
+  }
+
+  .cell:hover .cell-more {
+    text-decoration: underline;
+  }
+
+  /* ---- enterprise band ---- */
+  .enterprise-band {
+    display: grid;
+    gap: var(--space-12);
+    align-items: center;
+    padding: clamp(var(--space-8), 4vw, var(--space-16));
+    border: 1px solid var(--edge);
+    border-radius: 20px;
+    background: var(--surface);
+    box-shadow: var(--lift);
+  }
+
+  .enterprise-copy {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 38rem;
+  }
+
+  .enterprise-copy p {
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 64rem) {
+    .enterprise-band {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+  }
+
+  /* ---- zero-egress line ---- */
+  .egress {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    max-width: 38rem;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .egress svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-block-start: 0.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .egress strong {
+    color: var(--ink);
+  }
+
+  /* ---- regulatory timeline ----
+     Four dated nodes on one rule. The rule and the node marks are
+     decorative; the date, the event and the answer carry the meaning,
+     and "Next" is a word, not only a colour. */
+  .timeline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    margin: var(--space-12) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .milestone {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding-block-start: var(--space-8);
+    border-block-start: 1px solid var(--line-soft);
+  }
+
+  /* A real element, not a pseudo-element: axe abandons its contrast
+     check for text under an ancestor whose pseudo-element paints. */
+  .milestone-dot {
+    position: absolute;
+    inset-block-start: -5px;
+    inset-inline-start: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--ink-muted);
+  }
+
+  .milestone.is-past .milestone-dot {
+    background: var(--ink-muted);
+  }
+
+  .milestone.is-next {
+    border-block-start-color: var(--ink);
+  }
+
+  .milestone.is-next .milestone-dot {
+    background: var(--ink);
+    border-color: var(--ink);
+    box-shadow: 0 0 0 4px var(--bg-soft);
+  }
+
+  .milestone-date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-muted);
+  }
+
+  .milestone.is-next .milestone-date {
+    color: var(--ink);
+  }
+
+  .milestone-flag {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .milestone h3 {
+    font-size: var(--step-1);
+    padding: 0;
+  }
+
+  .milestone p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .milestone .milestone-answer {
+    margin-block-start: var(--space-2);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px dashed var(--line-soft);
+    color: var(--ink);
+  }
+
+  .milestone-answer a {
+    white-space: nowrap;
+  }
+
+  @media (min-width: 64rem) {
+    .timeline {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+  }
+
+  /* ---- executive briefing ---- */
+  .briefing {
+    display: grid;
+    gap: var(--space-12);
+    padding: clamp(var(--space-8), 4vw, var(--space-12));
+    border: 1px solid var(--edge);
+    border-radius: 20px;
+    background: var(--surface);
+    box-shadow: var(--lift);
+  }
+
+  .briefing-body {
+    display: grid;
+    gap: var(--space-6);
+    align-content: start;
+  }
+
+  .briefing .prose h2 {
+    margin: 0;
+  }
+
+  .briefing .prose p {
+    color: var(--ink-soft);
+  }
+
+  .briefing-links {
+    display: grid;
+    align-content: start;
+    border-block-start: 1px solid var(--line-soft);
+  }
+
+  .briefing-link {
+    display: grid;
+    gap: 0.15rem;
+    min-height: 2.75rem;
+    padding: var(--space-4) 0;
+    border-block-end: 1px solid var(--line-soft);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .briefing-link > span:first-child::after {
+    content: " \203A";
+    color: var(--ink-muted);
+  }
+
+  .briefing-link:hover > span:first-child {
+    text-decoration: underline;
+  }
+
+  .briefing-link-desc {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .briefing {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+  }
+
+  /* ---- partners ---- */
+  .section-partners {
+    padding-block: clamp(2rem, 1rem + 3vw, 3.5rem);
+  }
+
+  .partners {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+    margin: 0;
+  }
+
+  .partner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .partner svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---- specimen ----
+     The product's own output, set in the data face beside a section head.
+     A hairline, no shadow: elevation is reserved for the one live panel
+     per viewport. `pre-wrap` rather than a scroll box, so a finding reads
+     at 320px without a horizontal scroller that would need its own focus
+     stop. */
+  .specimen {
+    min-width: 0;
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .specimen-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-soft);
+    background: var(--surface-soft);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .specimen-cmd {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+  }
+
+  .specimen pre {
+    margin: 0;
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    font-variant-ligatures: none;
+    font-variant-numeric: tabular-nums slashed-zero;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--ink);
+  }
+
+  .specimen code {
+    font: inherit;
+    background: none;
+    padding: 0;
+  }
+
+  .specimen-note {
+    margin: 0;
+    padding: 0 var(--space-4) var(--space-4);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .sp-muted { color: var(--ink-muted); }
+  .sp-pass { color: var(--green-text); }
+  .sp-fail { color: var(--burgundy-text); font-weight: 600; }
+  .sp-tag { color: var(--accent); }
+
+  /* ---- cards ---- */
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(1.25rem, 1rem + 1vw, 2.25rem);
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+  }
+
+  .card h3 {
+    margin-block-end: 0.5rem;
+  }
+
+  .card p {
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+  }
+
+  .card .tag {
+    color: inherit;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-block-start: auto;
+    padding-block-start: 0.5rem;
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+
+  .card-link::after {
+    content: " \2192";
+    margin-inline-start: 0.35rem;
+  }
+
+  .icon-badge {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-block-end: var(--space-6);
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+
+  .icon-badge svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Icon grounds. The gradient tiles are retired in favour of the
+     neutral tile above; the modifiers are kept as no-ops so markup that
+     names them still renders. The --badge-* tokens stay gated for any
+     site that re-enables them. */
+  .badge-blue,
+  .badge-clay,
+  .badge-green,
+  .badge-gold,
+  .badge-burgundy,
+  .badge-navy {
+    background: var(--surface-soft);
+  }
+
+  /* ---- developer panel ---- */
+  .section-dark {
+    background: var(--hero-bg);
+    color: var(--hero-ink-soft);
+    border-block: 1px solid var(--hero-line);
+  }
+
+  .section-dark h2 {
+    color: var(--hero-ink);
+  }
+
+  .dev-grid {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    align-items: center;
+  }
+
+  .dev-lead {
+    color: var(--hero-ink-soft);
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pill {
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid var(--line-soft);
+    background: var(--surface-soft);
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .code-window {
+    min-width: 0;
+    border-radius: 14px;
+    border: 1px solid var(--edge);
+    background: var(--code-bg);
+    color: var(--code-plain);
+    overflow: hidden;
+  }
+
+  .code-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.1rem;
+    background: var(--code-bar);
+    border-block-end: 1px solid var(--edge);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--code-comment);
+  }
+
+  .traffic {
+    display: inline-flex;
+    gap: 7px;
+  }
+
+  .traffic span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--hero-line);
+  }
+
+  .code-filename {
+    margin-inline: auto;
+  }
+
+  .code-body {
+    margin: 0;
+    padding: 1.25rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: var(--code-plain);
+  }
+
+  .syn-keyword {
+    color: var(--code-keyword);
+    font-weight: 600;
+  }
+
+  .syn-function {
+    color: var(--code-function);
+  }
+
+  .syn-string {
+    color: var(--code-string);
+  }
+
+  .syn-comment {
+    color: var(--code-comment);
+    font-style: italic;
+  }
+
+  .syn-variable {
+    color: var(--code-plain);
+  }
+
+  .syn-property {
+    color: var(--code-property);
+  }
+
+  .syn-number {
+    color: var(--code-number);
+  }
+
+  /* ---- governance card ---- */
+  .governance-card {
+    display: grid;
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    align-items: center;
+    padding: clamp(1.5rem, 1rem + 2vw, 3rem);
+  }
+
+  .governance-card p {
+    color: var(--ink-soft);
+    font-size: var(--step-0);
+  }
+
+  .governance-card .lead {
+    font-size: var(--step-1);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--gap);
+  }
+
+  /* The label is read first and the figure second (dt, dd); the figure is
+     shown first. Order is visual only. */
+  .metric,
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.25rem;
+    padding: var(--space-4) 0;
+    border-block-start: 1px solid var(--line-soft);
+  }
+
+  .metric dd,
+  .stat dd {
+    margin: 0;
+    /* Proportional, not tabular: these are words and single figures, and
+       tabular spacing set the hyphen in "Apache-2.0" a figure-width wide. */
+    font-variant-numeric: normal;
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+
+  .metric dt,
+  .stat dt {
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+  }
+
+  .stat {
+    background: var(--surface);
+  }
+
+  .stat dd {
+    color: var(--ink);
+  }
+
+  /* ---- settlement stream ---- */
+  .stream {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  .stream-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .status-dot {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  /* ---- footer ---- */
+  .site-footer {
+    padding-block: var(--section-y);
+    border-block-start: 1px solid var(--line-soft);
+    background: var(--bg-soft);
+  }
+
+  .footer-cols {
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
+  .footer-cols ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-cols h2 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+    margin-block-end: 0.4rem;
+  }
+
+  .footer-cols a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .footer-cols a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .footer-bottom {
+    margin-block-start: var(--gap);
+    padding-block-start: var(--gap);
+    border-block-start: 1px solid var(--line-soft);
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: var(--step--1);
+    color: var(--green-text);
+  }
+
+  .footer-note,
+  .footer-credit {
+    color: var(--ink-muted);
+    font-size: 0.8125rem;
+  }
+
+  .footer-status {
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  /* ---- forms ---- */
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    min-height: 2.75rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .field textarea {
+    min-height: 8rem;
+  }
+
+  .field .hint {
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+  }
+
+  /* Without JavaScript the disclosure buttons cannot open anything: the
+     drawer is shown expanded and the chevrons withdrawn. The top-level
+     links still navigate, which is the whole menu without scripting. */
+  html.no-js .nav-toggle,
+  html.no-js .nav-disclosure {
+    display: none;
+  }
+
+  /* ---- wide layout: the full row ---- */
+  @media (min-width: 64rem) {
+    .hero-inner {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .dev-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    }
+
+    .governance-card {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    }
+
+    .nav-menu {
+      flex-wrap: nowrap;
+    }
+
+    /* Between 64rem and 75rem there is a row for the menu but not for a
+       labelled search button as well; the generator's own small-screen
+       rule already reduces it to the icon, and this does the same here. */
+    @media (max-width: 74.999rem) {
+      .site-header .header-inner .site-nav #ssg-search-btn span,
+      .site-header .header-inner .site-nav #ssg-search-btn kbd {
+        display: none;
+      }
+
+      .site-header .header-inner .site-nav #ssg-search-btn {
+        width: 2.75rem;
+        padding: 0;
+        justify-content: center;
+      }
+    }
+  }
+
+  @media (min-width: 75rem) {
+    .btn-header {
+      display: inline-flex;
+    }
+  }
+
+  /* ---- narrow layout: the drawer ---- */
+  @media (max-width: 63.999rem) {
+    html.no-js .nav-menu {
+      display: flex;
+      position: static;
+      box-shadow: none;
+    }
+
+    .nav-toggle {
+      display: inline-flex;
+      order: 2;
+    }
+
+    .nav-menu {
+      display: none;
+      order: 3;
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding-block: 0.5rem 1rem;
+    }
+
+    .nav-menu[data-open="true"] {
+      display: flex;
+    }
+
+    .nav-item {
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav-link {
+      flex: 1 1 auto;
+      justify-content: flex-start;
+    }
+
+    .nav-disclosure {
+      margin-inline-start: 0;
+    }
+
+    /* The panel becomes an accordion body: in flow, full width, and in
+       the band's own colours rather than a floating card. */
+    .nav-panel {
+      position: static;
+      width: 100%;
+      max-width: none;
+      margin-block: 0.25rem 0.5rem;
+      padding: 0.5rem;
+      background: var(--hero-surface);
+      color: var(--hero-ink);
+      border-color: var(--hero-line);
+      box-shadow: none;
+    }
+
+    .nav-panel::before {
+      display: none;
+    }
+
+    .panel-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .panel-item,
+    .panel-item:hover {
+      color: var(--hero-ink);
+      background: transparent;
+    }
+
+    .panel-desc {
+      color: var(--hero-ink-soft);
+    }
+  }
+}
+
+@layer utilities {
+  .narrow {
+    width: min(100% - 2rem, 46rem);
+    margin-inline: auto;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .mx-auto {
+    margin-inline: auto;
+  }
+
+  .muted {
+    color: var(--ink-muted);
+  }
+
+  .section-soft {
+    background: var(--bg-soft);
+  }
+
+  .cta-row-centred {
+    justify-content: center;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   The generator's search trigger.
+
+   It is injected in the header slot but styled by the generator's own
+   unlayered stylesheet, which loads after this one; its dark-mode rule is
+   `:root:not([data-theme="light"]) #ssg-search-btn` at (0,1,2,0). These
+   selectors carry three classes so they win in both schemes, and the
+   button takes the band's own tokens in either scheme.
+   --------------------------------------------------------------------- */
+/* The search trigger is the header's one utility: a quiet field-like
+   pill, "Search" and the ⌘K hint, which the generator's widget binds. It
+   collapses to the icon below the wide breakpoint. Language and colour
+   theme live in the footer. */
+.site-header .header-inner .site-nav #ssg-search-btn {
+  position: static;
+  inset: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  width: auto;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 0.6rem 0 0.85rem;
+  justify-content: center;
+  background: var(--hero-surface);
+  color: var(--ink-muted);
+  border: 1px solid var(--hero-line);
+  border-radius: 999px;
+  min-height: 2.75rem;
+  box-shadow: none;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.site-header .header-inner .site-nav #ssg-search-btn svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.site-header .header-inner .site-nav #ssg-search-btn span {
+  display: inline;
+  min-width: 7.5rem;
+  text-align: start;
+}
+
+.site-header .header-inner .site-nav #ssg-search-btn kbd {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.site-header .header-inner .site-nav #ssg-search-btn kbd::before {
+  content: "\2318";
+  margin-inline-end: 0.1em;
+}
+
+@media (max-width: 80rem) {
+  .site-header .header-inner .site-nav #ssg-search-btn {
+    width: 2.75rem;
+    padding: 0;
+  }
+
+  .site-header .header-inner .site-nav #ssg-search-btn span,
+  .site-header .header-inner .site-nav #ssg-search-btn kbd {
+    display: none;
+  }
+}
+
+/* Reserve the exact trigger box before the legacy generator moves its
+   appended search button into this slot at DOM ready. The replacement then
+   changes no header geometry and produces no layout shift. */
+.site-header .header-inner .site-nav [data-ssg-search] {
+  display: block;
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+@media (min-width: 80.01rem) {
+  .site-header .header-inner .site-nav [data-ssg-search] {
+    flex-basis: 13.5rem;
+    width: 13.5rem;
+  }
+}
+
+.site-header .header-inner .site-nav #ssg-search-btn:hover {
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+/* The header's single action. */
+.site-header .btn-cta {
+  padding-inline: 1.1rem;
+  font-size: 0.875rem;
+}
+
+.footer-utilities {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------
+   Fenced code blocks from Markdown.
+
+   The generator links its own `highlight.css`, which sets a grey ground
+   on `pre.highlight` and swaps it under `prefers-color-scheme` only —
+   ignoring the theme toggle. Two classes outrank it, so the block takes
+   the theme's surface in both schemes and follows the toggle.
+   --------------------------------------------------------------------- */
+.prose pre.highlight {
+  background: var(--surface-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-size: 0.92em;
+  line-height: 1.6;
+}
+
+.prose pre.highlight code {
+  color: inherit;
+  background: none;
+}
+
+/* ---------------------------------------------------------------------
+   Print.
+
+   A sticky header and a fixed search trigger repeat on every sheet, and
+   the dark surfaces are a full cartridge.
+   --------------------------------------------------------------------- */
+@media print {
+  .site-header,
+  #ssg-search-widget,
+  .theme-toggle,
+  .nav-toggle,
+  .skip-link,
+  .run-panel {
+    display: none !important;
+  }
+
+  :root,
+  :root[data-theme="dark"] {
+    --bg: #ffffff;
+    --bg-soft: #ffffff;
+    --surface: #ffffff;
+    --surface-soft: #ffffff;
+    --ink: #000000;
+    --ink-soft: #1a1a1a;
+    --ink-muted: #333333;
+    --accent: #000000;
+    --line: #666666;
+    --line-soft: #999999;
+    --hero-bg: #ffffff;
+    --hero-surface: #ffffff;
+    --hero-ink: #000000;
+    --hero-ink-soft: #1a1a1a;
+    --hero-line: #999999;
+    --hero-accent: #000000;
+    --hero-clay: #000000;
+    --code-bg: #ffffff;
+    --code-bar: #ffffff;
+    --code-plain: #000000;
+    --code-keyword: #000000;
+    --code-function: #000000;
+    --code-string: #000000;
+    --code-comment: #333333;
+    --code-property: #000000;
+    --code-number: #000000;
+    --green-text: #000000;
+    --green: #333333;
+    color-scheme: light;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* A link reading "here" is useless once the href is gone. */
+  .prose a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  .card,
+  .stat,
+  .metric,
+  .code-window {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}
+
+/* Attribution link. The colour is inherited from the footer so the pair is one
+   the contrast gate already verifies, rather than a new literal that nothing
+   checks. The 44px box meets the AAA target-size minimum. */
+.made-with-ssg {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------
+   Increase Contrast (macOS / iOS "Increase Contrast", and the same user
+   preference on other platforms).
+
+   Tokens only, so every rule that already consumes them follows. Muted
+   and soft inks collapse onto the full-strength ink, and the hairline
+   rules become the border colour, which is the part that disappears
+   first for anyone who asked for more contrast.
+   --------------------------------------------------------------------- */
+@media (prefers-contrast: more) {
+  :root,
+  :root[data-theme="light"],
+  :root[data-theme="dark"] {
+    --ink-soft: var(--ink);
+    --ink-muted: var(--ink);
+    --hero-ink-soft: var(--hero-ink);
+    --line-soft: var(--line);
+    --hero-line: var(--hero-ink-soft);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Forced colours (Invert Colors, Windows High Contrast, and similar).
+
+   The OS replaces the palette wholesale here, so the job is not to
+   restyle but to make sure nothing that was carried by colour alone
+   disappears with it. Focus rings and borders get explicit system
+   colours; links get LinkText so they stay identifiable as links.
+   --------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  a {
+    color: LinkText;
+  }
+
+  a:visited {
+    color: VisitedText;
+  }
+
+  /* A button distinguished only by its background becomes invisible
+     when the background is forced; give it an edge that is not. */
+  .btn,
+  .btn-primary,
+  .nav-disclosure,
+  .nav-toggle,
+  .theme-toggle {
+    border: 1px solid ButtonText;
+    forced-color-adjust: none;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .skip-link {
+    background: Canvas;
+    color: CanvasText;
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Wide colour (Display P3).
+
+   Every token above is sRGB and stays that way — this block only runs
+   where the display can actually show more, and only the chromatic
+   tokens are restated. Each colour keeps its luminance exactly and gains
+   about a fifth more chroma, which is the part sRGB was clipping.
+   Because luminance is unchanged, contrast is too: `scripts/contrast.py`
+   `scripts/validate_contrast.py` holds each P3 value to its sRGB token's
+   luminance and re-runs every pair with the P3 values in place.
+   --------------------------------------------------------------------- */
+@media (color-gamut: p3) {
+  :root,
+  :root[data-theme="light"] {
+    --accent: color(display-p3 0.0995 0.2242 0.7119);
+    --accent-hover: color(display-p3 0.0793 0.1791 0.5137);
+    --focus: color(display-p3 0.0995 0.2242 0.7119);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --accent: color(display-p3 0.6638 0.7181 0.9987);
+      --accent-hover: color(display-p3 0.7762 0.8135 0.9991);
+      --focus: color(display-p3 0.6638 0.7181 0.9987);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --accent: color(display-p3 0.6638 0.7181 0.9987);
+    --accent-hover: color(display-p3 0.7762 0.8135 0.9991);
+    --focus: color(display-p3 0.6638 0.7181 0.9987);
+  }
+}
+
+/* WCAG 2.5.5 Target Size (Enhanced, AAA) — 44x44 CSS px.
+ *
+ * Footer and navigation links are lists of controls, not running text, so
+ * 2.5.5's "inline" exception does not cover them. */
+footer a,
+.brand,
+.made-with-ssg {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  min-width: 44px;
+}
+
+.skip-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 44px;
+}
+
+/* A link that is the entire content of its paragraph is a control, not a
+   phrase inside a sentence, so 2.5.5's inline exception does not apply. */
+.container > p > a:only-child {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+/* WCAG 2.4.11/2.4.12 Focus Not Obscured. The header is sticky, so scrolling
+   to a focused control - or to a fragment - can park it underneath. 6rem
+   clears this header at its tallest single row (68px) with room to spare. */
+html {
+  scroll-padding-top: 6rem;
+}
+
+/* Art-directed mobile hero.
+   The desktop file is a tall portrait; on a phone it would run to roughly
+   three screens of height and cost three times the bytes. A 3:2 crop is
+   served below 64rem, and the reserved box has to match it or the swap
+   shows up as layout shift. */
+@media (max-width: 64rem) {
+  .art-mobile-crop { aspect-ratio: 3 / 2; object-fit: cover; height: auto; }
+}
+
+/* The navigation has to survive a longer translation. Without wrapping, a
+   label that is 50% wider in French pushes the whole bar past the viewport
+   at increased text spacing, which is a WCAG 1.4.12 failure. */
+.site-nav { flex-wrap: wrap; }
+.site-nav .btn { max-width: 100%; }
+
+/* Bilingual safety net.
+   A heading that cannot break pushes its grid past the viewport as soon as
+   the translation is longer than the English — which is how Kairo and
+   Steward failed 1.4.4 and 1.4.10 once French pages existed. `break-word`
+   only acts when a word genuinely does not fit, so it changes nothing for
+   copy that already fits. */
+h1, h2, h3, h4, p, li, dd, dt, figcaption { overflow-wrap: break-word; }
+
+/* JetBrains Mono ships programming ligatures. In payment data a glyph
+   nobody can type is a liability, so they are off wherever it is used. */
+code, kbd, samp, pre, .mono, [class*="code-"] { font-variant-ligatures: none; }
+
+/* A grid or flex item's automatic minimum size is its min-content width, so
+   one long word can push its track wider than the viewport however narrow
+   the column is meant to be. Prism's French home page overflowed by three
+   pixels at 320px on CI and not at all locally: the same markup, different
+   font metrics, a min-content floor that landed either side of the track on
+   each platform. `min-width: 0` removes the floor so the track honours the
+   column instead of the longest word. */
+.hero-copy, .run-panel, .eyebrow-hero, .hero-lead, .cta-row { min-width: 0; }
+
+/* `overflow-wrap: break-word` stops a long word painting outside its box but
+   deliberately does not change the element's min-content size, so a grid
+   track sized from that content is still as wide as the longest word —
+   which is why `min-width: 0` above was not enough on its own. `anywhere`
+   is the one that reduces min-content, and it still only breaks a word that
+   cannot otherwise fit. French "L'infrastructure" at hero size measures
+   254px against a 288px column here, and wider on CI's font metrics. */
+.hero-copy :is(h1, h2, p) { overflow-wrap: anywhere; }
+
+/* A sticky masthead can cover whatever the keyboard scrolls to, which is
+   what WCAG 2.4.11 and 2.4.12 forbid. Reserving its height as scroll
+   padding means a focused element always comes to rest below it. */
+html { scroll-padding-block-start: 5.5rem; }
+
+@media (max-width: 48rem) {
+  html { scroll-padding-block-start: 4.5rem; }
+}
+
+/* Language switcher.
+   One control on all twenty-two themes: a globe, the current locale code,
+   and a panel anchored under the button. It was a bare inline list before,
+   positioned differently in every header.
+
+   A <details> disclosure, not a scripted menu. The themes enforce
+   `script-src 'self'` and the semantics gate renders every page with
+   JavaScript blocked, so anything script-driven would be a dead control in
+   the one rendering that has to keep working.
+
+   Colours come from `currentColor` and the two tokens every theme defines,
+   so a theme needs no palette of its own for this and dark mode follows the
+   header it sits in. The panel is opaque on purpose: the reference design
+   blurs the backdrop, but translucent text surfaces are exactly what the
+   AAA contrast gate cannot measure. */
+.ap-lang { position: relative; }
+.ap-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  padding: .5rem 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+/* Both spellings: Safari still ships the WebKit pseudo-element. */
+.ap-lang-toggle::-webkit-details-marker { display: none; }
+.ap-lang-toggle::marker { content: ""; }
+.ap-lang-toggle:hover { border-color: currentColor; }
+.ap-lang-globe { font-size: 1rem; line-height: 1; }
+.ap-lang-current { line-height: 1; font-variant-numeric: tabular-nums; }
+/* A closed <details> hides its children through a UA rule that an
+   absolutely positioned box escapes: the panel was still laid out, and the
+   layout gate caught it overlapping the theme toggle and the nav links on
+   every theme. Hiding it explicitly is what actually takes it out of flow. */
+.ap-lang:not([open]) .ap-lang-menu { display: none; }
+.ap-lang-menu {
+  position: absolute;
+  top: calc(100% + .375rem);
+  /* Anchored to the button's left edge, not its right. The reference puts
+     this control last in its header, where opening leftwards is the only
+     way it fits; here the search and theme buttons always follow it, so
+     there is room to its right and opening left ran off the viewport. */
+  left: 0;
+  z-index: 60;
+  width: max-content;
+  min-width: 100%;
+  padding: .375rem;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: .6rem;
+  background: var(--surface, var(--bg, #fff));
+  box-shadow: 0 8px 28px rgb(0 0 0 / .18);
+  /* The toggle inherits the header's colour, which on a theme with a dark
+     stage is not the page's. The panel sits on the page surface, so it has
+     to reset rather than inherit it. */
+  color: var(--ink, CanvasText);
+}
+.ap-lang-menu-grid { display: grid; gap: .125rem; }
+.ap-lang-item {
+  display: block;
+  min-height: 2.75rem;
+  padding: .6rem .75rem;
+  border-radius: .35rem;
+  color: inherit;
+  font-size: .85rem;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ap-lang-item:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.ap-lang-item[aria-current] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: .3em;
+  text-decoration-thickness: 2px;
+}
+
+/* Far enough along a narrow header that opening rightwards would overflow;
+   below this width the panel hangs from the button's right edge instead. */
+@media (max-width: 30rem) {
+  .ap-lang-menu { left: auto; right: 0; }
+}
+
+/* In the footer the menu opens upward: there is no page below it. */
+.site-footer .ap-lang-menu { top: auto; bottom: calc(100% + .375rem); }
+.site-footer .ap-lang-toggle { border-color: var(--line-soft); color: var(--ink-soft); }
+
+/* A consistent proportional rhythm below every heading level. */
+:where(h1, h2, h3, h4, h5, h6) { padding-block-end: 0.35em; }
+.site-footer .footer-credit a { display: inline; min-width: 0; min-height: 0; padding: 0; margin: 0; white-space: nowrap; }
+
+/* The three-state mode control. Tokens, not literals, so it follows
+   whichever scheme it is showing. */
+#mode-toggle.theme-toggle {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+#mode-toggle.theme-toggle:hover { border-color: var(--line); background: var(--surface-soft); }
+#mode-toggle .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+#mode-toggle .theme-icon { line-height: 0; display: inline-flex; }
+/* Inline SVG glyphs, one per state, inheriting currentColor. */
+#mode-toggle .theme-glyph { display: none; }
+#mode-toggle .glyph-system { display: block; }
+:root[data-theme="light"] #mode-toggle .glyph-system,
+:root[data-theme="dark"] #mode-toggle .glyph-system { display: none; }
+:root[data-theme="light"] #mode-toggle .glyph-light { display: block; }
+:root[data-theme="dark"] #mode-toggle .glyph-dark { display: block; }
+
+
+/* ======================================================================
+   PRISM v2: product-page components.
+
+   Unlayered so they sit above the layered base without !important. Every
+   colour is a token; every size is on the 4px scale or the type scale
+   below. Motion is transform-only: an opacity fade would let a contrast
+   checker sample text mid-fade, which is how the colour transitions on
+   buttons failed AAA earlier.
+   ====================================================================== */
+:root {
+  --t-hero: clamp(2.75rem, 1.7rem + 3.6vw, 5rem);
+  --t-section: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem);
+  --t-headline: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+  --t-stat: clamp(3.5rem, 2.4rem + 3.8vw, 6rem);
+  --ease: cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+
+body { font-size: 1.0625rem; line-height: 1.47; }
+
+/* Eyebrows: 17px, medium weight. Not bold and under 20px, because WAVE
+   treats a short bold or large paragraph as a possible heading. */
+.eyebrow,
+.eyebrow-hero,
+.eyebrow-clay,
+.eyebrow-green { font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.01em; color: var(--accent); }
+
+/* A dark band inside either theme. Its tokens are the dark theme's own
+   (validate_contrast.py asserts they match), so every pair is gated. */
+.theme-dark {
+  --bg: #0b0d14;
+  --bg-soft: #10131c;
+  --surface: #151924;
+  --surface-soft: #1c2130;
+  --ink: #f2f3f7;
+  --ink-soft: #c9ccd6;
+  --ink-muted: #b4b8c4;
+  --accent: #a8b8ff;
+  --accent-hover: #c5d0ff;
+  --accent-ink: #0b0d14;
+  --accent-soft: #1c2654;
+  --on-accent-soft: #d6ddff;
+  --line: #737889;
+  --line-soft: #262b3a;
+  --focus: #a8b8ff;
+  --brand: #a8b8ff;
+  --signal: #ffb066;
+  --green-text: #7fddb2;
+  --green-soft: #0c2419;
+  --green: #46d39a;
+  --clay-text: #f4a27e;
+  --clay-soft: #33190d;
+  --gold-text: #efc76e;
+  --gold-soft: #2e2410;
+  --burgundy-text: #ff9c8f;
+  --burgundy-soft: #33120f;
+  --hero-bg: #0b0d14;
+  --hero-surface: #151924;
+  --hero-ink: #f2f3f7;
+  --hero-ink-soft: #c9ccd6;
+  --hero-line: #262b3a;
+  --hero-accent: #a8b8ff;
+  --hero-clay: #f4a27e;
+  --hero-gold: #e8b44a;
+  --badge-ink: #ffffff;
+  --badge-blue-from: #1e40af;
+  --badge-blue-to: #3b82f6;
+  --badge-clay-from: #b05a3f;
+  --badge-clay-to: #cf7e66;
+  --badge-green-from: #2d6a4f;
+  --badge-green-to: #40916c;
+  --badge-gold-from: #8f7036;
+  --badge-gold-to: #af8e4f;
+  --badge-burgundy-from: #6b1d2f;
+  --badge-burgundy-to: #8d2840;
+  --badge-navy-from: #0b192c;
+  --badge-navy-to: #1e40af;
+  --code-bg: #0e1119;
+  --code-bar: #151924;
+  --code-plain: #eef3f9;
+  --code-keyword: #f4b39a;
+  --code-function: #a8b8ff;
+  --code-string: #e7cd8a;
+  --code-comment: #9db0c8;
+  --code-property: #c5d0ff;
+  --code-number: #8be0b4;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 50%);
+  --shadow-md: 0 1px 1px rgb(0 0 0 / 40%), 0 8px 24px -12px rgb(0 0 0 / 60%);
+  --shadow-lg: 0 0 0 1px rgb(255 255 255 / 4%), 0 12px 24px -12px rgb(0 0 0 / 60%), 0 40px 80px -32px rgb(0 0 0 / 80%);
+  --edge: rgb(255 255 255 / 9%);
+  --lift: 0 2px 4px rgb(0 0 0 / 50%), 0 24px 60px -16px rgb(0 0 0 / 70%);
+  --glow: rgb(168 184 255 / 12%);
+  --cta-bg: #a8b8ff;
+  --cta-bg-hover: #c5d0ff;
+  --cta-ink: #0b0d14;
+  background: var(--bg);
+  color: var(--ink);
+  color-scheme: dark;
+}
+
+/* ---- section heads: centred, product-page scale ---- */
+.section-head-centred { max-width: 52rem; margin-inline: auto; text-align: center; }
+.section-head-centred .lead { margin-inline: auto; max-width: 40rem; }
+.section-head h2,
+.section-split-top h2 { font-size: var(--t-section); letter-spacing: -0.035em; line-height: 1.06; }
+.section-split-top { grid-template-columns: 1fr !important; justify-items: center; text-align: center; max-width: 52rem; margin-inline: auto; }
+.section-split-top .lead { max-width: 40rem; margin-inline: auto; }
+
+/* ---- ribbon ---- */
+.ribbon {
+  margin: 0;
+  padding-block: var(--space-3);
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.ribbon p { margin-block: 0; }
+.ribbon .text-link { min-height: 2.75rem; font-size: inherit; }
+
+
+/* ---- centred hero ---- */
+.hero-centred { padding-block: clamp(var(--space-12), 2rem + 5vw, 7.5rem) clamp(var(--space-12), 2rem + 3vw, 5rem); }
+.hero-stack { display: grid; gap: var(--space-6); justify-items: center; text-align: center; }
+.hero-centred h1 { max-width: 16ch; font-size: var(--t-hero); letter-spacing: -0.04em; line-height: 1.03; }
+.hero-centred .hero-lead { max-width: 40rem; }
+.cta-centred { justify-content: center; }
+.stage-wide { display: grid; justify-items: center; margin-block-start: clamp(var(--space-12), 4vw, var(--space-16)); }
+.stage-wide > .run-panel { inline-size: min(100%, 52rem); }
+.hero-notes { display: grid; justify-items: center; gap: var(--space-2); margin-block-start: var(--space-8); text-align: center; }
+.hero-notes .egress { justify-content: center; text-align: start; }
+.spec-line { margin: 0; font-size: 0.875rem; color: var(--ink-muted); letter-spacing: 0; }
+
+/* ---- segmented control (the run panel's scenario switch) ---- */
+.segmented {
+  display: flex;
+  gap: var(--space-1);
+  margin: var(--space-3) var(--space-4) 0;
+  padding: var(--space-1);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.segmented .run-tab {
+  flex: 1 0 auto;
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.segmented .run-tab:hover { color: var(--ink); }
+.segmented .run-tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgb(0 0 0 / 12%); }
+html.no-js .segmented { display: none; }
+
+/* ---- by the numbers ---- */
+.proof { border-block-end: 0; }
+.proof .proof-grid { margin-block-start: clamp(var(--space-8), 4vw, var(--space-12)); text-align: center; }
+.proof .proof-item { align-items: center; padding-inline: var(--space-4); }
+.proof .proof-item dd { font-size: var(--t-stat); font-weight: 600; letter-spacing: -0.045em; }
+.proof .proof-item dt { align-items: center; max-width: 18ch; }
+.fn-ref { font-size: 0.45em; line-height: 0; vertical-align: super; letter-spacing: 0; }
+.fn-ref a { display: inline-flex; align-items: center; justify-content: center; min-inline-size: 2.75rem; min-block-size: 2.75rem; color: var(--accent); text-decoration: underline; text-underline-offset: 0.15em; }
+
+/* ---- tiles ---- */
+.tiles { display: grid; gap: var(--space-4); margin-block-start: clamp(var(--space-8), 4vw, var(--space-12)); }
+.tiles-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: clamp(var(--space-6), 3vw, var(--space-12));
+  border: 1px solid var(--edge);
+  border-radius: 28px;
+  background: var(--surface);
+  transition: transform 600ms var(--ease);
+}
+.tile:hover { transform: scale(1.01); }
+.tile h3 { font-size: var(--t-headline); letter-spacing: -0.025em; line-height: 1.1; padding: 0; }
+.tile p { color: var(--ink-soft); }
+.tile .text-link { margin-block-start: auto; }
+.tile-icon { inline-size: 3rem; block-size: 3rem; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tile-eyebrow { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); }
+
+/* ---- four layers, in a dark band ---- */
+.layers-section { padding-block: 0; }
+.layers-track { position: relative; }
+.layers-sticky { padding-block: var(--section-y); }
+.gates { display: grid; gap: var(--space-4); margin: clamp(var(--space-8), 4vw, var(--space-12)) 0 0; padding: 0; list-style: none; }
+@media (min-width: 64rem) { .gates { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.gate {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: var(--surface);
+  transition: transform 600ms var(--ease), border-color 0s;
+}
+.gate .layer { justify-self: start; }
+.gate p { margin: 0; color: var(--ink-soft); font-size: 0.9375rem; }
+.gate-mark { inline-size: 100%; block-size: 3px; border-radius: 3px; background: var(--line-soft); }
+.gate.is-checked .gate-mark { background: var(--green); }
+.gate.is-yours .gate-mark { background: repeating-linear-gradient(90deg, var(--ink-muted) 0 6px, transparent 6px 12px); }
+/* Static by design: a pinned walkthrough stretched this band over three
+   screens to change one card's emphasis, and read as a blank page in a
+   full-page capture or print. */
+
+/* ---- gallery ---- */
+.gallery { margin-block-start: clamp(var(--space-8), 4vw, var(--space-12)); }
+.gallery-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(85%, 42rem);
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-2) 0 var(--space-4);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  scrollbar-width: none;
+}
+.gallery-track:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; border-radius: 28px; }
+.gallery-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: clamp(var(--space-6), 3vw, var(--space-12));
+  border: 1px solid var(--edge);
+  border-radius: 28px;
+  background: var(--surface-soft);
+  scroll-snap-align: start;
+}
+.gallery-slide h3 { font-size: var(--t-headline); letter-spacing: -0.025em; line-height: 1.1; padding: 0; }
+.gallery-slide p { color: var(--ink-soft); }
+.gallery-slide .text-link { margin-block-start: auto; }
+.gallery-slide .specimen { inline-size: 100%; }
+.slide-visual { display: flex; flex-wrap: wrap; gap: var(--space-2); min-block-size: 9rem; align-content: center; inline-size: 100%; }
+.slide-visual span { padding: var(--space-2) var(--space-3); border: 1px solid var(--line-soft); border-radius: 10px; background: var(--surface); font-family: var(--font-mono); font-size: 0.875rem; color: var(--ink); }
+.mini-gates span.is-pass { border-color: var(--green-text); color: var(--green-text); }
+.gallery-controls { display: flex; align-items: center; justify-content: center; gap: var(--space-4); margin-block-start: var(--space-4); }
+.gallery-arrow { display: inline-flex; align-items: center; justify-content: center; inline-size: 2.75rem; block-size: 2.75rem; border: 1px solid var(--line-soft); border-radius: 50%; background: var(--surface); color: var(--ink); cursor: pointer; }
+.gallery-arrow svg { inline-size: 1.1rem; block-size: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.gallery-arrow:hover { border-color: var(--line); }
+.gallery-dots { display: flex; gap: 0; }
+.gallery-dots button { position: relative; inline-size: 2.75rem; block-size: 2.75rem; border: 0; background: transparent; cursor: pointer; }
+.gallery-dots button::after { content: ""; position: absolute; inset: 50% auto auto 50%; inline-size: 8px; block-size: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--ink-muted); }
+.gallery-dots button[aria-current="true"]::after { background: var(--ink); inline-size: 10px; block-size: 10px; margin: -5px 0 0 -5px; }
+[dir="rtl"] .gallery-arrow svg { transform: scaleX(-1); }
+html.no-js .gallery-controls { display: none; }
+
+/* ---- packages bento ---- */
+.bento { display: grid; gap: var(--space-4); margin-block-start: clamp(var(--space-8), 4vw, var(--space-12)); grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.bento > .tile { grid-column: span 12; }
+@media (min-width: 48rem) { .bento > .tile-half { grid-column: span 6; } .bento > .tile-third { grid-column: span 6; } }
+@media (min-width: 64rem) { .bento > .tile-third { grid-column: span 4; } }
+.tile-core { display: grid; gap: var(--space-8); align-items: center; }
+@media (min-width: 64rem) { .tile-core { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); } }
+.tile-core-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.code-card { margin: 0; min-inline-size: 0; border: 1px solid var(--edge); border-radius: 16px; background: var(--code-bg); overflow: hidden; }
+.code-card-bar { padding: var(--space-2) var(--space-4); border-block-end: 1px solid var(--edge); background: var(--code-bar); color: var(--code-comment); font-family: var(--font-mono); font-size: 0.8125rem; }
+.code-card pre { margin: 0; padding: var(--space-4); border: 0; border-radius: 0; background: none; color: var(--code-plain); font-size: 0.8125rem; line-height: 1.6; }
+.code-card code { background: none; padding: 0; }
+.code-card .sp-tag { color: var(--code-function); }
+.code-card-out { margin: 0; padding: var(--space-3) var(--space-4); border-block-start: 1px solid var(--edge); background: var(--code-bar); color: var(--code-plain); font-size: 0.8125rem; }
+.code-card-out > span { display: block; color: var(--code-comment); font-size: 0.75rem; }
+.code-card-out code { font-size: 0.8125rem; overflow-wrap: anywhere; }
+
+/* ---- install: command blocks with copy ---- */
+.cmd-block { position: relative; padding: var(--space-3) var(--space-4) var(--space-2); border-block-end: 1px solid var(--edge); }
+.cmd-block:last-of-type { border-block-end: 0; }
+.cmd-label { margin: 0; font-family: var(--font-mono); font-size: 0.8125rem; font-style: italic; }
+.cmd-block .code-body { margin: 0; padding: var(--space-2) 5.5rem var(--space-2) 0; border: 0; background: none; }
+.copy-btn {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  min-block-size: 2.75rem;
+  min-inline-size: 4.5rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--code-bar);
+  color: var(--code-plain);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--line); }
+.copy-btn[data-copied] { color: var(--green-text); }
+html.no-js .copy-btn { display: none; }
+
+/* ---- specs strip ---- */
+.spec-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); margin: clamp(var(--space-8), 4vw, var(--space-12)) 0; text-align: center; }
+.spec-strip > div { display: flex; flex-direction: column-reverse; gap: var(--space-2); padding: var(--space-4) var(--space-6); }
+.spec-strip > div + div { border-inline-start: 1px solid var(--line-soft); }
+.spec-strip dd { margin: 0; font-size: clamp(1.75rem, 1.4rem + 1vw, 2.5rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; color: var(--ink); }
+.spec-strip dt { font-size: 0.875rem; color: var(--ink-muted); }
+@media (max-width: 40rem) { .spec-strip > div + div { border-inline-start: 0; border-block-start: 1px solid var(--line-soft); } }
+
+/* ---- timeline: one rule, dated nodes ---- */
+.timeline { position: relative; }
+.milestone.is-next .milestone-flag { padding: 0; background: none; color: var(--signal); font-size: 0.875rem; font-weight: 600; }
+.milestone.is-next .milestone-dot { background: var(--accent); border-color: var(--accent); inline-size: 13px; block-size: 13px; inset-block-start: -7px; box-shadow: 0 0 0 4px var(--bg); animation: prism-pulse 2.4s var(--ease) infinite; }
+.milestone .milestone-date time { font-size: var(--t-headline); font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
+.milestone.is-past .milestone-date time { color: var(--ink-soft); }
+@keyframes prism-pulse { 0%, 100% { box-shadow: 0 0 0 4px var(--bg), 0 0 0 4px transparent; } 50% { box-shadow: 0 0 0 4px var(--bg), 0 0 0 9px var(--glow); } }
+
+/* ---- footnotes ---- */
+.footnotes { padding-block: var(--space-8); border-block-start: 1px solid var(--line-soft); }
+.footnotes ol { margin: 0; padding-inline-start: 1.25rem; font-size: 0.8125rem; color: var(--ink-muted); }
+.footnotes a { color: var(--accent); }
+
+/* ---- reveal on scroll: transform only ---- */
+html.js-motion [data-reveal] { transform: translateY(24px); transition: transform 1s var(--ease); }
+html.js-motion [data-reveal].is-visible { transform: none; }
+html.js-motion [data-settle] .run-panel { transform: scale(0.96); transition: transform 1s var(--ease); }
+html.js-motion [data-settle].is-visible .run-panel { transform: none; }
+
+/* ---- motion off: the footer toggle, or the OS setting ---- */
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+html.motion-off [data-reveal],
+html.motion-off [data-settle] .run-panel { transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .tile:hover { transform: none; }
+  html.js-motion [data-reveal], html.js-motion [data-settle] .run-panel { transform: none !important; }
+}
+
+.dev-copy { display: grid; gap: var(--space-4); align-content: start; }
+.dev-copy .cta-row { margin-block-start: var(--space-2); }
+
+/* ---- photography ----
+   Decorative (alt=""), lazy, and boxed by width/height so nothing shifts.
+   Text is never set on a photo: every pair stays contrast-checkable. */
+.tile-photo,
+.feature-photo,
+.briefing-photo,
+.band-photo {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  object-fit: cover;
+  background: var(--surface-soft);
+}
+.tile-photo { aspect-ratio: 3 / 2; margin: calc(-1 * clamp(var(--space-6), 3vw, var(--space-12))) calc(-1 * clamp(var(--space-6), 3vw, var(--space-12))) var(--space-4); inline-size: calc(100% + 2 * clamp(var(--space-6), 3vw, var(--space-12))); max-inline-size: none; border-radius: 28px 28px 0 0; }
+.tile:has(.tile-photo) { overflow: hidden; }
+/* AVIF-first <picture> wrappers take no box of their own, so each image
+   still lays out as the grid or flow item it was. */
+picture:has(> .tile-photo, > .feature-photo, > .briefing-photo, > .hero-banner-photo, > .page-photo) { display: contents; }
+.feature-split { display: grid; gap: var(--space-8); align-items: center; }
+@media (min-width: 64rem) { .feature-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-16); } }
+.feature-photo { aspect-ratio: 4 / 3; border-radius: 28px; }
+.briefing-side { display: grid; gap: var(--space-6); align-content: start; }
+.briefing-photo { aspect-ratio: 16 / 9; border-radius: 16px; }
+.photo-band { padding-block: var(--space-12) 0; }
+.band-photo { aspect-ratio: 21 / 9; border-radius: 28px; }
+
+/* Mint surfaces: the brand's callout colour, as Swift uses its own. */
+.briefing,
+.cta-banner { background: var(--accent-soft); border-color: transparent; box-shadow: none; }
+.briefing .prose p,
+.cta-banner p,
+.briefing-link-desc { color: var(--ink-soft); }
+.briefing-links,
+.briefing-link { border-color: color-mix(in srgb, var(--ink) 14%, transparent); }
+
+/* ---- homepage banner ----
+   A full-bleed photograph with the headline on a solid card over its
+   lower edge. The text never sits on the photo, so every pair stays
+   measurable at 7:1; the photo is decorative (alt=""). */
+.hero-banner { position: relative; background: var(--bg); }
+.hero-banner-photo {
+  display: block;
+  inline-size: min(100% - 2rem, 100rem);
+  block-size: auto;
+  aspect-ratio: 21 / 9;
+  margin: var(--space-6) auto 0;
+  object-fit: cover;
+  border-radius: 28px;
+  background: var(--surface-soft);
+}
+.hero-banner-inner { position: relative; margin-block-start: clamp(-14rem, -12vw, -3rem); padding-block-end: var(--space-12); }
+.hero-card {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+  max-inline-size: 46rem;
+  padding: clamp(var(--space-6), 4vw, var(--space-12));
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--lift);
+}
+.hero-card h1 { font-size: clamp(2.375rem, 1.6rem + 2.8vw, 4rem); letter-spacing: -0.04em; line-height: 1.03; }
+/* The hero's install command: one line with the shared copy button. */
+.hero-install {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-block-size: 3.25rem;
+  padding: var(--space-2) 6rem var(--space-2) var(--space-4);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--code-bar);
+}
+.hero-install code { background: none; padding: 0; color: var(--code-plain); font-size: 0.9375rem; }
+.hero-install .copy-btn { inset-block-start: 50%; inset-inline-end: var(--space-1); transform: translateY(-50%); }
+.hero-banner + .hero-centred { padding-block-start: var(--space-12); }
+.hero-banner + .hero-centred h2 { font-size: var(--t-section); }
+
+/* ---- page hero photo (all other pages) ----
+   One shape at every width: the 2:1 file is shown whole inside the
+   content column, so a phone, a laptop and an 8K screen all see the same
+   framing (scripts/import_photos.py makes the only crop). */
+.page-photo {
+  display: block;
+  inline-size: min(100% - 2rem, 76rem);
+  block-size: auto;
+  aspect-ratio: 2 / 1;
+  margin: var(--space-6) auto 0;
+  object-fit: cover;
+  border-radius: 20px;
+  background: var(--surface-soft);
+}
+/* On a laptop the 2 : 1 band at 76rem is about 600px tall and pushes the
+   page headline below the fold; from 64rem cap the height and let
+   object-fit keep the crop. The aspect-ratio still sizes the box before
+   the image arrives, so nothing shifts. */
+@media (min-width: 64rem) { .page-photo { max-block-size: 24rem; } }

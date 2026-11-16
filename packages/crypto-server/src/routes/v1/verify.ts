@@ -19,7 +19,8 @@ import {
   validateRequiredString,
 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
-import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { sendProblem } from "../../lib/problem";
+import { bodyProblems } from "../../utils/response-schemas";
 
 /** Fastify JSON Schema for the v1 signature-verification endpoint. */
 const verifySchema = {
@@ -30,6 +31,8 @@ const verifySchema = {
     "Verifies a clear-signed PGP message, or a message and its base64-encoded detached signature, against the supplied verification keys. `verified` is true only when every signature found verifies; input that carries no signature answers 400.",
   response: {
     200: {
+      description:
+        "Whether the signature verified, with the signed text and signer key IDs.",
       type: "object",
       additionalProperties: true,
       properties: {
@@ -43,8 +46,7 @@ const verifySchema = {
         },
       },
     },
-    400: PROBLEM_SCHEMA,
-    401: PROBLEM_SCHEMA,
+    ...bodyProblems(),
   },
   body: {
     type: "object",

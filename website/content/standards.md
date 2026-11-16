@@ -8,7 +8,7 @@ layout: page
 author: "Sebastien Rousseau"
 name: "Crypto Service"
 language: en-GB
-date: "2026-09-28"
+date: "2026-11-15"
 logo_alt: "Crypto Service Suite logo"
 light_trace_alt: "Pastel morphing gradient with organic glass droplets"
 ---
@@ -74,9 +74,23 @@ This matrix lists the standards whose algorithms or formats Crypto Service Suite
 <tr id="hpke">
 <td><strong>RFC 9180</strong></td>
 <td>IETF</td>
-<td>Hybrid Public Key Encryption (HPKE), base and PSK modes, checked against the RFC 9180 test vectors. The hybrid X25519 + ML-KEM KEM uses a library-specific combiner, not RFC 10024.</td>
-<td><code>@sebastienrousseau/crypto-lib</code> (X25519 + ML-KEM)</td>
+<td>Hybrid Public Key Encryption (HPKE), base and PSK modes, checked against the RFC 9180 test vectors. The post-quantum suite is X-Wing (KEM <code>0x647A</code>, draft-connolly-cfrg-xwing-kem), tested against the draft's vectors; the earlier <code>x25519-ml-kem-768</code> suite is deprecated.</td>
+<td><code>@sebastienrousseau/crypto-lib</code> (X-Wing, X25519, P-256)</td>
 <td><span class="badge-status">Implemented (not validated)</span></td>
+</tr>
+<tr id="composite">
+<td><strong>Composite ML-DSA (IETF draft)</strong></td>
+<td>IETF LAMPS</td>
+<td>Hybrid signatures in which neither half verifies alone (draft-ietf-lamps-pq-composite-sigs, revision 19)</td>
+<td><code>@sebastienrousseau/crypto-lib</code> (ML-DSA-44 and ML-DSA-65 with Ed25519)</td>
+<td><span class="badge-status">Implemented against a draft (not validated)</span></td>
+</tr>
+<tr id="hybrid-kem">
+<td><strong>Hybrid KEM combiner (project ADR 0004)</strong></td>
+<td>Crypto Service</td>
+<td>X25519 + ML-KEM-768 secrets combined once (v2), binding both ciphertexts and both public keys; used by the sealed box, multi-recipient envelope and post-quantum streams. RFC 10024's TLS group names are exported as reference constants only and are not implemented.</td>
+<td><code>@sebastienrousseau/crypto-lib</code></td>
+<td><span class="badge-status">Project-specific construction</span></td>
 </tr>
 <tr id="dora">
 <td><strong>EU DORA (Regulation 2022/2554)</strong></td>
@@ -116,17 +130,17 @@ This matrix lists the standards whose algorithms or formats Crypto Service Suite
 <h3>Coverage Gates</h3>
 </div>
 <p>
-Every package enforces 100% <strong>line and function</strong> coverage in CI, and every package except crypto-lib (99.5%) enforces 100% <strong>branch</strong> coverage. Statement coverage is not separately gated.
+All 18 packages enforce 100% <strong>statement, branch, function and line</strong> coverage in CI (c8 with mocha). Coverage shows what the tests execute, not that the code is correct.
 </p>
 </div>
 
 <div class="card">
 <div class="card-icon-header">
-<span class="font-mono card-kpi">6</span>
+<span class="font-mono card-kpi">7</span>
 <h3>Small, Known Runtime Dependencies</h3>
 </div>
 <p>
-<code>@sebastienrousseau/crypto-lib</code> has six runtime dependencies: <code>@noble/ciphers</code>, <code>@noble/curves</code>, <code>@noble/hashes</code>, <code>@noble/post-quantum</code>, <code>openpgp</code> and <code>@openpgp/web-stream-tools</code>. Lattice operations, NTTs and hash functions come from these libraries; they are not implemented in crypto-lib.
+<code>@sebastienrousseau/crypto-lib</code> has seven runtime dependencies: <code>@noble/ciphers</code>, <code>@noble/curves</code>, <code>@noble/hashes</code>, <code>@noble/post-quantum</code>, <code>openpgp</code>, <code>@openpgp/web-stream-tools</code> and <code>eckey-utils</code> (which OpenPGP.js needs for Brainpool curves). Lattice operations, NTTs and hash functions come from these libraries, or from the runtime's OpenSSL where Node.js 24.7 and later provides them; they are not implemented in crypto-lib.
 </p>
 </div>
 

@@ -34,7 +34,7 @@ function findSsgBinary() {
   const candidatePaths = [
     path.join(
       process.env.HOME || "",
-      ".local/share/mise/installs/cargo-ssg/0.0.63/bin/ssg",
+      ".local/share/mise/installs/cargo-ssg/0.0.76/bin/ssg",
     ),
     path.join(process.env.HOME || "", ".cargo/bin/ssg"),
     "/usr/local/bin/ssg",
@@ -141,43 +141,24 @@ if (fs.existsSync(cryptoLibDocs)) {
         path.join(SITE_DIR, "crypto-lib.html"),
       );
     } else {
-      const destPath = path.join(SITE_DIR, item);
-      if (!fs.existsSync(destPath)) {
-        fs.cpSync(path.join(cryptoLibDocs, item), destPath, {
-          recursive: true,
-        });
-      }
+      // Merge without overwriting: the portal's own files win, and
+      // TypeDoc's assets/ (style.css, main.js) still land next to the
+      // portal's assets/ so the root-level pages keep their styling.
+      fs.cpSync(path.join(cryptoLibDocs, item), path.join(SITE_DIR, item), {
+        recursive: true,
+        force: false,
+      });
     }
   }
 }
 
-// Write root index.html as an instant redirect to https://crypto-service.co/ecosystem/
-const redirectHtml = `<!DOCTYPE html>
-<html lang="en-GB">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Redirecting to Crypto Service Ecosystem...</title>
-    <meta http-equiv="refresh" content="0; url=https://crypto-service.co/ecosystem/" />
-    <link rel="canonical" href="https://crypto-service.co/ecosystem/" />
-    <script>
-      window.location.replace("https://crypto-service.co/ecosystem/");
-    </script>
-  </head>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #faf9f6; color: #005950;">
-    <div style="text-align: center; padding: 2rem;">
-      <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Redirecting to Ecosystem...</h1>
-      <p style="color: #4b635f;">If you are not redirected automatically, <a href="https://crypto-service.co/ecosystem/" style="color: #005950; font-weight: 700;">click here to visit the Crypto Service Ecosystem</a>.</p>
-    </div>
-  </body>
-</html>
-`;
-fs.writeFileSync(path.join(SITE_DIR, "index.html"), redirectHtml);
+// The root index.html is the portal home rendered by ssg (PRISM layouts in
+// website/_layouts). It used to be overwritten with a redirect to
+// https://crypto-service.co/ecosystem/, which made the "Docs" link on
+// crypto-service.co bounce straight back to the site; the portal now
+// serves its own home, which links to the ecosystem page.
 
 console.log(
   "==> Unified Crypto Service documentation portal assembled at _site!",
-);
-console.log(
-  "==> Root index.html configured to redirect to https://crypto-service.co/ecosystem/",
 );
 console.log(`==> Total workspace packages indexed: ${packageMeta.length}`);

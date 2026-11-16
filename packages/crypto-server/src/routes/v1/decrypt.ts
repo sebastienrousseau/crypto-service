@@ -15,7 +15,8 @@ import { decrypt } from "@sebastienrousseau/crypto-lib/pgp";
 import { IBodyDecrypt } from "../../@types/types";
 import { validateRequiredString, validateBase64 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
-import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { sendProblem } from "../../lib/problem";
+import { bodyProblems } from "../../utils/response-schemas";
 import { serverPgpPrivateKey } from "../../utils/keys";
 
 /** Fastify JSON Schema for the v1 decrypt endpoint. */
@@ -27,6 +28,7 @@ const decryptSchema = {
     "Decrypts a PGP message encrypted to the server's key pair (CRYPTO_KEY_DIR), unlocked with the passphrase. The API never takes a private key.",
   response: {
     200: {
+      description: "The decrypted message and whether its signature verified.",
       type: "object",
       properties: {
         data: {
@@ -38,8 +40,7 @@ const decryptSchema = {
         },
       },
     },
-    400: PROBLEM_SCHEMA,
-    401: PROBLEM_SCHEMA,
+    ...bodyProblems(),
   },
   body: {
     type: "object",

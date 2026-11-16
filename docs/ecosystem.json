@@ -1,0 +1,107 @@
+{
+  "$comment": "SPDX-License-Identifier: Apache-2.0 OR MIT. The Crypto Service suite: every member releases the same version (docs/adr/0005-suite-lockstep-with-sdks-and-site.md). scripts/check-ecosystem.mjs verifies each member against this file.",
+  "owner": "sebastienrousseau",
+  "members": [
+    {
+      "name": "crypto-service",
+      "kind": "core",
+      "language": "TypeScript",
+      "repo": "crypto-service",
+      "purpose": "18 npm packages: crypto-lib, crypto-server (REST API), CLI, TypeScript SDK, framework and ORM integrations, KMS, MCP and LSP servers.",
+      "registry": {
+        "type": "npm",
+        "ids": [
+          "@sebastienrousseau/crypto-api",
+          "@sebastienrousseau/crypto-benchmarks",
+          "@sebastienrousseau/crypto-cbom",
+          "@sebastienrousseau/crypto-cli",
+          "@sebastienrousseau/crypto-edge",
+          "@sebastienrousseau/crypto-kms",
+          "@sebastienrousseau/crypto-lib",
+          "@sebastienrousseau/crypto-lsp",
+          "@sebastienrousseau/crypto-mcp",
+          "@sebastienrousseau/crypto-middleware",
+          "@sebastienrousseau/crypto-prisma",
+          "@sebastienrousseau/crypto-react",
+          "@sebastienrousseau/crypto-sdk",
+          "@sebastienrousseau/crypto-server",
+          "@sebastienrousseau/crypto-testing",
+          "@sebastienrousseau/crypto-typeorm",
+          "@sebastienrousseau/crypto-vue",
+          "@sebastienrousseau/crypto-wasm"
+        ]
+      },
+      "releaseAssets": ["crypto-service-${version}.intoto.jsonl"]
+    },
+    {
+      "name": "crypto-service-sdk-java",
+      "kind": "sdk",
+      "language": "Java",
+      "repo": "crypto-service-sdk-java",
+      "purpose": "Async-first Java client (CompletableFuture) for the crypto-server REST API.",
+      "registry": {
+        "type": "maven",
+        "ids": ["co.crypto-service:crypto-service-sdk"]
+      },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service-sdk-rust",
+      "kind": "sdk",
+      "language": "Rust",
+      "repo": "crypto-service-sdk-rust",
+      "purpose": "Async-first Rust client (tokio, optional blocking feature) for the crypto-server REST API.",
+      "registry": { "type": "crates", "ids": ["crypto-service-sdk"] },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service-sdk-go",
+      "kind": "sdk",
+      "language": "Go",
+      "repo": "crypto-service-sdk-go",
+      "purpose": "Go client (context.Context, safe for concurrent use) for the crypto-server REST API.",
+      "registry": {
+        "type": "go",
+        "ids": ["github.com/sebastienrousseau/crypto-service-sdk-go"]
+      },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service-sdk-cpp",
+      "kind": "sdk",
+      "language": "C++",
+      "repo": "crypto-service-sdk-cpp",
+      "purpose": "C++17 client (std::future async client and blocking client) for the crypto-server REST API.",
+      "registry": { "type": "github-release", "ids": ["crypto_service_sdk"] },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service-sdk-dotnet",
+      "kind": "sdk",
+      "language": ".NET",
+      "repo": "crypto-service-sdk-dotnet",
+      "purpose": "Async .NET client (Task, CancellationToken) for the crypto-server REST API.",
+      "registry": { "type": "nuget", "ids": ["CryptoService.Sdk"] },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service-sdk-python",
+      "kind": "sdk",
+      "language": "Python",
+      "repo": "crypto-service-sdk-python",
+      "purpose": "Async-first Python client (asyncio and sync) for the crypto-server REST API.",
+      "registry": { "type": "pypi", "ids": ["crypto-service-sdk-python"] },
+      "releaseAssets": ["SHA256SUMS"]
+    },
+    {
+      "name": "crypto-service.github.io",
+      "kind": "site",
+      "language": "HTML",
+      "repo": "crypto-service.github.io",
+      "purpose": "crypto-service.co: product site, SDK pages and the published OpenAPI document.",
+      "registry": { "type": "none", "ids": [] },
+      "versionFile": "VERSION",
+      "releaseAssets": []
+    }
+  ]
+}

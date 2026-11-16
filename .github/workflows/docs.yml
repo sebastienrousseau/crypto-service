@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
@@ -34,12 +34,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - name: Install cargo-binstall
-        uses: cargo-bins/cargo-binstall@81df5c23b0dc775b009efdfc9895c5965b7a4e40 # v1.26.1
+        uses: cargo-bins/cargo-binstall@851112458b5f28a29e5bc14a690c3f283d9dcc6f # v1.26.2
       - name: Install ssg
         run: |
-          cargo binstall --no-confirm ssg@0.0.63
+          cargo binstall --no-confirm ssg@0.0.76
           ssg --version
-      - name: Build Voxt documentation portal & package references
+      - name: Build the PRISM documentation portal & package references
         run: node scripts/build-docs.mjs
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

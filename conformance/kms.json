@@ -1,0 +1,315 @@
+{
+  "group": "kms",
+  "description": "KMS routes on the in-memory local provider (KMS_PROVIDERS unset or local). Ciphertexts are opaque provider strings.",
+  "vectors": [
+    {
+      "id": "create-key",
+      "description": "Create an AES-256-GCM encryption key.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/create-key",
+        "body": {}
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "keyId": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^local-[0-9a-f]+$"
+              }
+            },
+            "algorithm": "aes-256-gcm",
+            "usage": "encrypt",
+            "createdAt": {
+              "$shape": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "enabled": true,
+            "provider": "local",
+            "currentVersion": 1
+          }
+        }
+      },
+      "capture": {
+        "keyId": "/data/keyId"
+      }
+    },
+    {
+      "id": "encrypt",
+      "description": "Encrypt UTF-8 plaintext.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/encrypt",
+        "body": {
+          "keyId": "${keyId}",
+          "plaintext": "kms secret"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string"
+              }
+            },
+            "keyId": "${keyId}",
+            "keyVersion": 1,
+            "provider": "local"
+          }
+        }
+      },
+      "capture": {
+        "ct": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "decrypt",
+      "description": "Decrypt it: text and hex.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/decrypt",
+        "body": {
+          "keyId": "${keyId}",
+          "ciphertext": "${ct}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "kms secret",
+            "hex": "6b6d7320736563726574",
+            "keyId": "${keyId}",
+            "provider": "local"
+          }
+        }
+      }
+    },
+    {
+      "id": "encrypt-hex",
+      "description": "With encoding hex, plaintext is bytes.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/encrypt",
+        "body": {
+          "keyId": "${keyId}",
+          "plaintext": "00ff",
+          "encoding": "hex"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "ciphertext": {
+              "$shape": {
+                "type": "string"
+              }
+            },
+            "keyId": "${keyId}",
+            "keyVersion": 1,
+            "provider": "local"
+          }
+        }
+      },
+      "capture": {
+        "ctHex": "/data/ciphertext"
+      }
+    },
+    {
+      "id": "decrypt-hex",
+      "description": "The bytes come back as hex (and as text, U+FFFD for invalid UTF-8).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/decrypt",
+        "body": {
+          "keyId": "${keyId}",
+          "ciphertext": "${ctHex}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": "\u0000�",
+            "hex": "00ff",
+            "keyId": "${keyId}",
+            "provider": "local"
+          }
+        }
+      }
+    },
+    {
+      "id": "generate-data-key",
+      "description": "A data key, clear and wrapped.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/generate-data-key",
+        "body": {
+          "keyId": "${keyId}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "plaintext": {
+              "$shape": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "ciphertext": {
+              "$shape": {
+                "type": "string"
+              }
+            },
+            "keyId": "${keyId}",
+            "provider": "local"
+          }
+        }
+      }
+    },
+    {
+      "id": "wrap",
+      "description": "Wrap 32 key bytes.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/wrap",
+        "body": {
+          "keyId": "${keyId}",
+          "unwrappedKey": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "wrappedKey": {
+              "$shape": {
+                "type": "string"
+              }
+            },
+            "keyId": "${keyId}",
+            "provider": "local"
+          }
+        }
+      },
+      "capture": {
+        "wrapped": "/data/wrappedKey"
+      }
+    },
+    {
+      "id": "unwrap",
+      "description": "Unwrap them.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/unwrap",
+        "body": {
+          "keyId": "${keyId}",
+          "wrappedKey": "${wrapped}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "unwrappedKey": "1111111111111111111111111111111111111111111111111111111111111111",
+            "keyId": "${keyId}",
+            "provider": "local"
+          }
+        }
+      }
+    },
+    {
+      "id": "unknown-key",
+      "description": "A key the provider does not have (crypto:admin may name keys the API did not create).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/encrypt",
+        "body": {
+          "keyId": "local-00",
+          "plaintext": "x"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:kms-key-not-found",
+          "title": "KMS key not found",
+          "status": 404,
+          "detail": "KMS Encrypt failed",
+          "instance": "/v2/kms/encrypt",
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "id": "unknown-key-not-admin",
+      "description": "Without crypto:admin, a key this principal did not create is unknown.",
+      "auth": {
+        "scopes": ["crypto:encrypt"]
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/encrypt",
+        "body": {
+          "keyId": "local-00",
+          "plaintext": "x"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:kms-key-not-found",
+          "title": "KMS key not found",
+          "status": 404,
+          "detail": "Unknown KMS key",
+          "instance": "/v2/kms/encrypt"
+        }
+      }
+    },
+    {
+      "id": "provider-not-enabled",
+      "description": "A provider KMS_PROVIDERS does not list.",
+      "request": {
+        "method": "POST",
+        "path": "/v2/kms/create-key",
+        "body": {
+          "provider": "aws"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:kms-provider-not-enabled",
+          "title": "KMS provider not enabled",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/kms/create-key"
+        }
+      }
+    }
+  ]
+}

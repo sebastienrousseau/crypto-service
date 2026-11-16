@@ -5,6 +5,10 @@
 
 import type { FastifyInstance } from "fastify";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import { base64, dataRoute, fields, hex } from "../../utils/response-schemas";
+
+/** The `algorithm` of a key-wrap request and result. */
+const KW_ALGORITHM = { type: "string", enum: ["aes-kw", "aes-kwp"] } as const;
 
 /** Registers /v2/keys/wrap. */
 function registerKeysWrap(app: FastifyInstance): void {
@@ -21,9 +25,16 @@ function registerKeysWrap(app: FastifyInstance): void {
           properties: {
             kek: { type: "string", minLength: 1 },
             keyToWrap: { type: "string", minLength: 1 },
-            algorithm: { type: "string", enum: ["aes-kw", "aes-kwp"] },
+            algorithm: KW_ALGORITHM,
           },
         },
+        response: dataRoute(
+          "The wrapped key.",
+          fields({
+            wrapped: base64("The wrapped key (RFC 3394 / RFC 5649 output)."),
+            algorithm: KW_ALGORITHM,
+          }),
+        ),
       },
     },
     async (request, reply) => {
@@ -62,9 +73,13 @@ function registerKeysUnwrap(app: FastifyInstance): void {
           properties: {
             kek: { type: "string", minLength: 1 },
             wrappedKey: { type: "string", minLength: 1 },
-            algorithm: { type: "string", enum: ["aes-kw", "aes-kwp"] },
+            algorithm: KW_ALGORITHM,
           },
         },
+        response: dataRoute(
+          "The unwrapped key; data is the key itself, not an object.",
+          hex("The unwrapped key."),
+        ),
       },
     },
     async (request, reply) => {

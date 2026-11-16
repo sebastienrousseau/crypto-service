@@ -17,6 +17,7 @@ import verifyRoute from "./v1/verify";
 import v2Routes from "./v2";
 import probeRoutes from "./probes";
 import { v1Enabled } from "../config/env";
+import { addSharedSchemas } from "../utils/response-schemas";
 
 /**
  * RFC 9745 `Deprecation`: when v1 was deprecated, 2026-08-21 (commit
@@ -33,6 +34,9 @@ export const V1_MIGRATION_LINK =
 
 /** Registers all API route groups (v1, v2, probes) on the Fastify instance. */
 export default (app: fastify.FastifyInstance): void => {
+  // The problem schema every route's error responses reference.
+  addSharedSchemas(app);
+
   // v1: OpenPGP-based operations, deprecated (see MIGRATION.md).
   // V1_ENABLED=0 removes them before their sunset.
   if (v1Enabled()) {

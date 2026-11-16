@@ -9,6 +9,41 @@ import type {
   VerifyPasswordResult,
 } from "@sebastienrousseau/crypto-lib/modern";
 import { classifyCryptoError } from "../../utils/route-helpers";
+import {
+  dataRoute,
+  fields,
+  flag,
+  hex,
+  integer,
+  literal,
+} from "../../utils/response-schemas";
+
+/** Argon2id parameters, as the hash route answers and verify takes them. */
+const ARGON2_PARAMS = fields(
+  {
+    t: integer("Passes (time cost)."),
+    m: integer("Memory in KiB."),
+    p: integer("Lanes (parallelism)."),
+  },
+  "Argon2id parameters; pass them back to verify.",
+);
+
+/** What `POST /v2/password/hash` answers (503: the worker pool is busy). */
+const HASH_RESPONSE = dataRoute(
+  "The Argon2id hash and everything needed to verify it.",
+  fields({
+    hash: hex("The 32-byte Argon2id hash."),
+    salt: hex("The random 16-byte salt."),
+    params: ARGON2_PARAMS,
+    algorithm: literal("argon2id", "Password hashing algorithm."),
+    phc: {
+      type: "string",
+      description:
+        "The same hash as a PHC string ($argon2id$v=19$m=..,t=..,p=..$salt$hash, unpadded base64 fields).",
+    },
+  }),
+  503,
+);
 
 /**
  * OWASP Password Storage Cheat Sheet floor for new Argon2id hashes:
@@ -51,6 +86,7 @@ function registerHash(app: FastifyInstance): void {
             parallelism: { type: "integer", minimum: 1, maximum: 8 },
           },
         },
+        response: HASH_RESPONSE,
       },
     },
     async (request, reply) => {
@@ -102,6 +138,11 @@ function registerVerify(app: FastifyInstance): void {
             },
           },
         },
+        response: dataRoute(
+          "Whether the password matches the hash.",
+          fields({ valid: flag("Whether the password matches.") }),
+          503,
+        ),
       },
     },
     async (request, reply) => {

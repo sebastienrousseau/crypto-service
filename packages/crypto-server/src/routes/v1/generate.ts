@@ -28,7 +28,8 @@ import {
   validateEnum,
 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
-import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { sendProblem } from "../../lib/problem";
+import { bodyProblems } from "../../utils/response-schemas";
 
 /** Fastify JSON Schema for the v1 key-generation endpoint. */
 const generateSchema = {
@@ -39,6 +40,8 @@ const generateSchema = {
     "Generates an OpenPGP key pair (RSA or ECC). The private key is NOT returned for security.",
   response: {
     200: {
+      description:
+        "The armored public key and revocation certificate; the private key is not returned.",
       type: "object",
       properties: {
         data: {
@@ -51,8 +54,7 @@ const generateSchema = {
         warning: { type: "string" },
       },
     },
-    400: PROBLEM_SCHEMA,
-    401: PROBLEM_SCHEMA,
+    ...bodyProblems(),
   },
   body: {
     type: "object",

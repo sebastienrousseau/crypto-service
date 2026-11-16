@@ -404,17 +404,20 @@ describe("threshold — generateFeldmanCommitments validation", () => {
 
 // --- threshold.ts: hexToBytes invalid hex (lines 64-65) ---
 import { verifyFeldmanShare } from "../src/protocols/threshold";
+import { CryptoError, CryptoErrorCode } from "../src/errors";
 
 describe("threshold — hexToBytes invalid hex", () => {
-  it("should throw when commitment hex is invalid", () => {
+  // The same CryptoError on every runtime: Node 26's native
+  // Uint8Array.fromHex, which noble uses, throws its own SyntaxError.
+  it("should throw INVALID_HEX when commitment hex is invalid", () => {
     const share = { index: 1, value: "ab".repeat(32) };
     const commitments = {
       commitments: ["zz-not-hex", "ab".repeat(32)],
       algorithm: "feldman-vss-ed25519" as const,
     };
-    expect(() => verifyFeldmanShare(share, commitments)).to.throw(
-      /[Ii]nvalid.*hex|hex string expected/,
-    );
+    expect(() => verifyFeldmanShare(share, commitments))
+      .to.throw(CryptoError, "Invalid hex string")
+      .with.property("code", CryptoErrorCode.INVALID_HEX);
   });
 });
 

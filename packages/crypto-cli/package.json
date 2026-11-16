@@ -27,7 +27,7 @@
     "@sebastienrousseau/crypto-cbom": "workspace:*",
     "@sebastienrousseau/crypto-kms": "workspace:*",
     "@sebastienrousseau/crypto-lib": "workspace:*",
-    "commander": "^15.0.0",
+    "commander": "^15.1.0",
     "figlet": "^1.12.0",
     "kleur": "^4.1.5",
     "prompts": "^2.4.2"
@@ -42,9 +42,9 @@
     "@sebastienrousseau/prettier-config": "^0.0.7",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
-    "@types/figlet": "^1.5.6",
+    "@types/figlet": "^1.12.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/prompts": "^2.4.5",
     "c8": "^12.0.0",
     "chai": "^6.3.0",
@@ -52,7 +52,7 @@
     "filesizes": "^0.1.2",
     "mocha": "^12.0.3",
     "prettier": "^3.9.10",
-    "rimraf": "^6.1.3",
+    "rimraf": "^6.1.4",
     "ts-node": "^10.9.1",
     "typedoc": "^0.28.20",
     "typedoc-plugin-missing-exports": "^4.1.4",
@@ -124,5 +124,5 @@
     "docs": "typedoc"
   },
   "sideEffects": false,
-  "version": "0.0.39"
+  "version": "0.0.40"
 }

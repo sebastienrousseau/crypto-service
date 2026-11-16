@@ -18,7 +18,8 @@ import {
   validateRequiredNumber,
 } from "../../utils/validation";
 import { collectValidation } from "../../utils/route-helpers";
-import { PROBLEM_SCHEMA, sendProblem } from "../../lib/problem";
+import { sendProblem } from "../../lib/problem";
+import { bodyProblems } from "../../utils/response-schemas";
 
 /** Fastify JSON Schema for the v1 key-revocation endpoint. */
 const revokeSchema = {
@@ -29,6 +30,7 @@ const revokeSchema = {
     "Revokes the shipped key pair with a reason code (0=unspecified, 1=superseded, 2=compromised, 3=retired). Returns the revoked public key only.",
   response: {
     200: {
+      description: "The revoked armored public key.",
       type: "object",
       additionalProperties: false,
       properties: {
@@ -39,8 +41,7 @@ const revokeSchema = {
         },
       },
     },
-    400: PROBLEM_SCHEMA,
-    401: PROBLEM_SCHEMA,
+    ...bodyProblems(),
   },
   body: {
     type: "object",

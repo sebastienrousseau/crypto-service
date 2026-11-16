@@ -1,0 +1,204 @@
+{
+  "group": "hash",
+  "description": "Digests of fixed input; every expected value is exact.",
+  "vectors": [
+    {
+      "id": "hash-sha256-abc",
+      "description": "sha256 of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha256",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            "algorithm": "sha256",
+            "length": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-sha384-abc",
+      "description": "sha384 of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha384",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7",
+            "algorithm": "sha384",
+            "length": 48
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-sha512-abc",
+      "description": "sha512 of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha512",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+            "algorithm": "sha512",
+            "length": 64
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-sha3-256-abc",
+      "description": "sha3-256 of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha3-256",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532",
+            "algorithm": "sha3-256",
+            "length": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-sha3-512-abc",
+      "description": "sha3-512 of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "sha3-512",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0",
+            "algorithm": "sha3-512",
+            "length": 64
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-blake2b-abc",
+      "description": "blake2b of the UTF-8 bytes of \"abc\" (expected value from OpenSSL).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "blake2b",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923",
+            "algorithm": "blake2b",
+            "length": 64
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-blake3-abc",
+      "description": "BLAKE3 of \"abc\" (BLAKE3 reference value).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "blake3",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "digest": "6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85",
+            "algorithm": "blake3",
+            "length": 32
+          }
+        }
+      }
+    },
+    {
+      "id": "hash-unknown-algorithm",
+      "description": "An algorithm outside the enum fails validation (400, not 422).",
+      "request": {
+        "method": "POST",
+        "path": "/v2/hash",
+        "body": {
+          "algorithm": "md5",
+          "data": "abc"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/hash",
+          "errors": [
+            {
+              "field": "/algorithm",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

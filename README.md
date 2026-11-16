@@ -93,7 +93,7 @@ pnpm add @sebastienrousseau/crypto-server
 pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-All 18 packages share one version: this tree is 0.0.39. Releases
+All 18 packages share one version: this tree is 0.0.40. Releases
 before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
 crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 
@@ -168,7 +168,7 @@ crypto-cli verify --key-file signer.json --signature-file note.sig note.txt
 
 ## The Crypto Service ecosystem
 
-All 18 packages follow a coordinated versioning policy with automated CI enforcement and lockstep releases.
+The suite is eight repositories released at one version ([ADR 0005](docs/adr/0005-suite-lockstep-with-sdks-and-site.md)): this one, with its 18 npm packages, six language SDKs and the site. `docs/ecosystem.json` lists them, and the Suite consistency workflow checks after each release that every member published that version.
 
 > [!NOTE]
 > **Registry availability**: from 0.0.8 every package is published to npm and GitHub Packages on each tagged release. Earlier npm versions of `@sebastienrousseau/crypto-service`, `crypto-lib`, `crypto-server` and `crypto-cli` predate this repository's fixes; use 0.0.8 or later.
@@ -177,7 +177,7 @@ All 18 packages follow a coordinated versioning policy with automated CI enforce
 | :------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------- | :-------------------- |
 | [`@sebastienrousseau/crypto-lib`](packages/crypto-lib)               | Core crypto library: classical, modern and post-quantum algorithms                   | Standalone library for Node.js, browsers, and Edge   | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-server`](packages/crypto-server)         | Fastify REST API service                                                             | Cryptography-as-a-service microservice               | npm (0.0.8+)          |
-| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Interactive terminal CLI                                                             | DevOps automation, local keygen, and file encryption | npm (0.0.8+)          |
+| [`@sebastienrousseau/crypto-cli`](packages/crypto-cli)               | Terminal CLI with an interactive menu and non-interactive subcommands                | DevOps automation, local keygen, and file encryption | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-sdk`](packages/crypto-sdk)               | Typed TypeScript SDK client for the REST API                                         | Client applications consuming the REST service       | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-api`](packages/crypto-api)               | Postman collection types and a Postman-to-Markdown converter                         | API documentation tooling                            | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-middleware`](packages/crypto-middleware) | Express and Fastify request encryption/decryption middleware                         | Automated payload encryption in HTTP pipelines       | npm (0.0.8+)          |
@@ -193,6 +193,26 @@ All 18 packages follow a coordinated versioning policy with automated CI enforce
 | [`@sebastienrousseau/crypto-lsp`](packages/crypto-lsp)               | Language Server Protocol server for crypto diagnostics & migration                   | IDE real-time analysis, PEM linting, quick fixes     | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-cbom`](packages/crypto-cbom)             | Cryptographic Bill of Materials generator (CycloneDX 1.6 / SPDX 3.0)                 | Cryptographic inventory tracking                     | npm (0.0.8+)          |
 | [`@sebastienrousseau/crypto-benchmarks`](packages/crypto-benchmarks) | Comparative benchmarking suite (classical vs post-quantum)                           | Performance regression testing and throughput checks | npm (0.0.8+)          |
+
+### Language SDKs and the site
+
+The SDKs are thin clients over crypto-server's REST API: they implement no cryptography themselves, and each runs the conformance kit in [`conformance/`](conformance) against the server in CI. They and the site joined the suite at 0.0.40.
+
+<!-- prettier-ignore-start -->
+<!-- ecosystem:start -->
+
+| Member | Language | Purpose | Registry |
+| :--- | :--- | :--- | :--- |
+| [`crypto-service-sdk-java`](https://github.com/sebastienrousseau/crypto-service-sdk-java) | Java | Async-first Java client (CompletableFuture) for the crypto-server REST API. | [Maven Central](https://central.sonatype.com/artifact/co.crypto-service/crypto-service-sdk) `co.crypto-service:crypto-service-sdk` |
+| [`crypto-service-sdk-rust`](https://github.com/sebastienrousseau/crypto-service-sdk-rust) | Rust | Async-first Rust client (tokio, optional blocking feature) for the crypto-server REST API. | [crates.io](https://crates.io/crates/crypto-service-sdk) `crypto-service-sdk` |
+| [`crypto-service-sdk-go`](https://github.com/sebastienrousseau/crypto-service-sdk-go) | Go | Go client (context.Context, safe for concurrent use) for the crypto-server REST API. | [Go module proxy](https://pkg.go.dev/github.com/sebastienrousseau/crypto-service-sdk-go) `github.com/sebastienrousseau/crypto-service-sdk-go` |
+| [`crypto-service-sdk-cpp`](https://github.com/sebastienrousseau/crypto-service-sdk-cpp) | C++ | C++17 client (std::future async client and blocking client) for the crypto-server REST API. | GitHub release (CMake package) `crypto_service_sdk` |
+| [`crypto-service-sdk-dotnet`](https://github.com/sebastienrousseau/crypto-service-sdk-dotnet) | .NET | Async .NET client (Task, CancellationToken) for the crypto-server REST API. | [NuGet](https://www.nuget.org/packages/CryptoService.Sdk) `CryptoService.Sdk` |
+| [`crypto-service-sdk-python`](https://github.com/sebastienrousseau/crypto-service-sdk-python) | Python | Async-first Python client (asyncio and sync) for the crypto-server REST API. | [PyPI](https://pypi.org/project/crypto-service-sdk-python/) `crypto-service-sdk-python` |
+| [`crypto-service.github.io`](https://github.com/sebastienrousseau/crypto-service.github.io) | HTML | crypto-service.co: product site, SDK pages and the published OpenAPI document. | None (website) |
+
+<!-- ecosystem:end -->
+<!-- prettier-ignore-end -->
 
 ---
 

@@ -112,7 +112,7 @@ test:
 	@echo "Run test suite across all packages"
 	@pnpm -r run test
 
-# @HELP Run every CI gate in order (build, lint, format, complexity, script tests, test, docs, manifests, publint/attw, pack smoke test)
+# @HELP Run every CI gate in order (build, lint, format, complexity, script tests, test, docs, manifests, OpenAPI drift, ecosystem and portal theme drift, publint/attw, pack smoke test)
 check:
 	@pnpm -r run build
 	@pnpm -r run lint
@@ -124,6 +124,9 @@ check:
 	@pnpm -r run docs
 	@node scripts/check-manifests.mjs
 	@node scripts/packages-index.mjs --check
+	@node scripts/export-openapi.mjs --check
+	@node scripts/render-ecosystem.mjs --check
+	@node scripts/sync-site-theme.mjs --check
 	@node scripts/check-packages.mjs
 	@./scripts/pack-smoke.sh
 

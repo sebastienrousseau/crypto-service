@@ -74,17 +74,60 @@ export interface Problem {
   [extension: string]: unknown;
 }
 
-/** JSON Schema of a problem body, for route `response` schemas. */
+/**
+ * JSON Schema of a problem body, for route `response` schemas. Extension
+ * members other than the ones listed pass through unchanged.
+ */
 export const PROBLEM_SCHEMA = {
   type: "object",
+  description: "RFC 9457 problem details (application/problem+json).",
+  required: ["type", "title", "status", "detail"],
+  additionalProperties: true,
   properties: {
-    type: { type: "string" },
-    title: { type: "string" },
-    status: { type: "integer" },
-    detail: { type: "string" },
-    instance: { type: "string" },
-    code: { type: "string" },
-    errors: { type: "array" },
+    type: {
+      type: "string",
+      pattern: "^urn:crypto-service:problem:[a-z-]+$",
+      description:
+        "Problem type, `urn:crypto-service:problem:<slug>`; stable and machine-readable.",
+    },
+    title: { type: "string", description: "Summary of the problem type." },
+    status: { type: "integer", description: "HTTP status code." },
+    detail: {
+      type: "string",
+      description: "Explanation of this occurrence, safe to show the client.",
+    },
+    instance: {
+      type: "string",
+      description: "Request path, without the query string.",
+    },
+    code: {
+      type: "string",
+      description:
+        "Error code from crypto-lib, the key store or a KMS provider (e.g. INVALID_HEX, KEY_NOT_FOUND).",
+    },
+    errors: {
+      type: "array",
+      description: "Each field that failed validation (validation-failed).",
+      items: {
+        type: "object",
+        required: ["field", "message"],
+        properties: {
+          field: {
+            type: "string",
+            description: "The field, as a JSON pointer or a body field name.",
+          },
+          message: { type: "string" },
+        },
+      },
+    },
+    limit: {
+      type: "integer",
+      description: "Requests a tenant may make per minute (tenant quota).",
+    },
+    resetSeconds: {
+      type: "integer",
+      description: "Seconds until the tenant quota resets.",
+    },
   },
 } as const;
 

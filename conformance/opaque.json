@@ -1,0 +1,123 @@
+{
+  "group": "opaque",
+  "description": "OPAQUE (RFC 9807). A full handshake needs a client OPAQUE implementation (see crypto-lib protocols.pake); these vectors pin the error contract.",
+  "vectors": [
+    {
+      "id": "login-finish-unknown-session",
+      "description": "The login routes are public; an unknown session is invalid input.",
+      "auth": "none",
+      "request": {
+        "method": "POST",
+        "path": "/v2/opaque/login/finish",
+        "body": {
+          "sessionId": "unknown",
+          "ke3": "00"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:invalid-input",
+          "title": "Invalid input",
+          "status": 400,
+          "detail": "Invalid or expired login session",
+          "instance": "/v2/opaque/login/finish",
+          "code": "INVALID_SESSION"
+        }
+      }
+    },
+    {
+      "id": "login-init-not-hex",
+      "description": "ke1 must be hex.",
+      "auth": "none",
+      "request": {
+        "method": "POST",
+        "path": "/v2/opaque/login/init",
+        "body": {
+          "credentialIdentifier": "user",
+          "ke1": "zz"
+        }
+      },
+      "expect": {
+        "status": 400,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:validation-failed",
+          "title": "Validation failed",
+          "status": 400,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/opaque/login/init",
+          "errors": [
+            {
+              "field": "/ke1",
+              "message": {
+                "$shape": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "register-other-subject",
+      "description": "Without crypto:admin, a principal registers only its own subject.",
+      "auth": {
+        "scopes": []
+      },
+      "request": {
+        "method": "POST",
+        "path": "/v2/opaque/register/init",
+        "body": {
+          "credentialIdentifier": "someone-else",
+          "request": "00"
+        }
+      },
+      "expect": {
+        "status": 403,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:forbidden",
+          "title": "Forbidden",
+          "status": 403,
+          "detail": "A credential can only be registered for the caller's own subject",
+          "instance": "/v2/opaque/register/init"
+        }
+      }
+    },
+    {
+      "id": "register-needs-credentials",
+      "description": "Registration is not public.",
+      "auth": "none",
+      "request": {
+        "method": "POST",
+        "path": "/v2/opaque/register/finish",
+        "body": {
+          "credentialIdentifier": "user",
+          "record": "00"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "mediaType": "application/problem+json",
+        "body": {
+          "type": "urn:crypto-service:problem:unauthorized",
+          "title": "Unauthorized",
+          "status": 401,
+          "detail": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "instance": "/v2/opaque/register/finish"
+        }
+      }
+    }
+  ]
+}

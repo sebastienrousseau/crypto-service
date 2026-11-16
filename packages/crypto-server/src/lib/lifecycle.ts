@@ -14,6 +14,7 @@
 
 import type { EventEmitter } from "events";
 import type { FastifyInstance } from "fastify";
+import type { AddressInfo } from "net";
 import type { Logger } from "pino";
 import { loadConfig } from "../config/env";
 import { init } from "../server";
@@ -84,7 +85,9 @@ export async function start(options: StartOptions): Promise<FastifyInstance> {
   const config = loadConfig(options.env);
   const server = await init();
   await server.listen({ port: config.port, host: config.host });
-  const base = `${config.protocol}://${config.host}:${server.addresses()[0]!.port}`;
+  // Listening on host:port (never a pipe), so Node reports an AddressInfo.
+  const { port } = server.addresses()[0] as AddressInfo;
+  const base = `${config.protocol}://${config.host}:${port}`;
   options.log.info(`Server listening on ${base}/`);
   options.log.info(`Swagger docs at ${base}/docs`);
 

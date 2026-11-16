@@ -1,0 +1,144 @@
+{
+  "group": "meta",
+  "description": "Service metadata, algorithm catalogue and compliance documents.",
+  "vectors": [
+    {
+      "id": "root",
+      "description": "Service metadata, not wrapped in data.",
+      "request": {
+        "method": "GET",
+        "path": "/"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "id": {
+            "$shape": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "title": "Welcome to Crypto Server",
+          "description": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "details": {
+            "$shape": {
+              "type": "string"
+            }
+          },
+          "license": "MIT",
+          "url": "https://crypto-server.com",
+          "version": {
+            "$shape": {
+              "type": "string",
+              "pattern": "^\"[0-9]+\\.[0-9]+\\.[0-9]+\"$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "algorithms",
+      "description": "Algorithm identifiers by category.",
+      "request": {
+        "method": "GET",
+        "path": "/v2/algorithms"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "$shape": {
+              "type": "object",
+              "required": [
+                "encryption",
+                "hashing",
+                "kdf",
+                "mac",
+                "signing",
+                "keyExchange",
+                "postQuantum"
+              ],
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "dora",
+      "description": "DORA self-assessment (self-reported, not a verdict).",
+      "request": {
+        "method": "GET",
+        "path": "/v2/compliance/dora"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/json",
+        "body": {
+          "data": {
+            "$shape": {
+              "type": "object",
+              "required": [
+                "standard",
+                "disclaimer",
+                "cryptographicInventory",
+                "timestamp"
+              ],
+              "properties": {
+                "standard": {
+                  "const": "DORA (EU 2022/2554)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "cbom",
+      "description": "CycloneDX 1.6 CBOM, not wrapped in data.",
+      "request": {
+        "method": "GET",
+        "path": "/v2/compliance/cbom"
+      },
+      "expect": {
+        "status": 200,
+        "mediaType": "application/vnd.cyclonedx+json",
+        "body": {
+          "$shape": {
+            "type": "object",
+            "required": [
+              "bomFormat",
+              "specVersion",
+              "serialNumber",
+              "components"
+            ],
+            "properties": {
+              "bomFormat": {
+                "const": "CycloneDX"
+              },
+              "specVersion": {
+                "const": "1.6"
+              },
+              "serialNumber": {
+                "type": "string",
+                "pattern": "^urn:uuid:"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
