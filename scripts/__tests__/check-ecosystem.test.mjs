@@ -52,8 +52,8 @@ describe("registryUrls", () => {
     assert.deepEqual(urls("crates", ["c"]), [
       "https://crates.io/api/v1/crates/c/0.0.40",
     ]);
-    assert.deepEqual(urls("maven", ["co.cryptoservice:crypto-service-sdk"]), [
-      "https://repo1.maven.org/maven2/co/cryptoservice/crypto-service-sdk/0.0.40/crypto-service-sdk-0.0.40.pom",
+    assert.deepEqual(urls("maven", ["co.crypto-service:crypto-service-sdk"]), [
+      "https://repo1.maven.org/maven2/co/crypto-service/crypto-service-sdk/0.0.40/crypto-service-sdk-0.0.40.pom",
     ]);
     assert.deepEqual(urls("nuget", ["CryptoService.Sdk"]), [
       "https://api.nuget.org/v3-flatcontainer/cryptoservice.sdk/0.0.40/cryptoservice.sdk.nuspec",

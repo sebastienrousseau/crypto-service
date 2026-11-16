@@ -203,7 +203,7 @@ The SDKs are thin clients over crypto-server's REST API: they implement no crypt
 
 | Member | Language | Purpose | Registry |
 | :--- | :--- | :--- | :--- |
-| [`crypto-service-sdk-java`](https://github.com/sebastienrousseau/crypto-service-sdk-java) | Java | Async-first Java client (CompletableFuture) for the crypto-server REST API. | [Maven Central](https://central.sonatype.com/artifact/co.cryptoservice/crypto-service-sdk) `co.cryptoservice:crypto-service-sdk` |
+| [`crypto-service-sdk-java`](https://github.com/sebastienrousseau/crypto-service-sdk-java) | Java | Async-first Java client (CompletableFuture) for the crypto-server REST API. | [Maven Central](https://central.sonatype.com/artifact/co.crypto-service/crypto-service-sdk) `co.crypto-service:crypto-service-sdk` |
 | [`crypto-service-sdk-rust`](https://github.com/sebastienrousseau/crypto-service-sdk-rust) | Rust | Async-first Rust client (tokio, optional blocking feature) for the crypto-server REST API. | [crates.io](https://crates.io/crates/crypto-service-sdk) `crypto-service-sdk` |
 | [`crypto-service-sdk-go`](https://github.com/sebastienrousseau/crypto-service-sdk-go) | Go | Go client (context.Context, safe for concurrent use) for the crypto-server REST API. | [Go module proxy](https://pkg.go.dev/github.com/sebastienrousseau/crypto-service-sdk-go) `github.com/sebastienrousseau/crypto-service-sdk-go` |
 | [`crypto-service-sdk-cpp`](https://github.com/sebastienrousseau/crypto-service-sdk-cpp) | C++ | C++17 client (std::future async client and blocking client) for the crypto-server REST API. | GitHub release (CMake package) `crypto_service_sdk` |

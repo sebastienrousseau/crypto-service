@@ -19,7 +19,7 @@ describe("row", () => {
     );
     assert.match(
       row(member("crypto-service-sdk-java"), "o"),
-      /\[Maven Central\]\(https:\/\/central\.sonatype\.com\/artifact\/co\.cryptoservice\/crypto-service-sdk\)/,
+      /\[Maven Central\]\(https:\/\/central\.sonatype\.com\/artifact\/co\.crypto-service\/crypto-service-sdk\)/,
     );
   });
   it("names the site's registry without a package id", () => {

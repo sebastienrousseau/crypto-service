@@ -41,7 +41,7 @@
       "purpose": "Async-first Java client (CompletableFuture) for the crypto-server REST API.",
       "registry": {
         "type": "maven",
-        "ids": ["co.cryptoservice:crypto-service-sdk"]
+        "ids": ["co.crypto-service:crypto-service-sdk"]
       },
       "releaseAssets": ["SHA256SUMS"]
     },
