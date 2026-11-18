@@ -18,17 +18,19 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { publint } from "publint";
 import { formatMessage } from "publint/utils";
+import { runIfMain } from "./lib/cli.mjs";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const ATTW = join(ROOT, "node_modules", ".bin", "attw");
 
-/** Directories of the packages that are published to npm. */
-function publishableDirs() {
-  return readdirSync(join(ROOT, "packages"))
+/** Directories of the packages under `root` that are published to npm. */
+export function publishableDirs(root) {
+  return readdirSync(join(root, "packages"))
     .filter((d) => d.startsWith("crypto-"))
-    .map((d) => join(ROOT, "packages", d))
+    .map((d) => join(root, "packages", d))
     .filter((dir) => !readManifest(dir).private);
 }
 
@@ -37,7 +39,7 @@ function readManifest(dir) {
 }
 
 /** publint findings for one package, formatted one per line. */
-async function runPublint(dir) {
+export async function runPublint(dir) {
   const pkg = readManifest(dir);
   const { messages } = await publint({
     pkgDir: dir,
@@ -49,7 +51,7 @@ async function runPublint(dir) {
 }
 
 /** Pack the package with pnpm and return the tarball path. */
-function pack(dir, dest) {
+export function pack(dir, dest) {
   const out = execFileSync("pnpm", ["pack", "--pack-destination", dest], {
     cwd: dir,
     encoding: "utf8",
@@ -59,34 +61,49 @@ function pack(dir, dest) {
 }
 
 /** attw report for one tarball, or an empty list when it passes. */
-function runAttw(tarball) {
+export function runAttw(tarball, attw = ATTW) {
   try {
-    execFileSync(ATTW, [tarball, "--format", "ascii"], { encoding: "utf8" });
+    execFileSync(attw, [tarball, "--format", "ascii"], { encoding: "utf8" });
     return [];
   } catch (err) {
     return [`attw:\n${err.stdout}${err.stderr}`];
   }
 }
 
-async function main() {
+const DEFAULTS = {
+  root: ROOT,
+  lint: runPublint,
+  packTo: pack,
+  types: runAttw,
+  log: console.log,
+  error: console.error,
+};
+
+/** Check every publishable package under `root`; resolves to the exit code. */
+export async function main(argv, options = {}) {
+  const { root, lint, packTo, types, log, error } = {
+    ...DEFAULTS,
+    ...options,
+  };
   const work = mkdtempSync(join(tmpdir(), "check-packages-"));
   const problems = [];
-  const dirs = publishableDirs();
+  const dirs = publishableDirs(root);
   try {
     for (const dir of dirs) {
       const { name } = readManifest(dir);
-      const found = [...(await runPublint(dir)), ...runAttw(pack(dir, work))];
+      const found = [...(await lint(dir)), ...types(packTo(dir, work))];
       for (const f of found) problems.push(`${name}: ${f}`);
     }
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
   if (problems.length > 0) {
-    console.error("packages: boundary problems found");
-    for (const p of problems) console.error(`  ${p}`);
-    process.exit(1);
+    error("packages: boundary problems found");
+    for (const p of problems) error(`  ${p}`);
+    return 1;
   }
-  console.log(`packages: ok (${dirs.length} packages, publint + attw)`);
+  log(`packages: ok (${dirs.length} packages, publint + attw)`);
+  return 0;
 }
 
-await main();
+await runIfMain(import.meta.url, main, { name: "check-packages" });
