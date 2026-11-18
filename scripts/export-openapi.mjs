@@ -14,6 +14,7 @@ import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const SPEC_PATH = "openapi/crypto-service.openapi.yaml";
@@ -143,11 +144,11 @@ export function diffSummary(expected, actual, limit = 10) {
  * Boot the built server with the docs and the deprecated v1 routes on,
  * whatever the environment says, and return its document.
  */
-async function generate() {
+export async function generate(root = ROOT) {
   process.env["DOCS_ENABLED"] = "1";
   process.env["V1_ENABLED"] = "1";
   const require = createRequire(import.meta.url);
-  const { init } = require(`${ROOT}packages/crypto-server/dist/server.js`);
+  const { init } = require(`${root}packages/crypto-server/dist/server.js`);
   const app = await init({ logger: false });
   try {
     return app.swagger();
@@ -156,36 +157,37 @@ async function generate() {
   }
 }
 
-async function main(argv) {
+/** Write or (`--check`) verify the document; resolves to the exit code. */
+export async function main(
+  argv,
+  {
+    root = ROOT,
+    document = generate,
+    log = console.log,
+    error = console.error,
+  } = {},
+) {
   const version = JSON.parse(
-    readFileSync(`${ROOT}package.json`, "utf8"),
+    readFileSync(`${root}package.json`, "utf8"),
   ).version;
-  const next = render(await generate(), version);
-  const path = `${ROOT}${SPEC_PATH}`;
+  const next = render(await document(root), version);
+  const path = `${root}${SPEC_PATH}`;
   if (!argv.includes("--check")) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, next);
-    console.log(`export-openapi: wrote ${SPEC_PATH}`);
+    log(`export-openapi: wrote ${SPEC_PATH}`);
     return 0;
   }
   const current = existsSync(path) ? readFileSync(path, "utf8") : "";
   if (current === next) {
-    console.log(`export-openapi: ok (${SPEC_PATH})`);
+    log(`export-openapi: ok (${SPEC_PATH})`);
     return 0;
   }
-  console.error(
+  error(
     `export-openapi: ${SPEC_PATH} is out of date; run pnpm run openapi\n` +
       diffSummary(current, next),
   );
   return 1;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).then(
-    (code) => process.exit(code),
-    (error) => {
-      console.error(`export-openapi: ${error.message}`);
-      process.exit(1);
-    },
-  );
-}
+await runIfMain(import.meta.url, main, { name: "export-openapi" });

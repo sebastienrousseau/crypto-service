@@ -11,6 +11,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const START = "<!-- ecosystem:start -->";
@@ -63,32 +64,32 @@ export function replaceBlock(readme, block) {
   return readme.slice(0, from) + block + readme.slice(to + END.length);
 }
 
-function main(argv) {
+/** Rewrite or (`--check`) verify README.md; returns the exit code. */
+export function main(
+  argv,
+  { root = ROOT, log = console.log, error = console.error } = {},
+) {
   const ecosystem = JSON.parse(
-    readFileSync(`${ROOT}docs/ecosystem.json`, "utf8"),
+    readFileSync(`${root}docs/ecosystem.json`, "utf8"),
   );
-  const path = `${ROOT}README.md`;
+  const path = `${root}README.md`;
   const before = readFileSync(path, "utf8");
   const after = replaceBlock(before, render(ecosystem));
   if (argv.includes("--check")) {
     if (after !== before) {
-      console.error(
+      error(
         "render-ecosystem: README.md is out of date; run `node scripts/render-ecosystem.mjs`",
       );
-      return false;
+      return 1;
     }
-    console.log("render-ecosystem: ok");
-    return true;
+    log("render-ecosystem: ok");
+    return 0;
   }
   writeFileSync(path, after);
-  return true;
+  return 0;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  try {
-    process.exit(main(process.argv.slice(2)) ? 0 : 1);
-  } catch (error) {
-    console.error(`render-ecosystem: ${error.message}`);
-    process.exit(2);
-  }
-}
+await runIfMain(import.meta.url, main, {
+  name: "render-ecosystem",
+  failureCode: 2,
+});

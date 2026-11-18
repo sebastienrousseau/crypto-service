@@ -13,6 +13,7 @@
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const USER_AGENT = "crypto-service-suite-check";
@@ -115,14 +116,14 @@ export async function checkEcosystem(ecosystem, version, deps) {
 }
 
 /** A GitHub API GET returning parsed JSON, or null for 404. */
-function githubClient(token) {
+export function githubClient(token, fetchImpl = fetch) {
   return async (path) => {
     const headers = {
       accept: "application/vnd.github+json",
       "user-agent": USER_AGENT,
     };
     if (token) headers.authorization = `Bearer ${token}`;
-    const res = await fetch(`https://api.github.com/${path}`, { headers });
+    const res = await fetchImpl(`https://api.github.com/${path}`, { headers });
     // 404: no such object; 409: the repository is still empty.
     if (res.status === 404 || res.status === 409) return null;
     if (!res.ok) throw new Error(`GitHub API ${path}: HTTP ${res.status}`);
@@ -130,41 +131,46 @@ function githubClient(token) {
   };
 }
 
-async function exists(url) {
-  const res = await fetch(url, { headers: { "user-agent": USER_AGENT } });
-  return res.ok;
+/** Whether a GET of `url` answers 2xx. */
+export function existsClient(fetchImpl = fetch) {
+  return async (url) => {
+    const res = await fetchImpl(url, { headers: { "user-agent": USER_AGENT } });
+    return res.ok;
+  };
 }
 
-function parseVersion(argv) {
+function parseVersion(argv, root) {
   const at = argv.indexOf("--version");
   if (at !== -1) return argv[at + 1];
-  return JSON.parse(readFileSync(`${ROOT}package.json`, "utf8")).version;
+  return JSON.parse(readFileSync(`${root}package.json`, "utf8")).version;
 }
 
-async function main(argv) {
-  const version = parseVersion(argv);
+/** Check the suite and print one line per member; returns the exit code. */
+export async function main(
+  argv,
+  { root = ROOT, env = process.env, fetchImpl = fetch, log = console.log } = {},
+) {
+  const version = parseVersion(argv, root);
   const ecosystem = JSON.parse(
-    readFileSync(`${ROOT}docs/ecosystem.json`, "utf8"),
+    readFileSync(`${root}docs/ecosystem.json`, "utf8"),
   );
-  const deps = { github: githubClient(process.env.GITHUB_TOKEN), exists };
+  const deps = {
+    github: githubClient(env.GITHUB_TOKEN, fetchImpl),
+    exists: existsClient(fetchImpl),
+  };
   const results = await checkEcosystem(ecosystem, version, deps);
   for (const { name, problems } of results) {
     const status = problems.length === 0 ? "ok" : problems.join("; ");
-    console.log(`${name}: ${status}`);
+    log(`${name}: ${status}`);
   }
   const failed = results.filter((r) => r.problems.length > 0).length;
-  console.log(
+  log(
     `ecosystem ${version}: ${results.length - failed}/${results.length} consistent`,
   );
-  return failed === 0;
+  return failed === 0 ? 0 : 1;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).then(
-    (ok) => process.exit(ok ? 0 : 1),
-    (error) => {
-      console.error(`check-ecosystem: ${error.message}`);
-      process.exit(2);
-    },
-  );
-}
+await runIfMain(import.meta.url, main, {
+  name: "check-ecosystem",
+  failureCode: 2,
+});

@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   canonical,
   diffSummary,
+  main,
   render,
+  SPEC_PATH,
   scalar,
   toYaml,
 } from "../export-openapi.mjs";
@@ -145,6 +150,58 @@ describe("diffSummary", () => {
 
   it("marks lines one side does not have", () => {
     assert.match(diffSummary("", "x\ny"), /- \(none\)\n {4}\+ y/);
+    assert.match(diffSummary("x\ny", "x"), /- y\n {4}\+ \(none\)/);
     assert.equal(diffSummary("same", "same"), "0 line(s) differ");
+  });
+});
+
+describe("main", () => {
+  const doc = async () => ({ openapi: "3.1.0", info: { title: "T" } });
+
+  function tree() {
+    const root = `${mkdtempSync(join(tmpdir(), "openapi-"))}/`;
+    writeFileSync(join(root, "package.json"), `{"version": "0.0.9"}`);
+    return root;
+  }
+  function capture() {
+    const out = { logs: [], errors: [] };
+    out.log = (m) => out.logs.push(m);
+    out.error = (m) => out.errors.push(m);
+    return out;
+  }
+
+  it("writes the document at the root version", async () => {
+    const root = tree();
+    const out = capture();
+    assert.equal(await main([], { root, document: doc, ...out }), 0);
+    assert.deepEqual(out.logs, [`export-openapi: wrote ${SPEC_PATH}`]);
+    assert.equal(
+      readFileSync(join(root, SPEC_PATH), "utf8"),
+      render(await doc(), "0.0.9"),
+    );
+  });
+
+  it("--check passes on a current file and writes nothing", async () => {
+    const root = tree();
+    await main([], { root, document: doc, log: () => {} });
+    const out = capture();
+    assert.equal(await main(["--check"], { root, document: doc, ...out }), 0);
+    assert.deepEqual(out.logs, [`export-openapi: ok (${SPEC_PATH})`]);
+  });
+
+  it("--check fails on a stale or missing file with a diff", async () => {
+    const root = tree();
+    const out = capture();
+    assert.equal(await main(["--check"], { root, document: doc, ...out }), 1);
+    assert.match(out.errors[0], /is out of date; run pnpm run openapi\n/);
+    assert.match(out.errors[0], /line\(s\) differ/);
+    await main([], { root, document: doc, log: () => {} });
+    writeFileSync(join(root, SPEC_PATH), "stale\n");
+    assert.equal(await main(["--check"], { root, document: doc, ...out }), 1);
+  });
+
+  it("--check passes on the committed document from the built server", async () => {
+    const out = capture();
+    assert.equal(await main(["--check"], out), 0, out.errors.join("\n"));
   });
 });

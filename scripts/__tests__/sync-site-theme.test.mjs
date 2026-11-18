@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   formatLock,
+  main,
   parseArgs,
   parseLock,
   restamp,
@@ -43,6 +46,11 @@ describe("parseLock", () => {
       () => parseLock(JSON.stringify(lock([entry], "abc"))),
       /source.commit/,
     );
+  });
+  it("rejects a lock with no source commit, or no lock at all", () => {
+    for (const text of ["null", "{}", `{"source": {}}`]) {
+      assert.throws(() => parseLock(text), /source.commit/, text);
+    }
   });
   it("rejects a lock without files", () => {
     assert.throws(() => parseLock(JSON.stringify(lock([]))), /non-empty/);
@@ -178,5 +186,84 @@ describe("command line", () => {
     const { status, stderr } = run("--sync");
     assert.equal(status, 2);
     assert.match(stderr, /usage/);
+  });
+});
+
+const FILES = [
+  { from: "static/a.css", to: "_layouts/a.css", sha256: ABC },
+  { from: "static/b.js", to: "_layouts/js/b.js", sha256: ABC },
+];
+
+/** A website/ with the lock and `a.css` vendored ("abc"); b.js absent. */
+function website() {
+  const dir = mkdtempSync(join(tmpdir(), "theme-website-"));
+  mkdirSync(join(dir, "_layouts"));
+  writeFileSync(join(dir, "_layouts/a.css"), "abc");
+  writeFileSync(join(dir, "THEME.lock.json"), formatLock(lock(FILES)));
+  return dir;
+}
+function capture() {
+  const out = { logs: [], errors: [] };
+  out.log = (m) => out.logs.push(m);
+  out.error = (m) => out.errors.push(m);
+  return out;
+}
+
+/** A site checkout: a git repository with the two locked files. */
+function siteCheckout() {
+  const site = mkdtempSync(join(tmpdir(), "theme-site-"));
+  mkdirSync(join(site, "static"));
+  writeFileSync(join(site, "static/a.css"), "new a");
+  writeFileSync(join(site, "static/b.js"), "new b");
+  const git = (...args) =>
+    execFileSync("git", ["-C", site, ...args], { encoding: "utf8" }).trim();
+  const identity = ["-c", "user.name=t", "-c", "user.email=t@example.com"];
+  git("init", "-q");
+  git("add", ".");
+  git(...identity, "-c", "commit.gpgsign=false", "commit", "-qm", "theme");
+  return { site, head: git("rev-parse", "HEAD") };
+}
+
+describe("main", () => {
+  it("--check lists the missing and differing files", () => {
+    const dir = website();
+    writeFileSync(join(dir, "_layouts/a.css"), "edited");
+    const out = capture();
+    assert.equal(main(["--check"], { website: dir, ...out }), 1);
+    assert.match(out.errors[0], /vendored files differ/);
+    assert.match(
+      out.errors[1],
+      /^ {2}_layouts\/a\.css: sha256 [0-9a-f]{64}, lock has /,
+    );
+    assert.equal(out.errors[2], "  _layouts/js/b.js: missing");
+  });
+  it("--check passes when every copy matches", () => {
+    const dir = website();
+    mkdirSync(join(dir, "_layouts/js"));
+    writeFileSync(join(dir, "_layouts/js/b.js"), "abc");
+    const out = capture();
+    assert.equal(main(["--check"], { website: dir, ...out }), 0);
+    assert.deepEqual(out.logs, ["sync-site-theme: ok (2 files)"]);
+  });
+  it("--check rethrows a read error other than a missing file", () => {
+    const dir = website();
+    mkdirSync(join(dir, "_layouts/js/b.js"), { recursive: true });
+    assert.throws(() => main(["--check"], { website: dir }), {
+      code: "EISDIR",
+    });
+  });
+  it("--from copies every file and restamps the lock", () => {
+    const { site, head } = siteCheckout();
+    const dir = website();
+    const out = capture();
+    assert.equal(main(["--from", site], { website: dir, ...out }), 0);
+    assert.deepEqual(out.logs, [
+      `sync-site-theme: 2 files from ${head.slice(0, 12)}`,
+    ]);
+    assert.equal(readFileSync(join(dir, "_layouts/js/b.js"), "utf8"), "new b");
+    const next = parseLock(readFileSync(join(dir, "THEME.lock.json"), "utf8"));
+    assert.equal(next.source.commit, head);
+    assert.equal(next.files[0].sha256, sha256(Buffer.from("new a")));
+    assert.equal(main(["--check"], { website: dir, ...out }), 0);
   });
 });

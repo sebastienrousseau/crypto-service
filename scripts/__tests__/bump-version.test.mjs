@@ -10,6 +10,7 @@ import {
   bumpCitation,
   bumpManifest,
   bumpText,
+  main,
   nextVersion,
   openChangelog,
   textPaths,
@@ -98,33 +99,33 @@ describe("bumpText", () => {
   });
 });
 
-describe("bump", () => {
-  function tree() {
-    const root = `${mkdtempSync(join(tmpdir(), "bump-"))}/`;
-    mkdirSync(join(root, "packages/crypto-a"), { recursive: true });
-    mkdirSync(join(root, "website/_layouts"), { recursive: true });
-    mkdirSync(join(root, "website/content"), { recursive: true });
-    writeFileSync(join(root, "package.json"), `{"version": "0.0.1"}`);
-    writeFileSync(
-      join(root, "packages/crypto-a/package.json"),
-      `{"version": "0.0.1"}`,
-    );
-    writeFileSync(join(root, "CITATION.cff"), `version: "0.0.1"\n`);
-    writeFileSync(join(root, "CHANGELOG.md"), CHANGELOG);
-    writeFileSync(join(root, "website/_layouts/a.html"), "<b>v0.0.1</b>");
-    writeFileSync(join(root, "website/_layouts/notes.txt"), "v0.0.1");
-    mkdirSync(join(root, "website/_layouts/css"));
-    writeFileSync(join(root, "website/_layouts/css/prism.css"), "/* 0.0.1 */");
-    writeFileSync(join(root, "website/content/index.md"), "same");
-    writeFileSync(join(root, "README.md"), "this tree is 0.0.1.");
-    mkdirSync(join(root, "openapi"));
-    writeFileSync(
-      join(root, "openapi/crypto-service.openapi.yaml"),
-      'info:\n  version: "0.0.1"\n',
-    );
-    return root;
-  }
+function tree() {
+  const root = `${mkdtempSync(join(tmpdir(), "bump-"))}/`;
+  mkdirSync(join(root, "packages/crypto-a"), { recursive: true });
+  mkdirSync(join(root, "website/_layouts"), { recursive: true });
+  mkdirSync(join(root, "website/content"), { recursive: true });
+  writeFileSync(join(root, "package.json"), `{"version": "0.0.1"}`);
+  writeFileSync(
+    join(root, "packages/crypto-a/package.json"),
+    `{"version": "0.0.1"}`,
+  );
+  writeFileSync(join(root, "CITATION.cff"), `version: "0.0.1"\n`);
+  writeFileSync(join(root, "CHANGELOG.md"), CHANGELOG);
+  writeFileSync(join(root, "website/_layouts/a.html"), "<b>v0.0.1</b>");
+  writeFileSync(join(root, "website/_layouts/notes.txt"), "v0.0.1");
+  mkdirSync(join(root, "website/_layouts/css"));
+  writeFileSync(join(root, "website/_layouts/css/prism.css"), "/* 0.0.1 */");
+  writeFileSync(join(root, "website/content/index.md"), "same");
+  writeFileSync(join(root, "README.md"), "this tree is 0.0.1.");
+  mkdirSync(join(root, "openapi"));
+  writeFileSync(
+    join(root, "openapi/crypto-service.openapi.yaml"),
+    'info:\n  version: "0.0.1"\n',
+  );
+  return root;
+}
 
+describe("bump", () => {
   it("moves every file and reports what changed", () => {
     const root = tree();
     const changed = bump(root, "0.0.1", "0.0.2");
@@ -172,5 +173,26 @@ describe("textPaths", () => {
       );
       for (const v of seen ?? []) assert.equal(v, version, path);
     }
+  });
+});
+
+describe("main", () => {
+  it("moves the tree to the next version", () => {
+    const root = tree();
+    const logs = [];
+    assert.equal(main([], { root, log: (m) => logs.push(m) }), 0);
+    assert.deepEqual(logs, ["0.0.1 -> 0.0.2: 7 files"]);
+    assert.match(readFileSync(join(root, "package.json"), "utf8"), /0\.0\.2/);
+  });
+  it("accepts the next version as its argument", () => {
+    assert.equal(main(["0.0.2"], { root: tree(), log: () => {} }), 0);
+  });
+  it("refuses any other version and changes nothing", () => {
+    const root = tree();
+    assert.throws(
+      () => main(["0.0.3"], { root }),
+      /0\.0\.3 is not the next version after 0\.0\.1 \(0\.0\.2\)/,
+    );
+    assert.match(readFileSync(join(root, "package.json"), "utf8"), /0\.0\.1/);
   });
 });

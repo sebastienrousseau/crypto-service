@@ -19,10 +19,11 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const WEBSITE = join(ROOT, "website");
-const LOCK = join(WEBSITE, "THEME.lock.json");
+const LOCK_NAME = "THEME.lock.json";
 const SHA256 = /^[0-9a-f]{64}$/;
 const COMMIT = /^[0-9a-f]{40}$/;
 
@@ -54,7 +55,8 @@ function checkEntry(entry, index) {
 /** Parse and validate the lock; throws on any structural fault. */
 export function parseLock(text) {
   const lock = JSON.parse(text);
-  if (!COMMIT.test(lock?.source?.commit ?? "") && lock?.source?.commit !== "") {
+  const commit = lock?.source?.commit;
+  if (commit !== "" && !COMMIT.test(commit ?? "")) {
     throw new Error("source.commit is not a 40-hex commit SHA");
   }
   if (!Array.isArray(lock.files) || lock.files.length === 0) {
@@ -121,50 +123,53 @@ function readOrUndefined(path) {
   }
 }
 
-function check(lock) {
-  const problems = verify(lock, (to) => readOrUndefined(join(WEBSITE, to)));
+function check(lock, website, { log, error }) {
+  const problems = verify(lock, (to) => readOrUndefined(join(website, to)));
   if (problems.length > 0) {
-    console.error(
+    error(
       "sync-site-theme: vendored files differ from website/THEME.lock.json;" +
         " re-sync with --from <site-checkout>:",
     );
-    problems.forEach((p) => console.error(`  ${p}`));
-    return false;
+    problems.forEach((p) => error(`  ${p}`));
+    return 1;
   }
-  console.log(`sync-site-theme: ok (${lock.files.length} files)`);
-  return true;
+  log(`sync-site-theme: ok (${lock.files.length} files)`);
+  return 0;
 }
 
-function syncFrom(lock, site) {
+function syncFrom(lock, site, website, { log }) {
   const commit = execFileSync("git", ["-C", site, "rev-parse", "HEAD"], {
     encoding: "utf8",
   }).trim();
   for (const { from, to } of lock.files) {
-    const target = join(WEBSITE, to);
+    const target = join(website, to);
     mkdirSync(dirname(target), { recursive: true });
     copyFileSync(join(site, from), target);
   }
   const next = restamp(lock, commit, (from) =>
     sha256(readFileSync(join(site, from))),
   );
-  writeFileSync(LOCK, formatLock(next));
-  console.log(
+  writeFileSync(join(website, LOCK_NAME), formatLock(next));
+  log(
     `sync-site-theme: ${next.files.length} files from ${commit.slice(0, 12)}`,
   );
-  return true;
+  return 0;
 }
 
-function main(argv) {
+/** `--check` or `--from <dir>` against `website`; returns the exit code. */
+export function main(
+  argv,
+  { website = WEBSITE, log = console.log, error = console.error } = {},
+) {
   const args = parseArgs(argv);
-  const lock = parseLock(readFileSync(LOCK, "utf8"));
-  return args.mode === "check" ? check(lock) : syncFrom(lock, args.site);
+  const lock = parseLock(readFileSync(join(website, LOCK_NAME), "utf8"));
+  const out = { log, error };
+  return args.mode === "check"
+    ? check(lock, website, out)
+    : syncFrom(lock, args.site, website, out);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  try {
-    process.exit(main(process.argv.slice(2)) ? 0 : 1);
-  } catch (error) {
-    console.error(`sync-site-theme: ${error.message}`);
-    process.exit(2);
-  }
-}
+await runIfMain(import.meta.url, main, {
+  name: "sync-site-theme",
+  failureCode: 2,
+});

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
-import { render, replaceBlock, row } from "../render-ecosystem.mjs";
+import { main, render, replaceBlock, row } from "../render-ecosystem.mjs";
 
 const ECOSYSTEM = JSON.parse(
   readFileSync(new URL("../../docs/ecosystem.json", import.meta.url), "utf8"),
@@ -56,6 +58,11 @@ describe("replaceBlock", () => {
       () => replaceBlock("no markers", "x"),
       /no ecosystem markers/,
     );
+    assert.throws(
+      () =>
+        replaceBlock("<!-- ecosystem:end -->\n<!-- ecosystem:start -->", "x"),
+      /no ecosystem markers/,
+    );
   });
   it("keeps README.md in sync with docs/ecosystem.json", () => {
     const readme = readFileSync(
@@ -63,5 +70,43 @@ describe("replaceBlock", () => {
       "utf8",
     );
     assert.equal(replaceBlock(readme, render(ECOSYSTEM)), readme);
+  });
+});
+
+describe("main", () => {
+  const STALE = "a\n<!-- ecosystem:start -->\nold\n<!-- ecosystem:end -->\n";
+
+  function tree() {
+    const root = `${mkdtempSync(join(tmpdir(), "render-ecosystem-"))}/`;
+    mkdirSync(join(root, "docs"));
+    writeFileSync(join(root, "docs/ecosystem.json"), JSON.stringify(ECOSYSTEM));
+    writeFileSync(join(root, "README.md"), STALE);
+    return root;
+  }
+  function capture() {
+    const out = { logs: [], errors: [] };
+    out.log = (m) => out.logs.push(m);
+    out.error = (m) => out.errors.push(m);
+    return out;
+  }
+
+  it("--check fails on a stale README and leaves it alone", () => {
+    const root = tree();
+    const out = capture();
+    assert.equal(main(["--check"], { root, ...out }), 1);
+    assert.match(out.errors[0], /README\.md is out of date/);
+    assert.equal(readFileSync(join(root, "README.md"), "utf8"), STALE);
+  });
+  it("rewrites the block silently, after which --check passes", () => {
+    const root = tree();
+    const out = capture();
+    assert.equal(main([], { root, ...out }), 0);
+    assert.deepEqual(out.logs, []);
+    assert.equal(
+      readFileSync(join(root, "README.md"), "utf8"),
+      `a\n${render(ECOSYSTEM)}\n`,
+    );
+    assert.equal(main(["--check"], { root, ...out }), 0);
+    assert.deepEqual(out.logs, ["render-ecosystem: ok"]);
   });
 });

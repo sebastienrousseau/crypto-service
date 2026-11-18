@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   checkEcosystem,
   checkMember,
+  existsClient,
+  githubClient,
+  main,
   registryUrls,
   requiredAssets,
 } from "../check-ecosystem.mjs";
@@ -83,13 +88,15 @@ describe("requiredAssets", () => {
   });
 });
 
-describe("checkMember", () => {
+describe("checkEcosystem", () => {
   it("passes every member of a fully released suite", async () => {
     const results = await checkEcosystem(ECOSYSTEM, V, released());
     assert.equal(results.length, 8);
     for (const r of results) assert.deepEqual(r.problems, [], r.name);
   });
+});
 
+describe("checkMember", () => {
   it("reports a missing, lightweight or unsigned tag", async () => {
     const sdk = member("crypto-service-sdk-rust");
     assert.deepEqual(
@@ -166,5 +173,122 @@ describe("docs/ecosystem.json", () => {
     );
     assert.equal(core.length, 18);
     for (const id of core) assert.ok(pkgs.includes(id.split("/")[1]), id);
+  });
+});
+
+/** A fake fetch answering `routes[url]` (status, body), else 404. */
+function fakeFetch(routes) {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, headers: init.headers });
+    const [status, body] = routes[url] ?? [404, null];
+    return new Response(JSON.stringify(body), { status });
+  };
+  return { fetchImpl, calls };
+}
+
+describe("githubClient", () => {
+  const API = "https://api.github.com/";
+
+  it("returns the parsed body and sends the token when set", async () => {
+    const { fetchImpl, calls } = fakeFetch({ [`${API}x`]: [200, { a: 1 }] });
+    assert.deepEqual(await githubClient("tok", fetchImpl)("x"), { a: 1 });
+    assert.equal(calls[0].headers.authorization, "Bearer tok");
+    assert.equal(calls[0].headers["user-agent"], "crypto-service-suite-check");
+  });
+  it("sends no authorization without a token", async () => {
+    const { fetchImpl, calls } = fakeFetch({ [`${API}x`]: [200, {}] });
+    await githubClient(undefined, fetchImpl)("x");
+    assert.equal("authorization" in calls[0].headers, false);
+  });
+  it("reads 404 and 409 (an empty repository) as nothing", async () => {
+    const { fetchImpl } = fakeFetch({ [`${API}empty`]: [409, {}] });
+    const github = githubClient("", fetchImpl);
+    assert.equal(await github("missing"), null);
+    assert.equal(await github("empty"), null);
+  });
+  it("throws on any other failure", async () => {
+    const { fetchImpl } = fakeFetch({ [`${API}x`]: [500, {}] });
+    await assert.rejects(
+      githubClient("", fetchImpl)("x"),
+      /GitHub API x: HTTP 500/,
+    );
+  });
+});
+
+describe("existsClient", () => {
+  it("is true for 2xx and false otherwise", async () => {
+    const { fetchImpl, calls } = fakeFetch({ "https://r/a": [200, {}] });
+    const exists = existsClient(fetchImpl);
+    assert.equal(await exists("https://r/a"), true);
+    assert.equal(await exists("https://r/b"), false);
+    assert.equal(calls[0].headers["user-agent"], "crypto-service-suite-check");
+  });
+});
+
+const SITE = {
+  name: "site",
+  kind: "site",
+  repo: "site",
+  versionFile: "VERSION",
+  registry: { type: "none", ids: [] },
+};
+
+/** A root at 1.2.3 whose suite is the site alone. */
+function tree() {
+  const root = `${mkdtempSync(join(tmpdir(), "ecosystem-"))}/`;
+  mkdirSync(join(root, "docs"));
+  writeFileSync(join(root, "package.json"), `{"version": "1.2.3"}`);
+  writeFileSync(
+    join(root, "docs/ecosystem.json"),
+    JSON.stringify({ owner: "o", members: [SITE] }),
+  );
+  return root;
+}
+
+/** GitHub answers for the site released at `version`. */
+function api(version) {
+  const base = "https://api.github.com/repos/o/site";
+  return {
+    [`${base}/git/ref/tags/v${version}`]: [
+      200,
+      { object: { type: "tag", sha: "t" } },
+    ],
+    [`${base}/git/tags/t`]: [200, { verification: { verified: true } }],
+    [`${base}/contents/VERSION`]: [
+      200,
+      { content: Buffer.from(version).toString("base64") },
+    ],
+  };
+}
+
+describe("main", () => {
+  it("checks the root version and exits 0 when consistent", async () => {
+    const logs = [];
+    const { fetchImpl, calls } = fakeFetch(api("1.2.3"));
+    const code = await main([], {
+      root: tree(),
+      env: { GITHUB_TOKEN: "tok" },
+      fetchImpl,
+      log: (m) => logs.push(m),
+    });
+    assert.equal(code, 0);
+    assert.deepEqual(logs, ["site: ok", "ecosystem 1.2.3: 1/1 consistent"]);
+    assert.equal(calls[0].headers.authorization, "Bearer tok");
+  });
+  it("checks --version and exits 1 listing the problems", async () => {
+    const logs = [];
+    const { fetchImpl } = fakeFetch(api("1.2.3"));
+    const code = await main(["--version", "1.2.4"], {
+      root: tree(),
+      env: {},
+      fetchImpl,
+      log: (m) => logs.push(m),
+    });
+    assert.equal(code, 1);
+    assert.deepEqual(logs, [
+      "site: no tag v1.2.4; VERSION is 1.2.3",
+      "ecosystem 1.2.4: 0/1 consistent",
+    ]);
   });
 });
