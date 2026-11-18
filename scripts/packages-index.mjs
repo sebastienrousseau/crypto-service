@@ -7,20 +7,26 @@
 // publishes. With --check it exits 1 when the file is out of date.
 
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import prettier from "prettier";
+import { runIfMain } from "./lib/cli.mjs";
 
-const ROOT = new URL("..", import.meta.url).pathname;
-const README = `${ROOT}packages/README.md`;
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const BEGIN = "<!-- BEGIN GENERATED: scripts/packages-index.mjs -->";
 const END = "<!-- END GENERATED -->";
 
-const manifests = readdirSync(`${ROOT}packages`)
-  .filter((d) => d.startsWith("crypto-"))
-  .sort()
-  .map((dir) => ({
-    dir,
-    ...JSON.parse(readFileSync(`${ROOT}packages/${dir}/package.json`, "utf8")),
-  }));
+/** Each package's manifest under `root`, with its directory name. */
+function readManifests(root) {
+  return readdirSync(`${root}packages`)
+    .filter((d) => d.startsWith("crypto-"))
+    .sort()
+    .map((dir) => ({
+      dir,
+      ...JSON.parse(
+        readFileSync(`${root}packages/${dir}/package.json`, "utf8"),
+      ),
+    }));
+}
 
 /** Workspace packages this one depends on at runtime. */
 const internalDeps = (m) =>
@@ -31,57 +37,70 @@ const internalDeps = (m) =>
 
 const escape = (text) => text.replaceAll("|", "\\|");
 
-const table = [
-  "| Package | Description |",
-  "| :------ | :---------- |",
-  ...manifests.map(
-    (m) => `| [\`${m.dir}\`](${m.dir}/) | ${escape(m.description)} |`,
-  ),
-];
-
-const deps = manifests.map((m) => {
-  const d = internalDeps(m);
-  return `- \`${m.dir}\`: ${d.length ? d.map((x) => `\`${x}\``).join(", ") : "no workspace dependencies"}`;
-});
-
-const generated = [
-  BEGIN,
-  "",
-  `All ${manifests.length} packages share one version; descriptions are the`,
-  "ones published to npm.",
-  "",
-  ...table,
-  "",
-  "### Workspace dependencies",
-  "",
-  ...deps,
-  "",
-  END,
-].join("\n");
-
-const current = readFileSync(README, "utf8");
-const start = current.indexOf(BEGIN);
-const end = current.indexOf(END);
-if (start === -1 || end === -1) {
-  console.error(`packages-index: markers missing in ${README}`);
-  process.exit(1);
+/** The generated block, markers included, for `manifests`. */
+export function generate(manifests) {
+  const table = [
+    "| Package | Description |",
+    "| :------ | :---------- |",
+    ...manifests.map(
+      (m) => `| [\`${m.dir}\`](${m.dir}/) | ${escape(m.description)} |`,
+    ),
+  ];
+  const deps = manifests.map((m) => {
+    const d = internalDeps(m);
+    return `- \`${m.dir}\`: ${d.length ? d.map((x) => `\`${x}\``).join(", ") : "no workspace dependencies"}`;
+  });
+  return [
+    BEGIN,
+    "",
+    `All ${manifests.length} packages share one version; descriptions are the`,
+    "ones published to npm.",
+    "",
+    ...table,
+    "",
+    "### Workspace dependencies",
+    "",
+    ...deps,
+    "",
+    END,
+  ].join("\n");
 }
-// Format as the repository's Prettier config would, so a formatted file
-// and a freshly generated one compare equal.
-const next = await prettier.format(
-  current.slice(0, start) + generated + current.slice(end + END.length),
-  { ...(await prettier.resolveConfig(README)), filepath: README },
-);
 
-if (process.argv.includes("--check")) {
+/** Rewrite or (`--check`) verify packages/README.md; resolves to the exit code. */
+export async function main(
+  argv,
+  { root = ROOT, log = console.log, error = console.error } = {},
+) {
+  const readme = `${root}packages/README.md`;
+  const manifests = readManifests(root);
+  const current = readFileSync(readme, "utf8");
+  const start = current.indexOf(BEGIN);
+  const end = current.indexOf(END);
+  if (start === -1 || end === -1) {
+    error(`packages-index: markers missing in ${readme}`);
+    return 1;
+  }
+  // Format as the repository's Prettier config would, so a formatted file
+  // and a freshly generated one compare equal.
+  const next = await prettier.format(
+    current.slice(0, start) +
+      generate(manifests) +
+      current.slice(end + END.length),
+    { ...(await prettier.resolveConfig(readme)), filepath: readme },
+  );
+  if (!argv.includes("--check")) {
+    writeFileSync(readme, next);
+    log(`packages-index: wrote ${manifests.length} packages`);
+    return 0;
+  }
   if (next !== current) {
-    console.error(
+    error(
       "packages-index: packages/README.md is out of date; run node scripts/packages-index.mjs",
     );
-    process.exit(1);
+    return 1;
   }
-  console.log(`packages-index: ok (${manifests.length} packages)`);
-} else {
-  writeFileSync(README, next);
-  console.log(`packages-index: wrote ${manifests.length} packages`);
+  log(`packages-index: ok (${manifests.length} packages)`);
+  return 0;
 }
+
+await runIfMain(import.meta.url, main, { name: "packages-index" });

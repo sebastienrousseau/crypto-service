@@ -10,6 +10,7 @@ import {
   checksumsSection,
   composeNotes,
   highlightsSection,
+  main,
   splitGenerated,
 } from "../release-notes.mjs";
 
@@ -49,6 +50,13 @@ describe("checkHighlights", () => {
   it("refuses highlights left from another release", () => {
     assert.deepEqual(checkHighlights(HIGHLIGHTS, "v1.2.4"), [
       "written for v1.2.3, not v1.2.4",
+    ]);
+  });
+
+  it("refuses highlights with no release marker", () => {
+    const text = HIGHLIGHTS.replace("<!-- release: v1.2.3 -->\n", "");
+    assert.deepEqual(checkHighlights(text, "v1.2.3"), [
+      "written for no release, not v1.2.3",
     ]);
   });
 
@@ -111,5 +119,55 @@ describe("highlightsSection", () => {
       () => highlightsSection("<!<!---->-- x\n## Highlights ⭐️"),
       /unclosed comment/,
     );
+  });
+});
+
+describe("main", () => {
+  function files() {
+    const dir = mkdtempSync(join(tmpdir(), "release-main-"));
+    const highlightsFile = join(dir, "highlights.md");
+    const generated = join(dir, "generated.md");
+    writeFileSync(highlightsFile, HIGHLIGHTS);
+    writeFileSync(generated, GENERATED);
+    return { highlightsFile, generated };
+  }
+  const USAGE =
+    /^Error: usage: release-notes\.mjs check\|compose <vX\.Y\.Z> \.\.\.$/;
+
+  it("check accepts highlights written for the tag", () => {
+    const logs = [];
+    const { highlightsFile } = files();
+    const log = (m) => logs.push(m);
+    assert.equal(main(["check", "v1.2.3"], { highlightsFile, log }), 0);
+    assert.deepEqual(logs, ["release-notes: highlights ready for v1.2.3"]);
+  });
+  it("compose prints the notes", () => {
+    const logs = [];
+    const { highlightsFile, generated } = files();
+    const argv = ["compose", "v1.2.3", generated, ...assets()];
+    assert.equal(main(argv, { highlightsFile, log: (m) => logs.push(m) }), 0);
+    assert.equal(logs.length, 1);
+    assert.match(
+      logs[0],
+      /^## Highlights ⭐️[\s\S]*## Checksums[\s\S]*\*\*Full/,
+    );
+  });
+  it("refuses a missing or malformed tag", () => {
+    const { highlightsFile } = files();
+    assert.throws(() => main(["check"], { highlightsFile }), USAGE);
+    assert.throws(() => main(["check", "1.2.3"], { highlightsFile }), USAGE);
+  });
+  it("refuses highlights for another tag", () => {
+    const { highlightsFile } = files();
+    assert.throws(
+      () => main(["check", "v1.2.4"], { highlightsFile }),
+      /^Error: \.github\/release-highlights\.md: written for v1\.2\.3, not v1\.2\.4$/,
+    );
+  });
+  it("refuses compose without assets, or an unknown command", () => {
+    const { highlightsFile, generated } = files();
+    const run = (argv) => () => main(argv, { highlightsFile });
+    assert.throws(run(["compose", "v1.2.3", generated]), USAGE);
+    assert.throws(run(["publish", "v1.2.3"]), USAGE);
   });
 });

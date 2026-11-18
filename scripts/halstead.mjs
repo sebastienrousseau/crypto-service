@@ -8,9 +8,9 @@
 // - operands are identifiers, literals, template parts, true/false/null,
 //   this and super; every other token is an operator;
 // - a bracket pair counts once, on its opening token;
-// - types are erased first (transpiled to ESNext, nothing downlevelled),
-//   so annotations, generics and `as` do not count; enum and parameter
-//   property code TypeScript emits does;
+// - types and comments are erased first (transpiled to ESNext, nothing
+//   downlevelled), so annotations, generics, `as` and JSDoc do not count;
+//   enum and parameter property code TypeScript emits does;
 // - a nested function is measured on its own and excluded from its parent.
 
 import ts from "typescript";
@@ -58,7 +58,6 @@ function tokensOf(root, sourceFile) {
   const tokens = [];
   const visit = (node) => {
     if (node !== root && isFunction(node)) return;
-    if (ts.isJSDoc(node)) return;
     const children = node.getChildren(sourceFile);
     if (children.length === 0) {
       // An empty list (no parameters) is a leaf too, but not a token.

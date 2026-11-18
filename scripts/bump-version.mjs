@@ -12,6 +12,7 @@
 
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
@@ -114,21 +115,16 @@ export function bump(root, from, to) {
   return changed;
 }
 
-function main(argv) {
-  const from = JSON.parse(readFileSync(`${ROOT}package.json`, "utf8")).version;
+/** Move the tree under `root` to the next version; returns the exit code. */
+export function main(argv, { root = ROOT, log = console.log } = {}) {
+  const from = JSON.parse(readFileSync(`${root}package.json`, "utf8")).version;
   const to = nextVersion(from);
   if (argv[0] !== undefined && argv[0] !== to) {
     throw new Error(`${argv[0]} is not the next version after ${from} (${to})`);
   }
-  const changed = bump(ROOT, from, to);
-  console.log(`${from} -> ${to}: ${changed.length} files`);
+  const changed = bump(root, from, to);
+  log(`${from} -> ${to}: ${changed.length} files`);
+  return 0;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  try {
-    main(process.argv.slice(2));
-  } catch (error) {
-    console.error(`bump-version: ${error.message}`);
-    process.exit(1);
-  }
-}
+await runIfMain(import.meta.url, main, { name: "bump-version" });

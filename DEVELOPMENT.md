@@ -27,20 +27,23 @@ A [.devcontainer](.devcontainer/devcontainer.json) configuration is provided for
 
 All continuous integration verification gates map directly to pnpm workspace scripts:
 
-| Gate                           | Local command                      | CI workflow               |
-| :----------------------------- | :--------------------------------- | :------------------------ |
-| Build (TypeScript compilation) | `pnpm -r run build`                | `ci.yml`                  |
-| Linting (ESLint)               | `pnpm -r run lint`                 | `ci.yml`                  |
-| Formatting (Prettier)          | `pnpm -r run format`               | `ci.yml`                  |
-| Tests & Coverage (Mocha, c8)   | `pnpm -r run test`                 | `ci.yml`, `coveralls.yml` |
-| Documentation (TypeDoc)        | `pnpm -r run docs`                 | `ci.yml`                  |
-| Container build                | `docker build -t crypto-service .` | `docker.yml`              |
+| Gate                                | Local command                      | CI workflow               |
+| :---------------------------------- | :--------------------------------- | :------------------------ |
+| Build (TypeScript compilation)      | `pnpm -r run build`                | `ci.yml`                  |
+| Linting (ESLint)                    | `pnpm -r run lint`                 | `ci.yml`                  |
+| Formatting (Prettier)               | `pnpm -r run format`               | `ci.yml`                  |
+| Tests & Coverage (Mocha, c8)        | `pnpm -r run test`                 | `ci.yml`, `coveralls.yml` |
+| Script tests & coverage (node:test) | `pnpm run test:scripts`            | `ci.yml`                  |
+| Documentation (TypeDoc)             | `pnpm -r run docs`                 | `ci.yml`                  |
+| Container build                     | `docker build -t crypto-service .` | `docker.yml`              |
 
 ### Coverage Floor
 
 The test suite enforces a **100% coverage floor** (statements, branches, functions, and lines) across all packages in the workspace. No pull request may lower or bypass coverage thresholds.
 
 `pnpm -r run test` measures coverage and enforces the floor; `pnpm -r run test:run` runs the same tests without measuring it. CI enforces the floor on Linux with Node.js 24, the one runtime where every code path runs: the native ML-KEM, ML-DSA, SLH-DSA and Argon2 back ends need Node.js 24.7+, and Windows has no POSIX file modes or signal-driven shutdown. Node.js 22, macOS and Windows run `test:run`.
+
+The repository scripts in `scripts/` have the same floor for lines, branches and functions: `pnpm run test:scripts` runs `scripts/__tests__` under Node.js's built-in coverage and fails below 100%, on every leg of the CI matrix. Every script has a test file of its own name (`scripts/__tests__/<name>.test.mjs`), which a test checks, so no script escapes measurement. A script exports `main(argv, options)`, with its file system root, network client and output injectable, and ends with `await runIfMain(import.meta.url, main, { name })` (`scripts/lib/cli.mjs`), so a test runs its command line in process. The shell scripts (`pack-npm.sh`, `pack-smoke.sh`, `publish-npm.sh`, `release-assets.sh`) are outside this measurement.
 
 ## Monorepo Layout
 

@@ -16,6 +16,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
+import { runIfMain } from "./lib/cli.mjs";
 
 const HIGHLIGHTS = new URL("../.github/release-highlights.md", import.meta.url);
 const HEADING = "## Highlights ⭐️";
@@ -102,32 +103,28 @@ export function composeNotes(highlights, generated, files) {
   ].join("\n\n");
 }
 
-function main([command, tag, generated, ...files]) {
+/** Run `check` or `compose`; returns the exit code. */
+export function main(
+  [command, tag, generated, ...files],
+  { highlightsFile = HIGHLIGHTS, log = console.log } = {},
+) {
   if (!/^v\d+\.\d+\.\d+$/.test(tag ?? "")) {
     throw new Error("usage: release-notes.mjs check|compose <vX.Y.Z> ...");
   }
-  const highlights = readFileSync(HIGHLIGHTS, "utf8");
+  const highlights = readFileSync(highlightsFile, "utf8");
   const problems = checkHighlights(highlights, tag);
   if (problems.length > 0) {
     throw new Error(`.github/release-highlights.md: ${problems.join("; ")}`);
   }
   if (command === "check") {
     highlightsSection(highlights);
-    console.log(`release-notes: highlights ready for ${tag}`);
+    log(`release-notes: highlights ready for ${tag}`);
   } else if (command === "compose" && files.length > 0) {
-    console.log(
-      composeNotes(highlights, readFileSync(generated, "utf8"), files),
-    );
+    log(composeNotes(highlights, readFileSync(generated, "utf8"), files));
   } else {
     throw new Error("usage: release-notes.mjs check|compose <vX.Y.Z> ...");
   }
+  return 0;
 }
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-  try {
-    main(process.argv.slice(2));
-  } catch (error) {
-    console.error(`release-notes: ${error.message}`);
-    process.exit(1);
-  }
-}
+await runIfMain(import.meta.url, main, { name: "release-notes" });
