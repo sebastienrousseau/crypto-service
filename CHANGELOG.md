@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.41] - Unreleased
+
+### Added
+
+- **Lockstep release iteration**: Advance monorepo package manifests, root `package.json`, `CITATION.cff`, and `CHANGELOG.md` to 0.0.41 in strict lockstep, in step with the six SDKs, which opened 0.0.41 too.
+- **Release notes for v0.0.39 and v0.0.40** in `docs/releases/`, copied from the GitHub releases, with their checksums checked against the published assets.
+- **Tests for every repository script**: the 11 scripts in `scripts/` that had no test now have one, and the CLI entry points of the other six are tested too. `scripts/lib/cli.mjs` gives every script one entry point (`runIfMain`) that runs `main(argv)` only when the file is executed, so tests import scripts without side effects.
+
+### Changed
+
+- **`pnpm run test:scripts` enforces 100% coverage**: it fails below 100% lines, branches or functions over `scripts/**/*.mjs`, and a test fails when a script has no test file. Before, coverage of `scripts/` was not measured and stood at 71-88% for six scripts.
+- **The Suite consistency workflow closes its own drift issue**: when every member agrees again, it closes the open "Suite drift at <version>" issue with the passing summary and a link to the run.
+- Scripts that failed at top level (the four test-vector generators, `check-packages`, `build-docs`) now print `<script>: <message>` instead of a stack trace; the exit code is unchanged.
+- Dependencies: `github/codeql-action` 4.39.3, `cargo-bins/cargo-binstall` 1.27.0, `prettier` ^3.10.1 and `typeorm` ^1.1.3.
+
+### Security
+
+- **Time-boxed audit exception for GHSA-fc5q-39xc-vjpf** (picomatch ReDoS): no patched picomatch exists, and it reaches only dev tooling (`pnpm audit --prod` is clean), so `pnpm-workspace.yaml` ignores exactly this advisory until 2026-12-18 or a patched release. Every other advisory still fails the audit.
+
 ## [0.0.40] - 2026-11-16
 
 ### Added
