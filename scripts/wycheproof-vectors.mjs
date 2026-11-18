@@ -11,6 +11,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import prettier from "prettier";
+import { runIfMain } from "./lib/cli.mjs";
 
 /** C2SP/wycheproof commit (2026-10-12). */
 const COMMIT = "7a325932231bd7a724c791c8b0d65ea4d6d2f435";
@@ -21,7 +22,7 @@ const OUT = join(
   "packages/crypto-lib/__tests__/fixtures/vectors/wycheproof",
 );
 
-const FILES = [
+export const FILES = [
   "xchacha20_poly1305_test",
   "aes_gcm_test",
   "aes_gcm_siv_test",
@@ -32,22 +33,31 @@ const FILES = [
   "ecdsa_secp384r1_sha384_p1363_test",
 ];
 
-mkdirSync(OUT, { recursive: true });
-for (const name of FILES) {
-  const res = await fetch(`${BASE}/${name}.json`);
-  if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
-  const vectors = await res.json();
-  const file = join(OUT, `${name}.json`);
-  const fixture = {
-    source: `https://github.com/C2SP/wycheproof/blob/${COMMIT}/testvectors_v1/${name}.json`,
-    commit: COMMIT,
-    generatedBy: "scripts/wycheproof-vectors.mjs",
-    ...vectors,
-  };
-  const json = await prettier.format(JSON.stringify(fixture), {
-    ...(await prettier.resolveConfig(file)),
-    filepath: file,
-  });
-  writeFileSync(file, json);
-  console.log(`wycheproof-vectors: ${name}: ${vectors.numberOfTests} tests`);
+/** Fetch every vector file and write its fixture under `out`; resolves to 0. */
+export async function main(
+  _argv,
+  { out = OUT, fetchImpl = fetch, log = console.log } = {},
+) {
+  mkdirSync(out, { recursive: true });
+  for (const name of FILES) {
+    const res = await fetchImpl(`${BASE}/${name}.json`);
+    if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
+    const vectors = await res.json();
+    const file = join(out, `${name}.json`);
+    const fixture = {
+      source: `https://github.com/C2SP/wycheproof/blob/${COMMIT}/testvectors_v1/${name}.json`,
+      commit: COMMIT,
+      generatedBy: "scripts/wycheproof-vectors.mjs",
+      ...vectors,
+    };
+    const json = await prettier.format(JSON.stringify(fixture), {
+      ...(await prettier.resolveConfig(file)),
+      filepath: file,
+    });
+    writeFileSync(file, json);
+    log(`wycheproof-vectors: ${name}: ${vectors.numberOfTests} tests`);
+  }
+  return 0;
 }
+
+await runIfMain(import.meta.url, main, { name: "wycheproof-vectors" });

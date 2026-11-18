@@ -18,6 +18,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import prettier from "prettier";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runIfMain } from "./lib/cli.mjs";
 
 /** usnistgov/ACVP-Server commit (RELEASE/v1.1.0.43, 2026-08-12). */
 const COMMIT = "975de31eb83d87039ec88934fdc47d8c312b892d";
@@ -29,7 +30,7 @@ const OUT = join(
 );
 
 /** Each fixture: its ACVP vector set, which groups to keep, how many cases. */
-const SETS = [
+export const SETS = [
   { name: "ML-KEM-keyGen-FIPS203", keep: () => true, cases: 3 },
   { name: "ML-KEM-encapDecap-FIPS203", keep: () => true, cases: 3 },
   { name: "ML-DSA-keyGen-FIPS204", keep: () => true, cases: 3 },
@@ -69,7 +70,7 @@ const SETS = [
  * Keeps the `n` smallest cases (signatures over long messages make the
  * files large), with at least one failing case if the group has any.
  */
-function pick(tests, n) {
+export function pick(tests, n) {
   const bySize = [...tests].sort(
     (a, b) => JSON.stringify(a).length - JSON.stringify(b).length,
   );
@@ -81,11 +82,8 @@ function pick(tests, n) {
   return chosen;
 }
 
-mkdirSync(OUT, { recursive: true });
-for (const set of SETS) {
-  const res = await fetch(`${BASE}/${set.name}/internalProjection.json`);
-  if (!res.ok) throw new Error(`${set.name}: HTTP ${res.status}`);
-  const full = await res.json();
+/** The fixture for `set`, from the vector set's internal projection. */
+export function fixtureOf(set, full) {
   const testGroups = full.testGroups.filter(set.keep).map((g) => ({
     ...g,
     tests: pick(g.tests, set.cases).map((t) =>
@@ -94,7 +92,7 @@ for (const set of SETS) {
       ),
     ),
   }));
-  const fixture = {
+  return {
     source: `https://github.com/usnistgov/ACVP-Server/tree/${COMMIT}/gen-val/json-files/${set.name}`,
     commit: COMMIT,
     generatedBy: "scripts/acvp-vectors.mjs",
@@ -103,16 +101,33 @@ for (const set of SETS) {
     revision: full.revision,
     testGroups,
   };
-  const file = join(OUT, `${set.name}.json`);
-  // Formatted as the repository formats JSON, so a regenerated fixture
-  // matches the committed one byte for byte.
-  const json = await prettier.format(JSON.stringify(fixture), {
-    ...(await prettier.resolveConfig(file)),
-    filepath: file,
-  });
-  writeFileSync(file, json);
-  const cases = testGroups.reduce((n, g) => n + g.tests.length, 0);
-  console.log(
-    `acvp-vectors: ${set.name}: ${testGroups.length} groups, ${cases} cases`,
-  );
 }
+
+/** Fetch every set and write its fixture under `out`; resolves to 0. */
+export async function main(
+  _argv,
+  { out = OUT, fetchImpl = fetch, log = console.log } = {},
+) {
+  mkdirSync(out, { recursive: true });
+  for (const set of SETS) {
+    const res = await fetchImpl(`${BASE}/${set.name}/internalProjection.json`);
+    if (!res.ok) throw new Error(`${set.name}: HTTP ${res.status}`);
+    const fixture = fixtureOf(set, await res.json());
+    const file = join(out, `${set.name}.json`);
+    // Formatted as the repository formats JSON, so a regenerated fixture
+    // matches the committed one byte for byte.
+    const json = await prettier.format(JSON.stringify(fixture), {
+      ...(await prettier.resolveConfig(file)),
+      filepath: file,
+    });
+    writeFileSync(file, json);
+    const { testGroups } = fixture;
+    const cases = testGroups.reduce((n, g) => n + g.tests.length, 0);
+    log(
+      `acvp-vectors: ${set.name}: ${testGroups.length} groups, ${cases} cases`,
+    );
+  }
+  return 0;
+}
+
+await runIfMain(import.meta.url, main, { name: "acvp-vectors" });

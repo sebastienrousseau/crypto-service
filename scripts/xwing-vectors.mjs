@@ -9,11 +9,12 @@
 //
 //   node scripts/xwing-vectors.mjs
 
-import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import prettier from "prettier";
+import { runIfMain } from "./lib/cli.mjs";
+import { fetchDraft } from "./lib/ietf-draft.mjs";
 
 const SOURCE =
   "https://www.ietf.org/archive/id/draft-connolly-cfrg-xwing-kem-06.txt";
@@ -28,50 +29,62 @@ const FILE = join(
 /** Byte length of each field of a vector. */
 const LENGTHS = { seed: 32, sk: 32, pk: 1216, eseed: 64, ct: 1120, ss: 32 };
 
-const res = await fetch(SOURCE);
-if (!res.ok) throw new Error(`HTTP ${res.status}`);
-const text = await res.text();
-const digest = createHash("sha256").update(text).digest("hex");
-if (digest !== SHA256) throw new Error(`draft text changed: ${digest}`);
-
-// Appendix C lists each vector as `name value` lines, with long values
-// continued on indented lines and page headers and footers in between.
-const lines = text.split("\n");
-const start = lines.findLastIndex((l) => l.startsWith("Appendix C."));
-const vectors = [];
-let field;
-for (const line of lines.slice(start + 1)) {
-  const named = /^([a-z]+)(?:\s+([0-9a-f]*))?\s*$/.exec(line);
-  const continued = /^\s+([0-9a-f]+)\s*$/.exec(line);
-  if (named && named[1] in LENGTHS) {
-    field = named[1];
-    if (field === "seed") vectors.push({});
-    vectors.at(-1)[field] = named[2] ?? "";
-  } else if (continued && field) {
-    vectors.at(-1)[field] += continued[1];
-  } else if (/^\S/.test(line) && !/^(Connolly|Internet-Draft)/.test(line)) {
-    field = undefined;
+/**
+ * Appendix C lists each vector as `name value` lines, with long values
+ * continued on indented lines and page headers and footers in between.
+ */
+export function parseVectors(text) {
+  const lines = text.split("\n");
+  const start = lines.findLastIndex((l) => l.startsWith("Appendix C."));
+  const vectors = [];
+  let field;
+  for (const line of lines.slice(start + 1)) {
+    const named = /^([a-z]+)(?:\s+([0-9a-f]*))?\s*$/.exec(line);
+    const continued = /^\s+([0-9a-f]+)\s*$/.exec(line);
+    if (named && named[1] in LENGTHS) {
+      field = named[1];
+      if (field === "seed") vectors.push({});
+      vectors.at(-1)[field] = named[2] ?? "";
+    } else if (continued && field) {
+      vectors.at(-1)[field] += continued[1];
+    } else if (/^\S/.test(line) && !/^(Connolly|Internet-Draft)/.test(line)) {
+      field = undefined;
+    }
   }
+  vectors.forEach(checkLengths);
+  return vectors;
 }
-for (const v of vectors) {
+
+/** Throws unless every field of `vector` has its byte length. */
+export function checkLengths(vector) {
   for (const [name, length] of Object.entries(LENGTHS)) {
-    if (v[name]?.length !== 2 * length) {
+    if (vector[name]?.length !== 2 * length) {
       throw new Error(`vector field ${name}: expected ${length} bytes`);
     }
   }
 }
 
-mkdirSync(dirname(FILE), { recursive: true });
-const fixture = {
-  source: SOURCE,
-  sha256: SHA256,
-  section: "Appendix C",
-  generatedBy: "scripts/xwing-vectors.mjs",
-  vectors,
-};
-const json = await prettier.format(JSON.stringify(fixture), {
-  ...(await prettier.resolveConfig(FILE)),
-  filepath: FILE,
-});
-writeFileSync(FILE, json);
-console.log(`xwing-vectors: ${vectors.length} vectors`);
+/** Fetch the draft and write the fixture to `file`; resolves to 0. */
+export async function main(
+  _argv,
+  { file = FILE, sha256 = SHA256, fetchImpl = fetch, log = console.log } = {},
+) {
+  const vectors = parseVectors(await fetchDraft(SOURCE, sha256, fetchImpl));
+  mkdirSync(dirname(file), { recursive: true });
+  const fixture = {
+    source: SOURCE,
+    sha256: SHA256,
+    section: "Appendix C",
+    generatedBy: "scripts/xwing-vectors.mjs",
+    vectors,
+  };
+  const json = await prettier.format(JSON.stringify(fixture), {
+    ...(await prettier.resolveConfig(file)),
+    filepath: file,
+  });
+  writeFileSync(file, json);
+  log(`xwing-vectors: ${vectors.length} vectors`);
+  return 0;
+}
+
+await runIfMain(import.meta.url, main, { name: "xwing-vectors" });
