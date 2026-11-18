@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- **Time-boxed audit exception for GHSA-fc5q-39xc-vjpf** (picomatch ReDoS): no patched picomatch exists, and it reaches only dev tooling (`pnpm audit --prod` is clean), so `pnpm-workspace.yaml` ignores exactly this advisory until 2026-12-18 or a patched release. Every other advisory still fails the audit.
+- **Time-boxed audit exception for GHSA-fc5q-39xc-vjpf** (picomatch ReDoS): no patched picomatch exists, and it reaches only dev tooling (`pnpm audit --prod` is clean), so `pnpm-workspace.yaml` ignores exactly this advisory until 2026-12-18 or a patched release. Every other advisory still fails the audit. The Security workflow enforces the time box: its Dependency audit fails after 2026-12-18, or as soon as GitHub lists a patched picomatch for the advisory, until the exception is removed.
 
 ## [0.0.40] - 2026-11-16
 
