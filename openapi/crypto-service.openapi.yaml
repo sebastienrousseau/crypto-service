@@ -8,7 +8,7 @@ info:
     identifier: "Apache-2.0 OR MIT"
     name: "Apache-2.0 OR MIT"
   title: "Crypto Service Suite API"
-  version: "0.0.40"
+  version: "0.0.41"
 security:
   - apiKey: []
   - bearerAuth: []

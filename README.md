@@ -93,7 +93,7 @@ pnpm add @sebastienrousseau/crypto-server
 pnpm add -g @sebastienrousseau/crypto-cli
 ```
 
-All 18 packages share one version: this tree is 0.0.40. Releases
+All 18 packages share one version: this tree is 0.0.41. Releases
 before 0.0.8 reached npm only partially (crypto-lib 0.0.3,
 crypto-server 0.0.2, crypto-cli 0.0.1); do not use those versions.
 
