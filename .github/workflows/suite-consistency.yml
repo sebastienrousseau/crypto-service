@@ -5,7 +5,7 @@
 # version: signed tag, GitHub release with its checksums, registry
 # publication, and the site's VERSION. Runs when a release is published,
 # daily, and on demand. A failure opens (or comments on) one tracking
-# issue, so drift is never silent.
+# issue, so drift is never silent; a later pass closes it again.
 name: Suite consistency
 
 on:
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write # open or update the drift issue
+      issues: write # open, update or close the drift issue
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -64,6 +64,24 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/check-ecosystem.mjs --version "$VERSION" | tee report.txt
+
+      # Consistent again: close this version's drift issue, quoting the
+      # passing summary line. The search is fuzzy, so keep exact titles.
+      - name: Close resolved drift
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: Suite drift at ${{ steps.version.outputs.version }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          summary="$(tail -n 1 report.txt)"
+          gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "\"$TITLE\" in:title" --json number,title \
+            --jq '.[] | select(.title == env.TITLE) | .number' |
+            while read -r number; do
+              gh issue close "$number" --repo "$GITHUB_REPOSITORY" \
+                --comment "Resolved: \`${summary}\` (run: ${RUN_URL})"
+            done
 
       - name: Report drift
         if: failure() && steps.check.outcome == 'failure'
