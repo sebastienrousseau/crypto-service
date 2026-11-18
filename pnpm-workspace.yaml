@@ -12,6 +12,16 @@ autoInstallPeers: true
 # malicious releases are found and pulled within hours.
 minimumReleaseAge: 1440
 
+# Time-boxed audit exception. Remove by 2026-12-18, or as soon as
+# picomatch publishes a patched release (Dependabot proposes it).
+# GHSA-fc5q-39xc-vjpf: ReDoS in picomatch <= 4.0.7, the latest version,
+# with no patched release. picomatch reaches only dev tooling (lint-staged,
+# typescript-eslint, tinyglobby): `pnpm audit --prod` finds nothing, so no
+# published package ships it. Every other advisory still fails the audit.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
+
 allowBuilds:
   '@prisma/client': false
   protobufjs: false
