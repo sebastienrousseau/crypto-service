@@ -25,6 +25,27 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      # pnpm-workspace.yaml ignores GHSA-fc5q-39xc-vjpf (picomatch) only
+      # until a patched release exists, and no later than 2026-12-18.
+      # Fail the audit when either happens, so the exception cannot
+      # outlive its reason. The weekly run catches it without a push.
+      - name: Check the audit exception's time box
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GHSA: GHSA-fc5q-39xc-vjpf
+          EXPIRES: "2026-12-18"
+        run: |
+          grep -q "$GHSA" pnpm-workspace.yaml || exit 0
+          if [[ "$(date -u +%F)" > "$EXPIRES" ]]; then
+            echo "::error::The $GHSA audit exception expired on $EXPIRES: remove it from pnpm-workspace.yaml"
+            exit 1
+          fi
+          patched="$(gh api "/advisories/$GHSA" --jq '[.vulnerabilities[] | select(.package.name == "picomatch") | .first_patched_version // empty] | first // empty')"
+          if [[ -n "$patched" ]]; then
+            echo "::error::picomatch $patched fixes $GHSA: remove the exception from pnpm-workspace.yaml and update picomatch"
+            exit 1
+          fi
+          echo "$GHSA exception holds: no patched picomatch, expires $EXPIRES"
       - run: pnpm audit --audit-level=high
 
   sbom:
