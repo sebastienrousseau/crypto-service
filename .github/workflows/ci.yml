@@ -33,7 +33,9 @@ jobs:
       - run: pnpm run format:root
       - name: Complexity gate (baseline may only shrink)
         run: node scripts/complexity-check.mjs
-      - name: Release and packaging script tests
+      # Fails below 100% line, branch and function coverage of scripts/,
+      # on every leg of the matrix: the scripts need no native crypto.
+      - name: Release and packaging script tests (100% coverage)
         run: pnpm run test:scripts
       # The 100% coverage floor is enforced on Linux with Node.js 24, the
       # one runtime where every path runs (native ML-KEM, ML-DSA, SLH-DSA
