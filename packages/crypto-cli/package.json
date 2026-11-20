@@ -34,7 +34,7 @@
   },
   "description": "Post-quantum cryptography CLI: hash, generate ML-KEM, ML-DSA and Ed25519 keys, encrypt, sign and verify files, HPKE, Argon2id password hashing and CBOM scans from the terminal.",
   "devDependencies": {
-    "@sebastienrousseau/c8-config": "^0.0.7",
+    "@sebastienrousseau/c8-config": "^0.0.9",
     "@sebastienrousseau/eslint-config": "^0.0.7",
     "@sebastienrousseau/jsdoc-config": "^0.0.7",
     "@sebastienrousseau/markdownlint-config": "^0.0.7",
