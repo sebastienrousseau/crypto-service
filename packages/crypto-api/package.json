@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@sebastienrousseau/c8-config": "^0.0.7",
-    "@sebastienrousseau/eslint-config": "^0.0.7",
+    "@sebastienrousseau/eslint-config": "^0.0.9",
     "@sebastienrousseau/jsdoc-config": "^0.0.7",
     "@sebastienrousseau/markdownlint-config": "^0.0.7",
     "@sebastienrousseau/mocha-config": "^0.0.7",
