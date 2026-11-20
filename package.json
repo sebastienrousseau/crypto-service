@@ -53,7 +53,7 @@
     "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
     "@sebastienrousseau/c8-config": "^0.0.7",
-    "@sebastienrousseau/prettier-config": "0.0.7",
+    "@sebastienrousseau/prettier-config": "0.0.9",
     "eslint": "^10.14.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
     "eslint-plugin-prettier": "^5.5.7",
