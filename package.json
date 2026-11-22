@@ -52,18 +52,18 @@
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
-    "@sebastienrousseau/c8-config": "^0.0.7",
-    "@sebastienrousseau/prettier-config": "0.0.7",
+    "@sebastienrousseau/c8-config": "^0.0.9",
+    "@sebastienrousseau/prettier-config": "0.0.9",
     "eslint": "^10.14.0",
     "eslint-plugin-chai-friendly": "^1.2.1",
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-sonarjs": "^4.2.2",
     "husky": "^9.1.0",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "prettier": "^3.10.1",
     "publint": "^0.3.25",
     "rimraf": "^6.1.4",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.72.2"
+    "typescript-eslint": "^8.73.0"
   }
 }
