@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The Suite consistency workflow closes its own drift issue**: when every member agrees again, it closes the open "Suite drift at <version>" issue with the passing summary and a link to the run.
 - Scripts that failed at top level (the four test-vector generators, `check-packages`, `build-docs`) now print `<script>: <message>` instead of a stack trace; the exit code is unchanged.
 - Dependencies: `github/codeql-action` 4.39.3, `cargo-bins/cargo-binstall` 1.27.0, `prettier` ^3.10.1 and `typeorm` ^1.1.3.
+- **`eckey-utils` 1.2** (was 0.7): OpenPGP.js loads it for Brainpool and secp256k1 keys and calls only `generateDer({ curveName, privateKey | publicKey })`, the object form 1.x still accepts; the Brainpool generate, sign and verify tests pass on 1.2.0 (Dependabot PR #309).
 - Dependencies: the fastify group (`@fastify/jwt` 10.2.8, `@fastify/swagger` 9.9.5, `@fastify/swagger-ui` 6.1.4), `typescript-eslint` 8.73.0, `lint-staged` 17.6.1 and the shared `@sebastienrousseau/*-config` packages 0.0.9 (c8, eslint, jsdoc, markdownlint, mocha, prettier), folded from Dependabot PRs #305-#308 and #310-#314.
 
 ### Security

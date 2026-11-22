@@ -454,8 +454,8 @@ importers:
         specifier: ^0.3.1
         version: 0.3.1(@types/node@26.6.6)(typescript@5.9.3)
       eckey-utils:
-        specifier: ^0.7.14
-        version: 0.7.14
+        specifier: ^1.2.0
+        version: 1.2.0
       openpgp:
         specifier: ^6.3.2
         version: 6.3.2(@openpgp/web-stream-tools@0.3.1(@types/node@26.6.6)(typescript@5.9.3))
@@ -2712,8 +2712,9 @@ packages:
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
 
-  eckey-utils@0.7.14:
-    resolution: {integrity: sha512-s/mENS+mMnJjDSydy0muBQQHMTWJ1nPe8EiphANZrf+lv/1u35aP9WvWHTWqCBJ21blNIurGF7UoLjtaOpoCFw==}
+  eckey-utils@1.2.0:
+    resolution: {integrity: sha512-Ldip5PDkPvnarxgMOzWiPzcMd1sQmLprQFXI1H8zb/TNq48dlm0fR7amS4yTJCY9pe4ijtuNE6oRATWnNX/yiA==}
+    engines: {node: '>=18'}
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -6443,7 +6444,7 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  eckey-utils@0.7.14: {}
+  eckey-utils@1.2.0: {}
 
   ee-first@1.1.1: {}
 
