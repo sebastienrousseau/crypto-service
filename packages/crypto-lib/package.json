@@ -129,7 +129,7 @@
     "@noble/post-quantum": "^0.7.1",
     "@openpgp/web-stream-tools": "^0.3.1",
     "eckey-utils": "^1.2.0",
-    "openpgp": "^6.3.2"
+    "openpgp": "^6.3.3"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
